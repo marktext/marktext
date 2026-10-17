@@ -98,7 +98,6 @@ export interface IAffiliationEntry {
     blockName: string;
     alertType?: string;
     canGithubAlerts?: boolean;
-    canDowngradeQuote?: boolean;
     /** Present on list ancestors (`ul` / `ol`): `bullet` | `order` | `task`. */
     listType?: string;
     /**
@@ -171,8 +170,6 @@ function _buildEntry(block: Parent, type: string): IAffiliationEntry {
     const entry: IAffiliationEntry = { type, blockName: block.blockName };
     if (block.muya.options.githubAlerts && block.parent?.isScrollPage) {
         entry.alertType = githubAlertBlockType(block) ?? undefined;
-        if (entry.alertType)
-            entry.canDowngradeQuote = canConvertGithubAlert(block, 'block-quote');
         entry.canGithubAlerts = canConvertGithubAlert(block, 'github-alert NOTE');
     }
 

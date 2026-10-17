@@ -1,7 +1,6 @@
 export const ja = {
     name: 'ja',
     resource: {
-        'githubAlert.quoteConversionBlocked': '本文が別のアラートマーカーで始まっています。引用に変換する前に、そのマーカーをインラインコードにしてください。',
         'GitHub Alerts': 'GitHub アラート',
         'GitHub Alert: NOTE': 'GitHub アラート: NOTE',
         'GitHub Alert: TIP': 'GitHub アラート: TIP',

@@ -1,7 +1,6 @@
 export const ko = {
     name: 'ko',
     resource: {
-        'githubAlert.quoteConversionBlocked': '본문이 다른 알림 표시로 시작합니다. 인용문으로 변환하기 전에 해당 표시를 인라인 코드로 지정하세요.',
         'GitHub Alerts': 'GitHub 알림',
         'GitHub Alert: NOTE': 'GitHub 알림: NOTE',
         'GitHub Alert: TIP': 'GitHub 알림: TIP',

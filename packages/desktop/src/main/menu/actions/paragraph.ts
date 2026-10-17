@@ -182,7 +182,6 @@ export interface SelectionState {
   hasFrontMatter?: boolean
   alertType?: string
   canGithubAlerts?: boolean
-  canDowngradeQuote?: boolean
 }
 
 const setCheckedMenuItem = (
@@ -252,7 +251,6 @@ export const updateSelectionMenus = (
       const quote = applicationMenu.getMenuItemById('quoteBlockMenuItem')
       if (quote) {
         quote.checked = false
-        if (state.canDowngradeQuote === false) quote.enabled = false
       }
     }
   }

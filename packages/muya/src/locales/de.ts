@@ -1,7 +1,6 @@
 export const de = {
     name: 'de',
     resource: {
-        'githubAlert.quoteConversionBlocked': 'Der Text beginnt mit einer weiteren Hinweismarkierung. Formatiere sie als Inline-Code, bevor du den Hinweis in ein Zitat umwandelst.',
         'GitHub Alerts': 'GitHub-Hinweise',
         'GitHub Alert: NOTE': 'GitHub-Hinweis: NOTE',
         'GitHub Alert: TIP': 'GitHub-Hinweis: TIP',

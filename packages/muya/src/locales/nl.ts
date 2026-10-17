@@ -1,7 +1,6 @@
 export const nl = {
     name: 'nl',
     resource: {
-        'githubAlert.quoteConversionBlocked': 'De inhoud begint met een andere meldingsmarkering. Maak deze op als inlinecode voordat je de melding omzet naar een citaat.',
         'GitHub Alerts': 'GitHub-meldingen',
         'GitHub Alert: NOTE': 'GitHub-melding: NOTE',
         'GitHub Alert: TIP': 'GitHub-melding: TIP',

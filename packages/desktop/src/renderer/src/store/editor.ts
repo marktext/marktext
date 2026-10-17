@@ -113,7 +113,6 @@ interface AffiliationEntry {
   type: string
   alertType?: string
   canGithubAlerts?: boolean
-  canDowngradeQuote?: boolean
   functionType?: string
   listType?: string
   listItemType?: string
@@ -1985,7 +1984,6 @@ const trimTrailingNewlines = (text: string): string => {
 interface ApplicationMenuState {
   alertType?: string
   canGithubAlerts?: boolean
-  canDowngradeQuote?: boolean
   isDisabled: boolean
   isMultiline: boolean
   isLooseListItem: boolean
@@ -2030,7 +2028,6 @@ const createApplicationMenuState = ({
   const aff: AffiliationEntry[] = affiliation ?? []
   state.alertType = aff[0]?.alertType
   state.canGithubAlerts = aff[0]?.canGithubAlerts === true
-  state.canDowngradeQuote = aff[0]?.canDowngradeQuote
   const startBlock: { text?: string; functionType?: string } = start.block ?? {}
   const endBlock: { functionType?: string } = end.block ?? {}
 

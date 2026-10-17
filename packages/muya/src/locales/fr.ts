@@ -1,7 +1,6 @@
 export const fr = {
     name: 'fr',
     resource: {
-        'githubAlert.quoteConversionBlocked': 'Le contenu commence par un autre marqueur d’alerte. Formatez-le en code en ligne avant de convertir l’alerte en citation.',
         'GitHub Alerts': 'Alertes GitHub',
         'GitHub Alert: NOTE': 'Alerte GitHub: NOTE',
         'GitHub Alert: TIP': 'Alerte GitHub: TIP',

@@ -1,7 +1,6 @@
 export const en = {
     name: 'en',
     resource: {
-        'githubAlert.quoteConversionBlocked': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
         'GitHub Alerts': 'GitHub Alerts',
         'GitHub Alert: NOTE': 'GitHub Alert: NOTE',
         'GitHub Alert: TIP': 'GitHub Alert: TIP',

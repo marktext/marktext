@@ -44,7 +44,6 @@ export interface IQuickInsertMenuItem {
         label: string;
         icon: string;
         score?: number;
-        disabledReason?: string;
         i18nTitle?: string;
         searchText?: string;
         shortCut?: string;

@@ -1,7 +1,6 @@
 export const tr = {
     name: 'tr',
     resource: {
-        'githubAlert.quoteConversionBlocked': 'İçerik başka bir uyarı işaretçisiyle başlıyor. Alıntıya dönüştürmeden önce bu işaretçiyi satır içi kod olarak biçimlendirin.',
         'GitHub Alerts': 'GitHub uyarıları',
         'GitHub Alert: NOTE': 'GitHub uyarısı: NOTE',
         'GitHub Alert: TIP': 'GitHub uyarısı: TIP',

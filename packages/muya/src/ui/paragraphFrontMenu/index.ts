@@ -96,8 +96,6 @@ export class ParagraphFrontMenu extends BaseFloat {
             );
 
             let itemSelector = `div.turn-into-item.${label.startsWith('github-alert ') ? label.replace(' ', '-') : label}`;
-            if (menuItem.disabledReason)
-                itemSelector += '.disabled';
             const alertType = block ? githubAlertBlockType(block) : null;
             if (alertType && label === `github-alert ${alertType}`) {
                 itemSelector += '.active';
@@ -117,11 +115,8 @@ export class ParagraphFrontMenu extends BaseFloat {
             return h(
                 itemSelector,
                 {
-                    attrs: { title: menuItem.disabledReason ? i18n.t(menuItem.disabledReason) : '' },
                     on: {
                         click: (event) => {
-                            if (menuItem.disabledReason)
-                                return;
                             this.selectItem(event, { label });
                         },
                     },

@@ -1,7 +1,6 @@
 export const ru = {
     name: 'ru',
     resource: {
-        'githubAlert.quoteConversionBlocked': 'Текст начинается с другого маркера оповещения. Оформите его как встроенный код, прежде чем преобразовать оповещение в цитату.',
         'GitHub Alerts': 'Оповещения GitHub',
         'GitHub Alert: NOTE': 'Оповещение GitHub: NOTE',
         'GitHub Alert: TIP': 'Оповещение GitHub: TIP',
