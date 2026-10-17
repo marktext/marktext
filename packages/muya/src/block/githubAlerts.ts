@@ -60,7 +60,7 @@ export function convertGithubAlert(block: Parent, label: string, text?: string):
     const type = alertTypeFromLabel(label);
     if (type && githubAlertBlockType(block) === type)
         return true;
-    const isContainer = state.name === 'block-quote' || state.name === 'github-alert';
+    const isContainer = 'children' in state;
     let children: TState[] = isContainer ? state.children : [state];
     if (!isContainer && text !== undefined)
         children = [{ name: 'paragraph', text }];
@@ -78,9 +78,18 @@ export function convertGithubAlert(block: Parent, label: string, text?: string):
         const bodyIndex = isContainer ? Math.max(0, Number(point.path[2]) - Number(removeMarker)) : 0;
         const contentPath = point.path.slice(isContainer ? 3 : 1);
         const path = label === 'paragraph' ? [index + bodyIndex, ...contentPath] : [index, 'children', bodyIndex, ...contentPath];
-        return { path, offset: point.offset };
+        const content = muya.editor.scrollPage!.queryBlock([...path]);
+        return content?.isContent() ? { block: content, path, offset: Math.min(point.offset, content.text.length) } : null;
     };
-    if (!muya.editor.selection.restore(selection && { ...selection, anchor: remap(selection.anchor), focus: remap(selection.focus) }))
-        replacements[0]?.firstContentInDescendant()?.setCursor(0, 0, true);
+    if (selection) {
+        const anchor = remap(selection.anchor);
+        const focus = remap(selection.focus);
+        if (anchor && focus) {
+            muya.editor.activeContentBlock = anchor.block;
+            muya.editor.selection.setSelection(anchor, focus);
+            return true;
+        }
+    }
+    replacements[0]?.firstContentInDescendant()?.setCursor(0, 0, true);
     return true;
 }
