@@ -1,5 +1,4 @@
 import type { TState } from '../../state/types';
-import type Content from './content';
 import { mixins } from '../../utils';
 import IContainerQueryBlock from '../mixins/containerQueryBlock';
 import { ScrollPage } from '../scrollPage';
@@ -22,25 +21,6 @@ export default class QuoteContainer extends Parent {
 
     protected childStates(): TState[] {
         return this.children.map(child => (child as Parent).getState());
-    }
-
-    backspaceAtStart(content: Content, event: Event): boolean {
-        const cursor = content.getCursor();
-        const paragraph = content.parent;
-        if (cursor?.start.offset !== 0 || cursor.end.offset !== 0 || paragraph?.parent !== this || !paragraph.isFirstChild())
-            return false;
-        event.preventDefault();
-        if (paragraph.isOnlyChild()) {
-            this.replaceWith(paragraph);
-            paragraph.firstContentInDescendant()?.setCursor(0, 0, true);
-        }
-        else {
-            const outside = paragraph.clone() as Parent;
-            this.parent!.insertBefore(outside, this);
-            paragraph.remove();
-            outside.firstContentInDescendant()?.setCursor(0, 0, true);
-        }
-        return true;
     }
 
     exitEmptyParagraph(paragraph: Parent) {
