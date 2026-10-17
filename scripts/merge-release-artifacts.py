@@ -9,7 +9,12 @@ import yaml
 
 def merge_artifacts(source: Path, destination: Path, version: str) -> None:
     manifests = {}
-    for name, count in [('latest.yml', 2), ('latest-mac.yml', 2), ('latest-linux.yml', 1)]:
+    for name, count in [
+        ('latest.yml', 2),
+        ('latest-mac.yml', 2),
+        ('latest-linux.yml', 1),
+        ('latest-linux-arm64.yml', 1),
+    ]:
         documents = [yaml.safe_load(path.read_text()) for path in sorted(source.glob(f'*/{name}'))]
         if len(documents) != count:
             raise ValueError(f'{name}: expected {count} architecture manifests')

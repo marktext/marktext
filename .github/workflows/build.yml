@@ -21,9 +21,14 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: linux
+          - name: linux-x64
             os: ubuntu-latest
             platform: linux
+            arch: x64
+          - name: linux-arm64
+            os: ubuntu-24.04-arm
+            platform: linux
+            arch: arm64
           - name: windows-x64
             os: windows-latest
             platform: windows
@@ -69,7 +74,7 @@ jobs:
 
       - name: build-linux
         if: matrix.platform == 'linux'
-        run: pnpm run build:linux
+        run: pnpm run build:linux:${{ matrix.arch }}
 
       - name: build-mac
         if: matrix.platform == 'macos'

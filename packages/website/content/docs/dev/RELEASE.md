@@ -1,6 +1,6 @@
 # Releasing MarkText
 
-The release pipeline is triggered by pushing a `v*` tag. The `Release MarkText` workflow (`.github/workflows/release.yml`) then runs **validate → build (5-platform matrix) → publish** and creates a GitHub Release with installers and `SHA256SUMS.txt`.
+The release pipeline is triggered by pushing a `v*` tag. The `Release MarkText` workflow (`.github/workflows/release.yml`) then runs **validate → build (6-platform matrix) → publish** and creates a GitHub Release with installers and `SHA256SUMS.txt`.
 
 The flow below covers both release candidates and stable releases — same steps, only the version string differs.
 
@@ -63,7 +63,7 @@ gh run list --workflow=release.yml --limit 3
 gh run watch <run-id> --exit-status
 ```
 
-Approximate timing: validate ~30 s · build matrix ~15–30 min (5 platforms in parallel) · publish ~1 min.
+Approximate timing: validate ~30 s · build matrix ~15–30 min (6 platforms in parallel) · publish ~1 min.
 
 ## 7. Verify the published release
 
@@ -74,13 +74,14 @@ gh release view vX.Y.Z-rc.N
 Confirm:
 
 - `Pre-release` badge on the release page (RC only)
-- **24 assets**:
-  - **Linux** (5): `AppImage`, `deb`, `rpm`, `snap`, `tar.gz`
+- **29 assets**:
+  - **Linux x64** (5): `AppImage`, `deb`, `rpm`, `snap`, `tar.gz`
+  - **Linux arm64** (4): `AppImage`, `deb`, `rpm`, `tar.gz`
   - **macOS arm64** (4): `dmg`, `dmg.blockmap`, `zip`, `zip.blockmap`
   - **macOS x64** (4): `dmg`, `dmg.blockmap`, `zip`, `zip.blockmap`
   - **Windows x64** (3): `setup.exe`, `setup.exe.blockmap`, `zip`
   - **Windows arm64** (3): `setup.exe`, `setup.exe.blockmap`, `zip`
-  - **Auto-updater metadata** (4): `latest.yml`, `latest-mac.yml`, `latest-linux.yml`, `builder-debug.yml`
+  - **Auto-updater metadata** (5): `latest.yml`, `latest-mac.yml`, `latest-linux.yml`, `latest-linux-arm64.yml`, `builder-debug.yml`
   - **Checksums** (1): `SHA256SUMS.txt`
 - Auto-generated release notes list the PRs merged since the previous tag
 
