@@ -67,6 +67,50 @@ test('formatting the first body paragraph preserves its alert', async ({ page })
     await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).toContain('[!NOTE]');
 });
 
+for (const body of ['```js\nBody\n```', '> Body', '- Body']) {
+    test(`backspace unwraps ${JSON.stringify(body)} before the alert`, async ({ page }) => {
+        await page.evaluate((body) => {
+            const muya = window.muya!;
+            muya.setContent(`> [!NOTE]\n>\n${body.split('\n').map(line => `> ${line}`).join('\n')}`);
+            const quote = muya.editor.scrollPage!.firstChild!;
+            if (!quote.isParent())
+                throw new Error('Expected an alert');
+            const inner = quote.find(1)!;
+            if (!inner.isParent())
+                throw new Error('Expected an inner block');
+            let content = inner.firstContentInDescendant()!;
+            if (content.blockName === 'language-input')
+                content = content.nextContentInContext()!;
+            content.setCursor(0, 0, true);
+        }, body);
+        await page.keyboard.press('Backspace');
+        await expect(page.locator('.mu-github-alert')).toHaveCount(1);
+        await expect(page.locator('.mu-github-alert > .mu-paragraph').last()).toHaveText('Body');
+        await expect(page.locator('.mu-github-alert pre, .mu-github-alert blockquote, .mu-github-alert ul')).toHaveCount(0);
+        await page.keyboard.press('Backspace');
+        await expect(page.locator('.mu-github-alert')).toHaveCount(0);
+        await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).toBe('> Body\n');
+    });
+}
+
+test('backspace unwraps code, list, quote and alert one layer at a time', async ({ page }) => {
+    await page.evaluate(() => {
+        const muya = window.muya!;
+        muya.setContent('> [!NOTE]\n>\n> > - ```\n> >   Body\n> >   ```');
+        const code = muya.editor.scrollPage!.lastContentInDescendant()!;
+        code.setCursor(0, 0, true);
+    });
+    for (const selector of ['pre', 'ul', 'blockquote']) {
+        await page.keyboard.press('Backspace');
+        await expect(page.locator('.mu-github-alert')).toHaveCount(1);
+        await expect(page.locator(`.mu-github-alert ${selector}`)).toHaveCount(0);
+        await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).toContain('Body');
+    }
+    await page.keyboard.press('Backspace');
+    await expect(page.locator('.mu-github-alert')).toHaveCount(0);
+    await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).toBe('> Body\n');
+});
+
 test('pastes GitHub HTML and keeps types through disabled rendering and undo', async ({ page, context, browserName }) => {
     test.skip(browserName !== 'chromium', 'Native HTML clipboard permissions require Chromium.');
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);

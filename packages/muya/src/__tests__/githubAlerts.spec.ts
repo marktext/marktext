@@ -228,12 +228,44 @@ describe('gitHub Alert editing', () => {
         expect(muya.getMarkdown()).toContain('> [!WARNING]');
     });
 
-    it('downgrades before deleting a heading marker at the beginning of the body', () => {
-        const muya = boot('> [!NOTE]\n> ## Heading');
-        const heading = first(muya);
-        heading.setCursor(0, 0, true);
-        heading.keydownHandler(new KeyboardEvent('keydown', { key: 'Backspace' }));
+    it.each([
+        { name: 'fenced code', markdown: '```js\nalpha\nbeta\n```', text: 'alpha\nbeta' },
+        { name: 'indented code', markdown: '    Body', text: 'Body' },
+        { name: 'quote', markdown: '> Body', text: 'Body' },
+        { name: 'bullet list', markdown: '- Body', text: 'Body' },
+        { name: 'ordered list', markdown: '1. Body', text: 'Body' },
+        { name: 'task list', markdown: '- [ ] Body', text: 'Body' },
+        { name: 'ATX heading', markdown: '## Body', text: 'Body' },
+        { name: 'setext heading', markdown: 'Body\n---', text: 'Body' },
+    ])('unwraps the inner $name before downgrading the alert', ({ markdown, text }) => {
+        const muya = boot(`> [!NOTE]\n>\n${markdown.split('\n').map(line => `> ${line}`).join('\n')}\n>\n> Tail\n\nOutside`);
+        const before = muya.getState();
+        const quote = muya.editor.scrollPage!.firstChild as Parent;
+        let content = (quote.find(1) as Parent).firstContentInDescendant()!;
+        if (content.blockName === 'language-input')
+            content = content.nextContentInContext()!;
+        content.setCursor(0, 0, true);
+        content.keydownHandler(new KeyboardEvent('keydown', { key: 'Backspace' }));
+        muya.flush();
+        expect(githubAlertBlockType(quote)).toBe('NOTE');
+        expect(muya.getState()).toMatchObject([
+            { name: 'block-quote', children: [{ text: '[!NOTE]' }, { name: 'paragraph', text }, { text: 'Tail' }] },
+            { name: 'paragraph', text: 'Outside' },
+        ]);
+        const after = muya.getState();
+        expect(muya.editor.selection.getSelection()?.anchor.offset).toBe(0);
+        muya.undo();
+        expect(muya.getState()).toEqual(before);
+        muya.redo();
+        expect(muya.getState()).toEqual(after);
+        const paragraph = first(muya);
+        paragraph.setCursor(0, 0, true);
+        paragraph.keydownHandler(new KeyboardEvent('keydown', { key: 'Backspace' }));
+        muya.flush();
         expect(muya.getMarkdown()).not.toContain('[!NOTE]');
-        expect(muya.getMarkdown()).toContain('> ## Heading');
+        expect(muya.getMarkdown()).toContain('Tail');
+        expect(muya.getMarkdown()).toContain('Outside');
+        muya.undo();
+        expect(muya.getState()).toEqual(after);
     });
 });

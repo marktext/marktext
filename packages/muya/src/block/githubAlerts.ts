@@ -133,11 +133,11 @@ export function downgradeGithubAlertAtStart(content: Content, event: Event & Par
     if (!quote || !githubAlertBlockType(quote))
         return false;
     const body = quote.find(1);
-    let first = body?.isParent() ? body.firstContentInDescendant() : null;
-    if (first?.blockName === 'language-input')
-        first = first.nextContentInContext() ?? null;
+    // Inner blocks own their Backspace behavior until the body is a direct paragraph.
+    if (body?.blockName !== 'paragraph' || content.parent !== body)
+        return false;
     const cursor = content.getCursor();
-    if (first !== content || cursor?.start.offset !== 0 || cursor.end.offset !== 0)
+    if (cursor?.start.offset !== 0 || cursor.end.offset !== 0)
         return false;
     event.preventDefault();
     event.stopPropagation();
