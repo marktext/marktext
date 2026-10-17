@@ -4,7 +4,7 @@ import type { IAnchorFocusInfo, IHistorySelection } from '../selection/types';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import * as json1 from 'ot-json1';
-import { asDoc, asState, buildDocumentReplaceOp } from '../state';
+import { asDoc } from '../state';
 import { deepClone } from '../utils';
 
 interface IOptions {
@@ -59,8 +59,6 @@ interface ISerializableOperation {
 // `setHistory`. Mirrors the private `_stack` plus the bookkeeping pointers
 // (`lastRecorded`, `selectionStack`) needed to round-trip the recording state.
 export interface ISerializedHistory {
-    // The representation against which the saved OT paths were recorded.
-    githubAlerts?: boolean;
     stack: {
         undo: ISerializableOperation[];
         redo: ISerializableOperation[];
@@ -186,35 +184,6 @@ class History {
         this._getLastSelection();
     }
 
-    /** Rebase both history branches when preferences change the document representation. */
-    migrateDocument(
-        project: (state: TState[]) => TState[],
-        remap: (selection: Nullable<IHistorySelection>, before: TState[], after: TState[]) => Nullable<IHistorySelection>,
-        current = this._muya.editor.jsonState.getState(),
-    ): TState[] {
-        const projected = project(current);
-        const migrateStack = (entries: IOperation[]): IOperation[] => {
-            let before = current;
-            let after = projected;
-            const result: IOperation[] = [];
-            for (let index = entries.length - 1; index >= 0; index--) {
-                const entry = entries[index];
-                const destination = asState(json1.type.apply(asDoc(before), entry.operation));
-                const next = project(destination);
-                const operation = buildDocumentReplaceOp(after, next);
-                if (operation.length)
-                    result.unshift({ operation, selection: remap(entry.selection, destination, next), rebuild: true });
-                before = destination;
-                after = next;
-            }
-            return result;
-        };
-        this._stack = { undo: migrateStack(this._stack.undo), redo: migrateStack(this._stack.redo) };
-        this._selectionStack = [];
-        this._lastRecorded = 0;
-        return projected;
-    }
-
     clear() {
         this._stack = { undo: [], redo: [] };
         this._selectionStack = [];
@@ -224,7 +193,6 @@ class History {
 
     getHistory(): ISerializedHistory {
         return {
-            githubAlerts: this._muya.options.githubAlerts,
             stack: {
                 undo: this._stack.undo.map(op => this._toSerializableOperation(op)),
                 redo: this._stack.redo.map(op => this._toSerializableOperation(op)),

@@ -112,24 +112,7 @@ test('backspace unwraps code, list, quote and alert one layer at a time', async 
     await expect.poll(() => getMarkdown(page)).toBe('> Body\n');
 });
 
-test('preference changes preserve the undo caret for later typing', async ({ page }) => {
-    const offset = await page.evaluate(() => {
-        const muya = window.muya!;
-        muya.setContent('Body');
-        muya.editor.scrollPage!.firstContentInDescendant()!.setCursor(2, 2, true);
-        muya.updateParagraph('github-alert NOTE');
-        muya.setOptions({ githubAlerts: false }, true);
-        return muya.editor.selection.getSelection()!.anchor.offset;
-    });
-    const source = await getMarkdown(page);
-    await page.keyboard.type('X');
-    await expect.poll(() => getMarkdown(page)).toContain('BoXdy');
-    await page.locator('#undo').click();
-    await expect.poll(() => getMarkdown(page)).toBe(source);
-    expect(await page.evaluate(() => window.muya!.editor.selection.getSelection()?.anchor.offset)).toBe(offset);
-});
-
-test('pastes GitHub HTML and keeps types through disabled rendering and undo', async ({ page, context, browserName }) => {
+test('pastes GitHub HTML and keeps types through disabled rendering', async ({ page, context, browserName }) => {
     test.skip(browserName !== 'chromium', 'Native HTML clipboard permissions require Chromium.');
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.evaluate(async () => {
@@ -152,12 +135,7 @@ test('pastes GitHub HTML and keeps types through disabled rendering and undo', a
     await page.evaluate(() => window.muya!.setOptions({ githubAlerts: false }, true));
     await expect(page.locator('.mu-github-alert')).toHaveCount(0);
     expect(await getMarkdown(page)).toBe(markdown);
-    await page.evaluate(() => window.muya!.undo());
-    await expect.poll(() => getMarkdown(page)).not.toContain('Body');
-    await page.evaluate(() => {
-        window.muya!.redo();
-        window.muya!.setOptions({ githubAlerts: true }, true);
-    });
+    await page.evaluate(() => window.muya!.setOptions({ githubAlerts: true }, true));
     await expect(page.locator('.mu-github-alert')).toHaveCount(1);
 });
 

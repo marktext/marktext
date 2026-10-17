@@ -259,15 +259,6 @@ export class Muya {
 
     setHistory(history: ReturnType<Muya['getHistory']>) {
         this.editor.history.setHistory(history);
-        if (history.githubAlerts !== undefined && history.githubAlerts !== this.options.githubAlerts) {
-            const previous = this._projectGithubAlerts(this.getState(), history.githubAlerts);
-            this.editor.history.migrateDocument(
-                doc => this._projectGithubAlerts(doc, this.options.githubAlerts),
-                remapGithubAlertSelection,
-                previous,
-            );
-            this.editor.history.cutoff(this.editor.selection.getSelection() ?? undefined);
-        }
     }
 
     private _projectGithubAlerts(state: TState[], enabled: boolean): TState[] {
@@ -381,20 +372,16 @@ export class Muya {
         applyAppearance(this.domNode, options);
         if (changeAlerts) {
             this.ui.hideAllFloatTools();
-            const { jsonState, history, selection } = this.editor;
+            const { jsonState, selection } = this.editor;
             const before = jsonState.getState();
             const current = selection.getSelection();
-            const state = history.migrateDocument(
-                doc => this._projectGithubAlerts(doc, this.options.githubAlerts),
-                remapGithubAlertSelection,
-            );
+            const state = this._projectGithubAlerts(before, this.options.githubAlerts);
             const cursor = remapGithubAlertSelection(current, before, state);
             jsonState.setContent(state);
             this.editor.scrollPage!.updateState(state);
             this.editor.activeContentBlock = null;
             this.editor.searchModule.refresh();
             selection.restore(cursor);
-            history.cutoff(cursor ?? undefined);
         }
 
         if (changeAlerts && !Object.keys(options).some(key => PARSE_AFFECTING_OPTIONS.has(key as keyof IMuyaOptions)))
