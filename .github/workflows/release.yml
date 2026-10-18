@@ -38,9 +38,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: linux
+          - name: linux-x64
             os: ubuntu-22.04
             platform: linux
+            arch: x64
+          - name: linux-arm64
+            os: ubuntu-22.04-arm
+            platform: linux
+            arch: arm64
           - name: windows-x64
             os: windows-latest
             platform: windows
@@ -110,7 +115,7 @@ jobs:
 
       - name: build-linux
         if: matrix.platform == 'linux'
-        run: pnpm run build:linux
+        run: pnpm run build:linux:${{ matrix.arch }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

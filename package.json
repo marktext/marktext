@@ -26,6 +26,8 @@
     "build:mac:x64": "pnpm --filter marktext build:mac:x64",
     "build:mac:arm64": "pnpm --filter marktext build:mac:arm64",
     "build:linux": "pnpm --filter marktext build:linux",
+    "build:linux:x64": "pnpm --filter marktext build:linux:x64",
+    "build:linux:arm64": "pnpm --filter marktext build:linux:arm64",
     "perf:inspect": "pnpm --filter marktext perf:inspect",
     "perf:inspect-brk": "pnpm --filter marktext perf:inspect-brk",
     "test": "pnpm --filter marktext test",
