@@ -62,6 +62,7 @@
       <textarea
         class="custom-css-input"
         rows="10"
+        :aria-label="t('preferences.theme.customCss')"
         :value="customCss"
         @change="
           (event: Event) =>

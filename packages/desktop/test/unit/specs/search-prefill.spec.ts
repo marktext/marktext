@@ -46,7 +46,7 @@ const loadComponent = (deps: Record<string, unknown>) => {
     'module',
     `const { _defineComponent, ref, computed, watch, onMounted, onBeforeUnmount,
       nextTick, bus, FindCaseIcon, FindWordIcon, FindRegexIcon, useEditorStore,
-      storeToRefs, useI18n, debounce, ArrowDown, ArrowUp, RefreshRight, Switch } = __deps
+      storeToRefs, useI18n, debounce, ArrowDown, ArrowUp, RefreshRight, Switch, IconTooltip } = __deps
     ${js}
     return module.exports`
   ) as (deps: Record<string, unknown>, exports: object, module: object) => {
@@ -78,6 +78,7 @@ const makeBindings = () => {
     ArrowUp: {},
     RefreshRight: {},
     Switch: {},
+    IconTooltip: {},
     useEditorStore: () => new Proxy({}, { get: () => () => {} }),
     storeToRefs: () => ({ currentFile }),
     useI18n: () => ({ t: (k: string) => k }),

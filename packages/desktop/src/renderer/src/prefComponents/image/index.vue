@@ -6,6 +6,7 @@
       <CurSelect
         :value="imageInsertAction"
         :options="imageActions"
+        :aria-label="t('preferences.image.defaultBehavior')"
         :on-change="(value) => onSelectChange('imageInsertAction', value)"
       />
     </section>

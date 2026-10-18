@@ -15,15 +15,22 @@
               v-model="tempName"
               type="text"
               class="search"
+              :aria-label="t('menu.file.rename')"
               @keyup.enter="confirm"
             >
-            <el-icon
-              :size="16"
-              class="confirm-icon"
+            <button
+              type="button"
+              class="plain-button"
+              :aria-label="t('menu.file.rename')"
               @click="confirm"
             >
-              <Check />
-            </el-icon>
+              <el-icon
+                :size="16"
+                class="confirm-icon"
+              >
+                <Check />
+              </el-icon>
+            </button>
           </div>
         </div>
       </template>
@@ -36,6 +43,9 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import bus from '../../bus'
 import { useEditorStore } from '@/store/editor'
 import { Check } from '@element-plus/icons-vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const showRename = ref(false)
 const tempName = ref('')
@@ -115,7 +125,6 @@ onBeforeUnmount(() => {
   color: var(--sideBarColor);
 }
 .search-wrapper svg {
-  cursor: pointer;
   margin: 0 5px;
   width: 30px;
   height: 30px;

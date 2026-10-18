@@ -261,6 +261,13 @@
       "settings": "设置"
     }
   },
+  "titleBar": {
+    "applicationMenu": "应用程序菜单",
+    "minimize": "最小化",
+    "maximize": "最大化",
+    "restore": "向下还原",
+    "close": "关闭"
+  },
   "commandPalette": {
     "placeholder": "输入要执行的命令",
     "placeholders": {
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "偏好设置",
+    "learnMore": "了解更多：{name}",
     "search": {
       "placeholder": "搜索偏好设置…",
       "categories": {
@@ -1021,6 +1029,9 @@
       "errorSwitchingLanguage": "切换拼写检查语言时出错 {languageCode}",
       "languageMissing": "拼写检查语言缺失 {languageCode}",
       "switchError": "{languageCode} 拼写检查切换错误，{error}"
+    },
+    "tabs": {
+      "close": "关闭 {name}"
     }
   }
 }

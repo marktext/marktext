@@ -51,13 +51,16 @@
         </span>
       </div>
       <div :class="showCustomTitleBar ? 'left-toolbar title-no-drag' : 'right-toolbar'">
-        <div
+        <button
           v-if="showCustomTitleBar"
-          class="frameless-titlebar-menu title-no-drag"
+          type="button"
+          class="plain-button frameless-titlebar-menu title-no-drag"
+          aria-haspopup="menu"
+          :aria-label="t('titleBar.applicationMenu')"
           @click.stop="handleMenuClick"
         >
           <span class="text-center-vertical">&#9776;</span>
-        </div>
+        </button>
         <el-tooltip
           v-if="wordCount"
           class="item"
@@ -92,55 +95,70 @@
       </div>
       <div
         v-if="titleBarStyle === 'custom' && !isFullScreen && !isOsx"
-        class="right-toolbar"
+        class="right-toolbar window-controls"
         :class="[{ 'title-no-drag': titleBarStyle === 'custom' }]"
       >
-        <div
-          class="frameless-titlebar-button frameless-titlebar-close"
-          @click.stop="handleCloseClick"
+        <icon-tooltip :content="t('titleBar.minimize')">
+          <button
+            type="button"
+            class="plain-button frameless-titlebar-button frameless-titlebar-minimize"
+            :aria-label="t('titleBar.minimize')"
+            @click.stop="handleMinimizeClick"
+          >
+            <span>
+              <svg
+                width="10"
+                height="10"
+              >
+                <path :d="windowIconMinimize" />
+              </svg>
+            </span>
+          </button>
+        </icon-tooltip>
+        <icon-tooltip :content="maximizeLabel">
+          <button
+            type="button"
+            class="plain-button frameless-titlebar-button frameless-titlebar-toggle"
+            :aria-label="maximizeLabel"
+            @click.stop="handleMaximizeClick"
+          >
+            <span>
+              <svg
+                width="10"
+                height="10"
+              >
+                <path
+                  v-show="!isMaximized"
+                  :d="windowIconMaximize"
+                />
+                <path
+                  v-show="isMaximized"
+                  :d="windowIconRestore"
+                />
+              </svg>
+            </span>
+          </button>
+        </icon-tooltip>
+        <icon-tooltip
+          :content="t('titleBar.close')"
+          placement="bottom-end"
         >
-          <div>
-            <svg
-              width="10"
-              height="10"
-            >
-              <path :d="windowIconClose" />
-            </svg>
-          </div>
-        </div>
-        <div
-          class="frameless-titlebar-button frameless-titlebar-toggle"
-          @click.stop="handleMaximizeClick"
-        >
-          <div>
-            <svg
-              width="10"
-              height="10"
-            >
-              <path
-                v-show="!isMaximized"
-                :d="windowIconMaximize"
-              />
-              <path
-                v-show="isMaximized"
-                :d="windowIconRestore"
-              />
-            </svg>
-          </div>
-        </div>
-        <div
-          class="frameless-titlebar-button frameless-titlebar-minimize"
-          @click.stop="handleMinimizeClick"
-        >
-          <div>
-            <svg
-              width="10"
-              height="10"
-            >
-              <path :d="windowIconMinimize" />
-            </svg>
-          </div>
-        </div>
+          <button
+            type="button"
+            class="plain-button frameless-titlebar-button frameless-titlebar-close"
+            :aria-label="t('titleBar.close')"
+            @click.stop="handleCloseClick"
+          >
+            <span>
+              <svg
+                width="10"
+                height="10"
+              >
+                <path :d="windowIconClose" />
+              </svg>
+            </span>
+          </button>
+        </icon-tooltip>
       </div>
     </div>
   </div>
@@ -160,6 +178,7 @@ import { buildWindowTitle } from './windowTitle'
 import { useEditorStore } from '@/store/editor'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import type { FileWordCount } from '@shared/types/files'
 
 interface ProjectInfo {
@@ -240,6 +259,10 @@ const formatCountPair = (key: keyof FileWordCount) => {
 const showTitleBar = computed(() => {
   return shouldShowInAppTitleBar(titleBarStyle.value, isOsx)
 })
+
+const maximizeLabel = computed(() =>
+  isMaximized.value ? t('titleBar.restore') : t('titleBar.maximize')
+)
 
 watch(
   () => props.filename,
@@ -479,7 +502,12 @@ div.title > span > .path > bdi > span {
   width: 46px;
   height: var(--titleBarHeight);
 }
-.frameless-titlebar-button > div {
+/* `.right-toolbar` lays its items out in reverse. The window controls are
+   listed minimize → close and laid out forwards, so Tab moves left to right. */
+.window-controls {
+  flex-direction: row;
+}
+.frameless-titlebar-button > span {
   position: absolute;
   display: inline-flex;
   top: 50%;

@@ -261,6 +261,13 @@
       "settings": "Instellingen"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Toepassingsmenu",
+    "minimize": "Minimaliseren",
+    "maximize": "Maximaliseren",
+    "restore": "Vorig formaat",
+    "close": "Sluiten"
+  },
   "commandPalette": {
     "placeholder": "Typ een opdracht om uit te voeren",
     "placeholders": {
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "Voorkeuren",
+    "learnMore": "Meer informatie over {name}",
     "search": {
       "placeholder": "Voorkeuren zoeken...",
       "categories": {
@@ -1021,6 +1029,9 @@
       "languageMissing": "Spellingcontroletaal ontbreekt {languageCode}",
       "switchError": "Spellingcontrole wisselfout voor {languageCode}, {error}",
       "title": "Spellingcontrole"
+    },
+    "tabs": {
+      "close": "{name} sluiten"
     }
   }
 }

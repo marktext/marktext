@@ -261,6 +261,13 @@
       "settings": "Configuración"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Menú de la aplicación",
+    "minimize": "Minimizar",
+    "maximize": "Maximizar",
+    "restore": "Restaurar",
+    "close": "Cerrar"
+  },
   "commandPalette": {
     "placeholder": "Escriba un comando para ejecutar",
     "placeholders": {
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "Preferencias",
+    "learnMore": "Más información sobre {name}",
     "search": {
       "placeholder": "Buscar preferencias...",
       "categories": {
@@ -1021,6 +1029,9 @@
       "languageMissing": "Idioma del corrector ortográfico faltante {languageCode}",
       "switchError": "Error del corrector ortográfico para {languageCode}, {error}",
       "title": "Corrector ortográfico"
+    },
+    "tabs": {
+      "close": "Cerrar {name}"
     }
   }
 }

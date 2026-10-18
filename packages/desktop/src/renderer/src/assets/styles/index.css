@@ -128,6 +128,33 @@
   outline: none;
 }
 
+/* A <button> with no chrome of its own, so it can stand in for a clickable
+   <div>/<span> without changing the layout while the component keeps styling
+   it. When its only content is an icon, give it an `aria-label`. */
+.plain-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* The `:focus` reset above leaves keyboard users without an indicator. The ring
+   uses the side bar title colour rather than `--focusColor`: the default,
+   Ayu Light and Everforest Light accents sit at about 2.4–2.8:1 against their
+   backgrounds, under the 3:1 that WCAG 1.4.11 asks of a focus indicator, while
+   the title colour clears it in every bundled theme. */
+.plain-button:focus-visible {
+  outline: 2px solid var(--sideBarTitleColor);
+  outline-offset: -2px;
+  border-radius: 3px;
+}
+
 html,
 body {
   margin: 0;

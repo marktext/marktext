@@ -261,6 +261,13 @@
       "settings": "Paramètres"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Menu de l'application",
+    "minimize": "Réduire",
+    "maximize": "Agrandir",
+    "restore": "Restaurer",
+    "close": "Fermer"
+  },
   "commandPalette": {
     "placeholder": "Tapez une commande à exécuter",
     "placeholders": {
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "Préférences",
+    "learnMore": "En savoir plus sur {name}",
     "search": {
       "placeholder": "Rechercher dans les préférences...",
       "categories": {
@@ -1021,6 +1029,9 @@
       "languageMissing": "Langue du correcteur manquante {languageCode}",
       "switchError": "Erreur de changement du correcteur pour {languageCode}, {error}",
       "title": "Vérification orthographique"
+    },
+    "tabs": {
+      "close": "Fermer {name}"
     }
   }
 }

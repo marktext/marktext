@@ -261,6 +261,13 @@
       "settings": "설정"
     }
   },
+  "titleBar": {
+    "applicationMenu": "애플리케이션 메뉴",
+    "minimize": "최소화",
+    "maximize": "최대화",
+    "restore": "이전 크기로 복원",
+    "close": "닫기"
+  },
   "commandPalette": {
     "placeholder": "실행할 명령을 입력하세요",
     "placeholders": {
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "환경설정",
+    "learnMore": "{name} 자세히 알아보기",
     "search": {
       "placeholder": "환경설정 검색...",
       "categories": {
@@ -1021,6 +1029,9 @@
       "languageMissing": "맞춤법 검사 언어 누락 {languageCode}",
       "switchError": "{languageCode} 맞춤법 검사 전환 오류, {error}",
       "title": "맞춤법 검사"
+    },
+    "tabs": {
+      "close": "{name} 닫기"
     }
   }
 }

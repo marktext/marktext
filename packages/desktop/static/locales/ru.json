@@ -261,6 +261,13 @@
       "settings": "Настройки"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Меню приложения",
+    "minimize": "Свернуть",
+    "maximize": "Развернуть",
+    "restore": "Свернуть в окно",
+    "close": "Закрыть"
+  },
   "commandPalette": {
     "placeholder": "Введите команду",
     "placeholders": {
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "Настройки",
+    "learnMore": "Подробнее: {name}",
     "search": {
       "placeholder": "Поиск настроек...",
       "categories": {
@@ -1021,6 +1029,9 @@
       "languageMissing": "Язык проверки орфографии отсутствует {languageCode}",
       "switchError": "Ошибка переключения проверки орфографии для {languageCode}, {error}",
       "title": "Проверка орфографии"
+    },
+    "tabs": {
+      "close": "Закрыть {name}"
     }
   }
 }

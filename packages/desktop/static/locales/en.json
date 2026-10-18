@@ -261,6 +261,13 @@
       "settings": "Settings"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Application Menu",
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "restore": "Restore",
+    "close": "Close"
+  },
   "commandPalette": {
     "placeholder": "Type a command to execute",
     "placeholders": {
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "Preferences",
+    "learnMore": "Learn more about {name}",
     "search": {
       "placeholder": "Search preferences...",
       "categories": {
@@ -1021,6 +1029,9 @@
       "languageMissing": "Spellcheck language missing {languageCode}",
       "switchError": "Spellcheck switch error for {languageCode}, {error}",
       "title": "Spellcheck"
+    },
+    "tabs": {
+      "close": "Close {name}"
     }
   }
 }
