@@ -389,7 +389,7 @@
         "wrapCodeBlocks": "Tekst terugloop in codeblokken",
         "editorLineWidth": "Maximale breedte van het editorgebied",
         "codeFontSize": "Lettergrootte in codeblokken (12-18)",
-        "codeFontFamily": "Lettertype voor codeblokken",
+        "codeFontFamily": "Lettertype voor code. Van toepassing op inlinecode en codeblokken.",
         "codeBlockLineNumbers": "Regelnummers tonen",
         "sourceCodeLineNumbers": "Regelnummers tonen in broncodeweergave",
         "trimUnnecessaryCodeBlockEmptyLines": "Lege regels aan begin en einde van codeblokken verwijderen",
@@ -540,12 +540,13 @@
         "fontFamily": "Lettertypefamilie",
         "maxWidth": "Maximale breedte",
         "maxWidthNotes": "Maximale breedte van editorinhoud. Voer een getal in gevolgd door px, ch (tekens) of %, bijvoorbeeld 800px, 80ch of 60%. Laat leeg om de standaardbreedte te gebruiken.",
-        "maxWidthInvalid": "Voer een getal in gevolgd door px, ch of %, bijvoorbeeld 800px."
+        "maxWidthInvalid": "Voer een getal in gevolgd door px, ch of %, bijvoorbeeld 800px.",
+        "codeFontFamily": "Lettertype voor code",
+        "codeFontFamilyNotes": "Van toepassing op inlinecode en codeblokken."
       },
       "codeBlock": {
         "title": "Codeblok",
         "fontSize": "Lettergrootte",
-        "fontFamily": "Lettertypefamilie",
         "showLineNumbers": "Regelnummers tonen",
         "removeEmptyLines": "Lege regels verwijderen"
       },

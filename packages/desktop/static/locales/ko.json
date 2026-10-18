@@ -390,7 +390,7 @@
         "wrapCodeBlocks": "코드 블록 내에서 텍스트 줄바꿈",
         "editorLineWidth": "편집기 영역의 최대 너비를 정의합니다. 빈 문자열 또는 ch(문자), px(픽셀), %(백분율) 접미사가 허용됩니다",
         "codeFontSize": "코드 블록의 글꼴 크기, 범위는 12~18",
-        "codeFontFamily": "코드 블록에서 사용되는 글꼴 패밀리",
+        "codeFontFamily": "코드 글꼴：인라인 코드와 코드 블록에 적용됩니다.",
         "codeBlockLineNumbers": "줄 번호를 표시할지 여부",
         "sourceCodeLineNumbers": "소스 코드 모드에서 줄 번호 표시",
         "trimUnnecessaryCodeBlockEmptyLines": "코드 블록의 시작과 끝에 있는 빈 줄 제거",
@@ -540,12 +540,13 @@
         "fontFamily": "글꼴 패밀리",
         "maxWidth": "최대 너비",
         "maxWidthNotes": "편집기 콘텐츠의 최대 너비입니다. 숫자 뒤에 px, ch(문자 수) 또는 % 단위를 붙여 입력하세요(예: 800px, 80ch, 60%). 비워 두면 기본 너비를 사용합니다.",
-        "maxWidthInvalid": "숫자 뒤에 px, ch 또는 %를 붙여 입력하세요(예: 800px)."
+        "maxWidthInvalid": "숫자 뒤에 px, ch 또는 %를 붙여 입력하세요(예: 800px).",
+        "codeFontFamily": "코드 글꼴",
+        "codeFontFamilyNotes": "인라인 코드와 코드 블록에 적용됩니다."
       },
       "codeBlock": {
         "title": "코드 블록",
         "fontSize": "글꼴 크기",
-        "fontFamily": "글꼴 패밀리",
         "showLineNumbers": "줄 번호 보기",
         "removeEmptyLines": "빈 줄 제거"
       },

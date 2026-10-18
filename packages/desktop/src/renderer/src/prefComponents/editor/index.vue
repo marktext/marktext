@@ -39,6 +39,13 @@
           :error-message="t('preferences.editor.textEditor.maxWidthInvalid')"
           :on-change="(value) => onSelectChange('editorLineWidth', value)"
         />
+        <font-text-box
+          :description="t('preferences.editor.textEditor.codeFontFamily')"
+          :notes="t('preferences.editor.textEditor.codeFontFamilyNotes')"
+          :only-monospace="true"
+          :value="codeFontFamily"
+          :on-change="(value) => onSelectChange('codeFontFamily', value)"
+        />
       </template>
     </compound>
 
@@ -57,12 +64,6 @@
           unit="px"
           :step="1"
           :on-change="(value) => onSelectChange('codeFontSize', value)"
-        />
-        <font-text-box
-          :description="t('preferences.editor.codeBlock.fontFamily')"
-          :only-monospace="true"
-          :value="codeFontFamily"
-          :on-change="(value) => onSelectChange('codeFontFamily', value)"
         />
         <bool
           :description="t('preferences.editor.codeBlock.showLineNumbers')"

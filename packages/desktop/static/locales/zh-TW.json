@@ -390,7 +390,7 @@
         "wrapCodeBlocks": "在程式碼區塊內自動換行",
         "editorLineWidth": "定義編輯器區域的最大寬度。允許空字串或 ch（字元）、px（像素）或 %（百分比）後綴",
         "codeFontSize": "程式碼區塊中的字型大小，範圍是 12 ~ 18",
-        "codeFontFamily": "程式碼區塊中使用的字型系列",
+        "codeFontFamily": "程式碼字型：適用於行內程式碼和程式碼區塊。",
         "codeBlockLineNumbers": "是否顯示行號",
         "sourceCodeLineNumbers": "在原始碼模式中顯示行號",
         "trimUnnecessaryCodeBlockEmptyLines": "修剪程式碼區塊開頭和結尾的空行",
@@ -540,12 +540,13 @@
         "fontFamily": "字型系列",
         "maxWidth": "最大寬度",
         "maxWidthNotes": "編輯器內容的最大寬度。數字後需帶單位 px、ch（字元數）或 %，例如 800px、80ch、60%。留空則使用預設寬度。",
-        "maxWidthInvalid": "請輸入數字並帶上單位 px、ch 或 %，例如 800px。"
+        "maxWidthInvalid": "請輸入數字並帶上單位 px、ch 或 %，例如 800px。",
+        "codeFontFamily": "程式碼字型",
+        "codeFontFamilyNotes": "適用於行內程式碼和程式碼區塊。"
       },
       "codeBlock": {
         "title": "程式碼區塊",
         "fontSize": "字型大小",
-        "fontFamily": "字型系列",
         "showLineNumbers": "顯示行號",
         "removeEmptyLines": "移除空行"
       },
