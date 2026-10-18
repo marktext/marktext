@@ -290,9 +290,7 @@ export class MarkdownToHtml {
             : exportStyle;
 
         // Export outside the editor root, where its custom properties no longer inherit.
-        const codeFontFamily = this._muya?.domNode
-            ? getComputedStyle(this._muya.domNode).getPropertyValue('--mu-code-font-family').trim()
-            : '';
+        const codeFontFamily = this._muya?.options.codeFontFamily || '';
         const codeFontCSS = codeFontFamily && CSS.supports('font-family', codeFontFamily)
             ? `.markdown-body{--mu-code-font-family:${codeFontFamily.replace(/</g, '\\3c ')};}`
             : '';
