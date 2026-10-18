@@ -5,8 +5,9 @@ import type { IConstructor } from '../types';
 import type Content from './content';
 import type { ILinkedNode } from './linkedList/linkedNode';
 import type Parent from './parent';
-import { BLOCK_DOM_PROPERTY } from '../../config';
+import { BLOCK_DOM_PROPERTY, CLASS_NAMES } from '../../config';
 import { createDomNode } from '../../utils/dom';
+import { refreshFoldVisibility } from '../folding';
 
 class TreeNode implements ILinkedNode {
     prev: Nullable<TreeNode> = null;
@@ -264,9 +265,12 @@ class TreeNode implements ILinkedNode {
         if (!this.parent)
             return;
 
-        this.parent.children.remove(this);
+        const parent = this.parent;
+        parent.children.remove(this);
         this.parent = null;
         this.domNode?.remove();
+        this.domNode?.classList.remove(CLASS_NAMES.MU_FOLDED_CONTENT);
+        refreshFoldVisibility(parent);
 
         return this;
     }

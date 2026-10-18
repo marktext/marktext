@@ -1,9 +1,7 @@
 import type { IFoldKeyChord, IFoldSibling } from '../foldSection';
 import { describe, expect, it } from 'vitest';
-import { collectSectionIndices, hiddenByFoldedDescendant, isEmptySection, isFoldShortcut } from '../foldSection';
+import { headingLevel, hiddenByFoldedSections, isFoldableHeading, isFoldShortcut } from '../foldSection';
 
-// Structural fixtures: a heading fold section is every following block up to
-// (but excluding) the next heading of an equal-or-higher level.
 function para(): IFoldSibling {
     return { blockName: 'paragraph' };
 }
@@ -12,58 +10,20 @@ function heading(level: number, folded = false): IFoldSibling {
     return { blockName: 'atx-heading', level, folded };
 }
 
-describe('collectSectionIndices', () => {
-    it('collects trailing non-heading blocks', () => {
-        const siblings = [para(), para(), para()];
-        expect(collectSectionIndices(1, siblings)).toEqual([0, 1, 2]);
+describe('heading boundaries', () => {
+    it.each(['atx-heading', 'setext-heading'])('reads the level of %s', (blockName) => {
+        expect(headingLevel({ blockName, meta: { level: 2 } })).toBe(2);
     });
 
-    it('stops at the next heading of the same level', () => {
-        // # A  <- folding this (level 1)
-        //   para, para
-        // # B  <- same level, ends the section
-        const siblings = [para(), para(), heading(1), para()];
-        expect(collectSectionIndices(1, siblings)).toEqual([0, 1]);
+    it.each([null, {}, { blockName: 'paragraph', meta: { level: 1 } }, { blockName: 'atx-heading', meta: null }])('ignores non-headings and malformed metadata: %j', (block) => {
+        expect(headingLevel(block)).toBeUndefined();
+        expect(isFoldableHeading(block)).toBe(false);
     });
 
-    it('stops at the next heading of a higher level (smaller number)', () => {
-        // ## A (level 2) followed by an h1 ends the section immediately.
-        const siblings = [heading(1)];
-        expect(collectSectionIndices(2, siblings)).toEqual([]);
-    });
-
-    it('includes deeper headings (nested h2/h3 under a folded h1)', () => {
-        // # A (level 1): everything down to the next h1 is part of the section,
-        // including the h2 and its paragraph.
-        const siblings = [para(), heading(2), para(), heading(3), para(), heading(1)];
-        expect(collectSectionIndices(1, siblings)).toEqual([0, 1, 2, 3, 4]);
-    });
-
-    it('returns an empty section when immediately followed by a same-level heading', () => {
-        const siblings = [heading(2), para()];
-        expect(collectSectionIndices(2, siblings)).toEqual([]);
-    });
-
-    it('returns an empty section when there are no following siblings', () => {
-        expect(collectSectionIndices(3, [])).toEqual([]);
-    });
-
-    it('treats a heading with an undefined level as a non-terminating block', () => {
-        // Defensive: a malformed heading sibling without a level must not end
-        // the section (it is simply hidden along with the rest).
-        const siblings: IFoldSibling[] = [{ blockName: 'atx-heading' }, para()];
-        expect(collectSectionIndices(1, siblings)).toEqual([0, 1]);
-    });
-});
-
-describe('isEmptySection', () => {
-    it('is true when the heading owns no content', () => {
-        expect(isEmptySection(1, [heading(1)])).toBe(true);
-        expect(isEmptySection(2, [])).toBe(true);
-    });
-
-    it('is false when the heading owns at least one block', () => {
-        expect(isEmptySection(1, [para(), heading(1)])).toBe(false);
+    it('requires the full fold capability before narrowing a node', () => {
+        const node = { blockName: 'atx-heading', meta: { level: 1 }, toggleFold() {} };
+        expect(isFoldableHeading(node)).toBe(false);
+        expect(isFoldableHeading({ ...node, folded: false })).toBe(true);
     });
 });
 
@@ -111,28 +71,41 @@ describe('isFoldShortcut', () => {
     });
 });
 
-describe('hiddenByFoldedDescendant', () => {
+describe('hiddenByFoldedSections', () => {
     it('hides nothing when no nested heading is folded', () => {
         // Section of "# A": a paragraph, then an unfolded "## B" and its para.
         const section = [para(), heading(2, false), para()];
-        expect(hiddenByFoldedDescendant(section)).toEqual([false, false, false]);
+        expect(hiddenByFoldedSections(section)).toEqual([false, false, false]);
     });
 
     it('hides blocks owned by a still-folded nested heading (not its own line)', () => {
         // "## B" is folded: its own line stays visible, its paragraph is hidden.
         const section = [para(), heading(2, true), para()];
-        expect(hiddenByFoldedDescendant(section)).toEqual([false, false, true]);
+        expect(hiddenByFoldedSections(section)).toEqual([false, false, true]);
     });
 
     it('stops hiding at a heading that closes the folded region', () => {
         // folded ## B, its para (hidden), then ## C at the same level reopens.
         const section = [heading(2, true), para(), heading(2, false), para()];
-        expect(hiddenByFoldedDescendant(section)).toEqual([false, true, false, false]);
+        expect(hiddenByFoldedSections(section)).toEqual([false, true, false, false]);
     });
 
     it('keeps deeper headings under a folded ancestor hidden', () => {
         // folded ## B owns everything deeper until the next level <= 2.
         const section = [heading(2, true), para(), heading(3, false), para()];
-        expect(hiddenByFoldedDescendant(section)).toEqual([false, true, true, true]);
+        expect(hiddenByFoldedSections(section)).toEqual([false, true, true, true]);
+    });
+});
+
+describe('fold boundaries after structure changes', () => {
+    it.each([
+        { blocks: [], hidden: [] },
+        { blocks: [heading(1, true), para(), para()], hidden: [false, true, true] },
+        { blocks: [heading(2, true), para(), heading(1), para()], hidden: [false, true, false, false] },
+        { blocks: [heading(1, true), para(), { blockName: 'setext-heading', level: 1 }, para()], hidden: [false, true, false, false] },
+        { blocks: [heading(2, true), heading(3, true), para(), heading(2), para()], hidden: [false, true, true, false, false] },
+        { blocks: [heading(1, true), { blockName: 'atx-heading' }, para()], hidden: [false, true, true] },
+    ])('resolves $blocks', ({ blocks, hidden }) => {
+        expect(hiddenByFoldedSections(blocks)).toEqual(hidden);
     });
 });

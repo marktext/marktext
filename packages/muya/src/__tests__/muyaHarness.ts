@@ -1,10 +1,4 @@
-// Shared harness for muya block/UI integration tests: boots a real Muya on a
-// throwaway host element, stubs `MUYA_VERSION`, and tears everything down after
-// each test. Centralized so individual specs don't each re-declare the same
-// setup (which also keeps duplicated-lines low).
-//
-// Consumers must set `// @vitest-environment happy-dom` at the top of their spec
-// (that directive only takes effect in a test file, not here).
+// Integration specs must select the happy-dom environment in their own file.
 
 import { afterEach, beforeEach } from 'vitest';
 import { Muya } from '../muya';

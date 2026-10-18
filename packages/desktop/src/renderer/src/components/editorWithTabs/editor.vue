@@ -1251,13 +1251,17 @@ const scrollToHeader = (slug: unknown) => {
   if (!container) return
   const heading = resolveTocHeadingElement(container, editorStore.listToc, slug)
   if (!heading) return
+  editor.value?.revealElement(heading)
   animatedScrollTo(container, getTocHeadingScrollTop(container, heading), 300)
 }
 
 // Scrolls to a non-heading in-document anchor target (e.g. a custom
 // `<a id="...">`) resolved by `FORMAT_LINK_CLICK` via `getElementById`.
 const scrollToAnchorElement = (element: unknown) => {
-  if (element instanceof Element) scrollElementIntoView(element)
+  if (element instanceof Element) {
+    editor.value?.revealElement(element)
+    scrollElementIntoView(element)
+  }
 }
 
 const scrollToElement = (selector: string) => {

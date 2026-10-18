@@ -17,6 +17,7 @@ import {
     isKeyboardEvent,
     isMouseEvent,
 } from '../../utils';
+import { revealBlock, visibleContentInContext } from '../folding';
 
 // import logger from './utils/logger'
 
@@ -463,9 +464,7 @@ class Content extends TreeNode {
     // Do nothing.
     }
 
-    // Overridable hook invoked at the very start of `keydownHandler`. Subclasses
-    // return `true` to consume the event before the default key routing (used
-    // by heading blocks for the fold shortcut). Default: do not intercept.
+    /** Return true to consume a block shortcut before the default key routing. */
     beforeKeydown(_event: KeyboardEvent): boolean {
         return false;
     }
@@ -482,19 +481,32 @@ class Content extends TreeNode {
             event.preventDefault();
     }
 
+    private _revealArrowSelectionTarget(event: KeyboardEvent, start: number, end: number): void {
+        const rtl = this.domNode?.closest('[dir]')?.getAttribute('dir') === 'rtl';
+        const backwards = event.key === EVENT_KEYS.ArrowUp || event.key === (rtl ? EVENT_KEYS.ArrowRight : EVENT_KEYS.ArrowLeft);
+        if (backwards ? start !== 0 : end !== this.text.length)
+            return;
+        const target = backwards ? this.previousContentInContext() : this.nextContentInContext();
+        if (target)
+            revealBlock(target);
+    }
+
     arrowHandler(event: Event) {
         if (!isKeyboardEvent(event))
             return;
 
-        const previousContentBlock = this.previousContentInContext();
-        const nextContentBlock = this.nextContentInContext();
+        const previousContentBlock = visibleContentInContext(this, 'previous');
+        const nextContentBlock = visibleContentInContext(this, 'next');
         const { start, end } = this.getCursor()!;
         const { topOffset, bottomOffset } = Selection.getCursorYOffset(
             this.domNode!,
         );
 
-        // Just do nothing if the cursor is not collapsed or `shiftKey` pressed
-        if (start.offset !== end.offset || event.shiftKey)
+        if (event.shiftKey) {
+            this._revealArrowSelectionTarget(event, start.offset, end.offset);
+            return;
+        }
+        if (start.offset !== end.offset)
             return;
 
         if (
@@ -547,7 +559,7 @@ class Content extends TreeNode {
             // Only append a trailing paragraph when the last block has content.
             // Otherwise ArrowDown in an already-empty last paragraph would keep
             // creating empty paragraphs on every keypress (#3520).
-            else if (this.text.length > 0) {
+            else if (this.text.length > 0 && !this.parent?.domNode?.classList.contains(CLASS_NAMES.MU_FOLDED)) {
                 const newNodeState = {
                     name: 'paragraph',
                     text: '',
@@ -853,8 +865,6 @@ class Content extends TreeNode {
         if (!isKeyboardEvent(event))
             return;
 
-        // Overridable hook for block-specific shortcuts (e.g. heading fold).
-        // Returning `true` consumes the event before the default routing.
         if (this.beforeKeydown(event))
             return;
 

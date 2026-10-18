@@ -6,12 +6,14 @@ import TreeNode from '../../block/base/treeNode';
 import { CLASS_NAMES } from '../../config';
 import { operateClassName } from '../../utils/dom';
 import logger from '../../utils/logger';
+import { isFoldableHeading } from '../commonMark/atxHeading/foldSection';
+import { refreshFoldVisibility } from '../folding';
 
 const debug = logger('parent:');
 
 class Parent extends TreeNode {
-    // Used to store icon, checkbox(span) etc. these blocks are not in children properties in json state.
-    attachments: LinkedList<Parent> = new LinkedList();
+    // UI attachments are excluded from the serialized document children.
+    attachments: LinkedList<TreeNode> = new LinkedList();
 
     children: LinkedList<TreeNode> = new LinkedList();
 
@@ -118,6 +120,7 @@ class Parent extends TreeNode {
         });
 
         this.children.append(...(args as Parent[]));
+        refreshFoldVisibility(this, args.some(node => isFoldableHeading(node) && node.folded));
 
         // push operations
         if (source === 'user') {
@@ -133,7 +136,7 @@ class Parent extends TreeNode {
      * This method will only be used when initialization.
      * @param  {...any} nodes attachment blocks
      */
-    protected appendAttachment(...nodes: Parent[]) {
+    protected appendAttachment(...nodes: TreeNode[]) {
         nodes.forEach((node) => {
             node.parent = this;
             const { domNode } = node;
@@ -195,6 +198,8 @@ class Parent extends TreeNode {
             newNode.domNode!,
             refNode ? refNode.domNode! : null,
         );
+
+        refreshFoldVisibility(this, isFoldableHeading(newNode) && newNode.folded);
 
         if (source === 'user') {
             // dispatch json1 operation
