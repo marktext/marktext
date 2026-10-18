@@ -292,7 +292,7 @@ export class MarkdownToHtml {
         // Export outside the editor root, where its custom properties no longer inherit.
         const codeFontFamily = this._muya?.options.codeFontFamily || '';
         const codeFontCSS = codeFontFamily
-            ? `.markdown-body{--mu-code-font-family:${codeFontFamily.replace(/</g, '\\3c ')};}`
+            ? `.markdown-body{--mu-code-font-family:${codeFontFamily};}`
             : '';
 
         // Mirror the editor's text direction onto the exported document so RTL
