@@ -1,5 +1,3 @@
-@import url('./codeFont.css');
-
 @font-face {
     font-weight: 400;
     font-family: 'Noto Music';
@@ -33,6 +31,19 @@
         sans-serif,
         'Apple Color Emoji',
         'Segoe UI Emoji';
+}
+
+.markdown-body pre,
+.markdown-body code,
+.markdown-body pre code {
+    font-family: var(
+        --mu-code-font-family,
+        'DejaVu Sans Mono',
+        'Source Code Pro',
+        'Droid Sans Mono',
+        Consolas,
+        monospace
+    );
 }
 
 /* GitLab inline diff washes, matching GitLab's `.idiff` rendering. */
