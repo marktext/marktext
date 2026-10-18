@@ -4,7 +4,10 @@
     :content="content"
     :placement="placement"
     :trigger-keys="TRIGGER_KEYS"
-    :show-after="300"
+    :show-after="HOVER_DELAY"
+    :show-arrow="false"
+    effect="light"
+    popper-class="mt-icon-tooltip"
     @before-show="listenForEscape"
     @hide="stopListeningForEscape"
   >
@@ -28,6 +31,7 @@
  */
 import { ref, onBeforeUnmount } from 'vue'
 import type { Placement, TooltipInstance } from 'element-plus'
+import { isMac } from '@/util'
 
 withDefaults(defineProps<{ content: string; placement?: Placement }>(), {
   placement: 'bottom'
@@ -36,6 +40,9 @@ withDefaults(defineProps<{ content: string; placement?: Placement }>(), {
 // el-tooltip toggles itself on Enter/Space keydown and calls preventDefault,
 // which would cancel the button's own click.
 const TRIGGER_KEYS: string[] = []
+
+// Match VS Code's platform-specific workbench hover timing, in milliseconds.
+const HOVER_DELAY = isMac ? 1500 : 500
 
 const tooltipRef = ref<TooltipInstance | null>(null)
 
@@ -52,3 +59,23 @@ const stopListeningForEscape = (): void =>
 
 onBeforeUnmount(stopListeningForEscape)
 </script>
+
+<style>
+/* The popper is teleported to body, outside the caller's scoped styles. */
+.el-popper.is-light.mt-icon-tooltip {
+  --icon-tooltip-text-tint: #000;
+  padding: 4px 8px;
+  border: 1px solid var(--floatBorderColor);
+  border-radius: 3px;
+  background: var(--floatBgColor);
+  /* Strengthen muted theme text for these small labels. */
+  color: color-mix(in srgb, var(--sideBarTitleColor) 75%, var(--icon-tooltip-text-tint));
+  box-shadow: var(--floatShadow);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+body.dark .el-popper.mt-icon-tooltip {
+  --icon-tooltip-text-tint: #fff;
+}
+</style>

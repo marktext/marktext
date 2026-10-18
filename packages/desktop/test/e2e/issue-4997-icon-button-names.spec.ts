@@ -6,7 +6,14 @@ import { launchWithMarkdown, sendIpcToRenderer } from './helpers'
 // operable from the keyboard, and show their label on hover. These drive the
 // real built app the way a keyboard or screen reader user would.
 
-const PREFERENCES = { sideBarVisibility: true, tabBarVisibility: true }
+const PREFERENCES = {
+  sideBarVisibility: true,
+  tabBarVisibility: true,
+  language: 'en',
+  theme: 'light',
+  followSystemTheme: false
+}
+const HOVER_DELAY = process.platform === 'darwin' ? 1500 : 500
 
 const activeLabel = (page: Page) =>
   page.evaluate(() => document.activeElement?.getAttribute('aria-label') ?? null)
@@ -69,6 +76,18 @@ test.describe('#4997 icon-only controls in the editor window', () => {
     await expect(page.locator('.side-bar .tree-view')).toBeVisible()
   })
 
+  test('a brief hover does not show a tooltip or leave one scheduled after moving away', async() => {
+    await page.bringToFront()
+    const toc = page.getByRole('button', { name: 'Table of Contents', exact: true })
+    await toc.hover()
+    // Sample after the old 300ms delay but before either platform's new delay.
+    await page.waitForTimeout(350)
+    await expect(tooltip(page, 'Table of Contents')).toBeHidden()
+    await page.mouse.move(0, 0)
+    await page.waitForTimeout(HOVER_DELAY + 100)
+    await expect(tooltip(page, 'Table of Contents')).toBeHidden()
+  })
+
   test('hovering shows the label as a tooltip and Escape dismisses it', async() => {
     // Hover events only reach the page while its window is in front.
     await page.bringToFront()
@@ -80,11 +99,71 @@ test.describe('#4997 icon-only controls in the editor window', () => {
     await page.mouse.move(0, 0)
   })
 
+  test('an open tooltip follows live theme changes without a speech-bubble arrow', async() => {
+    await page.bringToFront()
+    const search = page.getByRole('button', { name: 'Search', exact: true })
+    await search.hover()
+    const popper = tooltip(page, 'Search')
+    await expect(popper).toBeVisible()
+    await expect(popper.locator('.el-popper__arrow')).toHaveCount(0)
+
+    const themeStyle = page.locator('#ag-theme')
+    const lightThemeStyle = await themeStyle.textContent()
+    try {
+      for (const theme of [
+        'light',
+        'dark',
+        'ayu-light',
+        'one-dark',
+        'solarized-light',
+        'solarized-dark',
+        'ulysses'
+      ]) {
+        const previousStyle = await themeStyle.textContent()
+        await page.evaluate((theme) => {
+          window.electron.ipcRenderer.send('mt::set-user-preference', { theme })
+        }, theme)
+        if (theme !== 'light')
+          await expect.poll(() => themeStyle.textContent()).not.toBe(previousStyle)
+        await expect(popper).toBeVisible()
+        await expect
+          .poll(() =>
+            popper.evaluate((el) => {
+              const probe = document.createElement('div')
+              probe.style.backgroundColor = 'var(--floatBgColor)'
+              const tint = document.body.classList.contains('dark') ? '#fff' : '#000'
+              probe.style.color = `color-mix(in srgb, var(--sideBarTitleColor) 75%, ${tint})`
+              probe.style.border = '1px solid var(--floatBorderColor)'
+              probe.style.boxShadow = 'var(--floatShadow)'
+              document.body.append(probe)
+              const actual = getComputedStyle(el)
+              const expected = getComputedStyle(probe)
+              const matches = ['backgroundColor', 'color', 'borderTopColor', 'boxShadow'].every(
+                (property) =>
+                  actual[property as keyof CSSStyleDeclaration] ===
+                  expected[property as keyof CSSStyleDeclaration]
+              )
+              probe.remove()
+              return matches
+            })
+          )
+          .toBe(true)
+      }
+    } finally {
+      await page.keyboard.press('Escape')
+      await page.mouse.move(0, 0)
+      await page.evaluate(() => {
+        window.electron.ipcRenderer.send('mt::set-user-preference', { theme: 'light' })
+      })
+      await expect.poll(() => themeStyle.textContent()).toBe(lightThemeStyle)
+    }
+  })
+
   // An open el-tooltip sets the trigger's aria-describedby, which would make
   // screen readers repeat the label after the name.
   test('keyboard focus does not open the tooltip', async() => {
     await tabTo(page, 'Table of Contents')
-    await page.waitForTimeout(600)
+    await page.waitForTimeout(HOVER_DELAY + 100)
     await expect(tooltip(page, 'Table of Contents')).toBeHidden()
     expect(
       await page.evaluate(() => document.activeElement?.getAttribute('aria-describedby') ?? null)
