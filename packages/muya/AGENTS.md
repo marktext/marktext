@@ -86,11 +86,11 @@ renders the standalone defaults.
 | `lineHeight` (number) | `--mu-line-height` | `1.6` | `.mu-editor` base text |
 | `editorFontFamily` (string) | `--mu-font-family` | Open Sans stack | `.mu-editor` base text |
 | `codeFontSize` (number, px) | `--mu-code-font-size` | `90%` | `.mu-code-block` only |
-| `codeFontFamily` (string) | `--mu-code-font-family` | DejaVu Sans Mono stack | `.mu-code-block` only |
+| `codeFontFamily` (string) | `--mu-code-font-family` | DejaVu Sans Mono stack | inline code and code blocks |
 | `wrapCodeBlocks` (boolean) | — (`.mu-code-wrap` root class) | off (`pre`) | code-block line wrapping |
 
-Inline code (`code.mu-inline-rule`) is deliberately NOT driven by these — it
-keeps its relative `0.8em` / mono sizing. Editor column width
+Inline code (`code.mu-inline-rule`) shares `--mu-code-font-family` with code
+blocks but keeps its relative `0.8em` sizing. Editor column width
 (`--editor-area-width`) and the colour palette (`--editor-color-*`) are
 separate, pre-existing contracts owned by the host. All runtime changes go
 through `muya.setOptions({...})`.

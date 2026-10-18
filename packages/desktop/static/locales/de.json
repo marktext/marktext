@@ -390,7 +390,7 @@
         "wrapCodeBlocks": "Text in Codeblöcken umbrechen",
         "editorLineWidth": "Definiert die maximale Editor-Bereichsbreite. Ein leerer String oder Suffixe von ch (Zeichen), px (Pixel) oder % (Prozent) sind erlaubt",
         "codeFontSize": "Schriftgröße im Codeblock, der Bereich ist 12 ~ 18",
-        "codeFontFamily": "Schriftfamilie im Codeblock",
+        "codeFontFamily": "Code-Schriftart. Gilt für Inline-Code und Codeblöcke.",
         "codeBlockLineNumbers": "Ob Zeilennummern angezeigt werden sollen",
         "sourceCodeLineNumbers": "Zeilennummern im Quellcode-Modus anzeigen",
         "trimUnnecessaryCodeBlockEmptyLines": "Leere Zeilen am Anfang und Ende des Codeblocks entfernen",
@@ -540,12 +540,13 @@
         "fontFamily": "Schriftfamilie",
         "maxWidth": "Maximale Breite",
         "maxWidthNotes": "Maximale Breite des Editor-Inhalts. Geben Sie eine Zahl gefolgt von px, ch (Zeichen) oder % ein, z. B. 800px, 80ch oder 60%. Leer lassen, um die Standardbreite zu verwenden.",
-        "maxWidthInvalid": "Geben Sie eine Zahl gefolgt von px, ch oder % ein, z. B. 800px."
+        "maxWidthInvalid": "Geben Sie eine Zahl gefolgt von px, ch oder % ein, z. B. 800px.",
+        "codeFontFamily": "Code-Schriftart",
+        "codeFontFamilyNotes": "Gilt für Inline-Code und Codeblöcke."
       },
       "codeBlock": {
         "title": "Code-Block",
         "fontSize": "Schriftgröße",
-        "fontFamily": "Schriftfamilie",
         "showLineNumbers": "Zeilennummern anzeigen",
         "removeEmptyLines": "Leere Zeilen entfernen"
       },

@@ -289,6 +289,12 @@ export class MarkdownToHtml {
             ? exportStyle + SOFT_NEWLINE_AS_SPACE_OVERRIDE
             : exportStyle;
 
+        // Export outside the editor root, where its custom properties no longer inherit.
+        const codeFontFamily = this._muya?.options.codeFontFamily || '';
+        const codeFontCSS = codeFontFamily
+            ? `.markdown-body{--mu-code-font-family:${codeFontFamily};}`
+            : '';
+
         // Mirror the editor's text direction onto the exported document so RTL
         // documents export right-to-left (#4553). LTR is the HTML default, so it
         // stays implicit to keep existing exports byte-identical.
@@ -311,7 +317,7 @@ export class MarkdownToHtml {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG, true)}</title>
 ${baseStyles}
-  <style>${embedExportFonts(exportStyleFinal)}</style>
+  <style>${embedExportFonts(exportStyleFinal)}${codeFontCSS}</style>
   <style>${extraCSS}</style>
 </head>
 <body>

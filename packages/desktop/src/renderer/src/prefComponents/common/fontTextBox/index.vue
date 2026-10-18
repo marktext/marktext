@@ -34,6 +34,12 @@
         </div>
       </template>
     </el-autocomplete>
+    <div
+      v-if="notes"
+      class="notes"
+    >
+      {{ notes }}
+    </div>
   </section>
 </template>
 
@@ -48,11 +54,13 @@ import { withBundledFonts } from './bundledFonts'
 const { t } = useI18n()
 
 interface FontTextBoxProps extends PrefControlProps<string> {
+  notes?: string
   onlyMonospace?: boolean
 }
 
 const props = withDefaults(defineProps<FontTextBoxProps>(), {
   description: '',
+  notes: '',
   more: '',
   disable: false,
   onlyMonospace: false

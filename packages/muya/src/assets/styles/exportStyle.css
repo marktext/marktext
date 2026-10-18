@@ -33,6 +33,19 @@
         'Segoe UI Emoji';
 }
 
+.markdown-body pre,
+.markdown-body code,
+.markdown-body pre code {
+    font-family: var(
+        --mu-code-font-family,
+        'DejaVu Sans Mono',
+        'Source Code Pro',
+        'Droid Sans Mono',
+        'Consolas',
+        monospace
+    );
+}
+
 /* GitLab inline diff washes, matching GitLab's `.idiff` rendering. */
 .markdown-body .idiff.addition {
     color: #1f1f1f;
