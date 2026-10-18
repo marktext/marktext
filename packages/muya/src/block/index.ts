@@ -28,6 +28,7 @@ import DiagramBlock from './extra/diagram';
 import DiagramContainer from './extra/diagram/diagramContainer';
 import DiagramPreview from './extra/diagram/diagramPreview';
 import Footnote from './extra/footnote';
+import GithubAlert from './extra/githubAlert';
 import MathBlock from './extra/math';
 import MathContainer from './extra/math/mathContainer';
 import MathPreview from './extra/math/mathPreview';
@@ -53,6 +54,7 @@ export function registerBlocks() {
     ScrollPage.register(HeadingCopyLink);
     ScrollPage.register(HeadingFoldToggle);
     ScrollPage.register(BlockQuote);
+    ScrollPage.register(GithubAlert);
     ScrollPage.register(ThematicBreak);
     ScrollPage.register(ThematicBreakContent);
     ScrollPage.register(CodeBlock);

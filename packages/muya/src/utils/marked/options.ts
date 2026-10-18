@@ -6,4 +6,8 @@ export const DEFAULT_OPTIONS = {
     texMathDoubleBackslash: false,
     frontMatter: true,
     superSubScript: true,
+    highlightSyntax: false,
+    inlineDiff: false,
+    multilineBlockquote: false,
+    githubAlerts: false,
 };

@@ -190,6 +190,7 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
     title,
     pathname,
     superSubScript,
+    githubAlerts,
     footnote,
     texMathDollars,
     texMathGfm,
@@ -214,6 +215,7 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
     const reader = getPandocReader(
       {
         superSubScript: superSubScript === true,
+        githubAlerts: githubAlerts === true,
         footnotes: footnote === true,
         texMathDollars: texMathDollars === true,
         texMathGfm: texMathGfm === true,
@@ -296,10 +298,19 @@ const handleResponseForSave = async(
     recommendFilename = filename || 'Untitled'
   }
 
-  // If the file doesn't exist on disk add it to the recently used documents later
-  // and execute file from filesystem watcher for a short time. The file may exists
-  // on disk nevertheless but is already tracked by MarkText.
-  const alreadyExistOnDisk = !!pathname
+  // CLI buffers have a target pathname before their first disk write.
+  const alreadyExistOnDisk = !!pathname && !options.isPendingCreation
+
+  if (pathname && options.isPendingCreation && (await exists(pathname))) {
+    const { response } = await dialog.showMessageBox(win, {
+      type: 'warning',
+      buttons: [t('dialog.replace'), t('dialog.cancel')],
+      defaultId: 1,
+      cancelId: 1,
+      message: t('dialog.fileExists', { filename: pathname })
+    })
+    if (response !== 0) return
+  }
 
   let filePath = pathname
 
@@ -479,22 +490,24 @@ ipcMain.on(
       recommendFilename = filename || 'Untitled'
     }
 
-    // If the file doesn't exist on disk add it to the recently used documents later
-    // and execute file from filesystem watcher for a short time. The file may exists
-    // on disk nevertheless but is already tracked by MarkText.
-    const alreadyExistOnDisk = !!pathname
+    const alreadyExistOnDisk = !!pathname && !options.isPendingCreation
 
-    let { filePath, canceled } = await dialog.showSaveDialog(win, {
+    const { filePath: dialogFilePath, canceled } = await dialog.showSaveDialog(win, {
       defaultPath:
         pathname || path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
     })
+    let filePath = dialogFilePath
 
     if (filePath && !canceled) {
       filePath = path.resolve(filePath)
       writeMarkdownFile(filePath, markdown, options as Parameters<typeof writeMarkdownFile>[2])
         .then(() => {
           if (!alreadyExistOnDisk) {
-            ipcMain.emit('window-add-file-path', win.id, filePath)
+            if (pathname && pathname !== filePath) {
+              ipcMain.emit('window-change-file-path', win.id, filePath, pathname)
+            } else {
+              ipcMain.emit('window-add-file-path', win.id, filePath)
+            }
             ipcMain.emit('menu-add-recently-used', filePath)
 
             const newFilename = path.basename(filePath!)
@@ -552,8 +565,10 @@ ipcMain.on('mt::close-window-confirm', async(e, unsavedFiles: UnsavedFile[]) => 
         )
       )
     )
-      .then(() => {
-        ipcMain.emit('window-close-by-id', win.id)
+      .then((savedIds) => {
+        if (savedIds.every((id) => typeof id === 'string')) {
+          ipcMain.emit('window-close-by-id', win.id)
+        }
       })
       .catch((err: unknown) => {
         log.error('Error while saving before quit:', err)

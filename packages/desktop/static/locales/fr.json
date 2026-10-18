@@ -70,6 +70,7 @@
       "table": "Tableau",
       "codeFences": "Clôtures de code",
       "quoteBlock": "Bloc de citation",
+      "githubAlerts": "Alertes GitHub",
       "mathBlock": "Bloc mathématique",
       "htmlBlock": "Bloc HTML",
       "orderedList": "Liste ordonnée",
@@ -204,6 +205,7 @@
       "paste": "Coller",
       "rename": "Renommer",
       "moveToTrash": "Déplacer vers la corbeille",
+      "copyPath": "Copier le chemin",
       "showInFolder": "Afficher dans le dossier"
     },
     "tabs": {
@@ -213,7 +215,8 @@
       "closeAllTabs": "Fermer tous les onglets",
       "rename": "Renommer",
       "copyPath": "Copier le chemin",
-      "showInFolder": "Afficher dans le dossier"
+      "showInFolder": "Afficher dans le dossier",
+      "showInSideBar": "Afficher dans la barre latérale"
     }
   },
   "search": {
@@ -258,6 +261,13 @@
       "settings": "Paramètres"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Menu de l'application",
+    "minimize": "Réduire",
+    "maximize": "Agrandir",
+    "restore": "Restaurer",
+    "close": "Fermer"
+  },
   "commandPalette": {
     "placeholder": "Tapez une commande à exécuter",
     "placeholders": {
@@ -269,13 +279,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Numérotation automatique des titres",
     "title": "Options d'exportation",
-    "info": {
-      "label": "Informations",
-      "description": "Veuillez personnaliser l'apparence de la page et cliquer sur 'Exporter' pour continuer."
-    },
     "page": {
       "label": "Page",
-      "pageTitle": "Titre de la page :",
+      "pageTitle": "Titre de la page",
       "pageSize": "Taille de la page :",
       "landscapeOrientation": "Orientation paysage :",
       "pageMargin": "Marge de page (mm) :",
@@ -312,12 +318,13 @@
       "description": "Si un en-tête et/ou un pied de page est défini, le texte apparaîtra sur toutes les pages."
     },
     "toc": {
-      "includeTopHeading": "Inclure le titre de niveau supérieur",
-      "includeTopHeadingDetail": "Inclure les détails du titre de niveau supérieur",
+      "description": "Pour afficher une table des matières dans le document exporté, saisissez [TOC] sur une ligne distincte dans le corps du document. La table des matières apparaîtra à cet emplacement.",
+      "includeTopHeading": "Inclure les titres de niveau 1",
+      "includeTopHeadingDetail": "Inclure tous les titres de niveau 1 (H1) dans la table des matières.",
       "label": "Table des matières",
       "title": "Table des matières"
     },
-    "export": "Exporter...",
+    "export": "Exporter",
     "options": {
       "pageSizes": {
         "a3": "A3",
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "Préférences",
+    "learnMore": "En savoir plus sur {name}",
     "search": {
       "placeholder": "Rechercher dans les préférences...",
       "categories": {
@@ -390,7 +398,7 @@
         "wrapCodeBlocks": "Retour à la ligne dans les blocs de code",
         "editorLineWidth": "Définit la largeur maximale de la zone d'édition. Une chaîne vide ou des suffixes de ch (caractères), px (pixels) ou % (pourcentage) sont autorisés",
         "codeFontSize": "Taille de police dans le bloc de code, la plage est de 12 ~ 18",
-        "codeFontFamily": "Famille de police utilisée dans le bloc de code",
+        "codeFontFamily": "Police du code. S’applique au code en ligne et aux blocs de code.",
         "codeBlockLineNumbers": "Afficher les numéros de ligne",
         "sourceCodeLineNumbers": "Afficher les numéros de ligne en mode code source",
         "trimUnnecessaryCodeBlockEmptyLines": "Supprimer les lignes vides au début et à la fin du bloc de code",
@@ -418,6 +426,10 @@
         "texMathGfm": "Activer l'extension markdown de pandoc tex_math_gfm",
         "texMathSingleBackslash": "Activer l'extension markdown de pandoc tex_math_single_backslash",
         "texMathDoubleBackslash": "Activer l'extension markdown de pandoc tex_math_double_backslash",
+        "highlightSyntax": "Activer la syntaxe de surlignage non standard ==texte==",
+        "inlineDiff": "Activer la syntaxe de diff en ligne non standard {+ … +} / [- … -]",
+        "multilineBlockquote": "Activer la syntaxe de citation multiligne non standard >>> … >>>",
+        "githubAlerts": "Alertes GitHub",
         "isHtmlEnabled": "Activer le rendu HTML",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "sequenceTheme": "Thème du diagramme de séquence",
@@ -434,7 +446,8 @@
         "imageRelativeDirectoryBase": "Où les images relatives sont copiées",
         "imageRelativeDirectoryName": "Le nom du dossier d'image relatif",
         "fileSortOrder": "Ordre de tri des fichiers dans les dossiers ouverts : croissant ou décroissant.",
-        "openedFilesInSidebar": "Afficher ou non les fichiers ouverts dans la barre latérale."
+        "openedFilesInSidebar": "Afficher ou non les fichiers ouverts dans la barre latérale.",
+        "showPandocConvert": "Afficher le menu de conversion Pandoc. Nécessite l'installation de Pandoc."
       }
     },
     "categories": {
@@ -478,10 +491,19 @@
         "selectFolder": "Sélectionner un dossier",
         "openBlankPage": "Ouvrir une page vierge"
       },
+      "pandoc": {
+        "title": "Conversion Pandoc",
+        "description": "Afficher le menu de conversion Pandoc",
+        "detailedDescription": "Nécessite l'installation de Pandoc",
+        "found": "Trouvé : {path}",
+        "notFound": "Introuvable",
+        "recheck": "Revérifier"
+      },
       "sidebar": {
         "title": "Barre latérale",
         "wrapTextInToc": "Retour à la ligne dans la table des matières",
         "showOpenedFiles": "Afficher les fichiers ouverts",
+        "autoReveal": "Afficher le fichier actif dans la barre latérale",
         "excludePatterns": "Motifs d'exclusion",
         "excludePatternsNotes": "Notes sur les motifs d'exclusion",
         "fileSortBy": {
@@ -526,12 +548,13 @@
         "fontFamily": "Famille de police",
         "maxWidth": "Largeur maximale",
         "maxWidthNotes": "Largeur maximale du contenu de l'éditeur. Saisissez un nombre suivi de px, ch (caractères) ou %, par exemple 800px, 80ch ou 60%. Laissez vide pour utiliser la largeur par défaut.",
-        "maxWidthInvalid": "Saisissez un nombre suivi de px, ch ou %, par exemple 800px."
+        "maxWidthInvalid": "Saisissez un nombre suivi de px, ch ou %, par exemple 800px.",
+        "codeFontFamily": "Police du code",
+        "codeFontFamilyNotes": "S’applique au code en ligne et aux blocs de code."
       },
       "codeBlock": {
         "title": "Bloc de code",
         "fontSize": "Taille de police",
-        "fontFamily": "Famille de police",
         "showLineNumbers": "Afficher les numéros de ligne",
         "removeEmptyLines": "Supprimer les lignes vides"
       },
@@ -646,6 +669,10 @@
         "texMathGfm": "Maths TeX de GitHub ($`…`$ et ```math)",
         "texMathSingleBackslash": "Maths TeX avec barre oblique inverse simple",
         "texMathDoubleBackslash": "Maths TeX avec barre oblique inverse double",
+        "highlightSyntax": "Surlignage (==texte==)",
+        "inlineDiff": "Diff en ligne ({+ … +})",
+        "multilineBlockquote": "Citation multiligne (>>>)",
+        "githubAlerts": "Activer les alertes GitHub",
         "frontmatterType": {
           "jsonBrace": "Accolade JSON",
           "jsonSemicolon": "Point-virgule JSON",
@@ -695,6 +722,7 @@
     "theme": {
       "title": "Thème",
       "followSystemTheme": "Suivre le thème du système",
+      "followSystemNote": "Suivre le thème du système verrouille la liste des thèmes ci-dessous. Désactivez cette option pour changer librement de thème.",
       "modeThemes": "Sélection du thème",
       "lightModeTheme": "Thème en mode clair",
       "darkModeTheme": "Thème en mode sombre",
@@ -777,6 +805,7 @@
       "quit": "Quitter",
       "toggleAutoSave": "Basculer l'enregistrement automatique",
       "importFile": "Importer un fichier",
+      "revealInSideBar": "Afficher dans la barre latérale",
       "exportFile": "Exporter un fichier",
       "exportFilePdf": "Exporter en PDF",
       "zoom": "Zoom",
@@ -897,6 +926,7 @@
     "ok": "OK"
   },
   "dialog": {
+    "moveToTrash": "Voulez-vous vraiment déplacer « {name} » vers la corbeille ?",
     "cancel": "Annuler",
     "changesWillBeLost": "Les modifications seront perdues",
     "close": "Fermer",
@@ -999,6 +1029,9 @@
       "languageMissing": "Langue du correcteur manquante {languageCode}",
       "switchError": "Erreur de changement du correcteur pour {languageCode}, {error}",
       "title": "Vérification orthographique"
+    },
+    "tabs": {
+      "close": "Fermer {name}"
     }
   }
 }

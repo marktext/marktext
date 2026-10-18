@@ -8,8 +8,8 @@ import type {
 } from '../../../state/types';
 import type Code from '../../commonMark/codeBlock/code';
 import type HTMLPreview from '../../commonMark/html/htmlPreview';
-import { CLASS_NAMES, EVENT_KEYS, HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
-import { adjustOffset, escapeHTML, firstGraphemeLength, firstWordOfInfo, isKeyboardEvent, lastGraphemeLength, lineBounds } from '../../../utils';
+import { CLASS_NAMES, HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
+import { adjustOffset, escapeHTML, firstGraphemeLength, firstWordOfInfo, lastGraphemeLength, lineBounds } from '../../../utils';
 import { computeLineCount, repositionLineNumberSpans, syncLineNumbersSpans } from '../../../utils/codeBlockLineNumbers';
 import { getHighlightHtml, MARKER_HASH } from '../../../utils/highlightHTML';
 import prism, { loadedLanguages, transformAliasToOrigin, walkTokens } from '../../../utils/prism/index';
@@ -323,23 +323,6 @@ class CodeBlockContent extends Content {
         this.setCursor(offset, offset, true);
     }
 
-    // Content.arrowHandler measures the caret to tell whether it is on the
-    // block's first or last line, and a caret on an empty line has no rect to
-    // measure, so it left the block. A newline on the caret's side settles it.
-    override arrowHandler(event: Event): void {
-        if (isKeyboardEvent(event)) {
-            const { start, end } = this.getCursor()!;
-            if (
-                (event.key === EVENT_KEYS.ArrowUp && this.text.slice(0, start.offset).includes('\n'))
-                || (event.key === EVENT_KEYS.ArrowDown && this.text.slice(end.offset).includes('\n'))
-            ) {
-                return;
-            }
-        }
-
-        super.arrowHandler(event);
-    }
-
     override tabHandler(event: KeyboardEvent): void {
         event.preventDefault();
         const { start, end } = this.getCursor()!;
@@ -432,6 +415,11 @@ class CodeBlockContent extends Content {
 
             return cursorBlock.setCursor(0, 0, true);
         }
+
+        // Ctrl/Alt/Cmd+Backspace deletes a word or line: leave it to the browser (#5239).
+        if (event.ctrlKey || event.altKey || event.metaKey)
+            return;
+
         // The following code should fix a certain bug:
         // when there is one newline(\n) character before cursor.
         // pressing the backspace key should work properly.(compatibility with Firefox)

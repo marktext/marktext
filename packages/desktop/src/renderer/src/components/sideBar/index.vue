@@ -11,18 +11,41 @@
           v-for="(c, index) of sideBarIcons"
           :key="index"
           :class="{ active: c.id === rightColumn }"
-          @click="handleLeftIconClick(c.id)"
         >
-          <component :is="c.icon" />
+          <icon-tooltip
+            :content="c.name()"
+            placement="right"
+          >
+            <button
+              type="button"
+              class="plain-button"
+              :aria-label="c.name()"
+              :aria-pressed="c.id === rightColumn"
+              @click="handleLeftIconClick(c.id)"
+            >
+              <component :is="c.icon" />
+            </button>
+          </icon-tooltip>
         </li>
       </ul>
       <ul class="bottom">
         <li
           v-for="(c, index) of sideBarBottomIcons"
           :key="index"
-          @click="handleLeftBottomClick(c.id)"
         >
-          <component :is="c.icon" />
+          <icon-tooltip
+            :content="c.name()"
+            placement="right"
+          >
+            <button
+              type="button"
+              class="plain-button"
+              :aria-label="c.name()"
+              @click="handleLeftBottomClick(c.id)"
+            >
+              <component :is="c.icon" />
+            </button>
+          </icon-tooltip>
         </li>
       </ul>
     </div>
@@ -57,6 +80,7 @@ import { sideBarIcons, sideBarBottomIcons } from './help'
 import Tree from './tree.vue'
 import SideBarSearch from './search.vue'
 import Toc from './toc.vue'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import { storeToRefs } from 'pinia'
 import type { TabDescriptor } from './types'
 
@@ -185,13 +209,19 @@ const handleLeftBottomClick = (name: string): void => {
   height: 45px;
   margin: 0;
   padding: 0;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  cursor: pointer;
 }
 
-.left-column ul > li > svg {
+.left-column ul > li > button {
+  width: 100%;
+  height: 100%;
+}
+
+/* Frame the icon rather than the whole 45px cell. */
+.left-column ul > li > button:focus-visible {
+  outline-offset: -7px;
+}
+
+.left-column ul > li > button > svg {
   width: 18px;
   height: 18px;
   color: var(--sideBarIconColor);
@@ -199,7 +229,7 @@ const handleLeftBottomClick = (name: string): void => {
   transition: transform 0.25s ease-in-out;
 }
 
-.left-column ul > li.active > svg {
+.left-column ul > li.active > button > svg {
   color: var(--themeColor);
 }
 

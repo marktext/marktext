@@ -8,6 +8,7 @@ import { isHTMLElement, sanitize, unescapeHTML } from '../utils';
 import loadRenderer from '../utils/diagram';
 
 import { getHighlightHtml } from '../utils/marked';
+import { sanitizeExportHtml } from '../utils/sanitizeExportHtml';
 import { generateGithubSlug } from '../utils/slug';
 import { transformFootnotes } from './transformFootnotes';
 
@@ -200,6 +201,10 @@ export class MarkdownToHtml {
             texMathSingleBackslash: this._muya?.options?.texMathSingleBackslash ?? false,
             texMathDoubleBackslash: this._muya?.options?.texMathDoubleBackslash ?? false,
             texMathDollars: this._muya?.options?.texMathDollars ?? true,
+            highlightSyntax: this._muya?.options?.highlightSyntax ?? false,
+            inlineDiff: this._muya?.options?.inlineDiff ?? false,
+            multilineBlockquote: this._muya?.options?.multilineBlockquote ?? false,
+            githubAlerts: this._muya?.options?.githubAlerts ?? false,
         });
 
         // Post-process footnotes into the standard GFM / pandoc shape (inline
@@ -209,7 +214,7 @@ export class MarkdownToHtml {
         if (footnote)
             html = transformFootnotes(html);
 
-        html = sanitize(html, EXPORT_DOMPURIFY_CONFIG, false) as string;
+        html = sanitizeExportHtml(html);
 
         const exportContainer = (this._exportContainer
             = document.createElement('div'));
@@ -272,6 +277,7 @@ export class MarkdownToHtml {
         } = {},
     ) {
         const html = await this.renderHtml();
+        const { embedExportFonts } = await import('../utils/embedExportFonts');
 
         // `extraCSS` may changed in the mean time.
         const { title = '', extraCSS = '', inlineStyles = true, dir } = options;
@@ -283,6 +289,12 @@ export class MarkdownToHtml {
             ? exportStyle + SOFT_NEWLINE_AS_SPACE_OVERRIDE
             : exportStyle;
 
+        // Export outside the editor root, where its custom properties no longer inherit.
+        const codeFontFamily = this._muya?.options.codeFontFamily || '';
+        const codeFontCSS = codeFontFamily
+            ? `.markdown-body{--mu-code-font-family:${codeFontFamily};}`
+            : '';
+
         // Mirror the editor's text direction onto the exported document so RTL
         // documents export right-to-left (#4553). LTR is the HTML default, so it
         // stays implicit to keep existing exports byte-identical.
@@ -290,11 +302,7 @@ export class MarkdownToHtml {
 
         let baseStyles: string;
         if (inlineStyles) {
-            // Embed the KaTeX fonts as data URIs so math renders offline. The
-            // font data (~300KB base64) is dynamically imported here so it only
-            // loads on export, never in the editor bundle.
-            const { embedKatexFonts } = await import('../utils/embedKatexFonts');
-            baseStyles = [githubMarkdownCss, embedKatexFonts(katexCss), prismCss]
+            baseStyles = [githubMarkdownCss, embedExportFonts(katexCss), prismCss]
                 .map(css => `  <style>${css}</style>`)
                 .join('\n');
         }
@@ -309,7 +317,7 @@ export class MarkdownToHtml {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG, true)}</title>
 ${baseStyles}
-  <style>${exportStyleFinal}</style>
+  <style>${embedExportFonts(exportStyleFinal)}${codeFontCSS}</style>
   <style>${extraCSS}</style>
 </head>
 <body>

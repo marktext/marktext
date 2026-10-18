@@ -221,6 +221,29 @@ export const waitForEditor = async(page: Page, timeout = 15000): Promise<void> =
   )
 }
 
+/**
+ * Opens `root` as the project folder of the running window and waits until
+ * `marker` (a markdown file inside `root`) appears in the tree.
+ *
+ * A launch argument cannot be used: the launcher passes the app path first, so
+ * a second directory would open a second window. This uses the same internal
+ * channel as the side bar's "Open Folder" dialog, which starts the watcher.
+ */
+export const openProjectFolder = async(
+  app: ElectronApplication,
+  page: Page,
+  root: string,
+  marker: string,
+  timeout = 20000
+): Promise<void> => {
+  await app.evaluate(({ BrowserWindow, ipcMain }, target) => {
+    const win = BrowserWindow.getAllWindows()[0]
+    if (!win) throw new Error('no editor window')
+    ipcMain.emit('app-open-directory-by-id', win.id, target, true)
+  }, root)
+  await page.waitForSelector(`.tree-wrapper .side-bar-file[title="${marker}"]`, { timeout })
+}
+
 export const enterSourceMode = async(page: Page, app: ElectronApplication): Promise<void> => {
   const already = await page.evaluate(() => !!document.querySelector('.source-code .CodeMirror'))
   if (already) return

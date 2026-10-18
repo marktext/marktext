@@ -122,7 +122,7 @@ describe('the language input does not convert', () => {
         await settle();
 
         expect(muya.getState()).toEqual([
-            { name: 'code-block', text: 'code', meta: { type: 'fenced', lang: 'python' } },
+            { name: 'code-block', text: 'code', meta: { type: 'fenced', lang: 'python', fenceChar: '`' } },
         ]);
     });
 

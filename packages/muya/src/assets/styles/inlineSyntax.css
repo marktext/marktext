@@ -29,6 +29,12 @@
     white-space: nowrap;
 }
 
+span.mu-html-tag {
+    color: var(--editor-color-50);
+    font-weight: 200;
+    font-family: monospace;
+}
+
 /* link and auto-link and reference link */
 a.mu-inline-rule,
 span.mu-inline-rule.mu-link {
@@ -63,10 +69,29 @@ code.mu-inline-rule {
 
     color: var(--editor-color);
     font-size: 0.8em;
-    font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', Consolas, monospace;
+    font-family: var(--mu-code-font-family, var(--mu-default-code-font-family));
 
     background-color: var(--code-block-bg-color);
     border-radius: 3px;
+}
+
+/* GitLab inline diff, matching GitLab's own `.idiff` rendering: a coloured
+   wash instead of underline / strikethrough. `mu-inline-diff-*` keeps GFM
+   `~~del~~` (also a plain `del.mu-inline-rule`) unaffected. */
+ins.mu-inline-diff-addition,
+del.mu-inline-diff-deletion {
+    color: #1f1f1f;
+    text-decoration: none;
+
+    border-radius: 2px;
+}
+
+ins.mu-inline-diff-addition {
+    background-color: var(--code-new-inline-diff-background-color);
+}
+
+del.mu-inline-diff-deletion {
+    background-color: var(--code-old-inline-diff-background-color);
 }
 
 /* emoji */
@@ -145,6 +170,29 @@ code.mu-inline-rule {
 /* hard line break and soft line end */
 .mu-line-end {
     display: block;
+}
+
+/* The search band for a line break is an empty box drawn just before the break.
+   Out of flow: in flow its ~4px width wraps a full line onto its own row. */
+.mu-soft-line-break,
+.mu-hard-line-break,
+.mu-line-end {
+    position: relative;
+}
+
+.mu-soft-line-break > .mu-highlight,
+.mu-soft-line-break > .mu-selection,
+.mu-hard-line-break > .mu-highlight,
+.mu-hard-line-break > .mu-selection,
+.mu-line-end > .mu-highlight,
+.mu-line-end > .mu-selection {
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+
+    /* `.mu-selection` is normally inline and takes its height from the line
+       box; blockified by `position: absolute` it would collapse to zero. */
+    height: 1.3em;
 }
 
 /* When softNewlineAsSpace is on, collapse the \n inside a soft break span

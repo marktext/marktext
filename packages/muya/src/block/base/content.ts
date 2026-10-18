@@ -7,8 +7,9 @@ import type Parent from './parent';
 import diff from 'fast-diff';
 import TreeNode from '../../block/base/treeNode';
 import { ScrollPage } from '../../block/scrollPage';
-import { BACK_HASH, BRACKET_HASH, CLASS_NAMES, EVENT_KEYS } from '../../config';
+import { BACK_HASH, BRACKET_HASH, CLASS_NAMES, EVENT_KEYS, isOsx } from '../../config';
 import Selection from '../../selection';
+import { offsetInBlockAtPoint } from '../../selection/dom';
 import {
     adjustOffset,
     diffToTextOp,
@@ -27,6 +28,23 @@ import { revealBlock, visibleContentInContext } from '../folding';
 // to find the word at the cursor for spell-check replacement.
 const WORD_SEPARATORS = /[`~!@#$%^&*()\-=+[{\]}\\|;:'",.<>/?\s]/g;
 const WORD_DEFINITION = /-?\d*\.\d\w*|[^`~!@#$%^&*()\-=+[{\]}\\|;:'",.<>/?\s]+/g;
+
+/**
+ * Whether the event is macOS ⌘↑/⌘↓, which the system text bindings own: Blink
+ * runs them as the same MoveToBeginningOfDocument/End commands it maps
+ * Ctrl+Home/End to on Windows and Linux. muya has to leave them to the browser,
+ * otherwise the arrow cases move the caret by column instead of to the document
+ * edge (#3452).
+ *
+ * `osx` is injectable so the platform branch is testable.
+ */
+export function isDocumentBoundaryArrow(event: KeyboardEvent, osx: boolean = isOsx): boolean {
+    return osx
+        && event.metaKey
+        && !event.ctrlKey
+        && !event.altKey
+        && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown);
+}
 
 /**
  * Extract the word at the given offset from the text.
@@ -495,12 +513,7 @@ class Content extends TreeNode {
         if (!isKeyboardEvent(event))
             return;
 
-        const previousContentBlock = visibleContentInContext(this, 'previous');
-        const nextContentBlock = visibleContentInContext(this, 'next');
         const { start, end } = this.getCursor()!;
-        const { topOffset, bottomOffset } = Selection.getCursorYOffset(
-            this.domNode!,
-        );
 
         if (event.shiftKey) {
             this._revealArrowSelectionTarget(event, start.offset, end.offset);
@@ -509,35 +522,22 @@ class Content extends TreeNode {
         if (start.offset !== end.offset)
             return;
 
-        if (
-            (event.key === EVENT_KEYS.ArrowUp && topOffset > 0)
-            || (event.key === EVENT_KEYS.ArrowDown && bottomOffset > 0)
-        ) {
+        if (this._deferArrowToBrowser(event, start.offset, end.offset))
             return;
-        }
 
-        const { muya } = this;
+        const direction = this._arrowDirection(event, start.offset, this.text.length);
+        if (direction == null)
+            return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
         let cursorBlock = null;
         let offset = 0;
-        // In RTL the physical Left/Right arrows are visually mirrored, so the
-        // cross-block boundary keys swap (offset 0 is the visual right end).
-        const isRtl = this.domNode?.closest('[dir]')?.getAttribute('dir') === 'rtl';
-        const prevKey = isRtl ? EVENT_KEYS.ArrowRight : EVENT_KEYS.ArrowLeft;
-        const nextKey = isRtl ? EVENT_KEYS.ArrowLeft : EVENT_KEYS.ArrowRight;
 
-        if (
-            event.key === EVENT_KEYS.ArrowUp
-            || (event.key === prevKey && start.offset === 0)
-        ) {
-            event.preventDefault();
-            event.stopPropagation();
-
+        if (direction === 'up') {
+            const previousContentBlock = visibleContentInContext(this, 'previous');
             if (!previousContentBlock) {
-                // First block, no previous: ArrowUp moves the caret to the
-                // start of the line (offset 0) instead of staying put (#3193).
-                // A boundary ArrowLeft has nowhere to go, so leave it. Skip the
-                // re-set when the caret is already at offset 0, so a no-op
-                // ArrowUp doesn't emit a spurious selection-change or re-render.
                 if (event.key === EVENT_KEYS.ArrowUp && start.offset !== 0)
                     this.setCursor(0, 0, true);
 
@@ -545,40 +545,115 @@ class Content extends TreeNode {
             }
 
             cursorBlock = previousContentBlock;
-            offset = previousContentBlock.text.length;
+            offset = this._upArrowOffset(previousContentBlock, event);
         }
-        else if (
-            event.key === EVENT_KEYS.ArrowDown
-            || (event.key === nextKey && start.offset === this.text.length)
-        ) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (nextContentBlock) {
-                cursorBlock = nextContentBlock;
-            }
-            // Only append a trailing paragraph when the last block has content.
-            // Otherwise ArrowDown in an already-empty last paragraph would keep
-            // creating empty paragraphs on every keypress (#3520).
-            else if (this.text.length > 0 && !this.parent?.domNode?.classList.contains(CLASS_NAMES.MU_FOLDED)) {
-                const newNodeState = {
-                    name: 'paragraph',
-                    text: '',
-                };
+        else {
+            cursorBlock = visibleContentInContext(this, 'next');
+            if (!cursorBlock && this.text.length > 0 && !this.parent?.domNode?.classList.contains(CLASS_NAMES.MU_FOLDED)) {
+                const newNodeState = { name: 'paragraph', text: '' };
                 const newNode = ScrollPage.loadBlock(newNodeState.name).create(
-                    muya,
+                    this.muya,
                     newNodeState,
                 );
                 this.scrollPage?.append(newNode, 'user');
                 cursorBlock = newNode.children.head;
             }
+
             if (cursorBlock)
-                offset = adjustOffset(0, cursorBlock, event);
+                offset = this._downArrowOffset(cursorBlock, event);
         }
 
         if (cursorBlock) {
             this.update();
             cursorBlock.setCursor(offset, offset, true);
         }
+    }
+
+    private _upArrowOffset(block: Content, event: KeyboardEvent): number {
+        if (event.key !== EVENT_KEYS.ArrowUp)
+            return block.text.length;
+
+        return this._nearestOffsetAtColumn(block, 'bottom') ?? block.text.length;
+    }
+
+    private _moveDownOntoTrailingBlankLine(event: KeyboardEvent, offset: number): boolean {
+        // Only inline blocks paint this line as a span the browser cannot reach,
+        // so ArrowDown clamps to the line above instead. `softNewlineAsSpace`
+        // drops the span and a code block renders its own, which it can reach.
+        if (!this.domNode?.lastElementChild?.classList.contains(CLASS_NAMES.MU_LINE_END))
+            return false;
+
+        if (event.key !== EVENT_KEYS.ArrowDown || this.text.indexOf('\n', offset) !== this.text.length - 1)
+            return false;
+
+        event.preventDefault();
+        event.stopPropagation();
+        this.setCursor(this.text.length, this.text.length, true);
+
+        return true;
+    }
+
+    /**
+     * Whether the key is left to the browser's own move. Its y-offset test cannot
+     * measure a caret on an empty line (no rect), so a line break on the caret's
+     * side decides that case instead.
+     */
+    private _deferArrowToBrowser(event: KeyboardEvent, start: number, end: number): boolean {
+        if (this._moveDownOntoTrailingBlankLine(event, end))
+            return true;
+
+        if (Selection.getCursorCoords() == null && this._lineBreakOnCaretSide(event, start, end))
+            return true;
+
+        const { topOffset, bottomOffset } = Selection.getCursorYOffset(this.domNode!);
+
+        return (event.key === EVENT_KEYS.ArrowUp && topOffset > 0)
+            || (event.key === EVENT_KEYS.ArrowDown && bottomOffset > 0);
+    }
+
+    /** The cross-block direction the key moves in, or null for the keys the browser keeps. */
+    private _arrowDirection(event: KeyboardEvent, offset: number, textLength: number): 'up' | 'down' | null {
+        // In RTL the physical Left/Right arrows are visually mirrored, so the
+        // cross-block boundary keys swap (offset 0 is the visual right end).
+        const isRtl = this.domNode?.closest('[dir]')?.getAttribute('dir') === 'rtl';
+        const prevKey = isRtl ? EVENT_KEYS.ArrowRight : EVENT_KEYS.ArrowLeft;
+        const nextKey = isRtl ? EVENT_KEYS.ArrowLeft : EVENT_KEYS.ArrowRight;
+
+        if (event.key === EVENT_KEYS.ArrowUp || (event.key === prevKey && offset === 0))
+            return 'up';
+
+        if (event.key === EVENT_KEYS.ArrowDown || (event.key === nextKey && offset === textLength))
+            return 'down';
+
+        return null;
+    }
+
+    private _lineBreakOnCaretSide(event: KeyboardEvent, start: number, end: number): boolean {
+        if (event.key === EVENT_KEYS.ArrowUp)
+            return this.text.slice(0, start).includes('\n');
+
+        if (event.key === EVENT_KEYS.ArrowDown)
+            return this.text.slice(end).includes('\n');
+
+        return false;
+    }
+
+    private _downArrowOffset(block: Content, event: KeyboardEvent): number {
+        const boundary = adjustOffset(0, block, event);
+        if (event.key !== EVENT_KEYS.ArrowDown)
+            return boundary;
+
+        const nearest = this._nearestOffsetAtColumn(block, 'top');
+        // A hit can land before an ATX heading's `#` prefix; keep it a lower bound.
+        return nearest == null ? boundary : Math.max(nearest, boundary);
+    }
+
+    private _nearestOffsetAtColumn(block: Content, edge: 'top' | 'bottom'): number | null {
+        const x = Selection.getCursorCoords()?.x;
+        if (x == null)
+            return null;
+
+        return offsetInBlockAtPoint(document, block, x, edge);
     }
 
     override createDomNode() {
@@ -872,6 +947,10 @@ class Content extends TreeNode {
             return;
 
         if (this._wrapSelectionWithAutoPair(event))
+            return;
+
+        // Before the switch: these are the browser's keys, not plain arrows.
+        if (isDocumentBoundaryArrow(event))
             return;
 
         switch (event.key) {

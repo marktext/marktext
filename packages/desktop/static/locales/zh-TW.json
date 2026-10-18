@@ -70,6 +70,7 @@
       "table": "表格",
       "codeFences": "程式碼圍欄",
       "quoteBlock": "引用區塊",
+      "githubAlerts": "GitHub 提示區塊",
       "mathBlock": "數學區塊",
       "htmlBlock": "HTML 區塊",
       "orderedList": "有序清單",
@@ -204,6 +205,7 @@
       "paste": "貼上",
       "rename": "重新命名",
       "moveToTrash": "移到垃圾桶",
+      "copyPath": "複製路徑",
       "showInFolder": "在資料夾中顯示"
     },
     "tabs": {
@@ -213,7 +215,8 @@
       "closeAllTabs": "關閉所有標籤頁",
       "rename": "重新命名",
       "copyPath": "複製路徑",
-      "showInFolder": "在資料夾中顯示"
+      "showInFolder": "在資料夾中顯示",
+      "showInSideBar": "在側邊欄中顯示"
     }
   },
   "search": {
@@ -258,6 +261,13 @@
       "settings": "設定"
     }
   },
+  "titleBar": {
+    "applicationMenu": "應用程式選單",
+    "minimize": "最小化",
+    "maximize": "最大化",
+    "restore": "向下還原",
+    "close": "關閉"
+  },
   "commandPalette": {
     "placeholder": "輸入要執行的命令",
     "placeholders": {
@@ -269,13 +279,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "自動編號標題",
     "title": "匯出選項",
-    "info": {
-      "label": "資訊",
-      "description": "請自訂頁面外觀並點選「匯出」以繼續。"
-    },
     "page": {
       "label": "頁面",
-      "pageTitle": "頁面標題：",
+      "pageTitle": "頁面標題",
       "pageSize": "頁面大小：",
       "landscapeOrientation": "橫向方向：",
       "pageMargin": "頁面邊距（毫米）：",
@@ -312,12 +318,13 @@
       "description": "如果定義了頁首和/或頁尾，文字將出現在所有頁面上。"
     },
     "toc": {
-      "includeTopHeading": "包含頂層標題",
-      "includeTopHeadingDetail": "包含頂層標題詳細資訊",
+      "description": "若要在匯出文件中顯示目錄，請在正文中單獨一行輸入 [TOC]。目錄將產生在該位置。",
+      "includeTopHeading": "包含一級標題",
+      "includeTopHeadingDetail": "在目錄中包含所有一級（H1）標題。",
       "label": "目錄",
       "title": "目錄"
     },
-    "export": "匯出…",
+    "export": "匯出",
     "options": {
       "pageSizes": {
         "a3": "A3",
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "偏好設定",
+    "learnMore": "了解更多：{name}",
     "search": {
       "placeholder": "搜尋偏好設定…",
       "categories": {
@@ -390,7 +398,7 @@
         "wrapCodeBlocks": "在程式碼區塊內自動換行",
         "editorLineWidth": "定義編輯器區域的最大寬度。允許空字串或 ch（字元）、px（像素）或 %（百分比）後綴",
         "codeFontSize": "程式碼區塊中的字型大小，範圍是 12 ~ 18",
-        "codeFontFamily": "程式碼區塊中使用的字型系列",
+        "codeFontFamily": "程式碼字型：適用於行內程式碼和程式碼區塊。",
         "codeBlockLineNumbers": "是否顯示行號",
         "sourceCodeLineNumbers": "在原始碼模式中顯示行號",
         "trimUnnecessaryCodeBlockEmptyLines": "修剪程式碼區塊開頭和結尾的空行",
@@ -418,6 +426,10 @@
         "texMathGfm": "啟用 Pandoc 的 Markdown 擴充 tex_math_gfm",
         "texMathSingleBackslash": "啟用 Pandoc 的 Markdown 擴充 tex_math_single_backslash",
         "texMathDoubleBackslash": "啟用 Pandoc 的 Markdown 擴充 tex_math_double_backslash",
+        "highlightSyntax": "啟用非標準的 ==文字== 螢光標記語法",
+        "inlineDiff": "啟用非標準的行內差異語法 {+ … +} / [- … -]",
+        "multilineBlockquote": "啟用非標準的多行引用區塊語法 >>> … >>>",
+        "githubAlerts": "GitHub 提示區塊",
         "isHtmlEnabled": "啟用 HTML 轉譯",
         "softNewlineAsSpace": "將軟換行視為空格",
         "sequenceTheme": "序列圖主題",
@@ -434,7 +446,8 @@
         "imageRelativeDirectoryBase": "相對圖片的複製位置",
         "imageRelativeDirectoryName": "相對圖片資料夾名稱",
         "fileSortOrder": "開啟資料夾中檔案的排序順序：遞增或遞減",
-        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案"
+        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案",
+        "showPandocConvert": "顯示 Pandoc 轉換選單。需要先安裝 Pandoc。"
       }
     },
     "categories": {
@@ -478,10 +491,19 @@
         "selectFolder": "選擇資料夾",
         "openBlankPage": "開啟空白頁面"
       },
+      "pandoc": {
+        "title": "Pandoc 轉換",
+        "description": "顯示 Pandoc 轉換選單",
+        "detailedDescription": "需要先安裝 Pandoc",
+        "found": "已找到：{path}",
+        "notFound": "未找到",
+        "recheck": "重新檢測"
+      },
       "sidebar": {
         "title": "側邊欄",
         "wrapTextInToc": "在目錄中換行文字",
         "showOpenedFiles": "顯示已開啟的檔案",
+        "autoReveal": "在側邊欄中定位目前檔案",
         "excludePatterns": "排除模式",
         "excludePatternsNotes": "排除模式（備註）",
         "fileSortBy": {
@@ -526,12 +548,13 @@
         "fontFamily": "字型系列",
         "maxWidth": "最大寬度",
         "maxWidthNotes": "編輯器內容的最大寬度。數字後需帶單位 px、ch（字元數）或 %，例如 800px、80ch、60%。留空則使用預設寬度。",
-        "maxWidthInvalid": "請輸入數字並帶上單位 px、ch 或 %，例如 800px。"
+        "maxWidthInvalid": "請輸入數字並帶上單位 px、ch 或 %，例如 800px。",
+        "codeFontFamily": "程式碼字型",
+        "codeFontFamilyNotes": "適用於行內程式碼和程式碼區塊。"
       },
       "codeBlock": {
         "title": "程式碼區塊",
         "fontSize": "字型大小",
-        "fontFamily": "字型系列",
         "showLineNumbers": "顯示行號",
         "removeEmptyLines": "移除空行"
       },
@@ -646,6 +669,10 @@
         "texMathGfm": "GitHub 的 TeX 數學公式（$`…`$ 與 ```math）",
         "texMathSingleBackslash": "使用單反斜線分隔符的 TeX 數學公式",
         "texMathDoubleBackslash": "使用雙反斜線分隔符的 TeX 數學公式",
+        "highlightSyntax": "螢光標記 (==文字==)",
+        "inlineDiff": "行內差異 ({+ … +})",
+        "multilineBlockquote": "多行引用區塊 (>>>)",
+        "githubAlerts": "啟用 GitHub 提示區塊",
         "frontmatterType": {
           "jsonBrace": "JSON 大括號",
           "jsonSemicolon": "JSON 分號",
@@ -695,6 +722,7 @@
     "theme": {
       "title": "主題",
       "followSystemTheme": "跟隨系統主題",
+      "followSystemNote": "跟隨系統主題時，下方主題列表無法切換。關閉後即可自由切換。",
       "modeThemes": "主題選擇",
       "lightModeTheme": "淺色模式主題",
       "darkModeTheme": "深色模式主題",
@@ -777,6 +805,7 @@
       "quit": "退出",
       "toggleAutoSave": "切換自動儲存",
       "importFile": "匯入檔案",
+      "revealInSideBar": "在側邊欄中顯示",
       "exportFile": "匯出檔案",
       "exportFilePdf": "匯出為 PDF",
       "zoom": "縮放",
@@ -897,6 +926,7 @@
     "ok": "確定"
   },
   "dialog": {
+    "moveToTrash": "確定要將「{name}」移到垃圾桶嗎？",
     "cancel": "取消",
     "changesWillBeLost": "變更將遺失",
     "close": "關閉",
@@ -999,6 +1029,9 @@
       "languageMissing": "拼字檢查語言缺失 {languageCode}",
       "switchError": "{languageCode} 拼字檢查切換錯誤，{error}",
       "title": "拼字檢查"
+    },
+    "tabs": {
+      "close": "關閉 {name}"
     }
   }
 }

@@ -27,3 +27,8 @@ export const copyPath = (tabId: string): void => {
 export const showInFolder = (tabId: string): void => {
   bus.emit('TABS::show-in-folder', tabId)
 }
+
+export const showInSideBar = (pathname?: string | null): void => {
+  if (!pathname) return
+  bus.emit('SIDEBAR::reveal-file', pathname)
+}

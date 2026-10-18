@@ -1,23 +1,34 @@
 <template>
   <div class="title-bar">
-    <div
-      class="frameless-titlebar-button frameless-titlebar-close"
-      @click.stop="handleCloseClick"
+    <icon-tooltip
+      :content="t('titleBar.close')"
+      placement="bottom-end"
     >
-      <div>
-        <svg
-          width="10"
-          height="10"
-        >
-          <path :d="windowIconClose" />
-        </svg>
-      </div>
-    </div>
+      <button
+        type="button"
+        class="plain-button frameless-titlebar-button frameless-titlebar-close"
+        :aria-label="t('titleBar.close')"
+        @click.stop="handleCloseClick"
+      >
+        <span>
+          <svg
+            width="10"
+            height="10"
+          >
+            <path :d="windowIconClose" />
+          </svg>
+        </span>
+      </button>
+    </icon-tooltip>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { closePath as windowIconClose } from '../../assets/window-controls'
+import IconTooltip from '@/components/iconTooltip/index.vue'
+
+const { t } = useI18n()
 
 const handleCloseClick = () => {
   window.electron.windowControl.close()
@@ -51,7 +62,7 @@ const handleCloseClick = () => {
   -webkit-app-region: no-drag;
 }
 
-.frameless-titlebar-button > div {
+.frameless-titlebar-button > span {
   position: absolute;
   display: inline-flex;
   top: 50%;

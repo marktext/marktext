@@ -19,10 +19,11 @@ import paragraphIcon from '../../assets/icons/paragraph/2.png';
 import plantumlIcon from '../../assets/icons/plantuml/2.png';
 import quoteIcon from '../../assets/icons/quote_block/2.png';
 import sequenceIcon from '../../assets/icons/sequence/2.png';
-
 import todoListIcon from '../../assets/icons/todolist/2.png';
+
 import { isOsx } from '../../config';
 import { isKeyboardEvent } from '../../utils';
+import { GITHUB_ALERT_TYPES, githubAlertMenuIcon } from '../../utils/githubAlerts';
 
 const COMMAND_KEY = isOsx ? '⌘' : 'Ctrl';
 const OPTION_KEY = isOsx ? '⌥' : 'Alt';
@@ -44,6 +45,7 @@ export interface IQuickInsertMenuItem {
         icon: string;
         score?: number;
         i18nTitle?: string;
+        searchText?: string;
         shortCut?: string;
         shortKeyMap?: {
             altKey: boolean;
@@ -253,6 +255,15 @@ export const MENU_CONFIG: IQuickInsertMenuItem[] = [
                 icon: quoteIcon,
             },
         ],
+    },
+    {
+        name: 'GitHub Alerts',
+        children: GITHUB_ALERT_TYPES.map(type => ({
+            title: `GitHub Alert: ${type}`,
+            subTitle: ({ NOTE: 'Supplementary information', TIP: 'Helpful advice', IMPORTANT: 'Key information', WARNING: 'Problems needing attention', CAUTION: 'Risks and negative outcomes' })[type],
+            label: `github-alert ${type}`,
+            icon: githubAlertMenuIcon(type),
+        })),
     },
     {
         name: 'list blocks',

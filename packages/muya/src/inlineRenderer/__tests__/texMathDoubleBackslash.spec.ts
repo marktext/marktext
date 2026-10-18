@@ -22,6 +22,7 @@ function options(texMathDoubleBackslash: boolean, texMathSingleBackslash = false
         texMathGfm: false,
         texMathSingleBackslash,
         texMathDoubleBackslash,
+        highlightSyntax: false,
     };
 }
 

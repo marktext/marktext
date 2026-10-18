@@ -85,6 +85,23 @@ describe('muya runtime options', () => {
         expect(muya.editor.history.canUndo()).toBe(true);
     });
 
+    it.each([
+        { option: 'texMathDollars' as const, markdown: '$$\nx\n$$', before: 'paragraph', after: 'math-block' },
+        { option: 'githubAlerts' as const, markdown: '> [!NOTE]\n> Body', before: 'block-quote', after: 'github-alert' },
+    ])('$option reparses only when forceRender is requested, without changing history', ({ option, markdown, before, after }) => {
+        const muya = bootMuya('Before');
+        muya.setOptions({ [option]: false }, true);
+        muya.setContent(markdown);
+        muya.replaceContent(`${markdown}\n\nTail`);
+        const history = muya.getHistory();
+        expect(history.stack.undo).toHaveLength(1);
+        muya.setOptions({ [option]: true });
+        expect(muya.getState()[0].name).toBe(before);
+        muya.setOptions({ [option]: true }, true);
+        expect(muya.getState()[0].name).toBe(after);
+        expect(muya.getHistory()).toEqual(history);
+    });
+
     it('setOptions reflects spellcheckEnabled on the container', () => {
         const muya = bootMuya('x\n');
         muya.setOptions({ spellcheckEnabled: true });
@@ -208,6 +225,22 @@ describe('muya render-affecting options', () => {
         muya.setOptions({ superSubScript: true }, true);
         await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
         expect(muya.domNode.querySelectorAll('sup').length).toBe(1);
+    });
+
+    it('setOptions highlightSyntax toggles ==text== → <mark> live', async () => {
+        const muya = bootMuyaWith('==hi==\n', {});
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(muya.domNode.querySelectorAll('mark').length).toBe(0);
+        expect(muya.domNode.textContent).toContain('==hi==');
+
+        muya.setOptions({ highlightSyntax: true }, true);
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(muya.domNode.querySelectorAll('mark').length).toBe(1);
+        expect(muya.getMarkdown()).toBe('==hi==\n');
+
+        muya.setOptions({ highlightSyntax: false }, true);
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(muya.domNode.querySelectorAll('mark').length).toBe(0);
     });
 
     it('frontmatterType:false drives the option onto muya.options', () => {

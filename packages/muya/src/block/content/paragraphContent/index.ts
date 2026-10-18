@@ -4,7 +4,6 @@ import type { IRenderCursor } from '../../../selection/types';
 import type {
     IBlockQuoteState,
     IBulletListState,
-    IDiagramMeta,
     IListItemState,
     IOrderListState,
     IParagraphState,
@@ -12,18 +11,22 @@ import type {
     ITaskListState,
 } from '../../../state/types';
 import type { Nullable } from '../../../types';
-import type Content from '../../base/content';
+import type { GithubAlertType } from '../../../utils/githubAlerts';
 import type Parent from '../../base/parent';
 import type BulletList from '../../commonMark/bulletList';
 import type Paragraph from '../../commonMark/paragraph';
 import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
 import { tokenizer } from '../../../inlineRenderer/lexer';
 import { isListItemState, isTaskListItemState } from '../../../state/types';
-import { isKeyboardEvent, isLengthEven } from '../../../utils';
+import { firstWordOfInfo, isKeyboardEvent, isLengthEven, parseFenceLine } from '../../../utils';
+import { createDiagramState, diagramTypeOfLang } from '../../../utils/diagram/fence';
+import { matchGithubAlertMarker } from '../../../utils/githubAlerts';
 import logger from '../../../utils/logger';
 import Format from '../../base/format';
+import BlockQuote from '../../commonMark/blockQuote';
 import OrderList from '../../commonMark/orderList';
 import TaskList from '../../gfm/taskList';
+import { convertGithubAlert } from '../../githubAlerts';
 import { ScrollPage } from '../../scrollPage';
 
 // `_unindentListItem` / `_indentListItem` walk parents typed as the loose
@@ -74,31 +77,41 @@ function holdsItemKind(list: Parent, listItem: Parent) {
 const debug = logger('paragraph:content');
 
 const HTML_BLOCK_REG = /^<([a-z\d-]+)(?=\s|>)[^<>]*>$/i;
-const CODE_BLOCK_REG = /(^ {0,3}`{3,})([^` ]*)/;
 const MATH_BLOCK_REG = /^\$\$[ \t]*$/;
+const MULTILINE_BLOCKQUOTE_REG = /^>>>[ \t]*$/;
 // eslint-disable-next-line regexp/no-super-linear-backtracking
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/;
 
 type BlockConversion
     = | { kind: 'math' }
-        | { kind: 'code'; lang: string }
+        | { kind: 'code'; lang: string; fenceChar: '`' | '~' }
         | { kind: 'table' }
-        | { kind: 'html'; tagName: string };
+        | { kind: 'html'; tagName: string }
+        | { kind: 'multiline-blockquote' }
+        | { kind: 'github-alert'; type: GithubAlertType };
 
-// Single source of truth for "what block, if any, does this paragraph text
-// convert into on Enter". Shared by the enterHandler guard (to decide whether
-// to convert in place) and `_enterConvert` (to perform it), so the match rules
-// can never drift between the two.
-function matchBlockConversion(text: string, texMathDollars: boolean): BlockConversion | null {
+function matchBlockConversion(
+    text: string,
+    texMathDollars: boolean,
+    multilineBlockquote: boolean,
+    githubAlerts: boolean,
+): BlockConversion | null {
+    const alertType = githubAlerts ? matchGithubAlertMarker(text) : null;
+    if (alertType)
+        return { kind: 'github-alert', type: alertType };
+
+    if (multilineBlockquote && MULTILINE_BLOCKQUOTE_REG.test(text))
+        return { kind: 'multiline-blockquote' };
+
     // A `$$` paragraph only becomes a math block while the dollar syntax is
     // recognised; otherwise the block would serialize to markdown this editor
     // no longer reads back (#5446).
     if (texMathDollars && MATH_BLOCK_REG.test(text))
         return { kind: 'math' };
 
-    const codeBlockToken = text.match(CODE_BLOCK_REG);
-    if (codeBlockToken)
-        return { kind: 'code', lang: codeBlockToken[2] };
+    const fence = parseFenceLine(text);
+    if (fence)
+        return { kind: 'code', lang: firstWordOfInfo(fence.info), fenceChar: fence.fenceChar };
 
     const tableMatch = TABLE_BLOCK_REG.exec(text);
     if (tableMatch && isLengthEven(tableMatch[1]) && isLengthEven(tableMatch[2]))
@@ -256,7 +269,6 @@ class ParagraphContent extends Format {
     override backspaceHandler(event: Event) {
         const { start, end } = this.getCursor()!;
         const { eventCenter } = this.muya;
-
         if (start.offset !== 0 || end.offset !== 0) {
             super.backspaceHandler(event);
             eventCenter.emit('content-change', { block: this });
@@ -267,14 +279,17 @@ class ParagraphContent extends Format {
         const type = this._paragraphParentType();
 
         switch (type) {
+            case 'block-quote':
+                return this._handleBackspaceInBlockQuote();
+
+            case 'github-alert':
+                return this._handleBackspaceInGithubAlert(event);
+
             case 'paragraph':
                 return this._handleBackspaceInParagraph();
 
             case 'footnote':
                 return this._handleBackspaceInFootnote();
-
-            case 'block-quote':
-                return this._handleBackspaceInBlockQuote();
 
             case 'list-item': // fall through
             case 'task-list-item':
@@ -293,15 +308,18 @@ class ParagraphContent extends Format {
         eventCenter.emit('content-change', { block: this });
     }
 
-    private _enterConvert(event: KeyboardEvent) {
+    private _enterConvert(event: KeyboardEvent, match: BlockConversion | null) {
         event.preventDefault();
         event.stopPropagation();
 
-        const match = matchBlockConversion(this.text, this.muya.options.texMathDollars);
         if (!match)
             return super.enterHandler(event);
 
         switch (match.kind) {
+            case 'github-alert':
+                convertGithubAlert(this.parent!.parent!, `github-alert ${match.type}`);
+                break;
+
             case 'math': {
                 const state = {
                     name: 'math-block',
@@ -320,21 +338,13 @@ class ParagraphContent extends Format {
             }
 
             case 'code': {
-                const { lang } = match;
+                const { lang, fenceChar } = match;
                 // Diagram fences (```mermaid etc.) become diagram blocks,
                 // mirroring the file-load path in markdownToState; everything
                 // else is a fenced code block.
-                const diagramMatch = /^(?:mermaid|vega-lite|plantuml|flowchart|sequence)$/.exec(lang);
-                if (diagramMatch) {
-                    const type = lang as IDiagramMeta['type'];
-                    const state = {
-                        name: 'diagram',
-                        text: '',
-                        meta: {
-                            type,
-                            lang: type === 'vega-lite' ? 'json' : 'yaml',
-                        },
-                    };
+                const diagramType = diagramTypeOfLang(lang);
+                if (diagramType) {
+                    const state = createDiagramState(diagramType);
                     const diagramBlock = ScrollPage.loadBlock(state.name).create(
                         this.muya,
                         state,
@@ -350,6 +360,7 @@ class ParagraphContent extends Format {
                         meta: {
                             lang,
                             type: 'fenced',
+                            fenceChar,
                         },
                         text: '',
                     };
@@ -404,63 +415,52 @@ class ParagraphContent extends Format {
                 htmlBlock.firstContentInDescendant().setCursor(offset, offset);
                 break;
             }
+
+            case 'multiline-blockquote': {
+                const state: IBlockQuoteState = {
+                    name: 'block-quote',
+                    meta: { style: 'fenced' },
+                    children: [{ name: 'paragraph', text: '' }],
+                };
+                const blockQuote = ScrollPage.loadBlock('block-quote').create(
+                    this.muya,
+                    state,
+                );
+                this.parent!.replaceWith(blockQuote);
+                blockQuote.firstContentInDescendant().setCursor(0, 0, true);
+                break;
+            }
         }
     }
 
     private _enterInBlockQuote(event: KeyboardEvent) {
-        const { text, parent } = this;
-        if (text.length !== 0)
+        if (this.text.length !== 0)
             return super.enterHandler(event);
-
         event.preventDefault();
         event.stopPropagation();
-
-        const newNode = parent!.clone() as Paragraph;
-        const blockQuote = parent!.parent;
-
-        switch (true) {
-            case parent!.isOnlyChild():
-                blockQuote!.parent!.insertBefore(newNode, blockQuote);
-                blockQuote!.remove();
-                break;
-
-            case parent!.isFirstChild():
-                blockQuote!.parent!.insertBefore(newNode, blockQuote);
-                parent!.remove();
-                break;
-
-            case parent!.isLastChild():
-                blockQuote!.parent!.insertAfter(newNode, blockQuote);
-                parent!.remove();
-                break;
-
-            default: {
-                const newBlockState: IBlockQuoteState = {
-                    name: 'block-quote',
-                    children: [],
-                };
-                const offset = blockQuote!.offset(parent!);
-                blockQuote!.forEachAt(offset + 1, undefined, (node) => {
-                    // forEachAt's callback gets `TreeNode` but the runtime
-                    // children of a blockquote are always Parent-derived
-                    // blocks (paragraph, list, …). isParent() narrows so
-                    // `getState()` (defined on Parent, not TreeNode) resolves.
-                    if (node.isParent())
-                        newBlockState.children.push(node.getState());
-                    node.remove();
-                });
-                const newBlockQuote = ScrollPage.loadBlock(newBlockState.name).create(
-                    this.muya,
-                    newBlockState,
-                );
-                blockQuote!.parent!.insertAfter(newNode, blockQuote);
-                blockQuote!.parent!.insertAfter(newBlockQuote, newNode);
-                parent!.remove();
-                break;
+        const paragraph = this.parent!;
+        const container = paragraph.parent!;
+        const offset = container.offset(paragraph);
+        const outside = paragraph.clone() as Parent;
+        const state = container.getState();
+        if (!('children' in state))
+            return;
+        const tail = state.children.slice(offset + 1);
+        if (offset === 0) {
+            container.parent!.insertBefore(outside, container);
+        }
+        else {
+            container.parent!.insertAfter(outside, container);
+            if (tail.length) {
+                const sibling = ScrollPage.loadBlock(state.name).create(this.muya, { ...state, children: tail });
+                container.parent!.insertAfter(sibling, outside);
+                container.forEachAt(offset + 1, undefined, node => node.remove());
             }
         }
-
-        (newNode.children.head as ParagraphContent).setCursor(0, 0, true);
+        paragraph.remove();
+        if (!container.length())
+            container.remove();
+        outside.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     private _enterInListItem(event: KeyboardEvent) {
@@ -586,6 +586,27 @@ class ParagraphContent extends Format {
         }
     }
 
+    private _matchBlockConversion(event: KeyboardEvent): BlockConversion | null {
+        const conversion = matchBlockConversion(
+            this.text,
+            this.muya.options.texMathDollars,
+            this.muya.options.multilineBlockquote,
+            this.muya.options.githubAlerts,
+        );
+        if (conversion?.kind !== 'github-alert')
+            return conversion;
+
+        const container = this.parent?.parent;
+        const cursor = this.getCursor();
+        if (event.shiftKey || event.isComposing || !(container instanceof BlockQuote)
+            || !container.parent?.isScrollPage || container.meta?.style === 'fenced'
+            || this.parent !== container.firstChild || !cursor?.isCollapsed
+            || cursor.start.offset !== this.text.length) {
+            return null;
+        }
+        return conversion;
+    }
+
     override enterHandler(event: Event) {
         if (!isKeyboardEvent(event))
             return;
@@ -593,23 +614,20 @@ class ParagraphContent extends Format {
         if (event.shiftKey && !this.dropSoftBreakBeforeCursor())
             return this.shiftEnterHandler(event);
 
-        // Any paragraph that would convert to a block (code fence, math block,
-        // table, HTML block) converts in place, even inside a block-quote or
-        // list item — the resulting block stays nested in its container
-        // (matches muyajs). Otherwise typing the block syntax in a list would
-        // split the item and strand an empty list entry (#2276, plus table /
-        // HTML block).
-        if (matchBlockConversion(this.text, this.muya.options.texMathDollars))
-            return this._enterConvert(event);
+        // Match before quote/list Enter handling so nested block syntax converts
+        // without splitting its enclosing container (#2276).
+        const conversion = this._matchBlockConversion(event);
+        if (conversion)
+            return this._enterConvert(event, conversion);
 
         const type = this._paragraphParentType();
 
-        if (type === 'block-quote')
+        if (type === 'block-quote' || type === 'github-alert')
             this._enterInBlockQuote(event);
         else if (type === 'list-item' || type === 'task-list-item')
             this._enterInListItem(event);
         else
-            this._enterConvert(event);
+            this._enterConvert(event, null);
     }
 
     private _paragraphParentType() {
@@ -625,6 +643,7 @@ class ParagraphContent extends Format {
         const container = this.parent?.parent?.blockName;
 
         switch (container) {
+            case 'github-alert':
             case 'block-quote':
             case 'list-item':
             case 'task-list-item':
@@ -634,6 +653,32 @@ class ParagraphContent extends Format {
             default:
                 return 'paragraph';
         }
+    }
+
+    private _handleBackspaceInBlockQuote() {
+        const paragraph = this.parent!;
+        const quote = paragraph.parent!;
+        if (!paragraph.isFirstChild())
+            return this._handleBackspaceInParagraph();
+        if (paragraph.isOnlyChild()) {
+            quote.replaceWith(paragraph);
+            paragraph.firstContentInDescendant()?.setCursor(0, 0, true);
+        }
+        else {
+            const outside = paragraph.clone() as Parent;
+            quote.parent!.insertBefore(outside, quote);
+            paragraph.remove();
+            outside.firstContentInDescendant()?.setCursor(0, 0, true);
+        }
+    }
+
+    private _handleBackspaceInGithubAlert(event: Event) {
+        if (!this.parent!.isFirstChild()
+            || (isKeyboardEvent(event) && (event.metaKey || event.ctrlKey || event.altKey))) {
+            return this._handleBackspaceInParagraph();
+        }
+        event.stopPropagation();
+        convertGithubAlert(this.parent!.parent!, 'block-quote');
     }
 
     private _handleBackspaceInParagraph(this: ParagraphContent) {
@@ -667,28 +712,6 @@ class ParagraphContent extends Format {
 
         footnote.remove();
         blocks[0]?.firstContentInDescendant()?.setCursor(0, 0, true);
-    }
-
-    private _handleBackspaceInBlockQuote() {
-        const parent = this.parent!;
-        const blockQuote = parent!.parent!;
-        let cursorBlock: Content | null;
-
-        if (!parent!.isOnlyChild() && !parent!.isFirstChild())
-            return this._handleBackspaceInParagraph();
-
-        if (parent.isOnlyChild()) {
-            blockQuote.replaceWith(parent);
-            cursorBlock = parent.firstContentInDescendant();
-        }
-        else if (parent.isFirstChild()) {
-            const cloneParagraph = parent.clone() as Paragraph;
-            blockQuote.parent!.insertBefore(cloneParagraph, blockQuote);
-            parent.remove();
-            cursorBlock = cloneParagraph.firstContentInDescendant();
-        }
-
-        cursorBlock!.setCursor(0, 0, true);
     }
 
     private _handleBackspaceInList() {

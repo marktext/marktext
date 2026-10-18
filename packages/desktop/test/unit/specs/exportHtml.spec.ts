@@ -25,8 +25,8 @@ vi.hoisted(() => {
     resolve: (...parts: string[]) =>
       parts.join('/').replace(/\/\.\//g, '/').replace(/\/{2,}/g, '/')
   }
-  // The document directory the export wrapper resolves relative <img> src
-  // against (see resolveLocalImageSrc / window.DIRNAME).
+  // The document directory relative <img> srcs and links resolve against (the
+  // engine's `resolveExportImageSrc` and `resolveLocalLinkHref`).
   w.window.DIRNAME = '/docs'
 })
 
@@ -70,6 +70,15 @@ describe('exportStyledHTML — wrapper parity', () => {
     const body = /<body>([\s\S]*)<\/body>/.exec(out)![1]
     expect(body).toContain('<article class="markdown-body">')
     expect(body).not.toContain('<body>')
+  })
+
+  it('preserves `$<` in the exported body', async() => {
+    const out = await exportStyledHTML(NO_MUYA, 'literal `$<` text', {})
+
+    expect((out.match(/<body>/g) || []).length).toBe(1)
+    expect((out.match(/<\/body>/g) || []).length).toBe(1)
+    expect((out.match(/<article class="markdown-body">/g) || []).length).toBe(1)
+    expect(out).toContain('<p>literal <code>$&lt;</code> text</p>')
   })
 })
 
@@ -248,6 +257,25 @@ describe('exportStyledHTML — relative image paths', () => {
     expect(out).toMatch(/<img[^>]+src="file:\/\/\/docs\/a\.png"/)
     expect(out).not.toContain('src="./a.png"')
     expect(out).toContain('alt="alt"')
+  })
+
+  it('resolves Windows separators in Markdown image destinations (#5714)', async() => {
+    const filename = '90ddb94aced7dd9421a1dc67e76a83c9f0a77378.png'
+    const out = await exportStyledHTML(NO_MUYA, `![](assets\\${filename})`, {})
+
+    expect(out).toContain(`src="file:///docs/assets/${filename}"`)
+  })
+
+  it('keeps a Windows drive image path as a file:// URL (#3323)', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '![alt](<C:\\Users\\Alice\\My Pictures\\a.png>)', {})
+
+    expect(out).toContain('src="file:///C:/Users/Alice/My%20Pictures/a.png"')
+  })
+
+  it('resolves a raw <img> tag, as written for resized images', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '<img src="./a.png" width="200">', {})
+
+    expect(out).toMatch(/<img[^>]+src="file:\/\/\/docs\/a\.png"/)
   })
 
   it('leaves a remote http(s) img src untouched', async() => {

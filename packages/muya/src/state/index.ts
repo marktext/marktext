@@ -94,25 +94,7 @@ class JSONState {
     // render-affecting options, WITHOUT mutating `this._state`. Used by
     // `buildReplaceOp` to compute the target state for a bulk replacement.
     markdownToState(markdown: string): TState[] {
-        const {
-            footnote,
-            texMathGfm,
-            texMathSingleBackslash,
-            texMathDoubleBackslash,
-            trimUnnecessaryCodeBlockEmptyLines,
-            frontMatter,
-            texMathDollars,
-        } = this._muya.options;
-
-        return new MarkdownToState({
-            footnote,
-            texMathGfm,
-            texMathSingleBackslash,
-            texMathDoubleBackslash,
-            trimUnnecessaryCodeBlockEmptyLines,
-            frontMatter,
-            texMathDollars,
-        }).generate(markdown);
+        return new MarkdownToState(this._muya.options).generate(markdown);
     }
 
     /**
@@ -203,6 +185,16 @@ class JSONState {
 
     replaceOperation(path: Path, oldValue: Doc, newValue: Doc) {
         const operation = json1.replaceOp(path, oldValue, newValue)!;
+
+        this._operationCache.push(operation);
+
+        this._emitStateChange();
+    }
+
+    // Adds a key that is not present yet. `editOperation` cannot be used for
+    // that: a text-unicode op against an absent member fails in ot-json1.
+    insertValueOperation(path: Path, value: Doc) {
+        const operation = json1.insertOp(path, value)!;
 
         this._operationCache.push(operation);
 

@@ -1,4 +1,3 @@
-/* eslint-disable no-fallthrough */
 import type {
     IAtxHeadingState,
     IBlockQuoteState,
@@ -19,6 +18,7 @@ import type {
     IThematicBreakState,
     TState,
 } from './types';
+/* eslint-disable no-fallthrough */
 /**
  * Hi contributors!
  *
@@ -30,6 +30,7 @@ import type {
  * The output markdown needs to obey the standards of these Spec.
  */
 import { deepClone } from '../utils';
+import { githubAlertMarker } from '../utils/githubAlerts';
 
 import logger from '../utils/logger';
 import stringWidth from '../utils/stringWidth';
@@ -186,6 +187,14 @@ export default class ExportMarkdown {
                 this._insertLineBreak(result, indent);
                 result.push(this._serializeDiagramBlock(state, indent));
                 break;
+
+            case 'github-alert': {
+                this._insertLineBreak(result, indent);
+                const prefix = `${indent}> `;
+                const body = this._convertStatesToMarkdown(state.children, prefix);
+                result.push(`${prefix}${githubAlertMarker(state.meta)}\n${state.meta.blankLineAfterMarker && body.trim() ? `${prefix}\n` : ''}${body}`);
+                break;
+            }
 
             case 'block-quote':
                 this._insertLineBreak(result, indent);
@@ -388,7 +397,14 @@ export default class ExportMarkdown {
         const { type, lang } = meta;
 
         if (type === 'fenced') {
-            const fence = '`'.repeat(this._codeFenceLength(text, meta.fenceLength));
+            // A backtick fence's info string may not contain a backtick
+            // (CommonMark §4.5), so fall back to a tilde fence rather than emit
+            // markdown that would not read back as a code block.
+            const fenceChar: '`' | '~'
+                = meta.fenceChar === '~' || lang.includes('`') ? '~' : '`';
+            const fence = fenceChar.repeat(
+                this._codeFenceLength(text, meta.fenceLength, fenceChar),
+            );
             result.push(`${indent}${lang ? `${fence}${lang}\n` : `${fence}\n`}`);
             textList.forEach((text) => {
                 result.push(`${indent}${text}\n`);
@@ -404,14 +420,16 @@ export default class ExportMarkdown {
         return result.join('');
     }
 
-    // The opening fence must be longer than any all-backtick line in the body
-    // (else that line closes the block early), at least as long as the original
-    // fence, and never shorter than the markdown minimum of 3.
-    private _codeFenceLength(text: string, stored?: number): number {
+    // The opening fence must be longer than any interior line made only of the
+    // same fence character (else that line closes the block early), at least as
+    // long as the original fence, and never shorter than the markdown minimum
+    // of 3.
+    private _codeFenceLength(text: string, stored: number | undefined, fenceChar: '`' | '~'): number {
+        const fenceRun = fenceChar === '`' ? /^`+$/ : /^~+$/;
         let longestInterior = 0;
         for (const line of text.split('\n')) {
             const trimmed = line.trim();
-            if (/^`+$/.test(trimmed))
+            if (fenceRun.test(trimmed))
                 longestInterior = Math.max(longestInterior, trimmed.length);
         }
 
@@ -464,9 +482,14 @@ export default class ExportMarkdown {
     }
 
     private _serializeBlockquote(state: IBlockQuoteState, indent: string) {
-        const { children } = state;
-        const newIndent = `${indent}> `;
+        const { children, meta } = state;
 
+        if (meta?.style === 'fenced') {
+            const inner = this._convertStatesToMarkdown(children, indent);
+            return `${indent}>>>\n${inner}${indent}>>>\n`;
+        }
+
+        const newIndent = `${indent}> `;
         return this._convertStatesToMarkdown(children, newIndent);
     }
 

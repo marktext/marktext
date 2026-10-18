@@ -21,7 +21,20 @@
       @node-click="handleClick"
       @node-expand="onExpand"
       @node-collapse="onCollapse"
-    />
+    >
+      <!-- Element Plus escapes `data.label`, so showing the heading HTML needs a
+           scoped slot; re-add the label wrapper the default renderer would have
+           made so the outline CSS keeps applying. -->
+      <template #default="{ data }">
+        <!-- eslint-disable vue/no-v-html -- sanitized by labelHtmlOf -->
+        <span
+          class="el-tree-node__label"
+          :title="plainLabel(data)"
+          v-html="labelHtmlOf(data)"
+        />
+        <!-- eslint-enable vue/no-v-html -->
+      </template>
+    </el-tree>
   </div>
 </template>
 
@@ -30,6 +43,7 @@ import { computed, ref, watch } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { deriveKeyedToc, type KeyedTocNode } from '@/util/tocKeys'
+import { sanitize, TOC_DOMPURIFY_CONFIG } from '@/util/dompurify'
 import bus from '../../bus'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
@@ -46,6 +60,22 @@ const tocTreeRef = ref<TreeInstance | null>(null)
 const defaultProps = {
   children: 'children',
   label: 'label'
+}
+
+interface TocNodeData {
+  label?: unknown
+  labelHtml?: unknown
+}
+
+const plainLabel = (data: TocNodeData): string =>
+  typeof data.label === 'string' ? data.label : ''
+
+const escapeHtml = (text: string): string =>
+  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+const labelHtmlOf = (data: TocNodeData): string => {
+  const html = typeof data.labelHtml === 'string' ? data.labelHtml : ''
+  return html ? sanitize(html, TOC_DOMPURIFY_CONFIG) : escapeHtml(plainLabel(data))
 }
 
 const { toc } = storeToRefs(editorStore)
@@ -151,14 +181,18 @@ const handleClick = (data: { slug?: unknown }): void => {
   min-height: 0;
 }
 
-/* Element Plus wraps every tree label in an `<el-text>`, which sets a color of
-   its own (--el-text-color-regular, #606266). That beats the themed color the
-   label would otherwise inherit from `.el-tree`, leaving the TOC dark gray on
-   dark themes (#5094). Same story for the expand arrow, which Element colors
-   with --el-tree-expand-icon-color; the sidebar's own arrows use
-   --sideBarIconColor. */
+/* The scoped slot replaced Element Plus's `<el-text truncated>` label, so its
+   truncation is re-declared here. `color: inherit` overrides the gray that
+   `el-text` imposed, which beat the themed color from `.el-tree` (#5094). */
 .side-bar-toc .el-tree-node__label {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
   color: inherit;
+  align-self: center;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .side-bar-toc .el-tree-node__expand-icon {
@@ -199,12 +233,44 @@ const handleClick = (data: { slug?: unknown }): void => {
   min-height: 26px;
 }
 
-/* Element Plus renders every label as `<el-text truncated>`, which declares
-   `white-space: nowrap` on the label itself — the `normal` above only reaches
-   it by inheritance, which a declaration always beats (#5094, other property). */
 .side-bar-toc-wordwrap .el-tree-node__content .el-tree-node__label {
   white-space: normal;
   text-overflow: clip;
   overflow: visible;
+}
+
+.side-bar-toc .el-tree-node__label strong {
+  font-weight: 700;
+}
+
+.side-bar-toc .el-tree-node__label em {
+  font-style: italic;
+}
+
+.side-bar-toc .el-tree-node__label del {
+  opacity: 0.65;
+  text-decoration: line-through;
+}
+
+.side-bar-toc .el-tree-node__label mark {
+  padding: 0 2px;
+  color: inherit;
+  background: var(--highlightColor);
+  border-radius: 2px;
+}
+
+.side-bar-toc .el-tree-node__label code {
+  padding: 0 3px;
+  font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', Consolas, monospace;
+  font-size: 0.9em;
+  color: var(--codeBlockColor);
+  background: var(--codeBgColor);
+  border-radius: 3px;
+}
+
+.side-bar-toc .el-tree-node__label sup,
+.side-bar-toc .el-tree-node__label sub {
+  /* Keeps a raised superscript from growing the row. */
+  line-height: 0;
 }
 </style>

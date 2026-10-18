@@ -2,7 +2,7 @@
 
 This file provides guidance to AI agents when working inside `packages/muya`.
 
-> **Location.** `packages/muya` is the TypeScript rewrite of muya (upstream: <https://github.com/marktext/muya>), migrated into this marktext monorepo and published as `@muyajs/core`. The desktop renderer now consumes `@muyajs/core` as its editor engine; the legacy JS engine `packages/muyajs` (`@marktext/muyajs`, the `muya/` alias) is being retired and only a handful of call sites still reference it. `packages/muya` keeps its own toolchain (ESLint/antfu, stylelint, madge, vitest), and the marktext-root ESLint ignores `packages/muya/**` — treat it as a self-contained package with its own conventions.
+> **Location.** `packages/muya` is the TypeScript rewrite of muya (upstream: <https://github.com/marktext/muya>), migrated into this marktext monorepo and published as `@muyajs/core`. The desktop renderer consumes `@muyajs/core` as its editor engine; the legacy JS engine that shipped before it has since been removed from the monorepo. `packages/muya` keeps its own toolchain (ESLint/antfu, stylelint, madge, vitest), and the marktext-root ESLint ignores `packages/muya/**` — treat it as a self-contained package with its own conventions.
 
 ## Layout inside `packages/muya`
 
@@ -86,11 +86,11 @@ renders the standalone defaults.
 | `lineHeight` (number) | `--mu-line-height` | `1.6` | `.mu-editor` base text |
 | `editorFontFamily` (string) | `--mu-font-family` | Open Sans stack | `.mu-editor` base text |
 | `codeFontSize` (number, px) | `--mu-code-font-size` | `90%` | `.mu-code-block` only |
-| `codeFontFamily` (string) | `--mu-code-font-family` | DejaVu Sans Mono stack | `.mu-code-block` only |
+| `codeFontFamily` (string) | `--mu-code-font-family` | DejaVu Sans Mono stack | inline code and code blocks |
 | `wrapCodeBlocks` (boolean) | — (`.mu-code-wrap` root class) | off (`pre`) | code-block line wrapping |
 
-Inline code (`code.mu-inline-rule`) is deliberately NOT driven by these — it
-keeps its relative `0.8em` / mono sizing. Editor column width
+Inline code (`code.mu-inline-rule`) shares `--mu-code-font-family` with code
+blocks but keeps its relative `0.8em` sizing. Editor column width
 (`--editor-area-width`) and the colour palette (`--editor-color-*`) are
 separate, pre-existing contracts owned by the host. All runtime changes go
 through `muya.setOptions({...})`.

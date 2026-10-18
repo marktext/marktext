@@ -54,9 +54,35 @@ export function snakeToCamel(name: string) {
 // The fenced code block info string's first non-whitespace run is the
 // "language" used for syntax highlighting and the `language-*` class
 // (CommonMark §4.5). The rest of the info string is preserved as-is on the
-// block so the fence round-trips.
+// block so the fence round-trips. Info strings reach us untrimmed (`~~~ js`,
+// ` ``` js `), so skip the leading whitespace before taking the first run.
 export function firstWordOfInfo(info: string): string {
-    return info.match(/\S*/)?.[0] ?? '';
+    return info.trimStart().match(/\S*/)?.[0] ?? '';
+}
+
+export interface IFenceLine {
+    fenceChar: '`' | '~';
+    fenceLength: number;
+    info: string;
+}
+
+const FENCE_LINE_REG = /^ {0,3}(`{3,}|~{3,})([^\n]*)/;
+
+// Parse a CommonMark opening code fence (§4.5) at the start of a line, or
+// return null when the line is not a valid fence opener. The two fence
+// characters are asymmetric: a backtick fence's info string may not contain a
+// backtick, while a tilde fence's may contain either fence character.
+export function parseFenceLine(text: string): IFenceLine | null {
+    const match = FENCE_LINE_REG.exec(text);
+    if (!match)
+        return null;
+
+    const fence = match[1];
+    const info = match[2];
+    if (fence[0] === '`' && info.includes('`'))
+        return null;
+
+    return { fenceChar: fence[0] as '`' | '~', fenceLength: fence.length, info };
 }
 /**
  *  Are two arrays have intersection

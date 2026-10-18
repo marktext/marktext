@@ -273,7 +273,7 @@ export class Editor {
         }
     }
 
-    init() {
+    init(options: { focus?: boolean } = {}) {
         registerBlocks();
 
         const muya = this._muya;
@@ -290,7 +290,8 @@ export class Editor {
         // as a new `![](src)` block. Cleanup is likewise handled by
         // `detachAllDomEvents`.
         attachDragDropImageHandlers(muya);
-        this.focus();
+        if (options.focus !== false)
+            this.focus();
     }
 
     private _dispatchEvents() {

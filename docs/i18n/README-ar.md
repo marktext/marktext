@@ -116,10 +116,6 @@ MarkText هو محرر Markdown مفتوح المصدر يعتمد على دعم
 <td width="182"><a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150"></a></td>
 <td align="left"><a href="https://serpapi.com/?utm_source=marktext">استخرج نتائج Google ومحركات البحث الأخرى من خلال واجهة برمجية سريعة وسهلة وشاملة.</a></td>
 </tr>
-<tr>
-<td width="182"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx"><img src="../assets/sponsors/stardesk.png" width="150"></a></td>
-<td align="left"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx">غادر مكتبك وواصل سير عملك. StarDesk هو سطح مكتب بعيد مجاني يتيح لك الوصول إلى حاسوب التطوير الخاص بك من أي مكان. اتصل بحاسوبك من iOS أو Android أو من الويب لتحرير Markdown وتشغيل أوامر الطرفية ومراجعة المستندات أو متابعة عملك من حيث توقفت.</a></td>
-</tr>
 </table>
 
 ## لقطة شاشة
@@ -133,7 +129,7 @@ MarkText هو محرر Markdown مفتوح المصدر يعتمد على دعم
 - امتدادات ماركداون مثل التعبيرات الرياضية (KaTeX) وfront matter والرموز التعبيرية.
 - دعم اختصارات الفقرات والأساليب المضمنة لتحسين كفاءة الكتابة.
 - إخراج ملفات **HTML** و**PDF**.
-- سمات متنوعة [themes](../end-user/THEMES.md): **Cadmium Light**، **Material Dark** وغيرها.
+- سمات متنوعة [themes](https://marktext.me/docs/themes): **Cadmium Light**، **Material Dark** وغيرها.
 - أوضاع تحرير متنوعة: **وضع الكود المصدري**، **وضع الآلة الكاتبة**، **وضع التركيز**.
 - لصق الصور مباشرة من الحافظة.
 
@@ -145,7 +141,7 @@ MarkText هو محرر Markdown مفتوح المصدر يعتمد على دعم
 | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
 
-هل تريد الاطلاع على الميزات الجديدة لأحدث إصدار؟ يرجى الرجوع إلى [CHANGELOG](../CHANGELOG.md).
+هل تريد الاطلاع على الميزات الجديدة لأحدث إصدار؟ يرجى الرجوع إلى [CHANGELOG](https://marktext.me/docs/changelog).
 
 #### macOS
 
@@ -173,7 +169,7 @@ winget install marktext
 
 #### Linux
 
-يرجى اتباع [تعليمات تثبيت Linux](../end-user/LINUX.md).
+يرجى اتباع [تعليمات تثبيت Linux](https://marktext.me/docs/installation).
 
 #### أنظمة أخرى
 
@@ -181,10 +177,10 @@ winget install marktext
 
 ## التطوير
 
-إذا كنت ترغب في بناء MarkText بنفسك، يرجى الاطلاع على [تعليمات البناء](../dev/BUILD.md).
+إذا كنت ترغب في بناء MarkText بنفسك، يرجى الاطلاع على [تعليمات البناء](https://marktext.me/docs/dev/build).
 
-- [توثيق المستخدم](../README.md)
-- [توثيق المطور](../dev/README.md)
+- [توثيق المستخدم](https://marktext.me/docs/introduction)
+- [توثيق المطور](https://marktext.me/docs/dev/overview)
 
 إذا كانت لديك أي أسئلة بخصوص MarkText، فمرحبًا بك في كتابة مشكلة. عند القيام بذلك، يرجى استخدام التنسيق الافتراضي. بالطبع، إذا قدمت طلب دمج (PR) مباشرة، فسيتم تقديره كثيرًا.
 

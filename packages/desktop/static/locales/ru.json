@@ -70,6 +70,7 @@
       "table": "Таблица",
       "codeFences": "Блоки кода",
       "quoteBlock": "Цитата",
+      "githubAlerts": "Оповещения GitHub",
       "mathBlock": "Блок формул",
       "htmlBlock": "HTML-блок",
       "orderedList": "Нумерованный список",
@@ -204,6 +205,7 @@
       "paste": "Вставить",
       "rename": "Переименовать",
       "moveToTrash": "Переместить в корзину",
+      "copyPath": "Копировать путь",
       "showInFolder": "Показать в папке"
     },
     "tabs": {
@@ -213,7 +215,8 @@
       "closeAllTabs": "Закрыть все вкладки",
       "rename": "Переименовать",
       "copyPath": "Копировать путь",
-      "showInFolder": "Показать в папке"
+      "showInFolder": "Показать в папке",
+      "showInSideBar": "Показать на боковой панели"
     }
   },
   "search": {
@@ -258,6 +261,13 @@
       "settings": "Настройки"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Меню приложения",
+    "minimize": "Свернуть",
+    "maximize": "Развернуть",
+    "restore": "Свернуть в окно",
+    "close": "Закрыть"
+  },
   "commandPalette": {
     "placeholder": "Введите команду",
     "placeholders": {
@@ -269,13 +279,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Автонумерация заголовков",
     "title": "Параметры экспорта",
-    "info": {
-      "label": "Информация",
-      "description": "Настройте внешний вид страницы и нажмите «Экспорт», чтобы продолжить."
-    },
     "page": {
       "label": "Страница",
-      "pageTitle": "Заголовок страницы:",
+      "pageTitle": "Заголовок страницы",
       "pageSize": "Размер страницы:",
       "landscapeOrientation": "Альбомная ориентация:",
       "pageMargin": "Поля страницы (мм):",
@@ -312,12 +318,13 @@
       "description": "Текст отображается на всех страницах, если задан верхний и/или нижний колонтитул."
     },
     "toc": {
-      "includeTopHeading": "Включить верхний заголовок",
-      "includeTopHeadingDetail": "Включить детали верхнего заголовка",
+      "description": "Чтобы показать оглавление в экспортированном документе, введите [TOC] на отдельной строке в тексте документа. Оглавление появится в этом месте.",
+      "includeTopHeading": "Включать заголовки первого уровня",
+      "includeTopHeadingDetail": "Включать все заголовки первого уровня (H1) в оглавление.",
       "label": "Оглавление",
       "title": "Оглавление"
     },
-    "export": "Экспорт...",
+    "export": "Экспорт",
     "options": {
       "pageSizes": {
         "a3": "A3 (297мм x 420мм)",
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "Настройки",
+    "learnMore": "Подробнее: {name}",
     "search": {
       "placeholder": "Поиск настроек...",
       "categories": {
@@ -389,7 +397,7 @@
         "wrapCodeBlocks": "Переносить текст внутри блоков кода",
         "editorLineWidth": "Максимальная ширина области редактора. Допускается пустая строка или суффиксы ch (символы), px (пиксели) или % (проценты)",
         "codeFontSize": "Размер шрифта в блоке кода, диапазон 12 ~ 18",
-        "codeFontFamily": "Семейство шрифтов в блоке кода",
+        "codeFontFamily": "Шрифт кода. Применяется к встроенному коду и блокам кода.",
         "codeBlockLineNumbers": "Показывать номера строк",
         "sourceCodeLineNumbers": "Показывать номера строк в режиме исходного кода",
         "trimUnnecessaryCodeBlockEmptyLines": "Обрезать пустые строки в начале и конце блока кода",
@@ -417,6 +425,10 @@
         "texMathGfm": "Включить расширение markdown pandoc tex_math_gfm",
         "texMathSingleBackslash": "Включить расширение markdown pandoc tex_math_single_backslash",
         "texMathDoubleBackslash": "Включить расширение markdown pandoc tex_math_double_backslash",
+        "highlightSyntax": "Включить нестандартный синтаксис выделения ==текст==",
+        "inlineDiff": "Включить нестандартный синтаксис встроенного diff {+ … +} / [- … -]",
+        "multilineBlockquote": "Включить нестандартный синтаксис многострочной цитаты >>> … >>>",
+        "githubAlerts": "Оповещения GitHub",
         "isHtmlEnabled": "Включить рендеринг HTML",
         "softNewlineAsSpace": "Считать мягкие переносы строк пробелами",
         "sequenceTheme": "Тема диаграмм последовательностей",
@@ -434,7 +446,8 @@
         "imageRelativeDirectoryName": "Имя относительной папки изображений",
         "autoNormalizeLineEndings": "Автоматически нормализовать концы строк при открытии файлов. Если отключено, файлы открываются как есть.",
         "fileSortOrder": "Порядок сортировки файлов в открытых папках: по возрастанию или убыванию.",
-        "openedFilesInSidebar": "Показывать открытые файлы на боковой панели."
+        "openedFilesInSidebar": "Показывать открытые файлы на боковой панели.",
+        "showPandocConvert": "Показывать меню конвертации Pandoc. Требуется установленный Pandoc."
       }
     },
     "categories": {
@@ -478,10 +491,19 @@
         "selectFolder": "Выбрать папку",
         "openBlankPage": "Открыть пустую страницу"
       },
+      "pandoc": {
+        "title": "Конвертация Pandoc",
+        "description": "Показывать меню конвертации Pandoc",
+        "detailedDescription": "Требуется установленный Pandoc",
+        "found": "Найден: {path}",
+        "notFound": "Не найден",
+        "recheck": "Проверить снова"
+      },
       "sidebar": {
         "title": "Боковая панель",
         "wrapTextInToc": "Переносить текст в оглавлении",
         "showOpenedFiles": "Показывать открытые файлы",
+        "autoReveal": "Показывать активный файл на боковой панели",
         "excludePatterns": "Исключающие шаблоны",
         "excludePatternsNotes": "Исключающие шаблоны (примечания)",
         "fileSortBy": {
@@ -526,12 +548,13 @@
         "fontFamily": "Семейство шрифтов",
         "maxWidth": "Макс. ширина",
         "maxWidthNotes": "Максимальная ширина содержимого редактора. Введите число с суффиксом px, ch (символы) или %, например 800px, 80ch или 60%. Оставьте пустым для ширины по умолчанию.",
-        "maxWidthInvalid": "Введите число с суффиксом px, ch или %, например 800px."
+        "maxWidthInvalid": "Введите число с суффиксом px, ch или %, например 800px.",
+        "codeFontFamily": "Шрифт кода",
+        "codeFontFamilyNotes": "Применяется к встроенному коду и блокам кода."
       },
       "codeBlock": {
         "title": "Блок кода",
         "fontSize": "Размер шрифта",
-        "fontFamily": "Семейство шрифтов",
         "showLineNumbers": "Показывать номера строк",
         "removeEmptyLines": "Удалять пустые строки"
       },
@@ -646,6 +669,10 @@
         "texMathGfm": "GitHub TeX-формулы ($`…`$ и ```math)",
         "texMathSingleBackslash": "TeX-формулы с одинарным обратным слешем",
         "texMathDoubleBackslash": "TeX-формулы с двойным обратным слешем",
+        "highlightSyntax": "Выделение (==текст==)",
+        "inlineDiff": "Встроенный diff ({+ … +})",
+        "multilineBlockquote": "Многострочная цитата (>>>)",
+        "githubAlerts": "Включить оповещения GitHub",
         "frontmatterType": {
           "jsonBrace": "JSON с фигурными скобками",
           "jsonSemicolon": "JSON с точкой с запятой",
@@ -695,6 +722,7 @@
     "theme": {
       "title": "Тема",
       "followSystemTheme": "Следовать системной теме",
+      "followSystemNote": "Следование системной теме блокирует список тем ниже. Отключите это, чтобы свободно менять тему.",
       "modeThemes": "Выбор темы",
       "lightModeTheme": "Тема светлого режима",
       "darkModeTheme": "Тема тёмного режима",
@@ -777,6 +805,7 @@
       "quit": "Выход",
       "toggleAutoSave": "Переключить автосохранение",
       "importFile": "Импортировать файл",
+      "revealInSideBar": "Показать на боковой панели",
       "exportFile": "Экспортировать файл",
       "exportFilePdf": "Экспорт в PDF",
       "zoom": "Масштаб",
@@ -897,6 +926,7 @@
     "ok": "ОК"
   },
   "dialog": {
+    "moveToTrash": "Переместить \"{name}\" в корзину?",
     "cancel": "Отмена",
     "changesWillBeLost": "Изменения будут потеряны",
     "close": "Закрыть",
@@ -999,6 +1029,9 @@
       "languageMissing": "Язык проверки орфографии отсутствует {languageCode}",
       "switchError": "Ошибка переключения проверки орфографии для {languageCode}, {error}",
       "title": "Проверка орфографии"
+    },
+    "tabs": {
+      "close": "Закрыть {name}"
     }
   }
 }

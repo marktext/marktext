@@ -22,6 +22,7 @@ const OPTIONS = {
     texMathGfm: false,
     texMathSingleBackslash: false,
     texMathDoubleBackslash: false,
+    highlightSyntax: false,
 };
 
 function renderTokens(tokens: Token[]): string {

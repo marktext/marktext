@@ -1,6 +1,6 @@
 import { isEqualAccelerator } from 'common/keybinding'
 import getCommandDescriptionById from '@/commands/descriptions'
-import { isOsx } from '@/util'
+import { isMac } from '@/util'
 
 const SHORTCUT_TYPE_DEFAULT = 0
 const SHORTCUT_TYPE_USER = 1
@@ -42,7 +42,7 @@ export default class KeybindingConfigurator {
   ): UiKeybinding[] {
     const uiKeybindings: UiKeybinding[] = []
     for (const [id] of defaultKeybindings) {
-      if (!isOsx && id.startsWith('mt.')) {
+      if (!isMac && id.startsWith('mt.')) {
         // Skip MarkText menu that is only available on macOS.
         continue
       }

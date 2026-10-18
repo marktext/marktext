@@ -11,6 +11,7 @@ export default function(
   // A math block writes `$$…$$`, which the editor no longer reads back once
   // pandoc's tex_math_dollars is off — so the entry goes away with it (#5446).
   const texMathDollars = userPreference.getItem<boolean>('texMathDollars') !== false
+  const githubAlerts = userPreference.getItem<boolean>('githubAlerts') === true
 
   return {
     id: 'paragraphMenuEntry',
@@ -119,6 +120,22 @@ export default function(
           actions.quoteBlock(focusedWindow as BrowserWindow | undefined)
         }
       },
+      ...(githubAlerts
+        ? [
+          {
+            id: 'githubAlertsMenuItem',
+            label: t('menu.paragraph.githubAlerts'),
+            submenu: ['NOTE', 'TIP', 'IMPORTANT', 'WARNING', 'CAUTION'].map((type) => ({
+              id: `githubAlert${type}MenuItem`,
+              label: type,
+              type: 'checkbox' as const,
+              click(_menuItem: unknown, focusedWindow: unknown) {
+                actions.githubAlert(focusedWindow as BrowserWindow | undefined, type)
+              }
+            }))
+          }
+        ]
+        : []),
       ...(texMathDollars
         ? [
           {

@@ -70,6 +70,7 @@
       "table": "Tablo",
       "codeFences": "Kod Blokları",
       "quoteBlock": "Alıntı Bloğu",
+      "githubAlerts": "GitHub uyarıları",
       "mathBlock": "Matematik Bloğu",
       "htmlBlock": "HTML Bloğu",
       "orderedList": "Sıralı Liste",
@@ -204,6 +205,7 @@
       "paste": "Yapıştır",
       "rename": "Yeniden Adlandır",
       "moveToTrash": "Çöp Kutusuna Taşı",
+      "copyPath": "Yolu Kopyala",
       "showInFolder": "Klasörde Göster"
     },
     "tabs": {
@@ -213,7 +215,8 @@
       "closeAllTabs": "Tüm sekmeleri kapat",
       "rename": "Yeniden Adlandır",
       "copyPath": "Yolu kopyala",
-      "showInFolder": "Klasörde göster"
+      "showInFolder": "Klasörde göster",
+      "showInSideBar": "Kenar çubuğunda göster"
     }
   },
   "search": {
@@ -258,6 +261,13 @@
       "settings": "Ayarlar"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Uygulama Menüsü",
+    "minimize": "Simge Durumuna Küçült",
+    "maximize": "Ekranı Kapla",
+    "restore": "Önceki Boyut",
+    "close": "Kapat"
+  },
   "commandPalette": {
     "placeholder": "Çalıştırmak için bir komut yazın",
     "placeholders": {
@@ -269,13 +279,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Başlıkları otomatik numaralandır",
     "title": "Dışa Aktarma Seçenekleri",
-    "info": {
-      "label": "Bilgi",
-      "description": "Lütfen sayfa görünümünü özelleştirin ve devam etmek için \"dışa aktar\"a tıklayın."
-    },
     "page": {
       "label": "Sayfa",
-      "pageTitle": "Sayfa başlığı:",
+      "pageTitle": "Sayfa başlığı",
       "pageSize": "Sayfa boyutu:",
       "landscapeOrientation": "Yatay yönlendirme:",
       "pageMargin": "mm cinsinden sayfa kenar boşluğu:",
@@ -312,12 +318,13 @@
       "description": "Üst bilgi ve/veya alt bilgi tanımlanmışsa metin tüm sayfalarda görünür."
     },
     "toc": {
-      "includeTopHeading": "En üst başlığı dahil et",
-      "includeTopHeadingDetail": "En üst başlık ayrıntısını dahil et",
+      "description": "Dışa aktarılan belgede içindekiler tablosunu göstermek için belgenin gövdesinde ayrı bir satıra [TOC] yazın. İçindekiler tablosu bu konumda görünecektir.",
+      "includeTopHeading": "1. düzey başlıkları dahil et",
+      "includeTopHeadingDetail": "İçindekiler tablosuna tüm 1. düzey (H1) başlıkları dahil et.",
       "label": "İçindekiler",
       "title": "İçindekiler"
     },
-    "export": "Dışa Aktar...",
+    "export": "Dışa Aktar",
     "options": {
       "pageSizes": {
         "a3": "A3 (297mm x 420mm)",
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "Tercihler",
+    "learnMore": "Daha fazla bilgi: {name}",
     "search": {
       "placeholder": "Tercihlerde ara...",
       "categories": {
@@ -389,7 +397,7 @@
         "wrapCodeBlocks": "Kod bloklarındaki metni kaydır",
         "editorLineWidth": "Maksimum düzenleyici alanı genişliğini tanımlar. Boş bir dize veya ch (karakter), px (piksel) ya da % (yüzde) son ekleri kullanılabilir",
         "codeFontSize": "Kod bloğundaki yazı tipi boyutu, aralık 12 ~ 18",
-        "codeFontFamily": "Kod bloğunda kullanılan yazı tipi ailesi",
+        "codeFontFamily": "Kod yazı tipi. Satır içi kod ve kod blokları için geçerlidir.",
         "codeBlockLineNumbers": "Satır numaralarının gösterilip gösterilmeyeceği",
         "sourceCodeLineNumbers": "Kaynak kod modunda satır numaralarını göster",
         "trimUnnecessaryCodeBlockEmptyLines": "Kod bloğundaki baştaki ve sondaki boş satırları kırp",
@@ -417,6 +425,10 @@
         "texMathGfm": "Pandoc'un markdown uzantısı tex_math_gfm'i etkinleştir",
         "texMathSingleBackslash": "Pandoc'un markdown uzantısı tex_math_single_backslash'i etkinleştir",
         "texMathDoubleBackslash": "Pandoc'un markdown uzantısı tex_math_double_backslash'i etkinleştir",
+        "highlightSyntax": "Standart olmayan ==metin== vurgu söz dizimini etkinleştir",
+        "inlineDiff": "Standart olmayan satır içi fark söz dizimini {+ … +} / [- … -] etkinleştir",
+        "multilineBlockquote": "Standart olmayan çok satırlı alıntı söz dizimini >>> … >>> etkinleştir",
+        "githubAlerts": "GitHub uyarıları",
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "sequenceTheme": "Dizi diyagramı teması",
@@ -434,7 +446,8 @@
         "plantumlServer": "PlantUML sunucu URL'si",
         "autoNormalizeLineEndings": "Dosyaları açarken yeni satır karakterlerini otomatik olarak normalleştir. Devre dışı bırakıldığında dosyalar olduğu gibi açılır.",
         "fileSortOrder": "Açık klasörlerdeki dosyaların sıralama düzeni: artan veya azalan.",
-        "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği."
+        "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği.",
+        "showPandocConvert": "Pandoc dönüştürme menüsünü gösterir. Pandoc kurulu olmalıdır."
       }
     },
     "categories": {
@@ -478,10 +491,19 @@
         "selectFolder": "Klasör Seç",
         "openBlankPage": "Boş sayfa aç"
       },
+      "pandoc": {
+        "title": "Pandoc Dönüştürme",
+        "description": "Pandoc dönüştürme menüsünü göster",
+        "detailedDescription": "Pandoc kurulu olmalıdır",
+        "found": "Bulundu: {path}",
+        "notFound": "Bulunamadı",
+        "recheck": "Yeniden Denetle"
+      },
       "sidebar": {
         "title": "Kenar Çubuğu",
         "wrapTextInToc": "İçindekilerde metni kaydır",
         "showOpenedFiles": "Açık dosyaları göster",
+        "autoReveal": "Etkin dosyayı kenar çubuğunda göster",
         "excludePatterns": "Hariç tutma desenleri",
         "excludePatternsNotes": "Hariç tutma desenleri (Notlar)",
         "fileSortBy": {
@@ -526,12 +548,13 @@
         "fontFamily": "Yazı tipi ailesi",
         "maxWidth": "Maksimum genişlik",
         "maxWidthNotes": "Düzenleyici içeriğinin maksimum genişliği. Bir sayının ardından px, ch (karakter) veya % girin, örneğin 800px, 80ch veya 60%. Varsayılan genişliği kullanmak için boş bırakın.",
-        "maxWidthInvalid": "Bir sayının ardından px, ch veya % girin, örneğin 800px."
+        "maxWidthInvalid": "Bir sayının ardından px, ch veya % girin, örneğin 800px.",
+        "codeFontFamily": "Kod yazı tipi",
+        "codeFontFamilyNotes": "Satır içi kod ve kod blokları için geçerlidir."
       },
       "codeBlock": {
         "title": "Kod Bloğu",
         "fontSize": "Yazı tipi boyutu",
-        "fontFamily": "Yazı tipi ailesi",
         "showLineNumbers": "Satır numaralarını göster",
         "removeEmptyLines": "Boş satırları kaldır"
       },
@@ -646,6 +669,10 @@
         "texMathGfm": "GitHub TeX matematiği ($`…`$ ve ```math)",
         "texMathSingleBackslash": "Tek ters eğik çizgili TeX matematiği",
         "texMathDoubleBackslash": "Çift ters eğik çizgili TeX matematiği",
+        "highlightSyntax": "Vurgu (==metin==)",
+        "inlineDiff": "Satır içi fark ({+ … +})",
+        "multilineBlockquote": "Çok satırlı alıntı (>>>)",
+        "githubAlerts": "GitHub uyarılarını etkinleştir",
         "frontmatterType": {
           "jsonBrace": "Süslü Parantezli JSON",
           "jsonSemicolon": "Noktalı Virgüllü JSON",
@@ -695,6 +722,7 @@
     "theme": {
       "title": "Tema",
       "followSystemTheme": "Sistem Temasını Takip Et",
+      "followSystemNote": "Sistem temasını izlemek aşağıdaki tema listesini kilitler. Serbestçe tema değiştirmek için bunu kapatın.",
       "modeThemes": "Tema Seçimi",
       "lightModeTheme": "Açık mod teması",
       "darkModeTheme": "Koyu mod teması",
@@ -777,6 +805,7 @@
       "quit": "Çıkış",
       "toggleAutoSave": "Otomatik Kaydetmeyi Aç/Kapat",
       "importFile": "Dosya İçe Aktar",
+      "revealInSideBar": "Kenar çubuğunda göster",
       "exportFile": "Dosya Dışa Aktar",
       "exportFilePdf": "PDF Olarak Dışa Aktar",
       "zoom": "Yakınlaştırma",
@@ -897,6 +926,7 @@
     "ok": "Tamam"
   },
   "dialog": {
+    "moveToTrash": "\"{name}\" öğesini çöp kutusuna taşımak istediğinizden emin misiniz?",
     "cancel": "İptal",
     "changesWillBeLost": "Değişiklikler kaybolacak",
     "close": "Kapat",
@@ -999,6 +1029,9 @@
       "languageMissing": "Yazım denetimi dili eksik {languageCode}",
       "switchError": "{languageCode} için yazım denetimi değiştirme hatası, {error}",
       "title": "Yazım Denetimi"
+    },
+    "tabs": {
+      "close": "Kapat: {name}"
     }
   }
 }

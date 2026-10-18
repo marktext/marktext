@@ -37,6 +37,7 @@ export interface PreferencesState {
   lastOpenedFolder: string
   treePathExcludePatterns: string[]
   language: string
+  showPandocConvert: boolean
 
   // ----- Editor / typography -----
   editorFontFamily: string
@@ -82,6 +83,10 @@ export interface PreferencesState {
   texMathGfm: boolean
   texMathSingleBackslash: boolean
   texMathDoubleBackslash: boolean
+  highlightSyntax: boolean
+  inlineDiff: boolean
+  multilineBlockquote: boolean
+  githubAlerts: boolean
   isHtmlEnabled: boolean
   softNewlineAsSpace: boolean
   sequenceTheme: SequenceTheme | string
@@ -104,6 +109,7 @@ export interface PreferencesState {
   tabBarVisibility: boolean
   sourceCodeModeEnabled: boolean
   openedFilesInSidebar: boolean
+  autoRevealInSidebar: boolean
 
   // ----- Search -----
   searchExclusions: string[]
@@ -160,6 +166,7 @@ export const usePreferencesStore = defineStore('preferences', {
     lastOpenedFolder: '',
     treePathExcludePatterns: [],
     language: 'en',
+    showPandocConvert: false,
 
     editorFontFamily: 'Open Sans',
     fontSize: 16,
@@ -203,6 +210,10 @@ export const usePreferencesStore = defineStore('preferences', {
     texMathGfm: false,
     texMathSingleBackslash: false,
     texMathDoubleBackslash: false,
+    highlightSyntax: false,
+    inlineDiff: false,
+    multilineBlockquote: false,
+    githubAlerts: false,
     isHtmlEnabled: true,
     softNewlineAsSpace: false,
     sequenceTheme: 'hand',
@@ -223,6 +234,7 @@ export const usePreferencesStore = defineStore('preferences', {
     tabBarVisibility: false,
     sourceCodeModeEnabled: false,
     openedFilesInSidebar: true,
+    autoRevealInSidebar: true,
 
     searchExclusions: [],
     searchMaxFileSize: '',

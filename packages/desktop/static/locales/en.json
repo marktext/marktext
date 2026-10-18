@@ -70,6 +70,7 @@
       "table": "Table",
       "codeFences": "Code Fences",
       "quoteBlock": "Quote Block",
+      "githubAlerts": "GitHub Alerts",
       "mathBlock": "Math Block",
       "htmlBlock": "HTML Block",
       "orderedList": "Ordered List",
@@ -204,6 +205,7 @@
       "paste": "Paste",
       "rename": "Rename",
       "moveToTrash": "Move To Trash",
+      "copyPath": "Copy Path",
       "showInFolder": "Show In Folder"
     },
     "tabs": {
@@ -213,7 +215,8 @@
       "closeAllTabs": "Close all tabs",
       "rename": "Rename",
       "copyPath": "Copy path",
-      "showInFolder": "Show in folder"
+      "showInFolder": "Show in folder",
+      "showInSideBar": "Show in Side Bar"
     }
   },
   "search": {
@@ -258,6 +261,13 @@
       "settings": "Settings"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Application Menu",
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "restore": "Restore",
+    "close": "Close"
+  },
   "commandPalette": {
     "placeholder": "Type a command to execute",
     "placeholders": {
@@ -269,13 +279,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Auto numbering headings",
     "title": "Export Options",
-    "info": {
-      "label": "Info",
-      "description": "Please customize the page appearance and click on \"export\" to continue."
-    },
     "page": {
       "label": "Page",
-      "pageTitle": "The page title:",
+      "pageTitle": "The page title",
       "pageSize": "Page size:",
       "landscapeOrientation": "Landscape orientation:",
       "pageMargin": "Page margin in mm:",
@@ -312,12 +318,13 @@
       "description": "The text appear on all pages if header and/or footer is defined."
     },
     "toc": {
-      "includeTopHeading": "Include top heading",
-      "includeTopHeadingDetail": "Include top heading detail",
+      "description": "To show a table of contents in the exported document, enter [TOC] on its own line in the document body. The table of contents will appear at that position.",
+      "includeTopHeading": "Include level-1 headings",
+      "includeTopHeadingDetail": "Include all level-1 (H1) headings in the table of contents.",
       "label": "Table of Contents",
       "title": "Table of Contents"
     },
-    "export": "Export...",
+    "export": "Export",
     "options": {
       "pageSizes": {
         "a3": "A3 (297mm x 420mm)",
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "Preferences",
+    "learnMore": "Learn more about {name}",
     "search": {
       "placeholder": "Search preferences...",
       "categories": {
@@ -389,7 +397,7 @@
         "wrapCodeBlocks": "Wrap text inside code blocks",
         "editorLineWidth": "Defines the maximum editor area width. An empty string or suffixes of ch (characters), px (pixels) or % (percentage) are allowed",
         "codeFontSize": "Font size in code Block, the range is 12 ~ 18",
-        "codeFontFamily": "Font family used in code block",
+        "codeFontFamily": "Code font family. Applies to inline code and code blocks.",
         "codeBlockLineNumbers": "Whether to show the line numbers",
         "sourceCodeLineNumbers": "Show line numbers in source code mode",
         "trimUnnecessaryCodeBlockEmptyLines": "Trim the beginning and ending empty lines in code block",
@@ -417,6 +425,10 @@
         "texMathGfm": "Enable pandoc's markdown extension tex_math_gfm",
         "texMathSingleBackslash": "Enable pandoc's markdown extension tex_math_single_backslash",
         "texMathDoubleBackslash": "Enable pandoc's markdown extension tex_math_double_backslash",
+        "highlightSyntax": "Enable the non-standard ==text== highlight syntax",
+        "inlineDiff": "Enable the non-standard {+ … +} / [- … -] inline diff syntax",
+        "multilineBlockquote": "Enable the non-standard >>> … >>> multiline blockquote syntax",
+        "githubAlerts": "GitHub Alerts",
         "isHtmlEnabled": "Enable HTML rendering",
         "softNewlineAsSpace": "Treat soft newlines as spaces",
         "sequenceTheme": "Sequence diagram theme",
@@ -434,7 +446,8 @@
         "imageRelativeDirectoryName": "The relative image folder name",
         "autoNormalizeLineEndings": "Automatically normalize line endings when opening files. When disabled, files are opened as-is.",
         "fileSortOrder": "Sort order for files in opened folders: ascending or descending.",
-        "openedFilesInSidebar": "Whether to show opened files in the sidebar."
+        "openedFilesInSidebar": "Whether to show opened files in the sidebar.",
+        "showPandocConvert": "Show the Pandoc conversion menu. Requires Pandoc to be installed."
       }
     },
     "categories": {
@@ -478,10 +491,19 @@
         "selectFolder": "Select Folder",
         "openBlankPage": "Open blank page"
       },
+      "pandoc": {
+        "title": "Pandoc Conversion",
+        "description": "Show the Pandoc conversion menu",
+        "detailedDescription": "Requires Pandoc to be installed",
+        "found": "Found: {path}",
+        "notFound": "Not found",
+        "recheck": "Re-check"
+      },
       "sidebar": {
         "title": "Sidebar",
         "wrapTextInToc": "Wrap text in table of contents",
         "showOpenedFiles": "Show opened files",
+        "autoReveal": "Reveal the active file in the sidebar",
         "excludePatterns": "Exclude patterns",
         "excludePatternsNotes": "Exclude patterns (Notes)",
         "fileSortBy": {
@@ -526,12 +548,13 @@
         "fontFamily": "Font family",
         "maxWidth": "Max width",
         "maxWidthNotes": "Maximum width of editor content. Enter a number followed by px, ch (characters) or %, e.g. 800px, 80ch or 60%. Leave empty to use the default width.",
-        "maxWidthInvalid": "Enter a number followed by px, ch or %, e.g. 800px."
+        "maxWidthInvalid": "Enter a number followed by px, ch or %, e.g. 800px.",
+        "codeFontFamily": "Code font family",
+        "codeFontFamilyNotes": "Applies to inline code and code blocks."
       },
       "codeBlock": {
         "title": "Code Block",
         "fontSize": "Font size",
-        "fontFamily": "Font family",
         "showLineNumbers": "Show line numbers",
         "removeEmptyLines": "Remove empty lines"
       },
@@ -646,6 +669,10 @@
         "texMathGfm": "GitHub TeX math ($`…`$ and ```math)",
         "texMathSingleBackslash": "TeX math with single-backslash delimiters",
         "texMathDoubleBackslash": "TeX math with double-backslash delimiters",
+        "highlightSyntax": "Highlight (==text==)",
+        "inlineDiff": "Inline diff ({+ … +})",
+        "multilineBlockquote": "Multiline blockquote (>>>)",
+        "githubAlerts": "Enable GitHub Alerts",
         "frontmatterType": {
           "jsonBrace": "JSON with Braces",
           "jsonSemicolon": "JSON with Semicolon",
@@ -695,6 +722,7 @@
     "theme": {
       "title": "Theme",
       "followSystemTheme": "Follow System Theme",
+      "followSystemNote": "Following the system locks the theme list below. Turn this off to switch themes freely.",
       "modeThemes": "Theme Selection",
       "lightModeTheme": "Light mode theme",
       "darkModeTheme": "Dark mode theme",
@@ -777,6 +805,7 @@
       "quit": "Quit",
       "toggleAutoSave": "Toggle Auto Save",
       "importFile": "Import File",
+      "revealInSideBar": "Show in Side Bar",
       "exportFile": "Export File",
       "exportFilePdf": "Export as PDF",
       "zoom": "Zoom",
@@ -897,6 +926,7 @@
     "ok": "OK"
   },
   "dialog": {
+    "moveToTrash": "Are you sure you want to move \"{name}\" to trash?",
     "cancel": "Cancel",
     "changesWillBeLost": "Changes will be lost",
     "close": "Close",
@@ -999,6 +1029,9 @@
       "languageMissing": "Spellcheck language missing {languageCode}",
       "switchError": "Spellcheck switch error for {languageCode}, {error}",
       "title": "Spellcheck"
+    },
+    "tabs": {
+      "close": "Close {name}"
     }
   }
 }

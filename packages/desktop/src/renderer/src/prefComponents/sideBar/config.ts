@@ -139,7 +139,7 @@ export const getTranslatedSearchContent: CachedTranslator = (() => {
       const categoryName = category ?? ''
 
       // Map category names
-      let mappedCategory = categoryName.toLowerCase()
+      let mappedCategory: string
       if (categoryName === 'General') mappedCategory = 'general'
       else if (categoryName === 'Editor') mappedCategory = 'editor'
       else if (categoryName === 'Markdown') mappedCategory = 'markdown'
@@ -173,7 +173,7 @@ export const getTranslatedSearchContent: CachedTranslator = (() => {
       const itemKey = `preferences.search.items.${k}`
 
       // Translate the category name
-      let translatedCategory = categoryName
+      let translatedCategory: string
       const englishCategory = categoryName
       try {
         translatedCategory = t(categoryKey)
@@ -190,7 +190,7 @@ export const getTranslatedSearchContent: CachedTranslator = (() => {
       }
 
       // Translate preference description
-      let translatedPreference = description.split('--')[1] || description
+      let translatedPreference: string
       const englishPreference = description.split('--')[1] || description
       try {
         translatedPreference = t(itemKey)

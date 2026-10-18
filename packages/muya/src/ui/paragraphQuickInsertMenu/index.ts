@@ -10,6 +10,7 @@ import { deepClone } from '../../utils';
 import { query } from '../../utils/dom';
 import { h, patch } from '../../utils/snabbdom';
 import BaseScrollFloat from '../baseScrollFloat';
+import { renderMenuIcon } from '../menuIcon';
 import {
     getLabelFromEvent,
     MENU_CONFIG,
@@ -150,31 +151,19 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
                 const { title, subTitle, label, icon, shortCut } = item;
                 const iconVnode = h(
                     'div.icon-container',
-                    h(
-                        'i.icon',
-                        h(
-                            `i.icon-${label.replace(/\s/g, '-')}`,
-                            {
-                                style: {
-                                    'background': `url(${icon}) no-repeat`,
-                                    'background-size': '100%',
-                                },
-                            },
-                            '',
-                        ),
-                    ),
+                    renderMenuIcon({ label, icon }),
                 );
 
                 const description = h('div.description', [
                     h(
                         'div.big-title',
                         {
-                            attrs: { title: subTitle },
+                            attrs: { title: `${i18n.t(title)}\n${i18n.t(subTitle)}` },
                         },
                         i18n.t(title),
                     ),
                 ]);
-                const shortCutVnode = h('div.short-cut', [h('span', shortCut)]);
+                const shortCutVnode = shortCut ? h('div.short-cut', [h('span', shortCut)]) : null;
                 const selector
                     = activeItem!.label === label ? 'div.item.active' : 'div.item';
                 items.push(
@@ -223,18 +212,21 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
         }
 
         for (const menu of menuConfig)
-            menu.children = menu.children.filter(child => canInsertLabel(child.label, muya));
-        let result = menuConfig;
+            menu.children = menu.children.filter(child => canInsertLabel(child.label, muya) && (!child.label.startsWith('github-alert ') || block?.parent?.parent?.isScrollPage));
+        const availableMenus = menuConfig.filter(menu => menu.children.length);
+        let result = availableMenus;
         if (text !== '') {
             result = [];
 
-            for (const menu of menuConfig) {
-                for (const child of menu.children)
+            for (const menu of availableMenus) {
+                for (const child of menu.children) {
                     child.i18nTitle = i18n.t(child.title);
+                    child.searchText = i18n.t(child.subTitle);
+                }
 
                 const fuse = new Fuse(menu.children, {
                     includeScore: true,
-                    keys: ['i18nTitle', 'title'],
+                    keys: ['i18nTitle', 'title', 'searchText'],
                 });
                 const match = fuse
                     .search(text)

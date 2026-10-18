@@ -8,14 +8,14 @@ import type Clipboard from './index';
 import CodeBlockContent from '../block/content/codeBlockContent';
 import LangInputContent from '../block/content/langInputContent';
 import { ScrollPage } from '../block/scrollPage';
-import { URL_REG } from '../config';
 import { tokenizer } from '../inlineRenderer/lexer';
 import HtmlToMarkdown from '../state/htmlToMarkdown';
 import { MarkdownToState } from '../state/markdownToState';
 import { isAnyListState, isParagraphState } from '../state/types';
-import { getClipboardImageFile, getCopyTextType, isStandaloneTableHtml, normalizePastedHTML } from '../utils/paste';
+import { getClipboardImageFile, getCopyTextType, isHttpUrl, isStandaloneTableHtml, normalizePastedHTML } from '../utils/paste';
 import { mergePasteIntoHeading } from './mergePasteIntoHeading';
 import { tryPasteImage, tryReplaceSelectedImage } from './pasteImage';
+import { tryPasteUrl } from './pasteUrl';
 import { PasteType } from './types';
 
 // Everything the per-anchor paste handlers need from the synchronous snapshot
@@ -102,7 +102,7 @@ function removeEmptyOriginWrapper(originWrapperBlock: Nullable<Parent>): void {
 }
 
 function isSinglePlainUrl(text: string): boolean {
-    return URL_REG.test(text) && !/\s/.test(text);
+    return isHttpUrl(text);
 }
 
 function canPlainUrlFallbackAutoLink(
@@ -398,24 +398,9 @@ function applyParsedPaste(
     if (markdown.trim().length === 0)
         return;
 
-    const {
-        footnote,
-        texMathDollars,
-        texMathGfm,
-        texMathSingleBackslash,
-        texMathDoubleBackslash,
-        trimUnnecessaryCodeBlockEmptyLines,
-        frontMatter,
-    } = muya.options;
-
     const states = new MarkdownToState({
-        footnote,
-        texMathDollars,
-        texMathGfm,
-        texMathSingleBackslash,
-        texMathDoubleBackslash,
-        trimUnnecessaryCodeBlockEmptyLines,
-        frontMatter,
+        ...muya.options,
+        githubAlerts: muya.options.githubAlerts && ctx.wrapperBlock?.parent?.isScrollPage === true,
     }).generate(markdown);
 
     if (states.length === 0)
@@ -590,76 +575,14 @@ interface IPasteData {
     pasteType: PasteType;
 }
 
-// The paste pipeline, decoupled from the DOM `paste` event so it can be driven
-// either by a trusted paste event (`pasteSelection`) or by an explicit
-// clipboard read (`pastePlainText`). The latter exists because Chromium removed
-// programmatic clipboard reads via `document.execCommand('paste')`, so the
-// "set a flag → execCommand('paste') → handle the synthetic event" approach no
-// longer fires any paste event at all.
-async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void> {
-    const { muya } = clipboard;
-    const { bulletListMarker } = muya.options;
-
-    // A selected inline image collapses the text selection, so handle the
-    // "paste an image over a selected image" replace before reading the
-    // (now absent) text selection.
-    if (clipboard.selection.image && await tryReplaceSelectedImage(clipboard, data.imageFile))
-        return;
-
-    const selection = clipboard.selection.getSelection();
-    if (!selection)
-        return;
-
-    const { isSelectionInSameBlock, anchor } = selection;
-    const anchorBlock = anchor.block;
-
-    if (!anchorBlock)
-        return;
-
-    const { imageFile, pasteType } = data;
-    let { html } = data;
-    // Preserve source provenance before synthetic URL/table HTML promotion.
-    const hasClipboardHtml = html !== '';
-    // Normalize Windows CRLF / lone CR to LF so every downstream `split('\n')`
-    // and offset calculation sees one newline convention (muyajs strips \r).
-    const text = data.text.replace(/\r\n?/g, '\n');
-
-    if (!isSelectionInSameBlock) {
-        clipboard.cutHandler();
-
-        return applyPaste(clipboard, data);
-    }
-
-    // When the clipboard holds an image — either a file resolved to a path
-    // or an in-memory bitmap — insert it as an inline image
-    // routed through `imageAction`, short-circuiting the text/HTML paste.
-    if (await tryPasteImage(clipboard, anchorBlock, imageFile))
-        return;
-
-    // Support pasted URLs from Firefox.
-    if (URL_REG.test(text) && !/\s/.test(text) && !html)
-        html = `<a href="${text}">${text}</a>`;
-
-    // Apple Numbers and a handful of other sources only put a raw
-    // `<table>...</table>` blob in text/plain. Promote it to the HTML
-    // slot so it goes through the HTML→Markdown converter rather than
-    // being inserted verbatim.
-    if (!html && isStandaloneTableHtml(text))
-        html = text;
-
-    const cursorBeforeNormalize = anchorBlock.getCursor();
-
-    // Remove crap from HTML such as meta data and styles.
-    html = await normalizePastedHTML(html, {
-        preserveBareUrlLinks: hasClipboardHtml
-            && cursorBeforeNormalize != null
-            && shouldPreserveBareUrlLinkForPaste(
-                text,
-                anchorBlock.text,
-                cursorBeforeNormalize.start,
-                cursorBeforeNormalize.end,
-            ),
-    });
+function applyNormalizedPaste(
+    clipboard: Clipboard,
+    anchorBlock: Content,
+    text: string,
+    html: string,
+    pasteType: PasteType,
+): void {
+    const { bulletListMarker } = clipboard.muya.options;
     const copyType = getCopyTextType(html, text, pasteType);
 
     const { start, end } = anchorBlock.getCursor()!;
@@ -703,6 +626,87 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     else {
         applyHtmlBlockPaste(clipboard, ctx, text);
     }
+}
+
+// The paste pipeline, decoupled from the DOM `paste` event so it can be driven
+// either by a trusted paste event (`pasteSelection`) or by an explicit
+// clipboard read (`pastePlainText`). The latter exists because Chromium removed
+// programmatic clipboard reads via `document.execCommand('paste')`, so the
+// "set a flag → execCommand('paste') → handle the synthetic event" approach no
+// longer fires any paste event at all.
+async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void> {
+    // A selected inline image collapses the text selection, so handle the
+    // "paste an image over a selected image" replace before reading the
+    // (now absent) text selection.
+    if (clipboard.selection.image && await tryReplaceSelectedImage(clipboard, data.imageFile))
+        return;
+
+    const selection = clipboard.selection.getSelection();
+    if (!selection)
+        return;
+
+    const { isSelectionInSameBlock, anchor } = selection;
+    const anchorBlock = anchor.block;
+
+    if (!anchorBlock)
+        return;
+
+    const { imageFile, pasteType } = data;
+    let { html } = data;
+    // Preserve source provenance before synthetic URL/table HTML promotion.
+    const hasClipboardHtml = html !== '';
+    // Normalize Windows CRLF / lone CR to LF so every downstream `split('\n')`
+    // and offset calculation sees one newline convention (muyajs strips \r).
+    const text = data.text.replace(/\r\n?/g, '\n');
+
+    if (isSelectionInSameBlock && !imageFile && !clipboard.selection.image
+        && tryPasteUrl(clipboard, anchorBlock, text, pasteType)) {
+        return;
+    }
+
+    if (!isSelectionInSameBlock) {
+        clipboard.cutHandler();
+
+        return applyPaste(clipboard, data);
+    }
+
+    // When the clipboard holds an image — either a file resolved to a path
+    // or an in-memory bitmap — insert it as an inline image
+    // routed through `imageAction`, short-circuiting the text/HTML paste.
+    if (await tryPasteImage(clipboard, anchorBlock, imageFile))
+        return;
+
+    // Support pasted URLs from Firefox.
+    if (isHttpUrl(text) && !html) {
+        const link = document.createElement('a');
+        link.setAttribute('href', text);
+        link.textContent = text;
+        html = link.outerHTML;
+    }
+
+    // Apple Numbers and a handful of other sources only put a raw
+    // `<table>...</table>` blob in text/plain. Promote it to the HTML
+    // slot so it goes through the HTML→Markdown converter rather than
+    // being inserted verbatim.
+    if (!html && isStandaloneTableHtml(text))
+        html = text;
+
+    const cursorBeforeNormalize = anchorBlock.getCursor();
+
+    // Remove crap from HTML such as meta data and styles.
+    html = await normalizePastedHTML(html, {
+        fetchLinkHtml: clipboard.muya.options.fetchLinkHtml,
+        resolveLinkTitles: pasteType === PasteType.NORMAL,
+        preserveBareUrlLinks: hasClipboardHtml
+            && cursorBeforeNormalize != null
+            && shouldPreserveBareUrlLinkForPaste(
+                text,
+                anchorBlock.text,
+                cursorBeforeNormalize.start,
+                cursorBeforeNormalize.end,
+            ),
+    });
+    applyNormalizedPaste(clipboard, anchorBlock, text, html, pasteType);
 }
 
 // Entry for a trusted DOM `paste` event (native Cmd/Ctrl+V).

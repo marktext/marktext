@@ -41,7 +41,7 @@ MarkText key bindings for macOS. Please see [general key bindings](KEYBINDINGS.m
 | `edit.paste`              | <kbd>Command</kbd>+<kbd>V</kbd>                   | Paste text                                      |
 | `edit.copy-as-rich`       | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd>  | Copy selected text as markdown                  |
 | `edit.copy-as-html`       | -                                                 | Copy selected text as html                      |
-| `edit.paste-as-plaintext` | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd>  | Copy selected text as plaintext                 |
+| `edit.paste-as-plaintext` | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd>  | Paste clipboard contents as plain text          |
 | `edit.select-all`         | <kbd>Command</kbd>+<kbd>A</kbd>                   | Select all text of the document                 |
 | `edit.duplicate`          | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>P</kbd> | Duplicate the current paragraph                 |
 | `edit.create-paragraph`   | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd>  | Create a new paragraph after the current one    |

@@ -2,13 +2,16 @@
 
 import { useRef } from 'react'
 import { DOWNLOAD } from '@/lib/downloads'
+import { DEFAULT_GITHUB_STARS } from '@/lib/project-info'
 import { EXT_LINK } from '@/lib/links'
 import { revealClass } from '@/lib/sections'
 import { useTilt } from '@/hooks/useTilt'
 import MockWindow from './MockWindow'
 import { CheckIcon, DownloadIcon, GitHubIcon } from './Icons'
+import { useProjectInfo } from './ProjectInfoProvider'
 
 export default function Hero() {
+  const { releaseVersion, githubStars } = useProjectInfo()
   const stageRef = useRef<HTMLDivElement>(null)
   const winRef = useRef<HTMLDivElement>(null)
   useTilt(stageRef, winRef)
@@ -17,7 +20,7 @@ export default function Hero() {
     <header className="hero">
       <div className="wrap">
         <div className={revealClass(undefined, 'eyebrow')}>
-          <span className="tag">v0.19.0</span> Free &amp; open source forever
+          <span className="tag">{releaseVersion ?? 'Latest release'}</span> Free &amp; open source forever
         </div>
         <h1 className={revealClass('d1', 'hero-title')}>
           Write in Markdown. <span className="grad-text">Stay in flow.</span>
@@ -43,7 +46,7 @@ export default function Hero() {
             <CheckIcon /> No account, no tracking
           </span>
           <span>
-            <CheckIcon /> 56k+ stars on GitHub
+            <CheckIcon /> {(githubStars ?? DEFAULT_GITHUB_STARS).toLocaleString('en-US')} stars on GitHub
           </span>
         </div>
 

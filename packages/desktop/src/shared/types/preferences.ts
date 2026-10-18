@@ -26,6 +26,8 @@ export interface IUserPreferences {
   codeFontFamily?: string
   hideQuickInsertHint?: boolean
   hideLinkPopup?: boolean
+  openedFilesInSidebar?: boolean
+  autoRevealInSidebar?: boolean
   autoPairBracket?: boolean
   autoPairMarkdownSyntax?: boolean
   autoPairQuote?: boolean
@@ -47,6 +49,10 @@ export interface IUserPreferences {
   texMathGfm?: boolean
   texMathSingleBackslash?: boolean
   texMathDoubleBackslash?: boolean
+  highlightSyntax?: boolean
+  inlineDiff?: boolean
+  multilineBlockquote?: boolean
+  githubAlerts?: boolean
   isHtmlEnabled?: boolean
   softNewlineAsSpace?: boolean
   theme?: string
@@ -72,6 +78,7 @@ export interface IUserPreferences {
   autoNormalizeLineEndings?: boolean
   watcherUsePolling?: boolean
   treePathExcludePatterns?: string[]
+  showPandocConvert?: boolean
   [key: string]: unknown
 }
 

@@ -90,6 +90,11 @@ class CodeBlock extends Parent {
 
             this.jsonState.editOperation(path, diffToTextOp(diffs));
 
+            // An indented block has no fence yet, so the promoted block
+            // defaults to a backtick fence and the json state gains the key.
+            this.meta.fenceChar = '`';
+            this.jsonState.insertValueOperation([...this.path, 'meta', 'fenceChar'], '`');
+
             operateClassName(this.domNode!, 'remove', 'mu-indented-code');
             operateClassName(this.domNode!, 'add', 'mu-fenced-code');
         }
@@ -142,6 +147,8 @@ class CodeBlock extends Parent {
         this.tagName = 'pre';
         this.meta = meta;
         this.classList = ['mu-code-block', `mu-${meta.type}-code`];
+        if (meta.fenceChar === '~')
+            this.classList.push('mu-tilde-fence');
         if (muya.options.codeBlockLineNumbers)
             this.classList.push('mu-line-numbers');
         this.createDomNode();

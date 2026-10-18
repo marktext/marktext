@@ -1,6 +1,6 @@
 // List of all static commands that are loaded into command center.
 import bus from '../bus'
-import { delay, isOsx } from '@/util'
+import { delay, isMac } from '@/util'
 import { isUpdatable } from './utils'
 import getCommandDescriptionById from './descriptions'
 import { t } from '../i18n'
@@ -141,6 +141,13 @@ const commands: CommandDescriptor[] = [
     id: 'file.import-file',
     execute: async() => {
       window.electron.ipcRenderer.send('mt::cmd-import-file')
+    }
+  },
+  {
+    id: 'file.reveal-in-sidebar',
+    execute: async() => {
+      // Without a pathname the side bar reveals the active file.
+      bus.emit('SIDEBAR::reveal-file', null)
     }
   },
   {
@@ -468,7 +475,7 @@ const commands: CommandDescriptor[] = [
 
   {
     id: 'file.zoom',
-    shortcut: [isOsx ? 'Cmd' : 'Ctrl', 'Scroll'],
+    shortcut: [isMac ? 'Cmd' : 'Ctrl', 'Scroll'],
     subcommands: [
       {
         id: 'file.zoom-0',
@@ -693,7 +700,7 @@ if (isUpdatable()) {
   })
 }
 
-if (isOsx) {
+if (isMac) {
   commands.push({
     id: 'edit.screenshot',
     execute: async() => {

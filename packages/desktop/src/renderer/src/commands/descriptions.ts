@@ -17,6 +17,7 @@ const COMMAND_KEY_MAP: Record<string, string> = {
   'file.open-folder': 'commands.file.openFolder',
   'file.quick-open': 'commands.file.quickOpen',
   'file.import-file': 'commands.file.importFile',
+  'file.reveal-in-sidebar': 'commands.file.revealInSideBar',
 
   // File save and export
   'file.save': 'commands.file.save',

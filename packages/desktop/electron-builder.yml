@@ -72,6 +72,16 @@ electronLanguages: # Keep Chromium/AppKit locales for the UI languages MarkText 
   - zh_CN
   - zh_TW
 
+electronFuses:
+  # Node's CLI parser inside Electron rejects `--debug` (DEP0062, exit 9) before
+  # MarkText can read it (#5409). With this fuse off the packaged app ignores
+  # Node's inspector flags, so `--debug` reaches MarkText.
+  enableNodeCliInspectArguments: false
+  # Flipping a fuse rewrites the Electron Framework binary, invalidating the
+  # ad-hoc signature its linker wrote. Unsigned macOS arm64 builds are then
+  # killed on launch (Code Signature Invalid), so re-sign ad-hoc after flipping.
+  resetAdHocDarwinSignature: true
+
 asarUnpack:
   - resources/**
 fileAssociations:

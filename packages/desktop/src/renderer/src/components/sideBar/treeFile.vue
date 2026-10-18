@@ -8,12 +8,13 @@
       { current: currentFile?.pathname === file.pathname, active: file.id === activeItem.id }
     ]"
     @click="handleFileClick"
+    @dblclick="handleFileDblClick"
   >
     <file-icon :name="file.name" />
     <input
       v-if="renameCache === file.pathname"
       ref="renameInput"
-      v-model="newName"
+      v-model="nameInputValue"
       type="text"
       class="rename"
       @click.stop="noop"
@@ -24,13 +25,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { inject, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
 import FileIcon from './icon.vue'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import bus from '../../bus'
+import { renameSelectionEnd } from './renameKey'
+import { TREE_ROW_REGISTRY_KEY, toRowKey, type TreeRowRegistry } from './rowRegistry'
 import type { TreeFileNode } from './types'
 
 const props = defineProps<{
@@ -41,17 +44,31 @@ const props = defineProps<{
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
 
-const newName = ref('')
 const fileEl = ref<HTMLDivElement | null>(null)
 const renameInput = ref<HTMLInputElement | null>(null)
 
+const rowRegistry = inject<TreeRowRegistry | null>(TREE_ROW_REGISTRY_KEY, null)
+
+watch(
+  () => props.file.pathname,
+  (pathname, previous) => {
+    if (!rowRegistry) return
+    if (previous) rowRegistry.delete(toRowKey(previous))
+    if (fileEl.value) rowRegistry.set(toRowKey(pathname), fileEl.value)
+  }
+)
+
 const { renameCache } = storeToRefs(projectStore)
+const { nameInputValue } = storeToRefs(projectStore)
 const { activeItem } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
 const { currentFile, tabs } = storeToRefs(editorStore)
 
-// from fileMixins
-const handleFileClick = (): void => {
+const handleFileClick = (event: MouseEvent): void => {
+  // Select before the open-file branch runs, so non-markdown rows select too.
+  projectStore.CHANGE_ACTIVE_ITEM(props.file)
+  // A double-click's second click must not re-issue the open request.
+  if (event.detail === 2) return
   const { isMarkdown, pathname } = props.file
   if (!isMarkdown) return
   const openedTab = tabs.value.find((f) => window.fileUtils.isSamePathSync(f.pathname, pathname))
@@ -60,30 +77,37 @@ const handleFileClick = (): void => {
       return
     }
     editorStore.UPDATE_CURRENT_FILE(openedTab)
+    // Restoring the tab's caret pulls DOM focus into the editor.
+    bus.emit('SIDEBAR::focus-tree')
   } else {
-    window.electron.ipcRenderer.send('mt::open-file', pathname, {})
+    editorStore.SET_OPEN_INTENT(pathname, false)
+    window.electron.ipcRenderer.send('mt::open-file', pathname)
   }
+}
+
+const handleFileDblClick = (): void => {
+  if (!props.file.isMarkdown) return
+  editorStore.FOCUS_FILE(props.file.pathname)
 }
 
 const noop = (): void => {}
 
 const focusRenameInput = (): void => {
+  // The `v-if` input mounts on the next tick; the store seeds its value.
   nextTick(() => {
-    if (renameInput.value) {
-      renameInput.value.focus()
-      newName.value = props.file.name
-    }
+    if (!renameInput.value) return
+    renameInput.value.focus()
+    renameInput.value.setSelectionRange(0, renameSelectionEnd(props.file.name))
   })
 }
 
 const rename = (): void => {
-  if (newName.value) {
-    projectStore.RENAME_IN_SIDEBAR(newName.value)
-  }
+  projectStore.RENAME_IN_SIDEBAR(nameInputValue.value)
 }
 
 onMounted(() => {
   if (fileEl.value) {
+    rowRegistry?.set(toRowKey(props.file.pathname), fileEl.value)
     fileEl.value.addEventListener('contextmenu', (event) => {
       event.preventDefault()
       projectStore.CHANGE_ACTIVE_ITEM(props.file)
@@ -92,6 +116,10 @@ onMounted(() => {
   }
 
   bus.on('SIDEBAR::show-rename-input', focusRenameInput)
+})
+
+onBeforeUnmount(() => {
+  rowRegistry?.delete(toRowKey(props.file.pathname))
 })
 </script>
 
@@ -132,6 +160,10 @@ onMounted(() => {
 .side-bar-file.current > span {
   color: var(--themeColor);
 }
+/* After :hover so the selection stays visible while the pointer is over it. */
+.side-bar-file.active {
+  background: var(--themeColor20);
+}
 .side-bar-file.active > span {
   color: var(--sideBarTitleColor);
 }
@@ -141,7 +173,7 @@ input.rename {
   margin: 5px 0;
   padding: 0 8px;
   color: var(--sideBarColor);
-  border: 1px solid var(--floatBorderColor);
+  border: 1px solid var(--focusColor);
   background: var(--floatBorderColor);
   width: 100%;
   border-radius: 3px;

@@ -12,7 +12,6 @@
 import type { Muya } from '@muyajs/core'
 import { MarkdownToHtml } from '@muyajs/core'
 import { sanitize, EXPORT_DOMPURIFY_CONFIG } from './dompurify'
-import { resolveLocalImageSrc } from './resolveImageSrc'
 import { resolveLocalLinkHref } from './resolveLinkHref'
 
 export interface HeaderFooterPart {
@@ -49,6 +48,7 @@ table.page-container > tfoot { display: table-header-group; }
 .page-header .hf-container,
 .page-footer-fake .hf-container,
 .page-footer .hf-container { display: flex; justify-content: space-between; font-size: 0.75em; font-weight: 400; }
+.hf-container { font-family: "Noto Music", "Noto Sans Math", "Open Sans", sans-serif; }
 .page-header { display: table-header-group; }
 .page-header .hf-container { margin-bottom: 16px; }
 .page-header.styled .hf-container { padding-bottom: 1px; border-bottom: 1px solid var(--footerHeaderBorderColor); }
@@ -125,29 +125,10 @@ const createTableBody = (article: string): string =>
 // Match a standalone `[TOC]` line (mirrors legacy marked TOC block token).
 const TOC_REG = /^ {0,3}\[TOC\] *$/im
 
-// Match the `src="…"` of an <img> tag in the (already sanitized, double-quoted)
-// engine output, so relative image paths can be rewritten to absolute `file://`
+// Match the `href="…"` of an <a> tag in the (already sanitized, double-quoted)
+// engine output, so relative local links can be rewritten to absolute `file://`
 // URLs. A string rewrite avoids re-serializing the whole article DOM (which
 // holds rendered KaTeX / diagram SVG).
-const IMG_SRC_REG = /(<img\b[^>]*?\ssrc=")([^"]*)(")/gi
-
-/**
- * Rewrite relative / absolute-local `<img src>` to absolute `file://` URLs so a
- * saved styled-HTML document still resolves its images after it is moved out of
- * the source folder (legacy muyajs `correctImageSrc` parity, issue 230). Remote
- * URLs and `data:` URIs are left untouched. Idempotent: a `file://` src is left
- * as-is, so the PDF / print path (which rewrites again via printService) is a
- * no-op the second time.
- */
-const rewriteImageSrcs = (html: string): string =>
-  html.replace(IMG_SRC_REG, (match, pre: string, src: string, post: string) => {
-    const resolved = resolveLocalImageSrc(src)
-    return resolved === src ? match : `${pre}${resolved}${post}`
-  })
-
-// Match the `href="…"` of an <a> tag in the (already sanitized, double-quoted)
-// engine output, so relative local links are rewritten to absolute `file://`
-// URLs the same way images are.
 const ANCHOR_HREF_REG = /(<a\b[^>]*?\shref=")([^"]*)(")/gi
 
 /**
@@ -195,11 +176,9 @@ export const exportStyledHTML = async(
   const articleMatch = /<article class="markdown-body">([\s\S]*)<\/article>/.exec(fullDoc)
   let article = articleMatch ? articleMatch[1] : fullDoc
 
-  // Resolve relative image paths to absolute file:// URLs so the saved document
-  // still shows its images when opened from a different folder (issue 230).
-  article = rewriteImageSrcs(article)
-  // Same for relative local links so they still resolve after the document is
-  // moved out of the source folder (#1688).
+  // The engine already resolved local images to file:// URLs while sanitizing.
+  // Do the same for relative local links so they still resolve after the
+  // document is moved out of the source folder (#1688).
   article = rewriteAnchorHrefs(article)
 
   // Inject the TOC at the `[TOC]` marker (legacy behaviour: only appears when
@@ -208,9 +187,9 @@ export const exportStyledHTML = async(
   // back to a raw `[TOC]` if present.
   if (toc) {
     if (/<p>\s*\[TOC\]\s*<\/p>/i.test(article)) {
-      article = article.replace(/<p>\s*\[TOC\]\s*<\/p>/i, toc)
+      article = article.replace(/<p>\s*\[TOC\]\s*<\/p>/i, () => toc)
     } else if (TOC_REG.test(article)) {
-      article = article.replace(TOC_REG, toc)
+      article = article.replace(TOC_REG, () => toc)
     }
   }
 
@@ -230,5 +209,5 @@ export const exportStyledHTML = async(
   }
 
   // Re-emit the engine document shell with the (possibly augmented) body.
-  return fullDoc.replace(/<body>[\s\S]*<\/body>/, `<body>\n  ${bodyHtml}\n</body>`)
+  return fullDoc.replace(/<body>[\s\S]*<\/body>/, () => `<body>\n  ${bodyHtml}\n</body>`)
 }

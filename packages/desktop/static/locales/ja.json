@@ -70,6 +70,7 @@
       "table": "表",
       "codeFences": "コードブロック",
       "quoteBlock": "引用ブロック",
+      "githubAlerts": "GitHub アラート",
       "mathBlock": "数式ブロック",
       "htmlBlock": "HTMLブロック",
       "orderedList": "番号付きリスト",
@@ -204,6 +205,7 @@
       "paste": "貼り付け",
       "rename": "名前の変更",
       "moveToTrash": "ごみ箱に移動",
+      "copyPath": "パスのコピー",
       "showInFolder": "フォルダーの表示"
     },
     "tabs": {
@@ -213,7 +215,8 @@
       "closeAllTabs": "すべてのタブを閉じる",
       "rename": "名前の変更",
       "copyPath": "パスのコピー",
-      "showInFolder": "フォルダーの表示"
+      "showInFolder": "フォルダーの表示",
+      "showInSideBar": "サイドバーに表示"
     }
   },
   "search": {
@@ -225,7 +228,7 @@
     "replaceAll": "すべて置換",
     "replaceSingle": "単一置換",
     "invalidRegex": "無効な正規表現 \"{pattern}\"",
-    "regexMatchEmpty": "正規表現が空文字列 \"{pattern}\" にマッチ",
+    "regexMatchEmpty": "正規表現が空文字列 \"{pattern}\" に一致",
     "searchResultInfo": "{fileCount} 個のファイルで {matchCount} 件一致",
     "searchLimited": "最初の {count} 件まで表示しています"
   },
@@ -258,6 +261,13 @@
       "settings": "設定"
     }
   },
+  "titleBar": {
+    "applicationMenu": "アプリケーションメニュー",
+    "minimize": "最小化",
+    "maximize": "最大化",
+    "restore": "元に戻す (縮小)",
+    "close": "閉じる"
+  },
   "commandPalette": {
     "placeholder": "実行するコマンドの入力",
     "placeholders": {
@@ -269,13 +279,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "見出しの自動番号付け",
     "title": "エクスポートオプション",
-    "info": {
-      "label": "情報",
-      "description": "ページレイアウトを調整して、'エクスポート'をクリックして続行してください。"
-    },
     "page": {
       "label": "ページ",
-      "pageTitle": "ページタイトル :",
+      "pageTitle": "ページタイトル",
       "pageSize": "ページサイズ :",
       "landscapeOrientation": "横向き :",
       "pageMargin": "ページ余白 (mm):",
@@ -312,20 +318,21 @@
       "description": "ヘッダーやフッターが定義されている場合、テキストはすべてのページに表示されます。"
     },
     "toc": {
-      "includeTopHeading": "最上位見出しを含める",
-      "includeTopHeadingDetail": "最上位見出しの詳細を含める",
+      "description": "エクスポートした文書に目次を表示するには、本文の独立した行に [TOC] を入力してください。その位置に目次が生成されます。",
+      "includeTopHeading": "レベル1の見出しを含める",
+      "includeTopHeadingDetail": "すべてのレベル1（H1）の見出しを目次に含めます。",
       "label": "目次",
       "title": "目次"
     },
-    "export": "エクスポート...",
+    "export": "エクスポート",
     "options": {
       "pageSizes": {
         "a3": "A3",
         "a4": "A4",
         "a5": "A5",
-        "legal": "Legal",
-        "letter": "Letter",
-        "tabloid": "Tabloid",
+        "legal": "リーガル",
+        "letter": "レター",
+        "tabloid": "タブロイド",
         "custom": "カスタム"
       },
       "headerFooterTypes": {
@@ -355,11 +362,12 @@
   },
   "preferences": {
     "title": "環境設定",
+    "learnMore": "{name} の詳細",
     "search": {
       "placeholder": "設定の検索...",
       "categories": {
         "general": "全般",
-        "editor": "エディター",
+        "editor": "エディタ",
         "markdown": "Markdown",
         "theme": "テーマ",
         "image": "画像",
@@ -390,7 +398,7 @@
         "wrapCodeBlocks": "コードブロック内でテキストを折り返す",
         "editorLineWidth": "エディターエリアの最大幅を定義します。空文字列または ch (文字)、px (ピクセル)、% (パーセント) の接尾辞が許可されます",
         "codeFontSize": "コードブロックのフォントサイズ、範囲は 12〜18",
-        "codeFontFamily": "コードブロックで使用されるフォントファミリー",
+        "codeFontFamily": "コードのフォント：インラインコードとコードブロックに適用されます。",
         "codeBlockLineNumbers": "行番号を表示するかどうか",
         "sourceCodeLineNumbers": "ソースコードモードで行番号を表示",
         "trimUnnecessaryCodeBlockEmptyLines": "コードブロックの最初と最後の空行をトリミング",
@@ -418,6 +426,10 @@
         "texMathGfm": "Pandoc の markdown 拡張 tex_math_gfm を有効にする",
         "texMathSingleBackslash": "Pandoc の markdown 拡張 tex_math_single_backslash を有効にする",
         "texMathDoubleBackslash": "Pandoc の markdown 拡張 tex_math_double_backslash を有効にする",
+        "highlightSyntax": "非標準の ==テキスト== ハイライト構文を有効にする",
+        "inlineDiff": "非標準のインライン差分構文 {+ … +} / [- … -] を有効にする",
+        "multilineBlockquote": "非標準の複数行引用構文 >>> … >>> を有効にする",
+        "githubAlerts": "GitHub アラート",
         "isHtmlEnabled": "HTML レンダリングを有効にする",
         "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
         "sequenceTheme": "シーケンス図のテーマ",
@@ -434,12 +446,13 @@
         "imageRelativeDirectoryBase": "相対画像のコピー先",
         "imageRelativeDirectoryName": "相対画像フォルダー名",
         "fileSortOrder": "開いたフォルダー内のファイルの並べ替え順、昇順または降順",
-        "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか"
+        "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか",
+        "showPandocConvert": "Pandoc 変換メニューを表示します。Pandoc がインストールされている必要があります。"
       }
     },
     "categories": {
       "general": "全般",
-      "editor": "エディター",
+      "editor": "エディタ",
       "markdown": "Markdown",
       "spelling": "スペルチェック",
       "theme": "テーマ",
@@ -478,10 +491,19 @@
         "selectFolder": "フォルダーの選択",
         "openBlankPage": "空白ページを開く"
       },
+      "pandoc": {
+        "title": "Pandoc 変換",
+        "description": "Pandoc 変換メニューを表示",
+        "detailedDescription": "Pandoc がインストールされている必要があります",
+        "found": "検出: {path}",
+        "notFound": "見つかりません",
+        "recheck": "再検出"
+      },
       "sidebar": {
         "title": "サイドバー",
         "wrapTextInToc": "目次でテキストを折り返し",
         "showOpenedFiles": "開いているファイルを表示",
+        "autoReveal": "サイドバーで現在のファイルを表示",
         "excludePatterns": "除外パターン",
         "excludePatternsNotes": "除外パターンの注意事項",
         "fileSortBy": {
@@ -518,20 +540,21 @@
       }
     },
     "editor": {
-      "title": "エディター",
+      "title": "エディタ",
       "textEditor": {
-        "title": "テキストエディター",
+        "title": "テキストエディタ",
         "fontSize": "フォントサイズ",
         "lineHeight": "行の高さ",
         "fontFamily": "フォントファミリー",
         "maxWidth": "最大幅",
-        "maxWidthNotes": "エディターコンテンツの最大幅。数値の後に単位 px、ch（文字数）、% のいずれかを付けて入力します（例: 800px、80ch、60%）。空欄の場合は既定の幅を使用します。",
-        "maxWidthInvalid": "数値の後に px、ch、% のいずれかを付けて入力してください（例: 800px）。"
+        "maxWidthNotes": "エディターコンテンツの最大幅。数値の後に単位 px、ch (文字数)、% のいずれかを付けて入力します (例 : 800px、80ch、60%)。空欄の場合は既定の幅を使用します。",
+        "maxWidthInvalid": "数値の後に px、ch、% のいずれかを付けて入力してください (例 : 800px)。",
+        "codeFontFamily": "コードのフォント",
+        "codeFontFamilyNotes": "インラインコードとコードブロックに適用されます。"
       },
       "codeBlock": {
         "title": "コードブロック",
         "fontSize": "フォントサイズ",
-        "fontFamily": "フォントファミリー",
         "showLineNumbers": "行番号を表示",
         "removeEmptyLines": "空行を削除"
       },
@@ -597,9 +620,9 @@
       "uploader": {
         "title": "画像アップローダー",
         "currentUploader": "現在のアップローダー: {name}",
-        "picgoNotInstalled": "PicGoがインストールされていません",
-        "picgoInstalled": "PicGoがインストールされています",
-        "picgoDetectionFailed": "PicGo検出に失敗しました",
+        "picgoNotInstalled": "PicGo がインストールされていません",
+        "picgoInstalled": "PicGo がインストールされています",
+        "picgoDetectionFailed": "PicGo 検出に失敗しました",
         "debugInfo": "デバッグ情報",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
@@ -646,6 +669,10 @@
         "texMathGfm": "GitHub の TeX 数式（$`…`$ と ```math）",
         "texMathSingleBackslash": "単一バックスラッシュの TeX 数式",
         "texMathDoubleBackslash": "二重バックスラッシュの TeX 数式",
+        "highlightSyntax": "ハイライト (==テキスト==)",
+        "inlineDiff": "インライン差分 ({+ … +})",
+        "multilineBlockquote": "複数行引用 (>>>)",
+        "githubAlerts": "GitHub アラートを有効にする",
         "frontmatterType": {
           "jsonBrace": "JSON 括弧",
           "jsonSemicolon": "JSON セミコロン",
@@ -672,7 +699,7 @@
         "title": "その他"
       },
       "compatibility": {
-        "enableHtml": "HTMLサポートを有効",
+        "enableHtml": "HTML サポートを有効",
         "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
         "title": "互換性"
       },
@@ -695,6 +722,7 @@
     "theme": {
       "title": "テーマ",
       "followSystemTheme": "システムのテーマに従う",
+      "followSystemNote": "システムテーマに従っている間は、下のテーマ一覧を切り替えられません。オフにすると自由に切り替えられます。",
       "modeThemes": "テーマの選択",
       "lightModeTheme": "ライトモードのテーマ",
       "darkModeTheme": "ダークモードのテーマ",
@@ -777,6 +805,7 @@
       "quit": "終了",
       "toggleAutoSave": "自動保存の切り替え",
       "importFile": "ファイルのインポート",
+      "revealInSideBar": "サイドバーに表示",
       "exportFile": "ファイルのエクスポート",
       "exportFilePdf": "PDF としてエクスポート",
       "zoom": "ズーム",
@@ -803,12 +832,12 @@
       "screenshot": "スクリーンショット"
     },
     "paragraph": {
-      "heading1": "見出し1",
-      "heading2": "見出し2",
-      "heading3": "見出し3",
-      "heading4": "見出し4",
-      "heading5": "見出し5",
-      "heading6": "見出し6",
+      "heading1": "見出し 1",
+      "heading2": "見出し 2",
+      "heading3": "見出し 3",
+      "heading4": "見出し 4",
+      "heading5": "見出し 5",
+      "heading6": "見出し 6",
       "upgradeHeading": "見出しレベルを上げる",
       "degradeHeading": "見出しレベルを下げる",
       "table": "表",
@@ -897,6 +926,7 @@
     "ok": "OK"
   },
   "dialog": {
+    "moveToTrash": "「{name}」をごみ箱に移動しますか？",
     "cancel": "キャンセル",
     "changesWillBeLost": "変更が失われます",
     "close": "閉じる",
@@ -922,11 +952,11 @@
     "configSchemaViolation": "設定スキーマ違反",
     "copyError": "コピーエラー",
     "initializationFailed": "初期化に失敗しました {hint}",
-    "otherInstanceDetected": "MarkTextの別のインスタンスが既に実行中です",
+    "otherInstanceDetected": "MarkText の別のインスタンスが既に実行中です",
     "report": "報告",
     "startupError": "起動エラー",
     "terminatedDueToError": "エラーにより終了",
-    "unexpectedErrorWithMessage": "予期しないエラー: {message}",
+    "unexpectedErrorWithMessage": "予期しないエラー : {message}",
     "unexpectedMainProcess": "予期しないメインプロセスエラー",
     "unexpectedRendererProcess": "予期しないレンダラープロセスエラー"
   },
@@ -979,8 +1009,8 @@
       "savePng": "PNG として保存",
       "copyImage": "画像をコピー",
       "copied": "画像をクリップボードにコピーしました",
-      "saveFailed": "画像を保存できませんでした: {error}",
-      "copyFailed": "画像をコピーできませんでした: {error}"
+      "saveFailed": "画像を保存できませんでした : {error}",
+      "copyFailed": "画像をコピーできませんでした : {error}"
     },
     "notifications": {
       "notificationNotFound": "通知が見つかりません"
@@ -999,6 +1029,9 @@
       "languageMissing": "スペルチェック言語が見つかりません {languageCode}",
       "switchError": "{languageCode} のスペルチェック切り替えエラー、{error}",
       "title": "スペルチェック"
+    },
+    "tabs": {
+      "close": "{name} を閉じる"
     }
   }
 }

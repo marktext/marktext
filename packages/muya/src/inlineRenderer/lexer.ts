@@ -1,13 +1,15 @@
 import type { IEmphasisSpan } from './emphasis';
 import type { BeginRules, InlineRules } from './rules';
 import type {
+    CodeEmojiMathToken,
     ITokenizerFacOptions,
     ITokenizerOptions,
     Labels,
     Token,
 } from './types';
 import escapeCharactersMap from '../config/escapeCharacter';
-import { isLengthEven, union } from '../utils';
+import { escapeHTML, isLengthEven, union } from '../utils';
+import { validEmoji } from '../utils/emoji';
 import { scanEmphasisSpans } from './emphasis';
 import { parseSrcAndTitle } from './linkDestination';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
@@ -46,6 +48,8 @@ interface ILexState {
     texMathGfm: boolean;
     texMathSingleBackslash: boolean;
     texMathDoubleBackslash: boolean;
+    highlightSyntax: boolean;
+    inlineDiff: boolean;
 }
 
 function pushPending(state: ILexState) {
@@ -66,6 +70,16 @@ function pushPending(state: ILexState) {
     state.pending = '';
 }
 
+// The `code_fence` rule alternates between a backtick and a tilde fence, so its
+// marker and info string land in the second alternative's capture slots; every
+// other begin rule keeps its original single-alternative shape.
+function beginRuleParts(ruleName: string, to: RegExpExecArray) {
+    if (ruleName !== 'code_fence')
+        return { marker: to[1], content: to[2] || '', backlash: to[3] || '' };
+
+    return { marker: to[1] || to[3], content: to[2] || to[4] || '', backlash: '' };
+}
+
 function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
     const beginRuleKeys = [
         'header',
@@ -81,13 +95,14 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
         const to = beginRules[ruleName].exec(state.src);
 
         if (to) {
+            const { marker, content, backlash } = beginRuleParts(ruleName, to);
             const token = {
                 type: ruleName,
                 raw: to[0],
                 parent: state.tokens,
-                marker: to[1],
-                content: to[2] || '',
-                backlash: to[3] || '',
+                marker,
+                content,
+                backlash,
                 range: {
                     start: state.pos,
                     end: state.pos + to[0].length,
@@ -247,20 +262,27 @@ function tryStrongEm(state: ILexState): boolean {
     return true;
 }
 
-// emoji | inline_code | del | inline_math
+// emoji | inline_code | del | mark | inline_math
 // `inline_math_gfm` goes first: both math forms open on `$`, and the dollar
 // rule would otherwise swallow `` $`e=mc^2`$ `` whole, backticks and all.
 // It carries its own marker shape but produces an ordinary `inline_math` token.
 function tryChunks(state: ILexState): boolean {
-    const chunks = ['inline_math_gfm', 'inline_code', 'del', 'emoji', 'inline_math'] as const;
+    const chunks = ['inline_math_gfm', 'inline_code', 'del', 'mark', 'inline_diff', 'emoji', 'inline_math'] as const;
 
     for (const rule of chunks) {
         if (rule === 'inline_math' && !state.texMathDollars)
             continue;
         if (rule === 'inline_math_gfm' && !state.texMathGfm)
             continue;
+        if (rule === 'mark' && !state.highlightSyntax)
+            continue;
+        if (rule === 'inline_diff' && !state.inlineDiff)
+            continue;
 
-        const to = state.inlineRules[rule].exec(state.src);
+        const ruleValue = state.inlineRules[rule];
+        const to = Array.isArray(ruleValue)
+            ? ruleValue.map(rule => rule.exec(state.src)).find(Boolean)
+            : ruleValue.exec(state.src);
         if (to && isLengthEven(to[3])) {
             if (rule === 'emoji') {
                 // An emoji opener must sit at a word boundary: a ":" glued to a
@@ -285,6 +307,7 @@ function tryChunks(state: ILexState): boolean {
                 || rule === 'emoji'
                 || rule === 'inline_math'
                 || rule === 'inline_math_gfm'
+                || rule === 'inline_diff'
             ) {
                 state.tokens.push({
                     type: rule === 'inline_math_gfm' ? 'inline_math' : rule,
@@ -789,7 +812,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
 ];
 
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, emphasisSpans: Map<number, IEmphasisSpan> | null = null) {
-    const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash } = options;
+    const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = options;
     const state: ILexState = {
         originSrc: src,
         src,
@@ -809,6 +832,8 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         texMathGfm,
         texMathSingleBackslash,
         texMathDoubleBackslash,
+        highlightSyntax,
+        inlineDiff: inlineDiff ?? false,
     };
 
     if (beginRules && state.pos === 0)
@@ -848,6 +873,8 @@ export function tokenizer(src: string, {
         texMathGfm: false,
         texMathSingleBackslash: false,
         texMathDoubleBackslash: false,
+        highlightSyntax: false,
+        inlineDiff: false,
     },
 }: ITokenizerOptions = {} as ITokenizerOptions) {
     const tokens = tokenizerFac(
@@ -892,7 +919,8 @@ function rebuildWrapperToken(token: Token): string {
         case 'strong':
         case 'em':
         case 'del':
-            return token.marker + generator(token.children, true) + token.marker;
+        case 'mark':
+            return token.marker + generator(token.children, true) + token.backlash + token.marker;
 
         case 'html_tag':
             if (token.openTag != null && token.closeTag != null && token.children != null)
@@ -930,16 +958,21 @@ export function tokensToPlainText(tokens: Token[]): string {
         switch (token.type) {
             case 'text':
             case 'inline_code':
+            case 'inline_diff':
             case 'inline_math':
-            case 'emoji':
             case 'super_sub_script':
             case 'footnote_identifier':
                 result += token.content;
                 break;
 
+            case 'emoji':
+                result += emojiDisplayText(token);
+                break;
+
             case 'strong':
             case 'em':
             case 'del':
+            case 'mark':
             case 'link':
             case 'reference_link':
                 result += tokensToPlainText(token.children);
@@ -984,6 +1017,107 @@ export function tokensToPlainText(tokens: Token[]): string {
             // header / hr / code_fence / multiple_math begin markers, the
             // reference_definition line, and an atx heading's tail `#`s carry no
             // reader-facing text.
+            default:
+                break;
+        }
+    }
+
+    return result;
+}
+
+// Unknown shortcodes fall back to the raw `:code:`, matching the editor.
+function emojiDisplayText(token: CodeEmojiMathToken): string {
+    return validEmoji(token.content)?.emoji ?? token.raw;
+}
+
+function inlineDiffHtml(marker: string, content: string): string {
+    const addition = marker[1] === '+';
+    const tag = addition ? 'ins' : 'del';
+    const variant = addition ? 'addition' : 'deletion';
+
+    return `<${tag} class="idiff ${variant}">${escapeHTML(content)}</${tag}>`;
+}
+
+// HTML twin of `tokensToPlainText`, for the outline. Must keep the same text
+// content as its plain counterpart so the shown heading and its slug stay in
+// step, which is why links, images and math stay flattened to text.
+export function tokensToInlineHtml(tokens: Token[]): string {
+    let result = '';
+
+    for (const token of tokens) {
+        switch (token.type) {
+            case 'text':
+                result += escapeHTML(token.content);
+                break;
+
+            case 'strong':
+            case 'em':
+            case 'del':
+            case 'mark':
+                result += `<${token.type}>${tokensToInlineHtml(token.children)}</${token.type}>`;
+                break;
+
+            case 'inline_diff':
+                result += inlineDiffHtml(token.marker, token.content);
+                break;
+
+            case 'inline_code':
+                result += `<code>${escapeHTML(token.content)}</code>`;
+                break;
+
+            case 'emoji':
+                result += escapeHTML(emojiDisplayText(token));
+                break;
+
+            case 'super_sub_script': {
+                const tag = token.marker === '^' ? 'sup' : 'sub';
+                result += `<${tag}>${escapeHTML(token.content)}</${tag}>`;
+                break;
+            }
+
+            case 'inline_math':
+            case 'footnote_identifier':
+                result += escapeHTML(token.content);
+                break;
+
+            case 'link':
+            case 'reference_link':
+                result += tokensToInlineHtml(token.children);
+                break;
+
+            case 'image':
+            case 'reference_image':
+                result += escapeHTML(token.alt);
+                break;
+
+            case 'html_tag':
+                if (token.children)
+                    result += tokensToInlineHtml(token.children);
+                else if (token.content)
+                    result += escapeHTML(token.content);
+                break;
+
+            case 'backlash':
+                result += escapeHTML(token.raw.replace(/^\\/, ''));
+                break;
+
+            case 'html_escape':
+                result += escapeHTML(escapeCharactersMap[token.escapeCharacter] ?? token.raw);
+                break;
+
+            case 'auto_link':
+                result += escapeHTML(token.raw.replace(/^<|>$/g, ''));
+                break;
+
+            case 'auto_link_extension':
+                result += escapeHTML(token.raw);
+                break;
+
+            case 'soft_line_break':
+            case 'hard_line_break':
+                result += ' ';
+                break;
+
             default:
                 break;
         }

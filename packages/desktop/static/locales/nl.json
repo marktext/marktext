@@ -70,6 +70,7 @@
       "table": "Tabel",
       "codeFences": "Codeblok",
       "quoteBlock": "Citaatblok",
+      "githubAlerts": "GitHub-meldingen",
       "mathBlock": "Wiskundeblok",
       "htmlBlock": "HTML-blok",
       "orderedList": "Genummerde lijst",
@@ -204,6 +205,7 @@
       "paste": "Plakken",
       "rename": "Hernoemen",
       "moveToTrash": "Naar prullenbak",
+      "copyPath": "Pad kopiëren",
       "showInFolder": "Tonen in map"
     },
     "tabs": {
@@ -213,7 +215,8 @@
       "closeAllTabs": "Alle tabbladen sluiten",
       "rename": "Hernoemen",
       "copyPath": "Pad kopiëren",
-      "showInFolder": "Tonen in map"
+      "showInFolder": "Tonen in map",
+      "showInSideBar": "Tonen in zijbalk"
     }
   },
   "search": {
@@ -258,6 +261,13 @@
       "settings": "Instellingen"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Toepassingsmenu",
+    "minimize": "Minimaliseren",
+    "maximize": "Maximaliseren",
+    "restore": "Vorig formaat",
+    "close": "Sluiten"
+  },
   "commandPalette": {
     "placeholder": "Typ een opdracht om uit te voeren",
     "placeholders": {
@@ -269,13 +279,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Automatisch nummeren van koppen",
     "title": "Exportopties",
-    "info": {
-      "label": "Info",
-      "description": "Pas de pagina-opmaak aan en klik op \"exporteren\" om door te gaan."
-    },
     "page": {
       "label": "Pagina",
-      "pageTitle": "Paginatitel:",
+      "pageTitle": "Paginatitel",
       "pageSize": "Paginaformaat:",
       "landscapeOrientation": "Liggende oriëntatie:",
       "pageMargin": "Paginamarge in mm:",
@@ -312,12 +318,13 @@
       "description": "De tekst verschijnt op alle pagina's als kop- en/of voettekst is gedefinieerd."
     },
     "toc": {
-      "includeTopHeading": "Bovenste kop opnemen",
-      "includeTopHeadingDetail": "Bovenste kop detail opnemen",
+      "description": "Typ [TOC] op een aparte regel in de hoofdtekst om een inhoudsopgave in het geëxporteerde document te tonen. De inhoudsopgave verschijnt op die positie.",
+      "includeTopHeading": "Koppen van niveau 1 opnemen",
+      "includeTopHeadingDetail": "Alle koppen van niveau 1 (H1) opnemen in de inhoudsopgave.",
       "label": "Inhoudsopgave",
       "title": "Inhoudsopgave"
     },
-    "export": "Exporteren...",
+    "export": "Exporteren",
     "options": {
       "pageSizes": {
         "a3": "A3 (297mm x 420mm)",
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "Voorkeuren",
+    "learnMore": "Meer informatie over {name}",
     "search": {
       "placeholder": "Voorkeuren zoeken...",
       "categories": {
@@ -389,7 +397,7 @@
         "wrapCodeBlocks": "Tekst terugloop in codeblokken",
         "editorLineWidth": "Maximale breedte van het editorgebied",
         "codeFontSize": "Lettergrootte in codeblokken (12-18)",
-        "codeFontFamily": "Lettertype voor codeblokken",
+        "codeFontFamily": "Lettertype voor code. Van toepassing op inlinecode en codeblokken.",
         "codeBlockLineNumbers": "Regelnummers tonen",
         "sourceCodeLineNumbers": "Regelnummers tonen in broncodeweergave",
         "trimUnnecessaryCodeBlockEmptyLines": "Lege regels aan begin en einde van codeblokken verwijderen",
@@ -417,6 +425,10 @@
         "texMathGfm": "Pandocs markdown-extensie tex_math_gfm inschakelen",
         "texMathSingleBackslash": "Pandocs markdown-extensie tex_math_single_backslash inschakelen",
         "texMathDoubleBackslash": "Pandocs markdown-extensie tex_math_double_backslash inschakelen",
+        "highlightSyntax": "De niet-standaard ==tekst==-markeringssyntaxis inschakelen",
+        "inlineDiff": "De niet-standaard inline-diff-syntaxis {+ … +} / [- … -] inschakelen",
+        "multilineBlockquote": "De niet-standaard meerregelige citaatsyntaxis >>> … >>> inschakelen",
+        "githubAlerts": "GitHub-meldingen",
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "sequenceTheme": "Sequentiediagram thema",
@@ -434,7 +446,8 @@
         "imageRelativeDirectoryName": "Naam van de relatieve afbeeldingsmap",
         "autoNormalizeLineEndings": "Regeleindes automatisch normaliseren bij het openen van bestanden. Indien uitgeschakeld worden bestanden ongewijzigd geopend.",
         "fileSortOrder": "Sorteervolgorde voor bestanden in geopende mappen: oplopend of aflopend.",
-        "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk."
+        "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk.",
+        "showPandocConvert": "Het Pandoc-conversiemenu tonen. Vereist een installatie van Pandoc."
       }
     },
     "categories": {
@@ -478,10 +491,19 @@
         "selectFolder": "Map selecteren",
         "openBlankPage": "Lege pagina openen"
       },
+      "pandoc": {
+        "title": "Pandoc-conversie",
+        "description": "Het Pandoc-conversiemenu tonen",
+        "detailedDescription": "Vereist een installatie van Pandoc",
+        "found": "Gevonden: {path}",
+        "notFound": "Niet gevonden",
+        "recheck": "Opnieuw controleren"
+      },
       "sidebar": {
         "title": "Zijbalk",
         "wrapTextInToc": "Tekstterugloop in inhoudsopgave",
         "showOpenedFiles": "Geopende bestanden tonen",
+        "autoReveal": "Actief bestand tonen in de zijbalk",
         "excludePatterns": "Uitsluitpatronen",
         "excludePatternsNotes": "Uitsluitpatronen (opmerkingen)",
         "fileSortBy": {
@@ -526,12 +548,13 @@
         "fontFamily": "Lettertypefamilie",
         "maxWidth": "Maximale breedte",
         "maxWidthNotes": "Maximale breedte van editorinhoud. Voer een getal in gevolgd door px, ch (tekens) of %, bijvoorbeeld 800px, 80ch of 60%. Laat leeg om de standaardbreedte te gebruiken.",
-        "maxWidthInvalid": "Voer een getal in gevolgd door px, ch of %, bijvoorbeeld 800px."
+        "maxWidthInvalid": "Voer een getal in gevolgd door px, ch of %, bijvoorbeeld 800px.",
+        "codeFontFamily": "Lettertype voor code",
+        "codeFontFamilyNotes": "Van toepassing op inlinecode en codeblokken."
       },
       "codeBlock": {
         "title": "Codeblok",
         "fontSize": "Lettergrootte",
-        "fontFamily": "Lettertypefamilie",
         "showLineNumbers": "Regelnummers tonen",
         "removeEmptyLines": "Lege regels verwijderen"
       },
@@ -646,6 +669,10 @@
         "texMathGfm": "GitHub TeX-wiskunde ($`…`$ en ```math)",
         "texMathSingleBackslash": "TeX-wiskunde met enkele backslash",
         "texMathDoubleBackslash": "TeX-wiskunde met dubbele backslash",
+        "highlightSyntax": "Markeren (==tekst==)",
+        "inlineDiff": "Inline diff ({+ … +})",
+        "multilineBlockquote": "Meerregelig citaat (>>>)",
+        "githubAlerts": "GitHub-meldingen inschakelen",
         "frontmatterType": {
           "jsonBrace": "JSON met accolades",
           "jsonSemicolon": "JSON met puntkomma",
@@ -695,6 +722,7 @@
     "theme": {
       "title": "Thema",
       "followSystemTheme": "Systeemthema volgen",
+      "followSystemNote": "Het systeemthema volgen vergrendelt de themalijst hieronder. Schakel dit uit om vrij van thema te wisselen.",
       "modeThemes": "Themaselectie",
       "lightModeTheme": "Thema lichte modus",
       "darkModeTheme": "Thema donkere modus",
@@ -777,6 +805,7 @@
       "quit": "Afsluiten",
       "toggleAutoSave": "Automatisch opslaan in-/uitschakelen",
       "importFile": "Bestand importeren",
+      "revealInSideBar": "Tonen in zijbalk",
       "exportFile": "Bestand exporteren",
       "exportFilePdf": "Exporteren als PDF",
       "zoom": "Zoom",
@@ -897,6 +926,7 @@
     "ok": "OK"
   },
   "dialog": {
+    "moveToTrash": "Weet je zeker dat je \"{name}\" naar de prullenbak wilt verplaatsen?",
     "cancel": "Annuleren",
     "changesWillBeLost": "Wijzigingen gaan verloren",
     "close": "Sluiten",
@@ -999,6 +1029,9 @@
       "languageMissing": "Spellingcontroletaal ontbreekt {languageCode}",
       "switchError": "Spellingcontrole wisselfout voor {languageCode}, {error}",
       "title": "Spellingcontrole"
+    },
+    "tabs": {
+      "close": "{name} sluiten"
     }
   }
 }

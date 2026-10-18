@@ -1,0 +1,42 @@
+name: Update current sponsors
+
+on:
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: current-sponsors
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.repository == 'marktext/marktext'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          token: ${{ secrets.SPONSORS_PUSH_TOKEN || github.token }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.21.1'
+
+      - name: Update avatar wall
+        env:
+          SPONSORS_TOKEN: ${{ secrets.SPONSORS_TOKEN }}
+        run: node scripts/update-current-sponsors.mjs
+
+      - name: Commit changes
+        run: |
+          git add README.md docs/assets/sponsors/
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'docs: update current sponsors'
+          git push

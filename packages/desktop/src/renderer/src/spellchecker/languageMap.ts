@@ -10,8 +10,6 @@ export const getLanguageName = (languageCode: string): string | null => {
     return null
   }
 
-  let language = ''
-
   // First try to get an exact language via 4-letter ISO code.
   if (languageCode.length === 5) {
     const hunspell = getHunspellLanguageName(languageCode)
@@ -20,7 +18,7 @@ export const getLanguageName = (languageCode: string): string | null => {
     }
   }
 
-  language = langMap.getNativeName(languageCode.substr(0, 2))
+  const language = langMap.getNativeName(languageCode.substr(0, 2))
   if (language) {
     // Add language code to distinguish between native name (en-US, en-GB, ...).
     return `${language} (${languageCode})`

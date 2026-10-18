@@ -87,12 +87,19 @@ export const editor = {
     // Inline html tags wrap their children with `.mu-raw-html`. The tag itself
     // is the actual `<u>`, `<mark>`, `<sup>`, `<sub>` or `<ruby>` element.
     rawHtml: '.mu-raw-html',
+    htmlTagMarker: 'span.mu-html-tag',
 } as const;
 
 // Float root class names confirmed against the `const name = 'mu-...'` lines
 // inside each plugin's index.ts.
 export const floats = {
     inlineFormatToolbar: '.mu-format-picker',
+    colorPicker: '.mu-color-panel',
+    colorButton: '.mu-format-picker li.item.color i.icon',
+    colorToggle: '.mu-format-picker li.item.color i.caret',
+    colorSwatchText: '.mu-color-swatch.text',
+    colorSwatchBg: '.mu-color-swatch.bg',
+    colorReset: '.mu-color-reset',
     quickInsert: '.mu-quick-insert',
     paragraphFrontButton: '.mu-front-button-wrapper',
     paragraphFrontButtonInner: '.mu-front-button',

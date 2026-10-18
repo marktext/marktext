@@ -70,6 +70,7 @@
       "table": "Tabelle",
       "codeFences": "Code-Blöcke",
       "quoteBlock": "Zitat-Block",
+      "githubAlerts": "GitHub-Hinweise",
       "mathBlock": "Mathematik-Block",
       "htmlBlock": "HTML-Block",
       "orderedList": "Nummerierte Liste",
@@ -204,6 +205,7 @@
       "paste": "Einfügen",
       "rename": "Umbenennen",
       "moveToTrash": "In Papierkorb verschieben",
+      "copyPath": "Pfad kopieren",
       "showInFolder": "Im Ordner anzeigen"
     },
     "tabs": {
@@ -213,7 +215,8 @@
       "closeAllTabs": "Alle Tabs schließen",
       "rename": "Umbenennen",
       "copyPath": "Pfad kopieren",
-      "showInFolder": "Im Ordner anzeigen"
+      "showInFolder": "Im Ordner anzeigen",
+      "showInSideBar": "In Seitenleiste anzeigen"
     }
   },
   "search": {
@@ -258,6 +261,13 @@
       "settings": "Einstellungen"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Anwendungsmenü",
+    "minimize": "Minimieren",
+    "maximize": "Maximieren",
+    "restore": "Wiederherstellen",
+    "close": "Schließen"
+  },
   "commandPalette": {
     "placeholder": "Befehl zum Ausführen eingeben",
     "placeholders": {
@@ -269,13 +279,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Automatische Nummerierung der Überschriften",
     "title": "Export-Optionen",
-    "info": {
-      "label": "Information",
-      "description": "Bitte passen Sie das Seitenlayout an und klicken Sie auf 'Exportieren', um fortzufahren."
-    },
     "page": {
       "label": "Seite",
-      "pageTitle": "Seitentitel:",
+      "pageTitle": "Seitentitel",
       "pageSize": "Seitengröße:",
       "landscapeOrientation": "Querformat:",
       "pageMargin": "Seitenrand (mm):",
@@ -312,12 +318,13 @@
       "description": "Wenn eine Kopf- und/oder Fußzeile definiert ist, wird der Text auf allen Seiten angezeigt."
     },
     "toc": {
-      "includeTopHeading": "Oberste Überschrift einschließen",
-      "includeTopHeadingDetail": "Details der obersten Überschrift einschließen",
+      "description": "Um ein Inhaltsverzeichnis im exportierten Dokument anzuzeigen, geben Sie [TOC] in einer eigenen Zeile im Dokument ein. Das Inhaltsverzeichnis erscheint an dieser Stelle.",
+      "includeTopHeading": "Überschriften der Ebene 1 einschließen",
+      "includeTopHeadingDetail": "Alle Überschriften der Ebene 1 (H1) in das Inhaltsverzeichnis aufnehmen.",
       "label": "Inhaltsverzeichnis",
       "title": "Inhaltsverzeichnis"
     },
-    "export": "Exportieren...",
+    "export": "Exportieren",
     "options": {
       "pageSizes": {
         "a3": "A3",
@@ -355,6 +362,7 @@
   },
   "preferences": {
     "title": "Einstellungen",
+    "learnMore": "Mehr erfahren: {name}",
     "search": {
       "placeholder": "In Einstellungen suchen...",
       "categories": {
@@ -390,7 +398,7 @@
         "wrapCodeBlocks": "Text in Codeblöcken umbrechen",
         "editorLineWidth": "Definiert die maximale Editor-Bereichsbreite. Ein leerer String oder Suffixe von ch (Zeichen), px (Pixel) oder % (Prozent) sind erlaubt",
         "codeFontSize": "Schriftgröße im Codeblock, der Bereich ist 12 ~ 18",
-        "codeFontFamily": "Schriftfamilie im Codeblock",
+        "codeFontFamily": "Code-Schriftart. Gilt für Inline-Code und Codeblöcke.",
         "codeBlockLineNumbers": "Ob Zeilennummern angezeigt werden sollen",
         "sourceCodeLineNumbers": "Zeilennummern im Quellcode-Modus anzeigen",
         "trimUnnecessaryCodeBlockEmptyLines": "Leere Zeilen am Anfang und Ende des Codeblocks entfernen",
@@ -418,6 +426,10 @@
         "texMathGfm": "Pandocs Markdown-Erweiterung tex_math_gfm aktivieren",
         "texMathSingleBackslash": "Pandocs Markdown-Erweiterung tex_math_single_backslash aktivieren",
         "texMathDoubleBackslash": "Pandocs Markdown-Erweiterung tex_math_double_backslash aktivieren",
+        "highlightSyntax": "Die nicht standardmäßige ==text==-Hervorhebungssyntax aktivieren",
+        "inlineDiff": "Die nicht standardmäßige Inline-Diff-Syntax {+ … +} / [- … -] aktivieren",
+        "multilineBlockquote": "Die nicht standardmäßige mehrzeilige Zitat-Syntax >>> … >>> aktivieren",
+        "githubAlerts": "GitHub-Hinweise",
         "isHtmlEnabled": "HTML-Rendering aktivieren",
         "softNewlineAsSpace": "Weiche Zeilenumbrüche als Leerzeichen behandeln",
         "sequenceTheme": "Sequenzdiagramm-Theme",
@@ -434,7 +446,8 @@
         "imageRelativeDirectoryBase": "Wohin relative Bilder kopiert werden",
         "imageRelativeDirectoryName": "Der relative Bildordner-Name",
         "fileSortOrder": "Sortierreihenfolge für Dateien in geöffneten Ordnern: aufsteigend oder absteigend.",
-        "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen."
+        "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen.",
+        "showPandocConvert": "Pandoc-Konvertierungsmenü anzeigen. Erfordert eine Pandoc-Installation."
       }
     },
     "categories": {
@@ -478,10 +491,19 @@
         "selectFolder": "Ordner auswählen",
         "openBlankPage": "Leere Seite öffnen"
       },
+      "pandoc": {
+        "title": "Pandoc-Konvertierung",
+        "description": "Pandoc-Konvertierungsmenü anzeigen",
+        "detailedDescription": "Erfordert eine Pandoc-Installation",
+        "found": "Gefunden: {path}",
+        "notFound": "Nicht gefunden",
+        "recheck": "Erneut prüfen"
+      },
       "sidebar": {
         "title": "Seitenleiste",
         "wrapTextInToc": "Text im Inhaltsverzeichnis umbrechen",
         "showOpenedFiles": "Geöffnete Dateien anzeigen",
+        "autoReveal": "Aktive Datei in der Seitenleiste anzeigen",
         "excludePatterns": "Ausschlussmuster",
         "excludePatternsNotes": "Hinweise zu Ausschlussmustern",
         "fileSortBy": {
@@ -526,12 +548,13 @@
         "fontFamily": "Schriftfamilie",
         "maxWidth": "Maximale Breite",
         "maxWidthNotes": "Maximale Breite des Editor-Inhalts. Geben Sie eine Zahl gefolgt von px, ch (Zeichen) oder % ein, z. B. 800px, 80ch oder 60%. Leer lassen, um die Standardbreite zu verwenden.",
-        "maxWidthInvalid": "Geben Sie eine Zahl gefolgt von px, ch oder % ein, z. B. 800px."
+        "maxWidthInvalid": "Geben Sie eine Zahl gefolgt von px, ch oder % ein, z. B. 800px.",
+        "codeFontFamily": "Code-Schriftart",
+        "codeFontFamilyNotes": "Gilt für Inline-Code und Codeblöcke."
       },
       "codeBlock": {
         "title": "Code-Block",
         "fontSize": "Schriftgröße",
-        "fontFamily": "Schriftfamilie",
         "showLineNumbers": "Zeilennummern anzeigen",
         "removeEmptyLines": "Leere Zeilen entfernen"
       },
@@ -646,6 +669,10 @@
         "texMathGfm": "GitHub-TeX-Mathematik ($`…`$ und ```math)",
         "texMathSingleBackslash": "TeX-Mathematik mit einfachem Backslash",
         "texMathDoubleBackslash": "TeX-Mathematik mit doppeltem Backslash",
+        "highlightSyntax": "Hervorhebung (==text==)",
+        "inlineDiff": "Inline-Diff ({+ … +})",
+        "multilineBlockquote": "Mehrzeiliges Zitat (>>>)",
+        "githubAlerts": "GitHub-Hinweise aktivieren",
         "frontmatterType": {
           "jsonBrace": "JSON-Klammer",
           "jsonSemicolon": "JSON-Semikolon",
@@ -695,6 +722,7 @@
     "theme": {
       "title": "Design",
       "followSystemTheme": "Systemdesign folgen",
+      "followSystemNote": "Wenn Sie dem Systemthema folgen, ist die Themenliste unten gesperrt. Deaktivieren Sie dies, um Themen frei zu wechseln.",
       "modeThemes": "Design-Auswahl",
       "lightModeTheme": "Helles Modus-Design",
       "darkModeTheme": "Dunkles Modus-Design",
@@ -777,6 +805,7 @@
       "quit": "Beenden",
       "toggleAutoSave": "Automatisches Speichern umschalten",
       "importFile": "Datei importieren",
+      "revealInSideBar": "In Seitenleiste anzeigen",
       "exportFile": "Datei exportieren",
       "exportFilePdf": "Als PDF exportieren",
       "zoom": "Zoom",
@@ -897,6 +926,7 @@
     "ok": "OK"
   },
   "dialog": {
+    "moveToTrash": "Möchtest du \"{name}\" wirklich in den Papierkorb verschieben?",
     "cancel": "Abbrechen",
     "changesWillBeLost": "Änderungen gehen verloren",
     "close": "Schließen",
@@ -999,6 +1029,9 @@
       "languageMissing": "Rechtschreibprüfungssprache fehlt {languageCode}",
       "switchError": "Rechtschreibprüfung-Wechselfehler für {languageCode}, {error}",
       "title": "Rechtschreibprüfung"
+    },
+    "tabs": {
+      "close": "{name} schließen"
     }
   }
 }

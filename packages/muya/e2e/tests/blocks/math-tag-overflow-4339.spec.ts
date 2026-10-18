@@ -9,8 +9,8 @@ async function measure(page: Page, displaySelector: string) {
     return page.evaluate((selector) => {
         const display = document.querySelector(selector) as HTMLElement;
         const scroller = (display.closest('.mu-math-render') ?? display) as HTMLElement;
-        const bases = [...display.querySelectorAll('.katex-html > .base')] as HTMLElement[];
-        const tag = display.querySelector('.tag');
+        const bases = [...display.querySelectorAll('.katex-html > .katex-base')] as HTMLElement[];
+        const tag = display.querySelector('.katex-tag');
         const box = scroller.getBoundingClientRect();
         const first = bases[0]!.getBoundingClientRect();
         const last = bases[bases.length - 1]!.getBoundingClientRect();

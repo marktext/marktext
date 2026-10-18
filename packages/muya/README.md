@@ -96,6 +96,28 @@ muya.init();
 
 A complete example, including a Vite project setup, lives under [`examples/`](./examples).
 
+## Pasted link titles
+
+Normal paste can turn a bare HTTP(S) URL into a link labeled with the page title.
+Muya fetches and parses the HTML, decodes title entities, and falls back to the
+URL if fetching fails or takes longer than 1.5 seconds. Plain-text paste skips
+this lookup.
+
+Browser fetching is subject to the host page's CSP and the target site's CORS
+headers. Hosts can provide `fetchLinkHtml` to use their own HTTP transport or
+backend proxy while leaving title parsing and paste behavior in Muya:
+
+```ts
+const muya = new Muya(container, {
+    fetchLinkHtml: url => hostNetwork.fetchHtml(url),
+});
+```
+
+The hook returns the HTML body, or an empty string for unsuccessful/non-HTML
+responses. It should enforce its own request timeout and response size limit;
+Muya's timeout stops waiting but cannot cancel a host request. MarkText supplies
+this hook through its sandboxed preload bridge to the main process.
+
 ## API at a glance
 
 The `Muya` instance returned from `new Muya(el, options)` exposes:
@@ -131,7 +153,7 @@ Useful events emitted on the editor:
 | `selection-change` | New selection (`{ anchor, focus, path }`). |
 | `focus` / `blur` | Fired when the contenteditable surface gains or loses focus. |
 
-The full set of constructor options (font size, list defaults, math/footnote toggles, front matter delimiters, Mermaid/Vega themes, etc.) is described by `IMuyaOptions` in [`packages/core/src/types.ts`](./packages/core/src/types.ts); defaults live in `MUYA_DEFAULT_OPTIONS` in [`packages/core/src/config/index.ts`](./packages/core/src/config/index.ts).
+The full set of constructor options (font size, list defaults, math/footnote toggles, front matter delimiters, Mermaid/Vega themes, etc.) is described by `IMuyaOptions` in [`src/types.ts`](./src/types.ts); defaults live in `MUYA_DEFAULT_OPTIONS` in [`src/config/index.ts`](./src/config/index.ts).
 
 ## Bundled UI plugins
 
@@ -241,4 +263,4 @@ No, the two version numbers are independent.
 
 ## License
 
-[MIT](./LICENSE) © [Jocs](https://github.com/Jocs)
+[MIT](../../LICENSE) © [Jocs](https://github.com/Jocs)

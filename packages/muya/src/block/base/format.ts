@@ -7,6 +7,7 @@ import type {
 import type { IContentCursor, IRenderCursor } from '../../selection/types';
 import type { IBulletListState, IListItemState, IOrderListState, IParagraphState, ITaskListState } from '../../state/types';
 import type { Nullable } from '../../types';
+import type { ColorFormatType, IColorStyle } from '../../utils/colorSpan';
 import type { IImageInfo } from '../../utils/image';
 import type AtxHeading from '../commonMark/atxHeading';
 import type BulletList from '../commonMark/bulletList';
@@ -28,7 +29,8 @@ import { generator, tokenizer } from '../../inlineRenderer/lexer';
 import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
 import { isListItemState } from '../../state/types';
-import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isMouseEvent, lastGraphemeLength } from '../../utils';
+import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isKeyboardEvent, isMouseEvent, lastGraphemeLength } from '../../utils';
+import { COLOR_SPAN_CLOSE_TAG, colorPropertyOf, colorSpanOpenTag, isColorStyleEmpty, parseColorStyle } from '../../utils/colorSpan';
 import { correctImageSrc, encodeImageSrc, getImageInfo } from '../../utils/image';
 import logger from '../../utils/logger';
 
@@ -120,6 +122,10 @@ function getOffset(offset: number, token: Token) {
 
         case 'inline_code':
 
+        case 'mark':
+
+        case 'inline_diff':
+
         case 'inline_math': {
             const markerLen = token.marker.length;
             return markeredOffset(dis, len, markerLen, markerLen);
@@ -127,12 +133,14 @@ function getOffset(offset: number, token: Token) {
 
         case 'html_tag': {
             const { tag } = token;
-            // handle underline, sup, sub
+            // Tags outside the fixed map (e.g. a colour `<span>`) size their
+            // markers from the token itself.
+            const markers = FORMAT_TAG_MAP[tag];
             return markeredOffset(
                 dis,
                 len,
-                FORMAT_TAG_MAP[tag].open.length,
-                FORMAT_TAG_MAP[tag].close.length,
+                markers ? markers.open.length : token.openTag?.length ?? 0,
+                markers ? markers.close.length : token.closeTag?.length ?? 0,
             );
         }
 
@@ -151,6 +159,26 @@ function clearFormat(token: Token, cursor: IContentCursor) {
         case 'del':
 
         case 'em':
+
+        case 'mark': {
+            const { parent, children, backlash } = token;
+            const index = parent.indexOf(token);
+            const replacement: Token[] = [...(children as Token[])];
+
+            if (backlash) {
+                replacement.push({
+                    type: 'text',
+                    raw: backlash,
+                    content: backlash,
+                    parent,
+                    range: token.range,
+                });
+            }
+
+            parent.splice(index, 1, ...replacement);
+
+            break;
+        }
 
         case 'link':
 
@@ -181,7 +209,9 @@ function clearFormat(token: Token, cursor: IContentCursor) {
 
         case 'inline_math':
 
-        case 'inline_code': {
+        case 'inline_code':
+
+        case 'inline_diff': {
             const { parent, range } = token;
             const index = parent.indexOf(token);
             const newToken: TextToken = {
@@ -219,9 +249,54 @@ function checkTokenIsInlineFormat(token: Token) {
         return true;
 
     if (type === 'html_tag')
-        return /^(?:u|sub|sup|mark)$/i.test(token.tag);
+        return /^(?:u|sub|sup|mark)$/i.test(token.tag) || isColorSpanToken(token);
 
     return false;
+}
+
+function isColorSpanToken(token: Token): boolean {
+    if (token.type !== 'html_tag' || token.tag.toLowerCase() !== 'span')
+        return false;
+
+    return parseColorStyle(token.attrs?.style) !== null;
+}
+
+interface IColorSpan {
+    openStart: number;
+    contentStart: number;
+    contentEnd: number;
+    closeEnd: number;
+    style: IColorStyle;
+}
+
+function collectColorSpans(
+    tokens: Token[],
+    rangeStart: number,
+    rangeEnd: number,
+    out: IColorSpan[] = [],
+): IColorSpan[] {
+    for (const token of tokens) {
+        if (token.range.end <= rangeStart || token.range.start >= rangeEnd)
+            continue;
+
+        if (token.type === 'html_tag' && token.tag.toLowerCase() === 'span') {
+            const style = parseColorStyle(token.attrs?.style);
+            if (style && token.openTag && token.closeTag) {
+                out.push({
+                    openStart: token.range.start,
+                    contentStart: token.range.start + token.openTag.length,
+                    contentEnd: token.range.end - token.closeTag.length,
+                    closeEnd: token.range.end,
+                    style,
+                });
+            }
+        }
+
+        if ('children' in token && Array.isArray(token.children))
+            collectColorSpans(token.children, rangeStart, rangeEnd, out);
+    }
+
+    return out;
 }
 
 class Format extends Content {
@@ -708,6 +783,11 @@ class Format extends Content {
 
     private _convertIfNeeded() {
         const { text } = this;
+        // A run of `>` with nothing else is the prefix of a GitLab `>>>` fence,
+        // so hold off promoting it to a blockquote until the user types more
+        // (a space, or the rest of the quote).
+        const pendingFence
+            = this.muya.options.multilineBlockquote && /^ {0,3}>+$/.test(text);
 
         const [
             match,
@@ -747,7 +827,7 @@ class Format extends Content {
                 this._convertToSetextHeading(setextHeading);
                 break;
 
-            case !!blockquote:
+            case !!blockquote && !pendingFence:
                 this._convertToBlockQuote();
                 break;
 
@@ -1359,15 +1439,19 @@ class Format extends Content {
         if (!start || !end || start?.offset !== end?.offset)
             return;
 
+        // Ctrl/Alt/Cmd+Backspace deletes a word or line: leave it to the browser (#5239).
+        if (isKeyboardEvent(event) && (event.ctrlKey || event.altKey || event.metaKey))
+            return;
+
         this.muya.editor.history.markInputBoundary('deleteContentBackward', null);
 
         // fix: #897 in marktext repo
         const { text } = this;
-        const { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash } = this.muya.options;
+        const { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = this.muya.options;
         const { labels } = this.inlineRenderer;
         const tokens = tokenizer(text, {
             labels,
-            options: { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash },
+            options: { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff },
         });
         // The caret offset is unreliable when it is parked on a
         // `contenteditable=false` inline image; resolve the real offset from the
@@ -1776,6 +1860,140 @@ class Format extends Content {
         }
 
         this.setCursor(start.offset, end.offset, true);
+    }
+
+    /**
+     * Unlike `format()`, this replaces rather than only toggles: picking the
+     * applied colour clears it, a different colour replaces it, and the other
+     * declaration on a shared span is preserved (both stay in one span).
+     */
+    formatColor(type: ColorFormatType, value: string | null): void {
+        const cursor = this.getCursor();
+        if (cursor == null)
+            return;
+
+        const start = cursor.start.offset;
+        const end = cursor.end.offset;
+        if (start == null || end == null)
+            return;
+        if (start === end)
+            return;
+
+        const property = colorPropertyOf(type);
+        const text = this.text;
+        const tokens = tokenizer(text, { options: this.muya.options });
+        const spans = collectColorSpans(tokens, start, end).sort(
+            (a, b) => a.openStart - b.openStart,
+        );
+
+        const representative = spans
+            .filter(s => s.contentStart <= start && s.contentEnd >= end)
+            .sort(
+                (a, b) =>
+                    a.contentEnd - a.contentStart - (b.contentEnd - b.contentStart),
+            )[0];
+        const currentValue
+            = property === 'color'
+                ? representative?.style.color ?? null
+                : representative?.style.backgroundColor ?? null;
+
+        if (value !== null && value === currentValue)
+            value = null;
+
+        const targetStyle: IColorStyle = { color: null, backgroundColor: null };
+        if (value !== null) {
+            if (property === 'color')
+                targetStyle.color = value;
+            else
+                targetStyle.backgroundColor = value;
+        }
+
+        const mergeStyle = (base: IColorStyle): IColorStyle => {
+            const style: IColorStyle = { color: null, backgroundColor: null };
+            if (property === 'color')
+                style.backgroundColor = base.backgroundColor;
+            else
+                style.color = base.color;
+            if (value !== null) {
+                if (property === 'color')
+                    style.color = value;
+                else
+                    style.backgroundColor = value;
+            }
+
+            return style;
+        };
+
+        let output = '';
+        let newStart = start;
+        let newEnd = end;
+        let placedStart = false;
+
+        const emit = (a: number, b: number, style: IColorStyle) => {
+            if (a >= b)
+                return;
+
+            // Chunks are emitted in source order and align with the selection
+            // edges, so mapping start/end by "which chunks the selection covers"
+            // stays correct even when an edge lands on a span's tag boundary
+            // (there `a === start`/`b === end` never holds, which left the raw
+            // pre-edit offset pointing into the regenerated markup).
+            const inSelection = b > start && a < end;
+            const tag = isColorStyleEmpty(style) ? '' : colorSpanOpenTag(style);
+            if (tag)
+                output += tag;
+            if (inSelection && !placedStart) {
+                newStart = output.length;
+                placedStart = true;
+            }
+            output += text.slice(a, b);
+            if (inSelection)
+                newEnd = output.length;
+            if (tag)
+                output += COLOR_SPAN_CLOSE_TAG;
+        };
+
+        const empty: IColorStyle = { color: null, backgroundColor: null };
+        const emitGap = (a: number, b: number) => {
+            if (a >= b)
+                return;
+            if (b <= start || a >= end) {
+                emit(a, b, empty);
+                return;
+            }
+            if (a < start)
+                emit(a, start, empty);
+            emit(Math.max(a, start), Math.min(b, end), targetStyle);
+            if (b > end)
+                emit(Math.min(b, end), b, empty);
+        };
+
+        let pos = 0;
+        for (const span of spans) {
+            if (span.openStart < pos)
+                continue;
+
+            emitGap(pos, span.openStart);
+
+            const leftEnd = Math.min(
+                Math.max(start, span.contentStart),
+                span.contentEnd,
+            );
+            const midEnd = Math.min(
+                Math.max(end, span.contentStart),
+                span.contentEnd,
+            );
+            emit(span.contentStart, leftEnd, span.style);
+            emit(leftEnd, midEnd, mergeStyle(span.style));
+            emit(midEnd, span.contentEnd, span.style);
+            pos = span.closeEnd;
+        }
+        emitGap(pos, text.length);
+
+        if (output !== text)
+            this.text = output;
+
+        this.setCursor(newStart, newEnd, true);
     }
 
     private _addFormat(

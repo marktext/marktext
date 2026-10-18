@@ -40,6 +40,7 @@ interface TocItem extends ListItem {
   slug?: string
   githubSlug?: string
   content?: string
+  contentHtml?: string
   lvl: number | null
 }
 
@@ -110,6 +111,8 @@ interface ContentChangePayload {
 
 interface AffiliationEntry {
   type: string
+  alertType?: string
+  canGithubAlerts?: boolean
   functionType?: string
   listType?: string
   listItemType?: string
@@ -118,7 +121,12 @@ interface AffiliationEntry {
 }
 
 interface SelectionChange {
-  start: { key: string; offset: number; block?: { text?: string; functionType?: string }; type?: string }
+  start: {
+    key: string
+    offset: number
+    block?: { text?: string; functionType?: string }
+    type?: string
+  }
   end: { key: string; offset: number; block?: { functionType?: string }; type?: string }
   affiliation?: AffiliationEntry[]
   hasFrontMatter?: boolean
@@ -149,6 +157,10 @@ export interface EditorState {
 }
 
 const autoSaveTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+// Sidebar opens record whether the editor should take focus once that pathname
+// finishes loading. Keyed by pathname so concurrent opens keep their own intent.
+const openIntents = new Map<string, boolean>()
 
 export const useEditorStore = defineStore('editor', {
   state: (): EditorState => ({
@@ -632,7 +644,7 @@ export const useEditorStore = defineStore('editor', {
           window.DIRNAME = window.path.dirname(pathname)
         }
         if (tab) {
-          Object.assign(tab, { filename, pathname, isSaved: true })
+          Object.assign(tab, { filename, pathname, isSaved: true, isPendingCreation: false })
           debouncedSendBufferedState()
         }
       })
@@ -652,6 +664,7 @@ export const useEditorStore = defineStore('editor', {
             }
           }
           tab.isSaved = true
+          tab.isPendingCreation = false
           debouncedSendBufferedState()
         }
       })
@@ -1223,7 +1236,7 @@ export const useEditorStore = defineStore('editor', {
         return
       }
 
-      let nextTabIndex = 0
+      let nextTabIndex: number
       if (!direction) {
         // Switch tab to the left.
         nextTabIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1
@@ -1239,6 +1252,24 @@ export const useEditorStore = defineStore('editor', {
       }
 
       this.UPDATE_CURRENT_FILE(nextTab)
+    },
+
+    // The sidebar records what should happen to focus when this open lands:
+    // `false` keeps it in the tree, `true` hands it to the editor.
+    SET_OPEN_INTENT(pathname: string, focus: boolean): void {
+      openIntents.set(pathname, focus)
+    },
+
+    // Reads and clears the intent for this pathname; `null` means no opinion.
+    TAKE_OPEN_INTENT(pathname: string | null | undefined): boolean | null {
+      if (!pathname) return null
+      for (const [key, focus] of openIntents) {
+        if (window.fileUtils.isSamePathSync(key, pathname)) {
+          openIntents.delete(key)
+          return focus
+        }
+      }
+      return null
     },
 
     SWITCH_TAB_BY_FILEPATH(filePath: string, options: TabOptions = {}): void {
@@ -1257,7 +1288,20 @@ export const useEditorStore = defineStore('editor', {
       const next = tabs[nextTabIndex]
       if (!next) return
       this.UPDATE_CURRENT_FILE(next)
+      const focus = this.TAKE_OPEN_INTENT(filePath)
+      if (focus === true) bus.emit('editor-focus')
+      else if (focus === false) bus.emit('SIDEBAR::focus-tree')
       if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
+    },
+
+    FOCUS_FILE(pathname: string): void {
+      const existing = this.tabs.find((t) => window.fileUtils.isSamePathSync(t.pathname, pathname))
+      if (existing) {
+        this.UPDATE_CURRENT_FILE(existing)
+        bus.emit('editor-focus')
+        return
+      }
+      this.SET_OPEN_INTENT(pathname, true)
     },
 
     SWITCH_TAB_BY_INDEX(nextTabIndex: number): void {
@@ -1287,7 +1331,10 @@ export const useEditorStore = defineStore('editor', {
     NEW_UNTITLED_TAB({
       markdown: markdownString,
       selected
-    }: { markdown?: string; selected?: boolean }): void {
+    }: {
+      markdown?: string
+      selected?: boolean
+    }): void {
       if (selected == null) {
         selected = true
       }
@@ -1432,6 +1479,25 @@ export const useEditorStore = defineStore('editor', {
       this.toc = listToTree<TocItem>(toc ?? [])
       // Every caller replaces the whole document, so the old slug is gone.
       this.activeHeadingSlug = null
+    },
+
+    /**
+     * Re-seeds the table of contents after a preference change. `setOptions` on
+     * a render-affecting option re-renders in place without emitting
+     * `json-change`, so nothing else would refresh the outline.
+     *
+     * `setOptions` also rebuilds every block, so each heading gets a fresh
+     * per-instance `slug`; the highlighted one is remapped by document position
+     * (a preference toggle does not reorder or drop headings).
+     */
+    REFRESH_TOC(toc: TocItem[]): void {
+      const activeIndex = this.activeHeadingSlug
+        ? this.listToc.findIndex((item) => item.slug === this.activeHeadingSlug)
+        : -1
+      const nextToc = toc ?? []
+      this.listToc = nextToc
+      this.toc = listToTree<TocItem>(nextToc)
+      this.activeHeadingSlug = activeIndex >= 0 ? (nextToc[activeIndex]?.slug ?? null) : null
     },
 
     SET_ACTIVE_HEADING(slug: string | null): void {
@@ -1626,6 +1692,7 @@ export const useEditorStore = defineStore('editor', {
         target,
         markdown,
         superSubScript: preferencesStore.superSubScript === true,
+        githubAlerts: preferencesStore.githubAlerts === true,
         footnote: preferencesStore.footnote === true,
         texMathDollars: preferencesStore.texMathDollars === true,
         texMathGfm: preferencesStore.texMathGfm === true,
@@ -1915,6 +1982,8 @@ const trimTrailingNewlines = (text: string): string => {
 }
 
 interface ApplicationMenuState {
+  alertType?: string
+  canGithubAlerts?: boolean
   isDisabled: boolean
   isMultiline: boolean
   isLooseListItem: boolean
@@ -1957,6 +2026,8 @@ const createApplicationMenuState = ({
   }
   const { isMultiline } = state
   const aff: AffiliationEntry[] = affiliation ?? []
+  state.alertType = aff[0]?.alertType
+  state.canGithubAlerts = aff[0]?.canGithubAlerts === true
   const startBlock: { text?: string; functionType?: string } = start.block ?? {}
   const endBlock: { functionType?: string } = end.block ?? {}
 
@@ -2071,6 +2142,7 @@ function toSerializableValue<T>(value: T | null | undefined, fallback: T | null 
 }
 
 interface BufferedTabState {
+  isPendingCreation?: boolean
   id: string
   pathname: string
   filename: string
@@ -2092,6 +2164,7 @@ const createBufferedTabState = (tab: Partial<IFileState> & { id: string }): Buff
     pathname: tab.pathname ?? defaultFileState.pathname,
     filename: tab.filename ?? defaultFileState.filename,
     markdown: typeof tab.markdown === 'string' ? tab.markdown : defaultFileState.markdown,
+    isPendingCreation: tab.isPendingCreation,
     isSaved: tab.isSaved ?? defaultFileState.isSaved,
     encoding: toSerializableValue(tab.encoding, defaultFileState.encoding),
     lineEnding: tab.lineEnding ?? defaultFileState.lineEnding,

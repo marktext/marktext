@@ -91,8 +91,8 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
   // wins — so the user's override must come last to actually override the theme.
   output += '.markdown-body{'
   if (fontFamily) {
-    output += `font-family:"${fontFamily}",${FALLBACK_FONT_FAMILIES};`
-    output = `.hf-container{font-family:"${fontFamily}",${FALLBACK_FONT_FAMILIES};}${output}`
+    output += `font-family:${NOTATION_FONT_FAMILIES},"${fontFamily}",${FALLBACK_FONT_FAMILIES};`
+    output = `.hf-container{font-family:${NOTATION_FONT_FAMILIES},"${fontFamily}",${FALLBACK_FONT_FAMILIES};}${output}`
   }
   if (fontSize) {
     output += `font-size:${fontSize}px;`
@@ -120,6 +120,7 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
 export interface TocEntry {
   lvl: number
   content: string
+  contentHtml?: string
   slug?: string
 }
 
@@ -168,9 +169,10 @@ const generateHtmlToc = (
   }
 
   const shifted = tocList.shift() as TocEntry
-  const { content, lvl, slug } = shifted
+  const { content, contentHtml, lvl, slug } = shifted
 
-  let html = `<li><span><a class="toc-h${lvl}" href="#${slug}">${content}</a><span class="dots"></span></span>`
+  const label = contentHtml ?? content
+  let html = `<li><span><a class="toc-h${lvl}" href="#${slug}">${label}</a><span class="dots"></span></span>`
 
   // Generate sub-items
   if (tocList.length !== 0 && tocList[0].lvl > lvl) {
@@ -197,6 +199,7 @@ export const getHtmlToc = (toc: TocEntry[], options: HtmlTocOptions = {}): strin
 // Don't use "Noto Color Emoji" because it will result in PDF files with multiple MB and weird looking emojis.
 const FALLBACK_FONT_FAMILIES =
   '"Open Sans","Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji"'
+const NOTATION_FONT_FAMILIES = '"Noto Music","Noto Sans Math"'
 
 const autoNumberingHeadingsCss = `body {counter-reset: h2}
 h2 {counter-reset: h3}

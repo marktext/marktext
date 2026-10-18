@@ -96,6 +96,8 @@ test.describe('preview toolbar — diagram blocks', () => {
         await showMermaidBlock(page);
         await hoverBlock(page, editor.diagramBlock);
         await expect.poll(() => toolbarOpacity(page), { timeout: 5_000 }).toBe(1);
+        // Mermaid 12 inserts the <svg> before its render pass finishes.
+        await expect(page.locator(editor.diagramPreview)).toHaveAttribute('aria-label', /./, { timeout: 15_000 });
 
         await page.locator(previewToolBarItem('view')).click();
 

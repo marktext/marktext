@@ -11,31 +11,18 @@ import type {
 } from '../../state/types';
 import type { IQuickInsertMenuItem } from '../paragraphQuickInsertMenu/config';
 import { replaceBlockByLabel } from '../../block/blockTransforms';
+import { canConvertGithubAlert, convertGithubAlert } from '../../block/githubAlerts';
 import { ScrollPage } from '../../block/scrollPage';
 import emptyStates from '../../config/emptyStates';
-
 import { isAnyListState, isAtxHeadingState } from '../../state/types';
+
 import { deepClone, isHTMLElement } from '../../utils';
+import { githubAlertBlockType } from '../../utils/githubAlerts';
 import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
+import { renderMenuIcon } from '../menuIcon';
 import { canTurnIntoMenu, FRONT_MENU } from './config';
 import './index.css';
-
-function renderIcon({ label, icon }: { label: string; icon: string }) {
-    return h(
-        'i.icon',
-        h(
-            `i.icon-${label.replace(/\s/g, '-')}`,
-            {
-                style: {
-                    'background': `url(${icon}) no-repeat`,
-                    'background-size': '100%',
-                },
-            },
-            '',
-        ),
-    );
-}
 
 const defaultOptions = {
     placement: 'bottom' as const,
@@ -105,11 +92,15 @@ export class ParagraphFrontMenu extends BaseFloat {
                         title: `${i18n.t(title)}\n${subTitle}`,
                     },
                 },
-                renderIcon(menuItem),
+                renderMenuIcon(menuItem),
             );
 
-            let itemSelector = `div.turn-into-item.${label}`;
-            if (block?.blockName === 'atx-heading') {
+            let itemSelector = `div.turn-into-item.${label.startsWith('github-alert ') ? label.replace(' ', '-') : label}`;
+            const alertType = block ? githubAlertBlockType(block) : null;
+            if (alertType && label === `github-alert ${alertType}`) {
+                itemSelector += '.active';
+            }
+            else if (block?.blockName === 'atx-heading') {
                 if (
                     label.startsWith(block.blockName)
                     && label.endsWith(String((block as AtxHeading).meta.level))
@@ -117,7 +108,7 @@ export class ParagraphFrontMenu extends BaseFloat {
                     itemSelector += '.active';
                 }
             }
-            else if (label === block?.blockName) {
+            else if (!alertType && label === block?.blockName) {
                 itemSelector += '.active';
             }
 
@@ -144,7 +135,7 @@ export class ParagraphFrontMenu extends BaseFloat {
         const { blockName } = block!;
         const children = FRONT_MENU.map(({ icon, label, text, shortCut }) => {
             const iconWrapperSelector = 'div.icon-wrapper';
-            const iconWrapper = h(iconWrapperSelector, renderIcon({ icon, label }));
+            const iconWrapper = h(iconWrapperSelector, renderMenuIcon({ icon, label }));
             const textWrapper = h('span.text', i18n.t(text));
             const shortCutWrapper = h('div.short-cut', [h('span', shortCut)]);
             const itemSelector = `li.item.${label}`;
@@ -261,6 +252,10 @@ export class ParagraphFrontMenu extends BaseFloat {
 
     private _turnIntoBlock(label: string, block: Parent, oldState: TState) {
         const { muya } = this;
+        if (canConvertGithubAlert(block, label)) {
+            convertGithubAlert(block, label);
+            return null;
+        }
         switch (block.blockName) {
             case 'paragraph':
                 // fall through

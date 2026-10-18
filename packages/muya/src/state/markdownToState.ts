@@ -10,7 +10,8 @@ import type {
     ITaskListState,
     TState,
 } from './types';
-import { firstWordOfInfo } from '../utils';
+import { firstWordOfInfo, parseFenceLine } from '../utils';
+import { createDiagramState, diagramTypeOfLang } from '../utils/diagram/fence';
 import logger from '../utils/logger';
 import { lexBlock } from '../utils/marked';
 
@@ -24,6 +25,8 @@ interface IMarkdownToStateOptions {
     texMathDoubleBackslash: boolean;
     trimUnnecessaryCodeBlockEmptyLines: boolean;
     frontMatter: boolean;
+    multilineBlockquote?: boolean;
+    githubAlerts?: boolean;
 };
 
 const DEFAULT_OPTIONS = {
@@ -34,6 +37,7 @@ const DEFAULT_OPTIONS = {
     texMathDoubleBackslash: false,
     trimUnnecessaryCodeBlockEmptyLines: false,
     frontMatter: true,
+    multilineBlockquote: false,
 };
 
 // Token types whose handler manipulates the `parentList` stack (push a
@@ -42,13 +46,15 @@ const DEFAULT_OPTIONS = {
 const CONTAINER_TOKEN_TYPES = new Set([
     'block-end',
     'blockquote',
+    'githubAlert',
+    'multilineBlockquote',
     'list',
     'list_item',
     'footnote',
 ]);
 
 export class MarkdownToState {
-    constructor(private _options: IMarkdownToStateOptions = DEFAULT_OPTIONS) {}
+    constructor(private _options: Partial<IMarkdownToStateOptions> = DEFAULT_OPTIONS) {}
 
     generate(markdown: string): TState[] {
         return this._convertMarkdownToState(markdown);
@@ -63,6 +69,8 @@ export class MarkdownToState {
             texMathDoubleBackslash = false,
             trimUnnecessaryCodeBlockEmptyLines = false,
             frontMatter = true,
+            multilineBlockquote = false,
+            githubAlerts = false,
         } = this._options;
 
         // markdownToState injects synthetic `block-end` markers (see the
@@ -75,6 +83,8 @@ export class MarkdownToState {
             texMathGfm,
             texMathSingleBackslash,
             texMathDoubleBackslash,
+            multilineBlockquote,
+            githubAlerts,
         });
 
         const states: TState[] = [];
@@ -106,7 +116,11 @@ export class MarkdownToState {
                 // bar
                 if (
                     parentList[0].length === 0
-                    && (token.tokenType === 'blockquote' || token.tokenType === 'list-item')
+                    && (
+                        token.tokenType === 'blockquote'
+                        || token.tokenType === 'multilineBlockquote'
+                        || token.tokenType === 'list-item'
+                    )
                 ) {
                     state = {
                         name: 'paragraph' as const,
@@ -118,6 +132,15 @@ export class MarkdownToState {
                 break;
             }
 
+            case 'githubAlert': {
+                state = { name: 'github-alert', meta: token.meta, children: [] };
+                parentList[0].push(state);
+                parentList.unshift(state.children);
+                tokens.unshift({ type: 'block-end', tokenType: 'githubAlert' });
+                tokens.unshift(...token.tokens as TBlockToken[]);
+                break;
+            }
+
             case 'blockquote': {
                 state = {
                     name: 'block-quote' as const,
@@ -126,6 +149,19 @@ export class MarkdownToState {
                 parentList[0].push(state);
                 parentList.unshift(state.children);
                 tokens.unshift({ type: 'block-end', tokenType: 'blockquote' });
+                tokens.unshift(...(token.tokens as TBlockToken[]));
+                break;
+            }
+
+            case 'multilineBlockquote': {
+                state = {
+                    name: 'block-quote' as const,
+                    meta: { style: 'fenced' as const },
+                    children: [],
+                };
+                parentList[0].push(state);
+                parentList.unshift(state.children);
+                tokens.unshift({ type: 'block-end', tokenType: 'multilineBlockquote' });
                 tokens.unshift(...(token.tokens as TBlockToken[]));
                 break;
             }
@@ -311,9 +347,13 @@ export class MarkdownToState {
                 // marked >=17 appends a trailing newline to indented code text
                 // (fenced text has none); strip it so indented blocks round-trip.
                 const codeText = codeBlockStyle === 'indented' ? text.replace(/\n$/, '') : text;
-                const fenceLength = /^ {0,3}([`~]{3,})/.exec(raw)?.[1].length;
+                // Read the opening fence itself so its character (` or ~) and
+                // run length both survive the round trip (CommonMark §4.5).
+                const fence = parseFenceLine(raw);
+                const fenceLength = fence?.fenceLength;
+                const fenceChar = fence?.fenceChar;
                 parentList[0].push(
-                    this._buildCodeState(codeText, infoString, codeBlockStyle, trimUnnecessaryCodeBlockEmptyLines, fenceLength),
+                    this._buildCodeState(codeText, infoString, codeBlockStyle, trimUnnecessaryCodeBlockEmptyLines, fenceLength, fenceChar),
                 );
                 break;
             }
@@ -445,6 +485,7 @@ export class MarkdownToState {
         codeBlockStyle: 'indented' | undefined,
         trimUnnecessaryCodeBlockEmptyLines: boolean,
         fenceLength?: number,
+        fenceChar?: '`' | '~',
     ): TState {
         // Keep the whole info string; the language for highlighting / diagram
         // detection is its first word (CommonMark §4.5).
@@ -460,18 +501,9 @@ export class MarkdownToState {
             value = value.replace(/\n+$/, '').replace(/^\n+/, '');
         }
 
-        const diagramMatch = /^(mermaid|vega-lite|plantuml|flowchart|sequence)$/.exec(lang);
-        if (diagramMatch) {
-            const diagramType = diagramMatch[1] as 'mermaid' | 'vega-lite' | 'plantuml' | 'flowchart' | 'sequence';
-            return {
-                name: 'diagram' as const,
-                text: value,
-                meta: {
-                    type: diagramType,
-                    lang: diagramType === 'vega-lite' ? 'json' : 'yaml',
-                },
-            };
-        }
+        const diagramType = diagramTypeOfLang(lang);
+        if (diagramType)
+            return createDiagramState(diagramType, value);
 
         // walkTokens (utils/marked/walkTokens.ts) writes
         // codeBlockStyle = 'fenced' for fenced blocks and
@@ -488,6 +520,7 @@ export class MarkdownToState {
                 // language is its first word — see `firstWordOfInfo`.
                 lang: info,
                 ...(isFenced && fenceLength && fenceLength > 3 ? { fenceLength } : {}),
+                ...(isFenced ? { fenceChar: fenceChar ?? '`' } : {}),
             },
             text: value,
         };

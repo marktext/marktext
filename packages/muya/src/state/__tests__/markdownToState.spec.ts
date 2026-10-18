@@ -350,7 +350,7 @@ describe('markdownToState — trimUnnecessaryCodeBlockEmptyLines (#1265)', () =>
         const states = generate(fenced, { trimUnnecessaryCodeBlockEmptyLines: false });
         expect(states.length).toBe(1);
         expect(states[0].name).toBe('code-block');
-        expect(states[0].meta).toEqual({ type: 'fenced', lang: 'js' });
+        expect(states[0].meta).toEqual({ type: 'fenced', lang: 'js', fenceChar: '`' });
         // marked already drops one of the three blanks on each side; the
         // option being OFF leaves the remaining surrounding blanks intact.
         expect(states[0].text).toBe('\n\ncode\n\n');

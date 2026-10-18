@@ -13,6 +13,8 @@ Markdown is a easy-to-use markup language for writing and this document contains
     - [Bold](#bold)
     - [Italics](#italics)
     - [Strikethrough](#strikethrough)
+    - [Highlight](#highlight)
+    - [Inline diff](#inline-diff)
   - [Links](#links)
     - [Autolinks](#autolinks)
     - [Inline links](#inline-links)
@@ -20,6 +22,7 @@ Markdown is a easy-to-use markup language for writing and this document contains
     - [Named Anchors](#named-anchors)
   - [Images](#images)
   - [Blockquotes](#blockquotes)
+    - [Multiline blockquote](#multiline-blockquote)
   - [Lists](#lists)
     - [Unordered](#unordered)
     - [Ordered](#ordered)
@@ -168,6 +171,49 @@ Which renders to:
 
 ~~Strike through this text.~~
 
+## Highlight
+
+Some editors write highlighted text as `==text==`. MarkText reads this
+non-standard syntax when **Preferences → Markdown → Highlight (==text==)** is
+enabled; it stays literal text otherwise, so documents are unaffected until you
+opt in. Both the editor and the HTML/PDF export render it as `<mark>`, the same
+as an explicit `<mark>text</mark>` tag.
+
+```markdown
+==Highlight this text.==
+```
+
+Renders to:
+
+<mark>Highlight this text.</mark>
+
+## Inline diff
+
+GitLab writes tracked additions and deletions with inline diff tags. MarkText
+reads this non-standard syntax when **Preferences → Markdown → Inline diff
+({+ … +})** is enabled; it stays literal text otherwise, so documents are
+unaffected until you opt in. As in GitLab, additions get a green wash and
+deletions a red one, in the editor and in the HTML/PDF exports.
+
+```markdown
+- {+ addition 1 +}
+- [+ addition 2 +]
+- {- deletion 3 -}
+- [- deletion 4 -]
+```
+
+Renders to:
+
+- <ins> addition 1 </ins>
+- <ins> addition 2 </ins>
+- <del> deletion 3 </del>
+- <del> deletion 4 </del>
+
+The wrapping tags can be either curly braces or square brackets, but the opener
+and closer must match: `{+ … +]` is not recognized. The tagged text is rendered
+literally, so nested markdown and code spans inside the tags are not parsed. An
+empty or whitespace-only body (`{++}`) stays literal, as it does for `**`.
+
 <br>
 
 ## Links
@@ -313,6 +359,24 @@ Renders to:
 > >
 > > > Donec massa lacus, ultricies a ullamcorper in, fermentum sed augue.
 > > > Nunc augue augue, aliquam non hendrerit ac, commodo vel nisi.
+
+### Multiline blockquote
+
+GitLab fences a multi-line quote with `>>>` on its own line at both ends, so you
+do not have to prepend `>` to every line. MarkText reads this non-standard
+syntax when **Preferences → Markdown → Multiline blockquote (>>>)** is enabled;
+with the setting off the fence stays literal text, so a document keeps its `>>>`
+lines until you opt in. The quote renders like any other blockquote, and the
+`>>>` fence is kept verbatim when the document is saved or exported to markdown.
+
+<!-- prettier-ignore -->
+```markdown
+>>>
+If you paste a message from somewhere else
+
+that spans multiple lines,
+>>>
+```
 
 <br>
 

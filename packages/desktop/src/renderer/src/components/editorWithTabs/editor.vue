@@ -109,7 +109,7 @@ import notice from '@/services/notification'
 import Printer from '@/services/printService'
 import { SpellcheckerLanguageCommand } from '@/commands'
 import { SpellChecker } from '@/spellchecker'
-import { isOsx, animatedScrollTo } from '@/util'
+import { isMac, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { dataURLToFile } from '@/util/dataURLToFile'
@@ -196,6 +196,10 @@ const {
   texMathGfm,
   texMathSingleBackslash,
   texMathDoubleBackslash,
+  highlightSyntax,
+  inlineDiff,
+  multilineBlockquote,
+  githubAlerts,
   isHtmlEnabled,
   softNewlineAsSpace,
   lineHeight,
@@ -564,22 +568,25 @@ watch(frontmatterType, (value, oldValue) => {
   }
 })
 
+// `setOptions(..., true)` re-renders headings in place without emitting
+// `json-change`, so nothing else refreshes the outline after a toggle.
+const applyOutlineAffectingOption = (options: Partial<IMuyaOptions>): void => {
+  const muya = editor.value
+  if (!muya) return
+  muya.setOptions(options, true)
+  editorStore.REFRESH_TOC(muya.getTOC())
+}
+
 watch(superSubScript, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ superSubScript: value }, true)
-  }
+  if (value !== oldValue) applyOutlineAffectingOption({ superSubScript: value })
 })
 
 watch(footnote, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ footnote: value }, true)
-  }
+  if (value !== oldValue) applyOutlineAffectingOption({ footnote: value })
 })
 
 watch(texMathDollars, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ texMathDollars: value }, true)
-  }
+  if (value !== oldValue) applyOutlineAffectingOption({ texMathDollars: value })
 })
 
 watch(isHtmlEnabled, (value, oldValue) => {
@@ -589,21 +596,31 @@ watch(isHtmlEnabled, (value, oldValue) => {
 })
 
 watch(texMathGfm, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ texMathGfm: value }, true)
-  }
+  if (value !== oldValue) applyOutlineAffectingOption({ texMathGfm: value })
 })
 
 watch(texMathSingleBackslash, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ texMathSingleBackslash: value }, true)
-  }
+  if (value !== oldValue) applyOutlineAffectingOption({ texMathSingleBackslash: value })
 })
 
 watch(texMathDoubleBackslash, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ texMathDoubleBackslash: value }, true)
-  }
+  if (value !== oldValue) applyOutlineAffectingOption({ texMathDoubleBackslash: value })
+})
+
+watch(highlightSyntax, (value, oldValue) => {
+  if (value !== oldValue) applyOutlineAffectingOption({ highlightSyntax: value })
+})
+
+watch(inlineDiff, (value, oldValue) => {
+  if (value !== oldValue) applyOutlineAffectingOption({ inlineDiff: value })
+})
+
+watch(githubAlerts, (value, oldValue) => {
+  if (value !== oldValue) applyOutlineAffectingOption({ githubAlerts: value })
+})
+
+watch(multilineBlockquote, (value, oldValue) => {
+  if (value !== oldValue) applyOutlineAffectingOption({ multilineBlockquote: value })
 })
 
 watch(softNewlineAsSpace, (value, oldValue) => {
@@ -1022,7 +1039,7 @@ const handleInvalidateImageCache = () => {
 }
 
 const openSpellcheckerLanguageCommand = () => {
-  if (!isOsx) {
+  if (!isMac) {
     bus.emit('show-command-palette', switchLanguageCommand)
   }
 }
@@ -1125,6 +1142,12 @@ const handReplace = (payload: unknown) => {
   editorStore.SEARCH(toSearchMatches(editor.value.replace(value, opt)))
 }
 
+const handleFindAction = (action: unknown) => {
+  if (!editor.value) return
+  editorStore.SEARCH(toSearchMatches(editor.value.find(action as 'previous' | 'next')))
+  scrollToHighlight()
+}
+
 const handleUploadedImage = (url: unknown, deletionUrl?: unknown) => {
   insertImage(url)
   editorStore.SHOW_IMAGE_DELETION_URL(deletionUrl as string)
@@ -1151,7 +1174,8 @@ const getCursorY = (): number | null => {
         : range.startContainer.parentElement
     rects = parent ? parent.getClientRects() : rects
   }
-  return rects.length ? rects[0].y : null
+  // Match Muya's caret geometry at soft wraps (#3510).
+  return rects.length ? rects[range.collapsed ? rects.length - 1 : 0].y : null
 }
 
 // Only the slug-to-element pairing is cached. Positions are not: typing body
@@ -1269,12 +1293,6 @@ const scrollToElement = (selector: string) => {
   scrollElementIntoView(document.querySelector(selector))
 }
 
-const handleFindAction = (action: unknown) => {
-  if (!editor.value) return
-  editorStore.SEARCH(toSearchMatches(editor.value.find(action as Parameters<Muya['find']>[0])))
-  scrollToHighlight()
-}
-
 interface ExportOptions {
   type: string
   header?: unknown
@@ -1299,9 +1317,11 @@ const handleExport = async (options: unknown) => {
   const muya = editor.value
   if (!muya) return
 
+  editorStore.flushActiveEditor()
   const extraCss = await getCssForOptions(opts as unknown as PdfCssOptions)
   const htmlToc = getHtmlToc(muya.getTOC(), opts as unknown as HtmlTocOptions)
-  const markdown = muya.getMarkdown()
+  // The hidden WYSIWYG engine keeps its pre-source-mode document until the handoff.
+  const markdown = sourceCode.value ? editorStore.currentFile?.markdown ?? '' : muya.getMarkdown()
   const header = (opts.header ?? null) as HeaderFooterPart | null
   const footer = (opts.footer ?? null) as HeaderFooterPart | null
 
@@ -1348,7 +1368,7 @@ const handleExport = async (options: unknown) => {
           headerFooterStyled: headerFooterStyled as boolean | undefined,
           dir: props.textDirection
         })
-        printer!.renderMarkdown(html, true, props.textDirection)
+        await printer!.renderMarkdown(html, props.textDirection)
         editorStore.EXPORT({ type, pageOptions })
       } catch (err) {
         log.error('Failed to export document:', err)
@@ -1374,7 +1394,7 @@ const handleExport = async (options: unknown) => {
           headerFooterStyled: headerFooterStyled as boolean | undefined,
           dir: props.textDirection
         })
-        printer!.renderMarkdown(html, true, props.textDirection)
+        await printer!.renderMarkdown(html, props.textDirection)
         editorStore.PRINT_RESPONSE()
       } catch (err) {
         log.error('Failed to export document:', err)
@@ -1452,7 +1472,7 @@ const handleParagraph = (type: unknown) => {
         return editor.value.deleteParagraph()
       }
       default:
-        console.error(`unknow paragraph edit type: ${type}`)
+        console.error(`unknown paragraph edit type: ${type}`)
     }
   }
 }
@@ -1504,7 +1524,7 @@ const setMarkdownToEditor = (payload: unknown) => {
     // the first edit, and a file switch keeps the previous file's TOC).
     editorStore.UPDATE_TOC(editor.value.getTOC())
     // A freshly created/opened tab should be ready to type into.
-    focusFreshEditor()
+    if (editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false) focusFreshEditor()
   }
 }
 
@@ -1647,8 +1667,13 @@ const flushActiveEditor = () => {
   editor.value?.flush()
 }
 
+// The engine's `focus()` only sets the selection range; the contenteditable
+// also needs DOM focus or no caret blinks.
 const focusEditor = () => {
-  editor.value?.focus()
+  const ed = editor.value
+  if (!ed) return
+  ed.domNode.focus()
+  ed.focus()
 }
 
 // Focus a freshly opened/created tab's editor. The sibling `file-changed`
@@ -1695,10 +1720,10 @@ const handleResetPaddingBottom = () => {
   if (!container) return
   const firstChild = container.firstElementChild as HTMLElement | null
   if (!firstChild) return
-  const newScollableHeightWithoutPadding =
+  const newScrollableHeightWithoutPadding =
     container.scrollHeight - container.clientHeight - parseFloat(firstChild.style.paddingBottom)
 
-  if (currentFile.value && newScollableHeightWithoutPadding > currentFile.value.scrollTop) {
+  if (currentFile.value && newScrollableHeightWithoutPadding > currentFile.value.scrollTop) {
     container.style.paddingBottom = ''
     resizeObserverForEditor.unobserve(firstChild) // unobserve #ag-editor-id since we have removed the padding
   }
@@ -1774,6 +1799,10 @@ onMounted(() => {
     texMathGfm: texMathGfm.value,
     texMathSingleBackslash: texMathSingleBackslash.value,
     texMathDoubleBackslash: texMathDoubleBackslash.value,
+    highlightSyntax: highlightSyntax.value,
+    inlineDiff: inlineDiff.value,
+    multilineBlockquote: multilineBlockquote.value,
+    githubAlerts: githubAlerts.value,
     disableHtml: !isHtmlEnabled.value,
     softNewlineAsSpace: softNewlineAsSpace.value,
     hideQuickInsertHint: hideQuickInsertHint.value,
@@ -1787,6 +1816,7 @@ onMounted(() => {
     clipboardFilePath: guessClipboardFilePath,
     // Read the OS clipboard's plain text for "Paste as Plain Text" (execCommand('paste') no longer fires).
     clipboardText: () => window.electron.clipboard.readText(),
+    fetchLinkHtml: (url) => window.electron.fetchLinkHtml(url),
     // Image-persist callbacks read by the engine's clipboard + drag-drop handlers
     // from `muya.options.*` (distinct from the ImageEditTool plugin option above).
     // Without these, local-file drag-drop, screenshot/binary clipboard paste, and
@@ -1814,7 +1844,7 @@ onMounted(() => {
   const muya = markRaw(new Muya(ele, options))
   // The new engine requires an explicit init() after construction (it builds
   // the document tree and instantiates the registered UI plugins).
-  muya.init()
+  muya.init({ focus: editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false })
   editor.value = muya
   // The first document's content is set via constructor options, so no
   // `file-loaded` / `setMarkdownToEditor` runs for it — seed its TOC here.
@@ -1930,7 +1960,7 @@ onMounted(() => {
   editor.value.on(
     'format-click',
     ({ event, formatType, data }: { event: MouseEvent; formatType: string; data: unknown }) => {
-      const ctrlOrMeta = (isOsx && event.metaKey) || (!isOsx && event.ctrlKey)
+      const ctrlOrMeta = (isMac && event.metaKey) || (!isMac && event.ctrlKey)
       if (formatType === 'link' && ctrlOrMeta) {
         editorStore.FORMAT_LINK_CLICK({
           data: data as { href: string; [key: string]: unknown },
@@ -1944,6 +1974,13 @@ onMounted(() => {
 
   editor.value.on('preview-image', ({ data }: { data: string }) => {
     mediaViewer.value?.openImage(data)
+  })
+
+  // A preference toggle can change the result set under an open find bar; its
+  // count/index come from a snapshot the search handlers own.
+  editor.value.on('search-refreshed', (result: unknown) => {
+    editorStore.SEARCH(toSearchMatches(result))
+    scrollToHighlight()
   })
 
   editor.value.on('preview-diagram', (payload: IPreviewDiagramPayload) => {

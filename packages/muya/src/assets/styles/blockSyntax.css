@@ -1,6 +1,8 @@
 .mu-editor {
     font-size: var(--mu-font-size, 16px);
-    font-family: var(--mu-font-family, 'Open Sans', 'Clear Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif);
+    font-family:
+        var(--mu-font-family, 'Open Sans', 'Clear Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif), 'Noto Music',
+        'Noto Sans Math', sans-serif;
     line-height: var(--mu-line-height, 1.6);
 
     outline: none;
@@ -272,17 +274,9 @@
     border-radius: 3px;
 }
 
-/* Code-block font via `--mu-code-*`; code blocks only (inline code untouched). */
 .mu-code-block {
     font-size: var(--mu-code-font-size, 90%);
-    font-family: var(
-        --mu-code-font-family,
-        'DejaVu Sans Mono',
-        'Source Code Pro',
-        'Droid Sans Mono',
-        Consolas,
-        monospace
-    );
+    font-family: var(--mu-code-font-family, var(--mu-default-code-font-family));
 }
 
 .mu-code-block .mu-code {
@@ -452,7 +446,7 @@ span.mu-language-input {
 }
 
 .mu-code-block.mu-fenced-code.mu-active .mu-language-input {
-    left: 20px;
+    left: 30px;
 }
 
 /* loose tight list */
@@ -794,12 +788,12 @@ figure.mu-math-block .mu-math-preview .katex-display::-webkit-scrollbar {
     height: 6px;
 }
 
-.katex-display > .katex > .katex-html:has(> .tag) {
+.katex-display > .katex > .katex-html:has(> .katex-tag) {
     width: max-content;
     min-width: 100%;
 }
 
-.katex-display > .katex > .katex-html > .tag {
+.katex-display > .katex > .katex-html > .katex-tag {
     position: static;
 
     float: right;
@@ -955,6 +949,12 @@ pre.mu-active[data-role='vega-lite']::after {
     content: '```';
 }
 
+/* A tilde-fenced code block draws its own fence character in the marker. */
+pre.mu-active.mu-fenced-code.mu-tilde-fence::before,
+pre.mu-active.mu-fenced-code.mu-tilde-fence::after {
+    content: '~~~';
+}
+
 pre.mu-active.mu-frontmatter::before,
 pre.mu-active.mu-frontmatter::after,
 pre.mu-active[data-role='mermaid']::before,
@@ -1042,9 +1042,12 @@ pre.mu-active.mu-fenced-code::after {
 }
 
 .mu-table-cell-content {
-    min-width: 2em;
     position: relative;
     z-index: 2;
+
+    min-width: 2em;
+
+    overflow-wrap: anywhere;
 }
 
 /* Footnote definition block — port of marktext's `figure[data-role='FOOTNOTE']`

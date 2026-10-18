@@ -47,13 +47,14 @@ function stubCrossSelection(
     anchorOffset: number,
     focusBlock: Content,
     focusOffset: number,
+    direction = SelectionDirection.FORWARD,
 ) {
     muya.editor.selection.getSelection = () => ({
         anchor: { offset: anchorOffset, block: anchorBlock, path: anchorBlock.path },
         focus: { offset: focusOffset, block: focusBlock, path: focusBlock.path },
         isCollapsed: false,
         isSelectionInSameBlock: false,
-        direction: SelectionDirection.FORWARD,
+        direction,
         type: SelectionCaretType.RANGE,
     });
 }
@@ -89,5 +90,51 @@ describe('copy within a single block-quote', () => {
         const { text } = muya.editor.clipboard.getClipboardData();
 
         expect(text).toBe('> pha\n>\n> be\n');
+    });
+});
+
+describe('reverse container selection (#5753)', () => {
+    it.each([
+        '- alpha\n- beta\n',
+        '* alpha\n* beta\n',
+        '1. alpha\n2. beta\n',
+        '- [ ] alpha\n- [x] beta\n',
+        '- alpha\n  - nested\n- beta\n',
+        '> alpha\n>\n> beta\n',
+    ])('copies the same text and HTML in both directions: %s', (markdown) => {
+        const muya = bootMuya(markdown);
+        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+        const last = muya.editor.scrollPage!.lastContentInDescendant()!;
+
+        stubCrossSelection(muya, first, 0, last, last.text.length);
+        const forward = muya.editor.clipboard.getClipboardData();
+        expect(forward.text).toBe(markdown);
+        expect(forward.html).toContain('alpha');
+        expect(forward.html).toContain('beta');
+
+        stubCrossSelection(muya, last, last.text.length, first, 0, SelectionDirection.BACKWARD);
+        expect(muya.editor.clipboard.getClipboardData()).toEqual(forward);
+    });
+
+    it('truncates reversed endpoints and preserves intervening items', () => {
+        const muya = bootMuya('- one\n- two\n- three\n');
+        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+        const last = muya.editor.scrollPage!.lastContentInDescendant()!;
+
+        stubCrossSelection(muya, last, 2, first, 1, SelectionDirection.BACKWARD);
+
+        expect(muya.editor.clipboard.getClipboardData().text).toBe('- ne\n- two\n- th\n');
+    });
+});
+
+describe('reverse selection across outermost blocks', () => {
+    it('copies partial endpoints and the intervening list in document order', () => {
+        const muya = bootMuya('alpha\n\n- middle\n\nbeta\n');
+        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+        const last = muya.editor.scrollPage!.lastContentInDescendant()!;
+
+        stubCrossSelection(muya, last, 2, first, 2, SelectionDirection.BACKWARD);
+
+        expect(muya.editor.clipboard.getClipboardData().text).toBe('pha\n\n- middle\n\nbe\n');
     });
 });

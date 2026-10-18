@@ -16,8 +16,10 @@ export function getCursorCoords(preferEnd = false): DOMRect | null {
                         : null;
             }
 
+            // Chromium exposes both sides of a soft wrap for a collapsed
+            // range. The last rect is the new line's start (#3510).
             if (rects?.length)
-                rect = preferEnd ? rects[rects.length - 1] : rects[0];
+                rect = range.collapsed || preferEnd ? rects[rects.length - 1] : rects[0];
         }
     }
 

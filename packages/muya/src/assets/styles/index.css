@@ -1,4 +1,6 @@
 :root {
+    --mu-default-code-font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', 'Consolas', monospace;
+
     /* editor */
     --theme-color: rgb(33 181 111 / 100%);
     --highlight-color: rgb(33 181 111 / 40%);
@@ -14,6 +16,10 @@
     /* width of the centered editing column (`.mu-container` max-width) */
     --editor-area-width: 800px;
     --delete-color: #ff6969;
+
+    /* GitLab inline diff washes for `{+ … +}` / `[- … -]`. */
+    --code-new-inline-diff-background-color: #c7f0d2;
+    --code-old-inline-diff-background-color: #fac5cd;
     --icon-color: #6b737b;
     --code-block-bg-color: rgb(0 0 0 / 3%);
     --table-border-color: #e5e5e5;
@@ -137,6 +143,23 @@
         local('Open Sans Bold Italic'),
         local('OpenSans-BoldItalic'),
         url('./fonts/open-sans-v27-latin-ext_latin-700italic.woff') format('woff');
+}
+
+/* Keep notation available offline when system fonts lack its glyphs (#5327). */
+@font-face {
+    font-weight: 400;
+    font-family: 'Noto Music';
+    font-style: normal;
+    src: url('./fonts/NotoMusic-Regular.woff2') format('woff2');
+    unicode-range: U+2669-266F, U+1D000-1D24F;
+}
+
+@font-face {
+    font-weight: 400;
+    font-family: 'Noto Sans Math';
+    font-style: normal;
+    src: url('./fonts/NotoSansMath-Regular.woff2') format('woff2');
+    unicode-range: U+23B4-23E1;
 }
 
 /*

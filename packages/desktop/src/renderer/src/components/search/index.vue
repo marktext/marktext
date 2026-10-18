@@ -2,10 +2,12 @@
   <div
     v-show="showSearch"
     class="search-bar"
-    @click.stop="noop"
   >
-    <div
-      class="left-arrow"
+    <button
+      type="button"
+      class="plain-button left-arrow"
+      :aria-label="t('menu.edit.replace')"
+      :aria-expanded="type === 'replace'"
       @click="toggleSearchType"
     >
       <el-icon
@@ -14,7 +16,7 @@
       >
         <ArrowDown />
       </el-icon>
-    </div>
+    </button>
     <div class="right-controls">
       <section class="search">
         <div
@@ -32,30 +34,42 @@
             <span class="search-result">{{ highlightIndex + 1 }} /
               {{ highlightCount }}
             </span>
-            <span
-              :title="t('search.caseSensitive')"
-              class="is-case-sensitive"
-              :class="{ active: isCaseSensitive }"
-              @click.stop="toggleCtrl('isCaseSensitive')"
-            >
-              <FindCaseIcon aria-hidden="true" />
-            </span>
-            <span
-              :title="t('search.wholeWord')"
-              class="is-whole-word"
-              :class="{ active: isWholeWord }"
-              @click.stop="toggleCtrl('isWholeWord')"
-            >
-              <FindWordIcon aria-hidden="true" />
-            </span>
-            <span
-              :title="t('search.useRegex')"
-              class="is-regex"
-              :class="{ active: isRegexp }"
-              @click.stop="toggleCtrl('isRegexp')"
-            >
-              <FindRegexIcon aria-hidden="true" />
-            </span>
+            <icon-tooltip :content="t('search.caseSensitive')">
+              <button
+                type="button"
+                class="plain-button is-case-sensitive"
+                :class="{ active: isCaseSensitive }"
+                :aria-label="t('search.caseSensitive')"
+                :aria-pressed="isCaseSensitive"
+                @click="toggleCtrl('isCaseSensitive')"
+              >
+                <FindCaseIcon aria-hidden="true" />
+              </button>
+            </icon-tooltip>
+            <icon-tooltip :content="t('search.wholeWord')">
+              <button
+                type="button"
+                class="plain-button is-whole-word"
+                :class="{ active: isWholeWord }"
+                :aria-label="t('search.wholeWord')"
+                :aria-pressed="isWholeWord"
+                @click="toggleCtrl('isWholeWord')"
+              >
+                <FindWordIcon aria-hidden="true" />
+              </button>
+            </icon-tooltip>
+            <icon-tooltip :content="t('search.useRegex')">
+              <button
+                type="button"
+                class="plain-button is-regex"
+                :class="{ active: isRegexp }"
+                :aria-label="t('search.useRegex')"
+                :aria-pressed="isRegexp"
+                @click="toggleCtrl('isRegexp')"
+              >
+                <FindRegexIcon aria-hidden="true" />
+              </button>
+            </icon-tooltip>
           </div>
           <div
             v-if="searchErrorMsg"
@@ -65,22 +79,30 @@
           </div>
         </div>
         <div class="button-group">
-          <button
-            class="button right"
-            @click="find('previous')"
-          >
-            <el-icon :size="14">
-              <ArrowUp />
-            </el-icon>
-          </button>
-          <button
-            class="button"
-            @click="find('next')"
-          >
-            <el-icon :size="14">
-              <ArrowDown />
-            </el-icon>
-          </button>
+          <icon-tooltip :content="t('menu.edit.findPrevious')">
+            <button
+              type="button"
+              class="button right"
+              :aria-label="t('menu.edit.findPrevious')"
+              @click="find('previous')"
+            >
+              <el-icon :size="14">
+                <ArrowUp />
+              </el-icon>
+            </button>
+          </icon-tooltip>
+          <icon-tooltip :content="t('menu.edit.findNext')">
+            <button
+              type="button"
+              class="button"
+              :aria-label="t('menu.edit.findNext')"
+              @click="find('next')"
+            >
+              <el-icon :size="14">
+                <ArrowDown />
+              </el-icon>
+            </button>
+          </icon-tooltip>
         </div>
       </section>
       <section
@@ -95,40 +117,30 @@
           >
         </div>
         <div class="button-group">
-          <el-tooltip
-            class="item"
-            effect="dark"
-            :content="t('search.replaceAll')"
-            placement="top"
-            :visible-arrow="false"
-            :open-delay="1000"
-          >
+          <icon-tooltip :content="t('search.replaceAll')">
             <button
+              type="button"
               class="button right"
+              :aria-label="t('search.replaceAll')"
               @click="replace(false)"
             >
               <el-icon :size="14">
                 <RefreshRight />
               </el-icon>
             </button>
-          </el-tooltip>
-          <el-tooltip
-            class="item"
-            effect="dark"
-            :content="t('search.replaceSingle')"
-            placement="top"
-            :visible-arrow="false"
-            :open-delay="1000"
-          >
+          </icon-tooltip>
+          <icon-tooltip :content="t('search.replaceSingle')">
             <button
+              type="button"
               class="button"
+              :aria-label="t('search.replaceSingle')"
               @click="replace(true)"
             >
               <el-icon :size="14">
                 <Switch />
               </el-icon>
             </button>
-          </el-tooltip>
+          </icon-tooltip>
         </div>
       </section>
     </div>
@@ -146,6 +158,7 @@ import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import debounce from 'lodash/debounce'
 import { ArrowDown, ArrowUp, RefreshRight, Switch } from '@element-plus/icons-vue'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 
 const { t } = useI18n()
 
@@ -193,19 +206,11 @@ const prefillFromSelection = () => {
 }
 
 const highlightIndex = computed(() => {
-  if (searchMatches.value) {
-    return searchMatches.value.index
-  } else {
-    return -1
-  }
+  return searchMatches.value ? searchMatches.value.index : -1
 })
 
 const highlightCount = computed(() => {
-  if (searchMatches.value) {
-    return searchMatches.value.matches.length
-  } else {
-    return 0
-  }
+  return searchMatches.value ? searchMatches.value.matches.length : 0
 })
 
 onMounted(() => {
@@ -264,30 +269,26 @@ const listenReplace = () => {
   type.value = 'replace'
 }
 
-const listenFindNext = () => {
-  find('next')
-}
+const listenFindNext = () => find('next')
 
-const listenFindPrev = () => {
-  find('previous')
-}
+const listenFindPrev = () => find('previous')
 
 const docKeyup = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
-    emptySearch(true)
+    emptySearch()
   }
 }
 
-const docClick = () => {
+const docClick = (event: MouseEvent) => {
   if (!showSearch.value) return
-  emptySearch(true)
+  const target = event.target as HTMLElement | null
+  if (target && target.closest('.search-bar')) return
+  emptySearch()
 }
 
-const blurSearch = () => {
-  emptySearch(true)
-}
+const blurSearch = () => emptySearch()
 
-const emptySearch = (selectHighlight = false) => {
+const emptySearch = (selectHighlight = true) => {
   showSearch.value = false
   searchValue.value = ''
   replaceValue.value = ''
@@ -355,8 +356,6 @@ const replace = (isSingle = true) => {
     }
   })
 }
-
-const noop = () => {}
 </script>
 
 <style scoped>
@@ -378,7 +377,6 @@ const noop = () => {}
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
 }
 .search-bar .left-arrow:hover {
   background: var(--floatHoverColor);
@@ -444,24 +442,24 @@ const noop = () => {}
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
+/* The toggles are 24px targets (WCAG 2.5.8) laid edge to edge, which keeps
+   the icons where the 20px boxes with 2px margins put them. */
 .input-wrapper .controls {
   position: absolute;
-  top: 6px;
+  top: 4px;
   right: 10px;
   font-size: 12px;
   display: flex;
+  align-items: center;
   color: var(--sideBarTitleColor);
   & > span.search-result {
     height: 20px;
     margin-right: 5px;
     line-height: 17px;
   }
-  & > span:not(.search-result) {
-    cursor: pointer;
-    width: 20px;
-    height: 20px;
-    margin-left: 2px;
-    margin-right: 2px;
+  & > button {
+    width: 24px;
+    height: 24px;
     &:hover {
       color: var(--sideBarIconColor);
     }

@@ -326,7 +326,7 @@ class AppMenu {
     this.windowMenus.forEach((value) => {
       const { menu: oldMenu, type } = value
 
-      let newMenu: Menu | null = null
+      let newMenu: Menu | null
       if (type === MenuType.EDITOR) {
         if (!oldMenu) return
         const { menu: rebuilt } = this._buildEditorMenu(recentUsedDocuments)
@@ -576,8 +576,10 @@ class AppMenu {
       if (prefs.autoSave !== undefined) {
         this.updateAutoSaveMenu(prefs.autoSave)
       }
-      if (prefs.texMathDollars !== undefined) {
-        // The Paragraph menu lists Math Block only while the option is on.
+      if (prefs.texMathDollars !== undefined || prefs.githubAlerts !== undefined) {
+        this.updateAppMenu()
+      }
+      if (prefs.showPandocConvert !== undefined) {
         this.updateAppMenu()
       }
       if (prefs.language) {
