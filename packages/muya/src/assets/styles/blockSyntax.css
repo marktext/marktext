@@ -225,21 +225,9 @@
     border-radius: 3px;
 }
 
-/* Share the complete fallback stack so CJK glyphs resolve identically (#5773). */
-code.mu-inline-rule,
-.mu-code-block {
-    font-family: var(
-        --mu-code-font-family,
-        'DejaVu Sans Mono',
-        'Source Code Pro',
-        'Droid Sans Mono',
-        Consolas,
-        monospace
-    );
-}
-
 .mu-code-block {
     font-size: var(--mu-code-font-size, 90%);
+    font-family: var(--mu-code-font-family, var(--mu-default-code-font-family));
 }
 
 .mu-code-block .mu-code {

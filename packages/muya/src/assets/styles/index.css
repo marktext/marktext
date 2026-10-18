@@ -1,4 +1,6 @@
 :root {
+    --mu-default-code-font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', 'Consolas', monospace;
+
     /* editor */
     --theme-color: rgb(33 181 111 / 100%);
     --highlight-color: rgb(33 181 111 / 40%);
