@@ -2,6 +2,8 @@
 
 The release pipeline is triggered by pushing a `v*` tag. The `Release MarkText` workflow (`.github/workflows/release.yml`) then runs **validate → build (5-platform matrix) → publish** and creates a GitHub Release with installers and `SHA256SUMS.txt`.
 
+Release notes explicitly compare against the highest published stable `vX.Y.Z` version below the new version, selected from all release pages by `scripts/select-release-base.py`. Drafts, prereleases, and the current version are excluded. RCs compare against the previous stable cycle; hotfixes exclude newer versions. For example, `v0.22.0` compares against `v0.21.2` even if that tag is on a separate release branch. The workflow fails if no earlier stable release exists instead of falling back to GitHub's automatic comparison base. Verify the `Full Changelog` link during release review.
+
 The flow below covers both release candidates and stable releases — same steps, only the version string differs.
 
 ## Prerequisites
