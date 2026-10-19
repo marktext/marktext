@@ -283,7 +283,7 @@ test('pasting in a folded title preserves the section and undo restores the titl
     await expect.poll(() => getMarkdown(page)).toBe('# ABC\n\nalpha\n\n## Inner\n\nbeta\n\n# B\n\nbravo\n');
 });
 
-test('front menu, fold toggle, and copy-link do not overlap in narrow editor viewports', async ({ page }) => {
+test('copy-link, front menu, and fold toggle do not overlap in narrow editor viewports', async ({ page }) => {
     await page.setViewportSize({ width: 700, height: 700 });
     await loadMarkdown(page, '# Heading\n\nbody\n');
     const rects = await page.evaluate((affordances) => {
@@ -313,7 +313,7 @@ test('front menu, fold toggle, and copy-link do not overlap in narrow editor vie
     const copy = await page.locator(editor.headingCopyLink).boundingBox();
     expect(fold).not.toBeNull();
     expect(copy).not.toBeNull();
-    expect(fold!.x + fold!.width).toBeLessThanOrEqual(copy!.x);
+    expect(copy!.x + copy!.width).toBeLessThanOrEqual(front!.x);
     await frontButton.click();
     await expect(page.locator('.mu-front-menu')).toBeVisible();
     await page.keyboard.press('Escape');

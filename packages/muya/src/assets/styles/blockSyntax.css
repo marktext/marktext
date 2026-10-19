@@ -103,7 +103,7 @@
 .mu-container h6 > .mu-copy-header-link {
     position: absolute;
     top: 0;
-    left: -22px;
+    left: -68px;
 
     display: inline-flex;
     align-items: center;
@@ -147,7 +147,7 @@
 .mu-container :is(h1, h2, h3, h4, h5, h6) > .mu-fold-toggle {
     position: absolute;
     top: 0;
-    left: -44px;
+    left: -20px;
 
     display: inline-flex;
     align-items: center;
