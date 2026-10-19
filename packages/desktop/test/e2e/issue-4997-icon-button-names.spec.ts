@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown, sendIpcToRenderer } from './helpers'
+import { launchWithMarkdown, makeRoomForOutline, sendIpcToRenderer } from './helpers'
 
 // #4997: icon-only controls must have an accessible name, be reachable and
 // operable from the keyboard, and show their label on hover. These drive the
@@ -40,16 +40,21 @@ test.describe('#4997 icon-only controls in the editor window', () => {
     const launched = await launchWithMarkdown('# Doc\n\nneedle\n', { preferences: PREFERENCES })
     app = launched.app
     page = launched.page
+    await makeRoomForOutline(app, page)
   })
 
   test.afterAll(async() => {
     if (app) await app.close()
   })
 
-  test('the activity bar buttons are named and report which panel is open', async() => {
-    for (const name of ['Files', 'Search', 'Table of Contents', 'Settings']) {
+  test('the activity bar and outline buttons are named and report which panel is open', async() => {
+    for (const name of ['Files', 'Search', 'Settings']) {
       await expect(page.getByRole('button', { name, exact: true })).toBeVisible()
     }
+    const outline = page.getByRole('button', { name: 'Collapse table of contents', exact: true })
+    await expect(outline).toBeVisible()
+    await expect(outline).toHaveAttribute('aria-expanded', 'true')
+    await expect(outline).toHaveAttribute('aria-controls', 'document-outline-tree')
     await expect(page.getByRole('button', { name: 'Files', exact: true })).toHaveAttribute(
       'aria-pressed',
       'true'
@@ -78,24 +83,24 @@ test.describe('#4997 icon-only controls in the editor window', () => {
 
   test('a brief hover does not show a tooltip or leave one scheduled after moving away', async() => {
     await page.bringToFront()
-    const toc = page.getByRole('button', { name: 'Table of Contents', exact: true })
+    const toc = page.getByRole('button', { name: 'Collapse table of contents', exact: true })
     await toc.hover()
     // Sample after the old 300ms delay but before either platform's new delay.
     await page.waitForTimeout(350)
-    await expect(tooltip(page, 'Table of Contents')).toBeHidden()
+    await expect(tooltip(page, 'Collapse table of contents')).toBeHidden()
     await page.mouse.move(0, 0)
     await page.waitForTimeout(HOVER_DELAY + 100)
-    await expect(tooltip(page, 'Table of Contents')).toBeHidden()
+    await expect(tooltip(page, 'Collapse table of contents')).toBeHidden()
   })
 
   test('hovering shows the label as a tooltip and Escape dismisses it', async() => {
     // Hover events only reach the page while its window is in front.
     await page.bringToFront()
-    const toc = page.getByRole('button', { name: 'Table of Contents', exact: true })
+    const toc = page.getByRole('button', { name: 'Collapse table of contents', exact: true })
     await toc.hover()
-    await expect(tooltip(page, 'Table of Contents')).toBeVisible()
+    await expect(tooltip(page, 'Collapse table of contents')).toBeVisible()
     await page.keyboard.press('Escape')
-    await expect(tooltip(page, 'Table of Contents')).toBeHidden()
+    await expect(tooltip(page, 'Collapse table of contents')).toBeHidden()
     await page.mouse.move(0, 0)
   })
 
@@ -162,9 +167,9 @@ test.describe('#4997 icon-only controls in the editor window', () => {
   // An open el-tooltip sets the trigger's aria-describedby, which would make
   // screen readers repeat the label after the name.
   test('keyboard focus does not open the tooltip', async() => {
-    await tabTo(page, 'Table of Contents')
+    await tabTo(page, 'Collapse table of contents')
     await page.waitForTimeout(HOVER_DELAY + 100)
-    await expect(tooltip(page, 'Table of Contents')).toBeHidden()
+    await expect(tooltip(page, 'Collapse table of contents')).toBeHidden()
     expect(
       await page.evaluate(() => document.activeElement?.getAttribute('aria-describedby') ?? null)
     ).toBeNull()

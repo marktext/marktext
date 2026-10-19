@@ -1209,11 +1209,13 @@ const rebuildHeadingCache = (): void => {
 // caret sits in as the heading above it.
 const updateActiveHeading = (viewportY: number): void => {
   if (headingElementCache.length === 0) return
-  const positions: HeadingPosition[] = headingElementCache.map(({ slug, el }) => ({
-    slug,
-    top: el.getBoundingClientRect().top
-  }))
-  editorStore.SET_ACTIVE_HEADING(findActiveHeadingSlug(positions, viewportY))
+  const positions: HeadingPosition[] = headingElementCache
+    .filter(({ el }) => el.getClientRects().length > 0)
+    .map(({ slug, el }) => ({
+      slug,
+      top: el.getBoundingClientRect().top
+    }))
+  if (positions.length) editorStore.SET_ACTIVE_HEADING(findActiveHeadingSlug(positions, viewportY))
 }
 
 const scrollToCursor = (duration = 300) => {
@@ -1944,6 +1946,7 @@ onMounted(() => {
   // The engine does not emit `scroll`; listen on the scroll container directly
   // so the desktop can persist each tab's scroll position.
   scrollHandler = () => {
+    if (!sourceCode.value) updateActiveHeading(container.getBoundingClientRect().top + 80)
     if (currentFile.value) {
       editorStore.updateScrollPosition(currentFile.value.id, container.scrollTop)
     }

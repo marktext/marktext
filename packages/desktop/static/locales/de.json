@@ -122,7 +122,7 @@
       "sourceCodeMode": "Quellcode-Modus",
       "typewriterMode": "Schreibmaschinen-Modus",
       "focusMode": "Fokus-Modus",
-      "toggleTableOfContents": "Inhaltsverzeichnis umschalten",
+      "toggleTableOfContents": "Inhaltsverzeichnis anzeigen",
       "reloadImages": "Bilder neu laden",
       "showDeveloperTools": "Entwicklertools anzeigen",
       "reloadWindow": "Fenster neu laden"
@@ -250,6 +250,9 @@
       "openFolder": "Ordner öffnen"
     },
     "toc": {
+      "expand": "Inhaltsverzeichnis aufklappen",
+      "collapse": "Inhaltsverzeichnis zuklappen",
+      "empty": "Keine Überschriften",
       "title": "Inhaltsverzeichnis",
       "expandAll": "Alle ausklappen",
       "collapseAll": "Alle einklappen"

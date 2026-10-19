@@ -122,7 +122,7 @@
       "sourceCodeMode": "Modo Código Fonte",
       "typewriterMode": "Modo Máquina de Escrever",
       "focusMode": "Modo Foco",
-      "toggleTableOfContents": "Alternar Índice",
+      "toggleTableOfContents": "Mostrar sumário",
       "reloadImages": "Recarregar Imagens",
       "showDeveloperTools": "Mostrar Ferramentas de Desenvolvedor",
       "reloadWindow": "Recarregar Janela"
@@ -250,6 +250,9 @@
       "openFolder": "Abrir Pasta"
     },
     "toc": {
+      "expand": "Expandir sumário",
+      "collapse": "Recolher sumário",
+      "empty": "Sem títulos",
       "title": "Índice",
       "expandAll": "Expandir tudo",
       "collapseAll": "Recolher tudo"

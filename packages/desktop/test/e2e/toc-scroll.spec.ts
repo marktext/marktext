@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import {
+  makeRoomForOutline,
   launchWithMarkdown,
   clickMenuById,
   waitForEditor,
@@ -113,6 +114,7 @@ test.describe('TOC sidebar click scrolls the live editor', () => {
     const launched = await launchWithMarkdown(buildLongDoc())
     app = launched.app
     page = launched.page
+    await makeRoomForOutline(app, page)
     await waitForEditor(page)
     // Keep two files open so the editor viewport starts below the visible tab
     // bar. The TOC target must align to that viewport, not to the window.
@@ -131,7 +133,6 @@ test.describe('TOC sidebar click scrolls the live editor', () => {
     )
     // Open the sidebar and switch its right column to the ToC (el-tree).
     await showSidebar(app, page)
-    await clickMenuById(app, 'tocMenuItem')
     await page.waitForSelector('.side-bar-toc .el-tree', { state: 'visible', timeout: 10000 })
     // The TOC is seeded from `editor.getTOC()` on mount / json-change. Wait
     // until every heading has rendered a tree node before clicking.

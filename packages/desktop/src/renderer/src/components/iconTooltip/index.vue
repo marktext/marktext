@@ -27,7 +27,8 @@
  * trigger's `aria-describedby` at it, so screen readers would read every label
  * twice. el-tooltip also overwrites `aria-expanded`, `aria-haspopup` and
  * `aria-controls` on the slotted element, so a disclosure or menu button cannot
- * be wrapped without losing its state.
+ * be wrapped directly without losing its state; use a non-focusable span
+ * around such a button to keep these attributes on the button.
  */
 import { ref, onBeforeUnmount } from 'vue'
 import type { Placement, TooltipInstance } from 'element-plus'

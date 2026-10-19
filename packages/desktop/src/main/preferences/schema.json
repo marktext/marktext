@@ -398,6 +398,11 @@
     "type": "string",
     "default": "assets"
   },
+  "tocVisibility": {
+    "description": "View--Whether the document outline is expanded.--internal",
+    "type": "boolean",
+    "default": true
+  },
   "sideBarVisibility": {
     "description": "View--Whether the side bar is visible.--internal",
     "type": "boolean",

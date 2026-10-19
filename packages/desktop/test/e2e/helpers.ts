@@ -401,3 +401,11 @@ export const sendIpcToRenderer = async(
     { channel, args }
   )
 }
+
+export const makeRoomForOutline = async(app: ElectronApplication, page: Page): Promise<void> => {
+  const window = await app.browserWindow(page)
+  await window.evaluate(window => {
+    const [, height] = window.getContentSize()
+    window.setContentSize(1600, height)
+  })
+}

@@ -122,7 +122,7 @@
       "sourceCodeMode": "ソースコードモード",
       "typewriterMode": "タイプライターモード",
       "focusMode": "フォーカスモード",
-      "toggleTableOfContents": "目次の切り替え",
+      "toggleTableOfContents": "目次を表示",
       "reloadImages": "画像の再読み込み",
       "showDeveloperTools": "開発者ツールの表示",
       "reloadWindow": "ウィンドウの再読み込み"
@@ -250,6 +250,9 @@
       "openFolder": "フォルダーを開く"
     },
     "toc": {
+      "expand": "目次を展開",
+      "collapse": "目次を折りたたむ",
+      "empty": "見出しがありません",
       "title": "目次",
       "expandAll": "すべて展開",
       "collapseAll": "すべて折りたたむ"

@@ -122,7 +122,7 @@
       "sourceCodeMode": "Kaynak Kod Modu",
       "typewriterMode": "Daktilo Modu",
       "focusMode": "Odak Modu",
-      "toggleTableOfContents": "İçindekileri Aç/Kapat",
+      "toggleTableOfContents": "İçindekileri göster",
       "reloadImages": "Görselleri Yeniden Yükle",
       "showDeveloperTools": "Geliştirici Araçlarını Göster",
       "reloadWindow": "Pencereyi Yeniden Yükle"
@@ -250,6 +250,9 @@
       "openFolder": "Klasör Aç"
     },
     "toc": {
+      "expand": "İçindekileri genişlet",
+      "collapse": "İçindekileri daralt",
+      "empty": "Başlık yok",
       "title": "İçindekiler",
       "expandAll": "Tümünü genişlet",
       "collapseAll": "Tümünü daralt"

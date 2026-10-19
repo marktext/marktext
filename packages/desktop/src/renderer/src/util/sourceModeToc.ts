@@ -39,11 +39,13 @@ export function scrollSourceEditorToLine(
  * document heading order muya builds the TOC from) to a CodeMirror line.
  */
 export function findMarkdownHeadingLine(markdown: string, headingIndex: number): number {
-  if (headingIndex < 0) return -1
+  return getMarkdownHeadingLines(markdown)[headingIndex] ?? -1
+}
 
+export function getMarkdownHeadingLines(markdown: string): number[] {
+  const result: number[] = []
   const lines = markdown.split('\n')
   let fence: string | null = null
-  let count = 0
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
@@ -60,8 +62,7 @@ export function findMarkdownHeadingLine(markdown: string, headingIndex: number):
 
     // ATX heading.
     if (/^ {0,3}#{1,6}(?:\s|$)/.test(line)) {
-      if (count === headingIndex) return i
-      count++
+      result.push(i)
       continue
     }
 
@@ -69,11 +70,10 @@ export function findMarkdownHeadingLine(markdown: string, headingIndex: number):
     // underline.
     const next = lines[i + 1]
     if (line.trim() !== '' && next !== undefined && /^ {0,3}(?:=+|-+)\s*$/.test(next)) {
-      if (count === headingIndex) return i
-      count++
+      result.push(i)
       i++ // consume the underline line
     }
   }
 
-  return -1
+  return result
 }

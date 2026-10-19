@@ -105,7 +105,12 @@ describe('icon-only controls have an accessible name (#4997)', () => {
         if (el.tag !== 'icon-tooltip') continue
         const children = (el.children ?? []).filter((c) => c.type === ELEMENT)
         const content = attr(el, 'content')
-        const label = children.length === 1 ? attr(children[0], 'aria-label') : null
+        let control = children.length === 1 ? children[0] : undefined
+        if (control?.tag === 'span') {
+          const nested = (control.children ?? []).filter(c => c.type === ELEMENT)
+          control = nested.length === 1 && ['button', 'el-button'].includes(nested[0].tag ?? '') ? nested[0] : undefined
+        }
+        const label = control ? attr(control, 'aria-label') : null
         if (!content || label !== content) mismatched.push(where(file, el))
       }
     }

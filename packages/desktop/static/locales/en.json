@@ -122,7 +122,7 @@
       "sourceCodeMode": "Source Code Mode",
       "typewriterMode": "Typewriter Mode",
       "focusMode": "Focus Mode",
-      "toggleTableOfContents": "Toggle Table of Contents",
+      "toggleTableOfContents": "Show Table of Contents",
       "reloadImages": "Reload Images",
       "showDeveloperTools": "Show Developer Tools",
       "reloadWindow": "Reload Window"
@@ -250,6 +250,9 @@
       "openFolder": "Open Folder"
     },
     "toc": {
+      "expand": "Expand table of contents",
+      "collapse": "Collapse table of contents",
+      "empty": "No headings",
       "title": "Table Of Contents",
       "expandAll": "Expand all",
       "collapseAll": "Collapse all"

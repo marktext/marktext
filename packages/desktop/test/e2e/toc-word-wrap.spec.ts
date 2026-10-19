@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
+import { makeRoomForOutline, launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
 
 const LONG_HEADING =
   '## A heading long enough that it cannot possibly fit on one line of the outline panel'
@@ -42,13 +42,13 @@ test.describe('TOC word wrap preference', () => {
     const launched = await launchWithMarkdown(DOC)
     app = launched.app
     page = launched.page
+    await makeRoomForOutline(app, page)
     await waitForEditor(page)
     const sidebarVisible = await page.evaluate(() => {
       const el = document.querySelector('.side-bar') as HTMLElement | null
       return !!(el && el.offsetParent !== null)
     })
     if (!sidebarVisible) await clickMenuById(app, 'sideBarMenuItem')
-    await clickMenuById(app, 'tocMenuItem')
     await page.waitForSelector('.side-bar-toc .el-tree', { state: 'visible', timeout: 15000 })
     await page.waitForFunction(
       () => document.querySelectorAll('.side-bar-toc .el-tree-node__label').length >= 2,

@@ -13,6 +13,7 @@ export interface IUserPreferences {
   openFilesInNewWindow?: boolean
   openFolderInNewWindow?: boolean
   hideScrollbar?: boolean
+  tocVisibility?: boolean
   sidebarColumn?: number
   fileSortBy?: string
   fileSortOrder?: string
@@ -83,7 +84,7 @@ export interface IUserPreferences {
 }
 
 export interface LayoutState {
-  rightColumn: 'files' | 'search' | 'toc'
+  rightColumn: '' | 'files' | 'search'
   showSideBar: boolean
   showTabBar: boolean
   [key: string]: unknown
