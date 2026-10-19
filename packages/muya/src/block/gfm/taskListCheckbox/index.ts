@@ -1,7 +1,6 @@
 import type { Muya } from '../../../muya';
 import type { ITaskListItemMeta } from '../../../state/types';
 import type { Nullable } from '../../../types';
-import type Parent from '../../base/parent';
 import type TaskList from '../taskList';
 import type TaskListItem from '../taskListItem';
 import { CLASS_NAMES, isFirefox } from '../../../config';
@@ -29,7 +28,7 @@ function isCheckbox(node: TreeNode): node is TaskListCheckbox {
 // Find the `task-list-checkbox` attachment of a `task-list-item`.
 function checkboxOf(item: TaskListItem): TaskListCheckbox | null {
     let found: TaskListCheckbox | null = null;
-    item.attachments.forEach((attachment: Parent) => {
+    item.attachments.forEach((attachment) => {
         if (isCheckbox(attachment))
             found = attachment;
     });

@@ -262,6 +262,13 @@
       "settings": "Configurações"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Menu do aplicativo",
+    "minimize": "Minimizar",
+    "maximize": "Maximizar",
+    "restore": "Restaurar",
+    "close": "Fechar"
+  },
   "commandPalette": {
     "placeholder": "Digite um comando para executar",
     "placeholders": {
@@ -356,6 +363,7 @@
   },
   "preferences": {
     "title": "Preferências",
+    "learnMore": "Saiba mais sobre {name}",
     "search": {
       "placeholder": "Pesquisar preferências...",
       "categories": {
@@ -391,7 +399,7 @@
         "wrapCodeBlocks": "Quebrar texto dentro de blocos de código",
         "editorLineWidth": "Define a largura máxima da área do editor. Uma string vazia ou sufixos de ch (caracteres), px (pixels) ou % (porcentagem) são permitidos",
         "codeFontSize": "Tamanho da fonte no bloco de código, o intervalo é 12 ~ 18",
-        "codeFontFamily": "Família de fonte usada no bloco de código",
+        "codeFontFamily": "Fonte do código. Aplica-se ao código em linha e aos blocos de código.",
         "codeBlockLineNumbers": "Se mostrar os números de linha",
         "sourceCodeLineNumbers": "Mostrar números de linha no modo código fonte",
         "trimUnnecessaryCodeBlockEmptyLines": "Aparar as linhas vazias do início e fim no bloco de código",
@@ -542,12 +550,13 @@
         "fontFamily": "Família da fonte",
         "maxWidth": "Largura máxima",
         "maxWidthNotes": "Largura máxima do conteúdo do editor. Digite um número seguido de px, ch (caracteres) ou %, por exemplo 800px, 80ch ou 60%. Deixe vazio para usar a largura padrão.",
-        "maxWidthInvalid": "Digite um número seguido de px, ch ou %, por exemplo 800px."
+        "maxWidthInvalid": "Digite um número seguido de px, ch ou %, por exemplo 800px.",
+        "codeFontFamily": "Fonte do código",
+        "codeFontFamilyNotes": "Aplica-se ao código em linha e aos blocos de código."
       },
       "codeBlock": {
         "title": "Bloco de Código",
         "fontSize": "Tamanho da fonte",
-        "fontFamily": "Família da fonte",
         "showLineNumbers": "Mostrar números de linha",
         "removeEmptyLines": "Remover linhas vazias"
       },
@@ -1024,6 +1033,9 @@
       "languageMissing": "Idioma do corretor não encontrado {languageCode}",
       "switchError": "Erro ao alternar corretor para {languageCode}, {error}",
       "title": "Verificação Ortográfica"
+    },
+    "tabs": {
+      "close": "Fechar {name}"
     }
   }
 }

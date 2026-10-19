@@ -262,6 +262,13 @@
       "settings": "設定"
     }
   },
+  "titleBar": {
+    "applicationMenu": "アプリケーションメニュー",
+    "minimize": "最小化",
+    "maximize": "最大化",
+    "restore": "元に戻す (縮小)",
+    "close": "閉じる"
+  },
   "commandPalette": {
     "placeholder": "実行するコマンドの入力",
     "placeholders": {
@@ -356,6 +363,7 @@
   },
   "preferences": {
     "title": "環境設定",
+    "learnMore": "{name} の詳細",
     "search": {
       "placeholder": "設定の検索...",
       "categories": {
@@ -391,7 +399,7 @@
         "wrapCodeBlocks": "コードブロック内でテキストを折り返す",
         "editorLineWidth": "エディターエリアの最大幅を定義します。空文字列または ch (文字)、px (ピクセル)、% (パーセント) の接尾辞が許可されます",
         "codeFontSize": "コードブロックのフォントサイズ、範囲は 12〜18",
-        "codeFontFamily": "コードブロックで使用されるフォントファミリー",
+        "codeFontFamily": "コードのフォント：インラインコードとコードブロックに適用されます。",
         "codeBlockLineNumbers": "行番号を表示するかどうか",
         "sourceCodeLineNumbers": "ソースコードモードで行番号を表示",
         "trimUnnecessaryCodeBlockEmptyLines": "コードブロックの最初と最後の空行をトリミング",
@@ -542,12 +550,13 @@
         "fontFamily": "フォントファミリー",
         "maxWidth": "最大幅",
         "maxWidthNotes": "エディターコンテンツの最大幅。数値の後に単位 px、ch (文字数)、% のいずれかを付けて入力します (例 : 800px、80ch、60%)。空欄の場合は既定の幅を使用します。",
-        "maxWidthInvalid": "数値の後に px、ch、% のいずれかを付けて入力してください (例 : 800px)。"
+        "maxWidthInvalid": "数値の後に px、ch、% のいずれかを付けて入力してください (例 : 800px)。",
+        "codeFontFamily": "コードのフォント",
+        "codeFontFamilyNotes": "インラインコードとコードブロックに適用されます。"
       },
       "codeBlock": {
         "title": "コードブロック",
         "fontSize": "フォントサイズ",
-        "fontFamily": "フォントファミリー",
         "showLineNumbers": "行番号を表示",
         "removeEmptyLines": "空行を削除"
       },
@@ -1024,6 +1033,9 @@
       "languageMissing": "スペルチェック言語が見つかりません {languageCode}",
       "switchError": "{languageCode} のスペルチェック切り替えエラー、{error}",
       "title": "スペルチェック"
+    },
+    "tabs": {
+      "close": "{name} を閉じる"
     }
   }
 }

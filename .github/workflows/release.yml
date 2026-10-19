@@ -38,9 +38,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: linux
+          - name: linux-x64
             os: ubuntu-22.04
             platform: linux
+            arch: x64
+          - name: linux-arm64
+            os: ubuntu-22.04-arm
+            platform: linux
+            arch: arm64
           - name: windows-x64
             os: windows-latest
             platform: windows
@@ -110,7 +115,7 @@ jobs:
 
       - name: build-linux
         if: matrix.platform == 'linux'
-        run: pnpm run build:linux
+        run: pnpm run build:linux:${{ matrix.arch }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -211,6 +216,16 @@ jobs:
             echo '```'
           } > release_body.md
 
+      - name: Select previous stable release
+        id: release-base
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/releases?per_page=100" > releases.json
+          previous_tag=$(python scripts/select-release-base.py "${GITHUB_REF_NAME}" < releases.json)
+          echo "previous_tag=${previous_tag}" >> "$GITHUB_OUTPUT"
+          echo "Release notes range: ${previous_tag}...${GITHUB_REF_NAME}"
+
       # Immutable-release repos forbid adding assets to an already-published
       # release, and action-gh-release publishes before uploading the assets.
       # Create the release as a draft (assets allowed), then promote it to a
@@ -221,6 +236,7 @@ jobs:
           draft: true
           prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
+          previous_tag: ${{ steps.release-base.outputs.previous_tag }}
           name: ${{ github.ref_name }}
           body_path: release_body.md
           fail_on_unmatched_files: true

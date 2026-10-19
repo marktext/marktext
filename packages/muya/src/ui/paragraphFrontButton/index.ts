@@ -15,6 +15,7 @@ import { getIcon } from './config';
 import './index.css';
 
 const LEFT_OFFSET = 100;
+const FRONT_BUTTON_GAP = 22;
 
 function defaultOptions() {
     return {
@@ -401,7 +402,7 @@ export class ParagraphFrontButton {
         const paddingTop = Number.parseFloat(styles.paddingTop);
 
         const isLooseList = isOrderOrBulletList(block) && block.meta.loose;
-        const dynamicMainAxis = isLooseList ? paddingTop * 2 : paddingTop;
+        const dynamicMainAxis = FRONT_BUTTON_GAP + (isLooseList ? paddingTop * 2 : paddingTop);
 
         // Extract offset values, handling both number and object types
         let crossAxisValue = 0;

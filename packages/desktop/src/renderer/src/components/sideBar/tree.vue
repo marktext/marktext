@@ -24,30 +24,36 @@
         >{{
           t('sideBar.tree.openedFiles')
         }}</span>
-        <a
-          href="javascript:;"
-          :title="t('sideBar.tree.saveAll')"
-          @click.stop="saveAll(false)"
-        >
-          <svg
-            class="icon"
-            aria-hidden="true"
+        <icon-tooltip :content="t('sideBar.tree.saveAll')">
+          <button
+            type="button"
+            class="plain-button"
+            :aria-label="t('sideBar.tree.saveAll')"
+            @click.stop="saveAll(false)"
           >
-            <use xlink:href="#icon-save-all" />
-          </svg>
-        </a>
-        <a
-          href="javascript:;"
-          :title="t('sideBar.tree.closeAll')"
-          @click.stop="saveAll(true)"
-        >
-          <svg
-            class="icon"
-            aria-hidden="true"
+            <svg
+              class="icon"
+              aria-hidden="true"
+            >
+              <use xlink:href="#icon-save-all" />
+            </svg>
+          </button>
+        </icon-tooltip>
+        <icon-tooltip :content="t('sideBar.tree.closeAll')">
+          <button
+            type="button"
+            class="plain-button"
+            :aria-label="t('sideBar.tree.closeAll')"
+            @click.stop="saveAll(true)"
           >
-            <use xlink:href="#icon-close-all" />
-          </svg>
-        </a>
+            <svg
+              class="icon"
+              aria-hidden="true"
+            >
+              <use xlink:href="#icon-close-all" />
+            </svg>
+          </button>
+        </icon-tooltip>
       </div>
       <div
         v-show="showOpenedFiles"
@@ -166,6 +172,7 @@ import { usePreferencesStore } from '@/store/preferences'
 import Folder from './treeFolder.vue'
 import File from './treeFile.vue'
 import OpenedFile from './treeOpenedTab.vue'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import bus from '../../bus'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import { useI18n } from 'vue-i18n'
@@ -516,19 +523,19 @@ onUnmounted(() => {
   flex: 1;
 }
 
-.opened-files .title > a {
-  display: none;
-  text-decoration: none;
+/* Clipped rather than `display: none` until the header is hovered or holds
+   focus, so Tab can still reach the buttons and reveal them. */
+.opened-files .title > button {
   color: var(--sideBarColor);
   margin-left: 8px;
+  clip-path: inset(50%);
 }
-.opened-files div.title:hover > a,
-.opened-files div.title > a:hover {
-  display: block;
+.opened-files div.title:hover > button,
+.opened-files div.title:focus-within > button {
+  clip-path: none;
 }
 
-.opened-files div.title:hover > a:hover,
-.opened-files div.title > a:hover:hover {
+.opened-files div.title > button:hover {
   color: var(--highlightThemeColor);
 }
 .opened-files {

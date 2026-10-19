@@ -5,19 +5,23 @@
     :class="[{ active: currentFile?.id === file.id, unsaved: !file.isSaved }]"
     @click="selectFile(file)"
   >
-    <el-icon
-      class="close-icon"
-      :size="10"
+    <button
+      type="button"
+      class="plain-button close-icon"
+      :aria-label="t('editor.tabs.close', { name: file.filename })"
       @click.stop="removeFileInTab(file)"
     >
-      <Close />
-    </el-icon>
+      <el-icon :size="10">
+        <Close />
+      </el-icon>
+    </button>
     <span class="name">{{ file.filename }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 import { useEditorStore } from '@/store/editor'
 import { Close } from '@element-plus/icons-vue'
 import type { TabDescriptor } from './types'
@@ -26,6 +30,7 @@ defineProps<{
   file: TabDescriptor
 }>()
 
+const { t } = useI18n()
 const editorStore = useEditorStore()
 
 const { currentFile } = storeToRefs(editorStore)
@@ -55,15 +60,19 @@ const removeFileInTab = (file: TabDescriptor): void => {
   padding-left: 35px;
   position: relative;
   color: var(--sideBarColor);
+  /* Clipped rather than `display: none` while the row is not hovered, so the
+     button stays reachable with Tab and shows itself once focused. */
   & > .close-icon {
-    display: none;
     position: absolute;
-    top: 9px;
-    left: 10px;
-    cursor: pointer;
+    top: 2px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    clip-path: inset(50%);
   }
-  &:hover > .close-icon {
-    display: inline-flex;
+  &:hover > .close-icon,
+  & > .close-icon:focus-visible {
+    clip-path: none;
   }
   &:hover {
     background: var(--sideBarItemHoverBgColor);
@@ -87,7 +96,8 @@ const removeFileInTab = (file: TabDescriptor): void => {
   top: 11px;
   left: 12px;
 }
-.unsaved.opened-file:hover::before {
+.unsaved.opened-file:hover::before,
+.unsaved.opened-file:focus-within::before {
   content: none;
 }
 </style>

@@ -59,8 +59,11 @@
         opacity: 0;
         transition: all 0.2s ease;
         transform: scale(0);
-        cursor: pointer;
         transform-origin: center;
+      }
+      & .close:focus-visible {
+        opacity: 1;
+        transform: scale(1);
       }
     }
     & .body {
@@ -80,7 +83,6 @@
         margin-left: 7px;
         width: 30px;
         height: 30px;
-        cursor: pointer;
       }
     }
   }
@@ -113,6 +115,12 @@
   &:hover .content .title .close {
     opacity: 1;
     transform: scale(1);
+  }
+
+  /* The toast is filled with the notification colour, which the text colour is
+     chosen to contrast with. */
+  & .content .plain-button:focus-visible {
+    outline-color: currentColor;
   }
 
   /* Notification style colors */

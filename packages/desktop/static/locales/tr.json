@@ -262,6 +262,13 @@
       "settings": "Ayarlar"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Uygulama Menüsü",
+    "minimize": "Simge Durumuna Küçült",
+    "maximize": "Ekranı Kapla",
+    "restore": "Önceki Boyut",
+    "close": "Kapat"
+  },
   "commandPalette": {
     "placeholder": "Çalıştırmak için bir komut yazın",
     "placeholders": {
@@ -356,6 +363,7 @@
   },
   "preferences": {
     "title": "Tercihler",
+    "learnMore": "Daha fazla bilgi: {name}",
     "search": {
       "placeholder": "Tercihlerde ara...",
       "categories": {
@@ -390,7 +398,7 @@
         "wrapCodeBlocks": "Kod bloklarındaki metni kaydır",
         "editorLineWidth": "Maksimum düzenleyici alanı genişliğini tanımlar. Boş bir dize veya ch (karakter), px (piksel) ya da % (yüzde) son ekleri kullanılabilir",
         "codeFontSize": "Kod bloğundaki yazı tipi boyutu, aralık 12 ~ 18",
-        "codeFontFamily": "Kod bloğunda kullanılan yazı tipi ailesi",
+        "codeFontFamily": "Kod yazı tipi. Satır içi kod ve kod blokları için geçerlidir.",
         "codeBlockLineNumbers": "Satır numaralarının gösterilip gösterilmeyeceği",
         "sourceCodeLineNumbers": "Kaynak kod modunda satır numaralarını göster",
         "trimUnnecessaryCodeBlockEmptyLines": "Kod bloğundaki baştaki ve sondaki boş satırları kırp",
@@ -542,12 +550,13 @@
         "fontFamily": "Yazı tipi ailesi",
         "maxWidth": "Maksimum genişlik",
         "maxWidthNotes": "Düzenleyici içeriğinin maksimum genişliği. Bir sayının ardından px, ch (karakter) veya % girin, örneğin 800px, 80ch veya 60%. Varsayılan genişliği kullanmak için boş bırakın.",
-        "maxWidthInvalid": "Bir sayının ardından px, ch veya % girin, örneğin 800px."
+        "maxWidthInvalid": "Bir sayının ardından px, ch veya % girin, örneğin 800px.",
+        "codeFontFamily": "Kod yazı tipi",
+        "codeFontFamilyNotes": "Satır içi kod ve kod blokları için geçerlidir."
       },
       "codeBlock": {
         "title": "Kod Bloğu",
         "fontSize": "Yazı tipi boyutu",
-        "fontFamily": "Yazı tipi ailesi",
         "showLineNumbers": "Satır numaralarını göster",
         "removeEmptyLines": "Boş satırları kaldır"
       },
@@ -1024,6 +1033,9 @@
       "languageMissing": "Yazım denetimi dili eksik {languageCode}",
       "switchError": "{languageCode} için yazım denetimi değiştirme hatası, {error}",
       "title": "Yazım Denetimi"
+    },
+    "tabs": {
+      "close": "Kapat: {name}"
     }
   }
 }

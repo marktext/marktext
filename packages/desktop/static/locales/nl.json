@@ -262,6 +262,13 @@
       "settings": "Instellingen"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Toepassingsmenu",
+    "minimize": "Minimaliseren",
+    "maximize": "Maximaliseren",
+    "restore": "Vorig formaat",
+    "close": "Sluiten"
+  },
   "commandPalette": {
     "placeholder": "Typ een opdracht om uit te voeren",
     "placeholders": {
@@ -356,6 +363,7 @@
   },
   "preferences": {
     "title": "Voorkeuren",
+    "learnMore": "Meer informatie over {name}",
     "search": {
       "placeholder": "Voorkeuren zoeken...",
       "categories": {
@@ -390,7 +398,7 @@
         "wrapCodeBlocks": "Tekst terugloop in codeblokken",
         "editorLineWidth": "Maximale breedte van het editorgebied",
         "codeFontSize": "Lettergrootte in codeblokken (12-18)",
-        "codeFontFamily": "Lettertype voor codeblokken",
+        "codeFontFamily": "Lettertype voor code. Van toepassing op inlinecode en codeblokken.",
         "codeBlockLineNumbers": "Regelnummers tonen",
         "sourceCodeLineNumbers": "Regelnummers tonen in broncodeweergave",
         "trimUnnecessaryCodeBlockEmptyLines": "Lege regels aan begin en einde van codeblokken verwijderen",
@@ -542,12 +550,13 @@
         "fontFamily": "Lettertypefamilie",
         "maxWidth": "Maximale breedte",
         "maxWidthNotes": "Maximale breedte van editorinhoud. Voer een getal in gevolgd door px, ch (tekens) of %, bijvoorbeeld 800px, 80ch of 60%. Laat leeg om de standaardbreedte te gebruiken.",
-        "maxWidthInvalid": "Voer een getal in gevolgd door px, ch of %, bijvoorbeeld 800px."
+        "maxWidthInvalid": "Voer een getal in gevolgd door px, ch of %, bijvoorbeeld 800px.",
+        "codeFontFamily": "Lettertype voor code",
+        "codeFontFamilyNotes": "Van toepassing op inlinecode en codeblokken."
       },
       "codeBlock": {
         "title": "Codeblok",
         "fontSize": "Lettergrootte",
-        "fontFamily": "Lettertypefamilie",
         "showLineNumbers": "Regelnummers tonen",
         "removeEmptyLines": "Lege regels verwijderen"
       },
@@ -1024,6 +1033,9 @@
       "languageMissing": "Spellingcontroletaal ontbreekt {languageCode}",
       "switchError": "Spellingcontrole wisselfout voor {languageCode}, {error}",
       "title": "Spellingcontrole"
+    },
+    "tabs": {
+      "close": "{name} sluiten"
     }
   }
 }

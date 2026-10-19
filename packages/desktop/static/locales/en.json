@@ -262,6 +262,13 @@
       "settings": "Settings"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Application Menu",
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "restore": "Restore",
+    "close": "Close"
+  },
   "commandPalette": {
     "placeholder": "Type a command to execute",
     "placeholders": {
@@ -356,6 +363,7 @@
   },
   "preferences": {
     "title": "Preferences",
+    "learnMore": "Learn more about {name}",
     "search": {
       "placeholder": "Search preferences...",
       "categories": {
@@ -390,7 +398,7 @@
         "wrapCodeBlocks": "Wrap text inside code blocks",
         "editorLineWidth": "Defines the maximum editor area width. An empty string or suffixes of ch (characters), px (pixels) or % (percentage) are allowed",
         "codeFontSize": "Font size in code Block, the range is 12 ~ 18",
-        "codeFontFamily": "Font family used in code block",
+        "codeFontFamily": "Code font family. Applies to inline code and code blocks.",
         "codeBlockLineNumbers": "Whether to show the line numbers",
         "sourceCodeLineNumbers": "Show line numbers in source code mode",
         "trimUnnecessaryCodeBlockEmptyLines": "Trim the beginning and ending empty lines in code block",
@@ -542,12 +550,13 @@
         "fontFamily": "Font family",
         "maxWidth": "Max width",
         "maxWidthNotes": "Maximum width of editor content. Enter a number followed by px, ch (characters) or %, e.g. 800px, 80ch or 60%. Leave empty to use the default width.",
-        "maxWidthInvalid": "Enter a number followed by px, ch or %, e.g. 800px."
+        "maxWidthInvalid": "Enter a number followed by px, ch or %, e.g. 800px.",
+        "codeFontFamily": "Code font family",
+        "codeFontFamilyNotes": "Applies to inline code and code blocks."
       },
       "codeBlock": {
         "title": "Code Block",
         "fontSize": "Font size",
-        "fontFamily": "Font family",
         "showLineNumbers": "Show line numbers",
         "removeEmptyLines": "Remove empty lines"
       },
@@ -1024,6 +1033,9 @@
       "languageMissing": "Spellcheck language missing {languageCode}",
       "switchError": "Spellcheck switch error for {languageCode}, {error}",
       "title": "Spellcheck"
+    },
+    "tabs": {
+      "close": "Close {name}"
     }
   }
 }

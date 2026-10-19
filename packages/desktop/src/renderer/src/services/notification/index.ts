@@ -1,6 +1,7 @@
 import template from './index.html?raw'
 import { getUniqueId } from '../../util'
 import { sanitize, EXPORT_DOMPURIFY_CONFIG } from '../../util/dompurify'
+import { t } from '../../i18n'
 import './index.css'
 
 export type NotificationType = 'primary' | 'error' | 'warning' | 'info'
@@ -74,12 +75,16 @@ const notification: NotificationService = {
     const contentContainer = noticeContainer.querySelector('.content') as HTMLElement
     const fluent = noticeContainer.querySelector('.fluent') as HTMLElement
     const close = noticeContainer.querySelector('.close') as HTMLElement
+    const confirm = noticeContainer.querySelector('.confirm') as HTMLElement
     const { offsetHeight } = noticeContainer
     let target: HTMLElement = noticeContainer
 
+    close.setAttribute('aria-label', t('dialog.close'))
+    confirm.setAttribute('aria-label', t('common.ok'))
+
     if (showConfirm) {
       noticeContainer.classList.add('mt-confirm')
-      target = noticeContainer.querySelector('.confirm') as HTMLElement
+      target = confirm
     }
 
     noticeContainer.classList.add(TYPE_HASH[type])

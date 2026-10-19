@@ -5,8 +5,9 @@ import type { IConstructor } from '../types';
 import type Content from './content';
 import type { ILinkedNode } from './linkedList/linkedNode';
 import type Parent from './parent';
-import { BLOCK_DOM_PROPERTY } from '../../config';
+import { BLOCK_DOM_PROPERTY, CLASS_NAMES } from '../../config';
 import { createDomNode } from '../../utils/dom';
+import { isHiddenByFold, refreshFoldVisibility } from '../folding';
 
 class TreeNode implements ILinkedNode {
     prev: Nullable<TreeNode> = null;
@@ -113,10 +114,17 @@ class TreeNode implements ILinkedNode {
         this.domNode = domNode;
     }
 
-    // Get previous content block in block tree.
-    previousContentInContext(): Nullable<Content> {
+    /** Pass skipFolded for caret navigation; editing defaults to the full block tree. */
+    previousContentInContext(skipFolded = false): Nullable<Content> {
         if (this.isScrollPage || !this.parent)
             return null;
+
+        if (skipFolded) {
+            let content = this.previousContentInContext();
+            while (content && isHiddenByFold(content))
+                content = content.previousContentInContext();
+            return content;
+        }
 
         const { parent } = this;
 
@@ -140,10 +148,17 @@ class TreeNode implements ILinkedNode {
         return parent.previousContentInContext();
     }
 
-    // Get next content block in block tree.
-    nextContentInContext(): Nullable<Content> {
+    /** Pass skipFolded for caret navigation; editing defaults to the full block tree. */
+    nextContentInContext(skipFolded = false): Nullable<Content> {
         if (this.isScrollPage || !this.parent)
             return null;
+
+        if (skipFolded) {
+            let content = this.nextContentInContext();
+            while (content && isHiddenByFold(content))
+                content = content.nextContentInContext();
+            return content;
+        }
 
         const { parent } = this;
 
@@ -264,9 +279,12 @@ class TreeNode implements ILinkedNode {
         if (!this.parent)
             return;
 
-        this.parent.children.remove(this);
+        const parent = this.parent;
+        parent.children.remove(this);
         this.parent = null;
         this.domNode?.remove();
+        this.domNode?.classList.remove(CLASS_NAMES.MU_FOLDED_CONTENT);
+        refreshFoldVisibility(parent);
 
         return this;
     }

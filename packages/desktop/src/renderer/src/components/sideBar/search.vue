@@ -10,30 +10,42 @@
         @keyup="search"
       >
       <div class="controls">
-        <span
-          :title="t('search.caseSensitive')"
-          class="is-case-sensitive"
-          :class="{ active: isCaseSensitive }"
-          @click.stop="caseSensitiveClicked()"
-        >
-          <FindCaseIcon aria-hidden="true" />
-        </span>
-        <span
-          :title="t('search.wholeWord')"
-          class="is-whole-word"
-          :class="{ active: isWholeWord }"
-          @click.stop="wholeWordClicked()"
-        >
-          <FindWordIcon aria-hidden="true" />
-        </span>
-        <span
-          :title="t('search.useRegex')"
-          class="is-regex"
-          :class="{ active: isRegexp }"
-          @click.stop="regexpClicked()"
-        >
-          <FindRegexIcon aria-hidden="true" />
-        </span>
+        <icon-tooltip :content="t('search.caseSensitive')">
+          <button
+            type="button"
+            class="plain-button is-case-sensitive"
+            :class="{ active: isCaseSensitive }"
+            :aria-label="t('search.caseSensitive')"
+            :aria-pressed="isCaseSensitive"
+            @click.stop="caseSensitiveClicked()"
+          >
+            <FindCaseIcon aria-hidden="true" />
+          </button>
+        </icon-tooltip>
+        <icon-tooltip :content="t('search.wholeWord')">
+          <button
+            type="button"
+            class="plain-button is-whole-word"
+            :class="{ active: isWholeWord }"
+            :aria-label="t('search.wholeWord')"
+            :aria-pressed="isWholeWord"
+            @click.stop="wholeWordClicked()"
+          >
+            <FindWordIcon aria-hidden="true" />
+          </button>
+        </icon-tooltip>
+        <icon-tooltip :content="t('search.useRegex')">
+          <button
+            type="button"
+            class="plain-button is-regex"
+            :class="{ active: isRegexp }"
+            :aria-label="t('search.useRegex')"
+            :aria-pressed="isRegexp"
+            @click.stop="regexpClicked()"
+          >
+            <FindRegexIcon aria-hidden="true" />
+          </button>
+        </icon-tooltip>
       </div>
     </div>
 
@@ -119,6 +131,7 @@ import FindWordIcon from '@/assets/icons/searchIcons/iconWord.svg'
 import FindRegexIcon from '@/assets/icons/searchIcons/iconRegex.svg'
 import { VideoPause } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import type { SearchResult } from './types'
 
 const { t } = useI18n()
@@ -363,10 +376,10 @@ onMounted(() => {
     display: flex;
     flex-shrink: 0;
     margin-top: 0;
-    & > span {
-      cursor: pointer;
-      width: 18px;
-      height: 18px;
+    /* 24px is the minimum target size in WCAG 2.5.8. */
+    & > button {
+      width: 24px;
+      height: 24px;
       margin-left: 0;
       margin-right: 0;
       display: flex;

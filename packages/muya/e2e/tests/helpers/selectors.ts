@@ -18,6 +18,9 @@ export const editor = {
     paragraphContent: '.mu-paragraph-content',
     listItem: '.mu-list-item',
     atxHeading: '.mu-atx-heading',
+    foldToggle: '.mu-fold-toggle',
+    headingCopyLink: '.mu-copy-header-link',
+    foldedContent: '.mu-folded-content',
     setextHeading: '.mu-setext-heading',
     // A Shift+Enter soft line break inside a Format leaf renders as a
     // `<span.mu-soft-line-break>` wrapping a literal `\n`. Source of truth:

@@ -7,6 +7,15 @@ export function metaKey(): 'Meta' | 'Control' {
     return process.platform === 'darwin' ? 'Meta' : 'Control';
 }
 
+// Ctrl+Arrow moves by word on Windows/Linux, not to the line boundary.
+export function lineStartKey(): 'Meta+ArrowLeft' | 'Home' {
+    return process.platform === 'darwin' ? 'Meta+ArrowLeft' : 'Home';
+}
+
+export function lineEndKey(): 'Meta+ArrowRight' | 'End' {
+    return process.platform === 'darwin' ? 'Meta+ArrowRight' : 'End';
+}
+
 /** Click into the editor root so subsequent keyboard events land in muya. */
 export async function focusEditor(page: Page): Promise<void> {
     await page.locator(editor.container).click();

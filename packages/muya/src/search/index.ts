@@ -3,6 +3,7 @@ import type TreeNode from '../block/base/treeNode';
 import type { IHighlight } from '../inlineRenderer/types';
 import type { Muya } from '../muya';
 import type { IMatch, IReplaceOption, ISearchOption } from './types';
+import { unfoldAllSections } from '../block/folding';
 import { DEFAULT_SEARCH_OPTIONS } from '../config';
 import { buildRegexValue, matchString } from '../utils/search';
 
@@ -68,8 +69,9 @@ export class Search {
             if (block.parent?.active && !isActive)
                 block.blurHandler();
 
-            if (isActive && !isClear)
+            if (isActive && !isClear) {
                 block.focusHandler();
+            }
         }
     }
 
@@ -173,6 +175,9 @@ export class Search {
         // `selectHighlight` request can drop the cursor back onto it when the
         // new search has no match of its own (e.g. closing the search bar).
         const prevActiveMatch = this.matches[this.index];
+
+        if (query && this._scrollPage)
+            unfoldAllSections(this._scrollPage);
 
         // Empty last search.
         this._updateMatches(true);

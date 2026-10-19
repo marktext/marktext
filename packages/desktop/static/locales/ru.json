@@ -262,6 +262,13 @@
       "settings": "Настройки"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Меню приложения",
+    "minimize": "Свернуть",
+    "maximize": "Развернуть",
+    "restore": "Свернуть в окно",
+    "close": "Закрыть"
+  },
   "commandPalette": {
     "placeholder": "Введите команду",
     "placeholders": {
@@ -356,6 +363,7 @@
   },
   "preferences": {
     "title": "Настройки",
+    "learnMore": "Подробнее: {name}",
     "search": {
       "placeholder": "Поиск настроек...",
       "categories": {
@@ -390,7 +398,7 @@
         "wrapCodeBlocks": "Переносить текст внутри блоков кода",
         "editorLineWidth": "Максимальная ширина области редактора. Допускается пустая строка или суффиксы ch (символы), px (пиксели) или % (проценты)",
         "codeFontSize": "Размер шрифта в блоке кода, диапазон 12 ~ 18",
-        "codeFontFamily": "Семейство шрифтов в блоке кода",
+        "codeFontFamily": "Шрифт кода. Применяется к встроенному коду и блокам кода.",
         "codeBlockLineNumbers": "Показывать номера строк",
         "sourceCodeLineNumbers": "Показывать номера строк в режиме исходного кода",
         "trimUnnecessaryCodeBlockEmptyLines": "Обрезать пустые строки в начале и конце блока кода",
@@ -542,12 +550,13 @@
         "fontFamily": "Семейство шрифтов",
         "maxWidth": "Макс. ширина",
         "maxWidthNotes": "Максимальная ширина содержимого редактора. Введите число с суффиксом px, ch (символы) или %, например 800px, 80ch или 60%. Оставьте пустым для ширины по умолчанию.",
-        "maxWidthInvalid": "Введите число с суффиксом px, ch или %, например 800px."
+        "maxWidthInvalid": "Введите число с суффиксом px, ch или %, например 800px.",
+        "codeFontFamily": "Шрифт кода",
+        "codeFontFamilyNotes": "Применяется к встроенному коду и блокам кода."
       },
       "codeBlock": {
         "title": "Блок кода",
         "fontSize": "Размер шрифта",
-        "fontFamily": "Семейство шрифтов",
         "showLineNumbers": "Показывать номера строк",
         "removeEmptyLines": "Удалять пустые строки"
       },
@@ -1024,6 +1033,9 @@
       "languageMissing": "Язык проверки орфографии отсутствует {languageCode}",
       "switchError": "Ошибка переключения проверки орфографии для {languageCode}, {error}",
       "title": "Проверка орфографии"
+    },
+    "tabs": {
+      "close": "Закрыть {name}"
     }
   }
 }

@@ -262,6 +262,13 @@
       "settings": "Configuración"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Menú de la aplicación",
+    "minimize": "Minimizar",
+    "maximize": "Maximizar",
+    "restore": "Restaurar",
+    "close": "Cerrar"
+  },
   "commandPalette": {
     "placeholder": "Escriba un comando para ejecutar",
     "placeholders": {
@@ -356,6 +363,7 @@
   },
   "preferences": {
     "title": "Preferencias",
+    "learnMore": "Más información sobre {name}",
     "search": {
       "placeholder": "Buscar preferencias...",
       "categories": {
@@ -391,7 +399,7 @@
         "wrapCodeBlocks": "Ajustar texto dentro de bloques de código",
         "editorLineWidth": "Define el ancho máximo del área del editor. Se permite una cadena vacía o sufijos de ch (caracteres), px (píxeles) o % (porcentaje)",
         "codeFontSize": "Tamaño de fuente en bloque de código, el rango es 12 ~ 18",
-        "codeFontFamily": "Familia de fuente utilizada en bloque de código",
+        "codeFontFamily": "Fuente del código. Se aplica al código en línea y a los bloques de código.",
         "codeBlockLineNumbers": "Si mostrar los números de línea",
         "sourceCodeLineNumbers": "Mostrar números de línea en el modo código fuente",
         "trimUnnecessaryCodeBlockEmptyLines": "Recortar las líneas vacías del principio y final en bloque de código",
@@ -542,12 +550,13 @@
         "fontFamily": "Familia de fuente",
         "maxWidth": "Ancho máximo",
         "maxWidthNotes": "Ancho máximo del contenido del editor. Introduce un número seguido de px, ch (caracteres) o %, por ejemplo 800px, 80ch o 60%. Déjalo vacío para usar el ancho predeterminado.",
-        "maxWidthInvalid": "Introduce un número seguido de px, ch o %, por ejemplo 800px."
+        "maxWidthInvalid": "Introduce un número seguido de px, ch o %, por ejemplo 800px.",
+        "codeFontFamily": "Fuente del código",
+        "codeFontFamilyNotes": "Se aplica al código en línea y a los bloques de código."
       },
       "codeBlock": {
         "title": "Bloque de Código",
         "fontSize": "Tamaño de fuente",
-        "fontFamily": "Familia de fuente",
         "showLineNumbers": "Mostrar números de línea",
         "removeEmptyLines": "Eliminar líneas vacías"
       },
@@ -1024,6 +1033,9 @@
       "languageMissing": "Idioma del corrector ortográfico faltante {languageCode}",
       "switchError": "Error del corrector ortográfico para {languageCode}, {error}",
       "title": "Corrector ortográfico"
+    },
+    "tabs": {
+      "close": "Cerrar {name}"
     }
   }
 }

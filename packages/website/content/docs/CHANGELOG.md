@@ -1,3 +1,24 @@
+## 0.22.0
+
+### Features
+
+- Added GitHub Alerts with NOTE, TIP, IMPORTANT, WARNING, and CAUTION blocks, creation and conversion menus, a preference toggle, and HTML/PDF export support (#5771, #5774, #5775, #5776).
+- Reorganized theme settings and filtered system theme choices (#5737).
+
+### Fixes
+
+- Preserved selected text when pasting a URL and restored fetching page titles for pasted URLs (#5755, #5756).
+- Preserved list contents when copying backward selections (#5760).
+- Opened missing command-line files as named buffers (#5758).
+- Restored Windows image paths in PDF and other exports (#5716, #5732).
+- Stabilized typewriter scrolling at wrapped line starts (#5747).
+- Kept paragraph menus inside the window and canceled image resizing when rebuilding the document (#5711, #5721).
+- Improved task list marker contrast and included the application name in window titles (#5720, #5719).
+- Restored music notation rendering with bundled font fallbacks (#5722).
+- Clarified export table of contents settings and prevented dollar patterns in headings from appearing incorrectly in exported tables of contents (#5746, #5742).
+- Restored macOS Command+Up/Down document navigation (#5766).
+- Preserved automatic update metadata for both Windows and macOS architectures (#5705).
+
 ## 0.17.1
 
 - Added experimental native support for Apple M1 (see #2983 if you have issues).
@@ -339,13 +360,13 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Remove `lightColor` and `darkColor` in user preference (color change in view menu does not work any, and will remove when add custom theme.)
 - We recommend user not use block element in paragraph, please use block element in html block.
 
-*Not Recommended*
+_Not Recommended_
 
 ```md
 foo<section>bar</section>zar
 ```
 
-*Recommended*
+_Recommended_
 
 ```md
 <div>
@@ -684,7 +705,7 @@ You need uninstall the old version of MarkText before install version 0.10.21, b
 
 - adjust lineHeight and fontSize in typewriter mode
 - optimization of output unstylish html @fxha
--  Use 'fuzzaldrin' to filter language when insert code block
+- Use 'fuzzaldrin' to filter language when insert code block
 - Optimization: Obey the GFM and optimization of thematic break update. - Jocs
 - Optimization: More than six # characters is not a heading So we don't need to highlight `#` - Jocs
 - Optimization: A closing sequence of # characters is optional when write ATX heading - Jocs
@@ -706,7 +727,6 @@ You need uninstall the old version of MarkText before install version 0.10.21, b
 - fix: #88 (#108) - Felix Häusler
 - Allow exiting full screen with maximize button on windows (#109) - Felix Häusler
 - Bugfix: Caret can not move right when it's at the end of math format. #101 - Jocs
-
 
 ### 0.8.12
 
