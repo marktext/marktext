@@ -15,7 +15,7 @@ import { getIcon } from './config';
 import './index.css';
 
 const LEFT_OFFSET = 100;
-const FRONT_BUTTON_GAP = 24;
+const FRONT_BUTTON_GAP = 22;
 
 function defaultOptions() {
     return {
