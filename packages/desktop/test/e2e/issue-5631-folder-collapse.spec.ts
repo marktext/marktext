@@ -8,9 +8,6 @@ import { launchElectron } from './helpers'
 // #5631 — the Files tree is under a v-if, so switching to another sidebar view
 // remounts every folder. Expanded folders must stay expanded across that.
 
-const sideBarIcon = (page: Page, index: number) =>
-  page.locator('.side-bar .left-column > ul').first().locator('li').nth(index)
-
 const folderName = (page: Page, name: string) =>
   page.locator('.side-bar-folder > .folder-name', { hasText: name })
 
@@ -25,7 +22,7 @@ test.describe('#5631 folder collapse state survives a sidebar view switch', () =
     fs.mkdirSync(path.join(projectDir, 'sub', 'nested'), { recursive: true })
     fs.writeFileSync(path.join(projectDir, 'sub', 'nested', 'note.md'), '# Note\n', 'utf-8')
 
-    const launched = await launchElectron([projectDir])
+    const launched = await launchElectron([projectDir], { preferences: { language: 'en' } })
     app = launched.app
     page = launched.page
     // Opening a directory can attach to a window other than the first one.
@@ -50,7 +47,7 @@ test.describe('#5631 folder collapse state survives a sidebar view switch', () =
     if (projectDir) fs.rmSync(projectDir, { recursive: true, force: true })
   })
 
-  test('expanded folders stay expanded after switching to TOC and back', async() => {
+  test('expanded folders stay expanded after switching to Search and back', async() => {
     await expect(folderName(page, 'sub')).toBeVisible()
     await expect(folderName(page, 'nested')).toHaveCount(0)
 
@@ -58,9 +55,9 @@ test.describe('#5631 folder collapse state survives a sidebar view switch', () =
     await folderName(page, 'nested').click()
     await expect(page.locator('.side-bar-file[title$="note.md"]')).toBeVisible()
 
-    await sideBarIcon(page, 2).click() // TOC
+    await page.getByRole('button', { name: 'Search', exact: true }).click()
     await expect(folderName(page, 'sub')).toHaveCount(0)
-    await sideBarIcon(page, 0).click() // Files
+    await page.getByRole('button', { name: 'Files', exact: true }).click()
 
     await expect(page.locator('.side-bar-file[title$="note.md"]')).toBeVisible()
     await expect(folderName(page, 'sub').locator('.icon-arrow')).not.toHaveClass(/\bfold\b/)
