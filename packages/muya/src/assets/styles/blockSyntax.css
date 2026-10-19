@@ -20,7 +20,9 @@
     max-width: var(--editor-area-width, 800px);
     min-height: 100%;
     margin: 0 auto;
-    padding: 0 50px 100px;
+
+    /* Leave room for both heading controls and the floating block handle. */
+    padding: 0 50px 100px 74px;
 
     color: var(--editor-color);
 
@@ -93,7 +95,6 @@
     font-size: 1em;
 }
 
-/* Keep the anchor inside the 50px gutter so narrow editor viewports do not clip it. */
 .mu-container h1 > .mu-copy-header-link,
 .mu-container h2 > .mu-copy-header-link,
 .mu-container h3 > .mu-copy-header-link,
@@ -142,11 +143,11 @@
     height: 14px;
 }
 
-/* The right gutter leaves the copy-anchor and floating block handle unobstructed. */
+/* Keep folding to the left of the copy-link, clear of the block handle. */
 .mu-container :is(h1, h2, h3, h4, h5, h6) > .mu-fold-toggle {
     position: absolute;
     top: 0;
-    right: -40px;
+    left: -64px;
 
     display: inline-flex;
     align-items: center;
