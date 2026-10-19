@@ -205,18 +205,6 @@
 .side-bar {
   border-right: 1px solid #181a1f !important;
 }
-.left-column ul > li > svg {
-  fill: rgba(215, 218, 224, 0.6) !important;
-}
-.left-column ul > li:hover > svg {
-  fill: #d7dae0 !important;
-}
-.left-column ul > li:hover > svg {
-  fill: #d7dae0 !important;
-}
-.left-column ul > li.active > svg {
-  fill: #4d78cc !important;
-}
 
 .open-project button.button-primary,
 .recent-files-projects button.button-primary {

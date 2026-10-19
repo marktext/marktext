@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import bus from '../bus'
 import { usePreferencesStore } from './preferences'
 import { debouncedSendBufferedState } from './bufferedState'
+import type { LayoutState } from '@shared/types/preferences'
 
 interface LayoutPartial {
   rightColumn?: string
@@ -48,19 +49,13 @@ const initialSideBarWidth = normalizeSideBarWidth(initialWidth)
 export const useLayoutStore = defineStore('layout', () => {
   const preferencesStore = usePreferencesStore()
   const showToc = computed(() => preferencesStore.tocVisibility)
-  const rightColumn = ref<string>('files')
+  const rightColumn = ref<LayoutState['rightColumn']>('files')
   const showSideBar = ref(false)
   const showTabBar = ref(false)
   const sideBarWidth = ref<number>(initialSideBarWidth)
 
-  // Actual rendered sidebar width. `sideBarWidth` is the right-column width
-  // (clamped to ≥220 by `normalizeSideBarWidth`); when `rightColumn` is empty
-  // the sidebar collapses to its 45px icon strip. Consumers that need to
-  // subtract the sidebar from viewport space must use this, not the raw ref.
   const effectiveSideBarWidth = computed<number>(() => {
-    if (!showSideBar.value) return 0
-    if (!rightColumn.value) return 45
-    return Number(sideBarWidth.value)
+    return showSideBar.value ? Number(sideBarWidth.value) : 0
   })
 
   function SET_LAYOUT(
@@ -80,8 +75,8 @@ export const useLayoutStore = defineStore('layout', () => {
         value: !!layout.showSideBar
       })
     }
-    // Older sessions stored the outline as a sidebar page.
-    if (layout.rightColumn !== undefined) rightColumn.value = layout.rightColumn === 'toc' ? 'files' : layout.rightColumn
+    // Older sessions could restore an outline page or an icon-only strip.
+    if (layout.rightColumn !== undefined) rightColumn.value = layout.rightColumn === 'search' ? 'search' : 'files'
     if (layout.showSideBar !== undefined) showSideBar.value = !!layout.showSideBar
     if (layout.showTabBar !== undefined) showTabBar.value = !!layout.showTabBar
     if (layout.sideBarWidth !== undefined) sideBarWidth.value = layout.sideBarWidth as number
@@ -149,7 +144,6 @@ export const useLayoutStore = defineStore('layout', () => {
       if (l.rightColumn) {
         SET_LAYOUT({
           ...l,
-          rightColumn: l.rightColumn === rightColumn.value ? '' : l.rightColumn,
           showSideBar: true
         })
       } else {
@@ -182,10 +176,6 @@ export const useLayoutStore = defineStore('layout', () => {
     })
   }
 
-  function CHANGE_SIDE_BAR_WIDTH(width: number | string): void {
-    SET_SIDE_BAR_WIDTH(width)
-  }
-
   watch(showToc, DISPATCH_LAYOUT_MENU_ITEMS)
 
   return {
@@ -201,7 +191,6 @@ export const useLayoutStore = defineStore('layout', () => {
     TOGGLE_LAYOUT_ENTRY,
     SET_SIDE_BAR_WIDTH,
     LISTEN_FOR_LAYOUT,
-    DISPATCH_LAYOUT_MENU_ITEMS,
-    CHANGE_SIDE_BAR_WIDTH
+    DISPATCH_LAYOUT_MENU_ITEMS
   }
 })

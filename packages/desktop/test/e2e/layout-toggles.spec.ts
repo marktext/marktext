@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown, clickMenuById } from './helpers'
+import * as path from 'node:path'
+import { launchWithMarkdown, clickMenuById, openProjectFolder, sendIpcToRenderer } from './helpers'
 
 // Wait until a `v-show`-toggled element's visibility differs from `wasVisible`.
 // A missing element counts as "not visible", so the change-detection logic
@@ -19,11 +20,13 @@ const waitForVisibilityFlip = (page: Page, selector: string, wasVisible: boolean
 test.describe('Layout panel toggles', () => {
   let app: ElectronApplication
   let page: Page
+  let filePath: string
 
   test.beforeAll(async() => {
     const launched = await launchWithMarkdown('# Layout\n\n## Section A\n\n## Section B\n')
     app = launched.app
     page = launched.page
+    filePath = launched.filePath
   })
 
   test.afterAll(async() => {
@@ -70,71 +73,75 @@ test.describe('Layout panel toggles', () => {
     await clickMenuById(app, 'tocMenuItem')
   })
 
-  // Regression for the gap left between the sidebar and editor when the
-  // sidebar collapses to its 45px icon strip (rightColumn=''). The store's
-  // `sideBarWidth` is clamped to ≥220, so the editor's max-width must come
-  // from the *effective* sidebar width, not the raw store value.
-  test('Editor fills width after collapsing sidebar to icon strip', async() => {
-    // Ensure sidebar is visible.
+  test('Search returns to files with the back button and Escape', async() => {
     const sideBar = page.locator('.side-bar')
-    if (!(await sideBar.isVisible())) {
-      await clickMenuById(app, 'sideBarMenuItem')
-      await page.waitForFunction(
-        () => {
-          const el = document.querySelector('.side-bar') as HTMLElement | null
-          return !!(el && el.offsetParent !== null)
-        },
-        null,
-        { timeout: 5000 }
-      )
-    }
+    if (!(await sideBar.isVisible())) await clickMenuById(app, 'sideBarMenuItem')
+    const searchButton = sideBar.locator('.search-button')
+    const input = sideBar.locator('.search-input')
+    const width = await sideBar.evaluate(el => el.getBoundingClientRect().width)
 
-    // Open search panel and then collapse it back to the icon strip by
-    // clicking the search icon. We use a locator-based click (not a DOM
-    // .click()) so Playwright handles focus/activation correctly.
-    const searchIcon = page.locator('.side-bar .left-column > ul').first().locator('li').nth(1)
-
-    // Step 1: ensure rightColumn='search' (sidebar width ≥ 220 with the
-    // search panel mounted at `.side-bar-search`).
-    for (let i = 0; i < 3; i++) {
-      const { width, hasSearch } = await page.evaluate(() => {
-        const sb = document.querySelector('.side-bar') as HTMLElement | null
-        return {
-          width: sb ? Math.round(sb.getBoundingClientRect().width) : 0,
-          hasSearch: !!document.querySelector('.side-bar .right-column .side-bar-search')
-        }
-      })
-      if (width >= 220 && hasSearch) break
-      await searchIcon.click()
-      await page.waitForTimeout(250)
-    }
-
-    // Step 2: click search icon again to collapse to icon strip. The sidebar
-    // shrinks to its 45px icon column (+1px border-right = 46px outer width).
-    await searchIcon.click()
-    await page.waitForFunction(
-      () => {
-        const sb = document.querySelector('.side-bar') as HTMLElement | null
-        return !!sb && sb.getBoundingClientRect().width <= 50
-      },
-      null,
-      { timeout: 5000 }
-    )
-
-    const { editorWidth, sideBarWidth, viewportWidth } = await page.evaluate(() => {
-      const editor = document.querySelector('.editor-with-tabs') as HTMLElement | null
-      const sb = document.querySelector('.side-bar') as HTMLElement | null
-      return {
-        editorWidth: editor ? editor.getBoundingClientRect().width : 0,
-        sideBarWidth: sb ? sb.getBoundingClientRect().width : 0,
-        viewportWidth: window.innerWidth
-      }
+    await expect(sideBar.locator('.left-column')).toHaveCount(0)
+    const searchIconCenter = await searchButton.evaluate(el => {
+      const box = el.getBoundingClientRect()
+      return box.y + box.height / 2
     })
-    // Sidebar is the 45px icon strip (+1px border). The editor must consume
-    // the remaining viewport width — before the fix it was capped by the
-    // store's `sideBarWidth` (clamped to ≥220), leaving a 175+ px gap to the
-    // right of the editor.
-    expect(sideBarWidth).toBeLessThanOrEqual(50)
-    expect(Math.abs(editorWidth - (viewportWidth - sideBarWidth))).toBeLessThanOrEqual(1)
+    await searchButton.click()
+    await expect(input).toBeFocused()
+    const searchBoxCenter = await sideBar.locator('.search-wrapper').evaluate(el => {
+      const box = el.getBoundingClientRect()
+      return box.y + box.height / 2
+    })
+    expect(Math.abs(searchBoxCenter - searchIconCenter)).toBeLessThanOrEqual(1)
+    await expect(sideBar.locator('.controls button')).toHaveCount(3)
+    await expect(sideBar.locator('.settings-button')).toBeVisible()
+    expect(await sideBar.evaluate(el => el.getBoundingClientRect().width)).toBe(width)
+
+    await input.dispatchEvent('keydown', { key: 'Escape', isComposing: true })
+    await expect(input).toBeVisible()
+    await input.dispatchEvent('keydown', { key: 'Escape', keyCode: 229 })
+    await expect(input).toBeVisible()
+    await input.press('Escape')
+    await expect(sideBar.locator('.tree-view')).toBeVisible()
+    await expect(searchButton).not.toBeFocused()
+
+    await searchButton.click()
+    await sideBar.locator('.back-button').click()
+    await expect(searchButton).toBeFocused()
+    expect(await sideBar.evaluate(el => el.getBoundingClientRect().width)).toBe(width)
+  })
+
+  test('Existing folder search and result navigation still work at minimum width', async() => {
+    await openProjectFolder(app, page, path.dirname(filePath), filePath)
+    await sendIpcToRenderer(app, 'mt::set-view-layout', { sideBarWidth: 220 })
+    await sendIpcToRenderer(app, 'mt::editor-edit-action', 'findInFolder')
+    const sideBar = page.locator('.side-bar')
+    const input = sideBar.locator('.search-input')
+    await expect(input).toBeFocused()
+    await input.fill('Section')
+    await input.press('Enter')
+    await expect(sideBar.locator('.search-result-item')).toHaveCount(1)
+    await expect(sideBar.locator('.search-result-item .matches li')).toHaveCount(2)
+    await sideBar.locator('.search-result-item .matches li').first().click()
+    await expect(input).toBeVisible()
+    await expect(sideBar.locator('.settings-button')).toBeVisible()
+
+    const inputBox = await input.evaluate(el => el.getBoundingClientRect().toJSON())
+    const controlsBox = await sideBar.locator('.controls').evaluate(el => el.getBoundingClientRect().toJSON())
+    expect(inputBox.width).toBeGreaterThan(50)
+    expect(controlsBox.x).toBeGreaterThanOrEqual(inputBox.x + inputBox.width - 1)
+    await sideBar.locator('.back-button').click()
+  })
+
+  test('Editor fills width after hiding the sidebar', async() => {
+    const sideBar = page.locator('.side-bar')
+    if (await sideBar.isVisible()) await clickMenuById(app, 'sideBarMenuItem')
+    await expect(sideBar).toBeHidden()
+    await expect.poll(async() => page.evaluate(() => {
+      const editor = document.querySelector('.editor-with-tabs')
+      if (!editor) throw new Error('Editor is not mounted')
+      return Math.abs(editor.getBoundingClientRect().width - window.innerWidth)
+    })).toBeLessThanOrEqual(1)
+    await clickMenuById(app, 'sideBarMenuItem')
+    await expect(sideBar).toBeVisible()
   })
 })

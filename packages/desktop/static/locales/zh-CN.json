@@ -234,6 +234,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "返回文件",
       "searchInFolder": "在文件夹中搜索…",
       "noFolderOpen": "没有打开的文件夹",
       "noResultsFound": "未找到结果。",
@@ -260,7 +261,6 @@
     "icons": {
       "files": "文件",
       "search": "搜索",
-      "toc": "目录",
       "settings": "设置"
     }
   },

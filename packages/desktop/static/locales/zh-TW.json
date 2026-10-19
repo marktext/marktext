@@ -234,6 +234,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "返回檔案",
       "searchInFolder": "在資料夾中搜尋…",
       "noFolderOpen": "沒有開啟的資料夾",
       "noResultsFound": "找不到結果。",
@@ -260,7 +261,6 @@
     "icons": {
       "files": "檔案",
       "search": "搜尋",
-      "toc": "目錄",
       "settings": "設定"
     }
   },

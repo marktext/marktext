@@ -234,6 +234,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Dosyalara dön",
       "searchInFolder": "Klasörde ara...",
       "noFolderOpen": "Açık klasör yok",
       "noResultsFound": "Sonuç bulunamadı.",
@@ -260,7 +261,6 @@
     "icons": {
       "files": "Dosyalar",
       "search": "Ara",
-      "toc": "İçindekiler",
       "settings": "Ayarlar"
     }
   },

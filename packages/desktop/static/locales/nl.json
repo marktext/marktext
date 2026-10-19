@@ -234,6 +234,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Terug naar bestanden",
       "searchInFolder": "Zoeken in map...",
       "noFolderOpen": "Geen map geopend",
       "noResultsFound": "Geen resultaten gevonden.",
@@ -260,7 +261,6 @@
     "icons": {
       "files": "Bestanden",
       "search": "Zoeken",
-      "toc": "Inhoudsopgave",
       "settings": "Instellingen"
     }
   },
