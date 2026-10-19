@@ -9,7 +9,6 @@
       :data="keyedToc"
       node-key="key"
       :default-expanded-keys="expandedKeys"
-      :current-node-key="activeNodeKey"
       highlight-current
       :props="defaultProps"
       :expand-on-click-node="false"
@@ -164,11 +163,12 @@ const activeNodeKey = computed<string>(() => {
   return findKey(keyedToc.value)
 })
 
-// `current-node-key` only seeds el-tree at mount; later changes need the setter.
+// The current-node-key prop also expands ancestors, so synchronize only through
+// the setter to preserve user-collapsed sections during heading changes.
 const revealActiveHeading = async(): Promise<void> => {
   await nextTick()
   const tree = tocTreeRef.value
-  tree?.setCurrentKey(activeNodeKey.value || undefined)
+  tree?.setCurrentKey(activeNodeKey.value || undefined, false)
   if (!tree || props.visible === false) return
   const treeElement = tree.$el as HTMLElement
   let node = activeNodeKey.value ? tree.getNode(activeNodeKey.value) : null
@@ -176,7 +176,7 @@ const revealActiveHeading = async(): Promise<void> => {
     if (!ancestor.expanded) node = ancestor
   }
   if (!node) return
-  tree.setCurrentKey(node.key)
+  tree.setCurrentKey(node.key, false)
   if (preserveOutlinePosition) return
   const label = Array.from(treeElement.querySelectorAll<HTMLElement>('[data-toc-key]'))
     .find(element => element.dataset.tocKey === node.key)
