@@ -18,6 +18,7 @@ import {
     isKeyboardEvent,
     isMouseEvent,
 } from '../../utils';
+import { isFoldableHeading } from '../commonMark/atxHeading/foldSection';
 import { revealBlock, visibleContentInContext } from '../folding';
 
 // import logger from './utils/logger'
@@ -549,7 +550,7 @@ class Content extends TreeNode {
         }
         else {
             cursorBlock = visibleContentInContext(this, 'next');
-            if (!cursorBlock && this.text.length > 0 && !this.parent?.domNode?.classList.contains(CLASS_NAMES.MU_FOLDED)) {
+            if (!cursorBlock && this.text.length > 0 && !(isFoldableHeading(this.parent) && this.parent.folded)) {
                 const newNodeState = { name: 'paragraph', text: '' };
                 const newNode = ScrollPage.loadBlock(newNodeState.name).create(
                     this.muya,

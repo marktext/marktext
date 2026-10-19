@@ -133,11 +133,13 @@ for (const key of ['ArrowLeft', 'ArrowUp']) {
     });
 }
 
-test('ArrowDown at the last folded section does not create a block or unfold it', async ({ page }) => {
+test('ArrowDown at the last folded section uses fold state even without its CSS class', async ({ page }) => {
     const markdown = '# ABC\n\nalpha\n';
     await foldAndPlaceCaret(page, 'end', markdown);
+    await page.locator(editor.atxHeading).evaluate(heading => heading.classList.remove('mu-folded'));
     await page.keyboard.press('ArrowDown');
     expect(await getMarkdown(page)).toBe(markdown);
+    await expect(page.locator(editor.paragraph)).toHaveCount(1);
     await expect(page.locator(editor.foldToggle)).toHaveAttribute('aria-expanded', 'false');
 });
 
