@@ -18,6 +18,8 @@ import {
     isKeyboardEvent,
     isMouseEvent,
 } from '../../utils';
+import { isFoldableHeading } from '../commonMark/atxHeading/foldSection';
+import { revealBlock } from '../folding';
 
 // import logger from './utils/logger'
 
@@ -481,6 +483,11 @@ class Content extends TreeNode {
     // Do nothing.
     }
 
+    /** Return true to consume a block shortcut before the default key routing. */
+    beforeKeydown(_event: KeyboardEvent): boolean {
+        return false;
+    }
+
     enterHandler(_event: Event): void {
     // Do nothing.
     }
@@ -493,14 +500,27 @@ class Content extends TreeNode {
             event.preventDefault();
     }
 
+    private _revealArrowSelectionTarget(event: KeyboardEvent, start: number, end: number): void {
+        const rtl = this.domNode?.closest('[dir]')?.getAttribute('dir') === 'rtl';
+        const backwards = event.key === EVENT_KEYS.ArrowUp || event.key === (rtl ? EVENT_KEYS.ArrowRight : EVENT_KEYS.ArrowLeft);
+        if (backwards ? start !== 0 : end !== this.text.length)
+            return;
+        const target = backwards ? this.previousContentInContext() : this.nextContentInContext();
+        if (target)
+            revealBlock(target);
+    }
+
     arrowHandler(event: Event) {
         if (!isKeyboardEvent(event))
             return;
 
         const { start, end } = this.getCursor()!;
 
-        // Just do nothing if the cursor is not collapsed or `shiftKey` pressed
-        if (start.offset !== end.offset || event.shiftKey)
+        if (event.shiftKey) {
+            this._revealArrowSelectionTarget(event, start.offset, end.offset);
+            return;
+        }
+        if (start.offset !== end.offset)
             return;
 
         if (this._deferArrowToBrowser(event, start.offset, end.offset))
@@ -517,7 +537,7 @@ class Content extends TreeNode {
         let offset = 0;
 
         if (direction === 'up') {
-            const previousContentBlock = this.previousContentInContext();
+            const previousContentBlock = this.previousContentInContext(true);
             if (!previousContentBlock) {
                 if (event.key === EVENT_KEYS.ArrowUp && start.offset !== 0)
                     this.setCursor(0, 0, true);
@@ -529,8 +549,8 @@ class Content extends TreeNode {
             offset = this._upArrowOffset(previousContentBlock, event);
         }
         else {
-            cursorBlock = this.nextContentInContext();
-            if (!cursorBlock && this.text.length > 0) {
+            cursorBlock = this.nextContentInContext(true);
+            if (!cursorBlock && this.text.length > 0 && !(isFoldableHeading(this.parent) && this.parent.folded)) {
                 const newNodeState = { name: 'paragraph', text: '' };
                 const newNode = ScrollPage.loadBlock(newNodeState.name).create(
                     this.muya,
@@ -919,6 +939,9 @@ class Content extends TreeNode {
 
     keydownHandler = (event: Event) => {
         if (!isKeyboardEvent(event))
+            return;
+
+        if (this.beforeKeydown(event))
             return;
 
         if (this.muya.ui.handleContentKeydown(event))

@@ -8,6 +8,7 @@ import type { Muya } from '../muya';
 import type { Nullable } from '../types';
 import type Selection from './index';
 import type { IAnchorFocusInfo, INodeOffset, ISelection, ISelectionEndpoints } from './types';
+import { revealBlock } from '../block/folding';
 import { isHTMLElement, isMouseEvent } from '../utils';
 import logger from '../utils/logger';
 import {
@@ -247,6 +248,8 @@ class TextSelection {
     }
 
     setSelection(anchor: IAnchorFocusInfo, focus: IAnchorFocusInfo) {
+        revealBlock(anchor.block);
+        revealBlock(focus.block);
         this.anchor = { offset: anchor.offset };
         this.anchorBlock = anchor.block;
         this.anchorPath = anchor.path;
