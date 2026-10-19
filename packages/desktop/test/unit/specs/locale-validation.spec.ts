@@ -86,7 +86,7 @@ const TECHNICAL_TERMS: Array<{ path: string; mustContain: string }> = [
 
 // Not a script property — ru is Cyrillic and still keeps the English product
 // names — so membership is per-locale convention, not per-alphabet.
-const TERM_PRESERVING_LOCALES = ['de', 'es', 'fr', 'nl', 'pt', 'ru']
+const TERM_PRESERVING_LOCALES = ['de', 'es', 'fr', 'it', 'nl', 'pt', 'ru']
 
 const getAvailableLocales = (): string[] =>
   fs.readdirSync(LOCALES_DIR)
