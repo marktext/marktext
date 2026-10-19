@@ -3,6 +3,8 @@
     "counter": {
       "words": "単語数",
       "characters": "文字数",
+      "charactersNoSpaces": "文字数（スペースなし）",
+      "charactersWithSpaces": "文字数（スペースあり）",
       "paragraphs": "段落数",
       "allCharacters": "すべての文字数",
       "document": "文書",
@@ -269,7 +271,15 @@
     "minimize": "最小化",
     "maximize": "最大化",
     "restore": "元に戻す (縮小)",
-    "close": "閉じる"
+    "close": "閉じる",
+    "documentStatistics": {
+      "title": "文書の統計",
+      "fileInformation": "ファイル情報",
+      "created": "作成日時",
+      "lastModified": "変更日時",
+      "unavailable": "—",
+      "open": "文書の統計を開く"
+    }
   },
   "commandPalette": {
     "placeholder": "実行するコマンドの入力",

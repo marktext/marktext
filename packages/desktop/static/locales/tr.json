@@ -3,6 +3,8 @@
     "counter": {
       "words": "Sözcükler",
       "characters": "Karakterler",
+      "charactersNoSpaces": "Karakterler (boşluksuz)",
+      "charactersWithSpaces": "Karakterler (boşluklu)",
       "paragraphs": "Paragraflar",
       "allCharacters": "Tüm karakterler",
       "document": "Belge",
@@ -269,7 +271,15 @@
     "minimize": "Simge Durumuna Küçült",
     "maximize": "Ekranı Kapla",
     "restore": "Önceki Boyut",
-    "close": "Kapat"
+    "close": "Kapat",
+    "documentStatistics": {
+      "title": "Belge istatistikleri",
+      "fileInformation": "Dosya bilgileri",
+      "created": "Oluşturulma",
+      "lastModified": "Değişti",
+      "unavailable": "—",
+      "open": "Belge istatistiklerini aç"
+    }
   },
   "commandPalette": {
     "placeholder": "Çalıştırmak için bir komut yazın",

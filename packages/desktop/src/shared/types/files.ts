@@ -8,7 +8,9 @@ export type LineEnding = 'lf' | 'crlf'
 
 export interface SerializedStat {
   size: number
+  birthtimeMs: number
   mtimeMs: number
+  ctimeMs: number
   isFile: boolean
   isDirectory: boolean
   isSymbolicLink?: boolean

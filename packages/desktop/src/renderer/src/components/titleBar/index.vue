@@ -61,37 +61,13 @@
         >
           <span class="text-center-vertical">&#9776;</span>
         </button>
-        <el-tooltip
+        <document-statistics
           v-if="wordCount"
-          class="item"
-          popper-class="word-count-tooltip"
-          placement="bottom-end"
-        >
-          <template #content>
-            <div class="title-section">
-              {{ selectionWordCount ? t('menu.counter.documentSelection') : t('menu.counter.document') }}
-            </div>
-            <div class="title-item">
-              <span class="front">{{ t('menu.counter.words') }}:</span><span class="text">{{ formatCountPair('word') }}</span>
-            </div>
-            <div class="title-item">
-              <span class="front">{{ t('menu.counter.characters') }}:</span><span class="text">{{ formatCountPair('character') }}</span>
-            </div>
-            <div class="title-item">
-              <span class="front">{{ t('menu.counter.paragraphs') }}:</span><span class="text">{{ formatCountPair('paragraph') }}</span>
-            </div>
-            <div class="title-item">
-              <span class="front">{{ t('menu.counter.allCharacters') }}:</span><span class="text">{{ formatCountPair('all') }}</span>
-            </div>
-          </template>
-          <div
-            v-if="wordCount"
-            class="word-count"
-            @click.stop="handleWordClick"
-          >
-            <span class="text-center-vertical">{{ wordCountText }}</span>
-          </div>
-        </el-tooltip>
+          :pathname="pathname"
+          :word-count="wordCount"
+          :selection-word-count="selectionWordCount"
+          :is-saved="isSaved"
+        />
       </div>
       <div
         v-if="titleBarStyle === 'custom' && !isFullScreen && !isOsx"
@@ -179,6 +155,7 @@ import { useEditorStore } from '@/store/editor'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
 import IconTooltip from '@/components/iconTooltip/index.vue'
+import DocumentStatistics from './documentStatistics.vue'
 import type { FileWordCount } from '@shared/types/files'
 
 interface ProjectInfo {
@@ -203,12 +180,6 @@ const editorStore = useEditorStore()
 const { t } = useI18n()
 
 const isOsx = isOsxPlatform
-const HASH = {
-  word: { short: 'W' },
-  character: { short: 'C' },
-  paragraph: { short: 'P' },
-  all: { short: 'A' }
-}
 const windowIconMinimize = minimizePath
 const windowIconRestore = restorePath
 const windowIconMaximize = maximizePath
@@ -216,7 +187,6 @@ const windowIconClose = closePath
 
 const isFullScreen = ref(false)
 const isMaximized = ref(false)
-const show = ref<'word' | 'paragraph' | 'character' | 'all'>('word')
 
 onMounted(async () => {
   try {
@@ -240,22 +210,6 @@ const showCustomTitleBar = computed(() => {
   return titleBarStyle.value === 'custom' && !isOsx
 })
 
-const wordCountText = computed(() => {
-  if (!props.wordCount) return ''
-
-  const value = props.wordCount[show.value]
-  const selectionValue = props.selectionWordCount?.[show.value]
-  return selectionValue == null
-    ? `${HASH[show.value].short} ${value}`
-    : `${HASH[show.value].short} ${value} / ${selectionValue}`
-})
-
-const formatCountPair = (key: keyof FileWordCount) => {
-  const value = props.wordCount?.[key] ?? 0
-  const selectionValue = props.selectionWordCount?.[key]
-  return selectionValue == null ? `${value}` : `${value} / ${selectionValue}`
-}
-
 const showTitleBar = computed(() => {
   return shouldShowInAppTitleBar(titleBarStyle.value, isOsx)
 })
@@ -270,15 +224,6 @@ watch(
     document.title = buildWindowTitle(value, props.project?.name ?? '', isOsx)
   }
 )
-
-const handleWordClick = () => {
-  const ITEMS = ['word', 'paragraph', 'character', 'all'] as const
-  const len = ITEMS.length
-  let index = ITEMS.indexOf(show.value)
-  index += 1
-  if (index >= len) index = 0
-  show.value = ITEMS[index]!
-}
 
 const handleCloseClick = () => {
   window.electron.windowControl.close()
@@ -378,7 +323,7 @@ img {
   vertical-align: top;
 }
 .title {
-  padding: 0 142px;
+  padding: 0 190px;
   height: 100%;
   line-height: var(--titleBarHeight);
   font-size: 14px;
@@ -449,7 +394,7 @@ div.title > span > .path > bdi > span {
   position: absolute;
   top: 0;
   left: 0;
-  width: 118px; /* + 2*10px padding*/
+  width: 190px; /* + 2*10px padding*/
   display: flex;
   flex-direction: row;
 }
@@ -458,37 +403,12 @@ div.title > span > .path > bdi > span {
   position: absolute;
   top: 0;
   right: 0;
-  width: 138px;
+  width: 190px;
   display: flex;
   align-items: center;
   flex-direction: row-reverse;
   & .item {
     margin-right: 10px;
-  }
-}
-
-.title-section {
-  font-weight: 600;
-  margin: 2px 0 4px;
-}
-
-.word-count {
-  -webkit-app-region: no-drag;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--editorColor30);
-  text-align: center;
-  line-height: 24px;
-  padding: 0 5px;
-  box-sizing: border-box;
-  transition: all 0.25s ease-in-out;
-  & > .text-center-vertical {
-    padding: 2px 5px;
-    border-radius: 3px;
-  }
-  &:hover > span {
-    background: var(--sideBarBgColor);
-    color: var(--sideBarTitleColor);
   }
 }
 
@@ -505,6 +425,7 @@ div.title > span > .path > bdi > span {
 /* `.right-toolbar` lays its items out in reverse. The window controls are
    listed minimize → close and laid out forwards, so Tab moves left to right. */
 .window-controls {
+  width: 138px;
   flex-direction: row;
 }
 .frameless-titlebar-button > span {
@@ -535,18 +456,5 @@ div.title > span > .path > bdi > span {
   display: inline-block;
   vertical-align: middle;
   line-height: normal;
-}
-</style>
-
-<style>
-.title-item {
-  height: 28px;
-  line-height: 28px;
-  & .front {
-    opacity: 0.7;
-  }
-  & .text {
-    margin-left: 10px;
-  }
 }
 </style>
