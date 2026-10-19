@@ -156,11 +156,13 @@ test.describe('table grid after Undo removed the line that opened it (#5355)', (
             const line = [...document.querySelectorAll('.mu-paragraph')].find(node => node.textContent?.startsWith('Line 40'));
             return { top: line!.getBoundingClientRect().top, viewport: window.innerHeight, scrollTop: document.scrollingElement!.scrollTop };
         });
-        const before = await lineTop();
-        expect(before.scrollTop).toBeGreaterThan(0);
+        expect((await lineTop()).scrollTop).toBeGreaterThan(0);
 
         await undo(page);
         await expect.poll(() => getMarkdown(page)).toBe(`${lines.join('\n\n')}\n`);
+        await nextFrames(page);
+        // Undo can restore another caret and scroll; only the stale pick must leave that position unchanged.
+        const before = await lineTop();
         await pickGridCell(page);
         await nextFrames(page);
 

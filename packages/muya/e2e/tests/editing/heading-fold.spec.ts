@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 import { expect, test } from '../fixtures/muya';
 import { getMarkdown } from '../helpers/api';
-import { loadMarkdown, metaKey } from '../helpers/keyboard';
+import { lineEndKey, lineStartKey, loadMarkdown, metaKey } from '../helpers/keyboard';
 import { editor, toolbar } from '../helpers/selectors';
 
 test.describe('heading fold', () => {
@@ -15,7 +15,9 @@ test.describe('heading fold', () => {
         await expect(page.locator(editor.paragraph)).toBeHidden();
         await page.keyboard.press('ArrowRight');
         await expect(page.locator(editor.paragraph)).toBeHidden();
-        await page.keyboard.press(`${metaKey()}+ArrowRight`);
+        await expect.poll(() => page.evaluate(() => window.muya!.editor.activeContentBlock?.text)).toBe('# B');
+        await page.keyboard.press(lineEndKey());
+        await expect.poll(() => page.evaluate(() => window.muya!.editor.selection.anchor?.offset)).toBe(3);
         await page.keyboard.type('X');
         await expect.poll(() => getMarkdown(page)).toBe('# A\n\nsecret\n\n# BX\n');
     });
@@ -223,8 +225,8 @@ for (const key of ['Shift+ArrowRight', 'Shift+ArrowDown']) {
 test('line navigation and Tab do not change the folded document', async ({ page }) => {
     await foldAndPlaceCaret(page, 'end');
     const before = await getMarkdown(page);
-    await page.keyboard.press(`${metaKey()}+ArrowLeft`);
-    await page.keyboard.press(`${metaKey()}+ArrowRight`);
+    await page.keyboard.press(lineStartKey());
+    await page.keyboard.press(lineEndKey());
     await page.keyboard.press('Tab');
     await page.keyboard.press('Shift+Tab');
     expect(await getMarkdown(page)).toBe(before);
