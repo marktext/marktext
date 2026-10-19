@@ -3,6 +3,8 @@
     "counter": {
       "words": "字数",
       "characters": "字符数",
+      "charactersNoSpaces": "字符数（不含空格）",
+      "charactersWithSpaces": "字符数（含空格）",
       "paragraphs": "段落数",
       "allCharacters": "总字符数",
       "document": "文档",
@@ -269,7 +271,15 @@
     "minimize": "最小化",
     "maximize": "最大化",
     "restore": "向下还原",
-    "close": "关闭"
+    "close": "关闭",
+    "documentStatistics": {
+      "title": "文档统计",
+      "fileInformation": "文件信息",
+      "created": "创建时间",
+      "lastModified": "修改时间",
+      "unavailable": "—",
+      "open": "打开文档统计"
+    }
   },
   "commandPalette": {
     "placeholder": "输入要执行的命令",

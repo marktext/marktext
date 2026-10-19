@@ -3,6 +3,8 @@
     "counter": {
       "words": "Words",
       "characters": "Characters",
+      "charactersNoSpaces": "Characters (no spaces)",
+      "charactersWithSpaces": "Characters (with spaces)",
       "paragraphs": "Paragraphs",
       "allCharacters": "All characters",
       "document": "Document",
@@ -269,7 +271,15 @@
     "minimize": "Minimize",
     "maximize": "Maximize",
     "restore": "Restore",
-    "close": "Close"
+    "close": "Close",
+    "documentStatistics": {
+      "title": "Document statistics",
+      "fileInformation": "File information",
+      "created": "Created",
+      "lastModified": "Modified",
+      "unavailable": "—",
+      "open": "Open document statistics"
+    }
   },
   "commandPalette": {
     "placeholder": "Type a command to execute",

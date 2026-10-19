@@ -3,6 +3,8 @@
     "counter": {
       "words": "Palabras",
       "characters": "Caracteres",
+      "charactersNoSpaces": "Caracteres (sin espacios)",
+      "charactersWithSpaces": "Caracteres (con espacios)",
       "paragraphs": "Párrafos",
       "allCharacters": "Todos los caracteres",
       "document": "Documento",
@@ -269,7 +271,15 @@
     "minimize": "Minimizar",
     "maximize": "Maximizar",
     "restore": "Restaurar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "documentStatistics": {
+      "title": "Estadísticas del documento",
+      "fileInformation": "Información del archivo",
+      "created": "Creado",
+      "lastModified": "Modificado",
+      "unavailable": "—",
+      "open": "Abrir estadísticas del documento"
+    }
   },
   "commandPalette": {
     "placeholder": "Escriba un comando para ejecutar",

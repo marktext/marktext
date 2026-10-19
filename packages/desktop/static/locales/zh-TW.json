@@ -3,6 +3,8 @@
     "counter": {
       "words": "字數",
       "characters": "字元數",
+      "charactersNoSpaces": "字元數（不含空格）",
+      "charactersWithSpaces": "字元數（含空格）",
       "paragraphs": "段落數",
       "allCharacters": "總字元數",
       "document": "文件",
@@ -269,7 +271,15 @@
     "minimize": "最小化",
     "maximize": "最大化",
     "restore": "向下還原",
-    "close": "關閉"
+    "close": "關閉",
+    "documentStatistics": {
+      "title": "文件統計",
+      "fileInformation": "檔案資訊",
+      "created": "建立時間",
+      "lastModified": "修改時間",
+      "unavailable": "—",
+      "open": "開啟文件統計"
+    }
   },
   "commandPalette": {
     "placeholder": "輸入要執行的命令",

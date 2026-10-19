@@ -3,6 +3,8 @@
     "counter": {
       "words": "Woorden",
       "characters": "Tekens",
+      "charactersNoSpaces": "Tekens (zonder spaties)",
+      "charactersWithSpaces": "Tekens (met spaties)",
       "paragraphs": "Alinea's",
       "allCharacters": "Alle tekens",
       "document": "Document",
@@ -269,7 +271,15 @@
     "minimize": "Minimaliseren",
     "maximize": "Maximaliseren",
     "restore": "Vorig formaat",
-    "close": "Sluiten"
+    "close": "Sluiten",
+    "documentStatistics": {
+      "title": "Documentstatistieken",
+      "fileInformation": "Bestandsinformatie",
+      "created": "Aangemaakt",
+      "lastModified": "Gewijzigd",
+      "unavailable": "—",
+      "open": "Documentstatistieken openen"
+    }
   },
   "commandPalette": {
     "placeholder": "Typ een opdracht om uit te voeren",

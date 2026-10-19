@@ -3,6 +3,8 @@
     "counter": {
       "words": "Слова",
       "characters": "Символы",
+      "charactersNoSpaces": "Символы (без пробелов)",
+      "charactersWithSpaces": "Символы (с пробелами)",
       "paragraphs": "Абзацы",
       "allCharacters": "Все символы",
       "document": "Документ",
@@ -269,7 +271,15 @@
     "minimize": "Свернуть",
     "maximize": "Развернуть",
     "restore": "Свернуть в окно",
-    "close": "Закрыть"
+    "close": "Закрыть",
+    "documentStatistics": {
+      "title": "Статистика документа",
+      "fileInformation": "Информация о файле",
+      "created": "Создан",
+      "lastModified": "Изменён",
+      "unavailable": "—",
+      "open": "Открыть статистику документа"
+    }
   },
   "commandPalette": {
     "placeholder": "Введите команду",

@@ -3,6 +3,8 @@
     "counter": {
       "words": "단어 수",
       "characters": "글자 수",
+      "charactersNoSpaces": "글자 수(공백 제외)",
+      "charactersWithSpaces": "글자 수(공백 포함)",
       "paragraphs": "단락 수",
       "allCharacters": "전체 글자 수",
       "document": "문서",
@@ -269,7 +271,15 @@
     "minimize": "최소화",
     "maximize": "최대화",
     "restore": "이전 크기로 복원",
-    "close": "닫기"
+    "close": "닫기",
+    "documentStatistics": {
+      "title": "문서 통계",
+      "fileInformation": "파일 정보",
+      "created": "생성됨",
+      "lastModified": "수정됨",
+      "unavailable": "—",
+      "open": "문서 통계 열기"
+    }
   },
   "commandPalette": {
     "placeholder": "실행할 명령을 입력하세요",
