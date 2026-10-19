@@ -5,7 +5,7 @@ import type { TBlockPath } from '../../types';
 import { CLASS_NAMES } from '../../../config';
 import { mixins } from '../../../utils';
 import Parent from '../../base/parent';
-import { refreshFoldVisibility } from '../../folding';
+import { isHiddenByFold, refreshFoldVisibility } from '../../folding';
 import LeafQueryBlock from '../../mixins/leafQueryBlock';
 import { ScrollPage } from '../../scrollPage';
 import HeadingFoldToggle from '../headingFoldToggle';
@@ -70,7 +70,7 @@ class AtxHeading extends Parent {
         // A keyboard selection must never remain in content that just disappeared.
         const { anchorBlock, focusBlock } = this.muya.editor.selection;
         if (folded && [anchorBlock, focusBlock].some(block =>
-            block?.domNode?.closest(`.${CLASS_NAMES.MU_FOLDED_CONTENT}`),
+            block && isHiddenByFold(block),
         )) {
             const content = this.children.head;
             if (content?.isContent())

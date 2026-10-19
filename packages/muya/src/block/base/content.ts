@@ -19,7 +19,7 @@ import {
     isMouseEvent,
 } from '../../utils';
 import { isFoldableHeading } from '../commonMark/atxHeading/foldSection';
-import { revealBlock, visibleContentInContext } from '../folding';
+import { revealBlock } from '../folding';
 
 // import logger from './utils/logger'
 
@@ -537,7 +537,7 @@ class Content extends TreeNode {
         let offset = 0;
 
         if (direction === 'up') {
-            const previousContentBlock = visibleContentInContext(this, 'previous');
+            const previousContentBlock = this.previousContentInContext(true);
             if (!previousContentBlock) {
                 if (event.key === EVENT_KEYS.ArrowUp && start.offset !== 0)
                     this.setCursor(0, 0, true);
@@ -549,7 +549,7 @@ class Content extends TreeNode {
             offset = this._upArrowOffset(previousContentBlock, event);
         }
         else {
-            cursorBlock = visibleContentInContext(this, 'next');
+            cursorBlock = this.nextContentInContext(true);
             if (!cursorBlock && this.text.length > 0 && !(isFoldableHeading(this.parent) && this.parent.folded)) {
                 const newNodeState = { name: 'paragraph', text: '' };
                 const newNode = ScrollPage.loadBlock(newNodeState.name).create(

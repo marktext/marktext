@@ -1,4 +1,3 @@
-import type Content from './base/content';
 import type Parent from './base/parent';
 import type TreeNode from './base/treeNode';
 import type { IFoldableHeading } from './commonMark/atxHeading/foldSection';
@@ -8,6 +7,8 @@ import { headingLevel, hiddenByFoldedSections, isFoldableHeading } from './commo
 // A stable tail keeps newly inserted content after a folded section visible.
 const foldEnds = new WeakMap<IFoldableHeading, TreeNode>();
 const foldedParents = new WeakSet<Parent>();
+// Parent-owned snapshots avoid rescanning siblings for every skipped content block.
+const hiddenBlocksByParent = new WeakMap<Parent, WeakSet<TreeNode>>();
 
 /** Recompute direct-child visibility; nested containers own their own folds. */
 export function refreshFoldVisibility(parent: Parent, foldChanged = false): void {
@@ -45,21 +46,24 @@ export function refreshFoldVisibility(parent: Parent, foldChanged = false): void
         foldedParents.add(parent);
     else
         foldedParents.delete(parent);
+    hiddenBlocksByParent.set(parent, new WeakSet(blocks.filter((_, index) => hidden[index])));
     blocks.forEach((block, index) => {
         block.domNode?.classList.toggle(CLASS_NAMES.MU_FOLDED_CONTENT, hidden[index]);
     });
 }
 
-/** Reveal a target without unfolding unrelated sections or the target heading itself. */
-export function revealBlock(block: TreeNode): void {
-    if (!block.domNode?.closest(`.${CLASS_NAMES.MU_FOLDED_CONTENT}`))
-        return;
-
-    let target: TreeNode = block;
+function getContainingFoldedHeadings(block: TreeNode): IFoldableHeading[] {
+    const containing: IFoldableHeading[] = [];
+    let target = block;
     while (target.parent && !target.isScrollPage) {
+        if (!foldedParents.has(target.parent)) {
+            target = target.parent;
+            continue;
+        }
         const folded: IFoldableHeading[] = [];
         const siblings = [...target.parent.children.iterator()];
-        const targetIndex = siblings.indexOf(target);
+        const indices = new Map(siblings.map((sibling, index) => [sibling, index]));
+        const targetIndex = indices.get(target)!;
         for (const sibling of siblings) {
             const level = headingLevel(sibling);
             if (level !== undefined) {
@@ -70,22 +74,33 @@ export function revealBlock(block: TreeNode): void {
                 break;
             if (isFoldableHeading(sibling) && sibling.folded) {
                 const end = foldEnds.get(sibling);
-                if (!end || siblings.indexOf(end) >= targetIndex)
+                if (!end || (indices.get(end) ?? -1) >= targetIndex)
                     folded.push(sibling);
             }
         }
-        for (const heading of folded)
-            heading.toggleFold(false);
+        containing.push(...folded);
         target = target.parent;
     }
+    return containing;
 }
 
-/** Ordinary caret navigation skips folded sections without changing their state. */
-export function visibleContentInContext(block: TreeNode, direction: 'previous' | 'next'): Content | null {
-    let content = direction === 'previous' ? block.previousContentInContext() : block.nextContentInContext();
-    while (content?.domNode?.closest(`.${CLASS_NAMES.MU_FOLDED_CONTENT}`))
-        content = direction === 'previous' ? content.previousContentInContext() : content.nextContentInContext();
-    return content ?? null;
+/** Includes enclosing containers and the captured boundaries of folded sections. */
+export function isHiddenByFold(block: TreeNode): boolean {
+    let target = block;
+    while (target.parent && !target.isScrollPage) {
+        if (hiddenBlocksByParent.get(target.parent)?.has(target))
+            return true;
+        target = target.parent;
+    }
+    return false;
+}
+
+/** Reveal a target without unfolding unrelated sections or the target heading itself. */
+export function revealBlock(block: TreeNode): void {
+    if (!isHiddenByFold(block))
+        return;
+    for (const heading of getContainingFoldedHeadings(block))
+        heading.toggleFold(false);
 }
 
 /** Find-in-document exposes all content, including sections without a match. */

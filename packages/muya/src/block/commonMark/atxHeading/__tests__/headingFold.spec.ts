@@ -1,8 +1,10 @@
 // @vitest-environment happy-dom
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { bootMuya, useMuyaHarness } from '../../../../__tests__/muyaHarness';
+import { isHiddenByFold, revealBlock } from '../../../folding';
 import { ScrollPage } from '../../../scrollPage';
+import { isFoldableHeading } from '../foldSection';
 
 useMuyaHarness();
 
@@ -244,5 +246,60 @@ describe('folded sections during editing and navigation', () => {
         expect(button.getAttribute('aria-expanded')).toBe('false');
         button.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
         expect(button.getAttribute('aria-expanded')).toBe('true');
+    });
+});
+
+describe('fold state is independent of DOM classes', () => {
+    it('reveals nested sections with missing presentation classes', () => {
+        const muya = bootMuya('# Outer\n\n> ## Inner\n>\n> secret\n');
+        const body = muya.editor.scrollPage!.lastContentInDescendant()!;
+        clickToggle(muya, 1);
+        clickToggle(muya);
+        for (const element of muya.domNode.querySelectorAll('.mu-folded, .mu-folded-content'))
+            element.classList.remove('mu-folded', 'mu-folded-content');
+
+        expect(isHiddenByFold(body)).toBe(true);
+        revealBlock(body);
+        expect(isHiddenByFold(body)).toBe(false);
+        muya.editor.scrollPage!.depthFirstTraverse((block) => {
+            if (isFoldableHeading(block))
+                expect(block.folded).toBe(false);
+        });
+    });
+
+    it('ignores misleading classes when navigating and revealing visible content', () => {
+        const muya = bootMuya('# A\n\nsecret\n\n# B\n\nvisible\n');
+        const root = muya.editor.scrollPage!;
+        const first = root.firstContentInDescendant()!;
+        const last = root.lastContentInDescendant()!;
+        clickToggle(muya);
+        muya.domNode.querySelector(FOLDED_CONTENT_SELECTOR)!.classList.remove('mu-folded-content');
+        last.parent!.domNode!.classList.add('mu-folded-content');
+        last.parent!.prev!.domNode!.classList.add('mu-folded-content');
+
+        expect(isHiddenByFold(last)).toBe(false);
+        expect(first.nextContentInContext()?.text).toBe('secret');
+        const next = first.nextContentInContext(true)!;
+        expect(next.text).toBe('# B');
+        expect(next.previousContentInContext()?.text).toBe('secret');
+        expect(next.previousContentInContext(true)).toBe(first);
+        revealBlock(last);
+        const heading = root.children.head!;
+        expect(isFoldableHeading(heading) && heading.folded).toBe(true);
+    });
+
+    it('moves the caret out of a folded section even if its class update is missing', () => {
+        const muya = bootMuya('# A\n\nsecret\n');
+        const body = muya.editor.scrollPage!.lastContentInDescendant()!;
+        body.setCursor(2, 2, true);
+        const toggle = vi.spyOn(body.parent!.domNode!.classList, 'toggle').mockReturnValue(false);
+        try {
+            clickToggle(muya);
+            expect(isHiddenByFold(body)).toBe(true);
+            expect(muya.editor.activeContentBlock?.text).toBe('# A');
+        }
+        finally {
+            toggle.mockRestore();
+        }
     });
 });
