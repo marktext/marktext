@@ -234,6 +234,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Вернуться к файлам",
       "searchInFolder": "Поиск в папке...",
       "noFolderOpen": "Папка не открыта",
       "noResultsFound": "Ничего не найдено.",
@@ -260,7 +261,6 @@
     "icons": {
       "files": "Файлы",
       "search": "Поиск",
-      "toc": "Оглавление",
       "settings": "Настройки"
     }
   },

@@ -1,9 +1,5 @@
 <template>
   <div class="tree-view">
-    <div class="title">
-      <!-- Placeholder -->
-    </div>
-
     <!-- Opened tabs -->
     <div
       v-if="openedFilesInSidebar"
@@ -199,15 +195,12 @@ const props = defineProps<{
   // `v-if="projectTree"`. Type the prop nullable to match runtime + the
   // template guard.
   projectTree: TreeNode | null
-  openedFiles?: TabDescriptor[]
   tabs?: TabDescriptor[]
 }>()
 
 const depth = 0
-// Persist the section collapse state (#2421). The tree is rendered under a
-// v-if and is destroyed when the sidebar collapses to its icon strip, so local
-// refs reset to expanded on re-open. Back them with localStorage (like the
-// sidebar width) so the state survives a re-mount and app restart.
+// Switching views remounts the tree; persist section expansion across those
+// remounts and app restarts (#2421).
 const SHOW_DIRECTORIES_KEY = 'side-bar-show-directories'
 const SHOW_OPENED_FILES_KEY = 'side-bar-show-opened-files'
 const readSectionExpanded = (key: string): boolean => localStorage.getItem(key) !== 'false'
@@ -309,7 +302,7 @@ const revealPath = async (
     if (!force) return
     setShowDirectories(true)
   }
-  // Off screen (icon strip, View menu) there is nothing to reveal.
+  // Hidden views have no visible row to scroll into view.
   if (!layoutStore.showSideBar || layoutStore.rightColumn !== 'files') return
   if (!projectStore.REVEAL_PATH(pathname)) return
 
@@ -464,11 +457,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.list-item {
-  display: inline-block;
-  margin-right: 10px;
-}
-
 .list-enter-active,
 .list-leave-active {
   transition: all 0.2s;
@@ -484,14 +472,6 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
-}
-.tree-view > .title {
-  height: 35px;
-  line-height: 35px;
-  padding: 0 15px;
-  display: flex;
-  flex-shrink: 0;
-  flex-direction: row-reverse;
 }
 
 .icon-arrow {
@@ -514,7 +494,7 @@ onUnmounted(() => {
 }
 
 .opened-files .title {
-  padding-right: 15px;
+  padding: 0 15px;
   display: flex;
   align-items: center;
 }
@@ -563,7 +543,7 @@ onUnmounted(() => {
 }
 
 .project-tree > .title {
-  padding-right: 15px;
+  padding: 0 15px;
   display: flex;
   align-items: center;
 }

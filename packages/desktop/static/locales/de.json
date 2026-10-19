@@ -234,6 +234,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Zurück zu Dateien",
       "searchInFolder": "Im Ordner suchen...",
       "noFolderOpen": "Kein Ordner geöffnet",
       "noResultsFound": "Keine Ergebnisse gefunden.",
@@ -260,7 +261,6 @@
     "icons": {
       "files": "Dateien",
       "search": "Suchen",
-      "toc": "Inhaltsverzeichnis",
       "settings": "Einstellungen"
     }
   },

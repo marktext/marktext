@@ -234,6 +234,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "파일로 돌아가기",
       "searchInFolder": "폴더에서 검색...",
       "noFolderOpen": "열린 폴더 없음",
       "noResultsFound": "결과를 찾을 수 없습니다.",
@@ -260,7 +261,6 @@
     "icons": {
       "files": "파일",
       "search": "검색",
-      "toc": "목차",
       "settings": "설정"
     }
   },

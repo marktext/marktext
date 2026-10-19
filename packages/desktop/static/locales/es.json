@@ -234,6 +234,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Volver a archivos",
       "searchInFolder": "Buscar en carpeta...",
       "noFolderOpen": "No hay carpeta abierta",
       "noResultsFound": "No se encontraron resultados.",
@@ -260,7 +261,6 @@
     "icons": {
       "files": "Archivos",
       "search": "Buscar",
-      "toc": "Tabla de Contenidos",
       "settings": "Configuración"
     }
   },

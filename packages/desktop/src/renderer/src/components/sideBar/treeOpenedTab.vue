@@ -57,7 +57,7 @@ const removeFileInTab = (file: TabDescriptor): void => {
   user-select: none;
   height: 28px;
   line-height: 28px;
-  padding-left: 35px;
+  padding: 0 15px 0 35px;
   position: relative;
   color: var(--sideBarColor);
   /* Clipped rather than `display: none` while the row is not hovered, so the

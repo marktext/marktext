@@ -3,7 +3,7 @@
     <div
       ref="folderEl"
       class="folder-name"
-      :style="{ 'padding-left': `${depth * 6 + 10}px` }"
+      :style="{ 'padding-left': `${depth * 6 + 15}px` }"
       :class="[{ active: folder.id === activeItem.id }]"
       :title="folder.pathname"
       @click="folderNameClick"

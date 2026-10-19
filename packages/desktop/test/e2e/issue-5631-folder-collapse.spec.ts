@@ -57,7 +57,7 @@ test.describe('#5631 folder collapse state survives a sidebar view switch', () =
 
     await page.getByRole('button', { name: 'Search', exact: true }).click()
     await expect(folderName(page, 'sub')).toHaveCount(0)
-    await page.getByRole('button', { name: 'Files', exact: true }).click()
+    await page.getByRole('button', { name: 'Back to files', exact: true }).click()
 
     await expect(page.locator('.side-bar-file[title$="note.md"]')).toBeVisible()
     await expect(folderName(page, 'sub').locator('.icon-arrow')).not.toHaveClass(/\bfold\b/)

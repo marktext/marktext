@@ -64,4 +64,35 @@ describe('listenForMain store EDITOR_EDIT_ACTION', () => {
     expect(layoutStore.rightColumn).toBe('files')
     expect(layoutStore.showSideBar).toBe(false)
   })
+
+  it.each(['', 'toc', 'unknown'])('restores legacy sidebar page %j as files', (rightColumn) => {
+    const layoutStore = useLayoutStore()
+    layoutStore.RESTORE_BUFFERED_STATE({
+      rightColumn,
+      showSideBar: true,
+      showTabBar: true,
+      sideBarWidth: 320
+    })
+    expect(layoutStore.rightColumn).toBe('files')
+    expect(layoutStore.effectiveSideBarWidth).toBe(320)
+    layoutStore.TOGGLE_LAYOUT_ENTRY('showSideBar')
+    expect(layoutStore.effectiveSideBarWidth).toBe(0)
+    layoutStore.TOGGLE_LAYOUT_ENTRY('showSideBar')
+    expect(layoutStore.effectiveSideBarWidth).toBe(320)
+  })
+
+  it('repeated search layout requests keep the search page expanded', () => {
+    const layoutStore = useLayoutStore()
+    layoutStore.LISTEN_FOR_LAYOUT()
+    const listener = win.electron?.ipcRenderer.on.mock.calls.find(
+      ([channel]) => channel === 'mt::set-view-layout'
+    )?.[1]
+    if (!listener) throw new Error('Layout listener was not registered')
+    listener({}, { rightColumn: 'search' })
+    listener({}, { rightColumn: 'search' })
+    expect(layoutStore.rightColumn).toBe('search')
+    expect(layoutStore.showSideBar).toBe(true)
+    expect(layoutStore.effectiveSideBarWidth).toBeGreaterThanOrEqual(220)
+  })
+
 })

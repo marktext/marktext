@@ -47,22 +47,14 @@ test.describe('#4997 icon-only controls in the editor window', () => {
     if (app) await app.close()
   })
 
-  test('the activity bar and outline buttons are named and report which panel is open', async() => {
-    for (const name of ['Files', 'Search', 'Settings']) {
+  test('the sidebar actions are named and the outline reports its expanded state', async() => {
+    for (const name of ['Search', 'Settings']) {
       await expect(page.getByRole('button', { name, exact: true })).toBeVisible()
     }
     const outline = page.getByRole('button', { name: 'Collapse table of contents', exact: true })
     await expect(outline).toBeVisible()
     await expect(outline).toHaveAttribute('aria-expanded', 'true')
     await expect(outline).toHaveAttribute('aria-controls', 'document-outline-tree')
-    await expect(page.getByRole('button', { name: 'Files', exact: true })).toHaveAttribute(
-      'aria-pressed',
-      'true'
-    )
-    await expect(page.getByRole('button', { name: 'Search', exact: true })).toHaveAttribute(
-      'aria-pressed',
-      'false'
-    )
   })
 
   // el-tooltip calls preventDefault on Enter/Space keydown of its trigger, which
@@ -71,13 +63,11 @@ test.describe('#4997 icon-only controls in the editor window', () => {
     const search = page.getByRole('button', { name: 'Search', exact: true })
     await search.focus()
     await page.keyboard.press('Enter')
-    await expect(search).toHaveAttribute('aria-pressed', 'true')
     await expect(page.locator('.side-bar-search')).toBeVisible()
 
-    const files = page.getByRole('button', { name: 'Files', exact: true })
+    const files = page.getByRole('button', { name: 'Back to files', exact: true })
     await files.focus()
     await page.keyboard.press('Space')
-    await expect(files).toHaveAttribute('aria-pressed', 'true')
     await expect(page.locator('.side-bar .tree-view')).toBeVisible()
   })
 
