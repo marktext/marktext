@@ -10,8 +10,6 @@ const debug = logger('headingFoldToggle:');
 
 // An attachment keeps fold controls out of document state and markdown exports.
 class HeadingFoldToggle extends TreeNode {
-    private _eventIds: string[] = [];
-
     static override blockName = 'heading-fold-toggle';
 
     static create(muya: Muya, _state?: unknown) {
@@ -44,8 +42,7 @@ class HeadingFoldToggle extends TreeNode {
     }
 
     private _listen() {
-        const { domNode, muya } = this;
-        const { eventCenter } = muya;
+        const { domNode } = this;
 
         const clickHandler = (event: Event) => {
             event.preventDefault();
@@ -63,10 +60,9 @@ class HeadingFoldToggle extends TreeNode {
             this._activate();
         };
 
-        this._eventIds.push(
-            eventCenter.attachDOMEvent(domNode!, 'click', clickHandler),
-            eventCenter.attachDOMEvent(domNode!, 'keydown', keydownHandler),
-        );
+        // The control owns these listeners so deleting its heading leaves no EventCenter references.
+        domNode!.addEventListener('click', clickHandler);
+        domNode!.addEventListener('keydown', keydownHandler);
     }
 
     private _activate() {
@@ -98,18 +94,6 @@ class HeadingFoldToggle extends TreeNode {
 
         this.domNode.setAttribute('aria-label', label);
         this.domNode.setAttribute('title', label);
-    }
-
-    private _detachDOMEvents() {
-        for (const id of this._eventIds)
-            this.muya.eventCenter.detachDOMEvent(id);
-    }
-
-    override remove(_source: string) {
-        super.remove();
-        this._detachDOMEvents();
-
-        return this;
     }
 
     getState() {

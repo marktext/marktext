@@ -303,3 +303,30 @@ describe('fold state is independent of DOM classes', () => {
         }
     });
 });
+
+describe('heading attachment lifetime', () => {
+    it.each(['# Heading\n\nbody\n', '> # Heading\n>\n> body\n'])(
+        'does not retain heading controls after deleting their block: %j',
+        (markdown) => {
+            const muya = bootMuya(markdown);
+            const buttons = [...muya.domNode.querySelectorAll('.mu-fold-toggle, .mu-copy-header-link')];
+            expect(buttons).toHaveLength(2);
+            const buttonTargets = new Set<EventTarget>(buttons);
+            muya.editor.scrollPage!.children.head!.remove();
+
+            expect(buttons.every(button => !button.isConnected)).toBe(true);
+            expect(muya.eventCenter.events.filter(event => buttonTargets.has(event.target))).toHaveLength(0);
+        },
+    );
+
+    it('keeps controls working when an existing heading is moved', () => {
+        const muya = bootMuya('# Heading\n\nbody\n');
+        const root = muya.editor.scrollPage!;
+        const heading = root.children.head!;
+        heading.insertInto(root);
+        clickToggle(muya);
+        expect(isFoldableHeading(heading) && heading.folded).toBe(true);
+        clickToggle(muya);
+        expect(isFoldableHeading(heading) && heading.folded).toBe(false);
+    });
+});
