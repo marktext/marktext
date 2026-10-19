@@ -103,7 +103,7 @@
 .mu-container h6 > .mu-copy-header-link {
     position: absolute;
     top: 0;
-    left: -40px;
+    left: -22px;
 
     display: inline-flex;
     align-items: center;
@@ -143,11 +143,11 @@
     height: 14px;
 }
 
-/* Keep folding to the left of the copy-link, clear of the block handle. */
+/* Reserve separate hit areas for the block handle, folding, and copy-link. */
 .mu-container :is(h1, h2, h3, h4, h5, h6) > .mu-fold-toggle {
     position: absolute;
     top: 0;
-    left: -64px;
+    left: -44px;
 
     display: inline-flex;
     align-items: center;

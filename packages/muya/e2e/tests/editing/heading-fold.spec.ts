@@ -283,7 +283,7 @@ test('pasting in a folded title preserves the section and undo restores the titl
     await expect.poll(() => getMarkdown(page)).toBe('# ABC\n\nalpha\n\n## Inner\n\nbeta\n\n# B\n\nbravo\n');
 });
 
-test('fold toggle precedes the copy-link without clipping in narrow editor viewports', async ({ page }) => {
+test('front menu, fold toggle, and copy-link do not overlap in narrow editor viewports', async ({ page }) => {
     await page.setViewportSize({ width: 700, height: 700 });
     await loadMarkdown(page, '# Heading\n\nbody\n');
     const rects = await page.evaluate((affordances) => {
@@ -298,11 +298,27 @@ test('fold toggle precedes the copy-link without clipping in narrow editor viewp
     }, `${editor.headingCopyLink}, ${editor.foldToggle}`);
     expect(rects).toHaveLength(2);
     expect(rects.every(rect => rect.left && rect.right)).toBe(true);
+    await page.locator(editor.atxHeading).hover();
+    const frontButton = page.locator('.mu-front-button');
+    await expect(frontButton).toBeVisible();
+    await expect.poll(async () => {
+        const front = await frontButton.boundingBox();
+        const fold = await page.locator(editor.foldToggle).boundingBox();
+        return front !== null && fold !== null && front.x + front.width <= fold.x;
+    }).toBe(true);
+    const front = await frontButton.boundingBox();
+    const root = await page.locator('.mu-container').boundingBox();
+    expect(front!.x).toBeGreaterThanOrEqual(root!.x);
     const fold = await page.locator(editor.foldToggle).boundingBox();
     const copy = await page.locator(editor.headingCopyLink).boundingBox();
     expect(fold).not.toBeNull();
     expect(copy).not.toBeNull();
     expect(fold!.x + fold!.width).toBeLessThanOrEqual(copy!.x);
+    await frontButton.click();
+    await expect(page.locator('.mu-front-menu')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await page.locator(editor.foldToggle).click();
+    await expect(page.locator(editor.paragraph)).toBeHidden();
 });
 
 for (const key of ['Backspace', 'Delete']) {
