@@ -122,7 +122,7 @@
       "sourceCodeMode": "Mode code source",
       "typewriterMode": "Mode machine à écrire",
       "focusMode": "Mode focus",
-      "toggleTableOfContents": "Basculer la table des matières",
+      "toggleTableOfContents": "Afficher la table des matières",
       "reloadImages": "Recharger les images",
       "showDeveloperTools": "Afficher les outils de développement",
       "reloadWindow": "Recharger la fenêtre"
@@ -250,6 +250,9 @@
       "openFolder": "Ouvrir un dossier"
     },
     "toc": {
+      "expand": "Développer la table des matières",
+      "collapse": "Réduire la table des matières",
+      "empty": "Aucun titre",
       "title": "Table des matières",
       "expandAll": "Tout développer",
       "collapseAll": "Tout réduire"

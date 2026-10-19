@@ -122,7 +122,7 @@
       "sourceCodeMode": "Режим исходного кода",
       "typewriterMode": "Режим печатной машинки",
       "focusMode": "Режим фокусировки",
-      "toggleTableOfContents": "Показать/скрыть оглавление",
+      "toggleTableOfContents": "Показать оглавление",
       "reloadImages": "Обновить изображения",
       "showDeveloperTools": "Инструменты разработчика",
       "reloadWindow": "Перезагрузить окно"
@@ -250,6 +250,9 @@
       "openFolder": "Открыть папку"
     },
     "toc": {
+      "expand": "Развернуть оглавление",
+      "collapse": "Свернуть оглавление",
+      "empty": "Нет заголовков",
       "title": "Оглавление",
       "expandAll": "Развернуть всё",
       "collapseAll": "Свернуть всё"

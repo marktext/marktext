@@ -122,7 +122,7 @@
       "sourceCodeMode": "源码模式",
       "typewriterMode": "打字机模式",
       "focusMode": "专注模式",
-      "toggleTableOfContents": "切换目录",
+      "toggleTableOfContents": "显示目录",
       "reloadImages": "重新加载图片",
       "showDeveloperTools": "显示开发者工具",
       "reloadWindow": "重新加载窗口"
@@ -250,6 +250,9 @@
       "openFolder": "打开文件夹"
     },
     "toc": {
+      "expand": "展开目录",
+      "collapse": "收起目录",
+      "empty": "暂无标题",
       "title": "目录",
       "expandAll": "全部展开",
       "collapseAll": "全部折叠"

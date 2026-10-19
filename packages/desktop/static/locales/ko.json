@@ -122,7 +122,7 @@
       "sourceCodeMode": "소스 코드 모드",
       "typewriterMode": "타자기 모드",
       "focusMode": "집중 모드",
-      "toggleTableOfContents": "목차 토글",
+      "toggleTableOfContents": "목차 표시",
       "reloadImages": "이미지 새로고침",
       "showDeveloperTools": "개발자 도구 보기",
       "reloadWindow": "창 새로고침"
@@ -250,6 +250,9 @@
       "openFolder": "폴더 열기"
     },
     "toc": {
+      "expand": "목차 펼치기",
+      "collapse": "목차 접기",
+      "empty": "제목 없음",
       "title": "목차",
       "expandAll": "모두 펼치기",
       "collapseAll": "모두 접기"

@@ -122,7 +122,7 @@
       "sourceCodeMode": "Modo Código Fuente",
       "typewriterMode": "Modo Máquina de Escribir",
       "focusMode": "Modo Enfoque",
-      "toggleTableOfContents": "Alternar Tabla de Contenidos",
+      "toggleTableOfContents": "Mostrar tabla de contenido",
       "reloadImages": "Recargar Imágenes",
       "showDeveloperTools": "Mostrar Herramientas de Desarrollador",
       "reloadWindow": "Recargar Ventana"
@@ -250,6 +250,9 @@
       "openFolder": "Abrir Carpeta"
     },
     "toc": {
+      "expand": "Expandir tabla de contenido",
+      "collapse": "Contraer tabla de contenido",
+      "empty": "Sin encabezados",
       "title": "Tabla de Contenidos",
       "expandAll": "Expandir todo",
       "collapseAll": "Contraer todo"

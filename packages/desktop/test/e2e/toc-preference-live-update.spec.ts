@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
+import { makeRoomForOutline, launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
 
 const DOC = ['# Outline', '', '## Water is H^2^O and x~i~', '', 'Body.', ''].join('\n')
 
@@ -40,13 +40,13 @@ test.describe('TOC updates live when a markdown preference changes', () => {
     const launched = await launchWithMarkdown(DOC)
     app = launched.app
     page = launched.page
+    await makeRoomForOutline(app, page)
     await waitForEditor(page)
     const sidebarVisible = await page.evaluate(() => {
       const el = document.querySelector('.side-bar') as HTMLElement | null
       return !!(el && el.offsetParent !== null)
     })
     if (!sidebarVisible) await clickMenuById(app, 'sideBarMenuItem')
-    await clickMenuById(app, 'tocMenuItem')
     await page.waitForSelector('.side-bar-toc .el-tree', { state: 'visible', timeout: 15000 })
     await page.waitForFunction(
       () => document.querySelectorAll('.side-bar-toc .el-tree-node__label').length >= 2,

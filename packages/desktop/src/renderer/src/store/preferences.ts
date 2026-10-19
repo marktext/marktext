@@ -105,6 +105,7 @@ export interface PreferencesState {
   spellcheckerLanguage: string
 
   // ----- Side bar / tab bar visibility (persisted) -----
+  tocVisibility: boolean
   sideBarVisibility: boolean
   tabBarVisibility: boolean
   sourceCodeModeEnabled: boolean
@@ -230,6 +231,7 @@ export const usePreferencesStore = defineStore('preferences', {
     spellcheckerLanguage: 'en-US',
 
     // Default values that are overwritten with the entries below.
+    tocVisibility: true,
     sideBarVisibility: false,
     tabBarVisibility: false,
     sourceCodeModeEnabled: false,

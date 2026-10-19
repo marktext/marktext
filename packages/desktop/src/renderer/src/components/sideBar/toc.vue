@@ -3,9 +3,6 @@
     class="side-bar-toc"
     :class="[{ 'side-bar-toc-overflow': !wordWrapInToc, 'side-bar-toc-wordwrap': wordWrapInToc }]"
   >
-    <div class="title">
-      {{ t('sideBar.toc.title') }}
-    </div>
     <el-tree
       v-if="keyedToc.length"
       ref="tocTreeRef"
@@ -29,33 +26,60 @@
         <!-- eslint-disable vue/no-v-html -- sanitized by labelHtmlOf -->
         <span
           class="el-tree-node__label"
+          :data-toc-key="data.key"
           :title="plainLabel(data)"
           v-html="labelHtmlOf(data)"
         />
         <!-- eslint-enable vue/no-v-html -->
       </template>
     </el-tree>
+    <p
+      v-else
+      class="outline-empty"
+    >
+      {{ t('sideBar.toc.empty') }}
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { deriveKeyedToc, type KeyedTocNode } from '@/util/tocKeys'
 import { sanitize, TOC_DOMPURIFY_CONFIG } from '@/util/dompurify'
 import bus from '../../bus'
 import { storeToRefs } from 'pinia'
-import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
+import { useI18n } from 'vue-i18n'
 import type { TreeInstance } from 'element-plus'
 
 const { t } = useI18n()
+const props = defineProps<{ visible?: boolean }>()
 
 const editorStore = useEditorStore()
 const preferencesStore = usePreferencesStore()
 
 const tocTreeRef = ref<TreeInstance | null>(null)
+// Heading updates during a TOC jump describe the animation's intermediate
+// sections; they must not move the outline the user is browsing.
+let preserveOutlinePosition = false
+const resumeFollowingDocument = (event: Event): void => {
+  if (event.target instanceof Element && event.target.closest('.document-body')) {
+    preserveOutlinePosition = false
+  }
+}
+const navigationEvents = ['wheel', 'pointerdown', 'keydown'] as const
+onMounted(() => {
+  for (const event of navigationEvents) {
+    document.addEventListener(event, resumeFollowingDocument, { capture: true, passive: true })
+  }
+})
+onBeforeUnmount(() => {
+  for (const event of navigationEvents) {
+    document.removeEventListener(event, resumeFollowingDocument, true)
+  }
+})
 
 const defaultProps = {
   children: 'children',
@@ -88,6 +112,12 @@ const keyedToc = computed<KeyedTocNode[]>(() => deriveKeyedToc(toc.value))
 // Track which headings the user collapsed, by stable key (#3028). Headings are
 // expanded by default; a collapse is remembered here.
 const collapsedKeys = ref<Set<string>>(new Set())
+const collapsedByFile = new Map<string, Set<string>>()
+watch(() => editorStore.currentFile?.id, (id, previousId) => {
+  preserveOutlinePosition = false
+  if (previousId) collapsedByFile.set(previousId, collapsedKeys.value)
+  collapsedKeys.value = id ? collapsedByFile.get(id) ?? new Set() : new Set()
+})
 
 const onCollapse = (data: { key?: string }): void => {
   if (data.key) collapsedKeys.value = new Set(collapsedKeys.value).add(data.key)
@@ -135,22 +165,42 @@ const activeNodeKey = computed<string>(() => {
 })
 
 // `current-node-key` only seeds el-tree at mount; later changes need the setter.
-watch(activeNodeKey, (key) => {
-  tocTreeRef.value?.setCurrentKey(key || undefined)
-})
+const revealActiveHeading = async(): Promise<void> => {
+  await nextTick()
+  const tree = tocTreeRef.value
+  tree?.setCurrentKey(activeNodeKey.value || undefined)
+  if (!tree || props.visible === false) return
+  const treeElement = tree.$el as HTMLElement
+  let node = activeNodeKey.value ? tree.getNode(activeNodeKey.value) : null
+  for (let ancestor = node?.parent; ancestor?.level; ancestor = ancestor.parent) {
+    if (!ancestor.expanded) node = ancestor
+  }
+  if (!node) return
+  tree.setCurrentKey(node.key)
+  if (preserveOutlinePosition) return
+  const label = Array.from(treeElement.querySelectorAll<HTMLElement>('[data-toc-key]'))
+    .find(element => element.dataset.tocKey === node.key)
+  if (!label) return
+  const bounds = label.getBoundingClientRect()
+  const viewport = treeElement.getBoundingClientRect()
+  if (bounds.top < viewport.top) treeElement.scrollTop += bounds.top - viewport.top - 8
+  else if (bounds.bottom > viewport.bottom) treeElement.scrollTop += bounds.bottom - viewport.bottom + 8
+}
+watch([activeNodeKey, () => props.visible, keyedToc, expandedKeys], revealActiveHeading, { flush: 'post' })
 
 const handleClick = (data: { slug?: unknown }): void => {
   // editor.vue resolves the slug to a heading by document order — bail out if
   // the node has no slug (e.g. unsluggable headings) rather than emitting an
   // `undefined` / non-string payload it cannot match.
   if (typeof data.slug !== 'string' || data.slug.length === 0) return
+  preserveOutlinePosition = true
   bus.emit('scroll-to-header', data.slug)
 }
 </script>
 
 <style>
 .side-bar-toc {
-  height: calc(100% - 35px);
+  height: 100%;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -159,26 +209,28 @@ const handleClick = (data: { slug?: unknown }): void => {
   overflow: hidden;
 }
 
-.side-bar-toc .title {
-  color: var(--sideBarTitleColor);
-  font-weight: 600;
-  font-size: 16px;
-  margin: 37px 0 10px 0;
-  padding-left: 25px;
-  flex-shrink: 0;
+.outline-empty {
+  padding: 0 12px;
+  color: var(--sideBarColor);
+  opacity: 0.65;
 }
 
 .side-bar-toc .el-tree-node {
   margin-top: 8px;
 }
 
-/* The outline scrolls, the panel title does not — same split the file tree
-   (`.tree-wrapper`) and the search results already use. */
 .side-bar-toc .el-tree {
   background: transparent;
   color: var(--sideBarColor);
   flex: 1;
   min-height: 0;
+  scrollbar-width: none;
+}
+
+.side-bar-toc .el-tree::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* The scoped slot replaced Element Plus's `<el-text truncated>` label, so its

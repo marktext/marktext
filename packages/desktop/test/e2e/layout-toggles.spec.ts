@@ -65,8 +65,7 @@ test.describe('Layout panel toggles', () => {
       )
     }
     await clickMenuById(app, 'tocMenuItem')
-    // No specific selector to assert (TOC mounts inside the sidebar);
-    // verifying the menu invocation does not throw is the main signal.
+    await expect(page.locator('.document-outline')).not.toHaveClass(/is-expanded/)
     await page.waitForTimeout(200)
     await clickMenuById(app, 'tocMenuItem')
   })

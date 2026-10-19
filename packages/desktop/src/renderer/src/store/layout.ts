@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import bus from '../bus'
 import { usePreferencesStore } from './preferences'
@@ -46,6 +46,8 @@ const initialWidth = localStorage.getItem('side-bar-width')
 const initialSideBarWidth = normalizeSideBarWidth(initialWidth)
 
 export const useLayoutStore = defineStore('layout', () => {
+  const preferencesStore = usePreferencesStore()
+  const showToc = computed(() => preferencesStore.tocVisibility)
   const rightColumn = ref<string>('files')
   const showSideBar = ref(false)
   const showTabBar = ref(false)
@@ -78,10 +80,8 @@ export const useLayoutStore = defineStore('layout', () => {
         value: !!layout.showSideBar
       })
     }
-    // Match the pre-migration `Object.assign(this, layout)` semantics: assign
-    // each known field as-is (no normalization here; SET_SIDE_BAR_WIDTH owns
-    // sideBarWidth's normalization), and skip unknown keys silently.
-    if (layout.rightColumn !== undefined) rightColumn.value = layout.rightColumn
+    // Older sessions stored the outline as a sidebar page.
+    if (layout.rightColumn !== undefined) rightColumn.value = layout.rightColumn === 'toc' ? 'files' : layout.rightColumn
     if (layout.showSideBar !== undefined) showSideBar.value = !!layout.showSideBar
     if (layout.showTabBar !== undefined) showTabBar.value = !!layout.showTabBar
     if (layout.sideBarWidth !== undefined) sideBarWidth.value = layout.sideBarWidth as number
@@ -115,8 +115,10 @@ export const useLayoutStore = defineStore('layout', () => {
     DISPATCH_LAYOUT_MENU_ITEMS()
   }
 
-  function TOGGLE_LAYOUT_ENTRY(entryName: 'showSideBar' | 'showTabBar'): void {
-    if (entryName === 'showSideBar') {
+  function TOGGLE_LAYOUT_ENTRY(entryName: 'showSideBar' | 'showTabBar' | 'showToc'): void {
+    if (entryName === 'showToc') {
+      preferencesStore.SET_SINGLE_PREFERENCE({ type: 'tocVisibility', value: !showToc.value })
+    } else if (entryName === 'showSideBar') {
       showSideBar.value = !showSideBar.value
       const preferencesStore = usePreferencesStore()
       preferencesStore.SET_SINGLE_PREFERENCE({
@@ -157,16 +159,16 @@ export const useLayoutStore = defineStore('layout', () => {
     })
 
     window.electron.ipcRenderer.on('mt::toggle-view-layout-entry', (_e, entryName) => {
-      TOGGLE_LAYOUT_ENTRY(entryName as 'showSideBar' | 'showTabBar')
+      TOGGLE_LAYOUT_ENTRY(entryName as 'showSideBar' | 'showTabBar' | 'showToc')
       DISPATCH_LAYOUT_MENU_ITEMS()
     })
 
     bus.on('view:toggle-layout-entry', (entryName: unknown) => {
-      const name = entryName as 'showSideBar' | 'showTabBar'
+      const name = entryName as 'showSideBar' | 'showTabBar' | 'showToc'
       TOGGLE_LAYOUT_ENTRY(name)
       const { windowId } = window.marktext?.env ?? {}
       window.electron.ipcRenderer.send('mt::view-layout-changed', Number(windowId), {
-        [name]: name === 'showSideBar' ? showSideBar.value : showTabBar.value
+        [name]: name === 'showSideBar' ? showSideBar.value : name === 'showToc' ? showToc.value : showTabBar.value
       })
     })
   }
@@ -174,6 +176,7 @@ export const useLayoutStore = defineStore('layout', () => {
   function DISPATCH_LAYOUT_MENU_ITEMS(): void {
     const { windowId } = window.marktext?.env ?? {}
     window.electron.ipcRenderer.send('mt::view-layout-changed', Number(windowId), {
+      showToc: showToc.value,
       showTabBar: showTabBar.value,
       showSideBar: showSideBar.value
     })
@@ -183,7 +186,10 @@ export const useLayoutStore = defineStore('layout', () => {
     SET_SIDE_BAR_WIDTH(width)
   }
 
+  watch(showToc, DISPATCH_LAYOUT_MENU_ITEMS)
+
   return {
+    showToc,
     rightColumn,
     showSideBar,
     showTabBar,

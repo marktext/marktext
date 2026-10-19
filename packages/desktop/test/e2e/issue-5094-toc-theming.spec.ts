@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
+import { makeRoomForOutline, launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
 
 // #5094 — the TOC panel stayed Element Plus' default #606266 on every theme.
 // Element Plus renders each tree node label inside an <el-text>, which declares
@@ -50,13 +50,13 @@ test.describe('#5094 TOC follows the active theme', () => {
     const launched = await launchWithMarkdown(DOC)
     app = launched.app
     page = launched.page
+    await makeRoomForOutline(app, page)
     await waitForEditor(page)
     const sidebarVisible = await page.evaluate(() => {
       const el = document.querySelector('.side-bar') as HTMLElement | null
       return !!(el && el.offsetParent !== null)
     })
     if (!sidebarVisible) await clickMenuById(app, 'sideBarMenuItem')
-    await clickMenuById(app, 'tocMenuItem')
     await page.waitForSelector('.side-bar-toc .el-tree', { state: 'visible', timeout: 15000 })
     await page.waitForFunction(
       () => document.querySelectorAll('.side-bar-toc .el-tree-node__label').length >= 4,

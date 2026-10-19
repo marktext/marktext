@@ -122,7 +122,7 @@
       "sourceCodeMode": "原始碼模式",
       "typewriterMode": "打字機模式",
       "focusMode": "專注模式",
-      "toggleTableOfContents": "切換目錄",
+      "toggleTableOfContents": "顯示目錄",
       "reloadImages": "重新載入圖片",
       "showDeveloperTools": "顯示開發者工具",
       "reloadWindow": "重新載入視窗"
@@ -250,6 +250,9 @@
       "openFolder": "開啟資料夾"
     },
     "toc": {
+      "expand": "展開目錄",
+      "collapse": "收起目錄",
+      "empty": "尚無標題",
       "title": "目錄",
       "expandAll": "全部展開",
       "collapseAll": "全部折疊"

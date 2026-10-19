@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
+import { makeRoomForOutline, launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
 
 // #3028 — collapsing a heading in the TOC must survive a document edit.
 //
@@ -72,9 +72,9 @@ test.describe('TOC collapse state survives edits (#3028)', () => {
     const launched = await launchWithMarkdown(INITIAL_DOC)
     app = launched.app
     page = launched.page
+    await makeRoomForOutline(app, page)
     await waitForEditor(page)
     await ensureSidebarVisible(app, page)
-    await clickMenuById(app, 'tocMenuItem')
     await page.waitForSelector('.side-bar-toc .el-tree', { state: 'visible', timeout: 10000 })
     await page.waitForFunction(
       () => document.querySelectorAll('.side-bar-toc .el-tree-node__label').length >= 4,

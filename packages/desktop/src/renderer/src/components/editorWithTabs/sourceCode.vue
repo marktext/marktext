@@ -2,6 +2,7 @@
   <div
     ref="sourceCodeContainer"
     class="source-code"
+    @scroll.passive="updateActiveHeadingFromScroll"
   />
 </template>
 
@@ -9,7 +10,7 @@
 import { ref, shallowRef, markRaw, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
-import { findMarkdownHeadingLine, scrollSourceEditorToLine } from '@/util/sourceModeToc'
+import { findMarkdownHeadingLine, getMarkdownHeadingLines, scrollSourceEditorToLine } from '@/util/sourceModeToc'
 import { storeToRefs } from 'pinia'
 import type CodeMirror from 'codemirror'
 import codeMirror, { setCursorAtFirstLine, setTextDirection } from '../../codeMirror'
@@ -342,10 +343,38 @@ const saveContent = (cm: CodeMirror.Editor) => {
   }
 }
 
+let headingMarkdown = ''
+let headingLines: number[] = []
+
+const setActiveHeadingAtLine = (line: number): void => {
+  if (!editor.value) return
+  const markdown = editor.value.getValue()
+  if (markdown !== headingMarkdown) {
+    headingMarkdown = markdown
+    headingLines = getMarkdownHeadingLines(markdown)
+  }
+  let slug: string | null = null
+  for (let index = 0; index < editorStore.listToc.length; index++) {
+    const headingLine = headingLines[index] ?? -1
+    if (headingLine < 0 || headingLine > line) break
+    slug = editorStore.listToc[index].slug ?? null
+  }
+  editorStore.SET_ACTIVE_HEADING(slug)
+}
+
+const updateActiveHeadingFromScroll = (): void => {
+  const container = sourceCodeContainer.value
+  if (!container || !editor.value) return
+  const top = container.getBoundingClientRect().top + 80
+  const line = editor.value.lineAtHeight(top, 'window')
+  setActiveHeadingAtLine(line)
+}
+
 const listenChange = (cm: CodeMirror.Editor) => {
   cm.on('cursorActivity', (instance: CodeMirror.Editor) => {
     saveContent(instance)
     updateSelectionWordCount(instance)
+    setActiveHeadingAtLine(instance.getCursor().line)
   })
 }
 

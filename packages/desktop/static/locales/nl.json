@@ -122,7 +122,7 @@
       "sourceCodeMode": "Broncodeweergave",
       "typewriterMode": "Typemachinestand",
       "focusMode": "Focusstand",
-      "toggleTableOfContents": "Inhoudsopgave in-/uitschakelen",
+      "toggleTableOfContents": "Inhoudsopgave tonen",
       "reloadImages": "Afbeeldingen herladen",
       "showDeveloperTools": "Ontwikkelaarshulpmiddelen tonen",
       "reloadWindow": "Venster herladen"
@@ -250,6 +250,9 @@
       "openFolder": "Map openen"
     },
     "toc": {
+      "expand": "Inhoudsopgave uitklappen",
+      "collapse": "Inhoudsopgave inklappen",
+      "empty": "Geen koppen",
       "title": "Inhoudsopgave",
       "expandAll": "Alles uitklappen",
       "collapseAll": "Alles inklappen"
