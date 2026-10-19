@@ -112,19 +112,20 @@ class Parent extends TreeNode {
     append(...args: unknown[]) {
         const source
             = typeof args[args.length - 1] === 'string' ? args.pop() : 'api';
+        const children = args as Parent[];
 
-        (args as Parent[]).forEach((node) => {
+        children.forEach((node) => {
             node.parent = this;
             const { domNode } = node;
             this.domNode!.appendChild(domNode!);
         });
 
-        this.children.append(...(args as Parent[]));
-        refreshFoldVisibility(this, args.some(node => isFoldableHeading(node) && node.folded));
+        this.children.append(...children);
+        refreshFoldVisibility(this, children.some(node => isFoldableHeading(node) && node.folded));
 
         // push operations
         if (source === 'user') {
-            (args as Parent[]).forEach((node) => {
+            children.forEach((node) => {
                 const path = node._getJsonPath();
                 const state = node.getState();
                 this.jsonState.insertOperation(path, state);

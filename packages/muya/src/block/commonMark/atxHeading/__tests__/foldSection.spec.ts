@@ -15,7 +15,7 @@ describe('heading boundaries', () => {
         expect(headingLevel({ blockName, meta: { level: 2 } })).toBe(2);
     });
 
-    it.each([null, {}, { blockName: 'paragraph', meta: { level: 1 } }, { blockName: 'atx-heading', meta: null }])('ignores non-headings and malformed metadata: %j', (block) => {
+    it.each([null, undefined, { blockName: 'paragraph', meta: { level: 1 } }, { blockName: 'atx-heading' }, { blockName: 'setext-heading', meta: {} }])('ignores non-headings and missing levels: %j', (block) => {
         expect(headingLevel(block)).toBeUndefined();
         expect(isFoldableHeading(block)).toBe(false);
     });

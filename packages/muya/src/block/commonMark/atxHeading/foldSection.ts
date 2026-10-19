@@ -1,3 +1,5 @@
+import type { Nullable } from '../../../types';
+
 export interface IFoldSibling {
     blockName: string;
     /** Heading level 1..6; undefined for non-heading blocks. */
@@ -7,35 +9,31 @@ export interface IFoldSibling {
     foldEnd?: number;
 }
 
-export interface IFoldableHeading {
+export interface IHeadingNode {
     blockName: string;
+    meta?: { level?: number };
+    folded?: boolean;
+    toggleFold?: (folded?: boolean) => void;
+}
+
+export interface IFoldableHeading extends IHeadingNode {
+    blockName: 'atx-heading';
     meta: { level: number };
     folded: boolean;
     toggleFold: (folded?: boolean) => void;
 }
 
 /** ATX and Setext headings share section boundaries regardless of fold support. */
-export function headingLevel(node: unknown): number | undefined {
-    if (typeof node !== 'object' || node === null || !('blockName' in node))
-        return undefined;
-    if (node.blockName !== 'atx-heading' && node.blockName !== 'setext-heading')
-        return undefined;
-    if (!('meta' in node) || typeof node.meta !== 'object' || node.meta === null)
-        return undefined;
-    return 'level' in node.meta && typeof node.meta.level === 'number'
-        ? node.meta.level
+export function headingLevel(node: Nullable<IHeadingNode>): number | undefined {
+    return node?.blockName === 'atx-heading' || node?.blockName === 'setext-heading'
+        ? node.meta?.level
         : undefined;
 }
 
-export function isFoldableHeading(node: unknown): node is IFoldableHeading {
-    return typeof node === 'object'
-        && node !== null
-        && 'blockName' in node
-        && node.blockName === 'atx-heading'
-        && headingLevel(node) !== undefined
-        && 'folded' in node
+export function isFoldableHeading(node: Nullable<IHeadingNode>): node is IFoldableHeading {
+    return node?.blockName === 'atx-heading'
+        && typeof node.meta?.level === 'number'
         && typeof node.folded === 'boolean'
-        && 'toggleFold' in node
         && typeof node.toggleFold === 'function';
 }
 
