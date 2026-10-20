@@ -244,6 +244,12 @@ export const openProjectFolder = async(
   await page.waitForSelector(`.tree-wrapper .side-bar-file[title="${marker}"]`, { timeout })
 }
 
+export const toggleReadingMode = async(page: Page, app: ElectronApplication): Promise<void> => {
+  const locked = await page.locator('.mu-read-only').count() > 0
+  await sendIpcToRenderer(app, 'mt::toggle-read-only')
+  await expect(page.locator('.mu-read-only')).toHaveCount(locked ? 0 : 1)
+}
+
 export const enterSourceMode = async(page: Page, app: ElectronApplication): Promise<void> => {
   const already = await page.evaluate(() => !!document.querySelector('.source-code .CodeMirror'))
   if (already) return

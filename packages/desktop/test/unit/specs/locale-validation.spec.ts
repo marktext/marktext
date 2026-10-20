@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import fs from 'fs'
 import path from 'path'
+import { createI18n } from 'vue-i18n'
 
 /**
  * Desktop locale validation.
@@ -96,6 +97,31 @@ describe('desktop locale validation', () => {
   const en = loadLocale('en')
   const enKeys = collectKeys(en).sort()
   const locales = getAvailableLocales()
+
+  describe('reading mode translations', () => {
+    for (const lang of ['en', ...locales]) {
+      it(`${lang}.json renders reading messages without English fallback or compiler errors`, () => {
+        const readingMode = loadLocale(lang).readingMode as Record<string, string>
+        const english = en.readingMode as Record<string, string>
+        const i18n = createI18n({
+          legacy: false,
+          locale: lang,
+          fallbackLocale: false,
+          messages: { [lang]: { readingMode } }
+        })
+        const errors = vi.spyOn(console, 'error').mockImplementation(() => {})
+        try {
+          for (const [key, value] of Object.entries(readingMode)) {
+            expect(i18n.global.t(`readingMode.${key}`)).toBe(value)
+            if (lang !== 'en') expect(value, `${lang} readingMode.${key}`).not.toBe(english[key])
+          }
+          expect(errors).not.toHaveBeenCalled()
+        } finally {
+          errors.mockRestore()
+        }
+      })
+    }
+  })
 
   describe('key parity with en.json', () => {
     for (const lang of locales) {

@@ -1,7 +1,9 @@
 <template>
   <div
     class="editor-wrapper"
-    :class="[{ typewriter: typewriter, focus: focus, source: sourceCode, 'viewer-open': viewerOpen }]"
+    :class="[
+      { typewriter: typewriter, focus: focus, source: sourceCode, 'viewer-open': viewerOpen }
+    ]"
     :dir="textDirection"
   >
     <div
@@ -69,7 +71,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, reactive, watch, onMounted, onBeforeUnmount, nextTick, markRaw } from 'vue'
+import {
+  computed,
+  ref,
+  shallowRef,
+  reactive,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+  markRaw
+} from 'vue'
 import log from 'electron-log'
 import {
   Muya,
@@ -122,6 +134,11 @@ import {
 import { findActiveHeadingSlug, type HeadingPosition } from '@/util/findActiveHeading'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
+import {
+  registerDocumentView,
+  pruneSourceHistory
+} from '../../services/documentMode'
+import { popupContextMenu } from '../../contextMenu/popupMenu'
 import { useEditorStore } from '@/store/editor'
 import { useProjectStore } from '@/store/project'
 import { storeToRefs } from 'pinia'
@@ -228,13 +245,24 @@ const {
   language,
 
   // Edit modes
-  typewriter,
-  focus,
-  sourceCode
+  typewriter: typewriterPreference,
+  focus: focusPreference,
+  sourceCode: sourceCodePreference
 } = storeToRefs(preferencesStore)
 
 // Editor store refs
 const { currentFile, tabs } = storeToRefs(editorStore)
+const sourceCode = computed(() => sourceCodePreference.value && !currentFile.value?.readOnly)
+const typewriter = computed(() => typewriterPreference.value && !currentFile.value?.readOnly)
+const focus = computed(() => focusPreference.value && !currentFile.value?.readOnly)
+let loadingContent = false
+const readingSelectionChanged = () => {
+  if (!currentFile.value?.readOnly || !editor.value) return
+  const selection = document.getSelection()
+  if (selection?.anchorNode && editor.value.domNode.contains(selection.anchorNode)) {
+    setSelectionWordCountFromText(selection.toString())
+  }
+}
 
 // Project store refs
 const { projectTree } = storeToRefs(projectStore)
@@ -318,6 +346,7 @@ const makeSyntheticHistory = (id: string, content: string): IFileHistoryLike => 
 // each `SyntheticHistory` holds) would grow unbounded as tabs are opened and
 // closed. Driven by a watcher on the store's live tab id set.
 const pruneClosedTabState = (liveTabIds: Set<string>): void => {
+  pruneSourceHistory(liveTabIds)
   for (const id of engineHistoryByTab.keys()) {
     if (!liveTabIds.has(id)) engineHistoryByTab.delete(id)
   }
@@ -380,13 +409,9 @@ const adaptSelectionChange = (changes: MuyaChange) => {
   const anchorBlock = changes.anchorBlock as { text?: string } | null | undefined
   const focusBlock = changes.focusBlock as { text?: string } | null | undefined
   const anchorInfo = changes.anchorBlockInfo as
-    | { type?: string; functionType?: string }
-    | null
-    | undefined
+    { type?: string; functionType?: string } | null | undefined
   const focusInfo = changes.focusBlockInfo as
-    | { type?: string; functionType?: string }
-    | null
-    | undefined
+    { type?: string; functionType?: string } | null | undefined
   const rawAffiliation = (changes.affiliation ?? []) as EngineAffiliationEntry[]
   const affiliation = rawAffiliation.map((entry) => {
     const functionType =
@@ -550,11 +575,14 @@ watch(sequenceTheme, (value, oldValue) => {
   }
 })
 
-watch(() => preferencesStore.plantumlServer, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ plantumlServer: value }, true)
+watch(
+  () => preferencesStore.plantumlServer,
+  (value, oldValue) => {
+    if (value !== oldValue && editor.value) {
+      editor.value.setOptions({ plantumlServer: value }, true)
+    }
   }
-})
+)
 
 watch(listIndentation, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
@@ -780,6 +808,7 @@ watch(
   sourceCode,
   (value, oldValue) => {
     if (value && value !== oldValue) {
+      if (editor.value?.readOnly) return
       // The viewer holds a rendering of a document that is about to stop being
       // shown, and holds the editor behind it inert while it is up.
       mediaViewer.value?.close()
@@ -810,6 +839,14 @@ watch(
         preSourceModeSelection = editor.value.getSelection()
       }
     }
+  },
+  { flush: 'sync' }
+)
+
+watch(
+  () => currentFile.value?.readOnly,
+  (value) => {
+    editor.value?.setReadOnly(!!value)
   },
   { flush: 'sync' }
 )
@@ -1323,7 +1360,7 @@ const handleExport = async (options: unknown) => {
   const extraCss = await getCssForOptions(opts as unknown as PdfCssOptions)
   const htmlToc = getHtmlToc(muya.getTOC(), opts as unknown as HtmlTocOptions)
   // The hidden WYSIWYG engine keeps its pre-source-mode document until the handoff.
-  const markdown = sourceCode.value ? editorStore.currentFile?.markdown ?? '' : muya.getMarkdown()
+  const markdown = sourceCode.value ? (editorStore.currentFile?.markdown ?? '') : muya.getMarkdown()
   const header = (opts.header ?? null) as HeaderFooterPart | null
   const footer = (opts.footer ?? null) as HeaderFooterPart | null
 
@@ -1531,6 +1568,7 @@ const setMarkdownToEditor = (payload: unknown) => {
 }
 
 interface FileChangePayload {
+  reason?: string
   id?: string
   markdown?: string
   cursor?: unknown
@@ -1551,7 +1589,8 @@ const handleFileChange = (payload: unknown) => {
     muyaIndexCursor,
     history: payloadHistory,
     scrollTop,
-    isReload
+    isReload,
+    reason
   } = (payload ?? {}) as FileChangePayload
   if (!editor.value) return
   const container = getScrollContainer()
@@ -1576,19 +1615,30 @@ const handleFileChange = (payload: unknown) => {
     // those absent reliably isolates the WYSIWYG<-source handoff from a tab
     // activation that merely replays a tab's persisted `muyaIndexCursor`.
     const isSourceModeHandoff =
-      isIndexCursor(muyaIndexCursor) && !newCursor && payloadHistory == null
+      reason === 'source-handoff' ||
+      (isIndexCursor(muyaIndexCursor) && !newCursor && payloadHistory == null)
 
     if (isSourceModeHandoff) {
       // Record the bulk source-mode edit as a single undo boundary. When the
       // document is unchanged this is a no-op (returns false) and the existing
       // history/content already match — either way the caret still needs
       // remapping below.
-      editor.value.replaceContent(newMarkdown, preSourceModeSelection)
+      loadingContent = true
+      try {
+        editor.value.replaceContent(newMarkdown, preSourceModeSelection)
+        if (id) {
+          engineHistoryByTab.set(id, editor.value.getHistory())
+          if (currentFile.value?.id === id)
+            currentFile.value.history = makeSyntheticHistory(id, newMarkdown)
+        }
+      } finally {
+        loadingContent = false
+      }
       preSourceModeSelection = null
       editorStore.UPDATE_TOC(editor.value.getTOC())
       // Map the CodeMirror `{ line, ch }` cursor onto a block-key cursor so the
       // WYSIWYG caret lands where the source-mode cursor was (PG2).
-      editor.value.setCursorByOffset(muyaIndexCursor)
+      if (isIndexCursor(muyaIndexCursor)) editor.value.setCursorByOffset(muyaIndexCursor)
     } else if (isReload) {
       // External disk reload (`loadChange`): the tab is already the live engine
       // document, so record the new on-disk content as a SINGLE invertible undo
@@ -1606,7 +1656,13 @@ const handleFileChange = (payload: unknown) => {
       if (id) {
         resetSyntheticHistory(id, newMarkdown)
       }
-      editor.value.replaceContent(newMarkdown)
+      loadingContent = true
+      try {
+        editor.value.replaceContent(newMarkdown)
+        if (id) engineHistoryByTab.set(id, editor.value.getHistory())
+      } finally {
+        loadingContent = false
+      }
       editorStore.UPDATE_TOC(editor.value.getTOC())
       if (newCursor) {
         applyCursor(editor.value, newCursor)
@@ -1777,6 +1833,7 @@ onMounted(() => {
   const options: Partial<IMuyaOptions> = {
     focusMode: focus.value,
     markdown: props.markdown,
+    readOnly: !!currentFile.value?.readOnly,
     locale: getMuyaLocale(language.value),
     preferLooseListItem: preferLooseListItem.value,
     autoPairBracket: autoPairBracket.value,
@@ -1849,6 +1906,53 @@ onMounted(() => {
   // the document tree and instantiates the registered UI plugins).
   muya.init({ focus: editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false })
   editor.value = muya
+  muya.on(
+    'reading-context-menu',
+    ({ event, href, image }: { event: MouseEvent; href?: string; image?: string }) => {
+      const hasSelection = document.getSelection()?.isCollapsed === false
+      popupContextMenu(
+        [
+          {
+            label: t('menu.edit.copy'),
+            enabled: hasSelection,
+            click: () => {
+              document.execCommand('copy')
+            }
+          },
+          {
+            label: t('menu.edit.copyAsRich'),
+            enabled: hasSelection,
+            click: () => muya.copyAsRich()
+          },
+          {
+            label: t('menu.edit.copyAsHtml'),
+            enabled: hasSelection,
+            click: () => muya.copyAsHtml()
+          },
+          { label: t('menu.edit.selectAll'), click: () => muya.selectAll() },
+          ...(href
+            ? [
+                {
+                  label: t('readingMode.copyLink'),
+                  click: () => window.electron.clipboard.writeText(href)
+                }
+              ]
+            : []),
+          ...(image
+            ? [
+                {
+                  label: t('readingMode.viewImage'),
+                  click: () => mediaViewer.value?.openImage(image)
+                }
+              ]
+            : [])
+        ],
+        { x: event.clientX, y: event.clientY }
+      )
+    }
+  )
+  document.addEventListener('selectionchange', readingSelectionChanged)
+  registerDocumentView((value) => muya.setReadOnly(value))
   // The first document's content is set via constructor options, so no
   // `file-loaded` / `setMarkdownToEditor` runs for it — seed its TOC here.
   editorStore.UPDATE_TOC(muya.getTOC())
@@ -1918,6 +2022,7 @@ onMounted(() => {
   // block AST), so we compute it here — mirroring the legacy engine's
   // `dispatchChange` payload.
   editor.value.on('json-change', () => {
+    if (loadingContent || currentFile.value?.readOnly) return
     // There is a chance that this event is fired AFTER the tab is switched. If we purely rely on this.currentFile later on
     // it can cause invalid updates. Hence, we need the id to identify changes as part of each tab
     if (!currentFile.value || !editor.value) return
@@ -1965,7 +2070,7 @@ onMounted(() => {
     'format-click',
     ({ event, formatType, data }: { event: MouseEvent; formatType: string; data: unknown }) => {
       const ctrlOrMeta = (isMac && event.metaKey) || (!isMac && event.ctrlKey)
-      if (formatType === 'link' && ctrlOrMeta) {
+      if (formatType === 'link' && (ctrlOrMeta || currentFile.value?.readOnly)) {
         editorStore.FORMAT_LINK_CLICK({
           data: data as { href: string; [key: string]: unknown },
           dirname: window.DIRNAME
@@ -2005,7 +2110,7 @@ onMounted(() => {
 
   editor.value.on('selection-change', (changes: MuyaChange) => {
     const y = (changes.cursorCoords?.y ?? null) as number | null
-    if (y != null) {
+    if (y != null && !currentFile.value?.readOnly) {
       // Before the scrolling below: a 0-duration `animatedScrollTo` assigns
       // `scrollTop` at once, moving the headings out from under `y`.
       updateActiveHeading(y)
@@ -2051,6 +2156,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  registerDocumentView(null)
+  document.removeEventListener('selectionchange', readingSelectionChanged)
   bus.off('file-loaded', setMarkdownToEditor)
   bus.off('invalidate-image-cache', handleInvalidateImageCache)
   bus.off('undo', handleUndo)
@@ -2174,5 +2281,4 @@ onBeforeUnmount(() => {
   padding-top: calc(50vh - 136px);
   padding-bottom: calc(50vh - 54px);
 }
-
 </style>

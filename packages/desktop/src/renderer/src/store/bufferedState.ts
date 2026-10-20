@@ -4,7 +4,7 @@ import { useProjectStore } from './project'
 import { useLayoutStore } from './layout'
 
 const BUFFERED_STATE_DEBOUNCE_MS = 1000
-const BUFFERED_STATE_VERSION = 1
+const BUFFERED_STATE_VERSION = 2
 
 interface StoreCache {
   editorStore: ReturnType<typeof useEditorStore> | null

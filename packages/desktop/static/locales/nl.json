@@ -1046,5 +1046,15 @@
     "tabs": {
       "close": "{name} sluiten"
     }
+  },
+  "readingMode": {
+    "unsaved": "De leesmodus is ingeschakeld. Niet-opgeslagen wijzigingen blijven behouden en automatisch opslaan is gepauzeerd.",
+    "failed": "De documentmodus kon niet worden gewijzigd",
+    "closeSave": "Overschakelen naar bewerkingsmodus en opslaan",
+    "exportSource": "Kies een andere exportbestemming dan het bronbestand.",
+    "skipped": "Alleen-lezen documenten met niet-opgeslagen wijzigingen zijn overgeslagen.",
+    "viewImage": "Afbeelding bekijken",
+    "copyLink": "Linkadres kopiëren",
+    "resumed": "De bewerkingsmodus is ingeschakeld. Automatisch opslaan is hervat."
   }
 }

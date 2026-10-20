@@ -24,7 +24,7 @@
         :markdown="markdown"
         :cursor="cursor"
         :muya-index-cursor="muyaIndexCursor"
-        :source-code="sourceCode"
+        :source-code="sourceCode && !currentFile?.readOnly"
         :show-tab-bar="showTabBar"
         :text-direction="textDirection"
         :platform="platform"
@@ -81,6 +81,18 @@ const { sourceCode, theme, customCss, textDirection, zoom } = storeToRefs(prefer
 const { projectTree } = storeToRefs(projectStore)
 const { currentFile, selectionWordCount } = storeToRefs(editorStore)
 
+watch(
+  () => [currentFile.value?.id, currentFile.value?.readOnly],
+  () => {
+    window.electron.ipcRenderer.send(
+      'mt::update-document-mode',
+      !!currentFile.value?.readOnly,
+      !!currentFile.value
+    )
+  },
+  { immediate: true }
+)
+
 const pathname = computed(() => currentFile.value?.pathname)
 const filename = computed(() => currentFile.value?.filename)
 const isSaved = computed(() => currentFile.value?.isSaved)
@@ -124,6 +136,15 @@ const setupDragDropHandler = (): void => {
   window.addEventListener(
     'dragover',
     (e: DragEvent) => {
+      if (
+        editorStore.currentFile?.readOnly &&
+        e.target instanceof Element &&
+        e.target.closest('.mu-editor')
+      ) {
+        e.preventDefault()
+        e.stopPropagation()
+        return
+      }
       if (!e.dataTransfer || !e.dataTransfer.types.length) return
 
       if (e.dataTransfer.types.indexOf('Files') >= 0) {
@@ -176,6 +197,7 @@ onMounted(async () => {
   preferencesStore.ASK_FOR_USER_PREFERENCE()
   preferencesStore.LISTEN_TOGGLE_VIEW()
   editorStore.LISTEN_SCREEN_SHOT()
+  editorStore.LISTEN_FOR_READING_MODE()
   editorStore.LISTEN_FOR_CLOSE()
   editorStore.LISTEN_FOR_SAVE_AS()
   editorStore.LISTEN_FOR_MOVE_TO()

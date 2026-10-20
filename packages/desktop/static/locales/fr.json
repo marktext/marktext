@@ -1046,5 +1046,15 @@
     "tabs": {
       "close": "Fermer {name}"
     }
+  },
+  "readingMode": {
+    "unsaved": "Le mode lecture est activé. Les modifications non enregistrées sont conservées et l’enregistrement automatique est suspendu.",
+    "failed": "Impossible de changer le mode du document",
+    "closeSave": "Passer en mode édition et enregistrer",
+    "exportSource": "Choisissez une destination d’exportation différente du fichier source.",
+    "skipped": "Les documents en lecture seule contenant des modifications non enregistrées ont été ignorés.",
+    "viewImage": "Afficher l’image",
+    "copyLink": "Copier l’adresse du lien",
+    "resumed": "Le mode édition est activé. L’enregistrement automatique a repris."
   }
 }

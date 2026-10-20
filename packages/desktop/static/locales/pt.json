@@ -1046,5 +1046,15 @@
     "tabs": {
       "close": "Fechar {name}"
     }
+  },
+  "readingMode": {
+    "unsaved": "O modo de leitura está ativado. As alterações não salvas são mantidas e o salvamento automático está pausado.",
+    "failed": "Não foi possível alterar o modo do documento",
+    "closeSave": "Alternar para o modo de edição e salvar",
+    "exportSource": "Escolha um destino de exportação diferente do arquivo de origem.",
+    "skipped": "Documentos somente leitura com alterações não salvas foram ignorados.",
+    "viewImage": "Ver imagem",
+    "copyLink": "Copiar endereço do link",
+    "resumed": "O modo de edição está ativado. O salvamento automático foi retomado."
   }
 }

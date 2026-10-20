@@ -9,6 +9,7 @@
   "wordWrapInToc": false,
   "fileSortBy": "created",
   "fileSortOrder": "asc",
+  "defaultOpenMode": "edit",
   "startUpAction": "restoreAll",
   "restoreLayoutState": true,
   "defaultDirectoryToOpen": "",

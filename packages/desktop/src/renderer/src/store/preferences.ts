@@ -1,3 +1,4 @@
+import { useEditorStore } from './editor'
 import { defineStore } from 'pinia'
 import bus from '../bus'
 import { setLanguage } from '../i18n'
@@ -31,6 +32,7 @@ export interface PreferencesState {
   wordWrapInToc: boolean
   fileSortBy: FileSortBy | string
   fileSortOrder: FileSortOrder | string
+  defaultOpenMode: 'edit' | 'read'
   startUpAction: StartUpAction | string
   restoreLayoutState: boolean
   defaultDirectoryToOpen: string
@@ -161,6 +163,7 @@ export const usePreferencesStore = defineStore('preferences', {
     wordWrapInToc: false,
     fileSortBy: 'created',
     fileSortOrder: 'asc',
+    defaultOpenMode: 'edit',
     startUpAction: 'restoreAll',
     restoreLayoutState: true,
     defaultDirectoryToOpen: '',
@@ -291,6 +294,11 @@ export const usePreferencesStore = defineStore('preferences', {
     },
 
     TOGGLE_VIEW_MODE(entryName: keyof PreferencesState | string): void {
+      if (
+        (useEditorStore().currentFile?.readOnly || useEditorStore().currentFile?.modeChanging) &&
+        ['sourceCode', 'typewriter', 'focus'].includes(entryName)
+      )
+        return
       const target = this as unknown as Record<string, unknown>
       target[entryName as string] = !target[entryName as string]
     },

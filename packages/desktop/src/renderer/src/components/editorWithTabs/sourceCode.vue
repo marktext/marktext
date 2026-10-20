@@ -7,10 +7,19 @@
 </template>
 
 <script setup lang="ts">
+import {
+  registerSourceView,
+  captureSourceHistory,
+  restoreSourceHistory
+} from '../../services/documentMode'
 import { ref, shallowRef, markRaw, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
-import { findMarkdownHeadingLine, getMarkdownHeadingLines, scrollSourceEditorToLine } from '@/util/sourceModeToc'
+import {
+  findMarkdownHeadingLine,
+  getMarkdownHeadingLines,
+  scrollSourceEditorToLine
+} from '@/util/sourceModeToc'
 import { storeToRefs } from 'pinia'
 import type CodeMirror from 'codemirror'
 import codeMirror, { setCursorAtFirstLine, setTextDirection } from '../../codeMirror'
@@ -36,7 +45,6 @@ const preferencesStore = usePreferencesStore()
 const sourceCodeContainer = ref<HTMLDivElement | null>(null)
 
 const editor = shallowRef<CodeMirror.Editor | null>(null)
-const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
 
@@ -122,7 +130,6 @@ const getMarkdownAndCursor = (cm: CodeMirror.Editor) => {
  * @param id
  */
 const prepareTabSwitch = () => {
-  if (commitTimer.value) clearTimeout(commitTimer.value)
   if (tabId.value && editor.value) {
     const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
     editorStore.LISTEN_FOR_CONTENT_CHANGE({
@@ -130,18 +137,25 @@ const prepareTabSwitch = () => {
       markdown: newMarkdown,
       muyaIndexCursor: cursor
     })
+    captureSourceHistory(
+      tabId.value,
+      editor.value,
+      editorStore.tabs.find((tab) => tab.id === tabId.value)?.markdown
+    )
     tabId.value = null
   }
 }
 
 interface FileChangePayloadLike {
+  reason?: string
   id: string
   markdown?: string
   muyaIndexCursor?: unknown
 }
 
 const handleFileChange = (payload: unknown) => {
-  const { id, markdown: newMarkdown, muyaIndexCursor } = payload as FileChangePayloadLike
+  const { id, markdown: newMarkdown, muyaIndexCursor, reason } = payload as FileChangePayloadLike
+  if (reason === 'source-handoff') return
   if (!editor.value) return
 
   // On same-tab reload (external file change), preserve scroll across
@@ -182,9 +196,10 @@ const handleFileChange = (payload: unknown) => {
     tabId.value = id
   }
 
-  if (typeof newMarkdown === 'string') {
+  if (typeof newMarkdown === 'string' && editor.value.getValue() !== newMarkdown) {
     editor.value.setValue(newMarkdown)
   }
+  if (!isSameTabReload) restoreSourceHistory(id, editor.value)
 
   // t('editor.sourceCode.cursorNullComment')
   if (isValidMuyaIndexCursor(muyaIndexCursor)) {
@@ -383,7 +398,7 @@ const listenChange = (cm: CodeMirror.Editor) => {
 // CodeMirror instead. Resolve the TOC entry to its heading line in the source.
 const handleScrollToHeader = (slug: unknown) => {
   if (!editor.value) return
-  const index = editorStore.listToc.findIndex(item => item.slug === slug)
+  const index = editorStore.listToc.findIndex((item) => item.slug === slug)
   if (index < 0) return
   const line = findMarkdownHeadingLine(editor.value.getValue(), index)
   if (line < 0) return
@@ -446,16 +461,30 @@ onMounted(() => {
     setCursorAtFirstLine(codeMirrorInstance)
   }
 
+  restoreSourceHistory(id, codeMirrorInstance)
   editor.value = codeMirrorInstance
   tabId.value = id
   updateSelectionWordCount(codeMirrorInstance)
 
   listenChange(codeMirrorInstance)
+  registerSourceView(async () => {
+    preferencesStore.SET_MODE({ type: 'sourceCode', checked: false })
+    preferencesStore.DISPATCH_EDITOR_VIEW_STATE({ sourceCode: false })
+    await nextTick()
+  })
 })
 
 onBeforeUnmount(() => {
+  registerSourceView(null)
+  if (editor.value) {
+    saveContent(editor.value)
+    captureSourceHistory(
+      tabId.value,
+      editor.value,
+      editorStore.tabs.find((tab) => tab.id === tabId.value)?.markdown
+    )
+  }
   viewDestroyed.value = true
-  if (commitTimer.value) clearTimeout(commitTimer.value)
 
   bus.off('file-loaded', handleFileChange)
   bus.off('file-changed', handleFileChange)
@@ -470,6 +499,7 @@ onBeforeUnmount(() => {
   if (editor.value) {
     const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
     bus.emit('file-changed', {
+      reason: 'source-handoff',
       id: tabId.value,
       markdown: newMarkdown,
       muyaIndexCursor: cursor,
@@ -481,7 +511,7 @@ onBeforeUnmount(() => {
 
 <style>
 .source-code {
-  height: calc(100vh - var(--titleBarHeight));
+  height: 100%;
   box-sizing: border-box;
   overflow: auto;
 }
