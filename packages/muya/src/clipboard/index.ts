@@ -202,7 +202,10 @@ class Clipboard {
     // event, so the old flag + execCommand approach pasted nothing. Read the
     // clipboard text ourselves and feed it through the paste pipeline.
     async pasteAsPlainText(): Promise<void> {
+        const target = this.selection.getSelection()?.anchor.block;
         const text = await this._readClipboardText();
+        if (!this.muya.isBlockInDocument(target) || this.selection.getSelection()?.anchor.block !== target)
+            return;
         if (text)
             await pastePlainText(this, text);
     }
