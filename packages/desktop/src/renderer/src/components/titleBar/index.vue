@@ -67,6 +67,9 @@
           :word-count="wordCount"
           :selection-word-count="selectionWordCount"
           :is-saved="isSaved"
+          :read-only="!!currentFile?.readOnly"
+          :mode-changing="!!currentFile?.modeChanging"
+          @toggle-reading="setReadingMode"
         />
       </div>
       <div
@@ -177,6 +180,10 @@ const props = defineProps<{
 const preferencesStore = usePreferencesStore()
 const layoutStore = useLayoutStore()
 const editorStore = useEditorStore()
+const { currentFile } = storeToRefs(editorStore)
+const setReadingMode = (readOnly: boolean): void => {
+  if (currentFile.value) void editorStore.SET_READ_ONLY(currentFile.value.id, readOnly)
+}
 const { t } = useI18n()
 
 const isOsx = isOsxPlatform
@@ -394,7 +401,7 @@ div.title > span > .path > bdi > span {
   position: absolute;
   top: 0;
   left: 0;
-  width: 190px; /* + 2*10px padding*/
+  width: 190px;
   display: flex;
   flex-direction: row;
 }

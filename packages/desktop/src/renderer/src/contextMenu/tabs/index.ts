@@ -9,6 +9,8 @@ import {
   getShowInFolder,
   getShowInSideBar
 } from './menuItems'
+import { useEditorStore } from '@/store/editor'
+import { t } from '../../i18n'
 import { popupContextMenu } from '../popupMenu'
 
 type MenuItemShape = {
@@ -33,6 +35,8 @@ interface ContextMenuClickEvent {
 }
 
 interface TabLike {
+  readOnly?: boolean
+  modeChanging?: boolean
   id: string
   pathname?: string | null
 }
@@ -53,6 +57,14 @@ export const showContextMenu = (event: ContextMenuClickEvent, tab: TabLike): voi
   })
 
   const items = [
+    {
+      label: t(tab.readOnly ? 'readingMode.unlock' : 'readingMode.lock'),
+      enabled: !tab.modeChanging,
+      click: () => {
+        void useEditorStore().SET_READ_ONLY(tab.id, !tab.readOnly)
+      }
+    },
+    SEPARATOR,
     closeThis,
     closeOthers,
     closeSaved,

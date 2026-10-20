@@ -49,6 +49,28 @@
       <el-divider class="document-statistics__divider" />
 
       <section class="document-statistics__section">
+        <div class="document-statistics__file-row document-statistics__reading-mode">
+          <label
+            class="document-statistics__file-label"
+            for="document-reading-mode"
+          >
+            <el-icon class="document-statistics__icon"><Lock /></el-icon>
+            {{ t('readingMode.title') }}
+          </label>
+          <el-switch
+            id="document-reading-mode"
+            class="document-statistics__mode-switch"
+            :model-value="readOnly"
+            :loading="modeChanging"
+            :aria-label="t('readingMode.title')"
+            @change="handleReadingChange"
+          />
+        </div>
+      </section>
+
+      <el-divider class="document-statistics__divider" />
+
+      <section class="document-statistics__section">
         <el-text
           class="document-statistics__heading"
           tag="div"
@@ -81,7 +103,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Calendar, Clock } from '@element-plus/icons-vue'
+import { Calendar, Clock, Lock } from '@element-plus/icons-vue'
 import type { FileWordCount } from '@shared/types/files'
 import { formatCountPair, formatTimestamp } from './documentStatisticsFormat'
 import { loadStatMetric, saveStatMetric, type StatMetric } from './documentStatisticsPersistence'
@@ -91,9 +113,19 @@ const props = defineProps<{
   wordCount?: FileWordCount | null
   selectionWordCount?: FileWordCount | null
   isSaved?: boolean
+  readOnly?: boolean
+  modeChanging?: boolean
+}>()
+
+const emit = defineEmits<{
+  'toggle-reading': [readOnly: boolean]
 }>()
 
 const { t, locale } = useI18n()
+
+const handleReadingChange = (value: boolean | string | number): void => {
+  emit('toggle-reading', Boolean(value))
+}
 
 interface MetricConfig {
   labelKey: string
@@ -313,6 +345,21 @@ watch(
   white-space: nowrap;
 }
 
+.document-statistics__mode-switch {
+  margin-left: auto;
+  flex: none;
+}
+
+.document-statistics__reading-mode .document-statistics__file-label {
+  flex: 1;
+  min-width: 0;
+  white-space: normal;
+}
+
+.document-statistics__reading-mode .document-statistics__icon {
+  flex-shrink: 0;
+}
+
 .document-statistics__file-row + .document-statistics__file-row {
   margin-top: 10px;
 }
@@ -324,10 +371,6 @@ watch(
   color: var(--editorColor);
   font-size: 14px;
   white-space: nowrap;
-}
-
-.document-statistics__file-label .document-statistics__icon {
-  margin-right: 12px;
 }
 
 .document-statistics__file-value {

@@ -10,6 +10,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
     label: t('menu.edit.edit'),
     submenu: [
       {
+        id: 'undoMenuItem',
         label: t('menu.edit.undo'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_UNDO) ?? undefined,
         click: (_menuItem, browserWindow) => {
@@ -17,6 +18,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         }
       },
       {
+        id: 'redoMenuItem',
         label: t('menu.edit.redo'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_REDO) ?? undefined,
         click: (_menuItem, browserWindow) => {
@@ -34,6 +36,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       //       panels (e.g. the "Go to Folder" sheet) while a MarkText window is
       //       focused it still pastes into the editor (#5582).
       {
+        id: 'cutMenuItem',
         label: t('menu.edit.cut'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_CUT) ?? undefined,
         role: 'cut'
@@ -44,6 +47,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         role: 'copy'
       },
       {
+        id: 'pasteMenuItem',
         label: t('menu.edit.paste'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_PASTE) ?? undefined,
         role: 'paste'
@@ -66,6 +70,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         }
       },
       {
+        id: 'pasteAsPlainTextMenuItem',
         label: t('menu.edit.pasteAsPlainText'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_PASTE_AS_PLAINTEXT) ?? undefined,
         click(_menuItem, browserWindow) {
@@ -86,6 +91,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         type: 'separator'
       },
       {
+        id: 'duplicateMenuItem',
         label: t('menu.edit.duplicate'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_DUPLICATE) ?? undefined,
         click(_menuItem, browserWindow) {
@@ -93,6 +99,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         }
       },
       {
+        id: 'createParagraphMenuItem',
         label: t('menu.edit.createParagraph'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_CREATE_PARAGRAPH) ?? undefined,
         click(_menuItem, browserWindow) {
@@ -100,6 +107,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         }
       },
       {
+        id: 'deleteParagraphMenuItem',
         label: t('menu.edit.deleteParagraph'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_DELETE_PARAGRAPH) ?? undefined,
         click(_menuItem, browserWindow) {
@@ -110,6 +118,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         type: 'separator'
       },
       {
+        id: 'findMenuItem',
         label: t('menu.edit.find'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_FIND) ?? undefined,
         click(_menuItem, browserWindow) {
@@ -117,6 +126,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         }
       },
       {
+        id: 'findNextMenuItem',
         label: t('menu.edit.findNext'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_FIND_NEXT) ?? undefined,
         click(_menuItem, browserWindow) {
@@ -124,6 +134,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         }
       },
       {
+        id: 'findPreviousMenuItem',
         label: t('menu.edit.findPrevious'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_FIND_PREVIOUS) ?? undefined,
         click(_menuItem, browserWindow) {
@@ -131,6 +142,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         }
       },
       {
+        id: 'replaceMenuItem',
         label: t('menu.edit.replace'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_REPLACE) ?? undefined,
         click(_menuItem, browserWindow) {

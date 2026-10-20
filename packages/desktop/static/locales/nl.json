@@ -1048,10 +1048,17 @@
     }
   },
   "readingMode": {
+    "title": "Leesmodus (alleen-lezen)",
+    "edit": "Bewerkingsmodus",
+    "lock": "Leesmodus inschakelen",
+    "unlock": "Overschakelen naar bewerkingsmodus",
+    "defaultMode": "Standaardmodus bij het openen van bestanden",
+    "defaultNote": "Geldt voor bestaande bestanden die vanaf nu worden geopend. Nieuwe documenten blijven bewerkbaar.",
     "unsaved": "De leesmodus is ingeschakeld. Niet-opgeslagen wijzigingen blijven behouden en automatisch opslaan is gepauzeerd.",
     "failed": "De documentmodus kon niet worden gewijzigd",
     "closeSave": "Overschakelen naar bewerkingsmodus en opslaan",
     "exportSource": "Kies een andere exportbestemming dan het bronbestand.",
+    "unavailable": "Niet beschikbaar in leesmodus",
     "skipped": "Alleen-lezen documenten met niet-opgeslagen wijzigingen zijn overgeslagen.",
     "viewImage": "Afbeelding bekijken",
     "copyLink": "Linkadres kopiëren",

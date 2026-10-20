@@ -107,6 +107,7 @@ export default function(
       type: 'separator'
     },
     {
+      id: 'fileSaveMenuItem',
       label: t('menu.file.save'),
       accelerator: keybindings.getAccelerator('file.save') ?? undefined,
       click(_menuItem, browserWindow) {
@@ -114,6 +115,7 @@ export default function(
       }
     },
     {
+      id: 'fileSaveAsMenuItem',
       label: t('menu.file.saveAs'),
       accelerator: keybindings.getAccelerator('file.save-as') ?? undefined,
       click(_menuItem, browserWindow) {

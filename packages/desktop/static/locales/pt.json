@@ -1048,10 +1048,17 @@
     }
   },
   "readingMode": {
+    "title": "Modo de leitura (somente leitura)",
+    "edit": "Modo de edição",
+    "lock": "Ativar o modo de leitura",
+    "unlock": "Alternar para o modo de edição",
+    "defaultMode": "Modo padrão ao abrir arquivos",
+    "defaultNote": "Aplica-se aos arquivos existentes abertos a partir de agora. Novos documentos continuam editáveis.",
     "unsaved": "O modo de leitura está ativado. As alterações não salvas são mantidas e o salvamento automático está pausado.",
     "failed": "Não foi possível alterar o modo do documento",
     "closeSave": "Alternar para o modo de edição e salvar",
     "exportSource": "Escolha um destino de exportação diferente do arquivo de origem.",
+    "unavailable": "Indisponível no modo de leitura",
     "skipped": "Documentos somente leitura com alterações não salvas foram ignorados.",
     "viewImage": "Ver imagem",
     "copyLink": "Copiar endereço do link",

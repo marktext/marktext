@@ -18,6 +18,14 @@
           @click.middle="closeTab(file.id)"
           @contextmenu.prevent="handleContextMenu($event, file)"
         >
+          <el-icon
+            v-if="file.readOnly"
+            class="reading-lock"
+            :title="t('readingMode.title')"
+            :aria-label="t('readingMode.title')"
+          >
+            <Lock />
+          </el-icon>
           <span>{{ file.filename }}</span>
           <span class="unsaved-dot" />
           <button
@@ -54,7 +62,7 @@ import { useEditorStore } from '@/store/editor'
 import { storeToRefs } from 'pinia'
 import autoScroll from 'dom-autoscroller'
 import dragula from 'dragula'
-import { Plus, Close } from '@element-plus/icons-vue'
+import { Plus, Close, Lock } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import IconTooltip from '@/components/iconTooltip/index.vue'
 import { showContextMenu } from '../../contextMenu/tabs'
@@ -275,6 +283,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.reading-lock {
+  margin-inline-end: 6px;
+  flex-shrink: 0;
+}
+
 /* Padding widens the hit area and keeps the inset focus ring off the glyph. */
 .close-icon {
   padding: 2px;

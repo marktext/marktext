@@ -16,6 +16,15 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       type: 'separator'
     },
     {
+      id: 'readOnlyModeMenuItem',
+      label: t('readingMode.title'),
+      type: 'checkbox',
+      accelerator: keybindings.getAccelerator('view.read-only-mode') ?? undefined,
+      click(_item, focusedWindow) {
+        ;(focusedWindow as BrowserWindow | undefined)?.webContents.send('mt::toggle-read-only')
+      }
+    },
+    {
       id: 'sourceCodeModeMenuItem',
       label: t('menu.view.sourceCodeMode'),
       accelerator: keybindings.getAccelerator('view.source-code-mode') ?? undefined,

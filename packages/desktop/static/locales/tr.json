@@ -1048,10 +1048,17 @@
     }
   },
   "readingMode": {
+    "title": "Okuma Modu (salt okunur)",
+    "edit": "Düzenleme Modu",
+    "lock": "Okuma Moduna Geç",
+    "unlock": "Düzenleme Moduna Geç",
+    "defaultMode": "Dosyalar açılırken kullanılacak varsayılan mod",
+    "defaultNote": "Bundan sonra açılacak mevcut dosyalar için geçerlidir. Yeni belgeler düzenlenebilir kalır.",
     "unsaved": "Okuma Modu açık. Kaydedilmemiş değişiklikler korunuyor ve otomatik kaydetme duraklatıldı.",
     "failed": "Belge modu değiştirilemedi",
     "closeSave": "Düzenleme Moduna Geç ve Kaydet",
     "exportSource": "Dışa aktarma için kaynak dosyadan farklı bir hedef seçin.",
+    "unavailable": "Okuma Modunda kullanılamaz",
     "skipped": "Kaydedilmemiş değişiklikleri olan salt okunur belgeler atlandı.",
     "viewImage": "Görseli Görüntüle",
     "copyLink": "Bağlantı Adresini Kopyala",

@@ -175,6 +175,12 @@ const searchErrorMsg = ref('')
 const search = ref<HTMLInputElement | null>(null)
 
 const { currentFile } = storeToRefs(editorStore)
+watch(
+  () => currentFile.value?.readOnly,
+  (value) => {
+    if (value) emptySearch(false)
+  }
+)
 const searchMatches = computed(() => currentFile.value?.searchMatches)
 
 watch(searchValue, () => {
@@ -249,6 +255,7 @@ const toggleCtrl = (ctrl: 'isCaseSensitive' | 'isWholeWord' | 'isRegexp') => {
 }
 
 const listenFind = () => {
+  if (currentFile.value?.readOnly) return
   prefillFromSelection()
   showSearch.value = true
   type.value = 'search'
@@ -264,14 +271,19 @@ const listenFind = () => {
 }
 
 const listenReplace = () => {
+  if (currentFile.value?.readOnly) return
   prefillFromSelection()
   showSearch.value = true
   type.value = 'replace'
 }
 
-const listenFindNext = () => find('next')
+const listenFindNext = () => {
+  if (!currentFile.value?.readOnly) find('next')
+}
 
-const listenFindPrev = () => find('previous')
+const listenFindPrev = () => {
+  if (!currentFile.value?.readOnly) find('previous')
+}
 
 const docKeyup = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
@@ -296,6 +308,7 @@ const emptySearch = (selectHighlight = true) => {
 }
 
 const toggleSearchType = () => {
+  if (currentFile.value?.readOnly) return
   type.value = type.value === 'search' ? 'replace' : 'search'
 }
 

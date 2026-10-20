@@ -80,6 +80,9 @@ export const reloadImageCache = (win: Win): void => {
 // --- Commands -------------------------------------------------------------
 
 export const loadViewCommands = (commandManager: CommandManager): void => {
+  commandManager.add(COMMANDS.VIEW_READ_ONLY_MODE, (win: Win) =>
+    win?.webContents.send('mt::toggle-read-only')
+  )
   commandManager.add(COMMANDS.VIEW_COMMAND_PALETTE, showCommandPalette)
   commandManager.add(COMMANDS.VIEW_FOCUS_MODE, toggleFocusMode)
   commandManager.add(COMMANDS.VIEW_FORCE_RELOAD_IMAGES, reloadImageCache)

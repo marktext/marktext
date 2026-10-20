@@ -139,15 +139,14 @@ const hoverDiagram = async(page: Page, index: number): Promise<void> => {
   await page.waitForTimeout(150)
   const box = await block.boundingBox()
   if (!box) throw new Error('diagram block has no box')
-  // A block taller or wider than the window has its centre off-screen, and the
-  // pointer would then land outside the viewport entirely.
-  const view = await page.evaluate(() => ({ w: window.innerWidth, h: window.innerHeight }))
-  const clamp = (lo: number, mid: number, hi: number): number =>
-    Math.min(Math.max(mid, lo), hi)
-  await page.mouse.move(
-    clamp(20, box.x + box.width / 2, view.w - 20),
-    clamp(20, box.y + box.height / 2, view.h - 20)
-  )
+  const editor = await page.locator('.editor-component').boundingBox()
+  if (!editor) throw new Error('editor has no box')
+  // Hover the visible intersection; window edges can belong to title bars or panels.
+  const left = Math.max(box.x, editor.x)
+  const right = Math.min(box.x + box.width, editor.x + editor.width)
+  const top = Math.max(box.y, editor.y)
+  const bottom = Math.min(box.y + box.height, editor.y + editor.height)
+  await page.mouse.move((left + right) / 2, (top + bottom) / 2)
   await expect.poll(() => toolbarShownFor(page, index), { timeout: 10000 }).toBe(true)
 }
 

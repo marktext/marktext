@@ -1048,10 +1048,17 @@
     }
   },
   "readingMode": {
+    "title": "Lesemodus (schreibgeschützt)",
+    "edit": "Bearbeitungsmodus",
+    "lock": "Lesemodus aktivieren",
+    "unlock": "Zum Bearbeitungsmodus wechseln",
+    "defaultMode": "Standardmodus beim Öffnen von Dateien",
+    "defaultNote": "Gilt für vorhandene Dateien, die ab jetzt geöffnet werden. Neue Dokumente bleiben bearbeitbar.",
     "unsaved": "Der Lesemodus ist aktiviert. Ungespeicherte Änderungen bleiben erhalten; das automatische Speichern ist pausiert.",
     "failed": "Der Dokumentmodus konnte nicht gewechselt werden",
     "closeSave": "Zum Bearbeitungsmodus wechseln und speichern",
     "exportSource": "Wählen Sie ein anderes Exportziel als die Quelldatei.",
+    "unavailable": "Im Lesemodus nicht verfügbar",
     "skipped": "Schreibgeschützte Dokumente mit ungespeicherten Änderungen wurden übersprungen.",
     "viewImage": "Bild anzeigen",
     "copyLink": "Linkadresse kopieren",

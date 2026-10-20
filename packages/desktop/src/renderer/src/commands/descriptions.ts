@@ -1,6 +1,7 @@
 import { t } from '../i18n'
 
 const COMMAND_KEY_MAP: Record<string, string> = {
+  'view.read-only-mode': 'readingMode.title',
   // ============================================
   // # Application Level Commands
   // ============================================

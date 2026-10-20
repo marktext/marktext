@@ -1048,10 +1048,17 @@
     }
   },
   "readingMode": {
+    "title": "Reading Mode (read-only)",
+    "edit": "Edit Mode",
+    "lock": "Enter Reading Mode",
+    "unlock": "Switch to Edit Mode",
+    "defaultMode": "Default mode for opened files",
+    "defaultNote": "Applies to existing files opened from now on. New documents remain editable.",
     "unsaved": "Reading Mode is on. Unsaved changes are retained and auto-save is paused.",
     "failed": "Could not switch document mode",
     "closeSave": "Switch to Edit Mode and Save",
     "exportSource": "Choose an export destination other than the source file.",
+    "unavailable": "Unavailable in Reading Mode",
     "skipped": "Read-only documents with unsaved changes were skipped.",
     "viewImage": "View Image",
     "copyLink": "Copy Link Address",
