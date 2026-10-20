@@ -1,167 +1,88 @@
-.mt-notification {
-  position: fixed;
-  /* Above every overlay in the app. `rePositionNotices` in index.ts overwrites
-     this inline as notices stack up — keep the two in step. */
-  z-index: 10100;
-  overflow: hidden;
-  border-radius: 5px;
-  max-width: 350px;
+.el-notification.mt-notification {
+  --el-notification-width: 350px;
+  --el-notification-radius: 5px;
+  --el-notification-title-font-size: 14px;
+  --el-notification-content-font-size: 14px;
+  --el-notification-group-margin-right: 0;
+  width: min(350px, calc(100vw - 32px));
   min-width: 280px;
-  transition: all 0.2s ease;
-  box-shadow: 0px 12px 0px 0px rgba(0, 0, 0, 0);
-  backface-visibility: hidden;
-  right: 15px;
-  bottom: 15px;
-
-  & > .notice-bg {
-    background: #000;
-    width: 0;
-    height: 0;
-    position: absolute;
-    transition:
-      all 0.8s ease,
-      left 0.4s ease,
-      top 0.4s ease;
-    border-radius: 50%;
-    z-index: 10;
-    transform: translate(-50%, -50%);
-    top: 50%;
-    left: 50%;
-  }
-
-  & .content {
-    z-index: 100;
-    color: #fff;
-    position: relative;
-    & .icon-wrapper {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.2);
-    }
-    & .title {
-      display: flex;
-      align-items: center;
-      padding: 5px 5px;
-      & svg.icon {
-        width: 0.85em;
-        height: 0.85em;
-      }
-      & span {
-        flex: 1;
-        margin-left: 10px;
-      }
-      & .close {
-        margin-right: 10px;
-        opacity: 0;
-        transition: all 0.2s ease;
-        transform: scale(0);
-        transform-origin: center;
-      }
-      & .close:focus-visible {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-    & .body {
-      display: flex;
-      align-items: center;
-      font-size: 14px;
-      padding-bottom: 5px;
-      & .left-text {
-        overflow: hidden;
-        word-wrap: break-word;
-        padding: 5px;
-        box-sizing: border-box;
-        width: 100%;
-      }
-      & .confirm {
-        display: none;
-        margin-left: 7px;
-        width: 30px;
-        height: 30px;
-      }
-    }
-  }
-
-  & .fluent-container {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    z-index: 40;
-    display: block;
-    top: 0px;
-    left: 0px;
-  }
-  & .fluent {
-    position: absolute;
-    z-index: 50;
-    display: block;
-    backface-visibility: hidden;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    transition:
-      opacity 1s ease,
-      width 0.4s ease,
-      height 0.4s ease;
-    background: rgba(255, 255, 255, 0.2);
-    opacity: 0;
-    filter: blur(22px);
-  }
-
-  &:hover .content .title .close {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  /* The toast is filled with the notification colour, which the text colour is
-     chosen to contrast with. */
-  & .content .plain-button:focus-visible {
-    outline-color: currentColor;
-  }
-
-  /* Notification style colors */
-  &.mt-primary {
-    & > .notice-bg {
-      background: var(--notificationPrimaryBg);
-    }
-    & > .content {
-      color: var(--notificationPrimaryColor);
-    }
-  }
-  &.mt-info {
-    & > .notice-bg {
-      background: var(--notificationInfoBg);
-    }
-    & > .content {
-      color: var(--notificationInfoColor);
-    }
-  }
-  &.mt-warn {
-    & > .notice-bg {
-      background: var(--notificationWarningBg);
-    }
-    & > .content {
-      color: var(--notificationWarningColor);
-    }
-  }
-  &.mt-error {
-    & > .notice-bg {
-      background: var(--notificationErrorBg);
-    }
-    & > .content {
-      color: var(--notificationErrorColor);
-    }
-  }
+  border: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
 }
-.mt-notification.mt-confirm .content .body {
-  & .left-text {
-    width: calc(100% - 45px);
-  }
-  & .confirm {
-    display: flex;
-  }
+
+.el-notification.mt-notification .el-notification__title,
+.el-notification.mt-notification .el-notification__content {
+  color: inherit;
+}
+
+.el-notification.mt-notification .el-notification__title {
+  font-weight: 600;
+}
+
+.el-notification.mt-notification .el-notification__icon {
+  padding: 4px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: inherit;
+}
+
+.el-notification.mt-notification .el-notification__closeBtn {
+  color: inherit;
+  opacity: 0.8;
+}
+
+.el-notification.mt-notification .el-notification__closeBtn:hover {
+  color: inherit;
+  opacity: 1;
+}
+
+.mt-notification__body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mt-notification__text {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.el-notification.mt-notification .mt-notification__confirm {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+}
+
+.el-notification.mt-notification .mt-notification__confirm:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* The toast is filled with the notification colour, which the text colour is
+   chosen to contrast with. */
+.el-notification.mt-notification .mt-notification__confirm:focus-visible {
+  outline-color: currentColor;
+}
+
+.el-notification.mt-notification.mt-primary {
+  background-color: var(--notificationPrimaryBg);
+  color: var(--notificationPrimaryColor);
+}
+
+.el-notification.mt-notification.mt-info {
+  background-color: var(--notificationInfoBg);
+  color: var(--notificationInfoColor);
+}
+
+.el-notification.mt-notification.mt-warn {
+  background-color: var(--notificationWarningBg);
+  color: var(--notificationWarningColor);
+}
+
+.el-notification.mt-notification.mt-error {
+  background-color: var(--notificationErrorBg);
+  color: var(--notificationErrorColor);
 }

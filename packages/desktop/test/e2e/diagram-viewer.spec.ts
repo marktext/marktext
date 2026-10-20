@@ -333,9 +333,9 @@ test.describe('diagram viewer', () => {
     }
     page.on('console', listener)
 
-    // The close affordance only materialises while the notice is hovered.
+    // Element Plus puts the dismiss control in the top-right corner.
     await notice.hover()
-    await notice.locator('.close').click()
+    await notice.locator('.el-notification__closeBtn').click()
     await expect(notice).toBeHidden({ timeout: 5000 })
     await page.waitForTimeout(500)
     page.off('console', listener)
@@ -364,7 +364,7 @@ test.describe('diagram viewer', () => {
       page.on('console', listener)
 
       await notice.hover()
-      await notice.locator('.close').click()
+      await notice.locator('.el-notification__closeBtn').click()
       await expect(notice).toBeHidden({ timeout: 5000 })
       await page.waitForTimeout(500)
       page.off('console', listener)
@@ -385,10 +385,8 @@ test.describe('diagram viewer', () => {
     const notice = page.locator('.mt-notification').first()
     await expect(notice).toBeVisible({ timeout: 15000 })
 
-    // `.mt-notification` transitions `all`, and z-index is an integer the
-    // browser will happily interpolate — sample mid-flight and you read a
-    // number that belongs to neither the stylesheet nor the inline style.
-    // Wait for the re-stack to land and the transition to settle.
+    // Wait for Element Plus to apply the z-index we pass so the hit test below
+    // runs against the settled stacking order.
     await expect
       .poll(
         () =>

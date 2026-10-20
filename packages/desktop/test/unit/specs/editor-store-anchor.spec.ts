@@ -23,7 +23,7 @@ vi.hoisted(() => {
   }
 })
 
-// The notification service touches the DOM / template HTML; stub it so we can
+// The notification service mounts Element Plus notifications; stub it so we can
 // observe `notify` without rendering a toast.
 vi.mock('@/services/notification', () => ({
   default: { notify: vi.fn(), name: 'notify' }
