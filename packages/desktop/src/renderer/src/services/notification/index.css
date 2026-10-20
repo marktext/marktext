@@ -50,11 +50,15 @@
 }
 
 .el-notification.mt-notification .mt-notification__confirm {
-  flex: 0 0 30px;
-  width: 30px;
-  height: 30px;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  /* The close icon sits 15px from the root edge; the content ends at the 26px
+     right padding, so pull the action out to match its right edge. */
+  margin-right: -11px;
   border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .el-notification.mt-notification .mt-notification__confirm:hover {
