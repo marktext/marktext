@@ -10,7 +10,7 @@ import type { ITocItem } from './state/getTOC';
 import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TState } from './state/types';
 import type { IMuyaOptions, Nullable } from './types';
 import Format from './block/base/format';
-import { canInsertLabel, canTurnInto, insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './block/blockTransforms';
+import { canTurnInto, insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './block/blockTransforms';
 import { revealBlock } from './block/folding';
 import { canConvertGithubAlert, convertGithubAlert } from './block/githubAlerts';
 import { ScrollPage } from './block/scrollPage';
@@ -37,7 +37,7 @@ import { deepClone } from './utils';
 import { getBlock } from './utils/dom';
 import { GITHUB_ALERT_TYPES, githubAlertBlockType, githubAlertMarker } from './utils/githubAlerts';
 import { encodeImageSrc } from './utils/image';
-import { outlineLevel, toListDelimiter } from './utils/listMarker';
+import { toListDelimiter } from './utils/listMarker';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
@@ -95,7 +95,6 @@ const PARAGRAPH_LABEL_MAP: Record<string, string> = {
     // The desktop command palette emits `ol-bullet` for the ordered-list
     // command while the menu emits `ol-order`; accept both.
     'ol-bullet': 'order-list',
-    'ol-outline': 'outline-list',
     'ul-task': 'task-list',
     'mermaid': 'diagram mermaid',
     'plantuml': 'diagram plantuml',
@@ -105,9 +104,7 @@ const PARAGRAPH_LABEL_MAP: Record<string, string> = {
 };
 
 // The outmost-block labels that wrap a cross-block selection into a list.
-const CROSS_BLOCK_LIST_LABELS = new Set(['bullet-list', 'order-list', 'outline-list', 'task-list']);
-
-type TListLabel = 'bullet-list' | 'order-list' | 'outline-list' | 'task-list';
+const CROSS_BLOCK_LIST_LABELS = new Set(['bullet-list', 'order-list', 'task-list']);
 
 // Paragraph-menu labels whose block toggles back to a paragraph when the cursor
 // is already inside one (the menu item is checked) — clicking unwraps/removes it.
@@ -734,8 +731,7 @@ export class Muya {
 
         const label = PARAGRAPH_LABEL_MAP[type];
         if (CROSS_BLOCK_LIST_LABELS.has(label)) {
-            if (canInsertLabel(label, this))
-                this._wrapSelectedBlocksInList(label as TListLabel);
+            this._wrapSelectedBlocksInList(label as 'bullet-list' | 'order-list' | 'task-list');
             return true;
         }
         if (label === 'block-quote') {
@@ -888,18 +884,16 @@ export class Muya {
     }
 
     /** Wrap the selected outmost blocks as items of a new list of `label`. */
-    private _wrapSelectedBlocksInList(label: TListLabel) {
+    private _wrapSelectedBlocksInList(label: 'bullet-list' | 'order-list' | 'task-list') {
         const { bulletListMarker, orderListDelimiter, preferLooseListItem } = this.options;
         const itemName = label === 'task-list' ? 'task-list-item' : 'list-item';
         const meta: Record<string, unknown> = label === 'order-list'
             ? { loose: preferLooseListItem, delimiter: orderListDelimiter, start: 1 }
-            : label === 'outline-list'
-                ? { loose: preferLooseListItem, start: 1, ...outlineLevel(0) }
-                : { loose: preferLooseListItem, marker: bulletListMarker };
+            : { loose: preferLooseListItem, marker: bulletListMarker };
 
         this._wrapSelectedBlocks(
             blocks => ({
-                name: label === 'outline-list' ? 'order-list' : label,
+                name: label,
                 meta,
                 children: blocks.map(b => label === 'task-list'
                     ? { name: itemName, meta: { checked: false }, children: [this._getStateForWrapping(b)] }
@@ -1343,8 +1337,6 @@ export class Muya {
         // A list kind clicked while inside a list of a DIFFERENT kind converts
         // the cursor's (innermost) list to that kind.
         if (label.endsWith('-list')) {
-            if (!canInsertLabel(label, this))
-                return;
             const list = this._closestListAtCursor();
             if (list) {
                 this._withPreservedOffset(() => this._convertListType(list, label));
@@ -1736,13 +1728,6 @@ export class Muya {
                 children: childContents.map(children => ({ name: 'list-item', children })),
             };
         }
-        else if (label === 'outline-list') {
-            newState = {
-                name: 'order-list',
-                meta: { loose, start: 1, ...outlineLevel(0) },
-                children: childContents.map(children => ({ name: 'list-item', children })),
-            };
-        }
         else {
             newState = {
                 name: 'bullet-list',
@@ -1751,7 +1736,7 @@ export class Muya {
             };
         }
 
-        const newBlock = ScrollPage.loadBlock(newState.name).create(this, newState);
+        const newBlock = ScrollPage.loadBlock(label).create(this, newState);
         block.replaceWith(newBlock);
         newBlock.firstContentInDescendant()?.setCursor(0, 0, true);
     }

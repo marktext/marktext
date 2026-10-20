@@ -40,7 +40,6 @@ export const zhTW = {
         'Code Block': '程式碼區塊',
         'Quote Block': '引言',
         'Order List': '有序清單',
-        'Outline': '大綱',
         'Bullet List': '無序清單',
         'To-do List': '待辦清單',
         'Vega Chart': 'Vega 圖',

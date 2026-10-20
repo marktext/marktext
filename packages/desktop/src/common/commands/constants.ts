@@ -69,7 +69,6 @@ const COMMANDS = Object.freeze({
   PARAGRAPH_LOOSE_LIST_ITEM: 'paragraph.loose-list-item',
   PARAGRAPH_MATH_FORMULA: 'paragraph.math-formula',
   PARAGRAPH_ORDERED_LIST: 'paragraph.order-list',
-  PARAGRAPH_OUTLINE: 'paragraph.outline',
   PARAGRAPH_PARAGRAPH: 'paragraph.paragraph',
   PARAGRAPH_QUOTE_BLOCK: 'paragraph.quote-block',
   PARAGRAPH_TABLE: 'paragraph.table',

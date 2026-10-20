@@ -15,7 +15,6 @@ import mathBlockIcon from '../../assets/icons/math/2.png';
 import mermaidIcon from '../../assets/icons/mermaid/2.png';
 import newTableIcon from '../../assets/icons/new_table/2.png';
 import orderListIcon from '../../assets/icons/order_list/2.png';
-import outlineListIcon from '../../assets/icons/outline_list/2.png';
 import paragraphIcon from '../../assets/icons/paragraph/2.png';
 import plantumlIcon from '../../assets/icons/plantuml/2.png';
 import quoteIcon from '../../assets/icons/quote_block/2.png';
@@ -281,12 +280,6 @@ export const MENU_CONFIG: IQuickInsertMenuItem[] = [
                     code: 'KeyO',
                 },
                 icon: orderListIcon,
-            },
-            {
-                title: 'Outline',
-                subTitle: 'I. A. 1. a. i.',
-                label: 'outline-list',
-                icon: outlineListIcon,
             },
             {
                 title: 'Bullet List',

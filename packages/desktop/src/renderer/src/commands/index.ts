@@ -331,12 +331,6 @@ const commands: CommandDescriptor[] = [
     }
   },
   {
-    id: 'paragraph.outline',
-    execute: async() => {
-      focusEditorAndExecute(() => bus.emit('paragraph', 'ol-outline'))
-    }
-  },
-  {
     id: 'paragraph.bullet-list',
     execute: async() => {
       focusEditorAndExecute(() => bus.emit('paragraph', 'ul-bullet'))

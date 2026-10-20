@@ -40,7 +40,6 @@ export const zhCN = {
         'Code Block': '代码块',
         'Quote Block': '引用',
         'Order List': '有序列表',
-        'Outline': '大纲',
         'Bullet List': '无序列表',
         'To-do List': '任务列表',
         'Vega Chart': 'Vega 图',

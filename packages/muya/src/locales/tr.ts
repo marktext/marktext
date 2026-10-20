@@ -40,7 +40,6 @@ export const tr = {
         'Code Block': 'Kod Bloğu',
         'Quote Block': 'Alıntı Bloğu',
         'Order List': 'Sıralı Liste',
-        'Outline': 'Ana hat',
         'Bullet List': 'Sırasız Liste',
         'To-do List': 'Yapılacaklar Listesi',
         'Vega Chart': 'Vega Grafiği',

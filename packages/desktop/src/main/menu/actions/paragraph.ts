@@ -10,7 +10,6 @@ const CROSS_BLOCK_ENABLED_PARAGRAPH: readonly string[] = [
   'codeFencesMenuItem',
   'quoteBlockMenuItem',
   'orderListMenuItem',
-  'outlineMenuItem',
   'bulletListMenuItem',
   'taskListMenuItem'
 ]
@@ -101,10 +100,6 @@ export const orderedList = (win: Win): void => {
   transformEditorElement(win, 'ol-order')
 }
 
-export const outline = (win: Win): void => {
-  transformEditorElement(win, 'ol-outline')
-}
-
 export const paragraph = (win: Win): void => {
   transformEditorElement(win, 'paragraph')
 }
@@ -147,7 +142,6 @@ export const loadParagraphCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.PARAGRAPH_LOOSE_LIST_ITEM, looseListItem)
   commandManager.add(COMMANDS.PARAGRAPH_MATH_FORMULA, mathFormula)
   commandManager.add(COMMANDS.PARAGRAPH_ORDERED_LIST, orderedList)
-  commandManager.add(COMMANDS.PARAGRAPH_OUTLINE, outline)
   commandManager.add(COMMANDS.PARAGRAPH_PARAGRAPH, paragraph)
   commandManager.add(COMMANDS.PARAGRAPH_QUOTE_BLOCK, quoteBlock)
   commandManager.add(COMMANDS.PARAGRAPH_TABLE, table)

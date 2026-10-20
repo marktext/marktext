@@ -508,12 +508,9 @@ writes two spaces after a capital letter followed by a period, as in
 
 #### Outlines
 
-An outline is a list that starts at `I.`. To start one, choose **Paragraph →
-Outline**, or type `/` and choose **Outline**. The shortcut is
-<kbd>Cmd</kbd>+<kbd>Option</kbd>+<kbd>K</kbd> on macOS and
-<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>K</kbd> on Linux. In an outline,
-<kbd>Tab</kbd> moves an item one level deeper and
-<kbd>Shift</kbd>+<kbd>Tab</kbd> moves it back. Each level has its own marker:
+An outline is a list that starts at `I.`. To start one, type `I.` and two
+spaces at the start of a paragraph. In an outline, <kbd>Tab</kbd> moves an item
+one level deeper and <kbd>Shift</kbd>+<kbd>Tab</kbd> moves it back. Each level has its own marker:
 
 `I.` → `A.` → `1.` → `a.` → `i.` → `(1)` → `(a)`
 

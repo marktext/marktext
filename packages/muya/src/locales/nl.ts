@@ -40,7 +40,6 @@ export const nl = {
         'Code Block': 'Codeblok',
         'Quote Block': 'Citaatblok',
         'Order List': 'Genummerde lijst',
-        'Outline': 'Overzicht',
         'Bullet List': 'Opsommingslijst',
         'To-do List': 'Takenlijst',
         'Vega Chart': 'Vega-grafiek',
