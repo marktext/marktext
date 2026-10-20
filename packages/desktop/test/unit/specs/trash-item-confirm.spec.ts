@@ -38,27 +38,6 @@ describe('confirmAndTrashItem', () => {
     expect(trashItem).toHaveBeenCalledTimes(1)
   })
 
-  it.each([0, 1])('shares concurrent requests and permits retry after response %s', async(response) => {
-    let resolveDialog!: (value: { response: number }) => void
-    showMessageBox.mockImplementationOnce(() => new Promise((resolve) => {
-      resolveDialog = resolve
-    }))
-
-    const first = confirmAndTrashItem(fakeWindow, '/docs/notes.md')
-    const second = confirmAndTrashItem(fakeWindow, '/docs/notes.md')
-    expect(second).toBe(first)
-    expect(showMessageBox).toHaveBeenCalledTimes(1)
-
-    resolveDialog({ response })
-    await expect(first).resolves.toBe(response === 0)
-    await second
-    expect(trashItem).toHaveBeenCalledTimes(response === 0 ? 1 : 0)
-
-    showMessageBox.mockResolvedValueOnce({ response: 1 })
-    await confirmAndTrashItem(fakeWindow, '/docs/notes.md')
-    expect(showMessageBox).toHaveBeenCalledTimes(2)
-  })
-
   it('shows a parent-less dialog when no window is available', async() => {
     showMessageBox.mockResolvedValue({ response: 1 })
 

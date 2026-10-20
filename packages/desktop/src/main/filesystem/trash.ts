@@ -8,10 +8,8 @@ import { t } from '../i18n'
 const CONFIRM_BUTTON_ID = 0
 const CANCEL_BUTTON_ID = 1
 
-const pendingTrashRequests = new Map<BrowserWindow | null, Map<string, Promise<boolean>>>()
-
 /** Asks first; returns true only when the item was actually trashed. */
-const askAndTrashItem = async(
+export const confirmAndTrashItem = async(
   win: BrowserWindow | null,
   fullPath: string
 ): Promise<boolean> => {
@@ -30,26 +28,4 @@ const askAndTrashItem = async(
   if (response !== CONFIRM_BUTTON_ID) return false
   await shell.trashItem(fullPath)
   return true
-}
-
-export const confirmAndTrashItem = (
-  win: BrowserWindow | null,
-  fullPath: string
-): Promise<boolean> => {
-  const pathname = path.resolve(fullPath)
-  let requests = pendingTrashRequests.get(win)
-  if (!requests) {
-    requests = new Map()
-    pendingTrashRequests.set(win, requests)
-  }
-  const pending = requests.get(pathname)
-  if (pending) return pending
-
-  // Key repeats and duplicate IPC requests must share the open confirmation.
-  const request = askAndTrashItem(win, pathname).finally(() => {
-    requests.delete(pathname)
-    if (requests.size === 0) pendingTrashRequests.delete(win)
-  })
-  requests.set(pathname, request)
-  return request
 }
