@@ -1,4 +1,4 @@
-import { nextTick, ref, watch } from 'vue'
+import { nextTick, onScopeDispose, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import {
   addFile,
@@ -270,27 +270,38 @@ export const useProjectStore = defineStore('project', () => {
     window.electron.ipcRenderer.send('mt::ask-for-open-project-in-sidebar')
   }
 
-  function LISTEN_FOR_SIDEBAR_CONTEXT_MENU(): void {
-    bus.on('SIDEBAR::show-in-folder', () => {
+  let stopSidebarContextMenu: (() => void) | null = null
+  onScopeDispose(() => stopSidebarContextMenu?.())
+
+  function LISTEN_FOR_SIDEBAR_CONTEXT_MENU(): () => void {
+    // The store survives editor-page remounts, including Vue hot reloads.
+    if (stopSidebarContextMenu) return stopSidebarContextMenu
+
+    const unsubscribe: Array<() => void> = []
+    const on = (event: string, handler: (value: unknown) => void): void => {
+      bus.on(event, handler)
+      unsubscribe.push(() => bus.off(event, handler))
+    }
+    on('SIDEBAR::show-in-folder', () => {
       const { pathname } = activeItem.value
       window.electron.shell.showItemInFolder(pathname)
     })
-    bus.on('SIDEBAR::copy-path', () => {
+    on('SIDEBAR::copy-path', () => {
       const { pathname } = activeItem.value
       if (typeof pathname !== 'string' || !pathname) return
       window.electron.clipboard.writeText(pathname)
     })
-    bus.on('SIDEBAR::reveal-file', (pathname: unknown) => {
+    on('SIDEBAR::reveal-file', (pathname: unknown) => {
       REVEAL_FILE_IN_SIDE_BAR(typeof pathname === 'string' ? pathname : null)
     })
-    bus.on('SIDEBAR::new', (type: unknown) => {
+    on('SIDEBAR::new', (type: unknown) => {
       const { pathname, isDirectory } = activeItem.value
       const dirname = isDirectory ? pathname : window.path.dirname(pathname)
       createCache.value = { dirname, type: String(type) }
       nameInputValue.value = ''
       bus.emit('SIDEBAR::show-new-input')
     })
-    bus.on('SIDEBAR::remove', async() => {
+    on('SIDEBAR::remove', async() => {
       const { pathname } = activeItem.value
       if (typeof pathname !== 'string' || !pathname) return
       try {
@@ -307,11 +318,11 @@ export const useProjectStore = defineStore('project', () => {
         })
       }
     })
-    bus.on('SIDEBAR::copy-cut', (type: unknown) => {
+    on('SIDEBAR::copy-cut', (type: unknown) => {
       const { pathname: src } = activeItem.value
       clipboard.value = { type: String(type), src }
     })
-    bus.on('SIDEBAR::paste', async() => {
+    on('SIDEBAR::paste', async() => {
       const cb = clipboard.value
       const { pathname, isDirectory } = activeItem.value
       const dirname = isDirectory ? pathname : window.path.dirname(pathname)
@@ -362,12 +373,17 @@ export const useProjectStore = defineStore('project', () => {
           })
       }
     })
-    bus.on('SIDEBAR::rename', () => {
+    on('SIDEBAR::rename', () => {
       const { pathname } = activeItem.value
       renameCache.value = pathname
       nameInputValue.value = typeof pathname === 'string' ? window.path.basename(pathname) : ''
       bus.emit('SIDEBAR::show-rename-input')
     })
+    stopSidebarContextMenu = () => {
+      for (const off of unsubscribe) off()
+      stopSidebarContextMenu = null
+    }
+    return stopSidebarContextMenu
   }
 
   async function CREATE_FILE_DIRECTORY(name: string): Promise<void> {

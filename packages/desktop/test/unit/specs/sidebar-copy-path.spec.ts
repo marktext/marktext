@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
-const writeText = vi.hoisted(() => vi.fn())
+const { writeText, invoke } = vi.hoisted(() => ({ writeText: vi.fn(), invoke: vi.fn() }))
 
 // `@/store/layout` reads localStorage at module load. Node 25 exposes a global
 // localStorage stub whose methods are missing, so install a working one before
@@ -28,7 +28,7 @@ vi.hoisted(() => {
     dirname: (p: string) => p.split('/').slice(0, -1).join('/') || '/'
   }
   w.window.electron = {
-    ipcRenderer: { send: () => {}, on: () => {} },
+    ipcRenderer: { send: () => {}, on: () => {}, invoke },
     clipboard: { writeText }
   }
 })
@@ -40,13 +40,49 @@ vi.mock('@/services/notification', () => ({
 import bus from '@/bus'
 import { useProjectStore } from '@/store/project'
 
-describe('sidebar "Copy Path" context menu action', () => {
+describe('sidebar context menu listeners', () => {
   beforeEach(() => {
     // Drop listeners left by the previous test's store so each click is handled once.
     bus.off('SIDEBAR::copy-path')
+    bus.off('SIDEBAR::remove')
+    invoke.mockReset()
+    invoke.mockResolvedValue(false)
     writeText.mockClear()
     setActivePinia(createPinia())
     useProjectStore().LISTEN_FOR_SIDEBAR_CONTEXT_MENU()
+  })
+
+  it('does not duplicate trash listeners when the editor registers again', () => {
+    const store = useProjectStore()
+    store.LISTEN_FOR_SIDEBAR_CONTEXT_MENU()
+    store.CHANGE_ACTIVE_ITEM({ pathname: '/project/note.md', isFile: true, isDirectory: false })
+
+    bus.emit('SIDEBAR::remove')
+
+    expect(invoke).toHaveBeenCalledExactlyOnceWith('mt::fs-trash-item', '/project/note.md')
+  })
+
+  it('unsubscribes on unmount and registers once on the next mount', () => {
+    const store = useProjectStore()
+    const stop = store.LISTEN_FOR_SIDEBAR_CONTEXT_MENU()
+    store.CHANGE_ACTIVE_ITEM({ pathname: '/project/note.md', isFile: true, isDirectory: false })
+    stop()
+    bus.emit('SIDEBAR::remove')
+    expect(invoke).not.toHaveBeenCalled()
+
+    store.LISTEN_FOR_SIDEBAR_CONTEXT_MENU()
+    bus.emit('SIDEBAR::remove')
+    expect(invoke).toHaveBeenCalledExactlyOnceWith('mt::fs-trash-item', '/project/note.md')
+  })
+
+  it('unsubscribes when the project store is disposed', () => {
+    const store = useProjectStore()
+    store.CHANGE_ACTIVE_ITEM({ pathname: '/project/note.md', isFile: true, isDirectory: false })
+    store.$dispose()
+
+    bus.emit('SIDEBAR::remove')
+
+    expect(invoke).not.toHaveBeenCalled()
   })
 
   it('copies the absolute path of the right-clicked file', () => {
