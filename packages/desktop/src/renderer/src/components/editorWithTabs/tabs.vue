@@ -275,16 +275,18 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* The padding widens the hit area and keeps the inset focus ring off the
-   glyph; the negative margin keeps the tab as wide as before. */
+/* Padding widens the hit area and keeps the inset focus ring off the glyph. */
 .close-icon {
   padding: 2px;
-  margin: 0 -2px;
-  transition: opacity 0.15s ease-in-out;
+  border-radius: 4px;
+  transition:
+    opacity 0.15s ease-in-out,
+    background-color 0.15s ease-in-out;
 }
 
 .close-icon:hover {
   color: var(--focusColor);
+  background-color: var(--floatHoverColor);
 }
 
 .editor-tabs {
@@ -321,7 +323,8 @@ onBeforeUnmount(() => {
   & > li {
     transition: all 0.15s ease-in-out;
     position: relative;
-    padding: 0 8px;
+    padding: 0 28px 0 8px;
+    cursor: pointer;
     color: var(--editorColor50);
     font-size: 12px;
     line-height: 28px;
@@ -333,6 +336,13 @@ onBeforeUnmount(() => {
       color: var(--editorColor30) !important;
     }
     & > .close-icon {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      box-sizing: border-box;
       opacity: 0;
     }
     &:focus {
@@ -345,18 +355,16 @@ onBeforeUnmount(() => {
     & > .close-icon:focus-visible {
       opacity: 1;
     }
-    &:hover > .unsaved-dot,
-    &:focus-within > .unsaved-dot {
-      display: none;
-    }
     & > span {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      margin-right: 3px;
     }
     & > .unsaved-dot {
       display: none;
+      position: absolute;
+      top: 11px;
+      right: 11px;
       width: 6px;
       height: 6px;
       border-radius: 50%;
@@ -364,20 +372,20 @@ onBeforeUnmount(() => {
       flex-shrink: 0;
     }
   }
-  & > li.unsaved:not(.active) {
+  & > li.unsaved {
     & > .close-icon {
       opacity: 0;
     }
     & > .unsaved-dot {
       display: block;
     }
-    &:hover > .close-icon,
+    &:has(> .close-icon:hover) > .close-icon,
     & > .close-icon:focus-visible {
       opacity: 1;
     }
-    &:hover > .unsaved-dot,
+    &:has(> .close-icon:hover) > .unsaved-dot,
     &:focus-within > .unsaved-dot {
-      display: none;
+      visibility: hidden;
     }
   }
   & > li.active {
@@ -391,12 +399,6 @@ onBeforeUnmount(() => {
       right: 0;
       height: 2px;
       background: var(--themeColor);
-    }
-    & > .close-icon {
-      opacity: 1;
-    }
-    & > .unsaved-dot {
-      display: none;
     }
   }
 }
