@@ -1,32 +1,34 @@
-import template from './index.html?raw'
-import { getUniqueId } from '../../util'
+import { h, type VNode } from 'vue'
+import { ElNotification, type NotificationHandle } from 'element-plus'
+import { Check } from '@element-plus/icons-vue'
 import { sanitize, EXPORT_DOMPURIFY_CONFIG } from '../../util/dompurify'
 import { t } from '../../i18n'
 import './index.css'
 
 export type NotificationType = 'primary' | 'error' | 'warning' | 'info'
 
+// Above every overlay in the app: notifications are the only channel for
+// reporting some failures.
 const BASE_Z_INDEX = 10100
 
-const INON_HASH: Record<NotificationType, string> = {
-  primary: 'icon-message',
-  error: 'icon-error',
-  warning: 'icon-warn',
-  info: 'icon-info'
-}
-const TYPE_HASH: Record<NotificationType, string> = {
+const TYPE_CLASS: Record<NotificationType, string> = {
   primary: 'mt-primary',
   error: 'mt-error',
   warning: 'mt-warn',
   info: 'mt-info'
 }
 
-const fillTemplate = (type: NotificationType, title: string, message: string): string => {
-  return template
-    .replace(/\{\{icon\}\}/, INON_HASH[type])
-    .replace(/\{\{title\}\}/, sanitize(title, EXPORT_DOMPURIFY_CONFIG))
-    .replace(/\{\{message\}\}/, sanitize(message, EXPORT_DOMPURIFY_CONFIG))
-}
+const createConfirmButton = (onClick: (event?: MouseEvent) => void): VNode =>
+  h(
+    'button',
+    {
+      type: 'button',
+      class: 'plain-button confirm mt-notification__confirm',
+      'aria-label': t('common.ok'),
+      onClick
+    },
+    [h(Check)]
+  )
 
 export interface NotifyOptions {
   time?: number
@@ -36,167 +38,80 @@ export interface NotifyOptions {
   showConfirm?: boolean
 }
 
-interface NoticeCacheEntry {
-  remove: () => void
-}
-
 interface NotificationService {
   name: string
-  noticeCache: Record<string, NoticeCacheEntry>
   clear(): void
   notify(opts: NotifyOptions): Promise<void>
 }
 
 const notification: NotificationService = {
   name: 'notify',
-  noticeCache: {} as Record<string, NoticeCacheEntry>,
   clear() {
-    Object.keys(this.noticeCache).forEach((key) => {
-      this.noticeCache[key].remove()
-    })
+    ElNotification.closeAll()
   },
   notify({
     time = 10000,
     title = '',
     message = '',
-    type = 'primary', // primary, error, warning or info
+    type = 'primary',
     showConfirm = false
   }: NotifyOptions): Promise<void> {
-    let rs: (() => void) | undefined
-    let rj: (() => void) | undefined
-    let timer: ReturnType<typeof setTimeout> | null = null
-    const id = getUniqueId()
+    const notificationType = TYPE_CLASS[type] ? type : 'primary'
+    let handle: NotificationHandle | null = null
+    let settled = false
+    let resolveNotice: (() => void) | undefined
+    let rejectNotice: ((reason?: unknown) => void) | undefined
 
-    const fragment = document.createElement('div')
-    fragment.innerHTML = fillTemplate(type, title, message)
-
-    const noticeContainer = fragment.querySelector('.mt-notification') as HTMLElement
-    const bgNotice = noticeContainer.querySelector('.notice-bg') as HTMLElement
-    const contentContainer = noticeContainer.querySelector('.content') as HTMLElement
-    const fluent = noticeContainer.querySelector('.fluent') as HTMLElement
-    const close = noticeContainer.querySelector('.close') as HTMLElement
-    const confirm = noticeContainer.querySelector('.confirm') as HTMLElement
-    const { offsetHeight } = noticeContainer
-    let target: HTMLElement = noticeContainer
-
-    close.setAttribute('aria-label', t('dialog.close'))
-    confirm.setAttribute('aria-label', t('common.ok'))
-
-    if (showConfirm) {
-      noticeContainer.classList.add('mt-confirm')
-      target = confirm
-    }
-
-    noticeContainer.classList.add(TYPE_HASH[type])
-    contentContainer.classList.add(TYPE_HASH[type])
-    bgNotice.classList.add(TYPE_HASH[type])
-
-    fluent.style.height = offsetHeight * 2 + 'px'
-    fluent.style.width = offsetHeight * 2 + 'px'
-
-    const setCloseTimer = (): void => {
-      if (typeof time === 'number' && time > 0) {
-        timer = setTimeout(() => {
-          remove()
-        }, time)
-      }
-    }
-
-    const mousemoveHandler = (event: MouseEvent): void => {
-      const { left, top } = noticeContainer.getBoundingClientRect()
-      const x = event.pageX
-      const y = event.pageY
-      fluent.style.left = x - left + 'px'
-      fluent.style.top = y - top + 'px'
-      fluent.style.opacity = '1'
-      fluent.style.height = noticeContainer.offsetHeight * 2 + 'px'
-      fluent.style.width = noticeContainer.offsetHeight * 2 + 'px'
-
-      if (timer) clearTimeout(timer)
-    }
-
-    const mouseleaveHandler = (_event: MouseEvent): void => {
-      fluent.style.opacity = '0'
-      fluent.style.height = noticeContainer.offsetHeight * 4 + 'px'
-      fluent.style.width = noticeContainer.offsetHeight * 4 + 'px'
-
-      if (timer) clearTimeout(timer)
-      setCloseTimer()
-    }
-
-    const clickHandler = (event: MouseEvent): void => {
-      event.preventDefault()
-      event.stopPropagation()
-      remove()
-      if (rs) rs()
-    }
-
-    const closeHandler = (event: MouseEvent): void => {
-      event.preventDefault()
-      event.stopPropagation()
-      remove()
-      if (rj) rj()
-    }
-
-    // Newest on top, and the whole stack above every overlay in the app — a
-    // notification is the only channel for reporting a failure. Keep in step
-    // with `.mt-notification` in index.css.
-    const rePositionNotices = (): void => {
-      const notices = document.querySelectorAll('.mt-notification')
-      let i
-      let hx = 0
-      const len = notices.length
-      for (i = 0; i < len; i++) {
-        const el = notices[i] as HTMLElement
-        el.style.transform = `translate(0, -${hx}px)`
-        el.style.zIndex = String(BASE_Z_INDEX - i)
-        hx += el.offsetHeight + 10
-      }
-    }
-
-    const remove = (): void => {
-      fluent.style.filter = 'blur(10px)'
-      fluent.style.opacity = '0'
-      fluent.style.height = noticeContainer.offsetHeight * 5 + 'px'
-      fluent.style.width = noticeContainer.offsetHeight * 5 + 'px'
-
-      noticeContainer.style.opacity = '0'
-      noticeContainer.style.right = '-400px'
-
-      setTimeout(() => {
-        noticeContainer.removeEventListener('mousemove', mousemoveHandler)
-        noticeContainer.removeEventListener('mouseleave', mouseleaveHandler)
-        target.removeEventListener('click', clickHandler)
-        close.removeEventListener('click', closeHandler)
-        noticeContainer.remove()
-        rePositionNotices()
-        if (notification.noticeCache[id]) {
-          delete notification.noticeCache[id]
-        }
-      }, 100)
-    }
-
-    notification.noticeCache[id] = { remove }
-
-    noticeContainer.addEventListener('mousemove', mousemoveHandler)
-    noticeContainer.addEventListener('mouseleave', mouseleaveHandler)
-    target.addEventListener('click', clickHandler)
-    close.addEventListener('click', closeHandler)
-
-    setTimeout(() => {
-      bgNotice.style.width = noticeContainer.offsetWidth * 3.5 + 'px'
-      bgNotice.style.height = noticeContainer.offsetWidth * 3.5 + 'px'
-      rePositionNotices()
-    }, 50)
-
-    setCloseTimer()
-
-    document.body.prepend(noticeContainer, document.body.firstChild as Node)
-
-    return new Promise<void>((resolve, reject) => {
-      rs = resolve
-      rj = reject
+    const promise = new Promise<void>((resolve, reject) => {
+      resolveNotice = resolve
+      rejectNotice = reject
     })
+
+    const settle = (confirmed: boolean): void => {
+      if (settled) return
+      settled = true
+      if (confirmed) {
+        resolveNotice?.()
+      } else {
+        rejectNotice?.(new Error('Notification dismissed'))
+      }
+    }
+
+    const confirm = (event?: MouseEvent): void => {
+      event?.preventDefault()
+      event?.stopPropagation()
+      settle(true)
+      handle?.close()
+    }
+
+    const text = h('div', {
+      class: 'mt-notification__text',
+      innerHTML: sanitize(message, EXPORT_DOMPURIFY_CONFIG)
+    })
+    const confirmButton = showConfirm ? createConfirmButton(confirm) : null
+    const body = h('div', { class: 'mt-notification__body' }, [text, confirmButton])
+
+    handle = ElNotification({
+      title,
+      message: () => body,
+      type: notificationType,
+      duration: typeof time === 'number' && time > 0 ? time : 0,
+      position: 'bottom-right',
+      showClose: true,
+      pauseOnHover: true,
+      zIndex: BASE_Z_INDEX,
+      customClass: [
+        'mt-notification',
+        TYPE_CLASS[notificationType],
+        showConfirm ? 'mt-confirm' : ''
+      ],
+      onClick: () => confirm(),
+      // A confirmed notice resolves before its leave transition starts. Every
+      // other exit settles the Promise according to whether a decision was made.
+      onClose: () => settle(!showConfirm)
+    })
+
+    return promise
   }
 }
 
