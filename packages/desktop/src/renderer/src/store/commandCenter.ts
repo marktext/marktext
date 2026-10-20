@@ -1,3 +1,5 @@
+import { isReadingCommandAllowed } from 'common/commands/readingMode'
+import { useEditorStore } from './editor'
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import log from 'electron-log'
@@ -77,6 +79,7 @@ export const useCommandCenterStore = defineStore('commandCenter', () => {
 })
 
 const executeCommand = (root: Root, commandId: string): void => {
+  if (useEditorStore().currentFile?.readOnly && !isReadingCommandAllowed(commandId)) return
   const { subcommands } = root
   const command = subcommands.find((c) => c.id === commandId)
   if (!command) {

@@ -244,10 +244,17 @@ export const openProjectFolder = async(
   await page.waitForSelector(`.tree-wrapper .side-bar-file[title="${marker}"]`, { timeout })
 }
 
-export const toggleReadingMode = async(page: Page, app: ElectronApplication): Promise<void> => {
-  const locked = await page.locator('.mu-read-only').count() > 0
-  await sendIpcToRenderer(app, 'mt::toggle-read-only')
-  await expect(page.locator('.mu-read-only')).toHaveCount(locked ? 0 : 1)
+export const toggleReadingMode = async(page: Page): Promise<void> => {
+  await page.locator('.document-statistics-trigger').hover()
+  const panel = page.locator('.document-statistics-popover')
+  const toggle = panel.getByRole('switch')
+  await expect(panel).toBeVisible()
+  const checked = await toggle.getAttribute('aria-checked')
+  await panel.locator('.document-statistics__mode-switch').click()
+  await expect(toggle).toHaveAttribute('aria-checked', checked === 'true' ? 'false' : 'true')
+  await page.keyboard.press('Escape')
+  await page.mouse.move(2, 200)
+  await expect(panel).toBeHidden()
 }
 
 export const enterSourceMode = async(page: Page, app: ElectronApplication): Promise<void> => {

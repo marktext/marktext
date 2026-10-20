@@ -1048,10 +1048,17 @@
     }
   },
   "readingMode": {
+    "title": "阅读模式（只读）",
+    "edit": "编辑模式",
+    "lock": "进入阅读模式",
+    "unlock": "切换到编辑模式",
+    "defaultMode": "文件默认打开模式",
+    "defaultNote": "仅影响之后打开的现有文件；新建文档仍以编辑模式打开。",
     "unsaved": "已进入阅读模式，未保存修改已保留，自动保存已暂停。",
     "failed": "切换文档模式失败",
     "closeSave": "切换到编辑模式并保存",
     "exportSource": "请选择源文件以外的导出位置。",
+    "unavailable": "阅读模式下不可用",
     "skipped": "已跳过存在未保存修改的只读文档。",
     "viewImage": "查看图片",
     "copyLink": "复制链接地址",

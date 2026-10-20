@@ -1048,10 +1048,17 @@
     }
   },
   "readingMode": {
+    "title": "閱讀模式（唯讀）",
+    "edit": "編輯模式",
+    "lock": "進入閱讀模式",
+    "unlock": "切換至編輯模式",
+    "defaultMode": "開啟檔案時的預設模式",
+    "defaultNote": "僅套用至之後開啟的既有檔案；新建文件仍可編輯。",
     "unsaved": "已進入閱讀模式，尚未儲存的變更已保留，自動儲存已暫停。",
     "failed": "無法切換文件模式",
     "closeSave": "切換至編輯模式並儲存",
     "exportSource": "請選擇與來源檔案不同的匯出位置。",
+    "unavailable": "閱讀模式下無法使用",
     "skipped": "已略過有未儲存變更的唯讀文件。",
     "viewImage": "檢視圖片",
     "copyLink": "複製連結位址",
