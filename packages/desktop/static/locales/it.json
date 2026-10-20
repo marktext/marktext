@@ -17,7 +17,7 @@
       "openFile": "Apri file…",
       "openFolder": "Apri cartella…",
       "openRecent": "Documenti recenti",
-      "clearRecentlyUsed": "Pulisci elenco dei file recenti",
+      "clearRecentlyUsed": "Ripulisci l'elenco dei file recenti",
       "save": "Salva",
       "saveAs": "Salva con nome…",
       "autoSave": "Salvataggio automatico",
@@ -72,9 +72,9 @@
       "table": "Tabella",
       "codeFences": "Delimitatori di codice",
       "quoteBlock": "Blocco di citazione",
-      "githubAlerts": "GitHub Alerts",
-      "mathBlock": "Blocco di matematica",
-      "htmlBlock": "Blocco di HTML",
+      "githubAlerts": "Alert di GitHub",
+      "mathBlock": "Blocco di Matematica",
+      "htmlBlock": "Blocco HTML",
       "orderedList": "Elenco ordinato",
       "bulletList": "Elenco puntato",
       "taskList": "Elenco attività",
@@ -274,11 +274,11 @@
     "close": "Chiudi",
     "documentStatistics": {
       "title": "Statistiche del documento",
-      "fileInformation": "Informazioni sul file",
+      "fileInformation": "Info sul file",
       "created": "Creato",
       "lastModified": "Modificato",
-      "unavailable": "—",
-      "open": "Apri le statistiche del documento"
+      "unavailable": "Non disponibile",
+      "open": "Apri statistiche del documento"
     }
   },
   "commandPalette": {
@@ -300,7 +300,7 @@
       "pageMargin": "Margini pagina (in mm):",
       "topBottom": "Superiore/Inferiore:",
       "leftRight": "Sinistro/Destro:",
-      "widthHeight": "Ampiezza/Altezza (in mm):"
+      "widthHeight": "Larghezza/Altezza (in mm):"
     },
     "showFrontMatter": "Mostra Front Matter",
     "style": {
@@ -312,7 +312,7 @@
     },
     "theme": {
       "label": "Tema",
-      "description": "È possibile modificare l'aspetto del documento scegliendo un tema dall'elenco o creandone manualmente uno",
+      "description": "È possibile modificare l'aspetto del documento scegliendo un tema dall'elenco o creandone uno manualmente",
       "theme": "Tema"
     },
     "headerFooter": {
@@ -331,7 +331,7 @@
       "description": "Se intestazione e/o piè di pagina sono definiti, quel testo appare in tutte le pagine"
     },
     "toc": {
-      "description": "Per mostrare un sommario nel documento esportato, inserisci [TOC] su una riga separata nel corpo del documento. Il sommario apparirà in quella posizione.",
+      "description": "Per mostrare il sommario nel documento esportato, inserire [TOC] in una riga a sé stante del corpo del documento. Il sommario apparirà in quella posizione.",
       "includeTopHeading": "Include l'intestazione principale",
       "includeTopHeadingDetail": "Include i dettagli dell'intestazione principale",
       "label": "Sommario",
@@ -366,7 +366,7 @@
     }
   },
   "recent": {
-    "noTabsOpen": "Non vi sono schede aperte",
+    "noTabsOpen": "Nessuna scheda aperta",
     "newFile": "Nuovo file"
   },
   "import": {
@@ -383,8 +383,8 @@
         "editor": "Editor",
         "markdown": "Markdown",
         "theme": "Tema",
-        "image": "Immagine",
-        "view": "Vista",
+        "image": "Immagini",
+        "view": "Visualizza",
         "searcher": "Ricerca",
         "watcher": "Supervisione",
         "spelling": "Controllo ortografico",
@@ -395,12 +395,12 @@
         "autoSaveDelay": "Ritardo (in ms) nel salvataggio dei file dopo una modifica",
         "titleBarStyle": "Stile della barra del titolo (solo per Windows e Linux)",
         "openFilesInNewWindow": "Apri i file in una nuova finestra",
-        "openFolderInNewWindow": "Apri la cartella in una nuova finestra via menu",
-        "zoom": "Livello dello zoom (valori: 0.5~2.0)",
-        "hideScrollbar": "Nascondi la barra di scorrimento (Si/No)",
-        "wordWrapInToc": "Consenti di andare a capolinea nel sommario (Si/No)",
-        "fileSortBy": "Ordinamento dei file nella cartella aperta per data di creazione, di modifica e per nome",
-        "startUpAction": "Azione da compiere all'avvio di MarkText: aprire il contenuto modificato più di recente, aprire la cartella specificata o aprire una pagina vuota",
+        "openFolderInNewWindow": "Apri la cartella in una nuova finestra tramite menu",
+        "zoom": "Livello di zoom (valori: 0.5~2.0)",
+        "hideScrollbar": "Nascondi la barra di scorrimento (Sì/No)",
+        "wordWrapInToc": "Consenti di andare a caporiga nel sommario (Sì/No)",
+        "fileSortBy": "Ordinamento dei file nella cartella aperta per data di creazione, data di modifica, per nome",
+        "startUpAction": "Azione da compiere all'avvio di MarkText: aprire il contenuto modificato più recentemente, aprire la cartella specificata o aprire una pagina vuota",
         "restoreLayoutState": "All'avvio ripristinare lo stato precedente dell'editor",
         "defaultDirectoryToOpen": "Cartella di avvio predefinita da aprire quando startUp=folder",
         "language": "Lingua dell'interfaccia-utente di MarkText",
@@ -408,40 +408,40 @@
         "fontSize": "Dimensione caratteri (in pixel)",
         "lineHeight": "Altezza linea",
         "wrapCodeBlocks": "Consente il ritorno a capo automatico all'interno di blocchi di codice",
-        "editorLineWidth": "Ampiezza massima dell'area dell'editor. Valori consentiti: stringa vuota o il suffisso 'ch' (carattere), 'px' (pixel), '%' (percentuale)",
+        "editorLineWidth": "Ampiezza massima dell'area dell'editor. Valori consentiti: stringa vuota o suffissi 'ch' (carattere), 'px' (pixel), '%' (percentuale)",
         "codeFontSize": "Dimensione caratteri dei blocchi di codice (valori: 12~18)",
-        "codeFontFamily": "Famiglia dei caratteri usati nei blocchi di codice",
-        "codeBlockLineNumbers": "Mostra la numerazione delle linee (Si/No)",
+        "codeFontFamily": "Famiglia di caratteri usati nei blocchi di codice",
+        "codeBlockLineNumbers": "Mostra numerazione delle linee (Sì/No)",
         "sourceCodeLineNumbers": "Visualizza i numeri di linea in modalità codice-sorgente",
-        "trimUnnecessaryCodeBlockEmptyLines": "Nei blocchi di codice toglie le eventuali linee vuote iniziali e finali",
+        "trimUnnecessaryCodeBlockEmptyLines": "Toglie eventuali linee vuote iniziali e finali nei blocchi di codice",
         "autoPairBracket": "Gestione automatica delle parentesi durante le modifiche",
         "autoPairMarkdownSyntax": "Completamento automatico della sintassi Markdown",
         "autoPairQuote": "Completamento automatico delle virgolette",
         "endOfLine": "Tipo di carattere usato alla fine di ciascuna linea per andare a capo. Il valore predefinito è 'default' e dipende dal sistema operativo",
         "defaultEncoding": "Codifica predefinita del file",
-        "autoGuessEncoding": "Cerca di indovinare automaticamente la codifica quando si apre un file",
+        "autoGuessEncoding": "Quando si apre un file, cerca di individuarne automaticamente la codifica",
         "trimTrailingNewline": "Opzione di rimozione del carattere di fine riga",
         "textDirection": "Direzione di scrittura del testo",
         "hideQuickInsertHint": "Nasconde i suggerimenti per creare rapidamente i paragrafi",
         "hideLinkPopup": "Quando il cursore passa sopra un link, nasconde il relativo pop-up",
-        "autoCheck": "Verificare automaticamente l'attività associata (Si/No)",
+        "autoCheck": "Verificare automaticamente l'attività associata (Sì/No)",
         "preferLooseListItem": "Tipo di elenco preferito",
-        "bulletListMarker": "Marcatore di elenco puntato",
-        "orderListDelimiter": "Delimitatore degli elenchi ordinati",
+        "bulletListMarker": "Marcatore di elenchi puntati",
+        "orderListDelimiter": "Delimitatore di elenchi ordinati",
         "preferHeadingStyle": "Stile preferito delle intestazioni in MarkText",
         "tabSize": "Sostituisci il carattere di tabulazione con 'x' spazi",
         "listIndentation": "Seleziona il rientro dell'elenco",
         "frontmatterType": "Tipo di Front Matter",
-        "superSubScript": "Abilita l'estensione Markdown di 'Pandoc' per scrivere apici e pedici",
-        "footnote": "Abilita l'estensione Markdown di 'Pandoc' per creare note a piè di pagina",
-        "texMathDollars": "Abilita l'estensione Markdown di 'Pandoc' tex_math_dollars",
-        "texMathGfm": "Abilita l'estensione Markdown di 'Pandoc' tex_math_gfm",
-        "texMathSingleBackslash": "Abilita l'estensione Markdown di 'Pandoc' tex_math_single_backslash",
-        "texMathDoubleBackslash": "Abilita l'estensione Markdown di 'Pandoc' tex_math_double_backslash",
-        "highlightSyntax": "Abilita la sintassi di evidenziazione non standard ==testo==",
-        "inlineDiff": "Abilita la sintassi diff inline non standard {+ … +} / [- … -]",
-        "multilineBlockquote": "Abilita la sintassi di citazione su più righe non standard >>> … >>>",
-        "githubAlerts": "GitHub Alerts",
+        "superSubScript": "Per scrivere apici e pedici abilita l'estensione 'pandoc' per Markdown",
+        "footnote": "Per creare note a piè di pagina abilita l'estensione 'pandoc' per Markdown",
+        "texMathDollars": "Abilita l'estensione pandoc 'tex_math_dollars' per Markdown",
+        "texMathGfm": "Abilita l'estensione pandoc 'tex_math_gfm' per Markdown",
+        "texMathSingleBackslash": "Abilita l'estensione pandoc 'tex_math_single_backslash' per Markdown",
+        "texMathDoubleBackslash": "Abilita l'estensione pandoc 'tex_math_double_backslash' per Markdown",
+        "highlightSyntax": "Abilita la sintassi non standard per 'evidenziare' il ==testo==",
+        "inlineDiff": "Abilita la sintassi non standard 'diff in linea' {+ … +} / [- … -]",
+        "multilineBlockquote": "Abilita la sintassi non standard di 'citazione multilinea' >>> … >>>",
+        "githubAlerts": "Alert GitHub",
         "isHtmlEnabled": "Abilita il rendering HTML",
         "softNewlineAsSpace": "Tratta i caratteri di fine riga 'morbidi' (soft newlines) come spazi",
         "sequenceTheme": "Tema del diagramma di sequenza",
@@ -450,17 +450,17 @@
         "followSystemTheme": "Segui il tema di sistema",
         "lightModeTheme": "Tema da usare quando il sistema è in modalità chiara",
         "darkModeTheme": "Tema da usare quando il sistema è in modalità scura",
-        "spellcheckerEnabled": "Attivare il controllo ortografico (Si/No)",
+        "spellcheckerEnabled": "Attivare il controllo ortografico (Sì/No)",
         "spellcheckerNoUnderline": "Non sottolineare gli errori ortografici",
         "spellcheckerLanguage": "Lingua del correttore ortografico",
-        "imageInsertAction": "Comportamento predefinito dopo l'inserimento di un'immagine da una cartella locale",
-        "imagePreferRelativeDirectory": "Preferisci la directory relativa per le immagini (Sì/No)",
-        "imageRelativeDirectoryBase": "Da quale cartella relativa vengono copiate le immagini",
-        "imageRelativeDirectoryName": "Nome della directory relativa delle immagini",
+        "imageInsertAction": "Comportamento predefinito dopo l'inserimento di un'immagine proveniente da una cartella locale",
+        "imagePreferRelativeDirectory": "Preferenza per la cartella relativa delle immagini (Sì/No)",
+        "imageRelativeDirectoryBase": "Dove vengono copiate le immagini provenienti dalla cartella relativa",
+        "imageRelativeDirectoryName": "Nome della cartella relativa delle immagini",
         "autoNormalizeLineEndings": "Normalizzazione automatica dei fine riga all'apertura dei file. Disabilitando questa opzione, i file vengono aperti così come sono.",
         "fileSortOrder": "Ordinamento ascendente o discendente dei file nelle cartelle aperte",
-        "openedFilesInSidebar": "Mostra i file aperti nella barra laterale (Si/No)",
-        "showPandocConvert": "Mostra il menu di conversione Pandoc. Richiede l'installazione di Pandoc."
+        "openedFilesInSidebar": "Mostra i file aperti nella barra laterale (Sì/No)",
+        "showPandocConvert": "Mostra il menu di conversione Pandoc. Richiede che Pandoc sia stato installato."
       }
     },
     "categories": {
@@ -482,9 +482,9 @@
       "window": {
         "title": "Finestra",
         "titleBarStyle": {
-          "title": "Stile barra del titolo",
+          "title": "Stile della barra del titolo",
           "custom": "Personalizzato",
-          "native": "Originale"
+          "native": "Nativo"
         },
         "requiresRestart": "Richiede il riavvio",
         "hideScrollbars": "Nasconde le barre di scorrimento",
@@ -496,27 +496,27 @@
         "title": "Opzioni di avvio",
         "layoutOptions": "Opzioni di layout",
         "startupFilesFolders": "File/Cartelle di avvio",
-        "restorePreviousState": "Ripristino dello stato precedente dell'editor",
-        "openBlankState": "Apri una pagina vuota",
-        "openDefaultDirectory": "Apri la cartella predefinita",
+        "restorePreviousState": "Ritorno dell'editor allo stato precedente",
+        "openBlankState": "Apertura di una schermata vuota",
+        "openDefaultDirectory": "Apertura della cartella predefinita",
         "openLastFolder": "Ripristina la cartella aperta",
-        "restoreAll": "Ripristina tutte le cartelle e i file aperti",
+        "restoreAll": "Ripristino di tutte le cartelle e file aperti",
         "selectFolder": "Seleziona una cartella",
-        "openBlankPage": "Apri una pagina vuota"
+        "openBlankPage": "Apertura di una pagina vuota"
       },
       "pandoc": {
         "title": "Conversione Pandoc",
-        "description": "Mostra il menu di conversione Pandoc",
-        "detailedDescription": "Richiede l'installazione di Pandoc",
+        "description": "Mostra il menu di conversione di Pandoc",
+        "detailedDescription": "Richiede che Pandoc sia installato",
         "found": "Trovato: {path}",
         "notFound": "Non trovato",
-        "recheck": "Controlla di nuovo"
+        "recheck": "Controlla nuovamente"
       },
       "sidebar": {
         "title": "Barra laterale",
         "wrapTextInToc": "Vai a capo nel sommario",
         "showOpenedFiles": "Mostra i file aperti",
-        "autoReveal": "Mostra nella barra laterale il file attivo",
+        "autoReveal": "Nella barra laterale mostra il file attivo",
         "excludePatterns": "Pattern di esclusione",
         "excludePatternsNotes": "Pattern di esclusione (Note)",
         "fileSortBy": {
@@ -529,8 +529,8 @@
           "title": "Ordinamento",
           "aToZ": "A → Z",
           "zToA": "Z → A",
-          "oldestFirst": "Prima i meno recenti",
-          "newestFirst": "Prima i più recenti"
+          "oldestFirst": "Prima il meno recente",
+          "newestFirst": "Prima il più recente"
         }
       },
       "misc": {
@@ -549,7 +549,7 @@
           "portuguese": "Português",
           "turkish": "Türkçe",
           "russian": "Русский",
-          "italian": "Italiano"
+          "italian": "Italiano (beta)"
         }
       }
     },
@@ -561,16 +561,16 @@
         "lineHeight": "Altezza linea",
         "fontFamily": "Famiglia di caratteri",
         "maxWidth": "Larghezza massima",
-        "maxWidthNotes": "Larghezza massima del contenuto dell'editor. Inserisci un numero seguito da px (pixel), ch (caratteri) o % (percentuale), ad esempio 800px, 80ch o 60%. Se lasciato vuoto, viene usata la larghezza predefinita.",
-        "maxWidthInvalid": "Inserisci un numero seguito da px, ch o %, ad esempio 800px.",
-        "codeFontFamily": "Famiglia di caratteri del codice",
-        "codeFontFamilyNotes": "Si applica al codice inline e ai blocchi di codice."
+        "maxWidthNotes": "Larghezza massima del contenuto dell'editor. Inserire un numero seguito da px (pixel), ch (caratteri) o % (percentuale) Per esempio: 800px, 80ch o 60%. Se viene lasciato vuoto, viene usata la larghezza predefinita.",
+        "maxWidthInvalid": "Inserisci un numero seguito da px, ch o %. Per esempio: 800px.",
+        "codeFontFamily": "Famiglia di caratteri per rappresentare del 'codice'",
+        "codeFontFamilyNotes": "Si applica al codice in linea e ai blocchi di codice."
       },
       "codeBlock": {
         "title": "Blocco di codice",
         "fontSize": "Dimensione caratteri",
         "showLineNumbers": "Mostra il numero della linea",
-        "removeEmptyLines": "Rimozione linee vuote"
+        "removeEmptyLines": "Rimozione delle linee vuote"
       },
       "writingBehavior": {
         "title": "Comportamento in scrittura",
@@ -585,11 +585,11 @@
         "defaultEncoding": "Codifica predefinita",
         "autoDetectEncoding": "Rilevamento automatico della codifica",
         "trailingNewlines": {
-          "title": "Carattere di fine riga",
+          "title": "Caratteri di fine riga",
           "doNothing": "Non fare nulla",
-          "ensureOne": "Mantieni una riga vuota finale",
-          "preserve": "Conserva",
-          "trimAll": "Rimuovi tutte"
+          "ensureOne": "Mantenere una riga vuota finale",
+          "preserve": "Conservare tutte",
+          "trimAll": "Rimuovere tutte"
         },
         "endOfLine": {
           "default": "Predefinito",
@@ -604,11 +604,11 @@
           "ltr": "Sinistra → Destra",
           "rtl": "Destra → Sinistra"
         },
-        "hideQuickInsertHint": "Nascondi il suggerimento per un inserimento rapido",
-        "hideLinkPopup": "Nascondi il popup del link",
+        "hideQuickInsertHint": "Nascondi il suggerimento di inserimento rapido",
+        "hideLinkPopup": "Nascondi il pop-up del link",
         "autoCheck": "Controllo automatico",
-        "autoNormalizeLineEndings": "All'apertura, converti automaticamente i caratteri di fine riga in LF",
-        "wrapCodeBlocks": "Vai a capo nei blocchi di codice",
+        "autoNormalizeLineEndings": "Converti automaticamente i caratteri di fine riga in LF all'apertura",
+        "wrapCodeBlocks": "Nei blocchi di codice vai a capo",
         "sourceCodeLineNumbers": "Mostra i numeri di linea in modalità codice-sorgente"
       }
     },
@@ -624,11 +624,11 @@
         "globalFolder": "Cartella globale delle immagini",
         "open": "Apri",
         "showInFolder": "Mostra nella cartella",
-        "preferRelative": "Preferisci la cartella relativa",
-        "relativeCopyLocation": "Copia l'immagine relativa a",
+        "preferRelative": "Preferisci una cartella relativa",
+        "relativeCopyLocation": "Copia l'immagine relativa in",
         "copyRelativeToFile": "Relativa al file",
         "copyRelativeToFolder": "Relativa alla cartella",
-        "relativeFolderName": "Relativa al nome della cartella",
+        "relativeFolderName": "Nome della cartella relativa",
         "filenameNote": "Il nome del file verrà generato automaticamente"
       },
       "uploader": {
@@ -655,7 +655,7 @@
           "step3Description": "Usa il seguente comando per visualizzare la configurazione corrente:",
           "documentation": "Visualizza la documentazione completa"
         },
-        "lastSuccessTime": "Ultimo orario valido",
+        "lastSuccessTime": "Ultima esecuzione riuscita",
         "neverDetected": "Mai rilevato",
         "neverSuccessful": "Mai riuscito",
         "scriptDescription": "Descrizione script",
@@ -667,7 +667,7 @@
           "picgo": "PicGo",
           "cliScript": " Script CLI"
         },
-        "pleaseInstall": "Si prega di installare",
+        "pleaseInstall": "Installare, pregoe",
         "scriptPath": "Percorso (path) dello script"
       },
       "defaultBehavior": "Comportamento predefinito dopo aver incollato o trascinato l'immagine in MarkText"
@@ -678,15 +678,15 @@
         "title": "Estensioni",
         "superSubScript": "Apice/Pedice",
         "footnote": "Nota a piè di pagina",
-        "footnoteNotes": "Note alle note a piè di pagina",
+        "footnoteNotes": "Note a piè di pagina",
         "texMathDollars": "Espressione matematica TeX con $ e $$",
         "texMathGfm": "Espressione matematica TeX di GitHub ($`…`$ e ```math)",
-        "texMathSingleBackslash": "Delimitatori a singola barra rovesciata per espressione matematica TeX",
-        "texMathDoubleBackslash": "Delimitatori a doppia barra rovesciata per espressione matematica TeX",
+        "texMathSingleBackslash": "Delimitatori di espressione matematica TeX con singola barra rovesciata",
+        "texMathDoubleBackslash": "Delimitatori di espressione matematica TeX con doppia barra rovesciata",
         "highlightSyntax": "Evidenziazione (==testo==)",
-        "inlineDiff": "Diff inline ({+ … +})",
-        "multilineBlockquote": "Citazione su più righe (>>>)",
-        "githubAlerts": "Abilita GitHub Alerts",
+        "inlineDiff": "'diff' in linea ({+ … +})",
+        "multilineBlockquote": "Citazione multilinea (>>>)",
+        "githubAlerts": "Abilitazione degli Alert GitHub",
         "frontmatterType": {
           "jsonBrace": "JSON con parentesi graffe",
           "jsonSemicolon": "JSON con punti e virgola",
@@ -706,7 +706,7 @@
       },
       "misc": {
         "preferHeadingStyle": {
-          "title": "Stile preferito delle intestazioni",
+          "title": "Preferenze dello Stile delle intestazioni",
           "atx": "Stile ATX",
           "setext": "Stile Setext"
         },
@@ -714,11 +714,11 @@
       },
       "compatibility": {
         "enableHtml": "Abilita supporto HTML",
-        "softNewlineAsSpace": "Tratta i caratteri di fine riga 'morbidi' (soft newlines) come spazi",
+        "softNewlineAsSpace": "Tratta come spazi i caratteri di fine riga 'morbidi' (soft newlines)",
         "title": "Compatibilità"
       },
       "lists": {
-        "bulletListMarker": "Simbolo per elenco puntato",
+        "bulletListMarker": "Simbolo per elenchi puntati",
         "listIndentation": {
           "title": "Rientro dell'elenco",
           "dfm": "Stile DFM",
@@ -728,15 +728,15 @@
           "threeSpaces": "Tre spazi",
           "twoSpaces": "Due spazi"
         },
-        "orderListDelimiter": "Delimitatore di elenco ordinato",
+        "orderListDelimiter": "Delimitatore di elenchi ordinati",
         "preferLooseListItem": "Preferire elenchi ad elementi liberi",
         "title": "Elenchi"
       }
     },
     "theme": {
       "title": "Tema",
-      "followSystemTheme": "Segui il tema di sistema",
-      "followSystemNote": "Seguire il sistema blocca l'elenco dei temi sottostante. Disattiva questa opzione per cambiare tema liberamente.",
+      "followSystemTheme": "Segue il tema di sistema",
+      "followSystemNote": "Se si segue il tema di 'sistema' blocca l'acceso al sottostante elenco di temi viene impedito. Disattivare questa opzione per poter cambiare tema liberamente.",
       "modeThemes": "Selezione tema",
       "lightModeTheme": "Tema chiaro",
       "darkModeTheme": "Tema scuro",
@@ -778,11 +778,11 @@
       "autoDetectLanguage": "Rileva automaticamente lingua",
       "customDictionary": {
         "delete": "Elimina",
-        "description": "Aggiunta di parole personalizzate al dizionario personale",
-        "noWordsAvailable": "Nessuna parola disponibile",
+        "description": "Aggiunta di lemmi personalizzati al dizionario personale",
+        "noWordsAvailable": "Nessun lemma disponibile",
         "options": "Opzioni",
         "title": "Dizionario personalizzato",
-        "word": "Parola"
+        "word": "Lemma"
       },
       "defaultLanguage": "Lingua predefinita",
       "enableSpellChecking": "Abilita controllo ortografico",
@@ -817,7 +817,7 @@
       "closeTab": "Chiudi scheda",
       "closeWindow": "Chiudi finestra",
       "quit": "Esci",
-      "toggleAutoSave": "Salva automaticamenteo (Si/No)",
+      "toggleAutoSave": "Salva automaticamenteo (Sì/No)",
       "importFile": "Importa file",
       "revealInSideBar": "Mostra nella barra laterale",
       "exportFile": "Esporta file",
@@ -905,7 +905,7 @@
       "toggleToc": "Attiva/disattiva sommario",
       "toggleTabbar": "Attiva/disattiva barra delle schede",
       "toggleDevTools": "Attiva/disattiva strumenti di sviluppo",
-      "devReload": "Ricarica strumenti di sviluppo (???)",
+      "devReload": "Ricarica strumenti di sviluppo",
       "reloadImages": "Ricarica immagini",
       "textDirection": "Direzione testo",
       "actualSize": "Dimensioni correnti",
@@ -940,7 +940,7 @@
     "ok": "OK"
   },
   "dialog": {
-    "moveToTrash": "Vuoi davvero spostare \"{name}\" nel cestino?",
+    "moveToTrash": "Si vuole veramente spostare \"{name}\" nel cestino?",
     "cancel": "Annulla",
     "changesWillBeLost": "Le modifiche andranno perse",
     "close": "Chiudi",
@@ -949,7 +949,7 @@
     "fileExists": "Il file {filename} esiste",
     "files": "File",
     "importWarning": "Avviso per l'importazione",
-    "installPandoc": "Pandoc non trovato. Installarlo, o impostare la variabile d'ambiente MARKTEXT_PANDOC per l'eseguibile pandoc e riavviare MarkText.",
+    "installPandoc": "Pandoc non trovato. Installarlo o impostare la variabile d'ambiente MARKTEXT_PANDOC per l'eseguibile pandoc e riavviare MarkText.",
     "exportWarning": "Avviso per l'esportazione",
     "exportWarningMore": "…e {count} più",
     "keepOpen": "Mantieni aperto",
@@ -957,9 +957,9 @@
     "save": "Salva",
     "saveChanges": "Salva modifiche",
     "saveFailure": "Salvataggio non riuscito",
-    "unsafeFileTitle": "File potenzialmente insicuro",
+    "unsafeFileTitle": "File potenzialmente non sicuro",
     "unsafeFileMessage": "Questo link apre un file che può eseguire codice",
-    "unsafeFileDetail": "\"{name}\" è un programma eseguibile o uno script. Aprendolo uò essere eseguito sul vostro PC. Continuare solo se si considera attendibile questo documento!",
+    "unsafeFileDetail": "\"{name}\" è un programma eseguibile o uno script. Se lo si apre può essere eseguito sul PC. Continuare solo se si considera attendibile questo documento!",
     "openAnyway": "Aprilo in ogni caso!"
   },
   "error": {
@@ -984,20 +984,20 @@
       "tabNotFound": "Scheda non trovata",
       "tocItemNotFound": "Sommario {key} non trovato",
       "errorLoadingTabTitle": "Errore durante il caricamento di una scheda",
-      "errorLoadingTabMessage": "Errore durante il caricamento delle modifiche al file causato dall'impossibilità di trovare la scheda",
-      "mixedLineEndingsNormalized": "\"{name}\" ha caratteri di fine riga di tipo misto che sono automaticamente ricondotti a {lineEnding}",
+      "errorLoadingTabMessage": "Errore durante il caricamento delle modifiche al file per l'impossibilità di reperire la scheda",
+      "mixedLineEndingsNormalized": "\"{name}\" ha i caratteri di fine riga di tipo misto che vengono automaticamente ricondotti a {lineEnding}",
       "imageDeletionUrlTitle": "URL dell'immagine da cancellare",
       "imageDeletionUrlMessage": "Fare clic per copiare negli 'Appunti' l'URL dell'immagine da cancellare {url}",
       "errorWhileSaving": "Errore durante il salvataggio: {msg}",
       "exportSuccessTitle": "Esportazione riuscita",
       "exportSuccessMessage": "Esportazione di \"{name}\" riuscita!",
-      "exportLinkedMediaMessage": "\"{name}\" esportato. Questo formato collega le immagini invece di incorporarle, mantenendole così vicine al file e condividendo l'intera cartella.",
+      "exportLinkedMediaMessage": "\"{name}\" esportato. Questo formato collega le immagini invece di incorporarle, mantenendole così accanto al file e condividendo l'intera cartella.",
       "fileRemovedOnDisk": "\"{name}\" rimosso dal disco.",
       "fileChangedOnDisk": "\"{name}\" modificato sul disco. Lo si vuole ricaricare?"
     }
   },
   "spellchecker": {
-    "failedToRemoveWord": "Rimozione della parola dal dizionario non riuscita",
+    "failedToRemoveWord": "Rimozione del lemma dal dizionario non riuscita",
     "unexpectedError": "Errore imprevisto del correttore ortografico"
   },
   "editor": {
@@ -1034,8 +1034,8 @@
       "failed": "Stampa non riuscita"
     },
     "sourceCode": {
-      "cursorNullComment": "Commento cursore nullo (???)",
-      "imageStructureDeletedComment": "Commento sulla struttura dell'immagine cancellata (???)"
+      "cursorNullComment": "Commento: cursore nullo",
+      "imageStructureDeletedComment": "Commento: Struttura dell'immagine cancellata"
     },
     "spellcheck": {
       "disabledError": "Errore: controllo ortografico disabilitato",
