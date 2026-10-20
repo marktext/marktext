@@ -31,11 +31,12 @@ export const registerShellHandlers = (): void => {
     }
   })
 
-  ipcMain.on('mt::clipboard::write-text', (_e, text: string) => {
+  ipcMain.handle('mt::clipboard::write-text', (_e, text: string) => {
     try {
       clipboard.writeText(text)
-    } catch (err) {
-      log.error('clipboard.writeText failed:', err)
+      return true
+    } catch {
+      return false
     }
   })
   ipcMain.handle('mt::clipboard::write-image', (_e, png: Uint8Array) => {
@@ -74,7 +75,12 @@ export const registerShellHandlers = (): void => {
         // UTF-16LE instead, then take the first non-empty entry.
         const buffer = clipboard.readBuffer('FileNameW')
         if (buffer.length > 0) {
-          return buffer.toString('utf16le').split('\u0000').find(p => p.length > 0) ?? ''
+          return (
+            buffer
+              .toString('utf16le')
+              .split('\u0000')
+              .find((p) => p.length > 0) ?? ''
+          )
         }
         return ''
       }

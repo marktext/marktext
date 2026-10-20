@@ -178,6 +178,9 @@ class CodeBlockContent extends Content {
 
     override update(_cursor?: IRenderCursor, highlights = []) {
         const { _lang: lang, text } = this;
+        const parentCode = this.parent as Code | null;
+        if (parentCode?.copyButton && parentCode.parent?.blockName === 'code-block')
+            parentCode.copyButton.hidden = !text;
         // transform alias to original language
         const fullLengthLang = transformAliasToOrigin([lang])[0];
         const domNode = this.domNode!;

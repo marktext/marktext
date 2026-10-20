@@ -50,6 +50,7 @@ export type PlantumlFetchResult =
 // =================================================================
 
 export interface IpcInvokeChannels {
+  'mt::clipboard::write-text': { args: [text: string]; ret: boolean }
   'mt::ask-for-image-path': { args: []; ret: string[] }
   'mt::boot-info-async': { args: []; ret: BootInfo }
   'mt::clipboard::guess-file-path': { args: []; ret: string | null }
@@ -130,7 +131,6 @@ export interface IpcSendChannels {
   'mt::ask-for-user-data': []
   'mt::ask-for-user-preference': []
   'mt::check-for-update': []
-  'mt::clipboard::write-text': [text: string]
   'mt::close-window': []
   'mt::close-window-confirm': [unsavedFiles: UnsavedFile[]]
   'mt::cmd-close-window': []

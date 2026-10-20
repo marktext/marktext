@@ -1,6 +1,8 @@
 export const nl = {
     name: 'nl',
     resource: {
+        'Copied': 'Gekopieerd',
+        'Copy failed': 'Kopiëren mislukt. Probeer het opnieuw.',
         'GitHub Alerts': 'GitHub-meldingen',
         'GitHub Alert: NOTE': 'GitHub-melding: NOTE',
         'GitHub Alert: TIP': 'GitHub-melding: TIP',

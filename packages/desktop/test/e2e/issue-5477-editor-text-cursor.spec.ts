@@ -82,7 +82,7 @@ test('the scroll area outside the text column keeps the arrow', async() => {
 
 test('clickable content keeps the hand cursor', async() => {
   for (const selector of [
-    '.mu-container a',
+    '.mu-container button.mu-code-copy',
     '.mu-container input[type=checkbox]'
   ]) {
     expect(await cursorOf(selector), selector).toBe('pointer')
