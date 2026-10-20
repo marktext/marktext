@@ -379,6 +379,8 @@ class History {
     }
 
     redo() {
+        if (!this._muya.canMutate)
+            return;
         this._change(HistoryAction.REDO, HistoryAction.UNDO);
     }
 
@@ -392,6 +394,8 @@ class History {
     }
 
     undo() {
+        if (!this._muya.canMutate)
+            return;
         this._change(HistoryAction.UNDO, HistoryAction.REDO);
     }
 }

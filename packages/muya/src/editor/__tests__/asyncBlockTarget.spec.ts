@@ -36,7 +36,7 @@ afterEach(() => {
 });
 
 describe('asynchronous block targets', () => {
-    it.each(['remove', 'replace', 'destroy'] as const)('discards an upload after %s invalidates its target', async (action) => {
+    it.each(['remove', 'replace', 'read', 'destroy'] as const)('discards an upload after %s invalidates its target', async (action) => {
         const upload = deferred<string>();
         const { muya, target } = boot({ imageAction: () => upload.promise });
         const done = muya.editor.clipboard.pasteImage('/pending.png');
@@ -45,6 +45,8 @@ describe('asynchronous block targets', () => {
             target.parent!.remove();
         if (action === 'replace')
             muya.setContent('replacement');
+        if (action === 'read')
+            muya.setReadOnly(true);
         if (action === 'destroy') {
             muya.destroy();
             editors.delete(muya);
@@ -53,7 +55,20 @@ describe('asynchronous block targets', () => {
         upload.resolve('assets/completed.png');
         await done;
         expect(target.text).toBe(before);
-        expect(muya.isBlockInDocument(target)).toBe(false);
+        expect(!muya.readOnly && muya.isBlockInDocument(target)).toBe(false);
+    });
+
+    it('finishes an upload after locking and unlocking when the same target remains', async () => {
+        const upload = deferred<string>();
+        const { muya, target } = boot({ imageAction: () => upload.promise });
+        const done = muya.editor.clipboard.pasteImage('/pending.png');
+        muya.setReadOnly(true);
+        muya.setReadOnly(false);
+        expect(!muya.readOnly && muya.isBlockInDocument(target)).toBe(true);
+        upload.resolve('assets/completed.png');
+        await done;
+        expect(target.text).toContain('![](assets/completed.png)');
+        expect(target.text).not.toContain('loading-');
     });
 
     it('rejects a removed inner paragraph even when its outer block still exists', async () => {
@@ -99,7 +114,7 @@ describe('asynchronous block targets', () => {
         const done = muya.editor.clipboard.pasteAsPlainText();
         const next = muya.editor.scrollPage!.lastContentInDescendant()!;
         next.setCursor(0, 0, true);
-        expect(muya.isBlockInDocument(target)).toBe(true);
+        expect(!muya.readOnly && muya.isBlockInDocument(target)).toBe(true);
         read.resolve('stale paste');
         await done;
         expect(muya.getMarkdown()).not.toContain('stale paste');

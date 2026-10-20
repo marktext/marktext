@@ -3,6 +3,8 @@ export const nl = {
     resource: {
         'Copied': 'Gekopieerd',
         'Copy failed': 'Kopiëren mislukt. Probeer het opnieuw.',
+        'Read-only document': 'Alleen-lezen document',
+        'Document': 'Document',
         'GitHub Alerts': 'GitHub-meldingen',
         'GitHub Alert: NOTE': 'GitHub-melding: NOTE',
         'GitHub Alert: TIP': 'GitHub-melding: TIP',

@@ -1,6 +1,7 @@
 import type { TState } from './state/types';
 
 export interface IMuyaOptions {
+    readOnly: boolean;
     fontSize: number;
     lineHeight: number;
     editorFontFamily?: string;

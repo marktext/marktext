@@ -274,9 +274,27 @@ body {
     background: var(--highlight-color);
 }
 
+.mu-read-only {
+    caret-color: transparent;
+}
+
+.mu-read-only .mu-content {
+    cursor: text;
+}
+
+.mu-read-only .mu-link,
+.mu-read-only a[href] {
+    cursor: pointer;
+}
+
 .mu-code-copy {
     background: transparent;
     border: 0;
+}
+
+.mu-read-only .mu-code-copy:focus-visible {
+    visibility: visible;
+    opacity: 1;
 }
 
 .mu-code-block:hover > .mu-code-copy,

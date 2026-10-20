@@ -259,6 +259,8 @@ class TreeNode implements ILinkedNode {
     }
 
     insertInto(parent: Parent, refBlock: Nullable<Parent> = null) {
+        if (!this.muya.canMutate)
+            return;
         if (this.parent === parent && this.next === refBlock)
             return;
 
@@ -276,6 +278,8 @@ class TreeNode implements ILinkedNode {
      * Remove the current block in the block tree.
      */
     remove(_source = 'user') {
+        if (!this.muya.canMutate)
+            return;
         if (!this.parent)
             return;
 

@@ -44,6 +44,8 @@ class TaskListItem extends Parent {
     }
 
     set checked(checked) {
+        if (!this.muya.canMutate)
+            return;
         const oldCheckStatus = this.meta.checked;
 
         if (checked !== oldCheckStatus) {

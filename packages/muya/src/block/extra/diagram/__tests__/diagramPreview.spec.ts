@@ -117,6 +117,56 @@ describe('diagramPreview — invalid / error state', () => {
 });
 
 describe('diagramPreview — clickHandler routing', () => {
+    it.each(['svg', 'img'])('opens a successfully rendered %s while reading', async (tag) => {
+        loadRendererMock.mockResolvedValue({
+            parse: () => ({
+                drawSVG: (target: HTMLElement) => {
+                    target.innerHTML = `<${tag} width="10" height="10"></${tag}>`;
+                },
+            }),
+        });
+        const { preview, muya } = makePreview('', 'flowchart');
+        const emit = vi.fn();
+        Object.assign(muya, { readOnly: true, eventCenter: { emit } });
+        await preview.update('st=>start: go');
+        preview.domNode!.click();
+
+        expect(emit).toHaveBeenCalledExactlyOnceWith('preview-diagram', {
+            type: 'flowchart',
+            code: 'st=>start: go',
+            preview: preview.domNode,
+            label: muya.i18n.t('Diagram'),
+        });
+    });
+
+    it('does not infer successful rendering from injected DOM', () => {
+        const { preview, muya } = makePreview('');
+        const emit = vi.fn();
+        Object.assign(muya, { readOnly: true, eventCenter: { emit } });
+        preview.domNode!.innerHTML = '<svg></svg>';
+        preview.domNode!.click();
+        expect(emit).not.toHaveBeenCalled();
+    });
+
+    it('resets preview eligibility during loading and after failure or empty content', async () => {
+        loadRendererMock.mockResolvedValue({ parse: () => ({ drawSVG: vi.fn() }) });
+        const { preview, muya } = makePreview('', 'flowchart');
+        const emit = vi.fn();
+        Object.assign(muya, { readOnly: true, eventCenter: { emit } });
+        await preview.update('valid');
+        preview.domNode!.click();
+        expect(emit).toHaveBeenCalledTimes(1);
+        emit.mockClear();
+        loadRendererMock.mockRejectedValue(new Error('invalid'));
+        const pending = preview.update('invalid');
+        preview.domNode!.click();
+        await pending;
+        preview.domNode!.click();
+        await preview.update('');
+        preview.domNode!.click();
+        expect(emit).not.toHaveBeenCalled();
+    });
+
     it('preventDefault + stopPropagation + setCursor(0,0) on the parent first content', () => {
         const { preview } = makePreview('');
         const setCursor = vi.fn();

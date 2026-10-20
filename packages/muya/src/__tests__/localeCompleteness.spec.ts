@@ -96,10 +96,13 @@ describe('locale completeness', () => {
         }
     });
 
-    describe('clipboard translations', () => {
+    describe('reading mode translations', () => {
         for (const [tag, locale] of nonEnLocales) {
-            it(`${tag} translates clipboard messages`, () => {
-                for (const key of ['Copied', 'Copy failed'] as const) {
+            it(`${tag} translates reading and clipboard messages`, () => {
+                for (const key of ['Copied', 'Copy failed', 'Read-only document', 'Document'] as const) {
+                    // "Document" is also the French and Dutch word for a document.
+                    if (key === 'Document' && (tag === 'fr' || tag === 'nl'))
+                        continue;
                     expect(locale.resource[key], `${tag}: ${key}`).not.toBe(en.resource[key]);
                 }
             });

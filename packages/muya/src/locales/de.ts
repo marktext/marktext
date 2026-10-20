@@ -3,6 +3,8 @@ export const de = {
     resource: {
         'Copied': 'Kopiert',
         'Copy failed': 'Kopieren fehlgeschlagen. Bitte versuchen Sie es erneut.',
+        'Read-only document': 'Schreibgeschütztes Dokument',
+        'Document': 'Dokument',
         'GitHub Alerts': 'GitHub-Hinweise',
         'GitHub Alert: NOTE': 'GitHub-Hinweis: NOTE',
         'GitHub Alert: TIP': 'GitHub-Hinweis: TIP',

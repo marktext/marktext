@@ -3,6 +3,8 @@ export const ko = {
     resource: {
         'Copied': '복사됨',
         'Copy failed': '복사하지 못했습니다. 다시 시도하세요.',
+        'Read-only document': '읽기 전용 문서',
+        'Document': '문서',
         'GitHub Alerts': 'GitHub 알림',
         'GitHub Alert: NOTE': 'GitHub 알림: NOTE',
         'GitHub Alert: TIP': 'GitHub 알림: TIP',

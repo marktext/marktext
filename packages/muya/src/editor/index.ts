@@ -298,6 +298,8 @@ export class Editor {
         const { domNode } = this._muya;
 
         const eventHandler = (event: Event) => {
+            if (this._muya.readOnly)
+                return;
             const selectionResult = this.selection.getSelection();
             const anchorBlock = selectionResult?.anchor.block;
             const isSelectionInSameBlock = selectionResult?.isSelectionInSameBlock;
@@ -399,6 +401,8 @@ export class Editor {
 
     updateContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: string) {
         const muya = this._muya;
+        if (!muya.canMutate)
+            return;
         // ot-json1 no-op (`null`) is forwarded to dispatch — JSONState
         // short-circuits internally so listeners still see a json-change
         // event for the no-op.
@@ -484,6 +488,8 @@ export class Editor {
      * DOM from the json state.
      */
     rebuildContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: string) {
+        if (!this._muya.canMutate)
+            return;
         this.jsonState.dispatch(operations, source);
 
         const state = this.jsonState.getState();

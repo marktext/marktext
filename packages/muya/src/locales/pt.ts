@@ -3,6 +3,8 @@ export const pt = {
     resource: {
         'Copied': 'Copiado',
         'Copy failed': 'Falha ao copiar. Tente novamente.',
+        'Read-only document': 'Documento somente leitura',
+        'Document': 'Documento',
         'GitHub Alerts': 'Alertas do GitHub',
         'GitHub Alert: NOTE': 'Alerta do GitHub: NOTE',
         'GitHub Alert: TIP': 'Alerta do GitHub: TIP',

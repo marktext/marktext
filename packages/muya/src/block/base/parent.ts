@@ -28,7 +28,8 @@ class Parent extends TreeNode {
     }
 
     set active(value) {
-        this._active = value;
+        this._active = value && !this.muya.readOnly;
+        value = this._active;
 
         if (this.domNode == null) {
             debug.error('domNode is null.');
@@ -110,6 +111,8 @@ class Parent extends TreeNode {
     append(...childrenAndSource: [...Parent[], string]): void;
     append(...children: Parent[]): void;
     append(...args: unknown[]) {
+        if (!this.muya.canMutate)
+            return;
         const source
             = typeof args[args.length - 1] === 'string' ? args.pop() : 'api';
         const children = args as Parent[];
@@ -175,6 +178,8 @@ class Parent extends TreeNode {
      * @param {TreeNode} block
      */
     replaceWith(block: Parent, source = 'user') {
+        if (!this.muya.canMutate)
+            return;
         if (!this.parent) {
             debug.warn('Call replaceWith need has a parent block');
 
@@ -193,6 +198,8 @@ class Parent extends TreeNode {
         refNode: Nullable<Parent> = null,
         source = 'user',
     ) {
+        if (!this.muya.canMutate)
+            return;
         newNode.parent = this;
         this.children.insertBefore(newNode, refNode);
         this.domNode!.insertBefore(
@@ -219,6 +226,8 @@ class Parent extends TreeNode {
     }
 
     override remove(source = 'user') {
+        if (!this.muya.canMutate)
+            return;
         if (source === 'user') {
             // dispatch json1 operation
             const path = this._getJsonPath();
