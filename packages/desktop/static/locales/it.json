@@ -6,7 +6,9 @@
       "paragraphs": "Paragrafi",
       "allCharacters": "Tutti i caratteri",
       "document": "Documento",
-      "documentSelection": "Testo selezionato nel documento"
+      "documentSelection": "Testo selezionato nel documento",
+      "charactersNoSpaces": "Caratteri (senza spazi)",
+      "charactersWithSpaces": "Caratteri (con spazi)"
     },
     "file": {
       "file": "File",
@@ -269,7 +271,15 @@
     "minimize": "Riduci a icona",
     "maximize": "Massimizza",
     "restore": "Ripristina",
-    "close": "Chiudi"
+    "close": "Chiudi",
+    "documentStatistics": {
+      "title": "Statistiche del documento",
+      "fileInformation": "Informazioni sul file",
+      "created": "Creato",
+      "lastModified": "Modificato",
+      "unavailable": "—",
+      "open": "Apri le statistiche del documento"
+    }
   },
   "commandPalette": {
     "placeholder": "Digita il comando da eseguire",
@@ -1037,5 +1047,22 @@
     "tabs": {
       "close": "Chiudi {name}"
     }
+  },
+  "readingMode": {
+    "title": "Modalità lettura (sola lettura)",
+    "edit": "Modalità modifica",
+    "lock": "Attiva la modalità lettura",
+    "unlock": "Passa alla modalità modifica",
+    "defaultMode": "Modalità predefinita per i file aperti",
+    "defaultNote": "Si applica ai file esistenti aperti da questo momento in poi. I nuovi documenti restano modificabili.",
+    "unsaved": "La modalità lettura è attiva. Le modifiche non salvate vengono conservate e il salvataggio automatico è sospeso.",
+    "failed": "Impossibile cambiare la modalità del documento",
+    "closeSave": "Passa alla modalità modifica e salva",
+    "exportSource": "Scegli una destinazione di esportazione diversa dal file di origine.",
+    "unavailable": "Non disponibile in modalità lettura",
+    "skipped": "I documenti in sola lettura con modifiche non salvate sono stati ignorati.",
+    "viewImage": "Visualizza immagine",
+    "copyLink": "Copia indirizzo del link",
+    "resumed": "La modalità modifica è attiva. Il salvataggio automatico è ripreso."
   }
 }

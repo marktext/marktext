@@ -83,6 +83,10 @@ export const it = {
         'Eliminate': 'Rimuovi formattazione',
         // Code block
         'Copy content': 'Copia contenuto',
+        'Copied': 'Copiato',
+        'Copy failed': 'Copia non riuscita',
+        'Document': 'Documento',
+        'Read-only document': 'Documento in sola lettura',
         'Input Language Identifier...': 'Inserisci l\'identificatore della lingua…',
         // emojiPicker
         'Smileys & Emotion': 'Faccine ed emozioni',
@@ -108,7 +112,7 @@ export const it = {
         'Choose Image': 'Scegli immagine',
         'Choose image from your computer.': 'Scegli un\'immagine dal computer.',
         'Alt text': 'Testo alternativo',
-        'Image link or local path': 'Link all'\immagine o percorso locale',
+        'Image link or local path': 'Link all\'immagine o percorso locale',
         'Image title': 'Titolo immagine',
         'Embed Image': 'Incorpora immagine',
         'Paste web image or local image path. Use': 'Incolla un\'immagine dal web o da un percorso locale. Usa',
