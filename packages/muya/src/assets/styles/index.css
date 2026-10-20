@@ -296,7 +296,9 @@ body {
 .mu-code-copy {
     border-radius: 4px;
 
-    transition: opacity 0.2s ease, background-color 0.15s ease;
+    transition:
+        opacity 0.2s ease,
+        background-color 0.15s ease;
 }
 
 .mu-container .mu-copy-header-link:hover,
