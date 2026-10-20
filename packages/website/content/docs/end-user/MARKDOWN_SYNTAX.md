@@ -499,12 +499,17 @@ V) continue the list
 
 (1) Digits in parentheses
 (2) continue the list
+
+#. A hash numbers the item
+#. without writing the number
 ```
 
 A list keeps the marker style and delimiter of its first item. A top-level
-list starts at the value of its first marker, so `C.` starts at three. MarkText
-writes two spaces after a capital letter followed by a period, as in
-`B.  Russell`, because pandoc reads `B. Russell` with one space as a paragraph.
+list starts at the value of its first marker, so `C.` starts at three. A `#`
+list shows digits, and MarkText keeps writing `#.`, `#)`, or `(#)` when you
+save it. MarkText writes two spaces after a capital letter followed by a
+period, as in `B.  Russell`, because pandoc reads `B. Russell` with one space
+as a paragraph.
 
 #### Outlines
 

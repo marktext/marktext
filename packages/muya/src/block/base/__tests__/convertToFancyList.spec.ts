@@ -65,11 +65,14 @@ describe('typing a fancy-list marker', () => {
         ['(a) x', '(a) x\n'],
         ['c) x', 'c) x\n'],
         ['1) x', '1) x\n'],
+        ['#. x', '#. x\n'],
+        ['#) x', '#) x\n'],
+        ['(#) x', '(#) x\n'],
     ])('turns `%s` into a list', (text, markdown) => {
         expect(type(text)).toEqual(['order-list > list-item > paragraph', markdown]);
     });
 
-    it.each(['B. Russell won', 'C. elegans worms', 'V. Five', 'I. x', 'para\n(a) x'])('keeps `%s` as text', (text) => {
+    it.each(['B. Russell won', 'C. elegans worms', 'V. Five', 'I. x', 'para\n(a) x', '#.x'])('keeps `%s` as text', (text) => {
         expect(type(text)).toEqual(['paragraph', `${text}\n`]);
     });
 
@@ -95,6 +98,7 @@ describe('typing a fancy-list marker', () => {
         expect(type('I.  x', { fancyLists: false })).toEqual(['paragraph', 'I.  x\n']);
         expect(type('(a) x', { fancyLists: false })).toEqual(['paragraph', '(a) x\n']);
         expect(type('a. x', { fancyLists: false })).toEqual(['paragraph', 'a. x\n']);
+        expect(type('#. x', { fancyLists: false })).toEqual(['paragraph', '#. x\n']);
         expect(type('1) x', { fancyLists: false })).toEqual(['order-list > list-item > paragraph', '1) x\n']);
     });
 });

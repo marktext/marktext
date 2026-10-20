@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatListMarker, minSpacesAfterMarker, outlineLevel, parseListMarker, toListDelimiter } from '../listMarker';
+import { continuesList, formatListMarker, minSpacesAfterMarker, outlineLevel, parseListMarker, toListDelimiter } from '../listMarker';
 
 describe('parseListMarker', () => {
     it('reads each delimiter', () => {
@@ -37,6 +37,15 @@ describe('parseListMarker', () => {
         expect(parseListMarker('ii.', 'lower-alpha')).toBeNull();
         expect(parseListMarker('b.', 'decimal')).toBeNull();
     });
+
+    it('reads `#` as one in any style, and digits after it', () => {
+        expect(parseListMarker('#.')).toEqual({ value: 1, style: 'default', delimiter: '.' });
+        expect(parseListMarker('(#)')).toEqual({ value: 1, style: 'default', delimiter: '()' });
+        expect(parseListMarker('#)', 'lower-roman')).toEqual({ value: 1, style: 'lower-roman', delimiter: ')' });
+        expect(parseListMarker('7.', 'default')).toEqual({ value: 7, style: 'default', delimiter: '.' });
+        expect(parseListMarker('b.', 'default')).toBeNull();
+        expect(parseListMarker('##.')).toBeNull();
+    });
 });
 
 describe('formatListMarker', () => {
@@ -46,6 +55,8 @@ describe('formatListMarker', () => {
         expect(formatListMarker({ value: 2, style: 'upper-alpha', delimiter: '.' })).toBe('B.');
         expect(formatListMarker({ value: 3, style: 'lower-alpha', delimiter: '()' })).toBe('(c)');
         expect(formatListMarker({ value: 10, style: 'decimal', delimiter: '()' })).toBe('(10)');
+        expect(formatListMarker({ value: 3, style: 'default', delimiter: '.' })).toBe('#.');
+        expect(formatListMarker({ value: 3, style: 'default', delimiter: '()' })).toBe('(#)');
     });
 
     it('wraps alphabetic values past z', () => {
@@ -71,6 +82,24 @@ describe('minSpacesAfterMarker', () => {
         expect(spaces('(A)')).toBe(1);
         expect(spaces('a.')).toBe(1);
         expect(spaces('1.')).toBe(1);
+        expect(spaces('#.')).toBe(1);
+        expect(spaces('#.', 'upper-alpha')).toBe(2);
+    });
+});
+
+describe('continuesList', () => {
+    it('continues a list with a `#` list unless pandoc wants two spaces after it', () => {
+        expect(continuesList({ style: 'lower-alpha', delimiter: '.' }, { style: 'default', delimiter: '.' })).toBe(true);
+        expect(continuesList({ style: 'decimal', delimiter: ')' }, { style: 'default', delimiter: ')' })).toBe(true);
+        expect(continuesList({ style: 'upper-alpha', delimiter: '.' }, { style: 'default', delimiter: '.' })).toBe(false);
+        expect(continuesList({ style: 'lower-alpha', delimiter: '.' }, { style: 'default', delimiter: ')' })).toBe(false);
+    });
+
+    it('continues a `#` list with digits only', () => {
+        expect(continuesList({ style: 'default', delimiter: '.' }, { style: 'decimal', delimiter: '.' })).toBe(true);
+        expect(continuesList({ style: 'default', delimiter: '.' }, { style: 'lower-alpha', delimiter: '.' })).toBe(false);
+        expect(continuesList({ style: 'lower-roman', delimiter: '.' }, { style: 'lower-roman', delimiter: '.' })).toBe(true);
+        expect(continuesList({ style: 'lower-roman', delimiter: '.' }, { style: 'decimal', delimiter: '.' })).toBe(false);
     });
 });
 

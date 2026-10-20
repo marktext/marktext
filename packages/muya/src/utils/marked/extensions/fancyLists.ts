@@ -18,7 +18,7 @@ interface IMarkerLine {
     text: string;
 }
 
-const MARKER_LINE = /^( {0,3})(\([A-Z\d]+\)|[A-Z\d]+[.)])(?:([ \t]+)([^ \t\n][^\n]*)?)?$/i;
+const MARKER_LINE = /^( {0,3})(\((?:[A-Z\d]+|#)\)|(?:[A-Z\d]+|#)[.)])(?:([ \t]+)([^ \t\n][^\n]*)?)?$/i;
 const BULLET_OR_DECIMAL_START = /^ {0,3}(?:[*+-]|\d{1,9}[.)])(?:[ \t]|$)/;
 // pandoc reads `p. 5` as a page reference, not as item sixteen.
 const PAGE_REFERENCE = /^ {0,3}p\.[ \t]\d/;
@@ -86,6 +86,8 @@ export function endListItemsAtFancyMarkers(lexer: Lexer) {
         other: {
             ...rules.other,
             nextBulletRegex: (contentColumn: number) => new ListItemStart(contentColumn),
+            // pandoc continues a decimal list with `#.` items.
+            listItemRegex: (bullet: string) => rules.other.listItemRegex(bullet.replace('\\d{1,9}', '(?:\\d{1,9}|#)')),
         },
     };
 }

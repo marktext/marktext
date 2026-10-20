@@ -64,9 +64,9 @@ const INLINE_UPDATE_FRAGMENTS = [
 
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i');
 
-// Fancy-list markers (`a.`, `IV)`, `(1)`); the decimal `1.` and `1)` ones are
-// in INLINE_UPDATE_FRAGMENTS.
-const FANCY_LIST_PREFIX_REG = /^ {0,3}(\([A-Z\d]+\)|[A-Z]+[.)])( {1,4})/i;
+// Fancy-list markers (`a.`, `IV)`, `(1)`, `#.`); the decimal `1.` and `1)`
+// ones are in INLINE_UPDATE_FRAGMENTS.
+const FANCY_LIST_PREFIX_REG = /^ {0,3}(\((?:[A-Z\d]+|#)\)|(?:[A-Z]+|#)[.)])( {1,4})/i;
 
 interface IFancyListPrefix {
     marker: IListMarker;

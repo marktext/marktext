@@ -44,6 +44,19 @@ describe('fancy lists in exported HTML', () => {
         ].join('\n'));
     });
 
+    it('numbers # lists as decimal ones', () => {
+        expect(renderToStaticHTML('#. one\n#. two\n\n(#) three\n', { fancyLists: true })).toBe([
+            '<ol type="1" class="fancy-list-decimal">',
+            '<li>one</li>',
+            '<li>two</li>',
+            '</ol>',
+            '<ol type="1" class="fancy-list-decimal-parens">',
+            '<li>three</li>',
+            '</ol>',
+            '',
+        ].join('\n'));
+    });
+
     it('leaves lettered markers as text when the option is off', () => {
         expect(renderToStaticHTML(OUTLINE)).toBe('<p>I.  Introduction\n    A.  Background\n        1. Early work</p>\n');
         expect(renderToStaticHTML('3) three\n')).toBe('<ol start="3">\n<li>three</li>\n</ol>\n');

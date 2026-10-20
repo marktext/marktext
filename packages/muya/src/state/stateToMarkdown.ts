@@ -31,7 +31,7 @@ import type {
  */
 import { deepClone } from '../utils';
 import { githubAlertMarker } from '../utils/githubAlerts';
-import { formatListMarker, minSpacesAfterMarker, parseListMarker } from '../utils/listMarker';
+import { continuesList, formatListMarker, minSpacesAfterMarker, parseListMarker } from '../utils/listMarker';
 
 import logger from '../utils/logger';
 import stringWidth from '../utils/stringWidth';
@@ -39,6 +39,21 @@ import { isAnyListState } from './types';
 
 const debug = logger('export markdown: ');
 const SETEXT_SAFE_BULLET_MARKER = '*';
+
+type TListMeta = IBulletListState['meta'] | IOrderListState['meta'] | ITaskListState['meta'];
+
+// Whether the list with `meta`, written right after the list with `previous`,
+// reads back as more items of it.
+function readsOn(previous: TListMeta, meta: TListMeta): boolean {
+    if ('delimiter' in previous && 'delimiter' in meta) {
+        return continuesList(
+            { style: previous.style ?? 'decimal', delimiter: previous.delimiter },
+            { style: meta.style ?? 'decimal', delimiter: meta.delimiter },
+        );
+    }
+
+    return 'marker' in previous && 'marker' in meta && previous.marker === meta.marker;
+}
 
 function escapeText(str: string) {
     return str.replace(/(?<!\\)\|/g, '\\|');
@@ -55,11 +70,7 @@ export default class ExportMarkdown {
     // reads `loose` / `marker` / `delimiter` / `start` / `sourceMarkers` from
     // the top entry to render the correct bullet, indentation, and tightness.
     // Entries are clones, so items consume `start` and `sourceMarkers` in place.
-    private _listType: (
-        | IBulletListState['meta']
-        | IOrderListState['meta']
-        | ITaskListState['meta']
-    )[];
+    private _listType: TListMeta[];
 
     private _isLooseParentList: boolean;
     private _listIndentation: string;
@@ -104,7 +115,7 @@ export default class ExportMarkdown {
     ): string {
         const result: string[] = [];
         // helper for CommonMark 264
-        let lastListBullet = '';
+        let previousList: TListMeta | undefined;
         let previousState: TState | undefined;
 
         for (const state of states) {
@@ -113,7 +124,7 @@ export default class ExportMarkdown {
                 && state.name !== 'bullet-list'
                 && state.name !== 'task-list'
             ) {
-                lastListBullet = '';
+                previousList = undefined;
             }
 
             if (isAnyListState(state)) {
@@ -127,12 +138,12 @@ export default class ExportMarkdown {
                     && isAnyListState(previousState)
                     && !previousState.meta.loose
                     && !state.meta.loose;
-                lastListBullet = this._serializeListBlock(
+                previousList = this._serializeListBlock(
                     state,
                     result,
                     indent,
                     listIndent,
-                    lastListBullet,
+                    previousList,
                     markerOverride,
                     followsTightList,
                     this._fancyLists && previousState?.name === state.name,
@@ -232,11 +243,11 @@ export default class ExportMarkdown {
         result: string[],
         indent: string,
         listIndent: string,
-        lastListBullet: string,
+        previousList: TListMeta | undefined,
         markerOverride?: string,
         followsTightList = false,
         followsSameKindList = false,
-    ): string {
+    ): TListMeta {
         let insertNewLine = this._isLooseParentList;
         this._isLooseParentList = true;
         const meta = deepClone(state.meta);
@@ -246,22 +257,21 @@ export default class ExportMarkdown {
         if (state.name !== 'bullet-list' && 'sourceMarkers' in meta && !this._shouldPreserveOrderMarkers(state))
             delete meta.sourceMarkers;
 
-        // Changing the bullet, or the ordered list style or delimiter, starts a new list without a blank line.
-        const bulletMarkerOrDelimiter
-            = 'delimiter' in meta ? `${meta.style ?? 'decimal'} ${meta.delimiter}` : meta.marker;
+        // A list that does not read on from the previous one needs no blank line before it.
+        const sameList = previousList !== undefined && readsOn(previousList, meta);
 
-        if (lastListBullet && lastListBullet !== bulletMarkerOrDelimiter)
+        if (previousList && !sameList)
             insertNewLine = false;
 
         // Adjacent tight lists with the same marker are one markdown list (the
         // parser splits it where items switch between plain and task), so a
         // blank line would only make that list loose on the next parse.
-        if (lastListBullet === bulletMarkerOrDelimiter && followsTightList)
+        if (sameList && followsTightList)
             insertNewLine = false;
 
-        // Two ordered lists with the same markers read back as one list, so
-        // end the first with an HTML comment (pandoc's "Ending a list").
-        if (lastListBullet === bulletMarkerOrDelimiter && followsSameKindList && 'delimiter' in meta) {
+        // Two ordered lists would read back as one list, so end the first
+        // with an HTML comment (pandoc's "Ending a list").
+        if (sameList && followsSameKindList && 'delimiter' in meta) {
             this._insertLineBreak(result, indent);
             result.push(`${indent}<!-- -->\n`);
             insertNewLine = true;
@@ -274,7 +284,7 @@ export default class ExportMarkdown {
         result.push(this._serializeList(state, indent, listIndent));
         this._listType.pop();
 
-        return bulletMarkerOrDelimiter;
+        return meta;
     }
 
     // Source markers only hold while the list keeps the items it was parsed

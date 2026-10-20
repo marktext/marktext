@@ -1,7 +1,8 @@
 // Ordered-list markers as pandoc's `fancy_lists` extension reads and writes
 // them: https://pandoc.org/MANUAL.html#extension-fancy_lists
 
-export type ListStyle = 'decimal' | 'lower-alpha' | 'upper-alpha' | 'lower-roman' | 'upper-roman';
+/** `default` is pandoc's DefaultStyle, written `#.` and numbered like `decimal`. */
+export type ListStyle = 'default' | 'decimal' | 'lower-alpha' | 'upper-alpha' | 'lower-roman' | 'upper-roman';
 
 /** `.` is `1.`, `)` is `1)` and `()` is `(1)`. */
 export type ListDelimiter = '.' | ')' | '()';
@@ -58,9 +59,17 @@ function writeAlpha(value: number): string {
     return String.fromCharCode(97 + ((value - 1) % 26));
 }
 
+function readDecimal(body: string): number | null {
+    return /^\d{1,9}$/.test(body) ? Number(body) : null;
+}
+
 const STYLES: Record<ListStyle, { read: (body: string) => number | null; write: (value: number) => string }> = {
+    'default': {
+        read: readDecimal,
+        write: () => '#',
+    },
     'decimal': {
-        read: body => (/^\d{1,9}$/.test(body) ? Number(body) : null),
+        read: readDecimal,
         write: value => String(value),
     },
     'lower-alpha': {
@@ -84,6 +93,8 @@ const STYLES: Record<ListStyle, { read: (body: string) => number | null; write: 
 // A list's first marker picks its style: `i`/`I` is roman one, any other
 // single letter is alphabetic, and longer letter runs are roman.
 function firstMarkerStyle(body: string): ListStyle {
+    if (body === '#')
+        return 'default';
     if (/^\d/.test(body))
         return 'decimal';
     const upper = body === body.toUpperCase();
@@ -105,7 +116,8 @@ export function parseListMarker(text: string, continueStyle?: ListStyle): IListM
     const body = match[1] ?? match[2];
     const delimiter: ListDelimiter = match[1] ? '()' : match[3] === '.' ? '.' : ')';
     const style = continueStyle ?? firstMarkerStyle(body);
-    const value = STYLES[style].read(body);
+    // pandoc reads `#` as one in any style, so it continues every list.
+    const value = body === '#' ? 1 : STYLES[style].read(body);
 
     return value === null ? null : { value, style, delimiter };
 }
@@ -125,6 +137,20 @@ export function minSpacesAfterMarker({ value, style, delimiter }: IListMarker): 
     const initialLike = style === 'upper-alpha' || (style === 'upper-roman' && INITIAL_LIKE_ROMAN.has(value));
 
     return delimiter === '.' && initialLike ? 2 : 1;
+}
+
+/**
+ * Whether a list in `next`'s style, written right after a list in `list`'s
+ * style, reads back as more items of `list`: a `#` marker continues any list
+ * as item one would, and a `#` list continues with digits.
+ */
+export function continuesList(list: IListLevel, next: IListLevel): boolean {
+    if (list.delimiter !== next.delimiter)
+        return false;
+    if (next.style === 'default')
+        return minSpacesAfterMarker({ value: 1, ...list }) === 1;
+
+    return next.style === list.style || (list.style === 'default' && next.style === 'decimal');
 }
 
 export function toListDelimiter(value: string): ListDelimiter {

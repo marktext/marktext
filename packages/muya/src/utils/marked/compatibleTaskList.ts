@@ -5,8 +5,8 @@ function isListToken(token: Token | ListToken): token is ListToken {
     return token.type === 'list';
 }
 
-// A bullet, a decimal marker, or a fancy-list marker such as `iv.` or `(a)`.
-const MARKER = String.raw`[*+-]|\d{1,9}[.)]|\([A-Z\d]+\)|[A-Z]+[.)]`;
+// A bullet, a decimal marker, or a fancy-list marker such as `iv.`, `(a)` or `#.`.
+const MARKER = String.raw`[*+-]|\d{1,9}[.)]|\((?:[A-Z\d]+|#)\)|(?:[A-Z]+|#)[.)]`;
 const BULL_REG = new RegExp(String.raw`^ {0,3}(${MARKER})`, 'i');
 const EMPTY_TASK_REG = new RegExp(String.raw`^ {0,3}(?:${MARKER})[ \t]+\[([ x])\][ \t]*$`, 'i');
 const TASK_MARKER_PREFIX_REG = new RegExp(String.raw`^ {0,3}(?:${MARKER})[ \t]+\[([ x])\][ \t]+`, 'i');

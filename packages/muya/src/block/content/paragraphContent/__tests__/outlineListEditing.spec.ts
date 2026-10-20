@@ -121,6 +121,12 @@ describe('outline lists: Tab and Shift+Tab', () => {
         expect(on.getMarkdown()).toBe('3. a\n   1. b\n');
     });
 
+    it('keeps the # marker in a sublist', () => {
+        const muya = bootMuya('#. x\n#. y\n');
+        tab(muya, 'y');
+        expect(muya.getMarkdown()).toBe('#. x\n   #. y\n');
+    });
+
     it('nests a decimal list as before', () => {
         const muya = bootMuya('1. x\n2. y\n3. z\n');
         tab(muya, 'y');

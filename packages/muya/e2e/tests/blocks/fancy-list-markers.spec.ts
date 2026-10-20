@@ -1,5 +1,8 @@
 import type { Page } from '@playwright/test';
 import { expect, test } from '../fixtures/muya';
+import { getMarkdown } from '../helpers/api';
+import { slowType } from '../helpers/keyboard';
+import { editor } from '../helpers/selectors';
 
 // The rendered marker text is not in the DOM; Chromium's accessibility tree
 // names each `ListMarker` node with it.
@@ -47,6 +50,20 @@ test.describe('fancy list markers', () => {
     test('a two-paren delimiter renders as written', async ({ page }) => {
         await render(page, '(1) one\n(2) two\n\n(a) ay\n\n(ii) two\n');
         expect(await listMarkers(page)).toEqual(['(1)', '(2)', '(a)', '(ii)']);
+    });
+
+    test('a # list numbers in digits with its delimiter', async ({ page }) => {
+        await render(page, '#. one\n#. two\n\n#) three\n\n(#) four\n');
+        expect(await listMarkers(page)).toEqual(['1.', '2.', '1)', '(1)']);
+    });
+
+    test('typing # and a period starts a # list, not a heading', async ({ page }) => {
+        await render(page, '');
+        await page.locator(editor.paragraph).first().click();
+        await slowType(page, '#. one');
+        await expect(page.locator(editor.orderList).first()).toContainText('one');
+        expect(await listMarkers(page)).toEqual(['1.']);
+        expect(await getMarkdown(page)).toBe('#. one\n');
     });
 
     test('a nested decimal list does not take its parent style', async ({ page }) => {

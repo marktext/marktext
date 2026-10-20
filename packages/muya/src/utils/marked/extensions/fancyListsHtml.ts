@@ -5,7 +5,9 @@ import { Lexer } from 'marked';
 import { toListDelimiter } from '../../listMarker';
 import fancyListsExtension, { endListItemsAtFancyMarkers } from './fancyLists';
 
-const TYPE_ATTRIBUTE: Record<ListStyle, string> = {
+type TCounterStyle = Exclude<ListStyle, 'default'>;
+
+const TYPE_ATTRIBUTE: Record<TCounterStyle, string> = {
     'decimal': '1',
     'lower-alpha': 'a',
     'upper-alpha': 'A',
@@ -46,10 +48,11 @@ export default function fancyListsHtmlExtension(): MarkedExtension {
                 if (!token.ordered)
                     return false;
                 const { style = 'decimal', delimiter = decimalDelimiter(token) } = token as ListToken;
+                const counter: TCounterStyle = style === 'default' ? 'decimal' : style;
                 const start = token.start === 1 ? '' : ` start="${token.start}"`;
                 const body = token.items.map(item => this.listitem(item)).join('');
 
-                return `<ol type="${TYPE_ATTRIBUTE[style]}"${start} class="fancy-list-${style}${CLASS_SUFFIX[delimiter]}">\n${body}</ol>\n`;
+                return `<ol type="${TYPE_ATTRIBUTE[counter]}"${start} class="fancy-list-${counter}${CLASS_SUFFIX[delimiter]}">\n${body}</ol>\n`;
             },
         },
     };

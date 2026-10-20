@@ -221,6 +221,45 @@ const PARSE_CASES: IParseCase[] = [
         pandoc: [{ list: '-', items: [['x', 'ii. foo']] }],
     },
     {
+        name: 'a # list',
+        markdown: '#. one\n#. two\n',
+        outline: [{ list: 'default .', start: 1, items: [['one'], ['two']] }],
+    },
+    { name: 'a # list with one paren', markdown: '#) one\n#) two\n', outline: [{ list: 'default )', start: 1, items: [['one'], ['two']] }] },
+    { name: 'a # list in two parens', markdown: '(#) one\n(#) two\n', outline: [{ list: 'default ()', start: 1, items: [['one'], ['two']] }] },
+    { name: 'a # list continues with digits', markdown: '#. one\n5. two\n', outline: [{ list: 'default .', start: 1, items: [['one'], ['two']] }] },
+    { name: 'a # item continues a decimal list', markdown: '3. one\n#. two\n', outline: [{ list: 'decimal .', start: 3, items: [['one'], ['two']] }] },
+    { name: 'a # item continues a lettered list', markdown: 'a) one\n#) two\n', outline: [{ list: 'lower-alpha )', start: 1, items: [['one'], ['two']] }] },
+    {
+        name: 'a # item after a capital letter needs two spaces',
+        markdown: 'A.  one\n#. two\n',
+        outline: [
+            { list: 'upper-alpha .', start: 1, items: [['one']] },
+            { list: 'default .', start: 1, items: [['two']] },
+        ],
+    },
+    {
+        name: 'a letter after a # list starts a list',
+        markdown: '#. one\nb. two\n',
+        outline: [
+            { list: 'default .', start: 1, items: [['one']] },
+            { list: 'lower-alpha .', start: 2, items: [['two']] },
+        ],
+    },
+    {
+        name: 'a nested # list',
+        markdown: '#. one\n\n    #. nested\n#. two\n',
+        outline: [{
+            list: 'default .',
+            start: 1,
+            loose: true,
+            items: [['one', { list: 'default .', start: 1, items: [['nested']] }], ['two']],
+        }],
+    },
+    { name: 'a # marker needs a space', markdown: '#.one\n', outline: ['#.one'] },
+    { name: 'a paragraph keeps a following # marker', markdown: 'para\n#. one\n', outline: ['para\n#. one'] },
+    { name: 'a heading is not a # marker', markdown: '# H\n#. one\n', outline: ['# H', { list: 'default .', start: 1, items: [['one']] }] },
+    {
         name: 'a marker left of the content column ends the item',
         markdown: 'I.  x\n   A.  y\n',
         outline: [
@@ -240,6 +279,11 @@ const ROUND_TRIPS: Array<[name: string, markdown: string]> = [
     ['a loose list', '(a) x\n\n(b) y\n'],
     ['a style change', 'I.  x\nA.  y\n'],
     ['two lists in one style', 'A.  x\n\n<!-- -->\n\nA.  y\n'],
+    ['a # list', '#. one\n#. two\n'],
+    ['# lists with other delimiters', '#) one\n#) two\n(#) three\n'],
+    ['a nested # list', '#. one\n   #. nested\n#. two\n'],
+    ['a # list after a lettered list', 'a. x\n\n<!-- -->\n\n#. y\n'],
+    ['a lettered list after a # list', '#. x\nb. y\n'],
 ];
 
 describe('fancy lists: parsing', () => {
@@ -256,6 +300,7 @@ describe('fancy lists: parsing', () => {
 
 describe('fancy lists: option off', () => {
     it('reads fancy markers as text', () => {
+        expect(outline(toState('#. x\n', false))).toEqual(['#. x']);
         expect(outline(toState('I.  x\n', false))).toEqual(['I.  x']);
         expect(outline(toState('A.  x\n', false))).toEqual(['A.  x']);
         expect(outline(toState('(a) x\n', false))).toEqual(['(a) x']);
@@ -297,6 +342,22 @@ describe('fancy lists: serialization', () => {
         expect(toMarkdown([list])).toBe('I.  a\nII. b\nIII. c\nIV. d\nV.  e\n');
     });
 
+    it('keeps writing # markers in an edited # list', () => {
+        const [list] = toState('#. a\n#. b\n') as [IOrderListState];
+        list.children.push({ name: 'list-item', children: [{ name: 'paragraph', text: 'c' }] });
+        expect(toMarkdown([list])).toBe('#. a\n#. b\n#. c\n');
+    });
+
+    it('ends a list before a # list that would continue it', () => {
+        const list = (style: 'lower-alpha' | 'default', text: string): IOrderListState => ({
+            name: 'order-list',
+            meta: { start: 1, loose: false, delimiter: '.', style },
+            children: [{ name: 'list-item', children: [{ name: 'paragraph', text }] }],
+        });
+        expect(toMarkdown([list('lower-alpha', 'x'), list('default', 'y')])).toBe('a. x\n\n<!-- -->\n\n#. y\n');
+        expect(toMarkdown([list('default', 'x'), list('lower-alpha', 'y')])).toBe('#. x\na. y\n');
+    });
+
     it('ends a list before another list in the same style', () => {
         const item = (text: string) => ({ name: 'list-item' as const, children: [{ name: 'paragraph' as const, text }] });
         const list = (text: string): IOrderListState => ({
@@ -323,13 +384,14 @@ interface IPandocNode {
 }
 
 const PANDOC_STYLES: Record<string, string> = {
+    DefaultStyle: 'default',
     Decimal: 'decimal',
     LowerAlpha: 'lower-alpha',
     UpperAlpha: 'upper-alpha',
     LowerRoman: 'lower-roman',
     UpperRoman: 'upper-roman',
 };
-const PANDOC_DELIMITERS: Record<string, string> = { Period: '.', OneParen: ')', TwoParens: '()' };
+const PANDOC_DELIMITERS: Record<string, string> = { DefaultDelim: '.', Period: '.', OneParen: ')', TwoParens: '()' };
 
 function pandocText(inlines: IPandocNode[]): string {
     return inlines.map(({ t, c }) => (t === 'Str' ? String(c) : t === 'Space' ? ' ' : t === 'SoftBreak' ? '\n' : '')).join('');
