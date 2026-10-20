@@ -89,11 +89,14 @@ export default function(
       // Electron accepts these MenuItem roles. The types stub camelCase
       // ('recentDocuments' / 'clearRecentDocuments') in recent versions; the JS
       // original used lowercase. Cast to satisfy strict role typing while
-      // preserving the original runtime string.
+      // preserving the original runtime string. The labels must be explicit:
+      // roles otherwise use Electron's English defaults, bypassing the app locale.
       role: 'recentdocuments' as unknown as MenuItemConstructorOptions['role'],
+      label: t('menu.file.openRecent'),
       submenu: [
         {
-          role: 'clearrecentdocuments' as unknown as MenuItemConstructorOptions['role']
+          role: 'clearrecentdocuments' as unknown as MenuItemConstructorOptions['role'],
+          label: t('menu.file.clearRecentlyUsed')
         }
       ]
     })
