@@ -1,6 +1,8 @@
 export const ru = {
     name: 'ru',
     resource: {
+        'Copied': 'Скопировано',
+        'Copy failed': 'Не удалось скопировать. Повторите попытку.',
         'GitHub Alerts': 'Оповещения GitHub',
         'GitHub Alert: NOTE': 'Оповещение GitHub: NOTE',
         'GitHub Alert: TIP': 'Оповещение GitHub: TIP',

@@ -4,14 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CopyType } from '../../../../clipboard/types';
 import { Muya } from '../../../../muya';
 
-// Characterization coverage for the code-block copy button wiring
-// (Code._listen, code.ts:104-134). copyHandler.spec only exercises the
-// downstream COPY_CODE_CONTENT setData branch — the button-click →
-// editor.clipboard.copy(CopyType.COPY_CODE_CONTENT, text) hookup is otherwise
-// untested. The button is the `a.mu-code-copy` first child of the `.mu-code`
-// node; clicking it copies the raw code text verbatim, and mousedown
-// preventDefaults so the caret/selection does not move.
-
 const bootedHosts: HTMLElement[] = [];
 
 beforeEach(() => {
@@ -24,6 +16,7 @@ afterEach(() => {
         host.remove();
     }
     vi.restoreAllMocks();
+    vi.useRealTimers();
 });
 
 function bootMuya(markdown: string, options: Record<string, unknown> = {}): Muya {
@@ -42,7 +35,7 @@ describe('code-block copy button', () => {
         const muya = bootMuya(THREE_LINE_FENCE);
         const copySpy = vi.spyOn(muya.editor.clipboard, 'copy').mockImplementation(() => {});
 
-        const button = muya.domNode.querySelector<HTMLElement>('a.mu-code-copy');
+        const button = muya.domNode.querySelector<HTMLElement>('.mu-code-copy');
         expect(button).not.toBeNull();
 
         button!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -58,17 +51,33 @@ describe('code-block copy button', () => {
         const muya = bootMuya('```js\nsolo line\n```\n');
         const copySpy = vi.spyOn(muya.editor.clipboard, 'copy').mockImplementation(() => {});
 
-        const button = muya.domNode.querySelector<HTMLElement>('a.mu-code-copy')!;
+        const button = muya.domNode.querySelector<HTMLElement>('.mu-code-copy')!;
         button.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
         expect(copySpy).toHaveBeenCalledTimes(1);
         expect(copySpy).toHaveBeenCalledWith(CopyType.COPY_CODE_CONTENT, 'solo line');
     });
 
+    it.each(['false', 'reject'])('restores the accessible label after a %s clipboard failure', async (failure) => {
+        vi.useFakeTimers();
+        const writer = failure === 'reject'
+            ? vi.fn().mockRejectedValue(new Error('clipboard unavailable'))
+            : vi.fn().mockResolvedValue(false);
+        const muya = bootMuya(THREE_LINE_FENCE, { clipboardWriteText: writer });
+        const button = muya.domNode.querySelector<HTMLButtonElement>('.mu-code-copy')!;
+        button.click();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(button.getAttribute('aria-label')).toBe(muya.i18n.t('Copy failed'));
+        expect(button.dataset.copyFeedback).toBe(muya.i18n.t('Copy failed'));
+        await vi.advanceTimersByTimeAsync(2000);
+        expect(button.getAttribute('aria-label')).toBe(muya.i18n.t('Copy content'));
+        expect(button.dataset.copyFeedback).toBeUndefined();
+    });
+
     it('preventDefaults the mousedown so the caret/selection does not move', () => {
         const muya = bootMuya(THREE_LINE_FENCE);
 
-        const button = muya.domNode.querySelector<HTMLElement>('a.mu-code-copy')!;
+        const button = muya.domNode.querySelector<HTMLElement>('.mu-code-copy')!;
         const mousedown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
         button.dispatchEvent(mousedown);
 

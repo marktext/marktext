@@ -49,6 +49,9 @@ class CodeBlock extends Parent {
 
         codeBlock.append(langInput);
         codeBlock.append(code);
+        const copyButton = (code as { copyButton?: HTMLButtonElement | null }).copyButton;
+        if (copyButton)
+            codeBlock.domNode!.appendChild(copyButton);
 
         // Move the line-numbers gutter from .mu-code into the pre so that
         // .mu-code's overflow (hidden/auto) does not clip the left-side gutter.

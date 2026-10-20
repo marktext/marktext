@@ -1,6 +1,8 @@
 export const tr = {
     name: 'tr',
     resource: {
+        'Copied': 'Kopyalandı',
+        'Copy failed': 'Kopyalama başarısız oldu. Lütfen tekrar deneyin.',
         'GitHub Alerts': 'GitHub uyarıları',
         'GitHub Alert: NOTE': 'GitHub uyarısı: NOTE',
         'GitHub Alert: TIP': 'GitHub uyarısı: TIP',

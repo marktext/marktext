@@ -96,6 +96,16 @@ describe('locale completeness', () => {
         }
     });
 
+    describe('clipboard translations', () => {
+        for (const [tag, locale] of nonEnLocales) {
+            it(`${tag} translates clipboard messages`, () => {
+                for (const key of ['Copied', 'Copy failed'] as const) {
+                    expect(locale.resource[key], `${tag}: ${key}`).not.toBe(en.resource[key]);
+                }
+            });
+        }
+    });
+
     describe('every resource value is a non-empty string', () => {
         for (const [tag, locale] of [['en', en] as [string, typeof en], ...nonEnLocales]) {
             it(`${tag} has only non-empty string values`, () => {

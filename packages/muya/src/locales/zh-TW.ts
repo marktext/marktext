@@ -1,6 +1,8 @@
 export const zhTW = {
     name: 'zh-TW',
     resource: {
+        'Copied': '已複製',
+        'Copy failed': '複製失敗，請重試。',
         'GitHub Alerts': 'GitHub 提示區塊',
         'GitHub Alert: NOTE': 'GitHub 提示: NOTE',
         'GitHub Alert: TIP': 'GitHub 提示: TIP',

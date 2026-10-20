@@ -273,3 +273,31 @@ body {
 
     background: var(--highlight-color);
 }
+
+.mu-code-copy {
+    background: transparent;
+    border: 0;
+}
+
+.mu-code-block:hover > .mu-code-copy,
+.mu-code-block > .mu-code-copy:focus-visible {
+    opacity: 1;
+}
+
+.mu-code-copy[data-copy-feedback]::after {
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+
+    padding: 4px 8px;
+
+    color: var(--editor-color);
+    font: 12px sans-serif;
+    white-space: nowrap;
+
+    background: var(--float-bg-color);
+    border-radius: 4px;
+    box-shadow: var(--float-shadow);
+
+    content: attr(data-copy-feedback);
+}

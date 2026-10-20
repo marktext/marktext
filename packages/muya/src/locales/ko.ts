@@ -1,6 +1,8 @@
 export const ko = {
     name: 'ko',
     resource: {
+        'Copied': '복사됨',
+        'Copy failed': '복사하지 못했습니다. 다시 시도하세요.',
         'GitHub Alerts': 'GitHub 알림',
         'GitHub Alert: NOTE': 'GitHub 알림: NOTE',
         'GitHub Alert: TIP': 'GitHub 알림: TIP',

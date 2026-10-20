@@ -1,6 +1,8 @@
 export const zhCN = {
     name: 'zh-CN',
     resource: {
+        'Copied': '已复制',
+        'Copy failed': '复制失败，请重试。',
         'GitHub Alerts': 'GitHub 提示块',
         'GitHub Alert: NOTE': 'GitHub 提示: NOTE',
         'GitHub Alert: TIP': 'GitHub 提示: TIP',
