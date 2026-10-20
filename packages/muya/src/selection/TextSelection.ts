@@ -305,6 +305,8 @@ class TextSelection {
         const { eventCenter, domNode } = this._muya;
 
         const handleMousedown = (event: Event) => {
+            if (this._muya.readOnly)
+                return;
             this._selectInfo = {
                 isSelect: true,
                 selection: null,
@@ -323,6 +325,8 @@ class TextSelection {
         };
 
         const handleMouseupOrLeave = () => {
+            if (this._muya.readOnly)
+                return;
             const { selection } = this._selectInfo;
             if (selection?.anchor.block.outMostBlock && selection.focus.block.outMostBlock)
                 this.setSelection(selection.anchor, selection.focus);
@@ -334,6 +338,8 @@ class TextSelection {
         };
 
         const handleMousemoveOrClick = (event: Event) => {
+            if (this._muya.readOnly)
+                return;
             if (!isMouseEvent(event))
                 return;
 

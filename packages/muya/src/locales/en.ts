@@ -3,6 +3,8 @@ export const en = {
     resource: {
         'Copied': 'Copied',
         'Copy failed': 'Copy failed. Please try again.',
+        'Read-only document': 'Read-only document',
+        'Document': 'Document',
         'GitHub Alerts': 'GitHub Alerts',
         'GitHub Alert: NOTE': 'GitHub Alert: NOTE',
         'GitHub Alert: TIP': 'GitHub Alert: TIP',

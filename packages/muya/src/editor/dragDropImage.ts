@@ -181,7 +181,7 @@ function handleWebLinkImage(
             = /<img\b/i.test(html)
                 || IMAGE_EXT_REG.test(url)
                 || (await checkImageContentType(url));
-        if (!isImage || !muya.isBlockInDocument(target.anchor))
+        if (!isImage || muya.readOnly || !muya.isBlockInDocument(target.anchor))
             return;
 
         insertImageParagraph(muya, target, `![](${url})`);
@@ -205,7 +205,7 @@ async function persistDroppedImage(
 
     try {
         const newSrc = await imageAction({ src: path, alt: name, title: '' });
-        if (!muya.isBlockInDocument(targetBlock))
+        if (muya.readOnly || !muya.isBlockInDocument(targetBlock))
             return;
         const { src } = getImageSrc(path);
         if (src)

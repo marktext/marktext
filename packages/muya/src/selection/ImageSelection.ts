@@ -30,6 +30,8 @@ class ImageSelection {
     };
 
     private _handleClick = (event: Event): void => {
+        if (this._muya.readOnly)
+            return;
         const { target } = event;
         if (!isHTMLElement(target))
             return;
@@ -40,6 +42,8 @@ class ImageSelection {
     };
 
     private _handleKeydown = (event: Event): void => {
+        if (this._muya.readOnly)
+            return;
         if (!isKeyboardEvent(event))
             return;
 

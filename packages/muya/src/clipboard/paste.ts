@@ -636,7 +636,7 @@ function applyNormalizedPaste(
 // longer fires any paste event at all.
 async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void> {
     const target = clipboard.selection.image?.block ?? clipboard.selection.getSelection()?.anchor.block;
-    if (!clipboard.muya.isBlockInDocument(target))
+    if (clipboard.muya.readOnly || !clipboard.muya.isBlockInDocument(target))
         return;
     // A selected inline image collapses the text selection, so handle the
     // "paste an image over a selected image" replace before reading the
@@ -651,7 +651,7 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     const { isSelectionInSameBlock, anchor } = selection;
     const anchorBlock = anchor.block;
 
-    if (!anchorBlock || anchorBlock !== target || !clipboard.muya.isBlockInDocument(anchorBlock))
+    if (!anchorBlock || anchorBlock !== target || clipboard.muya.readOnly || !clipboard.muya.isBlockInDocument(anchorBlock))
         return;
 
     const { imageFile, pasteType } = data;
@@ -679,7 +679,7 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     if (await tryPasteImage(clipboard, anchorBlock, imageFile))
         return;
 
-    if (!clipboard.muya.isBlockInDocument(target))
+    if (clipboard.muya.readOnly || !clipboard.muya.isBlockInDocument(target))
         return;
 
     // Support pasted URLs from Firefox.
@@ -712,7 +712,7 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
                 cursorBeforeNormalize.end,
             ),
     });
-    if (clipboard.muya.isBlockInDocument(anchorBlock) && anchorBlock.getCursor())
+    if (!clipboard.muya.readOnly && clipboard.muya.isBlockInDocument(anchorBlock) && anchorBlock.getCursor())
         applyNormalizedPaste(clipboard, anchorBlock, text, html, pasteType);
 }
 

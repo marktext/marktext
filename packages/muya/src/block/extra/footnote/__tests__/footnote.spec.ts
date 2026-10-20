@@ -23,6 +23,7 @@ registerBlocks();
 // getState() without booting a real editor.
 function makeFakeMuya(): Muya {
     return {
+        canMutate: true,
         i18n: { t: (s: string) => s },
         options: {
             autoPairBracket: false,

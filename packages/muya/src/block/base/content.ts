@@ -409,6 +409,8 @@ class Content extends TreeNode {
     }
 
     set text(text) {
+        if (!this.muya.canMutate)
+            return;
         const oldText = this._text;
         this._text = text;
         const { path } = this;
@@ -441,7 +443,7 @@ class Content extends TreeNode {
         this.tagName = 'span';
         this.classList = ['mu-content'];
         this.attributes = {
-            contenteditable: true,
+            contenteditable: !muya.readOnly,
         };
         this._text = text;
         this.isComposed = false;

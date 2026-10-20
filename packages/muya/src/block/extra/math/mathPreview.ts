@@ -51,6 +51,8 @@ class MathPreview extends Parent {
     }
 
     clickHandler(event: Event) {
+        if (this.muya.readOnly)
+            return;
         event.preventDefault();
         event.stopPropagation();
 

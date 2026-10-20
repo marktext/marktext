@@ -112,6 +112,8 @@ class TableRectSelection {
     }
 
     private _onMouseDown = (event: Event): void => {
+        if (this._muya.readOnly)
+            return;
         // Right-click opens the context menu; never start a drag-select then.
         if (!isMouseEvent(event) || event.button === 2)
             return;

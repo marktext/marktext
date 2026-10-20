@@ -4,6 +4,7 @@ import type { Muya } from '../muya';
 import type { IRenderCursor } from '../selection/types';
 import type { IParagraphState, TContainerState, TState } from '../state/types';
 import type { IHighlight, Labels } from './types';
+import { prepareReadingLinks } from '../editor/readOnly';
 import logger from '../utils/logger';
 import { tokenizer } from './lexer';
 import Renderer from './renderer';
@@ -69,9 +70,11 @@ class InlineRenderer {
         const html = this.renderer.output(
             tokens,
             block,
-            cursor && cursor.block === block ? cursor : {},
+            !this.muya.readOnly && cursor && cursor.block === block ? cursor : {},
         );
         domNode!.innerHTML = html;
+        if (this.muya.readOnly)
+            prepareReadingLinks(domNode!);
     }
 
     // Reference definitions (`[ref]: url`) live in their own paragraphs, so

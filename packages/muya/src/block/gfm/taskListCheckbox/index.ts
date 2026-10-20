@@ -158,6 +158,10 @@ class TaskListCheckbox extends TreeNode {
         const { domNode, muya } = this;
         const { eventCenter } = muya;
         const clickHandler = (event: Event) => {
+            if (this.muya.readOnly) {
+                event.preventDefault();
+                return;
+            }
             if (!isMouseEvent(event))
                 return;
 
@@ -188,6 +192,8 @@ class TaskListCheckbox extends TreeNode {
     }
 
     update = (checked: boolean, source = 'api') => {
+        if (!this.muya.canMutate)
+            return;
         const taskListItem = this.parent as TaskListItem;
         const taskList = taskListItem!.parent as TaskList;
 

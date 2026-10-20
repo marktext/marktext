@@ -3,6 +3,8 @@ export const zhCN = {
     resource: {
         'Copied': '已复制',
         'Copy failed': '复制失败，请重试。',
+        'Read-only document': '只读文档',
+        'Document': '文档',
         'GitHub Alerts': 'GitHub 提示块',
         'GitHub Alert: NOTE': 'GitHub 提示: NOTE',
         'GitHub Alert: TIP': 'GitHub 提示: TIP',
