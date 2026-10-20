@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, nextTick, onMounted, ref } from 'vue'
+import { computed, watch, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useMainStore } from '@/store'
 import { storeToRefs } from 'pinia'
 import { addStyles, addThemeStyle, addCustomStyle, type AddStylesOptions } from '@/util/theme'
@@ -177,6 +177,10 @@ const setupDragDropHandler = (): void => {
     false
   )
 }
+
+let stopSidebarContextMenu: (() => void) | undefined
+onUnmounted(() => stopSidebarContextMenu?.())
+
 onMounted(async () => {
   if (window.marktext?.initialState) {
     preferencesStore.SET_USER_PREFERENCE(window.marktext.initialState)
@@ -192,7 +196,7 @@ onMounted(async () => {
   listenForMainStore.LISTEN_FOR_PARAGRAPH_INLINE_STYLE()
   projectStore.LISTEN_FOR_UPDATE_PROJECT()
   projectStore.LISTEN_FOR_LOAD_PROJECT()
-  projectStore.LISTEN_FOR_SIDEBAR_CONTEXT_MENU()
+  stopSidebarContextMenu = projectStore.LISTEN_FOR_SIDEBAR_CONTEXT_MENU()
   autoUpdateStore.LISTEN_FOR_UPDATE()
   preferencesStore.ASK_FOR_USER_PREFERENCE()
   preferencesStore.LISTEN_TOGGLE_VIEW()

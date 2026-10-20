@@ -411,7 +411,8 @@ const handleTreeKeydown = (event: KeyboardEvent): void => {
   if (shouldTrash) {
     event.preventDefault()
     event.stopPropagation()
-    return bus.emit('SIDEBAR::remove')
+    if (!event.repeat) bus.emit('SIDEBAR::remove')
+    return
   }
 }
 
