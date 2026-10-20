@@ -393,6 +393,9 @@ export class ImageEditTool extends BaseFloat {
      * Shows loading state, uploads the image, then replaces with uploaded URL
      */
     private async _replaceImageWithUpload(alt: string, src: string, title: string) {
+        const targetBlock = this._block;
+        if (!targetBlock || !this.muya.isBlockInDocument(targetBlock))
+            return;
         // Create unique ID for loading state
         const loadingId = `loading-${getUniqueId()}`;
 
@@ -406,6 +409,8 @@ export class ImageEditTool extends BaseFloat {
 
         // Upload image and get new URL
         const uploadedSrc = await this.options.imageAction!({ src, title, alt });
+        if (!this.muya.isBlockInDocument(targetBlock))
+            return;
 
         // Store local path mapping if available
         const { src: localPath } = getImageSrc(src);
@@ -416,12 +421,12 @@ export class ImageEditTool extends BaseFloat {
         // Find and update the image element
         const imageWrapper = query<HTMLElement>(
             `span[data-id=${loadingId}]`,
-            this.muya.domNode,
+            targetBlock.domNode!,
         );
 
         if (imageWrapper) {
             const imageInfo = getImageInfo(imageWrapper);
-            this._block!.replaceImage(imageInfo, {
+            targetBlock.replaceImage(imageInfo, {
                 alt,
                 src: uploadedSrc,
                 title,
@@ -451,7 +456,10 @@ export class ImageEditTool extends BaseFloat {
             return;
         }
 
+        const targetBlock = this._block;
         const path = await this.options.imagePathPicker();
+        if (!targetBlock || !this.muya.isBlockInDocument(targetBlock) || targetBlock !== this._block)
+            return;
         const { alt, title } = this._state;
         return this._replaceImageAsync({ alt, title, src: path });
     }

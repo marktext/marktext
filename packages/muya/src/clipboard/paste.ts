@@ -635,6 +635,9 @@ function applyNormalizedPaste(
 // "set a flag → execCommand('paste') → handle the synthetic event" approach no
 // longer fires any paste event at all.
 async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void> {
+    const target = clipboard.selection.image?.block ?? clipboard.selection.getSelection()?.anchor.block;
+    if (!clipboard.muya.isBlockInDocument(target))
+        return;
     // A selected inline image collapses the text selection, so handle the
     // "paste an image over a selected image" replace before reading the
     // (now absent) text selection.
@@ -648,7 +651,7 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     const { isSelectionInSameBlock, anchor } = selection;
     const anchorBlock = anchor.block;
 
-    if (!anchorBlock)
+    if (!anchorBlock || anchorBlock !== target || !clipboard.muya.isBlockInDocument(anchorBlock))
         return;
 
     const { imageFile, pasteType } = data;
@@ -674,6 +677,9 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     // or an in-memory bitmap — insert it as an inline image
     // routed through `imageAction`, short-circuiting the text/HTML paste.
     if (await tryPasteImage(clipboard, anchorBlock, imageFile))
+        return;
+
+    if (!clipboard.muya.isBlockInDocument(target))
         return;
 
     // Support pasted URLs from Firefox.
@@ -706,7 +712,8 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
                 cursorBeforeNormalize.end,
             ),
     });
-    applyNormalizedPaste(clipboard, anchorBlock, text, html, pasteType);
+    if (clipboard.muya.isBlockInDocument(anchorBlock) && anchorBlock.getCursor())
+        applyNormalizedPaste(clipboard, anchorBlock, text, html, pasteType);
 }
 
 // Entry for a trusted DOM `paste` event (native Cmd/Ctrl+V).

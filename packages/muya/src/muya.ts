@@ -173,6 +173,10 @@ export class Muya {
 
     private _uiPlugins: Record<string, unknown> = {};
 
+    isBlockInDocument(block: Nullable<Content | Parent>): boolean {
+        return !!block?.domNode && this.domNode.isConnected && this.domNode.contains(block.domNode);
+    }
+
     constructor(element: HTMLElement, options?: Partial<IMuyaOptions>) {
         this.options = Object.assign({}, MUYA_DEFAULT_OPTIONS, options ?? {});
         this.eventCenter = new EventCenter();

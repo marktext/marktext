@@ -181,7 +181,7 @@ function handleWebLinkImage(
             = /<img\b/i.test(html)
                 || IMAGE_EXT_REG.test(url)
                 || (await checkImageContentType(url));
-        if (!isImage)
+        if (!isImage || !muya.isBlockInDocument(target.anchor))
             return;
 
         insertImageParagraph(muya, target, `![](${url})`);
@@ -197,6 +197,7 @@ async function persistDroppedImage(
     path: string,
     name: string,
     loadingId: string,
+    targetBlock: Parent,
 ): Promise<void> {
     const { imageAction } = muya.options;
     if (!imageAction)
@@ -204,13 +205,15 @@ async function persistDroppedImage(
 
     try {
         const newSrc = await imageAction({ src: path, alt: name, title: '' });
+        if (!muya.isBlockInDocument(targetBlock))
+            return;
         const { src } = getImageSrc(path);
         if (src)
             muya.editor.inlineRenderer.renderer.urlMap.set(newSrc, src);
 
         const imageWrapper = query<HTMLElement>(
             `span[data-id=${loadingId}]`,
-            muya.domNode,
+            targetBlock.domNode!,
         );
         if (imageWrapper) {
             const imageInfo = getImageInfo(imageWrapper);
@@ -263,9 +266,9 @@ function handleFileImage(
     }
 
     const loadingId = `loading-${getUniqueId()}`;
-    insertImageParagraph(muya, target, `![${loadingId}](${encodedPath})`);
+    const targetBlock = insertImageParagraph(muya, target, `![${loadingId}](${encodedPath})`);
 
-    void persistDroppedImage(muya, path, name, loadingId);
+    void persistDroppedImage(muya, path, name, loadingId, targetBlock);
 
     return true;
 }

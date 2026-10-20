@@ -47,6 +47,7 @@ vi.mock('../../block/scrollPage', () => ({
 const { attachDragDropImageHandlers } = await import('../dragDropImage');
 
 interface IMockMuya {
+    isBlockInDocument: () => boolean;
     eventCenter: EventCenter;
     domNode: HTMLElement;
     options: {
@@ -99,6 +100,7 @@ function makeMuya(options: IMockMuya['options'] = {}): IMockMuya {
     const domNode = document.createElement('div');
     document.body.appendChild(domNode);
     return {
+        isBlockInDocument: () => true,
         eventCenter: new EventCenter(),
         domNode,
         options,
