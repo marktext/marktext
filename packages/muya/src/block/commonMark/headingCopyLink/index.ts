@@ -3,6 +3,7 @@ import formatLinkIcon from '../../../assets/icons/format_link/2.png';
 import { CLASS_NAMES } from '../../../config';
 import { stableSlug } from '../../../state/getTOC';
 import { isKeyboardEvent } from '../../../utils';
+import { showCopyFeedback } from '../../../utils/copyFeedback';
 import logger from '../../../utils/logger';
 import TreeNode from '../../base/treeNode';
 
@@ -98,6 +99,12 @@ class HeadingCopyLink extends TreeNode {
 
         this.muya.eventCenter.emit('heading-copy-link', {
             key: stableSlug(heading),
+            onCopied: (ok: boolean) => showCopyFeedback(
+                this.domNode!,
+                ok,
+                this.muya.i18n.t('Copy anchor link to this heading'),
+                this.muya.i18n,
+            ),
         });
     }
 

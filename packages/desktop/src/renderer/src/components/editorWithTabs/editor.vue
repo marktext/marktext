@@ -2062,9 +2062,13 @@ onMounted(() => {
   // Clicking the hover-to-copy affordance on a heading emits `heading-copy-link`
   // with the heading's stable slug; copy the matching GitHub anchor to the
   // clipboard (resolved via `listToc.find(i => i.slug === key)`).
-  editor.value.on('heading-copy-link', ({ key }: { key: string }) => {
-    editorStore.copyGithubSlug(key)
-  })
+  editor.value.on(
+    'heading-copy-link',
+    async ({ key, onCopied }: { key: string; onCopied?: (ok: boolean) => void }) => {
+      const ok = await editorStore.copyGithubSlug(key)
+      onCopied?.(ok)
+    }
+  )
 
   editor.value.on(
     'format-click',
