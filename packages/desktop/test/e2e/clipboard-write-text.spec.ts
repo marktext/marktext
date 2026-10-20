@@ -39,8 +39,12 @@ test('code copying uses the shared API and reports success', async() => {
   await page.locator('.mu-code-block').hover()
   const button = page.locator('button.mu-code-copy')
   await button.click()
-  await expect(button).toHaveAttribute('data-copy-feedback', 'Copied')
+  await expect(button).toHaveClass(/\bmu-copy-success\b/)
+  await expect(button).toHaveAttribute('aria-label', 'Copied')
+  await expect(button).not.toHaveAttribute('data-copy-feedback')
   expect(await app.evaluate(({ clipboard }) => clipboard.readText())).toBe('const value = 1')
+  await expect(button).not.toHaveClass(/\bmu-copy-success\b/)
+  await expect(button).toHaveAttribute('aria-label', 'Copy content')
 })
 
 test('native clipboard failures return false and show failure feedback', async() => {
