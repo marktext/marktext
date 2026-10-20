@@ -1046,5 +1046,15 @@
     "tabs": {
       "close": "{name} schließen"
     }
+  },
+  "readingMode": {
+    "unsaved": "Der Lesemodus ist aktiviert. Ungespeicherte Änderungen bleiben erhalten; das automatische Speichern ist pausiert.",
+    "failed": "Der Dokumentmodus konnte nicht gewechselt werden",
+    "closeSave": "Zum Bearbeitungsmodus wechseln und speichern",
+    "exportSource": "Wählen Sie ein anderes Exportziel als die Quelldatei.",
+    "skipped": "Schreibgeschützte Dokumente mit ungespeicherten Änderungen wurden übersprungen.",
+    "viewImage": "Bild anzeigen",
+    "copyLink": "Linkadresse kopieren",
+    "resumed": "Der Bearbeitungsmodus ist aktiviert. Das automatische Speichern wurde fortgesetzt."
   }
 }

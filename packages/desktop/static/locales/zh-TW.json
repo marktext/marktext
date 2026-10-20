@@ -1046,5 +1046,15 @@
     "tabs": {
       "close": "關閉 {name}"
     }
+  },
+  "readingMode": {
+    "unsaved": "已進入閱讀模式，尚未儲存的變更已保留，自動儲存已暫停。",
+    "failed": "無法切換文件模式",
+    "closeSave": "切換至編輯模式並儲存",
+    "exportSource": "請選擇與來源檔案不同的匯出位置。",
+    "skipped": "已略過有未儲存變更的唯讀文件。",
+    "viewImage": "檢視圖片",
+    "copyLink": "複製連結位址",
+    "resumed": "已切換至編輯模式，自動儲存已恢復。"
   }
 }

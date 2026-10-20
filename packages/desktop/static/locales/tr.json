@@ -1046,5 +1046,15 @@
     "tabs": {
       "close": "Kapat: {name}"
     }
+  },
+  "readingMode": {
+    "unsaved": "Okuma Modu açık. Kaydedilmemiş değişiklikler korunuyor ve otomatik kaydetme duraklatıldı.",
+    "failed": "Belge modu değiştirilemedi",
+    "closeSave": "Düzenleme Moduna Geç ve Kaydet",
+    "exportSource": "Dışa aktarma için kaynak dosyadan farklı bir hedef seçin.",
+    "skipped": "Kaydedilmemiş değişiklikleri olan salt okunur belgeler atlandı.",
+    "viewImage": "Görseli Görüntüle",
+    "copyLink": "Bağlantı Adresini Kopyala",
+    "resumed": "Düzenleme Modu açık. Otomatik kaydetme devam ediyor."
   }
 }

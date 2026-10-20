@@ -69,6 +69,10 @@ export interface FileSearchMatches {
  * `src/renderer/src/store/help.ts`.
  */
 export interface IFileState {
+  readOnly: boolean
+  modeChanging?: boolean
+  diskMissing?: boolean
+  diskConflict?: boolean
   // A named CLI buffer can be unmodified while its target does not exist yet.
   isPendingCreation?: boolean
   id: string
@@ -116,6 +120,7 @@ export interface FileChangeDetail {
 }
 
 export interface TabOptions {
+  readOnly?: boolean
   selected?: boolean
   /** Link fragment to reveal once the tab is active, e.g. `setup` from `other.md#setup`. */
   anchor?: string
@@ -139,6 +144,7 @@ export interface SaveOptions {
  * `showUnsavedFilesMessage` in `src/main/menu/actions/file.ts`.
  */
 export interface UnsavedFile {
+  readOnly?: boolean
   id: string
   filename: string
   pathname?: string

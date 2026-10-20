@@ -1046,5 +1046,15 @@
     "tabs": {
       "close": "Cerrar {name}"
     }
+  },
+  "readingMode": {
+    "unsaved": "El modo de lectura está activado. Se conservan los cambios sin guardar y el guardado automático está en pausa.",
+    "failed": "No se pudo cambiar el modo del documento",
+    "closeSave": "Cambiar al modo de edición y guardar",
+    "exportSource": "Elija un destino de exportación distinto del archivo de origen.",
+    "skipped": "Se omitieron los documentos de solo lectura con cambios sin guardar.",
+    "viewImage": "Ver imagen",
+    "copyLink": "Copiar dirección del enlace",
+    "resumed": "El modo de edición está activado. Se ha reanudado el guardado automático."
   }
 }

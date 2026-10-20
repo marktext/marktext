@@ -17,6 +17,7 @@ export type IDocumentState = IFileState
 export type { IFileState }
 
 const defaultFileStateWithoutId = {
+  readOnly: false,
   isSaved: true,
   pathname: '',
   filename: 'Untitled-1',
@@ -77,6 +78,9 @@ export const getOptionsFromState = (
 }
 
 const documentStateKeys = [
+  'readOnly',
+  'diskMissing',
+  'diskConflict',
   'isPendingCreation',
   'isSaved',
   'pathname',

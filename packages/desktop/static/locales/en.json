@@ -1046,5 +1046,15 @@
     "tabs": {
       "close": "Close {name}"
     }
+  },
+  "readingMode": {
+    "unsaved": "Reading Mode is on. Unsaved changes are retained and auto-save is paused.",
+    "failed": "Could not switch document mode",
+    "closeSave": "Switch to Edit Mode and Save",
+    "exportSource": "Choose an export destination other than the source file.",
+    "skipped": "Read-only documents with unsaved changes were skipped.",
+    "viewImage": "View Image",
+    "copyLink": "Copy Link Address",
+    "resumed": "Edit Mode is on. Auto-save has resumed."
   }
 }

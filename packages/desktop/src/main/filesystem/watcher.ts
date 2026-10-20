@@ -41,6 +41,25 @@ interface WatcherEntry {
   close: () => void
 }
 
+const readSequences = new WeakMap<BrowserWindow, Map<string, number>>()
+const nextRead = (win: BrowserWindow, pathname: string, type: WatchType): number => {
+  const key = `${type}:${pathname}`
+  let sequences = readSequences.get(win)
+  if (!sequences) {
+    sequences = new Map()
+    readSequences.set(win, sequences)
+  }
+  const sequence = (sequences.get(key) ?? 0) + 1
+  sequences.set(key, sequence)
+  return sequence
+}
+const isLatestRead = (
+  win: BrowserWindow,
+  pathname: string,
+  type: WatchType,
+  sequence: number
+): boolean => readSequences.get(win)?.get(`${type}:${pathname}`) === sequence
+
 const add = async(
   win: BrowserWindow,
   pathname: string,
@@ -50,6 +69,7 @@ const add = async(
   trimTrailingNewline: number,
   autoNormalizeLineEndings: boolean
 ): Promise<void> => {
+  const sequence = nextRead(win, pathname, type)
   const stats = await fsPromises.stat(pathname)
   const birthTime = stats.birthtime
   const mtimeMs = stats.mtimeMs
@@ -94,6 +114,7 @@ const add = async(
         return
       }
     }
+    if (!isLatestRead(win, pathname, type, sequence)) return
     win.webContents.send(EVENT_NAME[type], {
       type: 'add',
       change: file
@@ -102,6 +123,7 @@ const add = async(
 }
 
 const unlink = (win: BrowserWindow, pathname: string, type: WatchType): void => {
+  nextRead(win, pathname, type)
   const file = { pathname }
   win.webContents.send(EVENT_NAME[type], {
     type: 'unlink',
@@ -118,6 +140,7 @@ const change = async(
   trimTrailingNewline: number,
   autoNormalizeLineEndings: boolean
 ): Promise<void> => {
+  const sequence = nextRead(win, pathname, type)
   if (type === 'dir') {
     // Only send mtimeMs so the sidebar can re-sort; skip loading file content.
     try {
@@ -136,10 +159,17 @@ const change = async(
   if (isMarkdown) {
     try {
       const [data, stats] = await Promise.all([
-        loadMarkdownFile(pathname, endOfLine, autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings),
+        loadMarkdownFile(
+          pathname,
+          endOfLine,
+          autoGuessEncoding,
+          trimTrailingNewline,
+          autoNormalizeLineEndings
+        ),
         fsPromises.stat(pathname)
       ])
       const file = { pathname, data, mtimeMs: stats.mtimeMs }
+      if (!isLatestRead(win, pathname, type, sequence)) return
       win.webContents.send('mt::update-file', {
         type: 'change',
         change: file
@@ -198,9 +228,8 @@ class Watcher {
   }
 
   watch(win: BrowserWindow, watchPath: string, type: WatchType = 'dir'): () => void {
-    const usePolling = isOsx || isUncPath(watchPath)
-      ? true
-      : this._preferences.getItem<boolean>('watcherUsePolling')
+    const usePolling =
+      isOsx || isUncPath(watchPath) ? true : this._preferences.getItem<boolean>('watcherUsePolling')
 
     const id = getUniqueId()
 
@@ -301,9 +330,7 @@ class Watcher {
       .on('addDir', (pathname: string) => addDir(win, pathname, type))
       .on('unlinkDir', (pathname: string) => unlinkDir(win, pathname, type))
       .on('raw', (event: string, subpath: string, details: unknown) => {
-        if (
-          globalThis.MARKTEXT_DEBUG_VERBOSE >= 3
-        ) {
+        if (globalThis.MARKTEXT_DEBUG_VERBOSE >= 3) {
           console.log('watcher: ', event, subpath, details)
         }
 
@@ -443,9 +470,7 @@ class Watcher {
             try {
               const fileInfo = await fsPromises.stat(pathname)
               if (fileInfo.mtime.getTime() - start.getTime() < duration) {
-                if (
-                  globalThis.MARKTEXT_DEBUG_VERBOSE >= 3
-                ) {
+                if (globalThis.MARKTEXT_DEBUG_VERBOSE >= 3) {
                   console.log(
                     `Ignoring file event after "stat": current="${currentTime.toISOString()}", start="${start.toISOString()}", file="${fileInfo.mtime.toISOString()}".`
                   )

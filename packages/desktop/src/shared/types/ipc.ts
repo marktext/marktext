@@ -42,8 +42,7 @@ export interface SaveDialogRequest {
 }
 
 export type PlantumlFetchResult =
-  | { ok: true; mime: string; data: Uint8Array }
-  | { ok: false; error: string }
+  { ok: true; mime: string; data: Uint8Array } | { ok: false; error: string }
 
 // =================================================================
 // Invoke channels (renderer → main, returns Promise<T>)
@@ -51,6 +50,7 @@ export type PlantumlFetchResult =
 
 export interface IpcInvokeChannels {
   'mt::clipboard::write-text': { args: [text: string]; ret: boolean }
+  'mt::set-document-read-only': { args: [tabId: string, readOnly: boolean]; ret: void }
   'mt::ask-for-image-path': { args: []; ret: string[] }
   'mt::boot-info-async': { args: []; ret: BootInfo }
   'mt::clipboard::guess-file-path': { args: []; ret: string | null }
@@ -112,6 +112,8 @@ export interface IpcInvokeChannels {
 // =================================================================
 
 export interface IpcSendChannels {
+  'mt::forget-document': [tabId: string]
+  'mt::update-document-mode': [readOnly: boolean, hasDocument?: boolean]
   'app-create-editor-window': [config?: unknown]
   'app-create-settings-window': []
   'app-open-directory-by-id': [windowId: number, dirPath: string]
@@ -140,7 +142,7 @@ export interface IpcSendChannels {
   'mt::cmd-open-folder': []
   'mt::cmd-toggle-autosave': []
   'mt::editor-selection-changed': [windowId: number, state: unknown]
-  'mt::format-link-click': [payload: { data: unknown; dirname: string }]
+  'mt::format-link-click': [payload: { data: unknown; dirname: string; readOnly?: boolean }]
   'mt::get-current-language': []
   'mt::handle-renderer-error': [error: unknown]
   'mt::keybinding-debug-dump-keyboard-info': []
@@ -151,7 +153,9 @@ export interface IpcSendChannels {
   'mt::open-file-by-window-id': [windowId: number, filePath: string, options?: unknown]
   'mt::open-keybindings-config': []
   'mt::open-setting-window': []
-  'mt::rename': [payload: { id: string; pathname: string; newPathname: string; currentFile?: unknown }]
+  'mt::rename': [
+    payload: { id: string; pathname: string; newPathname: string; currentFile?: unknown }
+  ]
   'mt::request-keybindings': []
   'mt::set-editor-format-menus-enabled': [windowId: number, enabled: boolean]
   'mt::response-export': [
@@ -237,6 +241,10 @@ export interface IpcSyncChannels {
 // =================================================================
 
 export interface IpcMainEventChannels {
+  'mt::discard-and-close-window': [tabIds: string[]]
+  'mt::finish-close-window': []
+  'mt::toggle-read-only': []
+  'mt::unlock-documents-for-save': [tabIds: string[]]
   'language-changed': [language: string]
   'mt::UPDATE_AVAILABLE': [info?: unknown]
   'mt::UPDATE_DOWNLOADED': [info?: unknown]
@@ -284,7 +292,9 @@ export interface IpcMainEventChannels {
   'mt::rg::progress': [payload: unknown]
   'mt::screenshot-captured': [filePath: string]
   'mt::set-line-ending': [lineEnding: LineEnding]
-  'mt::set-pathname': [payload: { id: string; pathname: string; filename: string }]
+  'mt::set-pathname': [
+    payload: { id: string; pathname: string; filename: string; savedMarkdown?: string }
+  ]
   'mt::set-view-layout': [layout: unknown]
   'mt::show-command-palette': []
   'mt::show-export-dialog': [type: ExportType]
@@ -294,7 +304,7 @@ export interface IpcMainEventChannels {
   'mt::switch-tab-by-file_path': [filePath: string, options?: TabOptions]
   'mt::switch-tab-by-index': [index: number]
   'mt::tab-save-failure': [tabId: string, message: string]
-  'mt::tab-saved': [tabId: string]
+  'mt::tab-saved': [tabId: string, savedMarkdown?: string]
   'mt::tabs-cycle-left': []
   'mt::tabs-cycle-right': []
   'mt::toggle-view-layout-entry': [entry: string]

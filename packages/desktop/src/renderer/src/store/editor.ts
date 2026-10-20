@@ -1,4 +1,5 @@
 import equal from 'deep-equal'
+import { prepareReading, applyReadOnly } from '../services/documentMode'
 import bus from '../bus'
 import { getUniqueId, deepClone } from '../util'
 import listToTree, { type ListItem, type TreeNode } from '../util/listToTree'
@@ -92,10 +93,7 @@ interface ExportPayload {
 
 interface AutoSavePayload {
   id: string
-  filename: string
   pathname: string
-  markdown: string
-  options: ReturnType<typeof getOptionsFromState>
 }
 
 interface ContentChangePayload {
@@ -193,6 +191,83 @@ export const useEditorStore = defineStore('editor', {
   },
 
   actions: {
+    async SET_READ_ONLY(tabId: string, value: boolean): Promise<void> {
+      const tab = this.tabs.find((item) => item.id === tabId)
+      if (!tab || tab.modeChanging || tab.readOnly === value) return
+      tab.modeChanging = true
+      const timer = autoSaveTimers.get(tabId)
+      if (timer) clearTimeout(timer)
+      autoSaveTimers.delete(tabId)
+      try {
+        if (value && this.currentFile?.id === tabId) await prepareReading()
+        await window.electron.ipcRenderer.invoke('mt::set-document-read-only', tabId, value)
+        if (!this.tabs.includes(tab)) return
+        if (!value && this.currentFile?.id === tabId) {
+          const preferences = usePreferencesStore()
+          preferences.SET_MODE({ type: 'sourceCode', checked: false })
+          preferences.DISPATCH_EDITOR_VIEW_STATE({ sourceCode: false })
+        }
+        tab.readOnly = value
+        if (this.currentFile?.id === tabId) applyReadOnly(value)
+        if (
+          !value &&
+          !tab.isSaved &&
+          !tab.diskConflict &&
+          tab.pathname &&
+          usePreferencesStore().autoSave
+        ) {
+          this.HANDLE_AUTO_SAVE(tab)
+          this.pushTabNotification({
+            tabId,
+            msg: t('readingMode.resumed'),
+            style: 'info',
+            exclusiveType: 'reading_mode'
+          })
+        }
+        if (value && !tab.isSaved) {
+          this.pushTabNotification({
+            tabId,
+            msg: t('readingMode.unsaved'),
+            style: 'info',
+            exclusiveType: 'reading_mode'
+          })
+        }
+        debouncedSendBufferedState()
+      } catch (error) {
+        if (this.currentFile?.id === tabId) applyReadOnly(tab.readOnly)
+        await window.electron.ipcRenderer
+          .invoke('mt::set-document-read-only', tabId, tab.readOnly)
+          .catch(console.error)
+        notice.notify({
+          title: t('readingMode.failed'),
+          message: String(error),
+          type: 'error',
+          showConfirm: false
+        })
+      } finally {
+        tab.modeChanging = false
+      }
+    },
+
+    LISTEN_FOR_READING_MODE(): void {
+      window.electron.ipcRenderer.on('mt::toggle-read-only', () => {
+        if (this.currentFile)
+          void this.SET_READ_ONLY(this.currentFile.id, !this.currentFile.readOnly)
+      })
+      bus.on('toggle-read-only', () => {
+        if (this.currentFile)
+          void this.SET_READ_ONLY(this.currentFile.id, !this.currentFile.readOnly)
+      })
+      window.electron.ipcRenderer.on('mt::unlock-documents-for-save', (_, ids) => {
+        for (const id of ids) {
+          const tab = this.tabs.find((item) => item.id === id)
+          if (tab) tab.readOnly = false
+        }
+        if (this.currentFile && ids.includes(this.currentFile.id)) applyReadOnly(false)
+        debouncedSendBufferedState()
+      })
+    },
+
     SET_SELECTION_WORD_COUNT(wordCount: FileWordCount | null): void {
       this.selectionWordCount = wordCount
     },
@@ -219,7 +294,14 @@ export const useEditorStore = defineStore('editor', {
 
       const oldIdToNewId: Record<string, string> = {}
       const tabs: IFileState[] = bufferedEditorState.tabs.map((tab) => {
-        const fileState = createDocumentState(tab as unknown as Record<string, unknown>)
+        const fileState = createDocumentState({
+          ...tab,
+          readOnly:
+            tab.readOnly ??
+            (!!tab.pathname &&
+              !tab.isPendingCreation &&
+              usePreferencesStore().defaultOpenMode === 'read')
+        })
         oldIdToNewId[tab.id] = fileState.id
         return fileState
       })
@@ -244,6 +326,10 @@ export const useEditorStore = defineStore('editor', {
       })
 
       this.updateTabIdToIndex()
+      for (const tab of tabs) {
+        if (tab.readOnly)
+          void window.electron.ipcRenderer.invoke('mt::set-document-read-only', tab.id, true)
+      }
       window.DIRNAME = currentFile?.pathname ? window.path.dirname(currentFile.pathname) : ''
       this.UPDATE_LINE_ENDING_MENU()
 
@@ -381,7 +467,10 @@ export const useEditorStore = defineStore('editor', {
 
       // Backup few entries that we need to restore later.
       const oldId = tab.id
-      const oldNotifications = tab.notifications
+      const oldNotifications = tab.notifications.filter(
+        (item) => item.exclusiveType !== 'file_changed'
+      )
+      const readOnly = tab.readOnly
       // Preserve scroll across external reload so the editor stays put.
       const oldScrollTop = tab.scrollTop
       let oldHistory: IFileState['history'] | null = null
@@ -403,6 +492,9 @@ export const useEditorStore = defineStore('editor', {
 
       // Update file content and restore some entries.
       Object.assign(tab, newFileState)
+      tab.readOnly = readOnly
+      tab.diskMissing = false
+      tab.diskConflict = false
       tab.id = oldId
       tab.notifications = oldNotifications
       tab.scrollTop = oldScrollTop
@@ -452,7 +544,11 @@ export const useEditorStore = defineStore('editor', {
         return
       }
 
-      window.electron.ipcRenderer.send('mt::format-link-click', { data, dirname })
+      window.electron.ipcRenderer.send('mt::format-link-click', {
+        data,
+        dirname,
+        ...(this.currentFile?.readOnly ? { readOnly: true } : {})
+      })
     },
 
     SCROLL_TO_ANCHOR(anchor: string): void {
@@ -559,6 +655,7 @@ export const useEditorStore = defineStore('editor', {
     },
 
     FILE_SAVE(): void {
+      if (this.currentFile?.readOnly || this.currentFile?.modeChanging) return
       if (!this.currentFile) return
       this.flushActiveEditor()
       const projectStore = useProjectStore()
@@ -589,6 +686,7 @@ export const useEditorStore = defineStore('editor', {
     },
 
     FILE_SAVE_AS(): void {
+      if (this.currentFile?.readOnly || this.currentFile?.modeChanging) return
       if (!this.currentFile) return
       this.flushActiveEditor()
       const projectStore = useProjectStore()
@@ -644,14 +742,16 @@ export const useEditorStore = defineStore('editor', {
           window.DIRNAME = window.path.dirname(pathname)
         }
         if (tab) {
-          Object.assign(tab, { filename, pathname, isSaved: true, isPendingCreation: false })
+          Object.assign(tab, { filename, pathname, isPendingCreation: false })
+          if ('savedMarkdown' in fileInfo && fileInfo.savedMarkdown === tab.markdown)
+            tab.isSaved = true
           debouncedSendBufferedState()
         }
       })
 
-      window.electron.ipcRenderer.on('mt::tab-saved', (_, tabId) => {
+      window.electron.ipcRenderer.on('mt::tab-saved', (_, tabId, savedMarkdown) => {
         const tab = this.tabs.find((f) => f.id === tabId)
-        if (tab) {
+        if (tab && (savedMarkdown === undefined || tab.markdown === savedMarkdown)) {
           const lastEditIndex = tab.history.lastEditIndex
           if (
             typeof lastEditIndex === 'number' &&
@@ -664,6 +764,7 @@ export const useEditorStore = defineStore('editor', {
             }
           }
           tab.isSaved = true
+          tab.diskConflict = false
           tab.isPendingCreation = false
           debouncedSendBufferedState()
         }
@@ -696,6 +797,7 @@ export const useEditorStore = defineStore('editor', {
       const projectStore = useProjectStore()
       const preferencesStore = usePreferencesStore()
       window.electron.ipcRenderer.on('mt::ask-for-close', () => {
+        this.flushActiveEditor()
         sendBufferedState()
           .catch((err) => {
             console.error('Failed to update buffered state before closing', err)
@@ -708,6 +810,7 @@ export const useEditorStore = defineStore('editor', {
                 const options = getOptionsFromState(file)
                 return {
                   id,
+                  readOnly: file.readOnly,
                   filename,
                   pathname,
                   markdown,
@@ -716,7 +819,11 @@ export const useEditorStore = defineStore('editor', {
                 }
               })
 
-            if (unsavedFiles.length && preferencesStore.startUpAction !== 'restoreAll') {
+            if (
+              unsavedFiles.length &&
+              (preferencesStore.startUpAction !== 'restoreAll' ||
+                unsavedFiles.some((file) => file.readOnly))
+            ) {
               // Ignore unsaved files when user has chosen to restore all on startup, as they will be restored anyway.
               window.electron.ipcRenderer.send('mt::close-window-confirm', deepClone(unsavedFiles))
             } else {
@@ -727,6 +834,18 @@ export const useEditorStore = defineStore('editor', {
     },
 
     LISTEN_FOR_SAVE_CLOSE(): void {
+      window.electron.ipcRenderer.on('mt::discard-and-close-window', async(_, ids) => {
+        this.CLOSE_TABS(ids)
+        await sendBufferedState()
+        window.electron.ipcRenderer.send('mt::close-window')
+      })
+      window.electron.ipcRenderer.on('mt::finish-close-window', async() => {
+        this.flushActiveEditor()
+        if (this.tabs.some((tab) => !tab.isSaved)) return
+        await sendBufferedState()
+        window.electron.ipcRenderer.send('mt::close-window')
+      })
+
       window.electron.ipcRenderer.on('mt::force-close-tabs-by-id', (_, tabIdList) => {
         if (Array.isArray(tabIdList) && tabIdList.length) {
           this.CLOSE_TABS(tabIdList)
@@ -736,14 +855,19 @@ export const useEditorStore = defineStore('editor', {
 
     ASK_FOR_SAVE_ALL(closeTabs: boolean): void {
       const { tabs } = this
+      if (!closeTabs && tabs.some((tab) => tab.readOnly && !tab.isSaved)) {
+        notice.notify({ title: t('readingMode.skipped'), showConfirm: false })
+      }
       const projectStore = useProjectStore()
       const unsavedFiles = tabs
+        .filter((file) => closeTabs || !file.readOnly)
         .filter((file) => !(file.isSaved && /[^\n]/.test(file.markdown)))
         .map((file) => {
           const { id, filename, pathname, markdown } = file
           const options = getOptionsFromState(file)
           return {
             id,
+            readOnly: file.readOnly,
             filename,
             pathname,
             markdown,
@@ -765,6 +889,7 @@ export const useEditorStore = defineStore('editor', {
     },
 
     MOVE_FILE_TO(): void {
+      if (this.currentFile?.readOnly && !this.currentFile.pathname) return
       if (!this.currentFile) return
       this.flushActiveEditor()
       const projectStore = useProjectStore()
@@ -808,6 +933,7 @@ export const useEditorStore = defineStore('editor', {
     },
 
     RESPONSE_FOR_RENAME(): void {
+      if (this.currentFile?.readOnly && !this.currentFile.pathname) return
       if (!this.currentFile) return
       this.flushActiveEditor()
       const projectStore = useProjectStore()
@@ -879,6 +1005,7 @@ export const useEditorStore = defineStore('editor', {
         }
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
         this.currentFile = currentFile
+        applyReadOnly(currentFile.readOnly)
         this.selectionWordCount = null
         didUpdateCurrentFile = true
         // Slugs belong to the old document; the next selection-change re-seeds.
@@ -925,14 +1052,8 @@ export const useEditorStore = defineStore('editor', {
             project: projectStore
           })
         )
-        bus.emit(
-          'cmd::register-command',
-          new LineEndingCommand(this)
-        )
-        bus.emit(
-          'cmd::register-command',
-          new TrailingNewlineCommand(this)
-        )
+        bus.emit('cmd::register-command', new LineEndingCommand(this))
+        bus.emit('cmd::register-command', new TrailingNewlineCommand(this))
 
         setTimeout(() => {
           window.electron.ipcRenderer.send('mt::request-keybindings')
@@ -1053,6 +1174,7 @@ export const useEditorStore = defineStore('editor', {
     },
 
     FORCE_CLOSE_TAB(file: IFileState): void {
+      window.electron.ipcRenderer.send('mt::forget-document', file.id)
       const { tabs, currentFile } = this
       const index = tabs.findIndex((t) => t.id === file.id)
       if (index > -1) {
@@ -1105,10 +1227,11 @@ export const useEditorStore = defineStore('editor', {
     },
 
     CLOSE_UNSAVED_TAB(file: IFileState): void {
+      if (this.currentFile?.id === file.id) this.flushActiveEditor()
       const { id, pathname, filename, markdown } = file
       const options = getOptionsFromState(file)
       window.electron.ipcRenderer.send('mt::save-and-close-tabs', [
-        { id, pathname, filename, markdown, options: deepClone(options) }
+        { id, pathname, filename, markdown, readOnly: file.readOnly, options: deepClone(options) }
       ])
     },
 
@@ -1139,6 +1262,7 @@ export const useEditorStore = defineStore('editor', {
 
       let tabIndex = 0
       tabIdList.forEach((id) => {
+        window.electron.ipcRenderer.send('mt::forget-document', id)
         const index = this.tabs.findIndex((f) => f.id === id)
         if (index === -1) return
 
@@ -1163,8 +1287,7 @@ export const useEditorStore = defineStore('editor', {
       this.updateTabIdToIndex() // Update before sending it out to prevent stale mappings.
 
       if (this.currentFile == null && this.tabs.length > 0) {
-        this.currentFile =
-          this.tabs[tabIndex] ?? this.tabs[tabIndex - 1] ?? this.tabs[0] ?? null
+        this.currentFile = this.tabs[tabIndex] ?? this.tabs[tabIndex - 1] ?? this.tabs[0] ?? null
         this.selectionWordCount = null
         if (this.currentFile && typeof this.currentFile.markdown === 'string') {
           const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
@@ -1415,6 +1538,13 @@ export const useEditorStore = defineStore('editor', {
           options as Record<string, unknown>
         )
       )
+      docState.readOnly =
+        options.readOnly ??
+        (!!docState.pathname &&
+          !docState.isPendingCreation &&
+          usePreferencesStore().defaultOpenMode === 'read')
+      if (docState.readOnly)
+        void window.electron.ipcRenderer.invoke('mt::set-document-read-only', docState.id, true)
       const { id, cursor } = docState
 
       if (selected) {
@@ -1531,9 +1661,9 @@ export const useEditorStore = defineStore('editor', {
       }
 
       const tab = this.tabs[this.tabIdToIndex[id]!]
-      if (!tab) return
+      if (!tab || tab.readOnly) return
 
-      const { filename, pathname, markdown: oldMarkdown, trimTrailingNewline } = tab
+      const { pathname, markdown: oldMarkdown, trimTrailingNewline } = tab
 
       markdown = adjustTrailingNewlines(markdown, trimTrailingNewline)
       tab.markdown = markdown
@@ -1571,15 +1701,8 @@ export const useEditorStore = defineStore('editor', {
       const isDirty = history === undefined ? markdown !== oldMarkdown : historyMarksDirty
       if (isDirty) {
         tab.isSaved = false
-        if (pathname && autoSave) {
-          const options = getOptionsFromState(tab)
-          this.HANDLE_AUTO_SAVE({
-            id,
-            filename,
-            pathname,
-            markdown,
-            options
-          })
+        if (pathname && autoSave && !tab.modeChanging) {
+          this.HANDLE_AUTO_SAVE(tab)
         }
       } else if (history !== undefined && tab.lastSavedHistoryId !== -1) {
         // Check here is to prevent it from overriding a restored .isSaved state
@@ -1588,7 +1711,7 @@ export const useEditorStore = defineStore('editor', {
       debouncedSendBufferedState()
     },
 
-    HANDLE_AUTO_SAVE({ id, filename, pathname, markdown, options }: AutoSavePayload): void {
+    HANDLE_AUTO_SAVE({ id, pathname }: AutoSavePayload): void {
       if (!id || !pathname) {
         throw new Error('HANDLE_AUTO_SAVE: Invalid tab.')
       }
@@ -1607,15 +1730,15 @@ export const useEditorStore = defineStore('editor', {
         autoSaveTimers.delete(id)
 
         const tab = this.tabs.find((t) => t.id === id)
-        if (tab && !tab.isSaved) {
+        if (tab && !tab.isSaved && !tab.readOnly && !tab.modeChanging && !tab.diskConflict) {
           const defaultPath = getRootFolderFromState(projectStore)
           window.electron.ipcRenderer.send(
             'mt::response-file-save',
             id,
-            filename,
-            pathname,
-            markdown,
-            deepClone(options),
+            tab.filename,
+            tab.pathname,
+            tab.markdown,
+            deepClone(getOptionsFromState(tab)),
             defaultPath
           )
         }
@@ -1735,6 +1858,7 @@ export const useEditorStore = defineStore('editor', {
     },
 
     SET_LINE_ENDING(lineEnding: LineEnding | string): void {
+      if (this.currentFile?.readOnly || this.currentFile?.modeChanging) return
       if (!this.currentFile) return
       const { lineEnding: oldLineEnding } = this.currentFile
       if (lineEnding !== oldLineEnding) {
@@ -1757,6 +1881,7 @@ export const useEditorStore = defineStore('editor', {
 
     LISTEN_FOR_SET_ENCODING(): void {
       bus.on('mt::set-file-encoding', (encodingName) => {
+        if (this.currentFile?.readOnly || this.currentFile?.modeChanging) return
         if (!this.currentFile) return
         const { encoding } = this.currentFile.encoding
         if (encoding !== encodingName) {
@@ -1770,6 +1895,7 @@ export const useEditorStore = defineStore('editor', {
 
     LISTEN_FOR_SET_FINAL_NEWLINE(): void {
       bus.on('mt::set-final-newline', (value) => {
+        if (this.currentFile?.readOnly || this.currentFile?.modeChanging) return
         if (!this.currentFile) return
         const { trimTrailingNewline } = this.currentFile
         if (trimTrailingNewline !== value) {
@@ -1790,7 +1916,8 @@ export const useEditorStore = defineStore('editor', {
           const { id, isSaved, filename } = tab
           switch (type) {
             case 'unlink': {
-              tab.isSaved = false
+              tab.diskMissing = true
+              if (!tab.readOnly) tab.isSaved = false
               this.pushTabNotification({
                 tabId: id,
                 msg: t('store.editor.fileRemovedOnDisk', { name: filename }),
@@ -1803,11 +1930,17 @@ export const useEditorStore = defineStore('editor', {
             }
             case 'add':
             case 'change': {
+              const wasMissing = tab.diskMissing
+              tab.diskMissing = false
               // Only the file's metadata changed on disk (e.g. a git checkout
               // that left the content byte-identical) — there is nothing to
               // reload and no reason to warn the user (#1861).
               const newMarkdown = (change as unknown as FileChangePayload).data?.markdown
               if (typeof newMarkdown === 'string' && newMarkdown === tab.markdown) {
+                if (wasMissing)
+                  tab.notifications = tab.notifications.filter(
+                    (item) => item.exclusiveType !== 'file_changed'
+                  )
                 break
               }
 
@@ -1826,6 +1959,7 @@ export const useEditorStore = defineStore('editor', {
                 return
               }
 
+              tab.diskConflict = true
               this.pushTabNotification({
                 tabId: id,
                 msg: t('store.editor.fileChangedOnDisk', { name: filename }),
@@ -1931,10 +2065,7 @@ const getRootFolderFromState = (projectStore: ProjectStoreLike): string => {
  * @param markdown The text to trim.
  * @param trimTrailingNewlineOption The option how we should trim the final newlines.
  */
-const adjustTrailingNewlines = (
-  markdown: string,
-  trimTrailingNewlineOption: number
-): string => {
+const adjustTrailingNewlines = (markdown: string, trimTrailingNewlineOption: number): string => {
   if (!markdown) {
     return ''
   }
@@ -2111,9 +2242,7 @@ const createApplicationMenuState = ({
 /**
  * Creates a object that contains the formats selection state.
  */
-export const createSelectionFormatState = (
-  formats: SelectionFormat[]
-): Record<string, boolean> => {
+export const createSelectionFormatState = (formats: SelectionFormat[]): Record<string, boolean> => {
   const state: Record<string, boolean> = {}
   for (const item of formats) {
     // Underline/superscript/subscript/highlight are carried as `html_tag`
@@ -2142,6 +2271,9 @@ function toSerializableValue<T>(value: T | null | undefined, fallback: T | null 
 }
 
 interface BufferedTabState {
+  readOnly?: boolean
+  diskMissing?: boolean
+  diskConflict?: boolean
   isPendingCreation?: boolean
   id: string
   pathname: string
@@ -2160,6 +2292,9 @@ interface BufferedTabState {
 
 const createBufferedTabState = (tab: Partial<IFileState> & { id: string }): BufferedTabState => {
   return {
+    readOnly: typeof tab.readOnly === 'boolean' ? tab.readOnly : undefined,
+    diskMissing: tab.diskMissing,
+    diskConflict: tab.diskConflict,
     id: tab.id,
     pathname: tab.pathname ?? defaultFileState.pathname,
     filename: tab.filename ?? defaultFileState.filename,
