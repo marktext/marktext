@@ -1430,6 +1430,9 @@ export const useEditorStore = defineStore('editor', {
       const next = tabs[nextTabIndex]
       if (!next) return
       this.UPDATE_CURRENT_FILE(next)
+      if (options.readOnly === true && !next.readOnly) {
+        void this.SET_READ_ONLY(next.id, true)
+      }
       const focus = this.TAKE_OPEN_INTENT(filePath)
       if (focus === true) bus.emit('editor-focus')
       else if (focus === false) bus.emit('SIDEBAR::focus-tree')

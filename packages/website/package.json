@@ -11,7 +11,7 @@
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
     "type-check": "tsc --noEmit",
-    "cf:build": "opennextjs-cloudflare build && opennextjs-cloudflare populateCache local",
+    "cf:build": "opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare populateCache local",
     "cf:preview": "opennextjs-cloudflare preview",
     "cf:smoke": "node scripts/smoke-worker.mjs",
     "cf:deploy": "opennextjs-cloudflare deploy"

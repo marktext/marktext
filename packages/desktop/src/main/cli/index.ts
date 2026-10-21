@@ -24,6 +24,7 @@ const cli = (): ParsedArgs => {
         --debug                   Enable debug mode
         --safe                    Disable plugins and other user configuration
     -n, --new-window              Open a new window on second-instance
+        --read-only               Open the specified files in read-only mode
         --user-data-dir           Change the user data directory
         --disable-gpu             Disable GPU hardware acceleration
         --disable-spellcheck      Disable built-in spellchecker

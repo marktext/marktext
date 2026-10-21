@@ -19,7 +19,7 @@ import registerSpellcheckerListeners from '../spellchecker'
 import { watchers } from '../utils/imagePathAutoComplement'
 import { onInternalChannel } from '../utils/internalIpc'
 import { WindowType } from '../windows/base'
-import EditorWindow from '../windows/editor'
+import EditorWindow, { type FileOpenOptions } from '../windows/editor'
 import SettingWindow from '../windows/setting'
 import { setLanguage } from '../i18n'
 import { matchSupportedLanguage } from 'common/i18n'
@@ -32,8 +32,7 @@ interface CliArgs {
   [flag: string]: unknown
 }
 
-interface PathInfo {
-  allowMissing?: boolean
+interface PathInfo extends FileOpenOptions {
   isDir: boolean
   path: string
 }
@@ -72,6 +71,7 @@ class App {
       const sent = additionalData as { argv?: unknown } | null | undefined
       const secondArgv = Array.isArray(sent?.argv) ? (sent.argv as string[]) : argv
       const args = parseArgs(secondArgv.slice(1)) as CliArgs
+      const readOnly = args['--read-only'] === true
 
       const buf: PathInfo[] = []
       for (const pathname of args._) {
@@ -81,7 +81,7 @@ class App {
 
         const info = normalizeCliMarkdownPath(path.resolve(workingDirectory, pathname))
         if (info) {
-          buf.push(info as PathInfo)
+          buf.push({ ...info, ...(readOnly ? { readOnly } : {}) } as PathInfo)
         }
       }
 
@@ -186,6 +186,7 @@ class App {
     const darkModeTheme = preferences.getItem<string>('darkModeTheme')
 
     if (args._.length) {
+      const readOnly = args['--read-only'] === true
       for (const pathname of args._) {
         if (pathname.startsWith('--')) {
           continue
@@ -193,7 +194,7 @@ class App {
 
         const info = normalizeCliMarkdownPath(pathname)
         if (info) {
-          _openFilesCache.push(info as PathInfo)
+          _openFilesCache.push({ ...info, ...(readOnly ? { readOnly } : {}) } as PathInfo)
         }
       }
     }
@@ -400,7 +401,7 @@ class App {
     markdownList: string[] = [],
     options: Partial<BrowserWindowConstructorOptions> = {},
     bufferStoreInfo: { id: string; filePath: string | null } | null = null,
-    allowMissingPaths: string[] = []
+    fileOptions: Record<string, FileOpenOptions> = {}
   ): EditorWindow {
     const editor = new EditorWindow(this._accessor)
     if (rootDirectory) {
@@ -412,7 +413,7 @@ class App {
       markdownList,
       options,
       bufferStoreInfo,
-      allowMissingPaths
+      fileOptions
     )
     this._windowManager.add(editor)
     if (this._windowManager.windowCount === 1) {
@@ -439,14 +440,19 @@ class App {
     const { _windowManager } = this
     const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
 
-    const allowMissingPaths = pathsToOpen.filter((p) => p.allowMissing).map((p) => p.path)
+    const fileOptions: Record<string, FileOpenOptions> = {}
     const fileSet = new Set<string>()
     const directorySet = new Set<string>()
-    for (const { isDir, path } of pathsToOpen) {
+    for (const { allowMissing, isDir, path: pathname, readOnly } of pathsToOpen) {
       if (isDir) {
-        directorySet.add(path)
+        directorySet.add(pathname)
       } else {
-        fileSet.add(path)
+        fileSet.add(pathname)
+        fileOptions[pathname] = {
+          ...fileOptions[pathname],
+          ...(allowMissing ? { allowMissing: true } : {}),
+          ...(readOnly ? { readOnly: true } : {})
+        }
       }
     }
 
@@ -521,29 +527,29 @@ class App {
           if (windowId !== null) {
             const window = _windowManager.get(windowId) as EditorWindow | undefined
             if (window) {
-              window.openTabsFromPaths(fileList, allowMissingPaths)
+              window.openTabsFromPaths(fileList, fileOptions)
               window.bringToFront()
               continue
             }
             // else: fallthrough
           }
-          this._createEditorWindow(null, fileList, [], {}, null, allowMissingPaths)
+          this._createEditorWindow(null, fileList, [], {}, null, fileOptions)
         }
       }
 
       for (const item of directoriesToOpen) {
         const { rootDirectory, fileList } = item
-        this._createEditorWindow(rootDirectory, fileList, [], {}, null, allowMissingPaths)
+        this._createEditorWindow(rootDirectory, fileList, [], {}, null, fileOptions)
       }
     } else {
 
       for (const pathname of filesToOpen) {
-        this._createEditorWindow(null, [pathname], [], {}, null, allowMissingPaths)
+        this._createEditorWindow(null, [pathname], [], {}, null, fileOptions)
       }
 
       for (const item of directoriesToOpen) {
         const { rootDirectory, fileList } = item
-        this._createEditorWindow(rootDirectory, fileList, [], {}, null, allowMissingPaths)
+        this._createEditorWindow(rootDirectory, fileList, [], {}, null, fileOptions)
       }
     }
 
@@ -621,7 +627,9 @@ class App {
         const openFilesInNewWindow =
           this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
         if (openFilesInNewWindow) {
-          this._createEditorWindow(null, [filePath])
+          this._createEditorWindow(null, [filePath], [], {}, null, {
+            [filePath]: options as FileOpenOptions
+          })
         } else {
           const editor = this._windowManager.get(windowId) as EditorWindow | undefined
           if (editor) {

@@ -11,13 +11,18 @@ import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
 import { showEditorContextMenu } from '../contextMenu/editor'
 import { loadMarkdownFile, loadCliMarkdownFile } from '../filesystem/markdown'
 import { switchLanguage } from '../spellchecker'
+import type { TabOptions } from '@shared/types/files'
 import fs from 'fs'
 
 type RawMarkdownDocument = Awaited<ReturnType<typeof loadMarkdownFile>>
 
+export interface FileOpenOptions extends TabOptions {
+  allowMissing?: boolean
+}
+
 interface PendingFile {
   doc: RawMarkdownDocument
-  options: Record<string, unknown>
+  options: FileOpenOptions
   selected: boolean
 }
 
@@ -81,7 +86,7 @@ class EditorWindow extends BaseWindow {
     markdownList: string[] = [],
     options: Partial<BrowserWindowConstructorOptions> = {},
     bufferStoreInfo: BufferStoreInfo | null = null,
-    allowMissingPaths: string[] = []
+    fileOptions: Record<string, FileOpenOptions> = {}
   ): BrowserWindow {
     const { menu: appMenu, env, preferences, editorBufferStore } = this._accessor
     const addBlankTab =
@@ -271,14 +276,14 @@ class EditorWindow extends BaseWindow {
         this.openFolder(rootDirectory)
       }
       if (fileList.length) {
-        this.openTabsFromPaths(fileList, allowMissingPaths)
+        this.openTabsFromPaths(fileList, fileOptions)
       }
     }, 0)
 
     return win
   }
 
-  openTab(filePath: string, options: Record<string, unknown> = {}, selected: boolean = true): void {
+  openTab(filePath: string, options: FileOpenOptions = {}, selected: boolean = true): void {
     if (this.lifecycle === WindowLifecycle.QUITTED) return
     this.openTabs([{ filePath, options, selected }])
   }
@@ -300,21 +305,19 @@ class EditorWindow extends BaseWindow {
     this._pendingPreviewPaths.clear()
   }
 
-  openTabsFromPaths(filePaths: string[], allowMissingPaths: string[] = []): void {
+  openTabsFromPaths(filePaths: string[], fileOptions: Record<string, FileOpenOptions> = {}): void {
     if (!filePaths || filePaths.length === 0) return
 
     const fileList = filePaths.map((p) => ({
       filePath: p,
-      options: { allowMissing: allowMissingPaths.includes(p) },
+      options: fileOptions[p] ?? {},
       selected: false
     }))
     fileList[0].selected = true
     this.openTabs(fileList)
   }
 
-  openTabs(
-    fileList: { filePath: string; selected: boolean; options: Record<string, unknown> }[]
-  ): void {
+  openTabs(fileList: { filePath: string; selected: boolean; options: FileOpenOptions }[]): void {
     if (this.lifecycle === WindowLifecycle.QUITTED) return
 
     const { browserWindow } = this
@@ -353,9 +356,10 @@ class EditorWindow extends BaseWindow {
         continue
       }
       if (!isPreview) this._openedFiles!.push(filePath)
-      const load = options.allowMissing
-        ? loadCliMarkdownFile.bind(null, filePath, preferences.getAll().defaultEncoding ?? 'utf8')
-        : loadMarkdownFile.bind(null, filePath)
+      const load =
+        options.allowMissing && !options.readOnly
+          ? loadCliMarkdownFile.bind(null, filePath, preferences.getAll().defaultEncoding ?? 'utf8')
+          : loadMarkdownFile.bind(null, filePath)
       load(eol, autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings)
         .then((rawDocument) => {
           if (previewRequestId !== null) {
@@ -528,7 +532,7 @@ class EditorWindow extends BaseWindow {
 
   private _doOpenTab(
     rawDocument: RawMarkdownDocument,
-    options: Record<string, unknown>,
+    options: FileOpenOptions,
     selected: boolean
   ): void {
     const { _accessor, _openedFiles, browserWindow } = this
