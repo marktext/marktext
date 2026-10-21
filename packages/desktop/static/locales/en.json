@@ -246,6 +246,7 @@
     },
     "tree": {
       "openedFiles": "Opened files",
+      "resizeOpenedFiles": "Resize opened files list",
       "saveAll": "Save All",
       "closeAll": "Close All",
       "emptyProject": "Empty project",

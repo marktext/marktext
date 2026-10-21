@@ -71,7 +71,13 @@
       <div
         v-if="showOpenedFiles && tabCount > MIN_VISIBLE_ROWS"
         class="opened-files-resize"
+        role="separator"
+        aria-orientation="horizontal"
+        :aria-label="t('sideBar.tree.resizeOpenedFiles')"
+        :aria-valuenow="openedFilesMaxHeight"
+        tabindex="0"
         @mousedown.prevent="startResize"
+        @keydown="handleResizeKeydown"
       />
     </div>
 
@@ -223,11 +229,13 @@ const MIN_LIST_HEIGHT_PX = MIN_VISIBLE_ROWS * ROW_HEIGHT_PX
 const PROJECT_TREE_RESERVE_PX = 150
 const OPENED_FILES_HEIGHT_KEY = 'side-bar-opened-files-height'
 const storedListHeight = Number(localStorage.getItem(OPENED_FILES_HEIGHT_KEY))
+// The height the user asked for. Only ever written by a drag or key press and
+// persisted as-is, so a temporary viewport clamp never shrinks the memory.
 const listHeight = ref(storedListHeight > 0 ? storedListHeight : MIN_LIST_HEIGHT_PX)
 const treeView = ref<HTMLElement | null>(null)
 const openedFilesList = ref<HTMLElement | null>(null)
-// Tallest the list may be in the current window; the stored height is kept
-// as-is so the list grows back when the window does.
+// Tallest the list may render in the current window; the requested height is
+// kept separately so the list grows back when the window does.
 const listHeightLimit = ref(Infinity)
 const input = ref<HTMLInputElement | null>(null)
 const treeWrapper = ref<HTMLDivElement | null>(null)
@@ -356,34 +364,57 @@ let resizeStartHeight = 0
 const updateListHeightLimit = (): void => {
   const view = treeView.value
   const list = openedFilesList.value
-  if (!view || !list || list.offsetParent === null) {
-    listHeightLimit.value = Infinity
-    return
-  }
+  if (!view || !list || list.offsetParent === null) return
   const listTop = list.getBoundingClientRect().top - view.getBoundingClientRect().top
   listHeightLimit.value = view.clientHeight - listTop - PROJECT_TREE_RESERVE_PX
 }
 
 const treeViewObserver = new ResizeObserver(updateListHeightLimit)
 
+// The list hides via v-show, so toggling it back on never resizes the
+// observed tree-view and the stale limit from a hidden window survives.
+watch(showOpenedFiles, async () => {
+  await nextTick()
+  updateListHeightLimit()
+})
+
+const requestListHeight = (height: number): void => {
+  // The viewport and content clamps are render-only; the persisted request is
+  // what the user asked for, so it survives a temporarily small window.
+  listHeight.value = Math.max(MIN_LIST_HEIGHT_PX, height)
+  localStorage.setItem(OPENED_FILES_HEIGHT_KEY, String(listHeight.value))
+}
+
 const handleResizeMove = (event: MouseEvent): void => {
-  const height = resizeStartHeight + event.clientY - resizeStartY
-  listHeight.value = Math.max(MIN_LIST_HEIGHT_PX, Math.min(height, listHeightLimit.value))
+  // Delta off the requested height, not the rendered one: while the viewport
+  // clamps the list, a small drag must nudge the request, not replace it with
+  // the clamped value.
+  requestListHeight(resizeStartHeight + event.clientY - resizeStartY)
 }
 
 const stopResize = (): void => {
   document.removeEventListener('mousemove', handleResizeMove)
   document.removeEventListener('mouseup', stopResize)
-  localStorage.setItem(OPENED_FILES_HEIGHT_KEY, String(listHeight.value))
 }
 
 const startResize = (event: MouseEvent): void => {
   resizeStartY = event.clientY
-  // Start from the rendered height: the stored one may exceed the content.
-  resizeStartHeight = openedFilesMaxHeight.value
+  resizeStartHeight = listHeight.value
   updateListHeightLimit()
   document.addEventListener('mousemove', handleResizeMove)
   document.addEventListener('mouseup', stopResize)
+}
+
+const handleResizeKeydown = (event: KeyboardEvent): void => {
+  const step = event.shiftKey ? ROW_HEIGHT_PX * 4 : ROW_HEIGHT_PX
+  let next: number | null = null
+  if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') next = listHeight.value - step
+  else if (event.key === 'ArrowDown' || event.key === 'ArrowRight') next = listHeight.value + step
+  else if (event.key === 'Home') next = MIN_LIST_HEIGHT_PX
+  else if (event.key === 'End') next = listHeightLimit.value
+  if (next === null) return
+  event.preventDefault()
+  requestListHeight(next)
 }
 
 // From createFileOrDirectoryMixins
