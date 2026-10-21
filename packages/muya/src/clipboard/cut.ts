@@ -12,6 +12,7 @@ import TableCellContent from '../block/content/tableCell';
 import { ScrollPage } from '../block/scrollPage';
 import { CLASS_NAMES } from '../config';
 import { SelectionDirection, SelectionType } from '../selection/types';
+import { ChangeSource } from '../types';
 import { getBlock } from '../utils/dom';
 
 /**
@@ -53,7 +54,7 @@ function resetToEmptyParagraph(clipboard: Clipboard): void {
         clipboard.muya,
         { name: 'paragraph', text: '' },
     );
-    scrollPage.append(newParagraphBlock, 'user');
+    scrollPage.append(newParagraphBlock, ChangeSource.User);
 
     const cursorBlock = newParagraphBlock.firstContentInDescendant();
     cursorBlock?.setCursor(0, 0, true);

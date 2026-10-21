@@ -5,6 +5,7 @@ import type Content from '../base/content';
 import type TreeNode from '../base/treeNode';
 import type { IConstructor, TBlockPath } from '../types';
 import { BLOCK_DOM_PROPERTY } from '../../config';
+import { ChangeSource } from '../../types';
 import { isHTMLElement, isMouseEvent } from '../../utils';
 import logger from '../../utils/logger';
 import Parent from '../base/parent';
@@ -242,7 +243,7 @@ export class ScrollPage extends Parent {
                         this.muya,
                         state,
                     );
-                    this.append(newNode, 'user');
+                    this.append(newNode, ChangeSource.User);
                     const cursorBlock = newNode.lastContentInDescendant();
                     cursorBlock.setCursor(0, 0, true);
                 }

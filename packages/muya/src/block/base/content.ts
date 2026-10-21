@@ -10,6 +10,7 @@ import { ScrollPage } from '../../block/scrollPage';
 import { BACK_HASH, BRACKET_HASH, CLASS_NAMES, EVENT_KEYS, isOsx } from '../../config';
 import Selection from '../../selection';
 import { offsetInBlockAtPoint } from '../../selection/dom';
+import { ChangeSource } from '../../types';
 import {
     adjustOffset,
     diffToTextOp,
@@ -558,7 +559,7 @@ class Content extends TreeNode {
                     this.muya,
                     newNodeState,
                 );
-                this.scrollPage?.append(newNode, 'user');
+                this.scrollPage?.append(newNode, ChangeSource.User);
                 cursorBlock = newNode.children.head;
             }
 
@@ -1055,7 +1056,7 @@ class Content extends TreeNode {
         return ancestors;
     }
 
-    override remove(source = 'user') {
+    override remove(source: ChangeSource = ChangeSource.User) {
         super.remove(source);
 
         return this;
