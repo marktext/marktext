@@ -89,6 +89,12 @@ const commands: CommandDescriptor[] = [
     }
   },
   {
+    id: 'file.add-folder',
+    execute: () => {
+      window.electron.ipcRenderer.send('mt::cmd-add-folder')
+    }
+  },
+  {
     id: 'file.save',
     execute: async() => {
       bus.emit('mt::editor-ask-file-save')

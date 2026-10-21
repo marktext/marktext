@@ -24,7 +24,6 @@
     <div class="sidebar-content">
       <tree
         v-if="rightColumn === 'files'"
-        :project-tree="projectTree"
         :tabs="tabs"
       />
       <side-bar-search
@@ -43,6 +42,16 @@
           <Setting aria-hidden="true" />
         </button>
       </icon-tooltip>
+      <icon-tooltip :content="t('menu.file.addFolder')">
+        <button
+          type="button"
+          class="plain-button add-folder-button"
+          :aria-label="t('menu.file.addFolder')"
+          @click="projectStore.ASK_FOR_OPEN_PROJECT()"
+        >
+          <Plus aria-hidden="true" />
+        </button>
+      </icon-tooltip>
     </div>
     <div
       ref="dragBar"
@@ -57,7 +66,7 @@ import { useLayoutStore } from '@/store/layout'
 import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
 
-import { Search, Setting } from '@element-plus/icons-vue'
+import { Search, Setting, Plus } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import Tree from './tree.vue'
 import SideBarSearch from './search.vue'
@@ -76,7 +85,6 @@ const sideBarViewWidth = ref(280)
 
 const { rightColumn, showSideBar, sideBarWidth } = storeToRefs(layoutStore)
 
-const { projectTree } = storeToRefs(projectStore)
 const { tabs } = storeToRefs(editorStore)
 
 watch(sideBarWidth, width => {
@@ -165,6 +173,8 @@ const returnToFiles = (restoreFocus = true): void => {
   padding: 4px 8px;
   -webkit-app-region: no-drag;
 }
+
+.add-folder-button { margin-left: auto; }
 
 .sidebar-title {
   flex: 1;

@@ -32,7 +32,8 @@
       "closeTab": "Close Tab",
       "closeWindow": "Close Window",
       "quit": "Quit",
-      "preferences": "Preferences"
+      "preferences": "Preferences",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "Edit",
@@ -241,8 +242,11 @@
       "noFolderOpen": "No folder open",
       "noResultsFound": "No results found.",
       "cancel": "Cancel",
-      "openFolder": "Open Folder",
-      "showMoreMatches": "Show more matches"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "Show more matches",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "Opened files",
@@ -251,7 +255,16 @@
       "closeAll": "Close All",
       "emptyProject": "Empty project",
       "createFile": "Create File",
-      "openFolder": "Open Folder"
+      "openFolder": "Open Folder",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session"
     },
     "toc": {
       "expand": "Expand table of contents",
@@ -825,7 +838,8 @@
       "exportFile": "Export File",
       "exportFilePdf": "Export as PDF",
       "zoom": "Zoom",
-      "checkUpdate": "Check for Updates"
+      "checkUpdate": "Check for Updates",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "Undo",

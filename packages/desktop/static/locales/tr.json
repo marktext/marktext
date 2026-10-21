@@ -32,7 +32,8 @@
       "closeTab": "Sekmeyi Kapat",
       "closeWindow": "Pencereyi Kapat",
       "quit": "Çıkış",
-      "preferences": "Tercihler"
+      "preferences": "Tercihler",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "Düzen",
@@ -241,8 +242,11 @@
       "noFolderOpen": "Açık klasör yok",
       "noResultsFound": "Sonuç bulunamadı.",
       "cancel": "İptal",
-      "openFolder": "Klasör Aç",
-      "showMoreMatches": "Daha fazla eşleşme göster"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "Daha fazla eşleşme göster",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "Açık dosyalar",
@@ -251,6 +255,15 @@
       "emptyProject": "Boş proje",
       "createFile": "Dosya Oluştur",
       "openFolder": "Klasör Aç",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session",
       "resizeOpenedFiles": "Açık dosyalar listesini yeniden boyutlandır"
     },
     "toc": {
@@ -825,7 +838,8 @@
       "exportFile": "Dosya Dışa Aktar",
       "exportFilePdf": "PDF Olarak Dışa Aktar",
       "zoom": "Yakınlaştırma",
-      "checkUpdate": "Güncellemeleri Denetle"
+      "checkUpdate": "Güncellemeleri Denetle",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "Geri Al",

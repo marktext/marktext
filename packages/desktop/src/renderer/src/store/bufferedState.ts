@@ -4,7 +4,7 @@ import { useProjectStore } from './project'
 import { useLayoutStore } from './layout'
 
 const BUFFERED_STATE_DEBOUNCE_MS = 1000
-const BUFFERED_STATE_VERSION = 2
+const BUFFERED_STATE_VERSION = 3
 
 interface StoreCache {
   editorStore: ReturnType<typeof useEditorStore> | null
@@ -29,6 +29,7 @@ export const createBufferedState = (): Record<string, unknown> | null => {
     stores.layoutStore = useLayoutStore()
   }
 
+  if (stores.projectStore.restoringSession) return null
   const editorState = stores.editorStore.CREATE_BUFFERED_STATE()
   if (!editorState) return null
 
@@ -41,9 +42,13 @@ export const createBufferedState = (): Record<string, unknown> | null => {
 }
 
 export const sendBufferedState = (): Promise<unknown> => {
+  debouncedSendBufferedState.cancel()
   const snapshot = createBufferedState()
   if (snapshot) {
-    return window.electron.ipcRenderer.invoke('update-buffer-state', snapshot)
+    return window.electron.ipcRenderer.invoke('update-buffer-state', snapshot).then(result => {
+      if (result === false) throw new Error('Session snapshot was not saved')
+      return result
+    })
   }
 
   return Promise.resolve(false)

@@ -26,7 +26,7 @@ export const isEditableTarget = (target: EventTarget | null): boolean => {
 }
 
 // Tree rows own the selection; the new-file input belongs to the row that spawned it.
-const SELECTION_OWNERS = '.side-bar-file, .side-bar-folder, .new-input'
+const SELECTION_OWNERS = '.side-bar-file, .side-bar-folder, .project-root, .new-input'
 
 export const keepsSidebarSelection = (target: EventTarget | null): boolean => {
   if (!target) return false

@@ -32,7 +32,8 @@
       "closeTab": "탭 닫기",
       "closeWindow": "창 닫기",
       "quit": "종료",
-      "preferences": "환경설정"
+      "preferences": "환경설정",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "편집",
@@ -241,8 +242,11 @@
       "noFolderOpen": "열린 폴더 없음",
       "noResultsFound": "결과를 찾을 수 없습니다.",
       "cancel": "취소",
-      "openFolder": "폴더 열기",
-      "showMoreMatches": "더 많은 일치 항목 보기"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "더 많은 일치 항목 보기",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "열린 파일",
@@ -251,6 +255,15 @@
       "emptyProject": "빈 프로젝트",
       "createFile": "파일 만들기",
       "openFolder": "폴더 열기",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session",
       "resizeOpenedFiles": "열린 파일 목록 크기 조절"
     },
     "toc": {
@@ -825,7 +838,8 @@
       "exportFile": "파일 내보내기",
       "exportFilePdf": "PDF로 내보내기",
       "zoom": "확대/축소",
-      "checkUpdate": "업데이트 확인"
+      "checkUpdate": "업데이트 확인",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "실행 취소",

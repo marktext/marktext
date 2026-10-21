@@ -133,7 +133,7 @@ test.describe('#528 reveal active file in the side bar', () => {
 
   test.beforeAll(async() => {
     const launched = await launchElectron(undefined, {
-      preferences: { openFilesInPreviewMode: false }
+      preferences: { openFilesInPreviewMode: false, sideBarVisibility: true, restoreLayoutState: true }
     })
     app = launched.app
     page = launched.page
@@ -190,6 +190,8 @@ test.describe('#528 reveal with autoRevealInSidebar turned off', () => {
   test.beforeAll(async() => {
     const launched = await launchElectron(undefined, {
       preferences: {
+        sideBarVisibility: true,
+        restoreLayoutState: true,
         autoRevealInSidebar: false,
         openFilesInPreviewMode: false
       }
@@ -243,7 +245,7 @@ test.describe('#528 reveal when the project is opened after the file', () => {
   test.beforeAll(async() => {
     // The file is active before its folder becomes the project, the way a
     // restored session or "open the folder I am working in" starts out.
-    const launched = await launchElectron([fixture.deep])
+    const launched = await launchElectron([fixture.deep], { preferences: { sideBarVisibility: true, restoreLayoutState: true, tabBarVisibility: true } })
     app = launched.app
     page = launched.page
     await tab(page, fixture.deep).first().waitFor({ timeout: 20000 })

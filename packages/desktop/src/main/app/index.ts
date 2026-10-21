@@ -8,7 +8,7 @@ import type { BrowserWindowConstructorOptions } from 'electron'
 import { isChildOfDirectory } from 'common/filesystem/paths'
 import type { IUserPreferences } from '@shared/types/preferences'
 import { isLinux, isOsx, isWindows } from '../config'
-import parseArgs from '../cli/parser'
+import parseArgs, { userArguments } from '../cli/parser'
 import { normalizeAndResolvePath } from '../filesystem'
 import { normalizeCliMarkdownPath, normalizeMarkdownPath } from '../filesystem/markdown'
 import { confirmAndTrashItem } from '../filesystem/trash'
@@ -19,6 +19,7 @@ import registerSpellcheckerListeners from '../spellchecker'
 import { watchers } from '../utils/imagePathAutoComplement'
 import { onInternalChannel } from '../utils/internalIpc'
 import { WindowType } from '../windows/base'
+import { resolveExistingPath } from '../windows/projectRoots'
 import EditorWindow, { type FileOpenOptions } from '../windows/editor'
 import SettingWindow from '../windows/setting'
 import { setLanguage } from '../i18n'
@@ -70,7 +71,7 @@ class App {
       // A second instance of a version that doesn't send it falls back to `argv`.
       const sent = additionalData as { argv?: unknown } | null | undefined
       const secondArgv = Array.isArray(sent?.argv) ? (sent.argv as string[]) : argv
-      const args = parseArgs(secondArgv.slice(1)) as CliArgs
+      const args = parseArgs(userArguments(secondArgv, !!process.defaultApp, app.getAppPath())) as CliArgs
       const readOnly = args['--read-only'] === true
 
       const buf: PathInfo[] = []
@@ -458,10 +459,13 @@ class App {
 
     for (const window of _windowManager.windows.values()) {
       if (window.type === WindowType.EDITOR) {
-        const { openedRootDirectory } = window as EditorWindow
-        if (openedRootDirectory && directorySet.has(openedRootDirectory)) {
-          window.bringToFront()
-          directorySet.delete(openedRootDirectory)
+        for (const root of (window as EditorWindow).projectRoots.roots) {
+          for (const directory of directorySet) {
+            if (resolveExistingPath(directory) === root.key) {
+              window.bringToFront()
+              directorySet.delete(directory)
+            }
+          }
         }
       }
     }
