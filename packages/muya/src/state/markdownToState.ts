@@ -316,82 +316,17 @@ export class MarkdownToState {
             }
 
             case 'heading': {
-                const { headingStyle, depth, text, marker } = token;
-                value = headingStyle === 'atx'
-                    ? `${'#'.repeat(+depth)} ${text}`
-                    : text;
-
-                if (headingStyle === 'atx') {
-                    const atxState: IAtxHeadingState = {
-                        name: 'atx-heading',
-                        meta: { level: depth },
-                        text: value,
-                    };
-                    state = atxState;
-                }
-                else {
-                    const setextState: ISetextHeadingState = {
-                        name: 'setext-heading',
-                        meta: { level: depth, underline: marker },
-                        text: value,
-                    };
-                    state = setextState;
-                }
-
-                parentList[0].push(state);
+                parentList[0].push(this._buildHeadingState(token));
                 break;
             }
 
             case 'code': {
-                const { codeBlockStyle, text, lang: infoString = '', raw = '' } = token;
-                // marked >=17 appends a trailing newline to indented code text
-                // (fenced text has none); strip it so indented blocks round-trip.
-                const codeText = codeBlockStyle === 'indented' ? text.replace(/\n$/, '') : text;
-                // Read the opening fence itself so its character (` or ~) and
-                // run length both survive the round trip (CommonMark §4.5).
-                const fence = parseFenceLine(raw);
-                const fenceLength = fence?.fenceLength;
-                const fenceChar = fence?.fenceChar;
-                parentList[0].push(
-                    this._buildCodeState(codeText, infoString, codeBlockStyle, trimUnnecessaryCodeBlockEmptyLines, fenceLength, fenceChar),
-                );
+                parentList[0].push(this._buildCodeState(token, trimUnnecessaryCodeBlockEmptyLines));
                 break;
             }
 
             case 'table': {
-                const { header, align, rows } = token;
-                const tableState: ITableState = {
-                    name: 'table',
-                    children: [],
-                };
-
-                // Store the cell text as marked emits it (with the table `\|`
-                // escape already resolved to a literal `|`), so the editor shows
-                // `` `|` `` rather than the escaped `` `\|` `` inside inline code
-                // (#4849). `escapeText` re-adds the `\|` escape on serialization,
-                // keeping the markdown round-trip intact.
-                tableState.children.push({
-                    name: 'table.row',
-                    children: header.map((h, i) => ({
-                        name: 'table.cell' as const,
-                        meta: { align: align[i] || 'none' },
-                        text: h.text,
-                    })),
-                });
-
-                tableState.children.push(
-                    ...rows.map(row => ({
-                        name: 'table.row' as const,
-                        children: row.map((c, i) => ({
-                            name: 'table.cell' as const,
-                            meta: { align: align[i] || 'none' },
-                            text: c.text,
-                        })),
-                    })),
-                );
-
-                state = tableState;
-                parentList[0].push(state);
+                parentList[0].push(this._buildTableState(token));
                 break;
             }
 
@@ -479,20 +414,76 @@ export class MarkdownToState {
         }
     }
 
+    private _buildHeadingState(token: Extract<TBlockToken, { type: 'heading' }>): IAtxHeadingState | ISetextHeadingState {
+        const { headingStyle, depth, text, marker } = token;
+        if (headingStyle === 'atx') {
+            return {
+                name: 'atx-heading',
+                meta: { level: depth },
+                text: `${'#'.repeat(+depth)} ${text}`,
+            };
+        }
+
+        return {
+            name: 'setext-heading',
+            meta: { level: depth, underline: marker },
+            text,
+        };
+    }
+
+    private _buildTableState(token: Extract<TBlockToken, { type: 'table' }>): ITableState {
+        const { header, align, rows } = token;
+        const tableState: ITableState = {
+            name: 'table',
+            children: [],
+        };
+
+        // Store the cell text as marked emits it (with the table `\|`
+        // escape already resolved to a literal `|`), so the editor shows
+        // `` `|` `` rather than the escaped `` `\|` `` inside inline code
+        // (#4849). `escapeText` re-adds the `\|` escape on serialization,
+        // keeping the markdown round-trip intact.
+        tableState.children.push({
+            name: 'table.row',
+            children: header.map((h, i) => ({
+                name: 'table.cell' as const,
+                meta: { align: align[i] || 'none' },
+                text: h.text,
+            })),
+        });
+
+        tableState.children.push(
+            ...rows.map(row => ({
+                name: 'table.row' as const,
+                children: row.map((c, i) => ({
+                    name: 'table.cell' as const,
+                    meta: { align: align[i] || 'none' },
+                    text: c.text,
+                })),
+            })),
+        );
+
+        return tableState;
+    }
+
     private _buildCodeState(
-        text: string,
-        infoString: string,
-        codeBlockStyle: 'indented' | undefined,
+        token: Extract<TBlockToken, { type: 'code' }>,
         trimUnnecessaryCodeBlockEmptyLines: boolean,
-        fenceLength?: number,
-        fenceChar?: '`' | '~',
     ): TState {
+        const { codeBlockStyle, text, lang: infoString = '', raw = '' } = token;
+        // marked >=17 appends a trailing newline to indented code text
+        // (fenced text has none); strip it so indented blocks round-trip.
+        const codeText = codeBlockStyle === 'indented' ? text.replace(/\n$/, '') : text;
+        // Read the opening fence itself so its character (` or ~) and
+        // run length both survive the round trip (CommonMark §4.5).
+        const fence = parseFenceLine(raw);
+        const { fenceLength, fenceChar } = fence ?? {};
         // Keep the whole info string; the language for highlighting / diagram
         // detection is its first word (CommonMark §4.5).
         const info = (infoString || '').trim();
         const lang = firstWordOfInfo(info);
 
-        let value = text;
+        let value = codeText;
         // Fix: #1265.
         if (
             trimUnnecessaryCodeBlockEmptyLines
