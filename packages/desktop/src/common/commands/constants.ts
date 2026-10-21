@@ -29,6 +29,7 @@ const COMMANDS = Object.freeze({
   FILE_NEW_TAB: 'file.new-tab',
   FILE_OPEN_FILE: 'file.open-file',
   FILE_OPEN_FOLDER: 'file.open-folder',
+  FILE_ADD_FOLDER: 'file.add-folder',
   FILE_PREFERENCES: 'file.preferences',
   FILE_PRINT: 'file.print',
   FILE_QUICK_OPEN: 'file.quick-open',

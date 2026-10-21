@@ -44,6 +44,12 @@ export default function(
       click(_menuItem, browserWindow) {
         actions.openFolder((browserWindow as BrowserWindow | undefined) ?? null)
       }
+    },
+    {
+      label: t('menu.file.addFolder'),
+      click(_menuItem, browserWindow) {
+        actions.addFolder(browserWindow as BrowserWindow | undefined)
+      }
     }
   ]
 
