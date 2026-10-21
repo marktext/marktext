@@ -10,9 +10,6 @@ import { describe, expect, it } from 'vitest';
 import { MarkdownToState } from '../markdownToState';
 import ExportMarkdown from '../stateToMarkdown';
 
-// Round-trip helper: parse markdown to state, then serialise back.
-// Lets us verify that `listIndentation` produces stable output the same
-// way marktext's old `markdown-list-indentation.spec.js` did.
 function roundTrip(md: string, listIndentation: number | string = 1): string {
     const states = new MarkdownToState({
         footnote: false,
@@ -331,17 +328,7 @@ sep
         expect(roundTrip(md, 1)).toBe(md);
     });
 
-    // Beyond the marktext fixtures: lock in a few subsequent-paragraph and
-    // mixed-content scenarios that exercise the same indent / listIndent
-    // split the marktext 02841ffd fix introduced.
-    //
-    // These also surface a separate latent bug in `insertLineBreak`: blank
-    // lines inside a list item were carrying the item's indent as trailing
-    // whitespace (`"  \n"` instead of `"\n"`). Marktext shipped the same
-    // bug, but it's serialization-correctness — fix it as part of the
-    // stateToMarkdown baseline.
     it('round-trips a loose list with a subsequent paragraph', () => {
-        // Canonical loose-list form: blank line between every item.
         const md = `- foo
 
   Second paragraph in the same item.
@@ -365,8 +352,6 @@ sep
     });
 
     it('does not emit trailing whitespace on blank lines inside a list item', () => {
-        // Direct assertion of the bug: every line of the output must either
-        // be non-blank or be exactly "\n".
         const md = `- foo
 
   bar
@@ -499,8 +484,6 @@ sep
        141. foo
             1. foo
 `;
-        // Identical to the 1-space fixture above, and identical to what
-        // listIndentation = 1 produces — confirming 'tab' is silently coerced.
         expect(roundTrip(md, 'tab')).toBe(md);
         expect(roundTrip(md, 'tab')).toBe(roundTrip(md, 1));
     });
@@ -538,8 +521,6 @@ describe('stateToMarkdown — list looseness (preferLooseListItem)', () => {
     });
 
     it('list meta.loose carries the preferLooseListItem flag verbatim', () => {
-        // The serializer is the only consumer of meta.loose; assert the round
-        // contract by parsing a canonical loose list and reading the flag back.
         const looseStates = new MarkdownToState({
             footnote: false,
             texMathDollars: false,
@@ -567,11 +548,6 @@ describe('stateToMarkdown — list looseness (preferLooseListItem)', () => {
     });
 });
 
-// Ordered-list start number is preserved through the markdown round-trip.
-// Parser-created items also carry their original source marker so save/open
-// does not canonicalize author-chosen numbering. If the parsed list structure
-// changes, the source-marker signature no longer matches and serialization
-// falls back to incrementing `meta.start`.
 describe('stateToMarkdown — ordered list start + delimiter', () => {
     function serialize(states: TState[], listIndentation: number | string = 1): string {
         return new ExportMarkdown({ listIndentation }).generate(states);
@@ -649,7 +625,6 @@ Text after numbered list.
     });
 
     it('keeps a non-1 start number through the round-trip', () => {
-        // The parser stores start=3; the serializer renders 3., 4. (start + i).
         expect(roundTrip('3. one\n4. two\n')).toBe('3. one\n4. two\n');
     });
 

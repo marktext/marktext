@@ -92,14 +92,12 @@ export async function normalizePastedHTML(
     html: string,
     options: INormalizePastedHTMLOptions = {},
 ) {
-    // Only extract the `body.innerHTML` when the `html` is a full HTML Document.
     if (/<body>[\s\S]*<\/body>/.test(html)) {
         const match = /<body>([\s\S]*)<\/body>/.exec(html);
         if (match && typeof match[1] === 'string')
             html = match[1];
     }
 
-    // Prevent XSS and sanitize HTML.
     const sanitizedHtml = sanitize(
         html,
         PREVIEW_DOMPURIFY_CONFIG,
@@ -156,9 +154,7 @@ export async function normalizePastedHTML(
                 link.textContent = title as string;
             }
             else if (!options.preserveBareUrlLinks) {
-                // Escape + sanitize the fallback text (muyajs uses
-                // `sanitize(text, PREVIEW_DOMPURIFY_CONFIG, true)`) so a stray
-                // angle bracket can't re-enter as live markup.
+                // Escape fallback text so angle brackets cannot become live markup.
                 const span = document.createElement('span');
                 span.innerHTML = sanitize(text as string, PREVIEW_DOMPURIFY_CONFIG, true) as string;
                 link.replaceWith(span);
@@ -169,14 +165,7 @@ export async function normalizePastedHTML(
     return tempWrapper.innerHTML;
 }
 
-// Sniffs whether `text` looks like a single HTML `<table>` blob and nothing
-// else (no surrounding prose, no sibling root element). The regex match is
-// followed by a parse + `childElementCount === 1` check, so a payload whose
-// greedy regex spans two sibling
-// tables falls through to the normal HTML→Markdown path. Some clipboard sources
-// (notably Apple Numbers, marktext #1271) put raw HTML into `text/plain` with
-// no `text/html` flavour; the paste handler promotes such text into the html
-// slot so it goes through `HtmlToMarkdown` instead of being inserted verbatim.
+// A table-only paste must have exactly one root element and no surrounding prose.
 const STANDALONE_TABLE_REG = /^<table\b[\s\S]*<\/table>$/i;
 export function isStandaloneTableHtml(text: string) {
     if (!text)
@@ -197,16 +186,7 @@ export function isStandaloneTableHtml(text: string) {
     return tmp.childElementCount === 1;
 }
 
-/**
- * Resolve the `clipboardFilePath` paste hook to a usable inline-image path.
- *
- * Returns the resolved path only when the hook yields a non-empty string that
- * looks like an image file (its extension matches {@link IMAGE_EXT_REG});
- * otherwise returns `''` so the caller falls through to the normal text/HTML
- * paste.
- *
- * @param hook the `options.clipboardFilePath` callback, if configured
- */
+// Return an image path, or an empty string when the hook is missing or its result is unusable.
 export async function resolveClipboardImagePath(
     hook: (() => Promise<string>) | undefined,
 ): Promise<string> {
@@ -221,14 +201,7 @@ export async function resolveClipboardImagePath(
     return '';
 }
 
-/**
- * Extract an in-memory image `File` from a paste `DataTransfer`.
- *
- * Covers the bitmap clipboard case: screenshots and browser
- * "Copy Image" put image bytes — not a file path — on the clipboard. We
- * prefer `clipboardData.files` and fall back to scanning `clipboardData.items`
- * for the first `image/*` entry. Returns `null` when no image is present.
- */
+// Prefer image files, falling back to items.getAsFile() for bitmap-only clipboards.
 export function getClipboardImageFile(
     clipboardData: DataTransfer | null,
 ): File | null {
@@ -257,16 +230,7 @@ export function getClipboardImageFile(
     return null;
 }
 
-/**
- * Read a `File`/`Blob` as a base64 `data:` URL.
- *
- * Used to turn a pasted bitmap into a `data:` URL that the embedder's
- * `imageAction` can persist. Prefers the native {@link FileReader}
- * (`readAsDataURL`), covering the
- * `chrome70` build target where `Blob.arrayBuffer()` is unavailable; falls
- * back to `Blob.arrayBuffer()` + `btoa` where `FileReader` is absent (e.g. the
- * Node test environment). Resolves to `''` on read error.
- */
+// Read a bitmap as a data URL; return an empty string when reading is unavailable or fails.
 export function readFileAsDataURL(file: File): Promise<string> {
     if (typeof FileReader !== 'undefined') {
         return new Promise((resolve) => {
@@ -279,9 +243,7 @@ export function readFileAsDataURL(file: File): Promise<string> {
         });
     }
 
-    // Fallback for environments without `FileReader` (e.g. Node tests). Guard
-    // the dependencies so a missing API resolves to '' rather than throwing
-    // out of the `Promise<string>` contract.
+    // Missing fallback APIs must resolve to an empty string rather than reject the paste.
     if (typeof file.arrayBuffer !== 'function' || typeof btoa !== 'function')
         return Promise.resolve('');
 
@@ -291,11 +253,7 @@ export function readFileAsDataURL(file: File): Promise<string> {
         .catch(() => '');
 }
 
-/**
- * Base64-encode an `ArrayBuffer` into a `data:` URL of the given MIME type.
- * Processes the bytes in chunks so a large blob doesn't build one huge
- * intermediate string via per-byte concatenation.
- */
+// Encode bytes in chunks to avoid a large intermediate per-byte string.
 function bufferToDataURL(mimeType: string) {
     return (buffer: ArrayBuffer): string => {
         const bytes = new Uint8Array(buffer);
@@ -309,14 +267,7 @@ function bufferToDataURL(mimeType: string) {
     };
 }
 
-/**
- *
- * @param {string} html
- * @param {string} text
- * @param {string} pasteType normal or pasteAsPlainText
- * return html | text | code, if the return value is html, we'll use html as paste data, we'll use text
- * as paste data if the return value is text, we'll create a html code block if the result is code.
- */
+// Choose rich HTML, Markdown text or block HTML insertion according to clipboard provenance and paste mode.
 export function getCopyTextType(html: string, text: string, pasteType: PasteType) {
     const getTextType = (text: string) => {
         const match

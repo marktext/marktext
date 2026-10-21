@@ -72,8 +72,6 @@ function bootMuya(markdown: string): Muya {
     return muya;
 }
 
-// Rest a collapsed caret at `offset` (RAW markdown coordinates) inside the
-// first content block.
 function caretInFirstBlock(muya: Muya, offset: number): Format {
     const content = muya.editor.scrollPage!.firstContentInDescendant() as unknown as Format;
     muya.editor.activeContentBlock = content as never;

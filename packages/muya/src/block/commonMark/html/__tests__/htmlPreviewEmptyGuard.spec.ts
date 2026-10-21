@@ -9,7 +9,6 @@ describe('isEmptyHtmlBlock (#3821)', () => {
     it('treats a single element with an empty body as empty', () => {
         expect(isEmptyHtmlBlock('<div></div>')).toBe(true);
         expect(isEmptyHtmlBlock('<span></span>')).toBe(true);
-        // whitespace / newline between tags still counts as empty
         expect(isEmptyHtmlBlock('<p>\n</p>')).toBe(true);
     });
 

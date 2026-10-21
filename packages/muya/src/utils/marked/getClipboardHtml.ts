@@ -21,10 +21,7 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
         = options;
     let html = '';
 
-    // Use a fresh Marked instance per call to avoid polluting the global
-    // `marked` singleton — `.use({ walkTokens })` chains rather than replaces,
-    // and the global is shared with anything else in the bundle that imports
-    // `marked`.
+    // Use a fresh Marked instance; global use() chains hooks and leaks options across renders.
     const marked = new Marked();
 
     marked.use({

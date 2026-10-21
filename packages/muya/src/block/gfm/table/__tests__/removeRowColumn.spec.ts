@@ -134,9 +134,6 @@ describe('table.removeRow — returns surviving cell content for cursor placemen
             1,
         );
 
-        // Pre-fix: returned undefined, leaving caller with nothing to focus.
-        // Post-fix: returns the surviving row's first cell content so the
-        // caller can `setCursor(0, 0)` on it.
         expect(result).toBeTruthy();
         expect(result).toBe(fake.inner.rows[2].cells[0].firstChild);
         expect((fake.inner.rows[1] as IFakeRow & { removed?: boolean }).removed).toBe(true);
@@ -162,7 +159,6 @@ describe('table.removeRow — returns surviving cell content for cursor placemen
             0,
         );
 
-        // No surviving rows AND no outside-of-table content → null.
         expect(result).toBeNull();
         expect(fake.remove).toHaveBeenCalledTimes(1);
     });
@@ -216,12 +212,8 @@ describe('table.removeRow — returns surviving cell content for cursor placemen
 describe('table.removeColumn — returns surviving cell content for cursor placement (marktext 6293d408)', () => {
     it('removes column at offset and returns the first row\'s neighbour cell content', () => {
         const fake = makeFakeTable(2, 3);
-        // Capture the cells in column 1 (the column we're going to remove).
         const removedCol1Row0 = fake.inner.rows[0].cells[1];
         const removedCol1Row1 = fake.inner.rows[1].cells[1];
-        // The surviving "next" sibling of the targeted cell in row 0 is
-        // column 2 (cells[2]) — that's what the fix returns so the caller
-        // can place the caret on a cell that is still attached.
         const expectedSurvivor = fake.inner.rows[0].cells[2].firstChild;
 
         const result = Table.prototype.removeColumn.call(
@@ -255,7 +247,6 @@ describe('table.removeColumn — returns surviving cell content for cursor place
         );
 
         expect(fake.remove).toHaveBeenCalledTimes(1);
-        // No outside content stubbed → null.
         expect(result).toBeNull();
     });
 

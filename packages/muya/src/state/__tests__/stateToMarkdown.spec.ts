@@ -103,7 +103,6 @@ describe('serializeTable — visual column width (#1983)', () => {
         const md = new ExportMarkdown().generate([state]);
         const lines = md.split('\n');
 
-        // Column width is max(visual): 'id' = 2, '中文' = 4 → inner width 4.
         expect(lines[0]).toBe('| id   |');
         expect(lines[1]).toBe('| ---- |');
         expect(lines[2]).toBe('| 中文 |');
@@ -137,18 +136,14 @@ describe('serializeTable — column alignment', () => {
         const md = new ExportMarkdown().generate([state]);
         const delimiterRow = md.split('\n')[1];
 
-        // left → leading colon, no trailing colon.
         expect(delimiterRow).toContain(':---');
-        // center → leading and trailing colon.
         expect(delimiterRow).toContain(':---:');
-        // right → trailing colon only.
         expect(delimiterRow).toContain('---:');
     });
 
     it('the header row drives the delimiter, not body rows', () => {
         const state = table([
             row([cell('a', 'center'), cell('b', 'none')]),
-            // body-row aligns are ignored by the serializer.
             row([cell('1', 'right'), cell('2', 'left')]),
         ]);
 
@@ -156,8 +151,6 @@ describe('serializeTable — column alignment', () => {
         const delimiterRow = md.split('\n')[1];
 
         expect(delimiterRow).toContain(':---:');
-        // The 'none' column has no colons in its delimiter cell; the dashes
-        // are wrapped with a leading and trailing space ('| --- |').
         expect(delimiterRow).toBe('|:---:| --- |');
     });
 
@@ -168,14 +161,12 @@ describe('serializeTable — column alignment', () => {
         const firstPass = new ExportMarkdown().generate(gen(md));
         const secondPass = new ExportMarkdown().generate(gen(firstPass));
 
-        // The parsed aligns survive serialization with the expected markers.
         const delimiterRow = firstPass.split('\n')[1];
         expect(delimiterRow).toBe('|:--- |:---:| ---:|');
         expect(delimiterRow).toContain(':---');
         expect(delimiterRow).toContain(':---:');
         expect(delimiterRow).toContain('---:');
 
-        // Re-parsing the serialized output and serializing again is byte-stable.
         expect(secondPass).toBe(firstPass);
         expect(secondPass.split('\n')[1]).toBe(delimiterRow);
     });
@@ -222,7 +213,6 @@ describe('serializeTable — pipe escaping (#3563)', () => {
         const tableNode = reparsed.find(n => n.name === 'table')!;
         const bodyRow = tableNode.children![1];
 
-        // No phantom column, no content loss or shift into the next cell.
         expect(bodyRow.children).toHaveLength(2);
         expect(bodyRow.children![0].text).toContain('danger');
         expect(bodyRow.children![1].text).toBe('keep');

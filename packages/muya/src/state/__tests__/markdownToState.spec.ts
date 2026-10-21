@@ -2,10 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { MarkdownToState } from '../markdownToState';
 import ExportMarkdown from '../stateToMarkdown';
 
-// Loose accessor type used only in this spec — every state node the
-// MarkdownToState pipeline emits has some subset of these fields, and the
-// tests navigate the tree generically without re-implementing the
-// discriminated TState union narrowing.
 interface IStateLike {
     name: string;
     text?: string;
@@ -133,8 +129,6 @@ describe('markdownToState — task list nesting (marktext 23435ce6)', () => {
 
         const states = generate(md);
 
-        // Outer list must contain exactly one task-list-item with a nested
-        // bullet/task list as its second child (first being the text para).
         expect(states.length).toBe(1);
         const outer = states[0];
         expect(outer.name).toBe('task-list');
@@ -187,14 +181,12 @@ describe('markdownToState — task list nesting (marktext 23435ce6)', () => {
     });
 
     it('parses `# text` as atx-heading, not setext-heading', () => {
-        // Positive control: atx headings should remain atx.
         const states = generate('# Hello\n');
         expect(states[0].name).toBe('atx-heading');
         expect(states[0].meta!.level).toBe(1);
     });
 
     it('starts a new list when the bullet marker changes (CommonMark 264, marktext 270d33f6)', () => {
-        // Different bullet markers must produce separate lists.
         const states = generate(`- foo
 - bar
 + baz
@@ -207,7 +199,6 @@ describe('markdownToState — task list nesting (marktext 23435ce6)', () => {
     });
 
     it('starts a new list when the ordered delimiter changes (CommonMark 265, marktext 270d33f6)', () => {
-        // `.` vs `)` are different ordered-list delimiters: separate lists.
         const states = generate(`1. foo
 2. bar
 3) baz
@@ -232,7 +223,6 @@ describe('markdownToState — task list nesting (marktext 23435ce6)', () => {
     });
 
     it('still parses `- foo` (with space) as a list item', () => {
-        // Positive control — same shape with the required space.
         const states = generate('- foo\n');
         expect(states.length).toBe(1);
         expect(states[0].name).toBe('bullet-list');
@@ -270,10 +260,6 @@ describe('markdownToState — task list nesting (marktext 23435ce6)', () => {
         expect(secondTexts).toEqual(['zar', 'rar']);
     });
 
-    // The footnote extension (utils/marked/extensions/footnote.ts) emits a
-    // block-level `footnote` token when `footnote: true` is set. Make sure
-    // MarkdownToState lifts that into a `footnote` state instead of
-    // silently dropping it with an "Unknown type" warning.
     it('converts block-level footnote tokens into footnote states', () => {
         const states = generate(
             `text[^1]
@@ -296,7 +282,6 @@ describe('markdownToState — task list nesting (marktext 23435ce6)', () => {
 `;
         const states = generate(md, { footnote: true });
         const out = new ExportMarkdown({ listIndentation: 1 }).generate(states as unknown as Parameters<ExportMarkdown['generate']>[0]);
-        // The serialiser emits the canonical `[^id]: ` form on its own line.
         expect(out).toContain('[^1]: definition');
     });
 
@@ -311,7 +296,6 @@ describe('markdownToState — task list nesting (marktext 23435ce6)', () => {
         );
         const footnotes = states.filter(s => s.name === 'footnote');
         expect(footnotes.map(f => f.meta!.identifier)).toEqual(['1', '2', '3']);
-        // None of them may have swallowed a sibling as a nested child.
         for (const footnote of footnotes)
             expect(footnote.children!.map(c => c.name)).toEqual(['paragraph']);
     });

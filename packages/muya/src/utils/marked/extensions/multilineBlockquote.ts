@@ -37,9 +37,7 @@ export default function multilineBlockquoteExtension(enabled: boolean): MarkedEx
                     // eslint-disable-next-line no-restricted-syntax
                     const { lexer } = this as unknown as IMultilineBlockquoteTokenizerThis;
 
-                    // With the preference off the fence is kept verbatim rather
-                    // than left to CommonMark's nested-blockquote reading, so it
-                    // round-trips and turning the preference on can pick it up.
+                    // Keep disabled >>> fences literal so toggling the option later can recover their structure.
                     if (!enabled) {
                         return {
                             type: 'paragraph',

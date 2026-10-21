@@ -19,16 +19,6 @@ import type {
     TState,
 } from './types';
 /* eslint-disable no-fallthrough */
-/**
- * Hi contributors!
- *
- * Before you edit or update codes in this file,
- * make sure you have read this bellow:
- * Commonmark Spec: https://spec.commonmark.org/0.29/
- * GitHub Flavored Markdown Spec: https://github.github.com/gfm/
- * Pandoc Markdown: https://pandoc.org/MANUAL.html#pandocs-markdown
- * The output markdown needs to obey the standards of these Spec.
- */
 import { deepClone } from '../utils';
 import { githubAlertMarker } from '../utils/githubAlerts';
 import { continuesList, formatListMarker, minSpacesAfterMarker, parseListMarker } from '../utils/listMarker';
@@ -65,11 +55,7 @@ export interface IExportMarkdownOptions {
 }
 
 export default class ExportMarkdown {
-    // Stack of currently-open list metas while serializing a tree (push on
-    // descent into bullet/order/task list, pop on ascent). The serializer
-    // reads `loose` / `marker` / `delimiter` / `start` / `sourceMarkers` from
-    // the top entry to render the correct bullet, indentation, and tightness.
-    // Entries are clones, so items consume `start` and `sourceMarkers` in place.
+    // Open list metadata stack; innermost settings control nested item serialization.
     private _listType: TListMeta[];
 
     private _isLooseParentList: boolean;
@@ -90,7 +76,6 @@ export default class ExportMarkdown {
         this._isLooseParentList = true;
         this._fancyLists = fancyLists;
 
-        // set and validate settings
         this._listIndentation = 'number';
         if (listIndentation === 'dfm') {
             this._listIndentation = 'dfm';
@@ -253,7 +238,6 @@ export default class ExportMarkdown {
         const meta = deepClone(state.meta);
         if (markerOverride && 'marker' in meta)
             meta.marker = markerOverride;
-        // Ordered task lists carry `sourceMarkers` too.
         if (state.name !== 'bullet-list' && 'sourceMarkers' in meta && !this._shouldPreserveOrderMarkers(state))
             delete meta.sourceMarkers;
 
@@ -326,7 +310,6 @@ export default class ExportMarkdown {
     ) {
         const { loose } = this._listType[this._listType.length - 1];
 
-        // helper variable to correct the first tight item in a nested list
         this._isLooseParentList = loose;
         if (loose)
             this._insertLineBreak(result, indent);
@@ -418,7 +401,6 @@ export default class ExportMarkdown {
         const result = [];
         const { text, meta } = state;
         const textList = text.split('\n');
-        // `meta.lang` holds the full info string verbatim, so emit it as-is.
         const { type, lang } = meta;
 
         if (type === 'fenced') {
@@ -519,13 +501,7 @@ export default class ExportMarkdown {
     }
 
     private _serializeFootnote(state: IFootnoteBlockState, indent: string) {
-        // Footnote definitions render as
-        //   [^id]: first paragraph
-        //
-        //       continuation block indented by 4 spaces
-        // i.e. the `[^id]: ` prefix sits on the first child's first line and
-        // subsequent content (including blank lines between paragraphs) is
-        // indented by four spaces past the surrounding `indent`.
+        // Prefix the first line with [^id]: and indent continuation blocks by four spaces.
         const { meta, children } = state;
         const innerIndent = `${indent}    `;
         const inner = this._convertStatesToMarkdown(children, innerIndent);
@@ -633,9 +609,6 @@ export default class ExportMarkdown {
     ) {
         const result = [];
         const listInfo = this._listType[this._listType.length - 1];
-        // `listInfo` is one of three list-meta shapes (bullet / order / task).
-        // bullet & task carry `marker`; order carries `delimiter` + `start`.
-        // We discriminate on presence of `marker` to pick the right fields.
         const marker = 'marker' in listInfo ? listInfo.marker : undefined;
         const isUnorderedList = !!marker;
         const { children, name } = state;
@@ -661,21 +634,10 @@ export default class ExportMarkdown {
             itemMarker = '- ';
         }
 
-        // Subsequent paragraph indentation
         const newIndent = indent + ' '.repeat(itemMarker.length);
 
-        // Extra indentation for a NESTED list, added on top of the parent
-        // item's content column — `newIndent` above already advanced by the
-        // marker width, i.e. the CommonMark-minimal nest (a child list must
-        // sit at least past the parent marker to parse as nested). The nested
-        // marker therefore lands at: itemMarker.length + (listIndentationCount - 1).
-        //
-        // So a numeric "N spaces" is an indentation LEVEL relative to the
-        // content column, NOT an absolute column count: for a `- ` marker
-        // (width 2), N=1 -> 2 cols (tightest), N=4 -> 5 cols. Only `dfm` pins a
-        // hard 4-column nest regardless of marker width (4 - itemMarker.length).
-        // This matches the legacy muyajs serializer byte-for-byte
-        // (muyajs/lib/utils/exportMarkdown.js `normalizeListItem`).
+        // Additional nesting indentation beyond the parent item’s content column;
+        // CommonMark already permits nesting at that column.
         let listIndent = '';
         const { _listIndentation: listIndentation } = this;
         if (listIndentation === 'dfm')

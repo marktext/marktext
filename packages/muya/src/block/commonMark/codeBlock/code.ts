@@ -47,9 +47,7 @@ function renderCopyButton(i18n: I18n) {
 
 class Code extends Parent {
     public override parent: Nullable<CodeBlock> = null;
-    // Line numbers only apply to real code blocks (`code-block`). Frontmatter,
-    // math, diagram, and html containers all reuse `Code` but must not show
-    // a gutter — so we gate creation on the state name, not just the option.
+    // Code is reused by frontmatter, math and diagrams; only actual code blocks get line numbers.
     private readonly _withLineNumbers: boolean;
     // Cached reference to the gutter wrapper so CodeBlockContent.update() does
     // not pay a querySelector on every keystroke.
@@ -91,11 +89,6 @@ class Code extends Parent {
         return {} as TState;
     }
 
-    // Create the copy button at the top-right; when codeBlockLineNumbers is on
-    // AND this Code is hosted inside a real code-block (not frontmatter / math /
-    // diagram / html), also create an empty line-numbers wrapper and cache
-    // its element so CodeBlockContent.update() can sync rows without a
-    // querySelector per keystroke.
     private _createCopyNode() {
         const { i18n, options } = this.muya;
         const withLineNumbers = options.codeBlockLineNumbers && this._withLineNumbers;
@@ -115,7 +108,6 @@ class Code extends Parent {
         if (this.domNode == null)
             return;
 
-        // Copy code content to clipboard.
         const clickHandler = (event: Event) => {
             event.preventDefault();
             event.stopPropagation();

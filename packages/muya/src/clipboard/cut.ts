@@ -15,10 +15,6 @@ import { SelectionDirection, SelectionType } from '../selection/types';
 import { ChangeSource } from '../types';
 import { getBlock } from '../utils/dom';
 
-/**
- * Whole-document selection predicate: the selection spans from the very first
- * content leaf at offset 0 to the very last content leaf at its end.
- */
 function isSelectAll(
     clipboard: Clipboard,
     startBlock: Content,
@@ -37,10 +33,6 @@ function isSelectAll(
     );
 }
 
-/**
- * Replace the whole document with a single empty paragraph and seat the
- * caret in it.
- */
 function resetToEmptyParagraph(clipboard: Clipboard): void {
     const { scrollPage } = clipboard;
     if (scrollPage == null)
@@ -68,7 +60,6 @@ function setCursorAndConvert(block: Content, offset: number): void {
         block.checkInlineUpdate();
 }
 
-// Collapse the document to a single empty paragraph once a cut empties it.
 function resetIfEmpty(clipboard: Clipboard): void {
     if (clipboard.scrollPage?.length() === 0)
         resetToEmptyParagraph(clipboard);
@@ -143,11 +134,7 @@ function prunePrecedingWithinBranch(branch: TreeNode, node: TreeNode): void {
     }
 }
 
-// `after`'s branch is removed but later siblings inside `afterBranch` survive.
-// Walk up from `after` to the direct child of `afterBranch`, removing each
-// on-path node's preceding siblings and any ancestor it leaves empty, stopping
-// below `afterBranch`. Finally remove the on-path direct child itself; later
-// siblings survive.
+// Remove the end branch's selected prefix while preserving its later siblings.
 function pruneAfterBranch(afterBranch: TreeNode, after: TreeNode): void {
     // The inner nodes of a code, math, html, diagram or front matter block
     // share the block's json path, so walking up through them would remove
@@ -168,17 +155,9 @@ function pruneAfterBranch(afterBranch: TreeNode, after: TreeNode): void {
     onPath.remove();
 }
 
-/**
- * Remove the document-order span between the `before` content leaf and the
- * `after` content leaf — every block strictly between them, plus `after`
- * and any container `after` leaves empty — while preserving `before`'s
- * container chain and any block that follows `after`. Equivalent to legacy
- * `contentState.removeBlocks(before, after)` (`before`'s head + `after`'s
- * tail already live in `before.text`).
- *
- * `endsWholeTable` says the selection covers every cell of the table `after`
- * sits in, so that table goes with the span instead of keeping an emptied grid.
- */
+// Remove through `after`, preserving `before` and its container chain.
+// The caller has already merged the retained text into `before`.
+// `endsWholeTable` permits removing an entirely selected table instead of keeping its grid.
 function removeBlocks(before: TreeNode, after: TreeNode, endsWholeTable = false): void {
     // A table is exempt from structural removal: empty the spanned cells in
     // place and keep the grid rather than deleting cells/rows.
@@ -206,16 +185,9 @@ function removeBlocks(before: TreeNode, after: TreeNode, endsWholeTable = false)
     removeSpan(before, after, true);
 }
 
-/**
- * Remove the span between `before` and `end`: the blocks after `before` inside
- * its own containers, the blocks strictly between the two, and the blocks
- * before `end` inside its own containers. `removeEnd` also removes `end`
- * itself and the containers it leaves empty; a table that keeps its grid
- * passes `false` and is emptied by the caller instead.
- *
- * Nodes are removed children-before-parents so each dispatched json removal
- * targets a still-attached path.
- */
+// Remove the selected span while preserving unselected container children.
+// Remove children before parents so JSON paths remain attached.
+// `removeEnd` also removes the endpoint and its emptied containers.
 function removeSpan(before: TreeNode, end: TreeNode, removeEnd: boolean): void {
     const beforeAncestors = new Set<TreeNode>();
     for (let node: Nullable<TreeNode> = before; node; node = node.parent)
@@ -274,11 +246,6 @@ function removeSpan(before: TreeNode, end: TreeNode, removeEnd: boolean): void {
     pruneAfterBranch(endBranch, end);
 }
 
-/**
- * Resolve the frozen table selection to its table and the list of selected
- * body cells, reading the highlighted cell DOM nodes. Returns `null` when
- * there is no resolvable selection.
- */
 function selectedTableCells(
     clipboard: Clipboard,
 ): Nullable<{ table: Table; cells: TableBodyCell[] }> {
@@ -303,8 +270,6 @@ function selectedTableCells(
     return { table, cells };
 }
 
-// Remove the whole table block and seat the caret just outside it (or reset to
-// a single empty paragraph when the table was the only block).
 function removeWholeTable(clipboard: Clipboard, table: Table): void {
     clipboard.selection.table.clear();
     const outsideContent
@@ -316,11 +281,8 @@ function removeWholeTable(clipboard: Clipboard, table: Table): void {
         outsideContent?.setCursor(0, 0, true);
 }
 
-// For an already-empty frozen selection: if the rectangle covers whole
-// column(s), whole row(s), or the whole table, delete that structure and return
-// `true`; a partial rectangle returns `false` so the caller just drops the
-// selection. Multiple whole columns / rows are removed high-index-first so the
-// remaining offsets stay valid.
+// Delete fully selected rows, columns or tables only after their cells are empty.
+// Return false for a partial rectangle. Remove highest indices first to preserve offsets.
 function removeEmptyTableStructure(clipboard: Clipboard): boolean {
     const selectedCells = selectedTableCells(clipboard);
     if (selectedCells == null)
@@ -399,7 +361,6 @@ export function insertTextAtCursor(clipboard: Clipboard, text: string): void {
 }
 
 export function cutSelection(clipboard: Clipboard): void {
-    // Cut a selected image: the copy half wrote its raw markdown; remove it here.
     const selectedImage = clipboard.selection.image;
     if (selectedImage) {
         const { block, ...imageInfo } = selectedImage;
@@ -429,7 +390,6 @@ export function cutSelection(clipboard: Clipboard): void {
     const anchorBlock = anchor.block;
     const focusBlock = focus.block;
 
-    // Handler `cut` event in the same block.
     if (isSelectionInSameBlock) {
         const startOffset
             = direction === SelectionDirection.FORWARD ? anchor.offset : focus.offset;
@@ -445,7 +405,6 @@ export function cutSelection(clipboard: Clipboard): void {
     const startOffset = direction === SelectionDirection.FORWARD ? anchor.offset : focus.offset;
     const endOffset = direction === SelectionDirection.FORWARD ? focus.offset : anchor.offset;
 
-    // Whole-document selection collapses to a single empty paragraph.
     if (isSelectAll(clipboard, startBlock, startOffset, endBlock, endOffset)) {
         resetToEmptyParagraph(clipboard);
 
@@ -461,11 +420,7 @@ export function cutSelection(clipboard: Clipboard): void {
         return;
     }
 
-    // Leaf-level merge: keep the
-    // start head and the end tail in the start content block, then remove
-    // only the structure strictly between the two leaves (and the emptied
-    // end-side containers). The start block keeps its container — a list
-    // item stays a list item, a quote stays a quote.
+    // Keep the start block's container when merging across list items or quotes.
     const { tail, lastRemoved, endsWholeTable } = resolveCutEnd(startBlock, endBlock, endOffset);
     startBlock.text = startBlock.text.substring(0, startOffset) + tail;
 
@@ -538,9 +493,7 @@ function resolveTableCutEnd(startBlock: Content, endBlock: TableCellContent, end
     return { tail: '', lastRemoved: endBlock, endsWholeTable };
 }
 
-// #918: collapse the start code block (whose language line begins the
-// selection) into a paragraph carrying the merged head + end-tail text, then
-// remove the spanned structure.
+// A cut starting in a language input becomes a paragraph instead of corrupting the language (#918).
 function collapseLanguageInputCut(
     clipboard: Clipboard,
     startBlock: Content,
@@ -572,10 +525,8 @@ function collapseLanguageInputCut(
     resetIfEmpty(clipboard);
 }
 
-// Keyboard delete over a frozen table selection (two-stage, muyajs parity):
-// the first press clears the selected cells' text but keeps the rectangle
-// frozen; once the cells are empty, the next press removes whole column(s) /
-// row(s) / the whole table, or drops the selection for a partial rectangle.
+// Keyboard deletion is two-stage: clear cell text first, then remove fully selected
+// rows/columns/table on the next press. A partial empty rectangle is deselected.
 export function deleteTableSelection(clipboard: Clipboard): void {
     if (clipboard.selection.table.emptySelectedCells())
         return;

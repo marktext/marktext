@@ -19,9 +19,7 @@ export function lexBlock(
     const { texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, frontMatter, footnote, multilineBlockquote, fancyLists } = options;
     let tokens: (Token | IFrontmatterToken)[] = [];
 
-    // Use a per-call Marked instance so extensions don't bleed across calls.
-    // marked.use() on the global singleton would make math / footnote sticky:
-    // any consumer that once passed `texMathDollars: true` would get math parsing forever.
+    // Per-call Marked instances prevent enabled extensions leaking into later calls.
     const m = new Marked();
 
     if (texMathDollars) {
@@ -77,8 +75,7 @@ export function lexBlock(
         }
     }
 
-    // Pass `m.defaults` to the Lexer so the extensions registered via m.use()
-    // are picked up; the no-arg constructor would fall back to global defaults.
+    // Lexer must receive this instance’s defaults to see its registered extensions.
     m.use(githubAlertsExtension(options.githubAlerts === true));
     const lexer = new m.Lexer(m.defaults);
     if (fancyLists)
@@ -90,9 +87,6 @@ export function lexBlock(
         normalizeGithubAlertTokens(tokens as Token[], lexer);
     m.walkTokens(tokens as Token[], walkTokens(options));
 
-    // After walkTokens / compatibleTaskList run, marked's Heading/List/ListItem
-    // tokens have been augmented with muya-specific fields (headingStyle,
-    // marker, listType, listItemType, bulletMarkerOrDelimiter). The wider
-    // TLexedToken union captures that runtime shape.
+    // walkTokens and compatibleTaskList populate Muya fields absent from marked’s declared token types.
     return tokens as TLexedToken[];
 }

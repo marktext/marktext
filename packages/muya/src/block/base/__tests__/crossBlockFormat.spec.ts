@@ -165,7 +165,6 @@ describe('inline format — selection range & heading markers', () => {
         );
         muya.format('strong');
         const sel = muya.editor.selection;
-        // The selected text stays selected INSIDE the new markers in both blocks.
         expect(sel.anchorBlock!.text).toBe('alp**ha beta**');
         expect(sel.anchor!.offset).toBe(5); // 3 + len("**")
         expect(sel.focusBlock!.text).toBe('**gamma d**elta');

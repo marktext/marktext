@@ -1,18 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { lexBlock } from '../../lexBlock';
 
-// Tests adapted from marktext commit 1ecc3601 (Fix markdown footnote parser, #2840).
-// Source: test/unit/specs/markdown-footnotes.spec.js, 510 lines, 23 specs.
-//
-// The marktext suite emits a flat token stream (`footnote_start` / `footnote_end`).
-// marked v16 uses a hierarchical model: a single `footnote` block token whose
-// nested content lives under `tokens`. We assert the equivalent semantics here.
-//
-// Each spec exercises one of:
-//   - the block-level footnote definition rule  `[^id]: text`
-//   - the inline footnote identifier rule        `[^id]`
-//   - the negative case where neither rule should fire.
-
 interface ISimplifiedToken {
     type: string;
     identifier?: string;
@@ -20,10 +8,6 @@ interface ISimplifiedToken {
     children?: ISimplifiedToken[];
 }
 
-// Structural view of a lexer-emitted token used by the recursive simplify
-// helper. The lexer hands us a discriminated union we don't fully type
-// here (it's deep), so we accept any record with the optional fields the
-// helper actually reads.
 interface ILexerToken {
     type: string;
     identifier?: string;
@@ -85,7 +69,6 @@ describe('marked footnote extension — block-level definitions', () => {
     });
 
     it('footnote without space between footnote tag and text', () => {
-        // marktext fix `\s+` → `\s*` in lexer.js handles this case.
         const tokens = parse(`Lorem [^foo1] ipsum.
 
 [^foo1]:At vero eos et accusam.`);
@@ -221,17 +204,12 @@ At vero eos [^foo1]: et accusam.`);
 [^1]: foo`,
             { footnote: false, texMathDollars: false, frontMatter: false },
         ).filter(t => t.type !== 'space');
-        // Without the extension the definition stays as a plain paragraph.
         const types = tokens.map(t => t.type);
         expect(types).toContain('paragraph');
         expect(types).not.toContain('footnote');
     });
 });
 
-// The cases below cover the multi-line footnote-body forms from marktext's
-// markdown-footnotes.spec.js. They exercise the BLOCK_RULE's lazy `:[\s\S]*?`
-// capture plus the "strip leading whitespace / strip leading newlines /
-// de-indent 4-space continuation" cleanup the tokenizer performs.
 describe('marked footnote extension — multi-line bodies', () => {
     it('body text on the next line via 4-space indent', () => {
         const tokens = parse(`Lorem [^foo1] ipsum.
@@ -272,8 +250,6 @@ describe('marked footnote extension — multi-line bodies', () => {
     At vero eos et accusam et justo duo dolores et ea rebum!`);
         const footnote = tokens.find(t => t.type === 'footnote');
         expect(footnote?.identifier).toBe('foo1');
-        // Two paragraph children: the inline lead, then the indented
-        // continuation paragraph.
         const paragraphs = footnote?.children?.filter(t => t.type === 'paragraph') ?? [];
         expect(paragraphs).toHaveLength(2);
         expect(paragraphs[0].text).toContain('Lorem ipsum dolor sit amet');
@@ -328,7 +304,6 @@ describe('marked footnote extension — multi-line bodies', () => {
         const footnote = tokens.find(t => t.type === 'footnote');
         expect(footnote?.identifier).toBe('foo1');
         const childTypes = footnote?.children?.map(t => t.type) ?? [];
-        // Lead, code, trailing — three children of distinct types.
         expect(childTypes).toContain('code');
         expect(childTypes.filter(t => t === 'paragraph')).toHaveLength(2);
     });
@@ -347,9 +322,7 @@ describe('marked footnote extension — termination', () => {
 
 Trailing paragraph that does NOT belong to the footnote.`);
         const types = tokens.map(t => t.type);
-        // Exactly one footnote in the stream.
         expect(types.filter(t => t === 'footnote')).toHaveLength(1);
-        // A separate trailing paragraph outside the footnote.
         const trailing = tokens.find(
             t => t.type === 'paragraph'
                 && typeof t.text === 'string'
@@ -370,8 +343,6 @@ Trailing paragraph that does NOT belong to the footnote.`);
   Sed diam nonumy — only 2-space indent, NOT continuation.`);
         const footnote = tokens.find(t => t.type === 'footnote');
         expect(footnote).toBeDefined();
-        // The 2-space-indented line is NOT consumed into the footnote
-        // children (the BLOCK_RULE terminates first).
         const footnoteText = JSON.stringify(footnote);
         expect(footnoteText).not.toContain('Sed diam nonumy');
     });

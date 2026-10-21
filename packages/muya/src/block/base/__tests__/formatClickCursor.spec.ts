@@ -135,9 +135,6 @@ describe('clickHandler forwards the backward anchor/focus (not normalized start/
         await flushFrame();
 
         await vi.waitFor(() => {
-            // anchor.offset (7) -> begin, focus.offset (2) -> end. If the handler
-            // had used start/end it would be (2, 7) and the backward drag would be
-            // silently flipped to forward.
             expect(setCursorSpy).toHaveBeenCalledWith(7, 2);
         });
     });

@@ -12,8 +12,6 @@ import TableCellContent from '../index';
 // real DOM). The handler only reads `event.shiftKey` and calls
 // `previousContentInContext` / `nextContentInContext` on `this`.
 
-// Structural neighbour shape — the table-cell tab handler only calls
-// `setCursor` on whatever `prev`/`next` resolves to.
 interface IFakeNeighbour {
     setCursor: ReturnType<typeof vi.fn>;
 }
@@ -76,7 +74,6 @@ describe('tableCellContent.tabHandler — 5fb130d9 shift+tab backward navigation
         const next = makeFakeNeighbour();
         const fakeThis = makeFakeCell(null, next);
 
-        // Should not throw — first cell of header row has no previous.
         expect(() => {
             TableCellContent.prototype.tabHandler.call(
                 fakeThis as unknown as TableCellContent,

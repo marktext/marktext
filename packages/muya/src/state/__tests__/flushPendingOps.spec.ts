@@ -49,8 +49,6 @@ describe('muya.flush() — make pending edits durable synchronously (#2938)', ()
 
         muya.flush();
 
-        // The edit is now in the document, and a json-change fired — all without
-        // waiting for the animation frame.
         expect(muya.getMarkdown().trim()).toBe('hello world');
         expect(changes).toBe(1);
     });
@@ -74,7 +72,6 @@ describe('muya.flush() — make pending edits durable synchronously (#2938)', ()
         await nextFrame();
         await nextFrame();
 
-        // No leftover op fired against B, and B is intact.
         expect(captured).toEqual(['hello world']);
         expect(muya.getMarkdown().trim()).toBe('B');
     });
@@ -101,7 +98,6 @@ describe('muya.flush() — make pending edits durable synchronously (#2938)', ()
         muya.flush();
         expect(muya.getMarkdown().trim()).toBe('one');
 
-        // A subsequent edit still batches + flushes on its own frame.
         const leaf2 = muya.editor.scrollPage!.firstContentInDescendant() as Content;
         leaf2.text = 'two';
         expect(muya.getMarkdown().trim()).toBe('one'); // still deferred

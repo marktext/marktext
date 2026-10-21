@@ -2,11 +2,7 @@ import type { Token } from 'marked';
 import katex from 'katex';
 import 'katex/dist/contrib/mhchem.mjs';
 
-// marked resolves a token's renderer by looking its `type` up among the
-// registered extension names, so each inline tokenizer has to emit its own
-// name as the type. Emitting a shared `inlineMath` made the gfm extension
-// depend on the dollar extension being registered too, and parsing threw
-// "Token with inlineMath type was not found" whenever tex_math_dollars was off.
+// Each inline math tokenizer must emit its registered extension name; shared types shadow other extensions.
 export type TInlineMathType
     = | 'inlineMath'
         | 'inlineMathGfm'
@@ -24,7 +20,6 @@ const INLINE_MATH_TYPES = new Set<string>([
     'displayMathDoubleBackslash',
 ]);
 
-// The openers that carry display rather than inline math.
 const DISPLAY_MATH_MARKERS = new Set(['$$', '\\[', '\\\\[']);
 
 export interface IMathToken {
@@ -105,11 +100,7 @@ export function gfmMathExtension(options: IOptions = {}) {
     };
 }
 
-// The two backslash extensions. Both carry their own `markDisplayMath`,
-// because the dollar extension that normally supplies it may not be registered
-// at all. Nothing here can collide with the dollar or gfm rules — these are the
-// only openers that start on a backslash — nor with each other, `\\(` carrying
-// a backslash where `\(` carries the parenthesis.
+// Each backslash extension supplies display classification even when dollar math is disabled.
 export function singleBackslashMathExtension(options: IOptions = {}) {
     const opts = Object.assign({}, DEFAULT_OPTIONS, options);
 

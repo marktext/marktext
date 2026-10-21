@@ -26,7 +26,6 @@ vi.mock('../../utils/diagram', () => ({
     }),
 }));
 
-// Import AFTER the mock is registered.
 const { MarkdownToHtml } = await import('../markdownToHtml');
 
 beforeEach(() => {
@@ -49,18 +48,14 @@ const INVALID_MERMAID = [
 
 describe('#4812: mermaid syntax error must not abort export', () => {
     it('renderHtml resolves even when a mermaid diagram fails to parse', async () => {
-        // Real mermaid rejects on a parse error; emulate that.
         mermaidRun.mockRejectedValue(new Error('Parse error on line 2: ... got \'PIPE\''));
 
         const md2html = new MarkdownToHtml(INVALID_MERMAID);
         const html = await md2html.renderHtml();
 
-        // The surrounding document still exports.
         expect(html).toContain('Title');
         expect(html).toContain('Intro paragraph.');
         expect(html).toContain('Trailing paragraph.');
-        // The broken diagram degrades to the same placeholder the other
-        // diagram renderers use, instead of throwing.
         expect(html).toContain('&lt; Invalid Diagram &gt;');
     });
 

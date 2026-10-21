@@ -24,7 +24,7 @@ export function attachReadingEvents(muya: Muya): () => void {
     const cancelLink = () => clearTimeout(linkTimer);
     const attach = (type: string, handler: EventListener) => {
         eventCenter.attachDOMEvent(domNode, type, (event) => {
-            if (muya.readOnly)
+            if (muya.isReadOnly)
                 handler(event);
         }, true);
     };
@@ -49,7 +49,7 @@ export function attachReadingEvents(muya: Muya): () => void {
         event.stopImmediatePropagation();
         cancelLink();
         const followLink = () => {
-            if (muya.readOnly && domNode.isConnected && domNode.contains(link)) {
+            if (muya.isReadOnly && domNode.isConnected && domNode.contains(link)) {
                 eventCenter.emit('format-click', {
                     event,
                     formatType: 'link',

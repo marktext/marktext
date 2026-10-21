@@ -79,7 +79,6 @@ function keydownEvent(options: { key: string; metaKey?: boolean; ctrlKey?: boole
     } as unknown as FakeKeydownEvent;
 }
 
-/** Route a keydown through the block handler the way the editor listener does. */
 function pressKey(muya: Muya, content: Content, options: { key: string; metaKey?: boolean; ctrlKey?: boolean; altKey?: boolean }): FakeKeydownEvent {
     muya.editor.activeContentBlock = content;
     const event = keydownEvent(options);

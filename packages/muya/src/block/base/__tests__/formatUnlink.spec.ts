@@ -67,7 +67,6 @@ describe('format.unlink — replaces link source with visible anchor', () => {
             { start: 3, end: 3 + '[Anthropic](https://www.anthropic.com)'.length },
             'Anthropic',
         );
-        // After rewrite, anchor ends at offset 3 + 'Anthropic'.length = 12.
         expect(setCursor).toHaveBeenCalledWith(12, 12, true);
     });
 

@@ -1,19 +1,13 @@
 import loadRenderer from './index';
 
-// Mermaid's own `run()` derives the id it stamps on the rendered `<svg>` from
-// `Date.now()`, and its renderers then resolve that id with a document-wide
-// lookup. Two diagrams whose renders begin in the same millisecond therefore
-// draw into a single element: the first block shows both diagrams on top of
-// each other, the second stays empty (#5023). Mint the id here instead —
-// `render()` takes one — so concurrent renders can never share it.
+// Concurrent Mermaid renders can share Date.now()-based IDs; provide unique IDs
+// to prevent diagrams drawing into the same element (#5023).
 let mermaidRenderCount = 0;
 
 const RAPHAEL_DESC = /^Created with Rapha/;
 
-// Give a fixed-size `<svg>` (one with `width`/`height` px attributes but no
-// `viewBox`) a viewBox derived from those dimensions, so `max-width: 100%`
-// scales it down to fit instead of clipping it. Returns false while the
-// dimensions are still missing.
+// Supply a viewBox for fixed-size SVGs so responsive sizing scales instead of clips.
+// Return false until dimensions are available.
 function sizeSvg(svg: Element): boolean {
     if (svg.getAttribute('viewBox'))
         return true;
@@ -63,10 +57,7 @@ function applyFinalizations(target: HTMLElement, fallback: string): boolean {
     return true;
 }
 
-// `drawSVG` (js-sequence-diagrams / flowchart.js) renders the `<svg>`
-// asynchronously — it's drawn from a theme callback after its font loads — so
-// neither the element nor its `width`/`height` attributes are there
-// synchronously. Try once, then observe `target` until the diagram lands.
+// drawSVG may finish after fonts load. Observe until the SVG and dimensions arrive.
 export function finalizeRenderedDiagram(target: HTMLElement, fallbackLabel: string): () => void {
     if (applyFinalizations(target, fallbackLabel))
         return () => {};
@@ -84,8 +75,7 @@ export function finalizeRenderedDiagram(target: HTMLElement, fallbackLabel: stri
     // Safety net so the observer can't leak if the diagram never renders.
     const timer = setTimeout(() => observer.disconnect(), 5000);
 
-    // The caller owns this render: it must be able to give up on one that is
-    // still waiting, rather than let it describe what replaced it.
+    // The render owner must cancel observation when its target is replaced.
     return () => {
         clearTimeout(timer);
         observer.disconnect();
@@ -94,12 +84,7 @@ export function finalizeRenderedDiagram(target: HTMLElement, fallbackLabel: stri
 
 const FRONTMATTER = /^---\r?\n[\s\S]*?\r?\n---\r?\n/;
 
-/**
- * Prefix `code` with a mermaid `%%{init}%%` directive so the config applies to
- * this one render. Mermaid's `initialize()` is process-global, and the live
- * preview re-initializes before every render, so mutating it around an export
- * would race whatever else is rendering.
- */
+// Use a per-render init directive; global Mermaid initialization would race live previews.
 export function withMermaidInit(code: string, config: Record<string, unknown>): string {
     const directive = `%%{init: ${JSON.stringify(config)}}%%`;
     const frontmatter = FRONTMATTER.exec(code)?.[0] ?? '';
@@ -121,12 +106,7 @@ export interface IRenderOptions {
 }
 
 export interface IExportRenderOptions extends IRenderOptions {
-    /**
-     * Mermaid draws node labels into a `<foreignObject>` by default, and
-     * Chromium refuses to paint one when the svg is loaded as an `<img>` —
-     * rasterising such a diagram loses every label. Pass false to get a
-     * `<text>`-only svg.
-     */
+    // Disable foreignObject labels for rasterization: Chromium drops them in SVG images.
     htmlLabels: boolean;
 }
 

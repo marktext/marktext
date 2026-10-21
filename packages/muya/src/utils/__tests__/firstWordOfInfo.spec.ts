@@ -11,8 +11,6 @@ describe('firstWordOfInfo', () => {
     });
 
     it('skips leading whitespace before the first word', () => {
-        // `~~~ js` / ` ``` js ` — CommonMark trims the info string, so the
-        // language is `js` even when the fence is separated by whitespace.
         expect(firstWordOfInfo(' js')).toBe('js');
         expect(firstWordOfInfo('\tjs title="app.js"')).toBe('js');
     });

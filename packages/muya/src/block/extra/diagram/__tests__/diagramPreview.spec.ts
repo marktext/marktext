@@ -98,10 +98,8 @@ describe('diagramPreview — invalid / error state', () => {
 
         const detail = preview.domNode!.querySelector('.mu-diagram-error-detail')!;
         expect(detail).not.toBeNull();
-        // No live <img> element should be parsed into the DOM — the tag was escaped.
         expect(detail.querySelector('img')).toBeNull();
         expect(preview.domNode!.querySelector('img')).toBeNull();
-        // The escaped text is still present as text content.
         expect(detail.textContent).toContain('boom');
     });
 
@@ -127,7 +125,7 @@ describe('diagramPreview — clickHandler routing', () => {
         });
         const { preview, muya } = makePreview('', 'flowchart');
         const emit = vi.fn();
-        Object.assign(muya, { readOnly: true, eventCenter: { emit } });
+        Object.assign(muya, { isReadOnly: true, eventCenter: { emit } });
         await preview.update('st=>start: go');
         preview.domNode!.click();
 
@@ -142,7 +140,7 @@ describe('diagramPreview — clickHandler routing', () => {
     it('does not infer successful rendering from injected DOM', () => {
         const { preview, muya } = makePreview('');
         const emit = vi.fn();
-        Object.assign(muya, { readOnly: true, eventCenter: { emit } });
+        Object.assign(muya, { isReadOnly: true, eventCenter: { emit } });
         preview.domNode!.innerHTML = '<svg></svg>';
         preview.domNode!.click();
         expect(emit).not.toHaveBeenCalled();
@@ -152,7 +150,7 @@ describe('diagramPreview — clickHandler routing', () => {
         loadRendererMock.mockResolvedValue({ parse: () => ({ drawSVG: vi.fn() }) });
         const { preview, muya } = makePreview('', 'flowchart');
         const emit = vi.fn();
-        Object.assign(muya, { readOnly: true, eventCenter: { emit } });
+        Object.assign(muya, { isReadOnly: true, eventCenter: { emit } });
         await preview.update('valid');
         preview.domNode!.click();
         expect(emit).toHaveBeenCalledTimes(1);
@@ -174,8 +172,6 @@ describe('diagramPreview — clickHandler routing', () => {
         const parent = {
             firstContentInDescendant: vi.fn(() => cursorBlock),
         };
-        // parent is typed as Parent | null; the fake only implements what
-        // clickHandler calls.
         preview.parent = parent as unknown as DiagramPreview['parent'];
 
         const event = {

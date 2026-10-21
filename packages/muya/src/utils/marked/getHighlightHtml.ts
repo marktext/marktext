@@ -25,7 +25,6 @@ const DIAGRAM_TYPE = [
 ];
 
 function highlight(code: string, lang: string) {
-    // Language may be undefined (GH#591)
     if (!lang)
         return code;
 
@@ -45,19 +44,14 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
     const { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote, fancyLists }
         = options;
 
-    // Build a fresh Marked instance per call. `Marked.use({ walkTokens })`
-    // chains rather than replaces, so reusing a module-level singleton would
-    // cause walkTokens to fire N times after N invocations and corrupt token
-    // state (e.g. wiping `lang` on subsequent runs).
+    // Use a fresh Marked instance; repeated use() chains walkTokens and corrupts repeated renders.
     const marked = new Marked(markedHighlight({ highlight }));
 
     marked.use({
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
 
-    // Treat CJK characters as punctuation for emphasis/strong flanking so
-    // `中文**"加粗"**中文` bolds (marktext/marktext#4307). Additive override —
-    // never regresses spec-conformant Latin emphasis.
+    // Keep CJK emphasis flanking consistent with clipboard and export rendering (#4307).
     marked.use(cjkEmStrongExtension());
 
     marked.use(emojiExtension({ isRenderEmoji: true }));

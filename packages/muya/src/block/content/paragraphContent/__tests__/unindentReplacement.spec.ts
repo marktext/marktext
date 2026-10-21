@@ -90,7 +90,6 @@ describe('paragraphContent.tabHandler — Shift+Tab REPLACEMENT keeps the caret 
         const cursor = promoted.getCursor();
         expect(cursor).not.toBeNull();
         expect(cursor!.start.offset).toBe(1);
-        // The promoted block is the active content block.
         expect(muya.editor.activeContentBlock).toBe(promoted);
     });
 });

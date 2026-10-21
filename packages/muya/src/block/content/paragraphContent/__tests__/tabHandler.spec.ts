@@ -61,14 +61,12 @@ function callTabHandler(fakeThis: IFakeParagraph, event: Event) {
 describe('paragraphContent.tabHandler — Shift+Tab unindent must not fall through to insertTab', () => {
     it('unindents and returns early on Shift+Tab in a list item (no insertTab)', () => {
         const fakeThis = makeFakeParagraph({
-            // unindentable list item
             _getUnindentType: vi.fn(() => 'INDENT' as never),
         });
 
         expect(() => callTabHandler(fakeThis, makeKeyEvent(true))).not.toThrow();
 
         expect(fakeThis._unindentListItem).toHaveBeenCalledTimes(1);
-        // Must NOT fall through after unindent.
         expect(fakeThis.insertTab).not.toHaveBeenCalled();
         expect(fakeThis._canIndentListItem).not.toHaveBeenCalled();
         expect(fakeThis._checkCursorAtEndFormat).not.toHaveBeenCalled();

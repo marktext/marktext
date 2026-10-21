@@ -128,12 +128,11 @@ function containsOwnTaskListCheckbox(node: Node) {
 }
 
 export function usePluginsAddRules(turndownService: TurndownService) {
-    // Use the gfm plugin
     const { strikethrough, tables } = turndownPluginGfm;
     turndownService.use(strikethrough);
     turndownService.use(tables);
 
-    // We need a extra strikethrough rule because the strikethrough rule in gfm is single `~`.
+    // The GFM plugin accepts a single tilde; Markdown strikethrough requires a double tilde.
     turndownService.addRule('strikethrough', {
         filter: ['del', 's'], // <strike> is not support by the web standard, so I remove the use `strike` in filter...
         replacement(content: string) {
@@ -261,7 +260,6 @@ export function usePluginsAddRules(turndownService: TurndownService) {
         },
     });
 
-    // Handle multiple math lines
     turndownService.addRule('multiplemath', {
         filter(node: Node) {
             return (

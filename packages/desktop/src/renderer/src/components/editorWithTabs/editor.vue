@@ -813,7 +813,7 @@ watch(
   sourceCode,
   (value, oldValue) => {
     if (value && value !== oldValue) {
-      if (editor.value?.readOnly) return
+      if (editor.value?.isReadOnly) return
       // The viewer holds a rendering of a document that is about to stop being
       // shown, and holds the editor behind it inert while it is up.
       mediaViewer.value?.close()

@@ -22,24 +22,13 @@ import {
 import { isFoldableHeading } from '../commonMark/atxHeading/foldSection';
 import { revealBlock } from '../folding';
 
-// import logger from './utils/logger'
-
-// const debug = logger('block.content:')
-
 // Word boundary regexes derived from VSCode's wordHelper. Used by `extractWord`
 // to find the word at the cursor for spell-check replacement.
 const WORD_SEPARATORS = /[`~!@#$%^&*()\-=+[{\]}\\|;:'",.<>/?\s]/g;
 const WORD_DEFINITION = /-?\d*\.\d\w*|[^`~!@#$%^&*()\-=+[{\]}\\|;:'",.<>/?\s]+/g;
 
-/**
- * Whether the event is macOS ⌘↑/⌘↓, which the system text bindings own: Blink
- * runs them as the same MoveToBeginningOfDocument/End commands it maps
- * Ctrl+Home/End to on Windows and Linux. muya has to leave them to the browser,
- * otherwise the arrow cases move the caret by column instead of to the document
- * edge (#3452).
- *
- * `osx` is injectable so the platform branch is testable.
- */
+// Leave macOS Cmd+Up/Down to the browser’s document-boundary movement (#3452).
+// The platform flag is injectable for tests.
 export function isDocumentBoundaryArrow(event: KeyboardEvent, osx: boolean = isOsx): boolean {
     return osx
         && event.metaKey
@@ -70,7 +59,6 @@ function extractWord(
         offset = text.length - 1;
     }
 
-    // Matches all words starting at a good position.
     WORD_DEFINITION.lastIndex = text.lastIndexOf(' ', offset - 1) + 1;
     let match: RegExpExecArray | null = null;
     let left = -1;
@@ -90,7 +78,6 @@ function extractWord(
     if (left <= -1)
         return null;
 
-    // Find word ending.
     WORD_SEPARATORS.lastIndex = offset;
     match = WORD_SEPARATORS.exec(text);
     let right = -1;
@@ -99,7 +86,6 @@ function extractWord(
 
     WORD_SEPARATORS.lastIndex = 0;
 
-    // The last word in the string is a special case.
     if (right < 0) {
         return {
             left,
@@ -237,7 +223,6 @@ function deleteAutoPair(
     blockText: string,
 ) {
     let needRender = false;
-    // handle `deleteContentBackward` or `deleteContentForward`
     const deletedChar = blockText[offset];
     if (
         event.inputType === 'deleteContentBackward'
@@ -288,8 +273,6 @@ function collapsedInputAutoPair(
 
         return { text, needRender };
     }
-
-    // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
 
     // Only pair quotes/brackets when the cursor is at
     // end-of-line or before whitespace.
@@ -350,12 +333,8 @@ function lineBreakAutoPair(
         && (inputType === 'insertText' || event.type === 'compositionend')
     ) {
         text = blockText + event.data;
-        // Re-anchor to the rebuilt text instead of nudging the DOM offset: how
-        // far the DOM drifted depends on whether the browser kept the trailing
-        // newline (Firefox does, Chromium overwrites it) and on whether the
-        // caret sat in a composition anchor. The end of the rebuilt text is the
-        // one answer that holds in every case.
-        // For more info: https://github.com/marktext/muya/issues/130
+        // Re-anchor to rebuilt text: Chromium and Firefox retain different DOM offsets after composition.
+        // See https://github.com/marktext/muya/issues/130.
         start.offset = text.length;
         end.offset = text.length;
     }
@@ -420,7 +399,6 @@ class Content extends TreeNode {
             path.push('meta', 'lang');
         }
 
-        // dispatch change to modify json state
         if (oldText !== text) {
             const diffs = diff(oldText, text);
 
@@ -444,7 +422,7 @@ class Content extends TreeNode {
         this.tagName = 'span';
         this.classList = ['mu-content'];
         this.attributes = {
-            contenteditable: !muya.readOnly,
+            contenteditable: !muya.isReadOnly,
         };
         this._text = text;
         this.isComposed = false;
@@ -471,19 +449,15 @@ class Content extends TreeNode {
     }
 
     tabHandler(_event: Event): void {
-    // Do nothing.
     }
 
     keyupHandler(_event: Event): void {
-    // Do nothing.
     }
 
     inputHandler(_event: Event): void {
-    // Do nothing.
     }
 
     backspaceHandler(_event: Event): void {
-    // Do nothing.
     }
 
     /** Return true to consume a block shortcut before the default key routing. */
@@ -492,7 +466,6 @@ class Content extends TreeNode {
     }
 
     enterHandler(_event: Event): void {
-    // Do nothing.
     }
 
     deleteHandler(event: Event): void {
@@ -665,9 +638,6 @@ class Content extends TreeNode {
         this.update();
     }
 
-    /**
-     * Get cursor if selection is in this block.
-     */
     getCursor(): IContentCursor | null {
         const selection = this.selection.getSelection();
         if (selection == null)
@@ -697,12 +667,6 @@ class Content extends TreeNode {
         };
     }
 
-    /**
-     * Set cursor at the special position
-     * @param {number} begin
-     * @param {number} end
-     * @param {boolean} needUpdate
-     */
     setCursor(begin: number, end: number, needUpdate = false) {
         const anchor = { offset: begin, block: this, path: this.path };
         const focus = { offset: end, block: this, path: this.path };
@@ -733,21 +697,9 @@ class Content extends TreeNode {
         }
     }
 
-    /**
-     * Give an IME its own text node to compose in when the caret sits at the
-     * end of a block whose text ends with `\n`.
-     *
-     * That newline is the last thing in the block's DOM, so the caret sits
-     * inside it, and Chromium will not sustain a composition there: it
-     * overwrites the newline and abandons the composition, which costs the
-     * input method the first keystroke of the word (#3468). An appended node
-     * takes the composition instead and the newline is left alone. The node
-     * has to carry a zero-width space — Chromium ignores an empty one.
-     *
-     * Seeded on `compositionstart` and stripped again on `compositionend`, so
-     * it exists only while `inputHandler` is short-circuited by `isComposed`
-     * and is never visible to the DOM ↔ text offset mapping.
-     */
+    // Give Chromium an IME anchor after a trailing newline so it does not overwrite
+    // the newline and lose the first keystroke (#3468). An empty node is ignored.
+    // The zero-width anchor exists only during composition, outside text-offset mapping.
     private _seedCompositionAnchor() {
         const { domNode } = this;
         const cursor = this.getCursor();
@@ -767,21 +719,15 @@ class Content extends TreeNode {
         domNode.insertBefore(anchor, domNode.querySelector(`:scope > .${CLASS_NAMES.MU_TRAILING_BREAK}`));
         this._compositionAnchor = anchor;
 
-        // `mu-line-end` makes the trailing newline a block of its own, because
-        // a newline with nothing after it renders no line at all. The anchor is
-        // now that something, so the newline renders on its own — and the class
-        // has to go, or the block keeps a line to itself and the composition
-        // lands one line below the caret.
+        // Remove the artificial newline layout while the anchor supplies a real following node,
+        // or composition appears one line below the caret.
         const lineEnd = domNode.querySelector(`.${CLASS_NAMES.MU_LINE_END}`);
         if (lineEnd != null) {
             lineEnd.classList.remove(CLASS_NAMES.MU_LINE_END);
             this._compositionLineEnd = lineEnd;
         }
 
-        // In front of the zero-width space, not behind it: Chromium composes at
-        // the caret and leaves the caret where it was, so a trailing anchor
-        // keeps the caret on the far side of the text being composed and it
-        // draws to the left of the glyph the user is typing.
+        // Place the caret before the zero-width space; a trailing caret draws left of the composing glyph.
         const range = document.createRange();
         range.setStart(anchor, 0);
         range.collapse(true);
@@ -814,10 +760,7 @@ class Content extends TreeNode {
         const stripped = text.split(COMPOSITION_ANCHOR).join('');
 
         if (stripped === '') {
-            // Composition cancelled, or backspaced away character by character.
-            // The anchor goes with it, and the caret goes with the anchor — so
-            // put the caret back where it was before the composition started,
-            // at the end of the block's own text.
+            // Cancelled composition removes its anchor; restore the caret to the original block end.
             anchor.parentNode?.removeChild(anchor);
             if (caretOffset != null)
                 this.setCursor(this.text.length, this.text.length);
@@ -837,10 +780,6 @@ class Content extends TreeNode {
         selection.addRange(range);
     }
 
-    /**
-     * used in input handler
-     * @param {input event} event
-     */
     autoPair(
         event: Event,
         text: string,
@@ -850,16 +789,12 @@ class Content extends TreeNode {
         isInInlineCode = false,
         type = 'format',
     ) {
-    // TODO: @JOCS, remove use this selection directly.
         const { anchor, focus } = this.selection;
         const oldStart = anchor!.offset <= focus!.offset ? anchor : focus;
         let needRender = false;
 
-        // The event will not be input event, when click task list item input element.
-        // `compositionend` is let through as well: `composeHandler` forwards it
-        // straight into `inputHandler`, and it is the only signal an IME commit
-        // ever produces here — rejecting it left the soft-line-break repair
-        // below unreachable for CJK input (#5279).
+        // Checkbox clicks are not input events. Allow compositionend, which can be the only
+        // IME commit signal forwarded by composeHandler (#5279).
         if ((!isInputEvent(event) && !isCompositionEndEvent(event)) || !oldStart)
             return { text, needRender };
 
@@ -899,30 +834,14 @@ class Content extends TreeNode {
         }
     }
 
-    /**
-     * Replace the word at/around the current cursor with `replacement`.
-     *
-     * Used by the desktop spell checker: right
-     * clicking a misspelled word selects the whole word via Chromium, and
-     * choosing a suggestion replaces it inline. `extractWord` uses
-     * VSCode-derived word boundaries.
-     *
-     * Unsafe: the caller asserts that exactly the word `word` is selected. If
-     * the word found at the cursor does not match `word` the call is a no-op
-     * (returns false) — this guards against a Chromium selection mismatch.
-     *
-     * @param word The expected word at the cursor; the whole word must be selected.
-     * @param replacement The replacement text.
-     * @returns True when the replacement was applied.
-     */
+    // Replace only if the word at the cursor still matches `word`; return whether it was applied.
+    // The caller must select the whole word for spell-check replacement.
     replaceCurrentWordInlineUnsafe(word: string, replacement: string): boolean {
         const cursor = this.getCursor();
         if (cursor == null)
             return false;
 
         const { text } = this;
-        // Use the start offset of the (possibly whole-word) selection as the
-        // probe point.
         const wordInfo = extractWord(text, cursor.start.offset);
         if (wordInfo == null)
             return false;
@@ -931,7 +850,6 @@ class Content extends TreeNode {
         if (selectedWord !== word)
             return false;
 
-        // Reuse the text setter so the change dispatches a json edit op.
         this.text = text.substring(0, left) + replacement + text.substring(right);
 
         const offset = left + replacement.length;
@@ -953,7 +871,6 @@ class Content extends TreeNode {
         if (this._wrapSelectionWithAutoPair(event))
             return;
 
-        // Before the switch: these are the browser's keys, not plain arrows.
         if (isDocumentBoundaryArrow(event))
             return;
 

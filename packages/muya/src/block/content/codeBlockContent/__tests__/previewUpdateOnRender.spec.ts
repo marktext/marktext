@@ -37,7 +37,6 @@ describe('math block preview refresh on update() (#1632)', () => {
         const preview = muya.domNode.querySelector<HTMLElement>('.mu-math-preview')!;
         expect(preview).not.toBeNull();
 
-        // The math content block (editable source inside the math container).
         const content = muya.editor.scrollPage!.firstContentInDescendant() as unknown as {
             text: string;
             update: () => void;
@@ -48,7 +47,6 @@ describe('math block preview refresh on update() (#1632)', () => {
         content.text = 'omega';
         content.update();
 
-        // The preview must reflect the new formula, not the stale one.
         expect(preview.textContent).toContain('omega');
         expect(preview.textContent).not.toContain('alpha');
     });

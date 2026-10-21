@@ -54,9 +54,7 @@ const FACE_TO_DATA_URI: Record<string, string> = {
 };
 
 const FONT_FACE_BLOCK_RE = /@font-face\s*\{[^}]*\}/g;
-// Each descriptor value runs up to the next `;`. Written as `:([^;]+);` (no
-// leading `\s*`, no lazy quantifier) so it is linear — the value is trimmed and
-// de-quoted in JS instead.
+// Match through the next semicolon and trim afterward to keep descriptor parsing linear.
 const FAMILY_RE = /font-family:([^;]+);/;
 const WEIGHT_RE = /font-weight:([^;]+);/;
 const STYLE_RE = /font-style:([^;]+);/;

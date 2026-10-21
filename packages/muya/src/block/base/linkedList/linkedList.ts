@@ -67,7 +67,6 @@ export class LinkedList<T extends ILinkedNode> {
     }
 
     remove(node: T) {
-    // If linkedList does not contain this node, just return
         if (!this.contains(node))
             return;
         if (node.prev)

@@ -5,17 +5,6 @@ import type Table from '../../../gfm/table';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../../muya';
 
-// Enter-to-table conversion in a plain paragraph.
-//
-// When a paragraph's text looks like a GFM pipe-table header — `| a | b |` —
-// pressing Enter converts the paragraph into a real table block (header row +
-// one empty body row) and drops the caret into the FIRST BODY cell. The guard
-// for this is the `TABLE_BLOCK_REG` + `isLengthEven` pair in `_enterConvert`:
-// an ODD number of escaped pipes (e.g. `| a \| b |`) means the row isn't a
-// genuine column boundary, so the paragraph must stay a paragraph. These tests
-// drive the paragraph content's `enterHandler` the way the keydown dispatcher
-// does and assert the converted shape + caret landing.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -51,8 +40,6 @@ function flush(): Promise<void> {
     return new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 }
 
-// The first content leaf of the document — for these specs always the single
-// booted paragraph's content block.
 function firstContent(muya: Muya): Content {
     return muya.editor.scrollPage!.firstContentInDescendant() as Content;
 }
@@ -71,8 +58,6 @@ function findTable(muya: Muya): Table | null {
     return table;
 }
 
-// Set the paragraph's text, land the caret at its end, then route a (non-shift)
-// Enter through its handler exactly like the keydown listener does.
 function enterWithText(muya: Muya, text: string): Content {
     const content = firstContent(muya);
     content.text = text;
@@ -103,7 +88,6 @@ describe('paragraphContent.enterHandler — pipe-table conversion', () => {
         const table = findTable(muya);
         expect(table).not.toBeNull();
         expect(table!.columnCount).toBe(2);
-        // Header row + one empty body row.
         expect(table!.rowCount).toBe(2);
     });
 
@@ -117,8 +101,6 @@ describe('paragraphContent.enterHandler — pipe-table conversion', () => {
         expect(anchorBlock).not.toBeNull();
         expect(anchorBlock!.blockName).toBe('table.cell.content');
 
-        // The owning cell sits in the SECOND row (the empty body row, index 1)
-        // at the first column.
         const cell = anchorBlock!.closestBlock('table.cell') as {
             rowOffset: number;
             columnOffset: number;
@@ -141,7 +123,6 @@ describe('paragraphContent.enterHandler — pipe-table conversion', () => {
         // parseTableHeader keeps the surrounding spaces from the cell text.
         expect(headerRow.children[0].text).toBe(' a ');
         expect(headerRow.children[1].text).toBe(' b ');
-        // The body row is empty.
         const bodyRow = tableState.children[1];
         expect(bodyRow.children.every(c => c.text === '')).toBe(true);
     });
@@ -168,12 +149,8 @@ describe('paragraphContent.enterHandler — pipe-table conversion', () => {
 
         await flush();
         const state = muya.getState();
-        // The odd escaped pipe fails the isLengthEven guard, so the table
-        // branch is skipped and the default super.enterHandler splits the
-        // paragraph instead (no table is created).
         expect(findTable(muya)).toBeNull();
         expect(state.every(block => block.name === 'paragraph')).toBe(true);
-        // The original content leaf survives as a paragraph content block.
         expect(content.blockName).toBe('paragraph.content');
     });
 });

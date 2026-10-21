@@ -3,16 +3,6 @@
 import { describe, expect, it } from 'vitest';
 import { renderToStaticHTML } from '../renderToStaticHTML';
 
-// PR-8c — footnote backref + numbered output for `renderToStaticHTML`.
-// Builds on the marked footnote extension that already lands the block
-// definition as `<div class="footnote-block" data-identifier="…">`, plus
-// PR-8a's nested-children parsing. This file pins the post-processed
-// shape: `<sup class="footnote-ref"><a href="#fn-N" id="fnref-N">N</a></sup>`
-// at each inline reference + a final `<section class="footnotes"><ol>` with
-// `<a class="footnote-backref">` arrows on each `<li id="fn-N">`. Numbering
-// follows pandoc / GFM convention: by first-occurrence order of inline refs
-// (not by where the definitions appear in source).
-
 const PROFILE = { footnote: true } as const;
 
 describe('renderToStaticHTML — footnote backref list (PR-8c)', () => {
@@ -21,17 +11,10 @@ describe('renderToStaticHTML — footnote backref list (PR-8c)', () => {
 
         expect(html).toMatch(/<section class="footnotes">[\s\S]*<\/section>/);
         expect(html).toMatch(/<li id="fn-1">[\s\S]*<\/li>/);
-        // Inline ref must point to that li.
         expect(html).toMatch(/<sup class="footnote-ref"><a href="#fn-1" id="fnref-1">1<\/a><\/sup>/);
-        // Backref arrow on the definition points back to the fnref.
         expect(html).toMatch(/<a href="#fnref-1" class="footnote-backref">/);
-        // Body of the definition is preserved.
         expect(html).toContain('bar');
-        // The raw `[^1]` text must not survive in the body — it's been
-        // rewritten to the sup link.
         expect(html).not.toMatch(/<p>foo\[\^1\]<\/p>/);
-        // The inline `<div class="footnote-block" data-identifier="…">` must
-        // be hoisted into the section, not left dangling in the body.
         expect(html).not.toMatch(/<div class="footnote-block"/);
     });
 
@@ -39,11 +22,8 @@ describe('renderToStaticHTML — footnote backref list (PR-8c)', () => {
         const md = `A[^second] B[^first].\n\n[^first]: first definition\n\n[^second]: second definition`;
         const html = renderToStaticHTML(md, PROFILE);
 
-        // `[^second]` appears first inline → fn-1; `[^first]` appears second → fn-2.
         expect(html).toMatch(/A<sup class="footnote-ref"><a href="#fn-1"[^>]*>1<\/a><\/sup>/);
         expect(html).toMatch(/B<sup class="footnote-ref"><a href="#fn-2"[^>]*>2<\/a><\/sup>/);
-        // The section lists items in numeric (== inline) order, with the
-        // matching definition bodies attached.
         const liFn1 = html.match(/<li id="fn-1">([\s\S]*?)<\/li>/)?.[1] ?? '';
         const liFn2 = html.match(/<li id="fn-2">([\s\S]*?)<\/li>/)?.[1] ?? '';
         expect(liFn1).toContain('second definition');
@@ -53,11 +33,8 @@ describe('renderToStaticHTML — footnote backref list (PR-8c)', () => {
     it('leaves an orphan inline `[^missing]` reference as plain text (no definition to point at)', () => {
         const html = renderToStaticHTML('foo[^missing] bar', PROFILE);
 
-        // No footnote section — there's nothing to list.
         expect(html).not.toMatch(/<section class="footnotes">/);
-        // The orphan `[^missing]` stays as a literal token in the paragraph.
         expect(html).toContain('[^missing]');
-        // No sup wrapper around it.
         expect(html).not.toMatch(/<sup class="footnote-ref"[^>]*>[^<]*missing/);
     });
 
@@ -65,12 +42,10 @@ describe('renderToStaticHTML — footnote backref list (PR-8c)', () => {
         const md = `First [^x]. Again [^x]. Once more [^x].\n\n[^x]: shared body`;
         const html = renderToStaticHTML(md, PROFILE);
 
-        // All three inline refs must share fn-1.
         const refs = html.match(/<sup class="footnote-ref"><a href="#fn-\d+"[^>]*>\d+<\/a><\/sup>/g) ?? [];
         expect(refs).toHaveLength(3);
         for (const r of refs)
             expect(r).toContain('href="#fn-1"');
-        // Only one entry in the list.
         const items = html.match(/<li id="fn-\d+">/g) ?? [];
         expect(items).toEqual(['<li id="fn-1">']);
     });
@@ -138,8 +113,6 @@ describe('renderToStaticHTML — footnote backref list (PR-8c)', () => {
                 new RegExp(`<sup class="footnote-ref"><a href="#fn-${n}" id="fnref-${n}">${n}</a></sup>`),
             );
         }
-        // A swallowed definition would survive as its raw extension output
-        // nested inside the preceding <li>.
         expect(html).not.toMatch(/<div class="footnote-block"/);
     });
 
@@ -166,7 +139,6 @@ describe('renderToStaticHTML — footnote backref list (PR-8c)', () => {
 
         const section = html.match(/<section class="footnotes">[\s\S]*<\/section>/)![0];
         expect(section).toContain('see also[^2]');
-        // Exactly one reference was made inline, so exactly one entry.
         expect(section.match(/<li id="fn-\d+">/g)).toEqual(['<li id="fn-1">']);
     });
 });

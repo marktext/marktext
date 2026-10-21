@@ -8,16 +8,8 @@ interface IPasteCursor {
     endOffset: number;
 }
 
-/**
- * When pasting multi-paragraph
- * markdown into an atx/setext heading, splice the first paragraph state into
- * the heading's text — keeping the heading semantics intact — and return the
- * tail states so the caller can drop them in as new blocks below.
- *
- * When the wrapper is not a heading or the first state isn't a plain paragraph,
- * the original states array is returned untouched and the caller falls back
- * to its previous behaviour (which still needs to collapse any selection).
- */
+// Merge the first pasted paragraph into a heading and return the remaining states.
+// Return the original array when the heading merge does not apply.
 export function mergePasteIntoHeading(
     anchorBlock: Content,
     wrapperBlock: Nullable<Pick<Parent, 'blockName'>>,
@@ -43,8 +35,7 @@ export function mergePasteIntoHeading(
     // The anchor's tail is NOT kept here — the caller sews it onto the last
     // pasted block instead.
     if (isSetext) {
-        // A setext heading line can hold soft breaks, so the whole first
-        // paragraph stays in it (muyajs only splits atx).
+        // Setext headings allow soft breaks; ATX headings must stay on one line.
         anchorBlock.text = head + first.text;
     }
     else {

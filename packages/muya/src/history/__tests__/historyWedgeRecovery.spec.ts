@@ -63,13 +63,10 @@ describe('history recorder recovery after an undo/redo exception', () => {
 
         expect(() => muya.undo()).toThrow('simulated replay failure');
 
-        // The recorder must not be wedged: the in-flight guard has to be
-        // released even though the apply threw.
         expect(ignoreChange(muya)).toBe(false);
 
         spy.mockRestore();
 
-        // A subsequent edit must still reach the undo stack.
         await editText(muya, 'seedXY');
         await vi.waitFor(() => expect(undoDepth(muya)).toBeGreaterThan(0));
     });

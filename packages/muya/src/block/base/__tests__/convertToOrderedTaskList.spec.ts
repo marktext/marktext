@@ -54,8 +54,6 @@ function convert(text: string): ILiveBlock[] {
     return top;
 }
 
-// `1. [ ] text` builds an ordered task list, the way `- [ ] text` builds the
-// unordered one (#1691).
 describe('typing an ordered task marker (#1691)', () => {
     it('converts `1. [ ] foo` into an ordered task list', () => {
         const blocks = convert('1. [ ] foo');
@@ -93,8 +91,6 @@ describe('ordered numbering when an item becomes a task (#1691)', () => {
         const content = item.firstContentInDescendant() as Format;
         content.text = text;
         content.checkInlineUpdate();
-        // The conversion queues its edits on the JSON state; flush before reading
-        // the document back out (as the editor does before a tab switch).
         muya.flush();
 
         return muya.getMarkdown();
