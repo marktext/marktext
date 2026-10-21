@@ -12,6 +12,7 @@ import type Preference from '../preferences'
 import { WindowType } from '../windows/base'
 import type { WindowTypeValue } from '../windows/base'
 import type EditorWindow from '../windows/editor'
+import type { ProjectRootWatch } from '@shared/types/project'
 
 class WindowActivityList {
   // Oldest             Newest
@@ -367,14 +368,34 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     })
 
 
+    ipcMain.handle('mt::project-remove-root', (event, key: string) => {
+      const win = BrowserWindow.fromWebContents(event.sender)
+      const editor = win && this.get(win.id) as EditorWindow | undefined
+      return editor?.projectRoots?.remove(key) ?? false
+    })
+    ipcMain.handle('mt::project-retry-root', (event, key: string) => {
+      const win = BrowserWindow.fromWebContents(event.sender)
+      const editor = win && this.get(win.id) as EditorWindow | undefined
+      return editor?.projectRoots?.retry(key) ?? false
+    })
+    ipcMain.on('mt::project-renderer-ready', event => {
+      const win = BrowserWindow.fromWebContents(event.sender)
+      const editor = win && this.get(win.id) as EditorWindow | undefined
+      editor?.projectRoots?.startRestored()
+    })
+    onInternalChannel('app-add-directory-by-id', (windowId: number, pathname: string) => {
+      const editor = this.get(windowId) as EditorWindow | undefined
+      editor?.addFolder(pathname)
+    })
+
     onInternalChannel('watcher-unwatch-all-by-id', (windowId: number) => {
       this._watcher.unwatchByWindowId(windowId)
     })
     onInternalChannel('watcher-watch-file', (win: IBrowserWindow, filePath: string) => {
       this._watcher.watch(win, filePath, 'file')
     })
-    onInternalChannel('watcher-watch-directory', (win: IBrowserWindow, pathname: string) => {
-      this._watcher.watch(win, pathname, 'dir')
+    onInternalChannel('watcher-watch-directory', (win: IBrowserWindow, pathname: string, context?: ProjectRootWatch) => {
+      this._watcher.watch(win, pathname, 'dir', context)
     })
     onInternalChannel('watcher-unwatch-file', (win: IBrowserWindow, filePath: string) => {
       this._watcher.unwatch(win, filePath, 'file')

@@ -19,6 +19,7 @@ import registerSpellcheckerListeners from '../spellchecker'
 import { watchers } from '../utils/imagePathAutoComplement'
 import { onInternalChannel } from '../utils/internalIpc'
 import { WindowType } from '../windows/base'
+import { resolveExistingPath } from '../windows/projectRoots'
 import EditorWindow, { type FileOpenOptions } from '../windows/editor'
 import SettingWindow from '../windows/setting'
 import { setLanguage } from '../i18n'
@@ -458,10 +459,13 @@ class App {
 
     for (const window of _windowManager.windows.values()) {
       if (window.type === WindowType.EDITOR) {
-        const { openedRootDirectory } = window as EditorWindow
-        if (openedRootDirectory && directorySet.has(openedRootDirectory)) {
-          window.bringToFront()
-          directorySet.delete(openedRootDirectory)
+        for (const root of (window as EditorWindow).projectRoots.roots) {
+          for (const directory of directorySet) {
+            if (resolveExistingPath(directory) === root.key) {
+              window.bringToFront()
+              directorySet.delete(directory)
+            }
+          }
         }
       }
     }

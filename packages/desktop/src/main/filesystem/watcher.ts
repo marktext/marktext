@@ -10,6 +10,8 @@ import { isLinux, isOsx } from '../config'
 import type { BrowserWindow } from 'electron'
 import type { LineEnding } from '@shared/types/files'
 import type Preference from '../preferences'
+import type { ProjectRootWatch } from '@shared/types/project'
+type WatchEmit = (channel: string, payload: unknown) => void
 
 // TODO(refactor): Please see GH#1035.
 
@@ -67,7 +69,8 @@ const add = async(
   endOfLine: LineEnding,
   autoGuessEncoding: boolean,
   trimTrailingNewline: number,
-  autoNormalizeLineEndings: boolean
+  autoNormalizeLineEndings: boolean,
+  emit: WatchEmit
 ): Promise<void> => {
   const sequence = nextRead(win, pathname, type)
   const stats = await fsPromises.stat(pathname)
@@ -106,7 +109,7 @@ const add = async(
     } catch (err) {
       // Only notify user about opened files.
       if (type === 'file') {
-        win.webContents.send('mt::show-notification', {
+        emit('mt::show-notification', {
           title: 'Watcher I/O error',
           type: 'error',
           message: err instanceof Error ? err.message : String(err)
@@ -115,17 +118,17 @@ const add = async(
       }
     }
     if (!isLatestRead(win, pathname, type, sequence)) return
-    win.webContents.send(EVENT_NAME[type], {
+    emit(EVENT_NAME[type], {
       type: 'add',
       change: file
     })
   }
 }
 
-const unlink = (win: BrowserWindow, pathname: string, type: WatchType): void => {
+const unlink = (win: BrowserWindow, pathname: string, type: WatchType, emit: WatchEmit): void => {
   nextRead(win, pathname, type)
   const file = { pathname }
-  win.webContents.send(EVENT_NAME[type], {
+  emit(EVENT_NAME[type], {
     type: 'unlink',
     change: file
   })
@@ -138,14 +141,15 @@ const change = async(
   endOfLine: LineEnding,
   autoGuessEncoding: boolean,
   trimTrailingNewline: number,
-  autoNormalizeLineEndings: boolean
+  autoNormalizeLineEndings: boolean,
+  emit: WatchEmit
 ): Promise<void> => {
   const sequence = nextRead(win, pathname, type)
   if (type === 'dir') {
     // Only send mtimeMs so the sidebar can re-sort; skip loading file content.
     try {
       const stats = await fsPromises.stat(pathname)
-      win.webContents.send('mt::update-object-tree', {
+      emit('mt::update-object-tree', {
         type: 'change',
         change: { pathname, mtimeMs: stats.mtimeMs }
       })
@@ -170,13 +174,13 @@ const change = async(
       ])
       const file = { pathname, data, mtimeMs: stats.mtimeMs }
       if (!isLatestRead(win, pathname, type, sequence)) return
-      win.webContents.send('mt::update-file', {
+      emit('mt::update-file', {
         type: 'change',
         change: file
       })
     } catch (err) {
       if (type === 'file') {
-        win.webContents.send('mt::show-notification', {
+        emit('mt::show-notification', {
           title: 'Watcher I/O error',
           type: 'error',
           message: err instanceof Error ? err.message : String(err)
@@ -186,7 +190,7 @@ const change = async(
   }
 }
 
-const addDir = (win: BrowserWindow, pathname: string, type: WatchType): void => {
+const addDir = (win: BrowserWindow, pathname: string, type: WatchType, emit: WatchEmit): void => {
   if (type === 'file') return
 
   const directory = {
@@ -200,17 +204,17 @@ const addDir = (win: BrowserWindow, pathname: string, type: WatchType): void => 
     files: []
   }
 
-  win.webContents.send('mt::update-object-tree', {
+  emit('mt::update-object-tree', {
     type: 'addDir',
     change: directory
   })
 }
 
-const unlinkDir = (win: BrowserWindow, pathname: string, type: WatchType): void => {
+const unlinkDir = (win: BrowserWindow, pathname: string, type: WatchType, emit: WatchEmit): void => {
   if (type === 'file') return
 
   const directory = { pathname }
-  win.webContents.send('mt::update-object-tree', {
+  emit('mt::update-object-tree', {
     type: 'unlinkDir',
     change: directory
   })
@@ -227,7 +231,7 @@ class Watcher {
     this.watchers = {}
   }
 
-  watch(win: BrowserWindow, watchPath: string, type: WatchType = 'dir'): () => void {
+  watch(win: BrowserWindow, watchPath: string, type: WatchType = 'dir', context?: ProjectRootWatch): () => void {
     const usePolling =
       isOsx || isUncPath(watchPath) ? true : this._preferences.getItem<boolean>('watcherUsePolling')
 
@@ -258,7 +262,7 @@ class Watcher {
       },
       ignoreInitial: type === 'file',
       persistent: true,
-      ignorePermissionErrors: true,
+      ignorePermissionErrors: !context,
 
       depth: type === 'file' ? (isOsx ? 1 : 0) : undefined,
 
@@ -282,53 +286,49 @@ class Watcher {
     } as unknown as Parameters<typeof chokidar.watch>[1])
 
     let disposed = false
+    let failed = false
+    const initialReads: Promise<void>[] = []
+    let initialScan = true
+    const emit: WatchEmit = (channel, payload) => {
+      if (disposed || win.isDestroyed?.()) return
+      win.webContents.send(channel, channel === 'mt::update-object-tree' && context
+        ? { ...(payload as object), rootKey: context.rootKey, watchToken: context.watchToken }
+        : payload)
+    }
+    const read = (task: Promise<void>): void => {
+      const guarded = task.catch(error => {
+        if (!disposed) log.warn('Directory event could not be read:', error)
+      })
+      if (initialScan) initialReads.push(guarded)
+    }
     let enospcReached = false
     let renameTimer: NodeJS.Timeout | null = null
 
+    const handleFileEvent = async(pathname: string, event: 'add' | 'change'): Promise<void> => {
+      if (disposed || await this._shouldIgnoreEvent(win.id, pathname, type, usePolling)) return
+      const { autoGuessEncoding = true, trimTrailingNewline = 2, autoNormalizeLineEndings = false } = this._preferences.getAll()
+      await (event === 'add' ? add : change)(win, pathname, type,
+        this._preferences.getPreferredEol() as LineEnding,
+        autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings, emit)
+    }
     watcher
-      .on('add', async(pathname: string) => {
-        if (!(await this._shouldIgnoreEvent(win.id, pathname, type, usePolling))) {
-          const { _preferences } = this
-          const eol = _preferences.getPreferredEol() as LineEnding
-          const {
-            autoGuessEncoding = true,
-            trimTrailingNewline = 2,
-            autoNormalizeLineEndings = false
-          } = _preferences.getAll()
-          add(
-            win,
-            pathname,
-            type,
-            eol,
-            autoGuessEncoding,
-            trimTrailingNewline,
-            autoNormalizeLineEndings
-          )
+      .on('add', (pathname: string) => read(handleFileEvent(pathname, 'add')))
+      .on('change', (pathname: string) => read(handleFileEvent(pathname, 'change')))
+      .on('unlink', (pathname: string) => unlink(win, pathname, type, emit))
+      .on('addDir', (pathname: string) => addDir(win, pathname, type, emit))
+      .on('unlinkDir', (pathname: string) => {
+        unlinkDir(win, pathname, type, emit)
+        if (!disposed && pathname === watchPath) {
+          failed = true
+          context?.onStatus('unavailable')
         }
       })
-      .on('change', async(pathname: string) => {
-        if (!(await this._shouldIgnoreEvent(win.id, pathname, type, usePolling))) {
-          const { _preferences } = this
-          const eol = _preferences.getPreferredEol() as LineEnding
-          const {
-            autoGuessEncoding = true,
-            trimTrailingNewline = 2,
-            autoNormalizeLineEndings = false
-          } = _preferences.getAll()
-          change(
-            win,
-            pathname,
-            type,
-            eol,
-            autoGuessEncoding,
-            trimTrailingNewline,
-            autoNormalizeLineEndings
-          )
-        }
+      .on('ready', () => {
+        initialScan = false
+        Promise.all(initialReads).then(() => {
+          if (!disposed && !failed) context?.onStatus('ready')
+        })
       })
-      .on('unlink', (pathname: string) => unlink(win, pathname, type))
-      .on('addDir', (pathname: string) => addDir(win, pathname, type))
-      .on('unlinkDir', (pathname: string) => unlinkDir(win, pathname, type))
       .on('raw', (event: string, subpath: string, details: unknown) => {
         if (globalThis.MARKTEXT_DEBUG_VERBOSE >= 3) {
           console.log('watcher: ', event, subpath, details)
@@ -354,6 +354,9 @@ class Watcher {
         }
       })
       .on('error', (error: unknown) => {
+        if (disposed) return
+        failed = true
+        context?.onStatus('unavailable', error instanceof Error ? error.message : String(error))
         const code = (error as NodeJS.ErrnoException)?.code
         if (code === 'ENOSPC') {
           if (!enospcReached) {
@@ -399,26 +402,15 @@ class Watcher {
     for (const id of Object.keys(this.watchers)) {
       const w = this.watchers[id]
       if (w.win === win && w.pathname === watchPath && w.type === type) {
-        w.watcher.close()
-        delete this.watchers[id]
+        w.close()
         break
       }
     }
   }
 
   unwatchByWindowId(windowId: number): void {
-    const watchers: FSWatcher[] = []
-    const watchIds: string[] = []
-    for (const id of Object.keys(this.watchers)) {
-      const w = this.watchers[id]
-      if (w.win.id === windowId) {
-        watchers.push(w.watcher)
-        watchIds.push(id)
-      }
-    }
-    if (watchers.length) {
-      watchIds.forEach((id) => delete this.watchers[id])
-      watchers.forEach((watcher) => watcher.close())
+    for (const entry of Object.values(this.watchers)) {
+      if (entry.win.id === windowId) entry.close()
     }
   }
 

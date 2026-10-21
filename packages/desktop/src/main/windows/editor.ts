@@ -3,7 +3,7 @@ import { BrowserWindow, dialog, ipcMain } from 'electron'
 import type { BrowserWindowConstructorOptions } from 'electron'
 import log from 'electron-log'
 import windowStateKeeper from 'electron-window-state'
-import { isChildOfDirectory, isSamePathSync } from 'common/filesystem/paths'
+import { isChildOfDirectory } from 'common/filesystem/paths'
 import BaseWindow, { WindowLifecycle, WindowType } from './base'
 import type Accessor from '../app/accessor'
 import { ensureWindowPosition, zoomIn, zoomOut } from './utils'
@@ -13,6 +13,9 @@ import { loadMarkdownFile, loadCliMarkdownFile } from '../filesystem/markdown'
 import { switchLanguage } from '../spellchecker'
 import type { TabOptions } from '@shared/types/files'
 import fs from 'fs'
+import { ProjectRoots, resolveExistingPath } from './projectRoots'
+import { readBufferedRoots } from '@shared/types/project'
+import { t } from '../i18n'
 
 type RawMarkdownDocument = Awaited<ReturnType<typeof loadMarkdownFile>>
 
@@ -47,7 +50,7 @@ interface RestoredTab {
 interface RestoredBufferState {
   tabs: RestoredTab[]
   restoreWarnings?: unknown[]
-  project?: { rootDirectory?: string }
+  project?: unknown
   [key: string]: unknown
 }
 
@@ -57,7 +60,7 @@ class EditorWindow extends BaseWindow {
   private _markdownToOpen: string[] | null
   // Root directory and file list that are currently opened. These lists are
   // used to find the best window to open new files in.
-  private _openedRootDirectory: string | null
+  readonly projectRoots: ProjectRoots
   private _openedFiles: string[] | null
   private _latestPreviewRequestId: number | null
   private _pendingPreviewPaths: Map<string, number>
@@ -72,7 +75,22 @@ class EditorWindow extends BaseWindow {
     this._filesToOpen = []
     this._markdownToOpen = [] // List of markdown strings or an empty string will open a new untitled tab
 
-    this._openedRootDirectory = ''
+    this.projectRoots = new ProjectRoots({
+      publish: snapshot => this.browserWindow?.webContents.send('mt::project-roots-changed', snapshot),
+      watch: root => {
+        const { key, watchToken } = root
+        ipcMain.emit('watcher-watch-directory', this.browserWindow, root.pathname, {
+          rootKey: key,
+          watchToken,
+          onStatus: (status: 'ready' | 'unavailable', error?: string) => this.projectRoots.setStatus(key, watchToken, status, error)
+        })
+      },
+      unwatch: root => ipcMain.emit('watcher-unwatch-directory', this.browserWindow, root.pathname),
+      remember: pathname => {
+        this._accessor.preferences.setItems({ lastOpenedFolder: pathname })
+        this._accessor.menu.addRecentlyUsedDocument(pathname)
+      }
+    })
     this._openedFiles = []
     this._latestPreviewRequestId = null
     this._pendingPreviewPaths = new Map()
@@ -139,7 +157,7 @@ class EditorWindow extends BaseWindow {
       id: bufferStoreInfo ? bufferStoreInfo.id : editorBufferStore.getUnUsedBufferUUID(),
       filePath: bufferStoreInfo ? bufferStoreInfo.filePath : null
     }
-    ;(win as unknown as { restoreBufferId: string }).restoreBufferId = this.bufferStoreInfo.id
+    Object.assign(win, { restoreBufferId: this.bufferStoreInfo.id, projectRoots: this.projectRoots })
 
     this.id = win.id
 
@@ -405,29 +423,26 @@ class EditorWindow extends BaseWindow {
   }
 
   openFolder(pathname: string): void {
-    if (
-      !pathname ||
-      this.lifecycle === WindowLifecycle.QUITTED ||
-      isSamePathSync(pathname, this._openedRootDirectory ?? '')
-    ) {
+    if (!pathname || this.lifecycle === WindowLifecycle.QUITTED) return
+    if (this.lifecycle !== WindowLifecycle.READY) {
+      this._directoryToOpen = pathname
       return
     }
+    this.addFolder(pathname, true)
+  }
 
-    if (this.lifecycle === WindowLifecycle.READY) {
-      const { browserWindow } = this
-      const { menu: appMenu, preferences } = this._accessor
-
-      if (this._openedRootDirectory) {
-        ipcMain.emit('watcher-unwatch-directory', browserWindow, this._openedRootDirectory)
-      }
-
-      preferences.setItems({ lastOpenedFolder: pathname })
-      appMenu.addRecentlyUsedDocument(pathname)
-      this._openedRootDirectory = pathname
-      ipcMain.emit('watcher-watch-directory', browserWindow, pathname)
-      browserWindow!.webContents.send('mt::open-directory', pathname)
-    } else {
-      this._directoryToOpen = pathname
+  addFolder(pathname: string, replace = false): void {
+    if (this.lifecycle !== WindowLifecycle.READY) return
+    try {
+      this.projectRoots.add(pathname, replace)
+    } catch (error) {
+      this.browserWindow?.webContents.send('mt::show-notification', {
+        title: t('menu.file.addFolder'),
+        type: 'error',
+        message: error instanceof Error && error.message === 'overlap'
+          ? t('sideBar.tree.overlappingFolder')
+          : `${pathname}: ${error instanceof Error ? error.message : String(error)}`
+      })
     }
   }
 
@@ -459,18 +474,19 @@ class EditorWindow extends BaseWindow {
   }
 
   getCandidateScores(fileList: string[]): CandidateScore[] {
-    const { _openedFiles, _openedRootDirectory, id } = this
+    const { _openedFiles, id } = this
     const buf: CandidateScore[] = []
-    for (const pathname of fileList) {
+    for (const inputPath of fileList) {
+      const pathname = resolveExistingPath(inputPath)
       let score = 0
-      if (_openedFiles!.some((p) => p === pathname)) {
+      if (_openedFiles!.some((p) => resolveExistingPath(p) === pathname)) {
         score = -1
       } else {
-        if (isChildOfDirectory(_openedRootDirectory ?? '', pathname)) {
+        if (this.projectRoots.roots.some(root => isChildOfDirectory(root.key, pathname))) {
           score += 5
         }
         for (const item of _openedFiles!) {
-          if (isChildOfDirectory(path.dirname(item), pathname)) {
+          if (isChildOfDirectory(path.dirname(resolveExistingPath(item)), pathname)) {
             score += 1
           }
         }
@@ -488,7 +504,7 @@ class EditorWindow extends BaseWindow {
     this._directoryToOpen = ''
     this._filesToOpen = []
     this._markdownToOpen = []
-    this._openedRootDirectory = ''
+    this.projectRoots.clear()
     this._openedFiles = []
     this._resetPreviewRequests()
 
@@ -521,13 +537,9 @@ class EditorWindow extends BaseWindow {
     this._directoryToOpen = null
     this._filesToOpen = null
     this._markdownToOpen = null
-    this._openedRootDirectory = null
+    this.projectRoots.clear()
     this._openedFiles = null
     this._resetPreviewRequests()
-  }
-
-  get openedRootDirectory(): string | null {
-    return this._openedRootDirectory
   }
 
   private _doOpenTab(
@@ -591,10 +603,8 @@ class EditorWindow extends BaseWindow {
       if (!Array.isArray(bufferState.restoreWarnings)) {
         bufferState.restoreWarnings = []
       }
-      const rootDirectory = bufferState.project?.rootDirectory
-      if (rootDirectory) {
-        this.openFolder(rootDirectory)
-      }
+      const restoredRoots = readBufferedRoots(bufferState.project)
+      this.projectRoots.restore(restoredRoots)
 
       // We still need to load the files of all opened tabs and check for errors/changed files
       const eol = preferences.getPreferredEol()

@@ -32,7 +32,8 @@
       "closeTab": "關閉標籤頁",
       "closeWindow": "關閉視窗",
       "quit": "退出",
-      "preferences": "偏好設定"
+      "preferences": "偏好設定",
+      "addFolder": "加入資料夾…"
     },
     "edit": {
       "edit": "編輯",
@@ -250,7 +251,16 @@
       "closeAll": "全部關閉",
       "emptyProject": "空專案",
       "createFile": "建立檔案",
-      "openFolder": "開啟資料夾"
+      "openFolder": "開啟資料夾",
+      "noFolders": "尚未加入資料夾",
+      "removeFolder": "從側邊欄移除",
+      "retryFolder": "重試",
+      "loadingFolder": "正在載入資料夾…",
+      "unavailableFolder": "資料夾無法使用",
+      "overlappingFolder": "此資料夾與已加入項目有包含關係，請先移除原有項目。",
+      "folderAlreadyAdded": "此資料夾已加入。",
+      "fileOutsideFolders": "此檔案不在已加入的資料夾中。",
+      "sessionSaveFailed": "無法儲存工作階段"
     },
     "toc": {
       "expand": "展開目錄",
