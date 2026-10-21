@@ -103,7 +103,7 @@ const currentCommand = ref<CommandItem | null>(null)
 const defaultPlaceholderText = computed(() => {
   try {
     return t('commandPalette.placeholder')
-  } catch (error) {
+  } catch {
     console.warn('i18n not ready, using fallback placeholder')
     return 'Search commands...'
   }
