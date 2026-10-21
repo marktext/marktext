@@ -164,6 +164,8 @@ describe('path consistency with a native win32 window.path (#5683)', () => {
     const handler = ipcListeners.get('mt::update-object-tree')
     expect(handler).toBeTruthy()
     handler!({}, {
+      rootKey: store.roots[0].key,
+      watchToken: store.roots[0].watchToken,
       type: 'add',
       change: { pathname: nativeNew, isMarkdown: true, data: { markdown: '# note' } }
     })

@@ -134,6 +134,7 @@ interface SelectionFormat {
 }
 
 interface ProjectStoreLike {
+  GET_DEFAULT_DIRECTORY?: () => string
   projectTree: { pathname?: string } | null
 }
 
@@ -317,6 +318,7 @@ export const useEditorStore = defineStore('editor', {
       const layoutStore = useLayoutStore()
 
       projectStore.RESTORE_BUFFERED_STATE(rawState?.project)
+      window.electron.ipcRenderer.send('mt::project-renderer-ready')
       layoutStore.RESTORE_BUFFERED_STATE(rawState?.layout)
       this.$patch((s) => {
         s.tabs = tabs
@@ -776,7 +778,8 @@ export const useEditorStore = defineStore('editor', {
         this.flushActiveEditor()
         sendBufferedState()
           .catch((err) => {
-            console.error('Failed to update buffered state before closing', err)
+            notice.notify({ title: t('sideBar.tree.sessionSaveFailed'), type: 'error', message: String(err) })
+            throw err
           })
           .then(() => {
             const unsavedFiles = this.tabs
@@ -806,6 +809,7 @@ export const useEditorStore = defineStore('editor', {
               window.electron.ipcRenderer.send('mt::close-window')
             }
           })
+          .catch(err => console.error('Window remains open because its session could not be saved', err))
       })
     },
 
@@ -2129,6 +2133,7 @@ export const useEditorStore = defineStore('editor', {
 
 /** Empty when no project directory is open. */
 const getRootFolderFromState = (projectStore: ProjectStoreLike): string => {
+  if (projectStore.GET_DEFAULT_DIRECTORY) return projectStore.GET_DEFAULT_DIRECTORY()
   const openedFolder = projectStore.projectTree
   if (openedFolder) {
     return openedFolder.pathname ?? ''

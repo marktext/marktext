@@ -253,7 +253,6 @@ const readingSelectionChanged = () => {
   }
 }
 
-const { projectTree } = storeToRefs(projectStore)
 
 // Preferences loaded from disk allow arbitrary strings; the engine accepts two themes.
 const toSequenceTheme = (value: string): IMuyaOptions['sequenceTheme'] =>
@@ -838,8 +837,8 @@ const imageAction = async (
   let relativeBasePath: string | null = isTabSavedOnDisk
     ? window.path.dirname(currentPathname)
     : null
-  if (isTabSavedOnDisk && imageRelativeDirectoryBase.value !== 'file' && projectTree.value) {
-    const { pathname: rootPath } = projectTree.value as { pathname?: string }
+  if (isTabSavedOnDisk && imageRelativeDirectoryBase.value !== 'file') {
+    const rootPath = projectStore.ROOT_BASE(currentPathname)
     if (rootPath && window.fileUtils.isChildOfDirectory(rootPath, currentPathname)) {
       relativeBasePath = rootPath
     }

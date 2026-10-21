@@ -3,6 +3,8 @@ import path from 'path'
 import writeFileAtomic from 'write-file-atomic'
 import { BrowserWindow, ipcMain, type IpcMainInvokeEvent } from 'electron'
 import { TypedEmitter } from '@shared/types/typedEmitter'
+import type { ProjectRoots } from '../windows/projectRoots'
+import { readBufferedRoots } from '@shared/types/project'
 import type BaseWindow from '../windows/base'
 
 interface EditorBufferStorePaths {
@@ -188,6 +190,15 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
     }
 
     const bufferStore = this.getBufferStoreInfo(restoreBufferId)
+    const rootState = (win as unknown as { projectRoots?: ProjectRoots }).projectRoots
+    if (rootState && newState && typeof newState === 'object') {
+      const snapshot = newState as { project?: unknown }
+      const buffered = readBufferedRoots(snapshot.project)
+      snapshot.project = { roots: rootState.roots.map(root => ({
+        pathname: root.pathname,
+        collapsedPaths: buffered.find(entry => entry.pathname === root.pathname)?.collapsedPaths ?? []
+      })) }
+    }
     this.writeBufferStoreFile(bufferStore.filePath, newState)
     return true
   }

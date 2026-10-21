@@ -652,19 +652,12 @@ ipcMain.on(
   }
 )
 
-ipcMain.on('mt::ask-for-open-project-in-sidebar', async(e) => {
-  const win = BrowserWindow.fromWebContents(e.sender)
-  if (!win) {
-    return
-  }
-  const { filePaths } = await dialog.showOpenDialog(win, {
-    properties: ['openDirectory', 'createDirectory']
-  })
+ipcMain.on('mt::ask-for-open-project-in-sidebar', event => {
+  addFolder(BrowserWindow.fromWebContents(event.sender))
+})
 
-  if (filePaths && filePaths[0]) {
-    const resolvedPath = normalizeAndResolvePath(filePaths[0])
-    ipcMain.emit('app-open-directory-by-id', win.id, resolvedPath, true)
-  }
+ipcMain.on('mt::cmd-add-folder', event => {
+  addFolder(BrowserWindow.fromWebContents(event.sender))
 })
 
 interface FormatLinkPayload {
@@ -824,6 +817,29 @@ export const openFile = async(win: BrowserWindow | null): Promise<void> => {
 
   if (Array.isArray(filePaths) && filePaths.length > 0) {
     ipcMain.emit('app-open-files-by-id', win.id, filePaths)
+  }
+}
+
+const folderDialogs = new Set<number>()
+
+export const addFolder = async(win: Win): Promise<void> => {
+  if (!win || folderDialogs.has(win.id)) return
+  folderDialogs.add(win.id)
+  try {
+    const { filePaths } = await dialog.showOpenDialog(win, {
+      title: t('menu.file.addFolder'),
+      properties: ['openDirectory', 'createDirectory']
+    })
+    if (!win.isDestroyed() && filePaths?.[0]) {
+      ipcMain.emit('app-add-directory-by-id', win.id, filePaths[0])
+    }
+  } catch (error) {
+    log.error('Unable to choose a project folder:', error)
+    if (!win.isDestroyed()) win.webContents.send('mt::show-notification', {
+      title: t('menu.file.addFolder'), type: 'error', message: String(error)
+    })
+  } finally {
+    folderDialogs.delete(win.id)
   }
 }
 

@@ -32,7 +32,8 @@
       "closeTab": "关闭标签页",
       "closeWindow": "关闭窗口",
       "quit": "退出",
-      "preferences": "偏好设置"
+      "preferences": "偏好设置",
+      "addFolder": "添加文件夹…"
     },
     "edit": {
       "edit": "编辑",
@@ -250,7 +251,16 @@
       "closeAll": "关闭全部",
       "emptyProject": "空项目",
       "createFile": "创建文件",
-      "openFolder": "打开文件夹"
+      "openFolder": "打开文件夹",
+      "noFolders": "尚未添加文件夹",
+      "removeFolder": "从侧边栏移除",
+      "retryFolder": "重试",
+      "loadingFolder": "正在加载文件夹…",
+      "unavailableFolder": "文件夹不可用",
+      "overlappingFolder": "此文件夹与已添加项存在包含关系，请先移除已有项。",
+      "folderAlreadyAdded": "该文件夹已添加。",
+      "fileOutsideFolders": "此文件不在已添加的文件夹中。",
+      "sessionSaveFailed": "无法保存会话"
     },
     "toc": {
       "expand": "展开目录",
