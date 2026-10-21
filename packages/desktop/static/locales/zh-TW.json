@@ -837,7 +837,8 @@
       "exportFile": "匯出檔案",
       "exportFilePdf": "匯出為 PDF",
       "zoom": "縮放",
-      "checkUpdate": "檢查更新"
+      "checkUpdate": "檢查更新",
+      "addFolder": "加入資料夾…"
     },
     "edit": {
       "undo": "復原",

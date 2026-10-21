@@ -837,7 +837,8 @@
       "exportFile": "Dosya Dışa Aktar",
       "exportFilePdf": "PDF Olarak Dışa Aktar",
       "zoom": "Yakınlaştırma",
-      "checkUpdate": "Güncellemeleri Denetle"
+      "checkUpdate": "Güncellemeleri Denetle",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "Geri Al",

@@ -837,7 +837,8 @@
       "exportFile": "Экспортировать файл",
       "exportFilePdf": "Экспорт в PDF",
       "zoom": "Масштаб",
-      "checkUpdate": "Проверить обновления"
+      "checkUpdate": "Проверить обновления",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "Отменить",

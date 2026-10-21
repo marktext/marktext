@@ -837,7 +837,8 @@
       "exportFile": "파일 내보내기",
       "exportFilePdf": "PDF로 내보내기",
       "zoom": "확대/축소",
-      "checkUpdate": "업데이트 확인"
+      "checkUpdate": "업데이트 확인",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "실행 취소",
