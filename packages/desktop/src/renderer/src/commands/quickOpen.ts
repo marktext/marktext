@@ -34,7 +34,7 @@ class QuickOpenCommand {
   private _folderState: FolderState
   private _directorySearcher: FileSearcher
   private _cancelFn: CancelFn
-  private sequence = 0
+  private _sequence = 0
 
   constructor(rootState: RootState) {
     this.id = 'file.quick-open'
@@ -53,16 +53,16 @@ class QuickOpenCommand {
   }
 
   search = async(query: string): Promise<QuickOpenSubcommand[]> => {
-    const sequence = ++this.sequence
+    const sequence = ++this._sequence
     this._cancelFn?.()
     this._cancelFn = null
     if (!query) return this.subcommands.map(item => ({ id: item.id, ...this._getPath(item.id) }))
     const timeout = delay(300)
     this._cancelFn = () => timeout.cancel()
     await timeout
-    if (sequence !== this.sequence) throw new Error('')
+    if (sequence !== this._sequence) throw new Error('')
     const result = await this._doSearch(query)
-    if (sequence !== this.sequence) throw new Error('')
+    if (sequence !== this._sequence) throw new Error('')
     return result
   }
 
@@ -94,7 +94,7 @@ class QuickOpenCommand {
   }
 
   unload = (): void => {
-    this.sequence++
+    this._sequence++
     this._cancelFn?.()
     this._cancelFn = null
     this.subcommands = []
@@ -107,7 +107,7 @@ class QuickOpenCommand {
   _doSearch = (query: string): QuickOpenSubcommand[] | Promise<QuickOpenSubcommand[]> => {
     this._cancelFn = null
     const { _editorState } = this
-    const sequence = this.sequence
+    const sequence = this._sequence
     const rootPaths = this._roots()
     const isRootDirOpened = !!rootPaths.length
     const tabsAvailable = _editorState.tabs.length > 0
@@ -154,12 +154,12 @@ class QuickOpenCommand {
       const promises: Promise<void> & { cancel?: () => void } = this._directorySearcher
         .search(rootPaths, '', {
           didMatch: (result: unknown) => {
-            if (canceled || sequence !== this.sequence) return
+            if (canceled || sequence !== this._sequence) return
             if (!searchResult.includes(result as string)) searchResult.push(result as string)
           },
           didSearchPaths: (numPathsFound: unknown) => {
             // Cancel when more than 30 files were found. User should specify the search query.
-            if (sequence === this.sequence && !canceled && (numPathsFound as number) > 30) {
+            if (sequence === this._sequence && !canceled && (numPathsFound as number) > 30) {
               canceled = true
               notice.notify({ title: this.description, type: 'info', message: t('search.searchLimited', { count: 30 }) })
               if (promises.cancel) {
@@ -171,7 +171,7 @@ class QuickOpenCommand {
           inclusions: this._getInclusions(query)
         })
         .then(() => {
-          if (sequence === this.sequence) this._cancelFn = null
+          if (sequence === this._sequence) this._cancelFn = null
           resolve(
             searchResult.map((pathname) => {
               const item: QuickOpenSubcommand = { id: pathname }
@@ -181,7 +181,7 @@ class QuickOpenCommand {
           )
         })
         .catch((error: unknown) => {
-          if (sequence !== this.sequence) { reject(new Error('')); return }
+          if (sequence !== this._sequence) { reject(new Error('')); return }
           this._cancelFn = null
           if (searchResult.length) {
             notice.notify({ title: this.description, type: 'warning', message: t('sideBar.search.partialSearch') })
