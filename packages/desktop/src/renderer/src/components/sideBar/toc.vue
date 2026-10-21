@@ -312,6 +312,9 @@ const handleClick = (data: { slug?: unknown }): void => {
   color: var(--codeBlockColor);
   background: var(--codeBgColor);
   border-radius: 3px;
+  /* Prism sets `white-space: normal` on every non-`pre` code element, which
+     overrides the label's nowrap setting and makes the row overflow. */
+  white-space: inherit;
 }
 
 .side-bar-toc .el-tree-node__label sup,
