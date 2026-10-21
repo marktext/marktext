@@ -135,12 +135,12 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
         Object.assign(options, getPdfPageOptions(pageOptions))
         const data = await win.webContents.printToPDF(options)
         removePrintServiceFromWindow(win)
-        await writeFile(filePath, data, extension!, 'binary')
+        await writeFile(filePath, data, extension, 'binary')
       } else {
         if (!content) {
           throw new Error('No HTML content found.')
         }
-        await writeFile(filePath, content, extension!, 'utf8')
+        await writeFile(filePath, content, extension, 'utf8')
       }
       win.webContents.send('mt::export-success', { type, filePath })
     } catch (err) {

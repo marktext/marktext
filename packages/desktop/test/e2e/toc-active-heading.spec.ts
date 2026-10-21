@@ -43,7 +43,7 @@ const getHighlightedTocLabel = (page: Page): Promise<string | null> =>
     const current = document.querySelector(
       '.side-bar-toc .el-tree-node.is-current > .el-tree-node__content .el-tree-node__label'
     ) as HTMLElement | null
-    return current ? current.textContent!.trim() : null
+    return current ? current.textContent.trim() : null
   })
 
 // A rendered ATX heading keeps its `# ` markers in separate spans, so match the

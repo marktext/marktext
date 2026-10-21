@@ -104,7 +104,7 @@ export const updateFormatMenu = (applicationMenu: Menu, formats: Record<string, 
   const formatMenuItem: MenuItem = applicationMenu.getMenuItemById('formatMenuItem')!
   formatMenuItem.submenu!.items.forEach((item: MenuItem) => (item.checked = false))
   formatMenuItem.submenu!.items.forEach((item: MenuItem) => {
-    if (item.id && formats[MENU_ID_FORMAT_MAP[item.id]!]) {
+    if (item.id && formats[MENU_ID_FORMAT_MAP[item.id]]) {
       item.checked = true
     }
   })

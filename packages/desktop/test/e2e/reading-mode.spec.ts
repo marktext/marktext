@@ -333,7 +333,7 @@ test('save as and save share lock protection and keep the saved destination in s
 test('the reading shortcut toggles the current document without changing its content', async() => {
   const { app, page, filePath } = await launchWithMarkdown('shortcut document\n')
   const pressShortcut = () => app.evaluate(({ BrowserWindow }) => {
-    const win = BrowserWindow.getAllWindows()[0]!
+    const win = BrowserWindow.getAllWindows()[0]
     const modifiers: KeyboardInputEvent['modifiers'] = process.platform === 'darwin' ? ['meta', 'control'] : ['control', 'alt']
     win.focus()
     win.webContents.sendInputEvent({ type: 'keyDown', keyCode: 'R', modifiers })
