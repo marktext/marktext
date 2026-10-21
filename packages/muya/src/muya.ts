@@ -502,19 +502,6 @@ export class Muya {
     }
 
     selectAll() {
-        if (this.readOnly) {
-            const first = this.editor.scrollPage?.firstContentInDescendant()?.domNode;
-            const last = this.editor.scrollPage?.lastContentInDescendant()?.domNode;
-            if (!first || !last)
-                return;
-            const range = document.createRange();
-            range.setStart(first, 0);
-            range.setEnd(last, last.childNodes.length);
-            const selection = document.getSelection();
-            selection?.removeAllRanges();
-            selection?.addRange(range);
-            return;
-        }
         this.editor.selection.selectAll();
     }
 
