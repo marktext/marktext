@@ -140,7 +140,7 @@
   box-shadow: 0 4px 8px 0 var(--floatShadow) !important;
 }
 
-.title-bar .frameless-titlebar-button > div > svg {
+.title-bar .frameless-titlebar-button > span > svg {
   fill: #343b58;
 }
 .title-bar .frameless-titlebar-minimize:hover,

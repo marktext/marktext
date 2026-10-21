@@ -404,6 +404,7 @@ div.title > span > .path > bdi > span {
   width: 190px;
   display: flex;
   flex-direction: row;
+  gap: 8px;
 }
 .right-toolbar {
   height: 100%;
