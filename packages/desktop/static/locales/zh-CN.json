@@ -263,7 +263,8 @@
       "overlappingFolder": "此文件夹与已添加项存在包含关系，请先移除已有项。",
       "folderAlreadyAdded": "该文件夹已添加。",
       "fileOutsideFolders": "此文件不在已添加的文件夹中。",
-      "sessionSaveFailed": "无法保存会话"
+      "sessionSaveFailed": "无法保存会话",
+      "resizeOpenedFiles": "调整已打开文件列表的大小"
     },
     "toc": {
       "expand": "展开目录",

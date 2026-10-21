@@ -263,7 +263,8 @@
       "overlappingFolder": "此資料夾與已加入項目有包含關係，請先移除原有項目。",
       "folderAlreadyAdded": "此資料夾已加入。",
       "fileOutsideFolders": "此檔案不在已加入的資料夾中。",
-      "sessionSaveFailed": "無法儲存工作階段"
+      "sessionSaveFailed": "無法儲存工作階段",
+      "resizeOpenedFiles": "調整已開啟檔案清單的大小"
     },
     "toc": {
       "expand": "展開目錄",
