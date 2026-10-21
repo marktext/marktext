@@ -168,6 +168,19 @@ class TextSelection {
         if (aBlock == null || fBlock == null)
             return;
 
+        if (this._muya.readOnly) {
+            const first = aBlock.domNode;
+            const last = fBlock.domNode;
+            if (!first || !last)
+                return;
+            // Reading selections must preserve folding and avoid editor selection side effects.
+            const range = this._doc.createRange();
+            range.setStart(first, 0);
+            range.setEnd(last, last.childNodes.length);
+            this._selectRange(range);
+            return;
+        }
+
         this.setSelection(
             { offset: 0, block: aBlock, path: aBlock.path },
             { offset: fBlock.text.length, block: fBlock, path: fBlock.path },

@@ -200,6 +200,33 @@ describe('reading mode', () => {
         expect(muya.getMarkdown()).toContain('original');
     });
 
+    it.each(['muya', 'selection'] as const)('selects the whole reading document through %s without editing selection side effects', (entry) => {
+        const muya = boot('| a | b |\n| --- | --- |\n| c | d |\n\nLast paragraph', true);
+        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+        const last = muya.editor.scrollPage!.lastContentInDescendant()!;
+        const state = muya.getState();
+        const history = muya.getHistory();
+        const changed = vi.fn();
+        muya.on('selection-change', changed);
+        const setSelection = vi.spyOn(muya.editor.selection, 'setSelection');
+
+        if (entry === 'muya')
+            muya.selectAll();
+        else
+            muya.editor.selection.selectAll();
+
+        const range = document.getSelection()!.getRangeAt(0);
+        expect(range.startContainer).toBe(first.domNode);
+        expect(range.startOffset).toBe(0);
+        expect(range.endContainer).toBe(last.domNode);
+        expect(range.endOffset).toBe(last.domNode!.childNodes.length);
+        expect(muya.editor.selection.table.hasSelection).toBe(false);
+        expect(setSelection).not.toHaveBeenCalled();
+        expect(changed).not.toHaveBeenCalled();
+        expect(muya.getState()).toEqual(state);
+        expect(muya.getHistory()).toEqual(history);
+    });
+
     it('copies Markdown through the existing clipboard pipeline while reading', () => {
         const muya = boot('**hello** and [link](https://example.com)', true);
         muya.selectAll();
