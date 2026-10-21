@@ -106,7 +106,7 @@ test.describe('Issue #2395 sidebar preview tabs', () => {
     await expect.poll(() => tabCount(page)).toBe(1)
   })
 
-  test('rapid clicks leave the last selected file as the only preview', async() => {
+  test('rapid A-B-A clicks leave the last A request as the only preview', async() => {
     await launchProject()
 
     await page.evaluate(() => {
@@ -115,10 +115,11 @@ test.describe('Issue #2395 sidebar preview tabs', () => {
       const beta = rows.find((row) => row.getAttribute('title')?.endsWith('beta.md'))
       ;(alpha as HTMLElement | undefined)?.click()
       ;(beta as HTMLElement | undefined)?.click()
+      ;(alpha as HTMLElement | undefined)?.click()
     })
 
-    await expect(tabFor(page, 'beta.md')).toHaveClass(/preview/)
+    await expect(tabFor(page, 'alpha.md')).toHaveClass(/preview/)
     await expect.poll(() => tabCount(page)).toBe(1)
-    await expect(tabFor(page, 'alpha.md')).toHaveCount(0)
+    await expect(tabFor(page, 'beta.md')).toHaveCount(0)
   })
 })

@@ -295,6 +295,11 @@ class EditorWindow extends BaseWindow {
     this._latestPreviewRequestId = null
   }
 
+  private _resetPreviewRequests(): void {
+    this._latestPreviewRequestId = null
+    this._pendingPreviewPaths.clear()
+  }
+
   openTabsFromPaths(filePaths: string[], allowMissingPaths: string[] = []): void {
     if (!filePaths || filePaths.length === 0) return
 
@@ -323,12 +328,15 @@ class EditorWindow extends BaseWindow {
       const previewRequestId = isPreview ? (options.requestId as number) : null
       if (previewRequestId !== null) {
         const pendingRequestId = this._pendingPreviewPaths.get(filePath)
-        if (pendingRequestId !== undefined) continue
-        if (
-          this._latestPreviewRequestId !== null &&
-          previewRequestId < this._latestPreviewRequestId
-        ) {
-          continue
+        if (pendingRequestId !== undefined) {
+          if (previewRequestId <= pendingRequestId) continue
+        } else {
+          if (
+            this._latestPreviewRequestId !== null &&
+            previewRequestId < this._latestPreviewRequestId
+          ) {
+            continue
+          }
         }
         this._latestPreviewRequestId = previewRequestId
         this._pendingPreviewPaths.set(filePath, previewRequestId)
@@ -351,6 +359,8 @@ class EditorWindow extends BaseWindow {
       load(eol, autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings)
         .then((rawDocument) => {
           if (previewRequestId !== null) {
+            const currentPendingRequestId = this._pendingPreviewPaths.get(filePath)
+            if (currentPendingRequestId !== previewRequestId) return
             this._pendingPreviewPaths.delete(filePath)
             if (previewRequestId !== this._latestPreviewRequestId) return
           }
@@ -362,7 +372,9 @@ class EditorWindow extends BaseWindow {
         })
         .catch((err: Error) => {
           if (previewRequestId !== null) {
-            this._pendingPreviewPaths.delete(filePath)
+            if (this._pendingPreviewPaths.get(filePath) === previewRequestId) {
+              this._pendingPreviewPaths.delete(filePath)
+            }
           } else {
             this._openedFiles = this._openedFiles!.filter((p) => p !== filePath)
           }
@@ -474,6 +486,7 @@ class EditorWindow extends BaseWindow {
     this._markdownToOpen = []
     this._openedRootDirectory = ''
     this._openedFiles = []
+    this._resetPreviewRequests()
 
     browserWindow!.webContents.once('did-finish-load', () => {
       this.lifecycle = WindowLifecycle.READY
@@ -506,8 +519,7 @@ class EditorWindow extends BaseWindow {
     this._markdownToOpen = null
     this._openedRootDirectory = null
     this._openedFiles = null
-    this._latestPreviewRequestId = null
-    this._pendingPreviewPaths.clear()
+    this._resetPreviewRequests()
   }
 
   get openedRootDirectory(): string | null {

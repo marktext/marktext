@@ -132,7 +132,9 @@ test.describe('#528 reveal active file in the side bar', () => {
   const fixture = createFixture()
 
   test.beforeAll(async() => {
-    const launched = await launchElectron()
+    const launched = await launchElectron(undefined, {
+      preferences: { openFilesInPreviewMode: false }
+    })
     app = launched.app
     page = launched.page
     await openProject(app, page, fixture.root)
@@ -187,7 +189,10 @@ test.describe('#528 reveal with autoRevealInSidebar turned off', () => {
 
   test.beforeAll(async() => {
     const launched = await launchElectron(undefined, {
-      preferences: { autoRevealInSidebar: false }
+      preferences: {
+        autoRevealInSidebar: false,
+        openFilesInPreviewMode: false
+      }
     })
     app = launched.app
     page = launched.page
