@@ -45,7 +45,6 @@ function bootMuya(markdown: string): Muya {
     return muya;
 }
 
-// Collect the table cell content blocks in document order.
 function tableCells(muya: Muya): Content[] {
     const out: Content[] = [];
     const visit = (block: {
@@ -74,7 +73,6 @@ function zwspFlag(cell: Content): boolean {
     return (cell as unknown as { _hasZeroWidthSpaceAtBeginning: boolean })._hasZeroWidthSpaceAtBeginning;
 }
 
-// A table with an empty first header cell and non-empty cells elsewhere.
 const TABLE = '|  | b |\n| --- | --- |\n| c | d |\n';
 
 describe('tableCellContent.composeHandler — empty-cell ZWSP guard', () => {
@@ -115,7 +113,6 @@ describe('tableCellContent.composeHandler — empty-cell ZWSP guard', () => {
         muya.editor.activeContentBlock = cell;
         cell.setCursor(0, 0, true);
 
-        // compositionstart seeds the ZWSP and arms the flag.
         cell.composeHandler(composeEvent('compositionstart'));
         expect(zwspFlag(cell)).toBe(true);
 

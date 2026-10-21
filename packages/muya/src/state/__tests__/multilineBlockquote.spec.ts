@@ -78,11 +78,9 @@ describe('multiline blockquote — parse and serialize', () => {
     });
 
     it('recognises a fence on an off → on live toggle', () => {
-        // Loaded with the preference off, the fence survives as literal text…
         const off = bootMuya(MD, false);
         expect(off.getMarkdown()).toBe(MD);
 
-        // …so flipping it on re-parses that text into a fenced block-quote.
         off.setOptions({ multilineBlockquote: true }, true);
         expect(off.getState()[0].name).toBe('block-quote');
         expect(off.getMarkdown()).toBe(MD);

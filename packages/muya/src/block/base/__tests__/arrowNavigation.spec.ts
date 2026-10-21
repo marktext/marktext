@@ -90,8 +90,6 @@ type FakeArrowEvent = KeyboardEvent & {
     stopPropagation: ReturnType<typeof vi.fn>;
 };
 
-// Land the caret at `offset` of the given content block, mark it active, then
-// route an Arrow key through its handler the way the keydown listener does.
 function arrowAt(
     muya: Muya,
     content: Content,
@@ -150,7 +148,6 @@ describe('content arrowHandler — cross-block navigation up', () => {
         const muya = bootMuya('alpha\n\nbeta\n');
         const beta = contentByText(muya, 'beta');
 
-        // offset 2 is mid-block; ArrowLeft should fall through to the browser.
         const event = arrowAt(muya, beta, 'ArrowLeft', 2);
         await flush();
 
@@ -183,12 +180,10 @@ describe('content arrowHandler — cross-block navigation up', () => {
         const muya = bootMuya('alpha\n\nbeta\n');
         const alpha = contentByText(muya, 'alpha');
 
-        // Land at offset 0 first; this setup emits its own change.
         muya.editor.activeContentBlock = alpha;
         alpha.setCursor(0, 0, true);
         await flush();
 
-        // Only now start counting: the no-op ArrowUp must stay silent.
         let emitted = 0;
         muya.eventCenter.on('selection-change', () => {
             emitted += 1;
@@ -204,7 +199,6 @@ describe('content arrowHandler — cross-block navigation up', () => {
         await flush();
 
         expect(emitted).toBe(0);
-        // The caret is untouched, and the native no-op scroll is still suppressed.
         expect(alpha.getCursor()!.start.offset).toBe(0);
         expect(event.preventDefault).toHaveBeenCalled();
     });
@@ -246,7 +240,6 @@ describe('content arrowHandler — cross-block navigation down', () => {
         const muya = bootMuya('alpha\n\nbeta\n');
         const alpha = contentByText(muya, 'alpha');
 
-        // offset 2 is mid-block; ArrowRight should fall through to the browser.
         const event = arrowAt(muya, alpha, 'ArrowRight', 2);
         await flush();
 
@@ -289,8 +282,6 @@ describe('content arrowHandler — trailing-paragraph creation at document end',
         const muya = bootMuya('alpha\n\nbeta\n');
         const beta = contentByText(muya, 'beta');
 
-        // First ArrowDown at the end of a non-empty last block appends one
-        // trailing empty paragraph (existing, desired behavior).
         arrowAt(muya, beta, 'ArrowDown', 'beta'.length);
         await flush();
         expect(muya.getState().length).toBe(3);
@@ -298,8 +289,6 @@ describe('content arrowHandler — trailing-paragraph creation at document end',
         const appended = muya.editor.scrollPage!.lastContentInDescendant() as Content;
         expect(appended.text).toBe('');
 
-        // Pressing ArrowDown again, now inside the empty trailing paragraph,
-        // must NOT create a fourth block — the caret stays put.
         const event = arrowAt(muya, appended, 'ArrowDown', 0);
         await flush();
 
@@ -323,7 +312,6 @@ describe('content arrowHandler — trailing-paragraph creation at document end',
         alpha.arrowHandler(event);
         await flush();
 
-        // No navigation, no trailing-paragraph creation.
         expect(muya.getState().length).toBe(2);
         expect(contentByText(muya, 'beta').getCursor()).toBeNull();
         expect(event.preventDefault).not.toHaveBeenCalled();
@@ -365,8 +353,6 @@ function allContentTexts(muya: Muya): string[] {
 describe('content arrowHandler — skips empty sibling containers (#4644)', () => {
     it('arrowUp at offset 0 skips an empty list item and lands at the END of the item above', async () => {
         const muya = bootMuyaState(listWithChildlessMiddleItem());
-        // Precondition: the middle item holds NO content block, so a passing
-        // caret assertion below can only mean the empty item was skipped.
         expect(allContentTexts(muya)).toEqual(['A', 'B']);
 
         const b = contentByText(muya, 'B');

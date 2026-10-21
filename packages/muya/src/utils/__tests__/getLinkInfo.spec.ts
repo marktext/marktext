@@ -3,27 +3,12 @@
 import { describe, expect, it } from 'vitest';
 import { getLinkInfo } from '../getLinkInfo';
 
-// Regression tests for marktext commit cb25b3d4 (#1415):
-// "Feat: link tool support html tag:a and reference link".
-// The renderer side of the port is already in place — `link.ts`,
-// `referenceLink.ts`, and `htmlTag.ts` all emit dataset.{start,end,raw}
-// on the rendered link wrapper. PR-11b builds the *missing emitter*:
-// a `mouseover` handler that extracts link info from the hovered
-// element and dispatches `muya-link-tools`.
-//
-// `getLinkInfo` is the pure extraction step — given a DOM element, it
-// produces the `linkInfo` payload that LinkTools.selectItem will later
-// hand back to `contentState.unlink` or `options.jumpClick`.
-
 function makeEl(tag: 'a' | 'span', dataset: Record<string, string>, attrs: Record<string, string> = {}, props: Record<string, string> = {}): HTMLElement {
     const el = document.createElement(tag);
     for (const [k, v] of Object.entries(dataset))
         el.dataset[k] = v;
     for (const [k, v] of Object.entries(attrs))
         el.setAttribute(k, v);
-    // Set ad-hoc DOM properties (e.g. `href` on a <span>) that aren't on
-    // the static HTMLElement type. The structural cast captures that
-    // intent without spreading `any` through the helper.
     for (const [k, v] of Object.entries(props))
         (el as unknown as Record<string, string>)[k] = v;
     return el;
@@ -67,7 +52,6 @@ describe('getLinkInfo — reference link (rendered as a.mu-reference-link)', () 
             { start: '0', end: '10', raw: '[foo][bar]' },
         );
         const info = getLinkInfo(el);
-        // We still extract raw/range — but href is empty.
         expect(info).not.toBeNull();
         expect(info!.href).toBeNull();
         expect(info!.raw).toBe('[foo][bar]');

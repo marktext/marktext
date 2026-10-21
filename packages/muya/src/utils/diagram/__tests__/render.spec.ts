@@ -62,7 +62,6 @@ describe('finalizeRenderedDiagram — giving up on a render', () => {
         const cancel = finalizeRenderedDiagram(target, FALLBACK);
         cancel();
 
-        // What arrives now belongs to whatever replaced that render.
         target.innerHTML = '<svg width="300" height="150"></svg>';
         await new Promise(resolve => setTimeout(resolve, 0));
 

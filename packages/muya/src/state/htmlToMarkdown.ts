@@ -74,7 +74,6 @@ export default class HtmlToMarkdown {
     }
 
     generate(html: string): string {
-        // turn html to markdown
         const turndownService = new TurndownService(this._options);
         usePluginsAddRules(turndownService);
 

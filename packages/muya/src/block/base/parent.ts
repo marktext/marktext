@@ -61,7 +61,6 @@ class Parent extends TreeNode {
     }
 
     get path(): TBlockPath {
-    // You should never call get path on Parent.
         debug.error('You should never call get path on Parent.');
         return [];
     }
@@ -75,14 +74,10 @@ class Parent extends TreeNode {
     }
 
     getState(): TState {
-    // You should never call get state on Parent.
         debug.error('You should never call get state on Parent.');
         return {} as TState;
     }
 
-    /**
-     * Clone itself.
-     */
     clone() {
         const state = this.getState();
         const { muya } = this;
@@ -90,9 +85,6 @@ class Parent extends TreeNode {
         return this.static.create(muya, state);
     }
 
-    /**
-     * Return the length of children.
-     */
     length() {
         return this.reduce((acc: number) => acc + 1, 0);
     }
@@ -105,10 +97,6 @@ class Parent extends TreeNode {
         return this.children.find(offset);
     }
 
-    /**
-     * Append node in linkedList, mounted it into the DOM tree, dispatch operation if necessary.
-     * @param  {...any} args
-     */
     append(...childrenAndSource: [...Parent[], ChangeSource]): void;
     append(...children: Parent[]): void;
     append(...args: unknown[]) {
@@ -129,7 +117,6 @@ class Parent extends TreeNode {
         this.children.append(...children);
         refreshFoldVisibility(this, children.some(node => isFoldableHeading(node) && node.folded));
 
-        // push operations
         if (source === ChangeSource.User) {
             children.forEach((node) => {
                 const path = node._getJsonPath();
@@ -176,10 +163,6 @@ class Parent extends TreeNode {
         return this.children.reduce<M>(callback, initialValue);
     }
 
-    /**
-     * Use the `block` to replace the current block(this)
-     * @param {TreeNode} block
-     */
     replaceWith(block: Parent, source: ChangeSource = ChangeSource.User) {
         if (!this.muya.canMutate)
             return;
@@ -213,7 +196,6 @@ class Parent extends TreeNode {
         refreshFoldVisibility(this, isFoldableHeading(newNode) && newNode.folded);
 
         if (source === ChangeSource.User) {
-            // dispatch json1 operation
             const path = newNode._getJsonPath();
             const state = newNode.getState();
             this.jsonState.insertOperation(path, state);
@@ -232,7 +214,6 @@ class Parent extends TreeNode {
         if (!this.muya.canMutate)
             return;
         if (source === ChangeSource.User) {
-            // dispatch json1 operation
             const path = this._getJsonPath();
             this.jsonState.removeOperation(path);
         }
@@ -263,9 +244,6 @@ class Parent extends TreeNode {
         return node;
     }
 
-    /**
-     * find the first content block, paragraph.content etc.
-     */
     firstContentInDescendant() {
         let likeContentBlock: Nullable<TreeNode> = this.children.head;
 
@@ -276,9 +254,6 @@ class Parent extends TreeNode {
         return likeContentBlock?.isContent() ? likeContentBlock : null;
     }
 
-    /**
-     * find the last content block in container block.
-     */
     lastContentInDescendant() {
         let likeContentBlock: Nullable<TreeNode> = this.children.tail;
 
@@ -310,7 +285,7 @@ class Parent extends TreeNode {
             callback(node);
 
             if (node.isParent()) {
-                // Use splice ot make sure the first block in document is process first.
+                // Prepend children in order so traversal visits the first document block first.
                 node.children.forEach((child, i) => stack.splice(i, 0, child));
             }
         }

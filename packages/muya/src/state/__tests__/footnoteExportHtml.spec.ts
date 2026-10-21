@@ -38,7 +38,6 @@ describe('footnote post-processing in MarkdownToHtml export', () => {
         expect(out).toMatch(
             /<sup class="footnote-ref"><a href="#fn-2" id="fnref-2">2<\/a><\/sup>/,
         );
-        // The literal `[^1]` / `[^2]` markers are gone from the prose.
         expect(out).not.toMatch(/ref\[\^1\]/);
         expect(out).not.toMatch(/another\[\^2\]/);
     });
@@ -50,7 +49,6 @@ describe('footnote post-processing in MarkdownToHtml export', () => {
         expect(out).toMatch(/<li id="fn-1">[\s\S]*First note\./);
         expect(out).toMatch(/<li id="fn-2">[\s\S]*Second note\./);
         expect(out).toMatch(/<a href="#fnref-1" class="footnote-backref">↩<\/a>/);
-        // The raw footnote-block wrapper must not leak into the output.
         expect(out).not.toContain('footnote-block');
     });
 });

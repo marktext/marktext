@@ -122,7 +122,6 @@ describe('paste — replace a selected inline image (muyajs parity)', () => {
         await muya.editor.clipboard.pasteHandler(pasteEvent(), '', '');
         await new Promise(r => setTimeout(r, 40));
 
-        // The WHOLE image is replaced, not just the first character.
         expect(muya.getMarkdown()).toBe('![](/tmp/new.png)\n');
     });
 

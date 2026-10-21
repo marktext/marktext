@@ -15,11 +15,7 @@ class IContainerQueryBlock {
             return this;
 
         const p = path.shift() as number;
-        // `find(p)` returns either a Parent (which the mixin extends with
-        // `queryBlock`) or a Content leaf. Recursion only happens when more
-        // path segments remain — by that point the runtime contract is
-        // that the block is a Parent. Express the queryable shape directly
-        // instead of casting to `any`.
+        // Remaining path segments imply a Parent with queryBlock; terminal results may be Content leaves.
         const block = this.find(p) as (Parent & { queryBlock: (p: TBlockPath) => Parent | Content | undefined }) | Content;
 
         return block && path.length && 'queryBlock' in block

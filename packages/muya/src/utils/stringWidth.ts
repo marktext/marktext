@@ -1,7 +1,4 @@
-// East-Asian Wide (W) and Fullwidth (F) code-point ranges. JavaScript's Unicode
-// property escapes do not expose East_Asian_Width, so the ranges are inlined
-// from the Unicode East Asian Width table. Each pair is an inclusive [start,
-// end] range whose code points occupy two monospace columns.
+// Inclusive East Asian Width ranges; JavaScript property escapes do not expose this Unicode property.
 const WIDE_RANGES: readonly [number, number][] = [
     [0x1100, 0x115F], // Hangul Jamo
     [0x2E80, 0x303E], // CJK Radicals .. Kangxi Radicals .. CJK symbols
@@ -36,14 +33,8 @@ function isWide(codePoint: number): boolean {
     return WIDE_RANGES.some(([start, end]) => codePoint >= start && codePoint <= end);
 }
 
-/**
- * The number of monospace columns `str` occupies. Combining marks and
- * zero-width formatting characters contribute 0; East-Asian wide / fullwidth
- * code points contribute 2; everything else contributes 1.
- *
- * Iterating with `for...of` walks the string by code point, so astral
- * characters (surrogate pairs) are measured once rather than per code unit.
- */
+// Monospace columns: combining/zero-width characters count 0, wide/fullwidth count 2, others 1.
+// This is an approximation for table alignment, not browser text measurement.
 export default function stringWidth(str: string): number {
     let width = 0;
 

@@ -4,30 +4,10 @@ import type Content from '../../../base/content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../../muya';
 
-// Characterization of ParagraphContent.tabHandler's three plain-Tab branches
-// (src/block/content/paragraphContent/index.ts):
-//   1. insertTab()           — a normal paragraph gains `tabSize` ordinary
-//                              spaces (U+0020) at the caret and the caret
-//                              advances by that width. `.mu-content` is
-//                              `white-space: pre-wrap`, so ordinary spaces are
-//                              preserved visually without polluting the saved
-//                              markdown with non-breaking spaces (#3273).
-//   2. _indentListItem() / _unindentListItem() — Tab nests a list item under
-//      its predecessor; Shift+Tab lifts it back out.
-//   3. _checkCursorAtEndFormat() — with the caret just inside a closing inline
-//      marker (e.g. the `**` of strong) Tab jumps the caret PAST the marker and
-//      leaves the text unchanged.
-//
-// Real Muya is booted (mirroring deleteMerge.spec.ts / backspaceUnwrap.spec.ts):
-// the caret is landed via content.setCursor, the handler is invoked the way the
-// keydown listener routes it, and state/markdown/cursor are read after the
-// json1 op flushes on the next animation frame.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
 
-// An ordinary space (U+0020) — the character insertTab repeats `tabSize` times.
 const SPACE = String.fromCharCode(32);
 
 beforeEach(() => {
@@ -57,8 +37,6 @@ function bootMuya(markdown: string, options: Record<string, unknown> = {}): Muya
     return muya;
 }
 
-// Find the leaf `.content` block whose rendered text matches `text`, the way a
-// click resolves the active content block.
 function contentByText(muya: Muya, text: string): Content {
     let target: Content | null = null;
     const visit = (block: {
@@ -76,9 +54,6 @@ function contentByText(muya: Muya, text: string): Content {
     return target;
 }
 
-// Land the caret at [start, end] of the given content block (active block +
-// cursor), then route a Tab through its handler the way the keydown listener
-// does.
 function tabAt(muya: Muya, content: Content, offset: number, shiftKey = false): void {
     muya.editor.activeContentBlock = content;
     content.setCursor(offset, offset, true);
@@ -109,10 +84,8 @@ describe('paragraphContent.tabHandler — insertTab in a plain paragraph', () =>
 
         await flush();
         const text = blockText(muya.getState(), 0);
-        // `hello` + four U+0020 spaces.
         expect(text).toBe(`hello${SPACE.repeat(4)}`);
         expect(text.length).toBe(9);
-        // The inserted run is ordinary spaces (U+0020), not non-breaking spaces.
         expect([...text.slice(5)].every(ch => ch.charCodeAt(0) === 32)).toBe(true);
 
         const cursor = content.getCursor();
@@ -168,7 +141,6 @@ describe('paragraphContent.tabHandler — insertTab in a plain paragraph', () =>
         const narrowLen = blockText(narrow.getState(), 0).length;
         const narrowCaret = narrowContent.getCursor()!.start.offset;
 
-        // 1 ('x') + 4 vs 1 ('x') + 2.
         expect(wideLen).toBe(5);
         expect(narrowLen).toBe(3);
         expect(narrowLen).toBeLessThan(wideLen);
@@ -186,9 +158,7 @@ describe('paragraphContent.tabHandler — indent / unindent a list item', () => 
         tabAt(muya, b, 0);
 
         await flush();
-        // `b` is now a nested bullet list under `a`'s list item.
         expect(muya.getMarkdown()).toBe('- a\n  - b\n');
-        // The whole document stays a single bullet list — nothing dropped.
         const state = muya.getState();
         expect(state.length).toBe(1);
         expect(state[0].name).toBe('bullet-list');
@@ -224,7 +194,6 @@ describe('paragraphContent.tabHandler — jump past a closing inline marker', ()
         tabAt(muya, content, 6);
 
         await flush();
-        // No text was inserted — the caret only jumped past the closing marker.
         expect(blockText(muya.getState(), 0)).toBe('**bold**');
         const cursor = content.getCursor();
         expect(cursor).not.toBeNull();
@@ -239,7 +208,6 @@ describe('paragraphContent.tabHandler — jump past a closing inline marker', ()
 
         await flush();
         const text = blockText(muya.getState(), 0);
-        // Caret was past the closing marker, so insertTab runs.
         expect(text).toBe(`**bold**${SPACE.repeat(4)}`);
         expect(content.getCursor()!.start.offset).toBe(12);
     });

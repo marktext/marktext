@@ -142,9 +142,6 @@ class Selection {
 
         const tableSelection = this._table;
 
-        // A frozen rectangular table selection escalates: the whole table jumps
-        // to the whole document; any partial rectangle (a single cell included)
-        // grows to the whole table first.
         if (tableSelection.hasSelection) {
             if (tableSelection.isWholeTableSelected()) {
                 tableSelection.clear();
@@ -156,21 +153,15 @@ class Selection {
             return;
         }
 
-        // Read the live DOM selection so the caret the user actually sees is
-        // honored. selectAll is driven from the application menu, so the cached
-        // endpoints may be stale — e.g. after a whole-document selection blurred
-        // the editor and the user clicked back into a single block.
+        // The live caret may have moved since the last cached menu selection.
         const live = this.getSelection();
         const anchorBlock = live ? live.anchor.block : this._text.anchorBlock;
         const focusBlock = live ? live.focus.block : this._text.focusBlock;
         const anchorOffset = live ? live.anchor.offset : this._text.anchor?.offset;
         const focusOffset = live ? live.focus.offset : this._text.focus?.offset;
 
-        // A caret or selection contained in a single content block. The cached
-        // block can be one that undo removed from the document, since undoing
-        // the first edit restores no caret (#5387).
+        // Undo may detach the cached block without restoring a caret (#5387).
         if (anchorBlock?.outMostBlock && anchorBlock === focusBlock && anchorOffset != null && focusOffset != null) {
-            // Inside one table cell: freeze it as a 1x1 rectangle.
             if (anchorBlock.blockName === 'table.cell.content') {
                 const cellBlock = anchorBlock.closestBlock('table.cell') as TableBodyCell | null;
                 if (cellBlock) {
@@ -179,8 +170,6 @@ class Selection {
                 }
             }
 
-            // A partial selection grows to the whole block; a full-block
-            // selection falls through to the whole document.
             if (Math.abs(focusOffset - anchorOffset) < anchorBlock.text.length) {
                 const path = anchorBlock.path;
                 this._text.setSelection(
@@ -191,7 +180,6 @@ class Selection {
             }
         }
 
-        // Spanning multiple blocks, or a single block already fully selected.
         this._text.selectAllContent();
     }
 }

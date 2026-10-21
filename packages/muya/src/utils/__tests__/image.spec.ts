@@ -3,12 +3,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { checkImageContentType, getImageSrc, loadImage, usesDefaultObjectSize } from '../image';
 
-// Regression tests for the Phase G "G1" blocker: relative-path images stopped
-// rendering after the @muyajs/core migration because `getImageSrc` returned a
-// non-anchored `file://assets/foo.png` instead of resolving the relative path
-// against the document directory. Legacy muyajs `getImageInfo(src, baseUrl =
-// window.DIRNAME)` did `'file://' + path.resolve(baseUrl, src)`; this suite
-// pins the ported behaviour.
+// Relative image paths must resolve against the current document directory after migration.
 
 const DIRNAME = '/home/user/docs';
 
@@ -78,7 +73,6 @@ describe('checkImageContentType (#3837)', () => {
     it('skips the HEAD entirely for a cross-origin URL (CSP/CORS can never read it)', async () => {
         const fetchSpy = mockFetch(200, 'image/png');
         expect(await checkImageContentType(CROSS_ORIGIN)).toBeNull();
-        // No wasted, guaranteed-to-fail request (and no CSP console error).
         expect(fetchSpy).not.toHaveBeenCalled();
     });
 });

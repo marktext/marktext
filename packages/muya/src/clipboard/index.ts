@@ -10,11 +10,7 @@ import { pastePlainText, pasteSelection } from './paste';
 import { pasteImageSrc } from './pasteImage';
 import { CopyType, PasteType } from './types';
 
-// After the table/same-block guards, decide whether a keydown over a
-// cross-block selection should cut (replace) the selected text. Non-editing
-// keys and any modifier combo must NOT cut — in particular Ctrl+<key> (e.g.
-// Ctrl+C copy on Windows/Linux), which was previously not excluded and
-// silently deleted the selection (#3491). Mirrors the macOS metaKey guard.
+// Modifier shortcuts such as Ctrl+C must never delete a cross-block selection (#3491).
 export function shouldCrossBlockCut(key: string, metaKey: boolean, ctrlKey: boolean): boolean {
     if (/Alt|Option|Meta|Shift|CapsLock|ArrowUp|ArrowDown|ArrowLeft|ArrowRight/.test(key))
         return false;
@@ -213,10 +209,7 @@ class Clipboard {
         this.copyType = CopyType.NORMAL;
     }
 
-    // Chromium removed programmatic clipboard reads via
-    // `document.execCommand('paste')` — it returns false and fires no paste
-    // event, so the old flag + execCommand approach pasted nothing. Read the
-    // clipboard text ourselves and feed it through the paste pipeline.
+    // Read explicitly: Chromium no longer dispatches paste for execCommand('paste').
     async pasteAsPlainText(): Promise<void> {
         const target = this.selection.getSelection()?.anchor.block;
         const text = await this._readClipboardText();
@@ -226,19 +219,12 @@ class Clipboard {
             await pastePlainText(this, text);
     }
 
-    // Insert an image at the cursor from an explicit `src` (a saved file path or
-    // `data:` URL), routing through `imageAction` like a clipboard image paste.
-    // Drives the macOS screenshot flow, which can no longer use the removed
-    // `document.execCommand('paste')`.
     pasteImage(src: string): Promise<void> {
         return pasteImageSrc(this, src);
     }
 
     private async _readClipboardText(): Promise<string> {
-        // Sandboxed Electron renderers can't reach the system clipboard
-        // directly, so the embedder supplies a reader (e.g. an IPC bridge to
-        // Electron's native `clipboard`). Fall back to the async Clipboard API
-        // for standalone (browser) use.
+        // Sandboxed hosts supply a clipboard bridge; standalone browsers use the Clipboard API.
         const reader = this.muya.options.clipboardText;
         if (typeof reader === 'function') {
             try {

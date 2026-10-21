@@ -23,11 +23,6 @@ vi.mock('../../utils/paste', async (importOriginal) => {
 
 const Clipboard = (await import('../index')).default;
 
-// Track D / sub-item 5 (D3): pasting an image should insert a LOADING
-// placeholder image immediately, then await `imageAction`, and only then
-// replace the placeholder with the final src. Mirrors legacy
-// `pasteCtrl.pasteImage`'s `loading-<id>` insert → imageAction → replace flow.
-
 function makeAnchorBlock(initialText = '', cursor = 0) {
     const block = {
         text: initialText,
@@ -86,19 +81,14 @@ describe('pasteHandler image paste — loading placeholder then replace (sub-ite
 
         const done = clipboard.pasteHandler(makePasteEvent());
 
-        // The placeholder is spliced in synchronously just before `imageAction`
-        // is awaited; wait until that call to avoid coupling to microtask counts.
         await vi.waitFor(() => expect(imageAction).toHaveBeenCalled());
 
-        // A placeholder image markdown must already be present in the anchor.
         expect(anchorBlock.text).toMatch(/!\[[^\]]*\]\([^)]+\)/);
 
         resolveAction('assets/photo.png');
         await done;
 
-        // The placeholder was captured while imageAction was pending.
         expect(textWhileLoading).toMatch(/!\[[^\]]*\]\([^)]+\)/);
-        // And the final anchor text carries the resolved src, exactly once.
         expect(anchorBlock.text).toBe('![](assets/photo.png)');
     });
 });

@@ -5,22 +5,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { isOsx } from '../../../../config';
 import { Muya } from '../../../../muya';
 
-// `TableCellContent.enterHandler` dispatches to one of three branches based on
-// the keyboard modifiers it reads off the event:
-//   - Shift+Enter  → `shiftEnter`   : inserts a literal `<br/>` at the caret.
-//   - Cmd/Ctrl+Enter → `commandEnter`: inserts a new row after the current one.
-//   - plain Enter  → `normalEnter`  : moves the caret to the next row's first
-//                     cell, or appends a trailing paragraph when at the table's
-//                     last row with nothing following.
-// `isOsx` is resolved at import time from the userAgent. Under happy-dom the
-// userAgent is "...X11; Darwin arm64..." which does NOT match /Mac/, so
-// `isOsx === false` here and the command branch is reached via `ctrlKey`, not
-// `metaKey`. We assert the ACTUAL behavior in this environment.
-//
-// Driven through a real boot (mirroring backspaceSafety.spec.ts) so cell
-// resolution, row insertion, and caret placement run exactly as a real
-// keystroke would.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -52,7 +36,6 @@ function bootMuya(markdown: string): Muya {
     return muya;
 }
 
-// Collect the table cell content blocks in document order.
 function tableCells(muya: Muya): Content[] {
     const out: Content[] = [];
     const visit = (block: {
@@ -107,7 +90,6 @@ describe('tableCellContent.enterHandler', () => {
         expect(cells.length).toBe(4);
 
         const cell = cells[0]; // header cell `ab`
-        // Caret in the middle of `ab` (offset 1).
         enterAt(muya, cell, 1, { shiftKey: true });
 
         await flush();
@@ -116,7 +98,6 @@ describe('tableCellContent.enterHandler', () => {
 
         const cursor = cell.getCursor();
         expect(cursor).not.toBeNull();
-        // Caret advances by `<br/>`.length (5) from the original offset 1.
         expect(cursor!.start.offset).toBe(1 + '<br/>'.length);
         expect(cursor!.start.offset).toBe(6);
     });
@@ -124,17 +105,14 @@ describe('tableCellContent.enterHandler', () => {
     it('plain Enter in a header cell moves the caret to the next row, same column', async () => {
         const muya = bootMuya('| ab | cd |\n| --- | --- |\n| ef | gh |\n');
         const cells = tableCells(muya);
-        // cells: [0]=ab (header c0), [1]=cd (header c1), [2]=ef (body c0), [3]=gh (body c1)
 
         enterAt(muya, cells[0], 0);
 
         await flush();
-        // Table is intact.
         const state = muya.getState();
         expect(state.length).toBe(1);
         expect(state[0].name).toBe('table');
 
-        // Caret moved to the FIRST cell of the next row (the body row's c0 = `ef`).
         const target = cells[2];
         const cursor = target.getCursor();
         expect(cursor).not.toBeNull();
@@ -157,7 +135,6 @@ describe('tableCellContent.enterHandler', () => {
         expect(state[1].name).toBe('paragraph');
         expect((state[1] as { text: string }).text).toBe('');
 
-        // Caret is in the newly appended trailing paragraph.
         const newCells = tableCells(muya);
         const trailing = muya.editor.scrollPage!.lastContentInDescendant()!;
         expect(newCells.includes(trailing as unknown as Content)).toBe(false);
@@ -182,7 +159,6 @@ describe('tableCellContent.enterHandler', () => {
         const state = muya.getState();
         expect(state.length).toBe(1);
         expect(state[0].name).toBe('table');
-        // The table state now carries 3 rows.
         expect((state[0] as { children: unknown[] }).children.length).toBe(3);
     });
 
@@ -199,7 +175,6 @@ describe('tableCellContent.enterHandler', () => {
         await flush();
         expect(table.rowCount).toBe(beforeRowCount);
 
-        // Caret moved to the next row's first cell (normalEnter behavior).
         const target = cells[2];
         const cursor = target.getCursor();
         expect(cursor).not.toBeNull();

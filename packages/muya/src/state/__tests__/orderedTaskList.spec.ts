@@ -123,7 +123,6 @@ describe('stateToMarkdown — ordered task list round trip (#1691)', () => {
     });
 
     it('round trips the literal markers of a split run', () => {
-        // Numbering is positional while the source spelling is kept verbatim.
         for (const md of ['1. [x] a\n1. b\n', '1. [x] a\n99. b\n', '99. [x] a\n2. b\n'])
             expect(roundTrip(md)).toBe(md);
     });

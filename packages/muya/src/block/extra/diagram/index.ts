@@ -32,8 +32,6 @@ class DiagramBlock extends Parent {
             .then((infoList) => {
                 if (!Array.isArray(infoList))
                     return;
-                // There are three status `loaded`, `noexist` and `cached`.
-                // if the status is `loaded`, indicated that it's a new loaded language
                 const needRender = infoList.some(
                     ({ status }) => status === 'loaded' || status === 'cached',
                 );
@@ -41,7 +39,6 @@ class DiagramBlock extends Parent {
                     diagramBlock.lastContentInDescendant()?.update();
             })
             .catch((err) => {
-                // if no parameter provided, will cause error.
                 debug.warn(err);
             });
 

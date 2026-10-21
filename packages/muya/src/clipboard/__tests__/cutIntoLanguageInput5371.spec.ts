@@ -90,7 +90,6 @@ function settledState(muya: Muya): TState[] {
     return state;
 }
 
-// Every code block still starts with its language input, holding its language.
 function expectLanguageInputs(muya: Muya, languages: string[]): void {
     const inputs = contentBlocks(muya).filter(b => b.blockName === 'language-input');
     expect(inputs.map(input => input.text)).toEqual(languages);

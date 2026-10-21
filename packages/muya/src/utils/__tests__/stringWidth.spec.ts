@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import stringWidth from '../stringWidth';
 
-// `stringWidth` returns the number of monospace columns a string occupies, used
-// by the markdown table serializer to align columns (#1983). It must count
-// combining marks as zero width and East-Asian wide / fullwidth code points as
-// two, rather than counting UTF-16 code units like String.prototype.length.
-
 describe('stringWidth', () => {
     it('counts plain ASCII as one column per character', () => {
         expect(stringWidth('abc')).toBe(3);
@@ -18,7 +13,6 @@ describe('stringWidth', () => {
         const ipa = 'aʊ̯x';
         expect(ipa.length).toBe(4);
         expect(stringWidth(ipa)).toBe(3);
-        // and it must align with the other plain 3-column cell.
         expect(stringWidth('nɔx')).toBe(3);
     });
 
@@ -29,7 +23,6 @@ describe('stringWidth', () => {
     });
 
     it('counts fullwidth forms as two columns', () => {
-        // U+FF21 FULLWIDTH LATIN CAPITAL LETTER A
         expect(stringWidth('Ａ')).toBe(2);
     });
 

@@ -98,10 +98,8 @@ describe('diagramPreview — invalid / error state', () => {
 
         const detail = preview.domNode!.querySelector('.mu-diagram-error-detail')!;
         expect(detail).not.toBeNull();
-        // No live <img> element should be parsed into the DOM — the tag was escaped.
         expect(detail.querySelector('img')).toBeNull();
         expect(preview.domNode!.querySelector('img')).toBeNull();
-        // The escaped text is still present as text content.
         expect(detail.textContent).toContain('boom');
     });
 
@@ -174,8 +172,6 @@ describe('diagramPreview — clickHandler routing', () => {
         const parent = {
             firstContentInDescendant: vi.fn(() => cursorBlock),
         };
-        // parent is typed as Parent | null; the fake only implements what
-        // clickHandler calls.
         preview.parent = parent as unknown as DiagramPreview['parent'];
 
         const event = {

@@ -6,21 +6,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../../muya';
 import { ChangeSource } from '../../../../types';
 
-// PARITY SCOREBOARD — gap PG3 (file PG03).
-//
-// Legacy `packages/muyajs` read `muya.options.autoCheck` in
-// `clickCtrl.js#listItemCheckBoxClick`: toggling a task-list checkbox with
-// `autoCheck` on cascaded the state to all descendant checkboxes
-// (`updateChildrenCheckBoxState`) and re-derived ancestors
-// (`updateParentsCheckBoxState`).
-//
-// `block/gfm/taskListCheckbox/index.ts#update` now reads `muya.options.autoCheck`
-// and, for a `user` toggle, cascades the state to every descendant task item and
-// re-derives each ancestor — restoring parity.
-//
-// We drive the checkbox's `update(checked, 'user')` directly — that is exactly
-// what the DOM click handler invokes — and assert the cascade.
-
 const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -59,7 +44,6 @@ function bootMuya(markdown: string, options: Record<string, unknown> = {}): Muya
 //   task-list > task-list-item(meta.checked) > [ paragraph, task-list > ... ]
 const NESTED_TASKS = '- [ ] parent\n\n  - [ ] child1\n  - [ ] child2\n';
 
-// Collect every task-list-item block in document order [parent, child1, child2].
 function taskItems(muya: Muya): TaskListItem[] {
     const items: TaskListItem[] = [];
     const visit = (block: { constructor: { blockName?: string }; children?: { forEach: (cb: (b: unknown) => void) => void } }) => {
@@ -71,7 +55,6 @@ function taskItems(muya: Muya): TaskListItem[] {
     return items;
 }
 
-// The checkbox is attached to its task-list-item via `appendAttachment`.
 function checkboxOf(item: TaskListItem): TaskListCheckbox {
     let found: TaskListCheckbox | null = null;
     (item.attachments as unknown as { forEach: (cb: (a: TaskListCheckbox) => void) => void }).forEach((a) => {
@@ -83,8 +66,6 @@ function checkboxOf(item: TaskListItem): TaskListCheckbox {
     return found;
 }
 
-// Read the checked flags off the document state, in order
-// [parent, child1, child2].
 function checkedFlags(muya: Muya): boolean[] {
     const flags: boolean[] = [];
     const walk = (nodes: ReturnType<Muya['getState']>) => {
@@ -108,11 +89,8 @@ describe('parity PG3: autoCheck task-list cascade', () => {
             const [parent] = taskItems(muya);
             expect(checkedFlags(muya)).toEqual([false, false, false]);
 
-            // Equivalent to clicking the parent checkbox (the real DOM handler
-            // calls `update(checked, 'user')`).
             checkboxOf(parent).update(true, ChangeSource.User);
 
-            // Desired: checking the parent cascades to both children.
             await vi.waitFor(() => {
                 expect(checkedFlags(muya)).toEqual([true, true, true]);
             });
@@ -129,7 +107,6 @@ describe('parity PG3: autoCheck task-list cascade', () => {
             checkboxOf(child1).update(true, ChangeSource.User);
             checkboxOf(child2).update(true, ChangeSource.User);
 
-            // Desired: when every child is checked, the parent becomes checked.
             await vi.waitFor(() => {
                 expect(checkedFlags(muya)).toEqual([true, true, true]);
             });
@@ -168,8 +145,6 @@ describe('parity PG3: autoCheck task-list cascade', () => {
             });
 
             const markdown = muya.getMarkdown();
-            // The checked parent emits the GFM checked marker; the unchecked
-            // children keep the empty marker.
             expect(markdown).toContain('- [x] parent');
             expect(markdown).toContain('- [ ] child1');
             expect(markdown).toContain('- [ ] child2');

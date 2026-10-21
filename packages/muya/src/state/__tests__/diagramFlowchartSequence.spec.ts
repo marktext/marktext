@@ -3,10 +3,6 @@ import { MUYA_DEFAULT_OPTIONS } from '../../config';
 import { MarkdownToState } from '../markdownToState';
 import ExportMarkdown from '../stateToMarkdown';
 
-// Loose accessor type used only in this spec — every state node the
-// MarkdownToState pipeline emits has some subset of these fields, and the
-// tests navigate the tree generically without re-implementing the
-// discriminated TState union narrowing.
 interface IStateLike {
     name: string;
     text?: string;
@@ -32,12 +28,6 @@ function toMarkdown(states: IStateLike[]): string {
     );
 }
 
-// Parity restoration for flowchart + sequence diagrams. The legacy muyajs
-// engine rendered ```flowchart``` (flowchart.js) and ```sequence```
-// (js-sequence-diagrams) fenced blocks as diagram blocks; the TS rewrite
-// dropped them. These specs lock the parse + round-trip behaviour so the
-// two diagram types stay first-class alongside mermaid / plantuml /
-// vega-lite.
 describe('diagram blocks — flowchart & sequence parity', () => {
     it('parses a ```flowchart``` fence as a diagram block of type flowchart', () => {
         const md = `\`\`\`flowchart
@@ -50,7 +40,6 @@ st->e
         expect(states.length).toBe(1);
         expect(states[0].name).toBe('diagram');
         expect(states[0].meta!.type).toBe('flowchart');
-        // flowchart is not vega-lite, so the inner code lang stays yaml.
         expect(states[0].meta!.lang).toBe('yaml');
         expect(states[0].text).toContain('st=>start: Start');
     });

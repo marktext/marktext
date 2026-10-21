@@ -55,17 +55,12 @@ const CJK_CASES = [
     '𠀀𠀁**"加粗"**𠀀𠀁',
 ];
 
-// Cases that already work — they lock in the pre-existing behavior so the fix
-// can't regress them. Each emphasised run is bounded by a CJK ideograph or
-// whitespace on the inner side, satisfying flanking without the CJK widening.
 const SANITY_CASES = [
     'before **"normal"** after',
     'before**normal**after',
     '中文**加粗**中文',
 ];
 
-// Cases that MUST NOT bold — the additive CJK widening must leave these as
-// CommonMark rejects them.
 const NEGATIVE_CASES = [
     'a * foo bar*', //   space after opening `*` — not left-flanking
     'a_foo bar_', //     intraword `_` emphasis is disallowed
@@ -110,10 +105,6 @@ describe('strong emphasis with CJK boundaries (#4307)', () => {
 
         for (const src of NEGATIVE_CASES) {
             it(`does not bold or italicise: ${src}`, () => {
-                // Assert NEITHER <strong> NOR <em>: because this PR widens the
-                // emphasis/strong flanking logic, a regression could surface as
-                // unexpected <em> output while still passing a <strong>-only
-                // check. Guard both tags so the negative cases stay meaningful.
                 expect(rendersStrong(src), src).toBe(false);
                 expect(rendersEm(src), src).toBe(false);
             });

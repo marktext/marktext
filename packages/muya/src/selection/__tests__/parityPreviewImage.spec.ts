@@ -4,21 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CLASS_NAMES } from '../../config';
 import { Muya } from '../../muya';
 
-// PARITY SCOREBOARD — gap PG10 (file PG09/PG14, "Space preview").
-//
-// Legacy `packages/muyajs` dispatched `preview-image` { data: src } from
-// `keyboard.js` when an image was selected and the user pressed Space; the
-// desktop renderer opened the full-screen `SimpleImageViewer`.
-//
-// `@muyajs/core` never emits `preview-image`: the image-selected keydown
-// handler (`selection/index.ts`) only acts on Backspace/Delete/Enter — Space
-// falls through to native handling (inserts a space) — and the desktop's
-// `preview-image` subscription is dead code. The Cmd/Ctrl-click preview path
-// survives via `format-click`, so only the keyboard affordance is lost.
-//
-// The engine now restores the Space-to-preview emit (selection keydown
-// handler emits `preview-image` { data: src }), so these assertions pass.
-
 const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -30,9 +15,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-    // `destroy()` detaches the engine's DOM listeners — including the
-    // `document`-level keydown/click handlers registered by selection — and
-    // removes the host node, so listeners don't leak across tests.
     while (bootedMuyas.length)
         bootedMuyas.pop()!.destroy();
     if (hadVersion)
@@ -80,7 +62,6 @@ describe('parity PG10: Space previews a selected image', () => {
             const src = 'https://example.com/pic.png';
             const { muya, img } = bootImage(src);
             selectImage(img);
-            // Sanity: the click populated the selected-image state.
             expect(muya.editor.selection.image).toBeTruthy();
 
             const handler = vi.fn();
@@ -94,8 +75,6 @@ describe('parity PG10: Space previews a selected image', () => {
                 }),
             );
 
-            // The engine emits preview-image so the host can open the
-            // full-screen viewer.
             expect(handler).toHaveBeenCalledTimes(1);
         },
     );
@@ -120,9 +99,6 @@ describe('parity PG10: Space previews a selected image', () => {
                 }),
             );
 
-            // Desired: the payload exposes the image src (legacy shape was
-            // `{ data: src }`); the exact key may differ but the src must be
-            // recoverable from the payload.
             expect(JSON.stringify(payload)).toContain(src);
         },
     );

@@ -7,17 +7,6 @@ import type TableInner from '../table';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../../../muya';
 
-// Coverage for `Table.alignColumn`. The migration audit noted the insert /
-// remove row-column paths are unit-tested (insertRowColumn.spec.ts /
-// removeRowColumn.spec.ts) but the per-column alignment API the floating
-// table toolbar drives had no direct test. `alignColumn(offset, value)`
-// toggles a column between the requested alignment and 'none', writes both
-// the cell `meta.align` (state) and the `data-align` DOM attribute, and
-// dispatches an OT op so the serialized delimiter row reflects the change.
-// These tests boot a real table and assert the resulting per-cell state,
-// dataset, and round-tripped delimiter so a regression that drops the toggle
-// or the DOM/state sync is caught.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -68,7 +57,6 @@ function flush(): Promise<void> {
     return new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 }
 
-// Collect every cell in a given column (header + body) off the live block tree.
 function cellsInColumn(table: Table, column: number): TableBodyCell[] {
     const inner = table.firstChild as TableInner;
     const cells: TableBodyCell[] = [];
@@ -78,8 +66,6 @@ function cellsInColumn(table: Table, column: number): TableBodyCell[] {
     return cells;
 }
 
-// A plain 2-column table with no explicit alignment — both columns parse as
-// align 'none'.
 const PLAIN_TABLE = '| a | b |\n| --- | --- |\n| 1 | 2 |\n';
 
 describe('table.alignColumn', () => {
@@ -95,7 +81,6 @@ describe('table.alignColumn', () => {
             expect(cell.align).toBe('center');
             expect(cell.domNode!.dataset.align).toBe('center');
         }
-        // Column 1 is untouched.
         for (const cell of cellsInColumn(table, 1))
             expect(cell.meta.align).toBe('none');
     });
@@ -131,7 +116,6 @@ describe('table.alignColumn', () => {
         await flush();
         expect(md(muya)).toContain(':---:');
 
-        // Calling again with the same value toggles back to 'none'.
         table.alignColumn(0, 'center');
         await flush();
 
@@ -139,8 +123,6 @@ describe('table.alignColumn', () => {
             expect(cell.meta.align).toBe('none');
             expect(cell.domNode!.dataset.align).toBe('none');
         }
-        // The center delimiter is gone; the default un-aligned delimiter row
-        // (only dashes, no colons) is serialized.
         expect(md(muya)).not.toContain(':---:');
         expect(md(muya)).toContain('---');
     });
@@ -157,7 +139,6 @@ describe('table.alignColumn', () => {
 
         const markdown = muya.getMarkdown();
         expect(markdown).toContain('---:');
-        // Column 0 stays unaligned, so no left/center markers appear.
         expect(markdown).not.toContain(':---:');
     });
 
@@ -180,7 +161,6 @@ describe('table.alignColumn', () => {
 
         table.alignColumn(0, 'center');
         await flush();
-        // A different value than the current one — should set it, not toggle.
         table.alignColumn(0, 'right');
         await flush();
 
@@ -196,7 +176,6 @@ describe('table.alignColumn', () => {
         table.alignColumn(5, 'center');
 
         await flush();
-        // Nothing changed: both columns stay 'none'.
         for (let col = 0; col < table.columnCount; col++) {
             for (const cell of cellsInColumn(table, col))
                 expect(cell.meta.align).toBe('none');

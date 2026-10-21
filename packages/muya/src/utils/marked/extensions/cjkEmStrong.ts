@@ -1,26 +1,7 @@
 import type { MarkedExtension, TokenizerObject, Tokens } from 'marked';
 
-// NON-STANDARD EXTENSION — a deliberate divergence from CommonMark.
-//
-// CommonMark §6.2 only counts Unicode whitespace and Unicode punctuation as
-// emphasis flanking boundaries. CJK ideographs / Hangul / Kana are Lo
-// (Letter, other) — neither whitespace nor punctuation — so under a literal
-// reading of the spec `中文**"加粗"**中文` MUST NOT open a strong run. marked@16
-// is spec-conformant here and refuses to bold it.
-//
-// But CJK scripts do not use spaces between words, so that rule denies
-// emphasis to virtually any CJK paragraph that wraps the `**` run with
-// punctuation (quotes, parentheses, brackets, …). Typora, VSCode
-// markdownlint, Joplin and most CJK-oriented Markdown tools widen the flanking
-// check so CJK counts as
-// a boundary. This extension restores that behavior for the marked-based
-// static / export render path.
-//
-// The widening is ADDITIVE: it only ever lets emphasis open/close where
-// CommonMark refused, never the reverse, so spec-conformant Latin inputs
-// parse identically (verified by the CommonMark / GFM conformance suites).
-//
-// Tracking: marktext/marktext#4307.
+// Deliberate CommonMark divergence: treat CJK as punctuation at emphasis boundaries
+// so CJK-adjacent runs such as 中文**"加粗"**中文 render bold (#4307).
 
 // CJK ranges treated as punctuation for flanking:
 //   U+3040–U+30FF  Hiragana + Katakana
@@ -33,20 +14,10 @@ const CJK = '\\u3040-\\u30FF\\u3400-\\u4DBF\\u4E00-\\u9FFF\\uF900-\\uFAFF\\uAC00
 // CJK Unified Ideographs Extension B (non-BMP, U+20000–U+2A6DF) — matched as
 // a full code point under the `u` flag inside the delimiter regexes.
 const CJK_NON_BMP = '\\u{20000}-\\u{2A6DF}';
-// A lone low surrogate can only be the trailing UTF-16 unit of a non-BMP code
-// point. marked's lexer hands `emStrong` a single-unit `prevChar` (the last
-// code unit of the preceding text token), so for an Ext-B ideograph that's a
-// lone low surrogate. Accept it in the single-unit boundary test below.
+// marked supplies one UTF-16 unit as prevChar; an Ext-B character arrives as a low surrogate.
 const LOW_SURROGATE = '\\uDC00-\\uDFFF';
 
-// Rebuild marked@16's emphasis flanking regexes (marked.cjs `emStrongLDelim`,
-// `emStrongRDelimAst`, `emStrongRDelimUnd`, `punctuation`, and the `other`
-// `unicodeAlphaNumeric` rule) with CJK folded into the punctuation class and
-// removed from the alphanumeric class. Sources mirror marked@16.4.2 verbatim
-// apart from substituting the CJK-widened character classes for `punct`,
-// `punctSpace`, `notPunctSpace`. Under the `u` flag a single character class
-// can mix BMP ranges with the non-BMP Ext-B range, so no surrogate-pair
-// alternation is needed inside these classes.
+// Rebuild marked’s flanking character classes with CJK included as punctuation.
 const PUNCT = `[\\p{P}\\p{S}${CJK}${CJK_NON_BMP}]`;
 const PUNCT_SPACE = `[\\s\\p{P}\\p{S}${CJK}${CJK_NON_BMP}]`;
 const NOT_PUNCT_SPACE = `[^\\s\\p{P}\\p{S}${CJK}${CJK_NON_BMP}]`;
@@ -70,9 +41,7 @@ const emStrongRDelimUnd = new RegExp(
     'gu',
 );
 /* eslint-enable regexp/no-useless-non-capturing-group, regexp/no-useless-lazy */
-// `punctuation` and `unicodeAlphaNumeric` are tested against the single-unit
-// `prevChar`, so they additionally fold in a lone low surrogate (the trailing
-// half of an Ext-B ideograph) — see LOW_SURROGATE above.
+// prevChar can be a lone low surrogate; include it in the punctuation classes.
 const punctuation = new RegExp(
     `^(?![*_])[\\s\\p{P}\\p{S}${CJK}${CJK_NON_BMP}${LOW_SURROGATE}]`,
     'u',
@@ -93,9 +62,6 @@ interface IEmStrongRules {
     punctuation: RegExp;
 }
 
-// `this` inside a marked TokenizerObject method is the internal `_Tokenizer`,
-// which exposes `.rules` and `.lexer`. marked doesn't export that class, so we
-// describe the slice we touch.
 interface ITokenizerThis {
     rules: {
         inline: IEmStrongRules;
@@ -104,11 +70,7 @@ interface ITokenizerThis {
     lexer: { inlineTokens: (src: string) => Tokens.Generic[] };
 }
 
-// The right-delimiter scan + CommonMark "rule of 3" balancing, lifted out of
-// `cjkAwareEmStrong` so each carries its own complexity budget. `opener` is the
-// already-matched left-delimiter run; the loop walks the masked source for the
-// matching closer and returns the em/strong token (or undefined when none
-// balances). Logic mirrors marked@16's emStrong scan exactly.
+// Scan closing delimiters with CommonMark rule-of-three balancing; opener is already matched.
 function scanEmphasisRun(
     src: string,
     maskedSrc: string,
@@ -116,7 +78,6 @@ function scanEmphasisRun(
     inline: IEmStrongRules,
     lexer: ITokenizerThis['lexer'],
 ): Tokens.Em | Tokens.Strong | undefined {
-    // Unicode codepoints can be 1 or 2 chars wide.
     const lLength = [...opener[0]].length - 1;
     let rDelim;
     let rLength;
@@ -151,7 +112,6 @@ function scanEmphasisRun(
         rLength = [...rDelim].length;
 
         if (match[3] || match[4]) {
-            // Found another opener — push the requirement deeper.
             delimTotal += rLength;
             continue;
         }
@@ -193,13 +153,7 @@ function scanEmphasisRun(
     return undefined;
 }
 
-/**
- * A faithful re-implementation of marked@16's `Tokenizer.emStrong`, swapping in
- * the CJK-widened flanking rules for the duration of the call. The rules are
- * restored in a `finally` so the shared `_Tokenizer.rules` object is never left
- * mutated for other tokenizers. The right-delimiter scan lives in
- * `scanEmphasisRun`; the behavior is unchanged from upstream marked.
- */
+// Apply the CJK flanking rules only for this call and restore shared tokenizer rules afterward.
 function cjkAwareEmStrong(
     this: ITokenizerThis,
     src: string,
@@ -250,15 +204,9 @@ function cjkAwareEmStrong(
     }
 }
 
-/**
- * marked extension that makes the emphasis/strong flanking check treat CJK
- * characters as punctuation. Register via `marked.use(cjkEmStrongExtension())`
- * on every Marked instance that renders inline emphasis.
- */
+// Register on each Marked instance that renders emphasis. Latin flanking rules remain unchanged.
 export default function cjkEmStrongExtension(): MarkedExtension {
-    // marked's TokenizerObject.emStrong has `this: _Tokenizer` (a class marked
-    // doesn't export). Our ITokenizerThis describes the slice we touch; the
-    // cast bridges to marked's public TokenizerObject type.
+    // marked’s internal Tokenizer type is not exported; bridge the structural slice to its public hook type.
     const tokenizer = {
         emStrong: cjkAwareEmStrong as unknown,
     } as TokenizerObject;

@@ -14,15 +14,7 @@ export interface IRenderToStaticHTMLOptions {
     inlineDiff?: boolean;
     multilineBlockquote?: boolean;
     githubAlerts?: boolean;
-    /**
-     * Skip DOMPurify sanitization. **Unsafe with untrusted input** — drops
-     * the XSS guarantees of the default export path. Only intended for
-     * CommonMark / GFM spec compliance runners, which need to compare
-     * against the parser's raw output (the spec includes "raw HTML
-     * allowance" examples that DOMPurify would otherwise rewrite).
-     *
-     * @default true
-     */
+    // Disabling sanitization permits untrusted HTML; intended only for spec conformance runners.
     sanitize?: boolean;
 }
 
@@ -68,11 +60,7 @@ export function renderToStaticHTML(
         githubAlerts: options.githubAlerts ?? false,
     });
 
-    // Post-process footnotes into the standard GFM / pandoc shape (inline
-    // numbered <sup> + bottom <section class="footnotes"> with backrefs).
-    // Must run before DOMPurify so the `data-identifier` marker emitted by
-    // the marked footnote extension is still readable; the default config
-    // strips `data-*` attributes.
+    // Transform footnotes before DOMPurify strips their data-identifier markers.
     if (footnote)
         html = transformFootnotes(html);
 

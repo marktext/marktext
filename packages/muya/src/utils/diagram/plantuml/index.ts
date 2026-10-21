@@ -6,9 +6,6 @@ export default class Diagram {
     public encodedInput = '';
     public plantumlServer = PLANTUML_DEFAULT_URL;
 
-    /**
-     * Builds a Diagram object storing the encoded input value
-     */
     static parse(input: string, plantumlServer?: string) {
         const diagram = new Diagram();
         diagram._encode(input);
@@ -18,14 +15,6 @@ export default class Diagram {
         return diagram;
     }
 
-    /**
-     * Encodes a diagram following PlantUML specs, I used `plantuml-encoder` at last.
-     *
-     * From https://plantuml.com/text-encoding
-     * 1. Encoded in UTF-8
-     * 2. Compressed using Deflate or Brotli algorithm
-     * 3. Re-encoded in ASCII using a transformation close to base64
-     */
     private _encode(value: string) {
         this.encodedInput = plantumlEncoder.encode(value);
     }

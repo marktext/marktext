@@ -76,27 +76,14 @@ class TreeNode implements ILinkedNode {
 
     constructor(public muya: Muya) {}
 
-    /**
-     * check this is a Content block?
-     * @param this
-     * @returns boolean
-     */
     isContent(this: TreeNode): this is Content {
         return 'text' in this;
     }
 
-    /**
-     * check this is a Parent block?
-     * @param this
-     * @returns boolean
-     */
     isParent(this: TreeNode): this is Parent {
         return 'children' in this;
     }
 
-    /**
-     * create domNode
-     */
     createDomNode() {
         const { tagName, classList, attributes, datasets } = this;
 
@@ -184,31 +171,18 @@ class TreeNode implements ILinkedNode {
         return parent.nextContentInContext();
     }
 
-    /**
-     * Weather `this` is the only child of its parent.
-     */
     isOnlyChild() {
         return this.isFirstChild() && this.isLastChild();
     }
 
-    /**
-     * Weather `this` is the first child of its parent.
-     */
     isFirstChild() {
         return this.prev === null;
     }
 
-    /**
-     * Weather `this` is the last child of its parent.
-     */
     isLastChild() {
         return this.next === null;
     }
 
-    /**
-     * Weather `this` is descendant of `block`
-     * @param {*} block
-     */
     isInBlock(block: Parent) {
         let parent = this.parent;
         while (parent) {
@@ -221,10 +195,6 @@ class TreeNode implements ILinkedNode {
         return false;
     }
 
-    /**
-     * Find the closest block which blockName is `blockName`. return `null` if not found.
-     * @param {string} blockName
-     */
     closestBlock(blockName: string): Nullable<TreeNode> {
         if (this.blockName === blockName)
             return this;
@@ -275,9 +245,6 @@ class TreeNode implements ILinkedNode {
         parent.insertBefore(this as unknown as Parent, refBlock);
     }
 
-    /**
-     * Remove the current block in the block tree.
-     */
     remove(_source: ChangeSource = ChangeSource.User) {
         if (!this.muya.canMutate)
             return;

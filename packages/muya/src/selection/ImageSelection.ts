@@ -118,12 +118,7 @@ class ImageSelection {
         }
 
         if (isHTMLElement(target) && target.tagName === 'IMG') {
-            // A linked image (e.g. `[![alt](src)](href)`) renders its image
-            // wrapper inside a link element. On modifier-click the link handler
-            // (linkMouseEvents) opens the URL; don't also emit the image preview,
-            // which would pop a viewer over the navigation (#3835). Reuse
-            // linkMouseEvents' selector so every link variant is covered (plain,
-            // reference, autolink, raw-HTML anchor), not just `mu-link`.
+            // Modifier-clicking a linked image opens its link; suppress the competing preview (#3835).
             if (
                 event instanceof MouseEvent
                 && (event.metaKey || event.ctrlKey)
@@ -140,20 +135,11 @@ class ImageSelection {
                 }
             }
 
-            // Identify the clicked image by its position among the paragraph's
-            // images, which survives the re-render below — the node does not,
-            // and ids are not unique (images sharing a src and paragraph offset
-            // render with the same id, so a `#id` lookup finds the first one).
+            // Image nodes are replaced on blur and IDs may repeat; preserve the image index instead.
             const imageIndex = this._imageWrappers(contentDom).indexOf(imageWrapper);
 
-            // Selecting the image blurs the paragraph, and `Format.blurHandler`
-            // re-renders it whenever the caret sat on a token's markers — which
-            // a caret on the image's own line always does. The re-render
-            // reassigns the paragraph's `innerHTML`, detaching `imageWrapper`,
-            // and the markers it hides can shift the image sideways. So select
-            // first and take both references off the live DOM afterwards: from
-            // the detached node the resize bar reads a zero rect and draws its
-            // handles in the window's corner, and the toolbar a stale one (#5391).
+            // Selection blurs and re-renders the paragraph. Reacquire the live image afterward
+            // to avoid stale toolbar bounds and zero-sized resize handles (#5391).
             this._selection.selectImage(Object.assign({}, imageInfo, { block: contentBlock }));
 
             const liveWrapper = this._imageWrappers(contentDom)[imageIndex] ?? imageWrapper;

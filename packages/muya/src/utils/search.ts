@@ -15,7 +15,6 @@ function isLowSurrogate(code: number) {
     return code >= 0xDC00 && code <= 0xDFFF;
 }
 
-// Whether `index` falls between the two halves of a surrogate pair.
 function splitsSurrogatePair(text: string, index: number) {
     return isHighSurrogate(text.charCodeAt(index - 1)) && isLowSurrogate(text.charCodeAt(index));
 }
@@ -28,9 +27,8 @@ function execAll(regexp: RegExp, text: string): IStringMatch[] {
     while ((result = regexp.exec(text)) !== null) {
         const [match, ...subMatches] = result;
         const { index } = result;
-        // A zero-width match (`\b`, a lookahead) leaves `lastIndex` in place, so
-        // `exec` would return it forever and freeze the editor. A Unicode-mode
-        // RegExp resumes from the start of a pair, so step over the whole pair.
+        // Zero-width matches do not advance RegExp.lastIndex. Step over the full surrogate pair
+        // to avoid repeated matches and editor freezes.
         if (match === '')
             regexp.lastIndex = index + (regexp.unicode && splitsSurrogatePair(text, index + 1) ? 2 : 1);
 
@@ -52,13 +50,7 @@ function mayHaveMultiUnitClusters(text: string) {
     return false;
 }
 
-// A grapheme cluster — an emoji ZWJ sequence, a letter with combining marks — is
-// one character on screen and is replaced as a unit. Replacing part of one would
-// also break it, or leave a lone surrogate the text OT type cannot encode
-// (#4926). So a literal query covering only part of a cluster did not find that
-// character and is dropped, while a regexp match reaching into one (`.`,
-// `[^a-z]`) takes the whole cluster. A zero-width match inside a cluster is
-// dropped: inserting there would split it.
+// Align replacements to visible grapheme clusters; partial replacements can leave unencodable surrogates.
 function alignToGraphemeClusters(text: string, matches: IStringMatch[], expand: boolean): IStringMatch[] {
     if (!matches.length || !mayHaveMultiUnitClusters(text))
         return matches;
@@ -109,7 +101,6 @@ function createSearchRegExp(source: string, flags: string, isRegexp: boolean): R
             return new RegExp(source, candidate);
         }
         catch {
-            // Not a valid pattern with these flags; try the next set.
         }
     }
 
@@ -141,10 +132,8 @@ export function matchString(text: string, value: string, options: ISearchOption)
     return regexp ? alignToGraphemeClusters(text, execAll(regexp, text), !!isRegexp) : [];
 }
 
-// `$nn` is read as in VS Code's find widget: group nn when the pattern has one,
-// otherwise group n followed by a literal digit. A replacer function, not a
-// replacement string: the latter would read `$$` and `$&` inside the captured
-// text as patterns instead of inserting them.
+// Resolve $nn as group nn, or group n plus a literal digit when nn does not exist.
+// Use a callback so captured $$ and $& remain literal text.
 export function buildRegexValue(match: IMatch, value: string) {
     const groups = [match.match, ...match.subMatches];
 

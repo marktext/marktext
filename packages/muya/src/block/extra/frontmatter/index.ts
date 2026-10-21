@@ -1,19 +1,14 @@
 import type { Muya } from '../../../muya';
 import type { IFrontmatterMeta, IFrontmatterState } from '../../../state/types';
-// import { operateClassName } from '../../../utils/dom'
 import type { TBlockPath } from '../../types';
 import logger from '../../../utils/logger';
-// import { diffToTextOp } from '../../../utils'
 import { loadLanguage } from '../../../utils/prism';
-// import diff from 'fast-diff'
 import Parent from '../../base/parent';
 import { ScrollPage } from '../../scrollPage';
 
 const debug = logger('frontmatter:');
 
-// The before/after focus markers mirror the delimiters `stateToMarkdown`
-// serializes for each front-matter type, so they reflect the real fences:
-// yaml `---`, toml `+++`, json `;;;`, or the json-braces variant (`{` / `}`).
+// Focus delimiters must match the frontmatter fences emitted by stateToMarkdown.
 function delimiters(meta: IFrontmatterMeta): [string, string] {
     switch (meta.lang) {
         case 'toml':
@@ -61,8 +56,6 @@ class Frontmatter extends Parent {
             .then((infoList) => {
                 if (!Array.isArray(infoList))
                     return;
-                // There are three status `loaded`, `noexist` and `cached`.
-                // if the status is `loaded`, indicated that it's a new loaded language
                 const needRender = infoList.some(
                     ({ status }) => status === 'loaded' || status === 'cached',
                 );
@@ -70,7 +63,6 @@ class Frontmatter extends Parent {
                     this.lastContentInDescendant()?.update();
             })
             .catch((err) => {
-                // if no parameter provided, will cause error.
                 debug.warn(err);
             });
     }
@@ -102,7 +94,6 @@ class Frontmatter extends Parent {
                 return this;
             }
             else if (path[0] === 'lang') {
-                // TODO is there right?
                 return this.firstContentInDescendant();
             }
             else {

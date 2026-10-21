@@ -96,7 +96,6 @@ describe('image click with the caret on the image\'s line (#5391)', () => {
         expect(handler).toHaveBeenCalledTimes(1);
         const reference = handler.mock.calls[0]![0] as HTMLElement;
         expect(muya.domNode.contains(reference)).toBe(true);
-        // Second of the three, whether or not the re-render replaced the nodes.
         const live = Array.from(
             muya.domNode.querySelectorAll<HTMLElement>(`.${CLASS_NAMES.MU_IMAGE_CONTAINER}`),
         );

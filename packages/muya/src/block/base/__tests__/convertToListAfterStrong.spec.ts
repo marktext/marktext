@@ -49,7 +49,6 @@ interface ILiveBlock {
     children?: { forEach: (cb: (b: ILiveBlock) => void) => void };
 }
 
-// Collect the top-level blocks of the live block tree after conversion.
 function convert(text: string): ILiveBlock[] {
     const muya = bootMuya('seed\n');
     const content = muya.editor.scrollPage!.firstContentInDescendant() as Format;
@@ -63,16 +62,12 @@ function convert(text: string): ILiveBlock[] {
 
 describe('_convertToList after bold text + soft-line-break (#2429)', () => {
     it('uses the `-` on the new line as the marker, not the `*` inside `**`', () => {
-        // `**foo:**` + two spaces + soft-line-break + `- `
         const blocks = convert('**foo:**  \n- ');
 
         const list = blocks.find(b => b.blockName === 'bullet-list');
         expect(list).toBeDefined();
-        // marker is the dash typed on the new line, not a `*` from the bold run.
         expect(list!.meta!.marker).toBe('-');
 
-        // the bold text is preserved intact as a leading paragraph, not corrupted
-        // into `**foo:*`.
         const para = blocks.find(b => b.blockName === 'paragraph');
         expect(para).toBeDefined();
         expect(para!.firstContentInDescendant().text).toBe('**foo:**');
@@ -81,7 +76,6 @@ describe('_convertToList after bold text + soft-line-break (#2429)', () => {
     it('still converts a plain single-line `- ` to a bullet list', () => {
         const blocks = convert('- ');
         expect(blocks.some(b => b.blockName === 'bullet-list')).toBe(true);
-        // no spurious leading paragraph
         expect(blocks.some(b => b.blockName === 'paragraph')).toBe(false);
     });
 });

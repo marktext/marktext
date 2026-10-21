@@ -4,15 +4,6 @@ import type Content from '../../block/base/content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../muya';
 
-// Characterization coverage for the list-marker / ordered-delimiter Muya
-// options as they thread through `replaceBlockByLabel` (the path
-// `updateParagraph` drives) into the serialized markdown. The marker the
-// list is created with lives in the list block's `meta` and is emitted
-// verbatim by stateToMarkdown, so booting Muya with `bulletListMarker` /
-// `orderListDelimiter` and creating a list through `updateParagraph` lets us
-// pin the produced markdown. State flushes on rAF, so assertions wait via
-// vi.waitFor.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;

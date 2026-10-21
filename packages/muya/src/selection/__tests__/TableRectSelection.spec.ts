@@ -73,7 +73,6 @@ function fireMouse(node: HTMLElement, type: string): void {
     node.dispatchEvent(event);
 }
 
-// Drag-select the rectangle whose corners are (r1,c1) and (r2,c2).
 function dragSelect(table: Table, r1: number, c1: number, r2: number, c2: number): void {
     fireMouse(cellDom(table, r1, c1), 'mousedown');
     fireMouse(cellDom(table, r2, c2), 'mousemove');
@@ -84,7 +83,6 @@ function selectedCount(table: Table): number {
     return table.domNode!.querySelectorAll('.mu-table-cell-selected').length;
 }
 
-// Synthesise a clipboard event whose `setData` we can inspect.
 function dispatchCopy(muya: Muya, type: 'copy' | 'cut') {
     const store = new Map<string, string>();
     const clipboardData = {
@@ -146,7 +144,6 @@ describe('cross-cell table selection — highlight', () => {
         expect(selectedCount(table)).toBeGreaterThan(0);
         fireMouse(muya.domNode, 'mousemove'); // pointer leaves the table
         fireMouse(muya.domNode, 'mouseup'); // released outside
-        // Nothing frozen, no leftover highlight, no 1x1 anchor selection.
         expect(selectedCount(table)).toBe(0);
         expect(muya.editor.selection.table.hasSelection).toBe(false);
     });
@@ -167,7 +164,6 @@ describe('cross-cell table selection — copy', () => {
         expect(text).toContain('b2');
         expect(text).not.toContain('c1'); // the un-selected column is excluded
         expect(text).not.toContain('a3'); // the un-selected row is excluded
-        // It is a real GFM table (header separator present).
         expect(text).toMatch(/\|\s*-+/);
     });
 
@@ -197,7 +193,6 @@ describe('cross-cell table selection — cut', () => {
 
         await vi.waitFor(() => {
             const md = muya.getMarkdown();
-            // The selected cells (a1/b1/a2/b2) are cleared; the others survive.
             expect(md).not.toMatch(/\ba1\b/);
             expect(md).not.toMatch(/\bb2\b/);
             expect(md).toContain('c1');

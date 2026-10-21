@@ -13,15 +13,8 @@ import { sanitizeExportHtml } from '../utils/sanitizeExportHtml';
 import { generateGithubSlug } from '../utils/slug';
 import { transformFootnotes } from './transformFootnotes';
 
-// The core stylesheets (github-markdown-css, katex, prism) are inlined into the
-// exported document so the output is fully self-contained and renders offline /
-// behind CSP / air-gapped — see `generate`. Linking them from a CDN left a
-// saved `.html` file unstyled with no network access, a regression for an
-// offline desktop editor. Callers that explicitly want the lighter CDN-linked
-// shell can opt in via `generate({ inlineStyles: false })`.
+// Inline core styles so exported documents render offline.
 
-// CDN `<link>` tags used when `inlineStyles` is disabled. Kept verbatim from
-// the previous default so the opt-out path is byte-identical to the old output.
 const CDN_STYLESHEET_LINKS = `  <!-- https://cdnjs.com/libraries/github-markdown-css -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.css" integrity="sha512-n5zPz6LZB0QV1eraRj4OOxRbsV7a12eAGfFcrJ4bBFxxAwwYDp542z5M0w24tKPEhKk2QzjjIpR5hpOjJtGGoA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- https://katex.org/docs/browser -->
@@ -29,10 +22,7 @@ const CDN_STYLESHEET_LINKS = `  <!-- https://cdnjs.com/libraries/github-markdown
   <!-- https://cdnjs.com/libraries/prism -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism.min.css" integrity="sha512-/mZ1FHPkg6EKcxo0fKXF51ak6Cr2ocgDi5ytaTBjsQZIH/RNs6GF6+oId/vPe3eJB836T36nXwVh/WBl/cWT4w==" crossorigin="anonymous" referrerpolicy="no-referrer" />`;
 
-// Appended after `exportStyle` when `softNewlineAsSpace` is on. Same selector as
-// the soft-break rule in exportStyle.css, but placed later so it wins and resets
-// `white-space` to `normal`, collapsing a bare `\n` in a paragraph or tight list
-// item to a space (CommonMark's soft-break behaviour) instead of a line break.
+// Place after exportStyle to override paragraph and tight-list soft-break whitespace.
 const SOFT_NEWLINE_AS_SPACE_OVERRIDE = `
 .markdown-body p,
 .markdown-body li:not(:has(> p)) {
@@ -67,16 +57,13 @@ export class MarkdownToHtml {
             return;
 
         const mermaid = await loadRenderer('mermaid');
-        // We only export light theme, so set mermaid theme to `default`, in the future, we can choose which theme to export.
+        // Export uses the light theme.
         mermaid.initialize({
             startOnLoad: false,
             securityLevel: 'strict',
             theme: 'default',
         });
-        // Render each diagram in isolation: `mermaid.run` rejects the whole
-        // batch on the first parse error, so one invalid diagram used to abort
-        // the entire export (#4812). Contain the failure to that diagram and
-        // fall back to the same placeholder the other diagram renderers use.
+        // Isolate renders so one invalid Mermaid diagram cannot abort the entire export (#4812).
         for (const node of nodes) {
             try {
                 await mermaid.run({ nodes: [node] });
@@ -159,13 +146,7 @@ export class MarkdownToHtml {
         }
     }
 
-    // Assign a github-compatible slug `id` to every `<h1>..<h6>` in the
-    // export container. Headings that already carry an explicit id (none today,
-    // but defensive) are left as-is and reserve that id. Duplicates are
-    // deduplicated by incrementing a `-N` suffix until the *full* candidate id
-    // is unused — so a later heading whose text already looks like an earlier
-    // `-N` slug (e.g. `heading`, `heading`, `heading-1`) still resolves to a
-    // unique anchor, matching github.
+    // Generate unique GitHub-style heading IDs without replacing or colliding with explicit IDs.
     private _injectHeadingIds(container: HTMLElement) {
         const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
         const seen = new Set<string>();
@@ -192,7 +173,6 @@ export class MarkdownToHtml {
         }
     }
 
-    // render pure html by marked
     async renderHtml() {
         const options: Partial<IMuyaOptions> = this._muya?.options ?? {};
         const footnote = options.footnote ?? false;
@@ -209,10 +189,7 @@ export class MarkdownToHtml {
             githubAlerts: options.githubAlerts ?? false,
         });
 
-        // Post-process footnotes into the standard GFM / pandoc shape (inline
-        // numbered <sup> refs + bottom <section class="footnotes"> with
-        // backrefs). Must run before DOMPurify strips the `data-identifier`
-        // marker the marked footnote extension emits.
+        // Transform footnotes before DOMPurify strips their data-identifier markers.
         if (footnote)
             html = transformFootnotes(html);
 
@@ -226,14 +203,10 @@ export class MarkdownToHtml {
 
         let result: string;
         try {
-            // render only render the light theme of mermaid and diagram...
             await this._renderMermaid();
             await this._renderDiagram();
 
-            // Inject github-compatible slug ids onto exported headings so the
-            // exported document's [TOC] / `getHtmlToc` `href="#slug"` anchors
-            // resolve. Scoped to this export DOM path — the conformance
-            // renderer (`renderToStaticHTML`) is deliberately left untouched.
+            // Exported TOC links require matching heading IDs; spec conformance rendering omits this pass.
             this._injectHeadingIds(exportContainer);
 
             result = exportContainer.innerHTML;
@@ -243,8 +216,7 @@ export class MarkdownToHtml {
             this._exportContainer = null;
         }
 
-        // hack to add arrow marker to output html
-        // TODO: JOCS, are these codes still needed?
+        // Include Raphael arrow markers in exported diagrams.
         const paths = document.querySelectorAll('path[id^=raphael-marker-]');
         const def = '<defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">';
         result = result.replace(def, () => {
@@ -281,12 +253,8 @@ export class MarkdownToHtml {
         const html = await this.renderHtml();
         const { embedExportFonts } = await import('../utils/embedExportFonts');
 
-        // `extraCSS` may changed in the mean time.
         const { title = '', extraCSS = '', inlineStyles = true, dir } = options;
 
-        // The full export stylesheet always ships; when softNewlineAsSpace is on
-        // a single later override collapses paragraph / tight-list soft breaks to
-        // spaces without disturbing any other export rule.
         const exportStyleFinal = this._muya?.options.softNewlineAsSpace
             ? exportStyle + SOFT_NEWLINE_AS_SPACE_OVERRIDE
             : exportStyle;
@@ -297,9 +265,7 @@ export class MarkdownToHtml {
             ? `.markdown-body{--mu-code-font-family:${codeFontFamily};}`
             : '';
 
-        // Mirror the editor's text direction onto the exported document so RTL
-        // documents export right-to-left (#4553). LTR is the HTML default, so it
-        // stays implicit to keep existing exports byte-identical.
+        // Preserve RTL direction in exports; leave default LTR implicit (#4553).
         const dirAttr = dir === 'rtl' || dir === 'auto' ? ` dir="${dir}"` : '';
 
         let baseStyles: string;

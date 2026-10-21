@@ -60,7 +60,6 @@ function makeKeyEvent() {
 
 describe('codeBlockContent.tabHandler — 04834032 Emmet expansion preserves postText', () => {
     it('expands selector and keeps the text after the cursor intact', () => {
-        // Cursor sits right after `div` but more text follows.
         const cell = makeFakeCodeContent({
             text: 'div post-text',
             lang: 'html',
@@ -72,8 +71,6 @@ describe('codeBlockContent.tabHandler — 04834032 Emmet expansion preserves pos
             makeKeyEvent(),
         );
 
-        // Pre-fix bug: line became `<div></div>` and ` post-text` was lost.
-        // Post-fix expectation: trailing content survives.
         expect(cell.text).toBe('<div></div> post-text');
         expect(cell.text.includes('post-text')).toBe(true);
     });
@@ -90,8 +87,6 @@ describe('codeBlockContent.tabHandler — 04834032 Emmet expansion preserves pos
             makeKeyEvent(),
         );
 
-        // The id="main" / class="box" expansion must remain anchored;
-        // the trailing word must survive.
         expect(cell.text).toMatch(/^<div id="main" class="box"><\/div>/);
         expect(cell.text.endsWith(' trailing')).toBe(true);
     });

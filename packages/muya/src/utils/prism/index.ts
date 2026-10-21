@@ -7,12 +7,7 @@ const prism = Prism;
 window.Prism = Prism;
 import('prismjs/plugins/keep-markup/prism-keep-markup');
 
-// prismjs ships C++ without a `c++`/`h++` alias, so fenced blocks tagged
-// ```c++ never resolve to the cpp grammar and stay unhighlighted (#2910).
-// Add each alias only once — `components.languages` is a shared singleton and
-// this module may be evaluated more than once (tests, HMR); pushing duplicates
-// makes prism's dependency loader throw "c++ cannot be alias for both cpp and
-// cpp".
+// Prism omits c++/h++ aliases; register them once on the shared language table (#2910).
 if (languages.cpp) {
     const existing = languages.cpp.alias;
     const alias = Array.isArray(existing) ? [...existing] : existing ? [existing] : [];
@@ -66,18 +61,13 @@ function search(text: string) {
     return fuse.search(text).map(i => i.item).slice(0, 5);
 }
 
-// In LaTeX `\%` is an escaped literal percent, not a line comment, but
-// prismjs's default latex `comment` token (`/%.*/`) swallows everything after
-// it. Require the `%` to not follow a backslash so `\%` highlights as a normal
-// control sequence (#3037). tex/context alias the same grammar object, so this
-// one override covers all three.
+// Prism’s LaTeX comment rule must not swallow an escaped percent sign.
 export function patchLatexEscapedPercent(prismInstance: typeof Prism) {
     const latex = prismInstance.languages.latex as { comment?: unknown } | undefined;
     if (latex?.comment)
         latex.comment = { pattern: /(^|[^\\])%.*/, lookbehind: true };
 }
 
-// pre load latex and yaml and html for `math block` \ `front matter` and `html block`
 loadLanguage('latex').then(() => patchLatexEscapedPercent(prism));
 loadLanguage('yaml');
 

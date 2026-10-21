@@ -17,15 +17,7 @@ interface IOptions {
 interface IOperation {
     operation: JSONOpList;
     selection: Nullable<IHistorySelection>;
-    // A `rebuild` entry is applied on undo/redo by dispatching its op to the
-    // authoritative json state and rebuilding the live block tree wholesale
-    // (ScrollPage.updateState) — NOT through `Editor.updateContents`'
-    // incremental pick/drop DOM walker. The walker only handles a few op shapes
-    // (single block insert at an index, text edit, checked/meta) and desyncs the
-    // DOM from the json state for whole-document ops, so bulk replacements
-    // (e.g. exiting source-code mode) are recorded as rebuild entries. The op
-    // itself is a normal, fully-invertible ot-json1 op, so compose / transform /
-    // invert continue to work unchanged.
+    // Whole-document operations require a full tree rebuild; the incremental walker cannot apply them safely.
     rebuild?: boolean;
 }
 
@@ -34,11 +26,7 @@ interface IStack {
     redo: IOperation[];
 }
 
-// A JSON-serializable view of an ISelection. The live endpoint `block`
-// references are dropped — they are an in-memory optimization only.
-// `Selection._setCursor` re-resolves the target block from each endpoint's
-// `path` via `scrollPage.queryBlock(path)` when no block instance is present,
-// so a path-only selection restores the caret losslessly.
+// Persist paths and offsets; live block references cannot survive serialization.
 type ISerializableAnchorFocusInfo = Pick<IAnchorFocusInfo, 'offset' | 'path'>;
 
 interface ISerializableSelection {
@@ -56,9 +44,6 @@ interface ISerializableOperation {
     rebuild?: boolean;
 }
 
-// The public, JSON-serializable shape returned by `getHistory` and accepted by
-// `setHistory`. Mirrors the private `_stack` plus the bookkeeping pointers
-// (`lastRecorded`, `selectionStack`) needed to round-trip the recording state.
 export interface ISerializedHistory {
     stack: {
         undo: ISerializableOperation[];
@@ -81,10 +66,6 @@ const DEFAULT_OPTIONS = {
 
 export type TInputKind = 'insert' | 'delete';
 
-// Undo grouping is otherwise purely time-based (`delay`), so a fast typed
-// sentence coalesces into a single entry. These helpers let the input pipeline
-// hint a boundary: a switch between inserting and deleting, or typing a
-// whitespace (word boundary), starts a fresh undo entry.
 export function classifyInputKind(inputType: string): Nullable<TInputKind> {
     if (inputType.startsWith('insert'))
         return 'insert';
@@ -93,6 +74,7 @@ export function classifyInputKind(inputType: string): Nullable<TInputKind> {
     return null;
 }
 
+// Word boundaries and insert/delete switches split groups even within the time delay.
 export function shouldBreakUndoGroup(
     prevKind: Nullable<TInputKind>,
     kind: Nullable<TInputKind>,
@@ -139,10 +121,7 @@ class History {
                 if (this._ignoreChange)
                     return;
 
-                // The identity op (`null`) carries no change to record or
-                // transform. It can still reach here through `json-change` when
-                // queued ops compose away (e.g. IME edits, #4806); `_record`
-                // would otherwise crash reading `op.length`.
+                // IME edits can compose to the identity operation, leaving nothing to record (#4806).
                 if (op == null)
                     return;
 
@@ -232,7 +211,6 @@ class History {
         };
     }
 
-    // Strip the live block references and keep only plain paths + offsets.
     private _toSerializableSelection(
         selection: Nullable<IHistorySelection>,
     ): Nullable<ISerializableSelection> {
@@ -249,14 +227,7 @@ class History {
         };
     }
 
-    // Rebuild a selection without live block references. The block instances
-    // are intentionally omitted: the only consumers of a restored selection
-    // are `editor.updateContents` and `selection._setCursor`, both of which
-    // re-resolve the target block from each endpoint's `path` via
-    // `scrollPage.queryBlock` when no block instance is present. The return
-    // type is `IHistorySelection`, whose endpoint `block` references are
-    // optional, so the missing block fields are part of the contract rather
-    // than an unsound cast over fabricated `ContentBlock` instances.
+    // Restored selections omit live blocks; editor selection restoration resolves their paths.
     private _fromSerializableSelection(
         selection: Nullable<ISerializableSelection>,
     ): Nullable<IHistorySelection> {
@@ -329,17 +300,8 @@ class History {
             this._stack.undo.shift();
     }
 
-    /**
-     * Record a whole-document replacement (e.g. exiting source-code mode) as a
-     * single, standalone undo boundary that is applied via a full block-tree
-     * rebuild rather than the incremental DOM walker.
-     *
-     * The forward op (`prevDoc` -> current state) is dispatched to the json
-     * state by the caller; here we only record its lossless inverse so the first
-     * undo reverts the entire bulk change in one step. The entry never coalesces
-     * with neighbouring edits: `_lastRecorded` is reset so the next ordinary
-     * edit also starts its own boundary, and the redo stack is cleared.
-     */
+    // Record a whole-document replacement as a standalone undo step and clear redo.
+    // The caller must apply the forward operation separately; later edits start a new group.
     recordRebuild(op: JSONOpList, prevDoc: TState[], selection: Nullable<IHistorySelection>) {
         if (op.length === 0)
             return;
@@ -351,19 +313,13 @@ class History {
 
         this._stack.redo = [];
         this._stack.undo.push({ operation: undoOperation, selection, rebuild: true });
-        // Force the next ordinary edit into its own undo entry — the bulk
-        // replacement must not absorb a later keystroke (or vice versa).
         this._lastRecorded = 0;
 
         if (this._stack.undo.length > this._options.maxStack)
             this._stack.undo.shift();
     }
 
-    /**
-     * Run `fn` (which dispatches a json-change) WITHOUT recording it on the undo
-     * stack. The caller has already recorded the corresponding boundary itself
-     * (see `recordRebuild`), so the forward apply must not be double-recorded.
-     */
+    // Apply an already-recorded change without adding a duplicate undo entry.
     suppressRecording(fn: () => void) {
         const previous = this._ignoreChange;
         this._ignoreChange = true;
@@ -406,7 +362,6 @@ function transformStack(stack: IOperation[], operation: JSONOpList) {
 
     for (let i = stack.length - 1; i >= 0; i -= 1) {
         const { operation: oldOperation } = stack[i];
-        // TODO: need test.
         stack[i] = Object.assign(stack[i], {
             operation: json1.type.transform(oldOperation, remoteOperation, 'left'),
         });

@@ -71,10 +71,6 @@ describe('getCopyTextType — pre-existing classifier behaviour stays put', () =
     });
 });
 
-// Ported from the legacy `@muyajs` `clipboardFilePath` paste hook: on paste,
-// the embedder may resolve the OS clipboard to a local file path. Only a
-// non-empty, image-extension path should short-circuit the normal text/HTML
-// paste and be inserted as an inline image.
 describe('resolveClipboardImagePath', () => {
     it('returns "" when no hook is provided', async () => {
         expect(await resolveClipboardImagePath(undefined)).toBe('');

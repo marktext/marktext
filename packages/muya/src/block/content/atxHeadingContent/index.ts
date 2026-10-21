@@ -91,12 +91,7 @@ class AtxHeadingContent extends Format {
         }
 
         if (start.offset === end.offset && start.offset <= level + 1) {
-            // Without preventDefault the browser still runs its native
-            // Enter behavior on the contenteditable after we insert the
-            // new paragraph, which can split or clone the heading's
-            // `mu-content` span. Orphaned spans lack BLOCK_DOM_PROPERTY,
-            // so a later click crashes Selection.getSelection at
-            // `anchorBlock.path`.
+            // Prevent native Enter from creating orphan spans after the new paragraph is inserted.
             event.preventDefault();
             event.stopPropagation();
 

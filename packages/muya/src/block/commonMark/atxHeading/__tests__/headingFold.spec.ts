@@ -42,8 +42,6 @@ describe('heading fold affordance', () => {
             new MouseEvent('click', { bubbles: true, cancelable: true }),
         );
 
-        // The two paragraphs under "# One" are hidden; the "# Two" heading and
-        // its paragraph are not.
         const folded = muya.domNode.querySelectorAll(FOLDED_CONTENT_SELECTOR);
         expect(folded.length).toBe(2);
         expect(firstToggle.getAttribute('aria-expanded')).toBe('false');
@@ -67,7 +65,6 @@ describe('heading fold affordance', () => {
 
         firstToggle.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 
-        // alpha, the "## Sub" heading, and beta are all hidden (3 blocks).
         expect(muya.domNode.querySelectorAll(FOLDED_CONTENT_SELECTOR).length).toBe(3);
     });
 
@@ -79,7 +76,6 @@ describe('heading fold affordance', () => {
         const toggles = muya.domNode.querySelectorAll<HTMLElement>(FOLD_TOGGLE_SELECTOR);
         const [toggleA, toggleB] = Array.from(toggles);
 
-        // The two paragraphs "beta1"/"beta2" belong to B's section.
         const bParagraphs = () =>
             Array.from(muya.domNode.querySelectorAll('p'))
                 .filter(p => /beta/.test(p.textContent ?? ''));
@@ -93,7 +89,6 @@ describe('heading fold affordance', () => {
         click(toggleA); // fold ancestor # A (hides B and its content too)
         click(toggleA); // unfold ancestor # A
 
-        // B is still folded, so its paragraphs must remain hidden.
         expect(bParagraphs().every(p => p.classList.contains('mu-folded-content'))).toBe(true);
     });
 });

@@ -126,10 +126,6 @@ export class Search {
         return this;
     }
 
-    /**
-     * Find preview or next value, and highlight it.
-     * @param {string} action : previous or next.
-     */
     find(action: 'previous' | 'next'): this {
         const { matches } = this;
         let { index } = this;
@@ -146,8 +142,6 @@ export class Search {
         if (index >= len)
             index = 0;
 
-        // Moving the active match only changes the blocks holding the old and
-        // the new one.
         const changed = new Set<Content>([matches[index].block]);
         const prev = matches[this.index];
         if (prev)
@@ -161,11 +155,6 @@ export class Search {
         return this;
     }
 
-    /**
-     * Search value in current document.
-     * @param {string} query
-     * @param {object} opts
-     */
     search(query: string, opts: ISearchOption = {}) {
         const matches: IMatch[] = [];
         this._options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, opts);
@@ -173,18 +162,14 @@ export class Search {
         const { highlightIndex, selectHighlight } = this._options;
         let index = -1;
 
-        // The currently active match, captured before it is cleared below, so a
-        // `selectHighlight` request can drop the cursor back onto it when the
-        // new search has no match of its own (e.g. closing the search bar).
+        // Closing the search bar restores the caret to the previous active match.
         const prevActiveMatch = this.matches[this.index];
 
         if (query && this._scrollPage)
             unfoldAllSections(this._scrollPage);
 
-        // Empty last search.
         this._updateMatches(true);
 
-        // Highlight current search.
         if (query) {
             this._scrollPage?.depthFirstTraverse((block: TreeNode) => {
                 if (block.isContent()) {
@@ -208,11 +193,9 @@ export class Search {
         }
 
         if (typeof highlightIndex === 'number' && highlightIndex !== -1) {
-            // If set the highlight index, then highlight the highlighIndex
             index = Math.min(highlightIndex, matches.length - 1);
         }
         else if (matches.length) {
-            // highlight the first word that matches.
             index = 0;
         }
 

@@ -12,9 +12,6 @@ import Parent from '../../../base/parent';
 import { registerBlocks } from '../../../index';
 import { ScrollPage } from '../../../scrollPage';
 
-// Register the block tree once for the suite. registerBlocks() is idempotent:
-// `ScrollPage.registeredBlocks` is a Map keyed by stable `blockName` strings,
-// so subsequent imports of this file or its sibling specs reuse the same map.
 registerBlocks();
 
 // Footnote.create() walks down through `ScrollPage.loadBlock(child.name)`
@@ -71,7 +68,6 @@ describe('footnote block — class API', () => {
         block.meta.identifier = 'renamed';
         const next = block.getState();
         expect(next.meta.identifier).toBe('renamed');
-        // children stay intact when only meta changes.
         expect(next.children).toEqual(baseState.children);
     });
 
@@ -160,7 +156,6 @@ describe('footnote block — markdown round-trip via state', () => {
         expect(footnote, 'footnote state should be present').toBeDefined();
         expect(footnote!.meta.identifier).toBe('n');
         expect(footnote!.children.length).toBeGreaterThan(0);
-        // The first child of the footnote must be a list, not the next paragraph.
         expect(footnote!.children[0].name).toBe('bullet-list');
     });
 });
