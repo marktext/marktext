@@ -43,13 +43,10 @@ class Node<T extends ListItem> implements TreeNode<T> {
     this.label = content
     this.labelHtml = contentHtml
     this.slug = slug
-    // Carried through for the TOC: a content-derived id that, unlike `slug`
-    // (a per-render object id), survives a document reload / tab switch (#3791).
     this.githubSlug = githubSlug
     this.children = []
   }
 
-  // Add child node.
   addChild(node: TreeNode<T>): void {
     this.children.push(node)
   }

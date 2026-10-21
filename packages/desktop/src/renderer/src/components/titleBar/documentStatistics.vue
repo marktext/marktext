@@ -3,7 +3,7 @@
     v-model:visible="visible"
     trigger="hover"
     placement="bottom-end"
-    :width="320"
+    :width="280"
     :show-arrow="false"
     popper-class="document-statistics-popover"
     @show="refreshFileInfo"
@@ -138,7 +138,7 @@ const METRIC_CONFIG: Record<StatMetric, MetricConfig> = {
     labelKey: 'menu.counter.words'
   },
   character: {
-    labelKey: 'menu.counter.charactersNoSpaces'
+    labelKey: 'menu.counter.characters'
   },
   paragraph: {
     labelKey: 'menu.counter.paragraphs'
@@ -234,14 +234,10 @@ watch(
   margin-right: 10px;
   padding: 0 8px;
   border-radius: 6px;
-  color: var(--editorColor);
+  color: var(--editorColor50);
   font-size: 13px;
   line-height: 24px;
-  opacity: 0.55;
-  transition:
-    background-color 0.2s ease-in-out,
-    color 0.2s ease-in-out,
-    opacity 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out;
 }
 
 .document-statistics-trigger.el-button.is-text,
@@ -249,7 +245,7 @@ watch(
 .document-statistics-trigger.el-button.is-text:focus,
 .document-statistics-trigger.el-button.is-text:focus-visible,
 .document-statistics-trigger.el-button.is-text:active {
-  border-color: transparent;
+  border: 0 solid transparent;
   background-color: transparent;
   box-shadow: none;
 }
@@ -259,7 +255,6 @@ watch(
 .document-statistics-trigger.el-button.is-text:active {
   background: var(--sideBarBgColor);
   color: var(--sideBarTitleColor);
-  opacity: 1;
 }
 
 .document-statistics-trigger.el-button.is-text:focus-visible {
@@ -290,6 +285,7 @@ watch(
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .document-statistics__metrics {
@@ -364,6 +360,12 @@ watch(
   margin-top: 10px;
 }
 
+.document-statistics__file-info .document-statistics__file-row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
 .document-statistics__file-label {
   flex: none;
   display: inline-flex;
@@ -380,6 +382,11 @@ watch(
   font-size: 13px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+.document-statistics__file-info .document-statistics__file-value {
+  margin-left: 0;
+  padding-left: 30px;
 }
 </style>
 

@@ -38,8 +38,6 @@ const COPY_LINK = `${HEADING} > i.mu-copy-header-link`
 
 const DOC = '## My Section\n\nA paragraph under the heading.\n'
 
-// Read the OS clipboard as seen by the main process (the side the
-// `mt::clipboard::write-text` handler writes to).
 const readClipboard = (app: ElectronApplication): Promise<string> =>
   app.evaluate(({ clipboard }) => clipboard.readText())
 
@@ -56,7 +54,6 @@ test.describe('Heading hover-to-copy anchor affordance (item 241)', () => {
     const launched = await launchWithMarkdown(DOC, { suppressErrorDialog: true })
     app = launched.app
     page = launched.page
-    // The heading + its copy affordance render once the document parses.
     await page.waitForSelector(COPY_LINK, { state: 'attached', timeout: 15000 })
   })
 
@@ -126,8 +123,6 @@ test.describe('Heading hover-to-copy anchor affordance (item 241)', () => {
     await writeClipboard(app, 'keyboard-sentinel')
     await expect.poll(() => readClipboard(app)).toBe('keyboard-sentinel')
 
-    // Focus the focusable button and press Enter — the engine's keydown handler
-    // activates it the same way a click does (Enter / Space).
     await page.focus(COPY_LINK)
     await page.keyboard.press('Enter')
 

@@ -13,7 +13,6 @@
           :label="t('exportSettings.page.label')"
           name="page"
         >
-          <!-- HTML -->
           <div v-if="!isPrintable">
             <text-box
               :description="t('exportSettings.page.pageTitle')"
@@ -23,7 +22,6 @@
             />
           </div>
 
-          <!-- PDF/Print -->
           <div v-if="isPrintable">
             <div v-if="exportType === 'pdf'">
               <cur-select

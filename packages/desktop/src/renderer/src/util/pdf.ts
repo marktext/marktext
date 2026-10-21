@@ -1,10 +1,4 @@
-// `escapeHTML`/`unescapeHTML` are migrated to @muyajs/core (identical impl).
-// The TOC anchors produced here (`#${slug}`) must match the heading `id`
-// attributes in the exported document. Now that editor.vue exports via
-// @muyajs/core (#4406) and the engine injects github-compatible heading ids
-// (#4412), this module derives its slugs from the SAME `generateGithubSlug`
-// algorithm, with the SAME `-N` document-order dedup the engine uses, so the
-// in-document TOC links resolve.
+// Export TOC anchors must use the same slug generator as Muya heading IDs.
 import { escapeHTML, unescapeHTML, generateGithubSlug } from '@muyajs/core'
 import academicTheme from '@/assets/themes/export/academic.theme.css?inline'
 import liberTheme from '@/assets/themes/export/liber.theme.css?inline'
@@ -53,12 +47,10 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
     output += 'h1,h2,h3,h4,h5,h6{break-after:avoid;break-inside:avoid;}'
   }
 
-  // Auto numbering headings via CSS
   if (autoNumberingHeadings) {
     output += autoNumberingHeadingsCss
   }
 
-  // Hide front matter
   if (!showFrontMatter) {
     output += 'pre.front-matter{display:none!important;}'
   }
@@ -69,7 +61,6 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
     } else if (theme === 'liber') {
       output += liberTheme
     } else {
-      // Read theme from disk
       const { userDataPath } = window.marktext!.paths as { userDataPath: string }
       const themePath = window.path.join(userDataPath, 'themes/export', theme)
       if (await window.fileUtils.isFile(themePath)) {
@@ -78,8 +69,8 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
           const themeCSS =
             buf instanceof Uint8Array ? new TextDecoder('utf-8').decode(buf) : String(buf)
           output += themeCSS
-        } catch (_) {
-          // No-op
+        } catch {
+          // Export without the optional theme if it cannot be read.
         }
       }
     }
@@ -111,7 +102,6 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
   }
 
   if (isPrintable) {
-    // Close @page
     output += '}'
   }
   return unescapeHTML(sanitize(escapeHTML(output), EXPORT_DOMPURIFY_CONFIG))
@@ -130,13 +120,8 @@ export interface HtmlTocOptions {
   [key: string]: unknown
 }
 
-// Replicate @muyajs/core's `MarkdownToHtml#_injectHeadingIds` slugging so the
-// TOC `href="#slug"` anchors target the exact ids the engine writes onto the
-// exported `<h1>..<h6>`: github-compatible base slug (falling back to
-// `heading` when the text slugs to empty), deduplicated in document order with
-// an incrementing `-N` suffix. Computed over the FULL heading list in order
-// (before the render-time filtering below) to keep the dedup sequence aligned
-// with the engine's whole-document pass.
+// Deduplicate over the full heading list before filtering, matching MarkdownToHtml
+// so every exported TOC anchor targets the same heading ID.
 const assignHeadingSlugs = (tocList: TocEntry[]): void => {
   const seen = new Set<string>()
   for (const entry of tocList) {
@@ -174,7 +159,6 @@ const generateHtmlToc = (
   const label = contentHtml ?? content
   let html = `<li><span><a class="toc-h${lvl}" href="#${slug}">${label}</a><span class="dots"></span></span>`
 
-  // Generate sub-items
   if (tocList.length !== 0 && tocList[0].lvl > lvl) {
     html += '<ul>' + generateHtmlToc(tocList, lvl, options) + '</ul>'
   }

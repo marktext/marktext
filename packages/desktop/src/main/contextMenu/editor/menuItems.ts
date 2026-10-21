@@ -1,4 +1,3 @@
-// NOTE: This are mutable fields that may change at runtime.
 
 import { type BaseWindow, type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
 import { t } from '../../i18n'

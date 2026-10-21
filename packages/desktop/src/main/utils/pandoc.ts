@@ -198,7 +198,6 @@ export const listReaderExtensions = async(
       const defaults = new Map<string, boolean>()
       if (code === 0) {
         for (const line of output.split('\n')) {
-          // Lines end in `\r\n` on Windows, which `.` would not cross.
           const match = line.trim().match(/^([+-])(.+)$/)
           if (match) defaults.set(match[2].trim(), match[1] === '+')
         }

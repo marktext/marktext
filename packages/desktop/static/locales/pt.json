@@ -32,7 +32,8 @@
       "closeTab": "Fechar Aba",
       "closeWindow": "Fechar Janela",
       "quit": "Sair",
-      "preferences": "Preferências"
+      "preferences": "Preferências",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "Editar",
@@ -250,7 +251,16 @@
       "closeAll": "Fechar Todos",
       "emptyProject": "Projeto vazio",
       "createFile": "Criar Arquivo",
-      "openFolder": "Abrir Pasta"
+      "openFolder": "Abrir Pasta",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session"
     },
     "toc": {
       "expand": "Expandir sumário",
@@ -396,6 +406,7 @@
         "autoNormalizeLineEndings": "Normalizar automaticamente as quebras de linha ao abrir arquivos. Quando desativado, os arquivos são abertos como estão.",
         "titleBarStyle": "O estilo da barra de título (apenas sistemas Windows e Linux)",
         "openFilesInNewWindow": "Abrir arquivos em uma nova janela",
+        "openFilesInPreviewMode": "Abrir arquivos da barra lateral em abas de visualização",
         "openFolderInNewWindow": "Abrir pasta via menu em uma nova janela",
         "zoom": "O nível de zoom. Entre 0.5 e 2.0 inclusive",
         "hideScrollbar": "Se ocultar as barras de rolagem",
@@ -518,6 +529,7 @@
         "wrapTextInToc": "Quebrar texto no índice",
         "showOpenedFiles": "Mostrar arquivos abertos",
         "autoReveal": "Mostrar o arquivo ativo na barra lateral",
+        "openFilesInPreviewMode": "Abrir arquivos da barra lateral em abas de visualização. Editar ou clicar duas vezes mantém a aba.",
         "excludePatterns": "Padrões de exclusão",
         "excludePatternsNotes": "Padrões de exclusão (Notas)",
         "fileSortBy": {
@@ -1046,11 +1058,12 @@
       "title": "Verificação Ortográfica"
     },
     "tabs": {
-      "close": "Fechar {name}"
+      "close": "Fechar {name}",
+      "preview": "{name}, aba de visualização"
     }
   },
   "readingMode": {
-    "title": "Modo de leitura (somente leitura)",
+    "title": "Modo de leitura",
     "edit": "Modo de edição",
     "lock": "Ativar o modo de leitura",
     "unlock": "Alternar para o modo de edição",

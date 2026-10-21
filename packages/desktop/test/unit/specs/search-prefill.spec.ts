@@ -39,7 +39,6 @@ const loadComponent = (deps: Record<string, unknown>) => {
   const js = ts.transpileModule(noImports, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 }
   }).outputText
-  // eslint-disable-next-line no-new-func
   const factory = new Function(
     '__deps',
     'exports',
@@ -104,10 +103,8 @@ describe('find-bar prefill from selection', () => {
 
   it('does not let the focus-steal selection-change clobber the prefill', async() => {
     const { ret, setSelection } = makeBindings()
-    // User selects a word in the editor.
     setSelection('fox')
     await nextTick()
-    // Find bar opens (prefills "fox") and steals focus.
     ret.listenFind()
     await nextTick()
     expect(ret.searchValue.value).toBe('fox')

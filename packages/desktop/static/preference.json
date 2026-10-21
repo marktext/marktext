@@ -83,6 +83,7 @@
   "sourceCodeModeEnabled": false,
   "openedFilesInSidebar": true,
   "autoRevealInSidebar": true,
+  "openFilesInPreviewMode": true,
   "showPandocConvert": false,
 
   "searchExclusions": [],

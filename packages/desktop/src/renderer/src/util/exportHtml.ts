@@ -157,9 +157,6 @@ export const exportStyledHTML = async(
   const { title = '', toc = '', header, footer, headerFooterStyled, dir } = options
   let { extraCss = '' } = options
 
-  // The header/footer page table needs its own stylesheet — fold it into
-  // extraCss (which `generate` injects into <head>) up front so we only render
-  // the document once.
   const appendHeaderFooter = !!header || !!footer
   if (appendHeaderFooter) {
     extraCss = extraCss ? HEADER_FOOTER_CSS + extraCss : HEADER_FOOTER_CSS
@@ -208,6 +205,5 @@ export const exportStyledHTML = async(
     bodyHtml = output
   }
 
-  // Re-emit the engine document shell with the (possibly augmented) body.
   return fullDoc.replace(/<body>[\s\S]*<\/body>/, () => `<body>\n  ${bodyHtml}\n</body>`)
 }

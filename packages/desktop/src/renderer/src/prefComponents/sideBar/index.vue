@@ -139,20 +139,15 @@ onMounted(() => {
     currentCategory.value = String(route.name)
   }
   window.electron.ipcRenderer.on('settings::change-tab', onIpcCategoryChange)
-  // Listen for language changes and refresh the search index
   const languageChanged = (): void => {
     restaurants.value = loadAll()
   }
   window.addEventListener('languageChanged', languageChanged)
-  // Remove listener on unmount
   onUnmounted(() => window.removeEventListener('languageChanged', languageChanged))
 })
 
 onUnmounted(() => {
-  // removeAllListeners takes a single channel argument. The handler ref was
-  // passed historically but ignored by the typed bridge; removing only the
-  // handler we registered would require holding the unsubscribe callback
-  // returned by `.on`, which is not yet plumbed through here.
+  // This removes all handlers for the channel; the bridge accepts no handler argument.
   window.electron.ipcRenderer.removeAllListeners('settings::change-tab')
 })
 </script>

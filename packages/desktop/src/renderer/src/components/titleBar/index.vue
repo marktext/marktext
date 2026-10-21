@@ -163,7 +163,6 @@ import type { FileWordCount } from '@shared/types/files'
 
 interface ProjectInfo {
   name?: string
-  [key: string]: unknown
 }
 
 const props = defineProps<{
@@ -226,10 +225,11 @@ const maximizeLabel = computed(() =>
 )
 
 watch(
-  () => props.filename,
-  (value) => {
-    document.title = buildWindowTitle(value, props.project?.name ?? '', isOsx)
-  }
+  () => [props.filename, props.project?.name] as const,
+  ([filename, projectName]) => {
+    document.title = buildWindowTitle(filename, projectName ?? '', isOsx)
+  },
+  { immediate: true }
 )
 
 const handleCloseClick = () => {
@@ -422,7 +422,6 @@ div.title > span > .path > bdi > span {
 .title-no-drag {
   -webkit-app-region: no-drag;
 }
-/* frameless window controls */
 .frameless-titlebar-button {
   position: relative;
   display: block;

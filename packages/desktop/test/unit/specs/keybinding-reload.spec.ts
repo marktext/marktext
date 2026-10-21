@@ -70,11 +70,8 @@ describe('Keybindings.setUserKeybindings live re-registration (#3681)', () => {
     const NEW_ACCEL = 'CmdOrCtrl+Alt+Shift+S'
     await kb.setUserKeybindings(new Map([['file.save', NEW_ACCEL]]), [win])
 
-    // The active key map reflects the new binding immediately.
     expect(kb.getAccelerator('file.save')).toBe(NEW_ACCEL)
-    // The changed accelerator is registered live on the open window.
     expect(register).toHaveBeenCalledWith(win, NEW_ACCEL, expect.any(Function))
-    // The previously registered accelerators were torn down first.
     expect(unregister).toHaveBeenCalled()
   })
 

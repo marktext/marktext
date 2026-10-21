@@ -35,16 +35,13 @@ test.describe('paragraph edit commands are suppressed in source mode (#3531)', (
   test('the Insert Table wizard does not open while in source-code mode', async() => {
     await enterSourceMode(page, app)
 
-    // Fire the "insert table" paragraph action (menu / shortcut path).
     await sendIpcToRenderer(app, 'mt::editor-paragraph-action', { type: 'table' })
     await page.waitForTimeout(400)
 
-    // The table wizard dialog must NOT appear in source mode.
     await expect(page.locator(TABLE_DIALOG)).toHaveCount(0)
 
     await exitSourceMode(page, app)
 
-    // Sanity: in WYSIWYG mode the same action DOES open the wizard.
     await focusEditor(page)
     await sendIpcToRenderer(app, 'mt::editor-paragraph-action', { type: 'table' })
     await expect(page.locator(TABLE_DIALOG)).toBeVisible({ timeout: 5000 })

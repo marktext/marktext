@@ -98,7 +98,7 @@ describe('per-tab reading state', () => {
     store.tabs = [tab]
     store.currentFile = tab
     const snapshot = store.CREATE_BUFFERED_STATE()!
-    delete snapshot.tabs[0]!.readOnly
+    delete snapshot.tabs[0].readOnly
     store.RESTORE_BUFFERED_STATE(snapshot)
     expect(store.currentFile?.readOnly).toBe(false)
   })

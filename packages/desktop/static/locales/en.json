@@ -32,7 +32,8 @@
       "closeTab": "Close Tab",
       "closeWindow": "Close Window",
       "quit": "Quit",
-      "preferences": "Preferences"
+      "preferences": "Preferences",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "Edit",
@@ -250,7 +251,16 @@
       "closeAll": "Close All",
       "emptyProject": "Empty project",
       "createFile": "Create File",
-      "openFolder": "Open Folder"
+      "openFolder": "Open Folder",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session"
     },
     "toc": {
       "expand": "Expand table of contents",
@@ -395,6 +405,7 @@
         "autoSaveDelay": "The time in ms after a change that the file is saved",
         "titleBarStyle": "The title bar style (Windows and Linux system only)",
         "openFilesInNewWindow": "Open files in a new window",
+        "openFilesInPreviewMode": "Open sidebar files in preview tabs",
         "openFolderInNewWindow": "Open folder via menu in a new window",
         "zoom": "The zoom level. Between 0.5 and 2.0 inclusive",
         "hideScrollbar": "Whether to hide scrollbars",
@@ -518,6 +529,7 @@
         "wrapTextInToc": "Wrap text in table of contents",
         "showOpenedFiles": "Show opened files",
         "autoReveal": "Reveal the active file in the sidebar",
+        "openFilesInPreviewMode": "Open sidebar files in preview tabs. Editing or double-clicking keeps the tab open.",
         "excludePatterns": "Exclude patterns",
         "excludePatternsNotes": "Exclude patterns (Notes)",
         "fileSortBy": {
@@ -1046,11 +1058,12 @@
       "title": "Spellcheck"
     },
     "tabs": {
-      "close": "Close {name}"
+      "close": "Close {name}",
+      "preview": "{name}, preview tab"
     }
   },
   "readingMode": {
-    "title": "Reading Mode (read-only)",
+    "title": "Reading Mode",
     "edit": "Edit Mode",
     "lock": "Enter Reading Mode",
     "unlock": "Switch to Edit Mode",

@@ -8,6 +8,7 @@ Usage: marktext [commands] [path ...]
         --debug                   Enable debug mode
         --safe                    Disable plugins and other user configuration
     -n, --new-window              Open a new window on second-instance
+        --read-only               Open the specified files in read-only mode
         --user-data-dir           Change the user data directory
         --disable-gpu             Disable GPU hardware acceleration
         --disable-spellcheck      Disable the spell checker for this session
@@ -15,6 +16,20 @@ Usage: marktext [commands] [path ...]
         --version                 Print version information
     -h, --help                    Print this help message
 ```
+
+## Opening files in read-only mode
+
+Pass `--read-only` before or after the files to open every file from that command in the
+editor's Reading Mode:
+
+```sh
+marktext --read-only README.md notes.md
+```
+
+The option applies only to the files supplied to that invocation. It does not change the
+default open mode for later files, and you can switch a document back to Edit Mode from the
+View menu when needed. A missing file is reported as an error instead of being created as an
+empty read-only buffer.
 
 ## Making `marktext` available in your shell
 

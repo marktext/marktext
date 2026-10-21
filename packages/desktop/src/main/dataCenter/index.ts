@@ -145,9 +145,6 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
     }
   }
 
-  /**
-   * Change multiple setting entries.
-   */
   setItems(settings: Record<string, unknown>): void {
     if (!settings) {
       log.error('Cannot change settings without entires: object is undefined or null.')

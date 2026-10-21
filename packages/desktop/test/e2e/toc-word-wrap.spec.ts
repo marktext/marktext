@@ -5,7 +5,22 @@ import { makeRoomForOutline, launchWithMarkdown, clickMenuById, waitForEditor } 
 const LONG_HEADING =
   '## A heading long enough that it cannot possibly fit on one line of the outline panel'
 
-const DOC = ['# Outline', '', 'Intro.', '', LONG_HEADING, '', 'Body.', ''].join('\n')
+const DOC = [
+  '# Outline',
+  '',
+  'Intro.',
+  '',
+  LONG_HEADING,
+  '',
+  '## 10. Risk handling',
+  '',
+  '### 10.1 main and `_openedFiles` disagree with the renderer tab',
+  '',
+  '### 10.2 Rapid double click opens a duplicate',
+  '',
+  'Body.',
+  ''
+].join('\n')
 
 const setWordWrap = async(page: Page, wordWrapInToc: boolean): Promise<void> => {
   await page.evaluate((prefs) => {
@@ -18,7 +33,6 @@ const setWordWrap = async(page: Page, wordWrapInToc: boolean): Promise<void> => 
   )
 }
 
-// The long heading's label, and how tall one line of it is.
 const measureLongLabel = (page: Page) =>
   page.evaluate(() => {
     const labels = Array.from(
@@ -76,5 +90,34 @@ test.describe('TOC word wrap preference', () => {
     const truncated = await measureLongLabel(page)
     expect(truncated.whiteSpace).toBe('nowrap')
     expect(truncated.height).toBeLessThan(truncated.lineHeight * 1.5)
+  })
+
+  test('keeps inline code on one line when the preference is off', async() => {
+    await setWordWrap(page, false)
+
+    const rows = await page.evaluate(() => {
+      const labels = Array.from(
+        document.querySelectorAll<HTMLElement>('.side-bar-toc .el-tree-node__label')
+      )
+      const label = labels.find((item) => (item.textContent ?? '').trim().startsWith('10.1'))
+      const code = label?.querySelector('code')
+      const row = label?.closest<HTMLElement>('.el-tree-node__content')
+      const nextRow = row?.parentElement
+        ?.nextElementSibling
+        ?.querySelector<HTMLElement>(':scope > .el-tree-node__content')
+      if (!label || !code || !row || !nextRow) throw new Error('the outline rows are missing')
+      return {
+        labelWhiteSpace: getComputedStyle(label).whiteSpace,
+        codeWhiteSpace: getComputedStyle(code).whiteSpace,
+        labelBottom: label.getBoundingClientRect().bottom,
+        rowBottom: row.getBoundingClientRect().bottom,
+        nextRowTop: nextRow.getBoundingClientRect().top
+      }
+    })
+
+    expect(rows.labelWhiteSpace).toBe('nowrap')
+    expect(rows.codeWhiteSpace).toBe('nowrap')
+    expect(rows.labelBottom).toBeLessThanOrEqual(rows.nextRowTop)
+    expect(rows.rowBottom).toBeLessThanOrEqual(rows.nextRowTop)
   })
 })

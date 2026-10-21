@@ -1,5 +1,4 @@
 :root {
-  /*editor*/
   --themeColor: #f48237;
   --themeColor90: rgba(244, 130, 55, 0.9);
   --themeColor80: rgba(244, 130, 55, 0.8);
@@ -56,7 +55,6 @@
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(145, 75, 29, 0.6), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #4f585e;
 
-  /* Markdown element colors */
   --headingColor: rgba(171, 178, 191, 1);
   --h1Color: #f48237;
   --h2Color: #56b6c2;
@@ -72,7 +70,6 @@
   --emColor: #c678dd;
   --listMarkerColor: #f48237;
 
-  /*marktext*/
   --sideBarColor: rgba(255, 255, 255, 0.6);
   --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: rgba(255, 255, 255, 1);
@@ -89,11 +86,6 @@
   --maskColor: rgba(0, 0, 0, 0.7);
   --editorAreaWidth: 750px;
 
-  /* @muyajs/core (kebab-case) editor variables
-     Additive prep for the muyajs -> @muyajs/core editor swap. These
-     mirror the camelCase vars above; the legacy editor ignores them.
-     Do NOT remove the camelCase vars — they still drive the current
-     editor until editor.vue switches engines. */
   --theme-color: var(--themeColor);
   --highlight-color: var(--highlightColor);
   --selection-color: var(--selectionColor);
@@ -168,7 +160,6 @@
   box-shadow: none !important;
 }
 
-/* ------------------------------------ */
 
 :not(pre) > code[class*='language-'],
 pre:not(.CodeMirror-line),
@@ -181,11 +172,3 @@ figure.mu-active.mu-math-block > div.mu-math-preview,
 figure.mu-active.mu-diagram-block > div.mu-diagram-preview {
   box-shadow: 0 3px 8px 0 var(--floatShadow) !important;
 }
-
-/*
- * Prism.js theme (override light theme)
- */
-
-/*
-@import url("prismjs/dark.theme.css");
-*/

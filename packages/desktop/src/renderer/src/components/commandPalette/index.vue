@@ -103,7 +103,7 @@ const currentCommand = ref<CommandItem | null>(null)
 const defaultPlaceholderText = computed(() => {
   try {
     return t('commandPalette.placeholder')
-  } catch (error) {
+  } catch {
     console.warn('i18n not ready, using fallback placeholder')
     return 'Search commands...'
   }
@@ -140,7 +140,6 @@ const handleShow = (command?: unknown) => {
       showCommandPalette.value = true
       bus.emit('editor-blur')
       nextTick(() => {
-        // Scroll selected entry into view.
         const items = commandItems
         const selIndex = selectedCommandIndex.value
         if (items && items.length > 0 && selIndex >= 0 && items[selIndex]) {
@@ -164,7 +163,6 @@ const handleShow = (command?: unknown) => {
 }
 
 const handleDialogClose = () => {
-  // Reset all settings
   selectedCommandIndex.value = -1
   query.value = ''
   availableCommands.value = []
@@ -225,7 +223,6 @@ const handleInput = (event: KeyboardEvent) => {
     case 'ArrowDown':
     case 'ArrowLeft':
     case 'ArrowRight': {
-      // No-op
       break
     }
     case 'Enter': {
@@ -241,14 +238,12 @@ const handleInput = (event: KeyboardEvent) => {
 
 const search = (commandId: string | null = null) => {
   if (commandId) {
-    // Command selected from dropdown.
     executeCommand(commandId)
     return
   } else if (
     selectedCommandIndex.value >= 0 &&
     selectedCommandIndex.value < availableCommands.value.length
   ) {
-    // Pressed enter on selected command.
     const item = availableCommands.value[selectedCommandIndex.value]
     if (item) {
       executeCommand(item.id)
@@ -256,7 +251,6 @@ const search = (commandId: string | null = null) => {
     return
   }
 
-  // Otherwise update list
   updateCommands()
 }
 
@@ -288,7 +282,6 @@ const updateCommands = () => {
     return
   }
 
-  // Default handler
   if (!queryString) {
     availableCommands.value = cmd.subcommands ?? []
   } else {
@@ -318,9 +311,7 @@ const executeCommand = (commandId: string) => {
 
     // Allow to load static commands without reloading command palette.
     if (execute === undefined && run === undefined && subcommands) {
-      // Load subcommands
       currentCommand.value = command
-      // NOTE: selected index is always -1 by static state loaded this way.
       selectedCommandIndex.value = -1
       query.value = ''
       updateCommands()
@@ -332,7 +323,6 @@ const executeCommand = (commandId: string) => {
 }
 
 const handleLanguageChanged = () => {
-  // If the command palette is currently open, reload commands
   if (showCommandPalette.value && currentCommand.value) {
     const cmd = currentCommand.value
     cmd.run?.().then(() => {
@@ -345,7 +335,6 @@ const handleLanguageChanged = () => {
 onMounted(() => {
   bus.on('show-command-palette', handleShow)
 
-  // Listen for language change events and reload the command list
   bus.on('language-changed', handleLanguageChanged)
 })
 
@@ -356,7 +345,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Hide scrollbar for this dialog */
 ::-webkit-scrollbar {
   display: none;
 }

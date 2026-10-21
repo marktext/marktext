@@ -20,14 +20,11 @@ class Accessor {
   public menu: AppMenu
   public windowManager: WindowManager
 
-  /**
-   * @param appEnvironment The application environment instance.
-   */
   constructor(appEnvironment: AppEnvironment) {
     const userDataPath = appEnvironment.paths.userDataPath
 
     this.env = appEnvironment
-    this.paths = appEnvironment.paths // export paths to make it better accessible
+    this.paths = appEnvironment.paths
 
     this.preferences = new Preference(this.paths)
     this.dataCenter = new DataCenter(this.paths)

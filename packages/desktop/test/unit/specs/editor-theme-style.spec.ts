@@ -23,18 +23,14 @@ describe('theme.ts style injection helpers', () => {
     document.body.className = ''
   })
 
-  // Items 196, 210 — addCommonStyle injects code font onto the source-mode .CodeMirror selector.
   describe('addCommonStyle', () => {
     it('injects code font-family/size onto the .CodeMirror selector', () => {
       addCommonStyle({ codeFontFamily: 'Courier New', codeFontSize: 24 })
 
       const css = styleHtml(COMMON_STYLE_ID)
-      // selector targets source-mode CodeMirror only (muya owns code-block font via --mu-code-* vars)
       expect(css).toContain('.CodeMirror')
       expect(css).not.toContain('.mu-code-block')
-      // family is the requested font followed by the default fallback chain
       expect(css).toContain(`font-family: Courier New, ${DEFAULT_CODE_FONT_FAMILY};`)
-      // size is the numeric value suffixed with px
       expect(css).toContain('font-size: 24px;')
     })
 
@@ -65,7 +61,6 @@ describe('theme.ts style injection helpers', () => {
 
       expect(styleCount(COMMON_STYLE_ID)).toBe(1)
       const css = styleHtml(COMMON_STYLE_ID)
-      // only the latest call's values survive
       expect(css).toContain(`font-family: Fira Code, ${DEFAULT_CODE_FONT_FAMILY};`)
       expect(css).toContain('font-size: 18px;')
       expect(css).not.toContain('Courier New')
@@ -73,7 +68,6 @@ describe('theme.ts style injection helpers', () => {
     })
   })
 
-  // Item 209 — setEditorWidth validates input and injects --editorAreaWidth override.
   describe('setEditorWidth', () => {
     const WIDTH_STYLE_ID = 'editor-width'
 
@@ -120,7 +114,6 @@ describe('theme.ts style injection helpers', () => {
       setEditorWidth('abc')
 
       expect(styleCount(WIDTH_STYLE_ID)).toBe(1)
-      // the invalid final call cleared the previously valid override
       expect(styleHtml(WIDTH_STYLE_ID)).toBe('')
     })
   })

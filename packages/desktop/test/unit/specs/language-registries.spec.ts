@@ -44,14 +44,14 @@ const readElectronLanguages = (): string[] => {
     if (/^\s*#/.test(line) || line.trim() === '') continue
     const entry = /^\s+-\s+(\S+)\s*$/.exec(line)
     if (!entry) break
-    values.push(entry[1]!)
+    values.push(entry[1])
   }
   return values
 }
 
 // macOS .lproj bundles spell the region with an underscore, Windows/Linux .pak
 // files with a hyphen; electron-builder.yml carries both spellings.
-const primarySubtag = (tag: string): string => tag.replace('_', '-').split('-')[0]!.toLowerCase()
+const primarySubtag = (tag: string): string => tag.replace('_', '-').split('-')[0].toLowerCase()
 
 describe('language registries agree', () => {
   const supported = getSupportedLanguages()

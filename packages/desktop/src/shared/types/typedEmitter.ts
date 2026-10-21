@@ -1,21 +1,6 @@
 import { EventEmitter } from 'node:events'
 
-/**
- * EventEmitter subclass with a typed event map. Extend it with an interface
- * mapping event names to listener-argument tuples; `on`/`emit`/etc. are then
- * type-checked at the call site.
- *
- * Used by main-process classes (BaseWindow, WindowManager, DataCenter,
- * Preferences, EditorBufferStore, Keyboard) — see Commit 5d.
- *
- * @example
- *   interface BaseWindowEvents {
- *     ready: []
- *     'window-blur': [id: number]
- *     'will-close': [id: number, opts: { keepInBackground: boolean }]
- *   }
- *   class BaseWindow extends TypedEmitter<BaseWindowEvents> { ... }
- */
+/** Type event names and listener argument tuples without changing EventEmitter runtime behavior. */
 // We use a permissive constraint (`unknown` instead of `Record<string, unknown[]>`)
 // because TS 5.x rejects plain `interface X { foo: [] }` declarations from
 // satisfying a string-indexed record. The looser constraint lets concrete

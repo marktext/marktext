@@ -29,7 +29,6 @@ describe('SyntheticHistory (saved/clean indicator id allocator)', () => {
     const h = new SyntheticHistory('')
     const a = h.idFor('A')
     h.idFor('AB')
-    // Undo back to 'A' must reproduce 'A's original id.
     expect(h.idFor('A')).toBe(a)
   })
 
@@ -38,15 +37,13 @@ describe('SyntheticHistory (saved/clean indicator id allocator)', () => {
   // depth-as-id scheme the id collided with the saved id and the dirty tab
   // falsely showed clean. With content-keyed monotonic ids it stays dirty.
   it('stays dirty after undo + divergent re-edit returns to the saved depth (G6)', () => {
-    const h = new SyntheticHistory('') // baseline (empty) == id 0
+    const h = new SyntheticHistory('')
 
     h.idFor('A') // type A   -> depth 1
     const idAB = h.idFor('A\nB') // type B -> depth 2
 
-    // SAVE at A+B: the store records this entry's id as the saved id.
     const lastSavedHistoryId = idAB
 
-    // Undo B -> back to 'A' (depth 1): different content -> dirty.
     const idAfterUndo = h.idFor('A')
     expect(isClean(idAfterUndo, lastSavedHistoryId)).toBe(false)
 
@@ -64,21 +61,17 @@ describe('SyntheticHistory (saved/clean indicator id allocator)', () => {
     const idAB = h.idFor('A\nB')
     const lastSavedHistoryId = idAB
 
-    // Undo to 'A' (dirty), then redo back to the saved A+B content (clean).
     expect(isClean(h.idFor('A'), lastSavedHistoryId)).toBe(false)
     expect(isClean(h.idFor('A\nB'), lastSavedHistoryId)).toBe(true)
   })
 
   it('undo back to the unsaved baseline shows clean (lastSavedHistoryId 0)', () => {
-    // A freshly loaded document is its own clean baseline: the store seeds
-    // `lastSavedHistoryId: 0`, and the baseline content maps to id 0.
     const h = new SyntheticHistory('hello\n')
     const lastSavedHistoryId = 0
 
     const idAfterEdit = h.idFor('hello world\n')
     expect(isClean(idAfterEdit, lastSavedHistoryId)).toBe(false)
 
-    // Undo the edit back to the loaded baseline -> clean.
     expect(isClean(h.idFor('hello\n'), lastSavedHistoryId)).toBe(true)
   })
 
@@ -87,14 +80,12 @@ describe('SyntheticHistory (saved/clean indicator id allocator)', () => {
     // divergent content is dirty.
     const h = new SyntheticHistory('')
     h.idFor('one')
-    const idSaved = h.idFor('one\ntwo') // saved here
+    const idSaved = h.idFor('one\ntwo')
     const lastSavedHistoryId = idSaved
 
-    // Edit further, then undo back exactly to the saved content.
     expect(isClean(h.idFor('one\ntwo\nthree'), lastSavedHistoryId)).toBe(false)
     expect(isClean(h.idFor('one\ntwo'), lastSavedHistoryId)).toBe(true)
 
-    // A different document that happens to reach the same undo depth is dirty.
     expect(isClean(h.idFor('one\nTWO'), lastSavedHistoryId)).toBe(false)
   })
 
@@ -106,14 +97,10 @@ describe('SyntheticHistory (saved/clean indicator id allocator)', () => {
     const h = new SyntheticHistory('hello world\n')
     const lastSavedHistoryId = 0
 
-    // Same visible content, different trailing newlines -> still id 0 (clean).
     expect(h.idFor('hello world\n\n\n')).toBe(0)
     expect(h.idFor('hello world')).toBe(0)
 
-    // A real content change is a fresh id (dirty)...
     expect(isClean(h.idFor('hello world EXTRA\n'), lastSavedHistoryId)).toBe(false)
-    // ...and undoing it (engine lands on a different trailing-newline form of
-    // the baseline) is clean again.
     expect(isClean(h.idFor('hello world\n'), lastSavedHistoryId)).toBe(true)
   })
 
@@ -123,7 +110,6 @@ describe('SyntheticHistory (saved/clean indicator id allocator)', () => {
     for (let i = 0; i < 5000; i++) {
       ids.add(h.idFor(`line ${i}\ncontent body ${i}`))
     }
-    // No collisions: every distinct content snapshot got its own id.
     expect(ids.size).toBe(5000)
   })
 

@@ -22,15 +22,12 @@ test.describe('Renderer sandboxing', () => {
   })
 
   test('contextBridge active, nodeIntegration disabled, no preload leakage', async() => {
-    // contextBridge produced window.electron with a working ipcRenderer
     expect(await page.evaluate(() => typeof window.electron?.ipcRenderer?.invoke)).toBe('function')
 
-    // nodeIntegration: false — no require, no global, no Buffer
     expect(await page.evaluate(() => typeof require)).toBe('undefined')
     expect(await page.evaluate(() => typeof global)).toBe('undefined')
     expect(await page.evaluate(() => typeof Buffer)).toBe('undefined')
 
-    // Preload-scope identifiers are not visible to the renderer
     const leaked = await page.evaluate(() =>
       ['fileUtilsAPI', 'electronAPI', 'pathAPI', 'commandAPI'].some((name) => name in window)
     )

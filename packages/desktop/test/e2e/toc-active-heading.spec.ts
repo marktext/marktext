@@ -2,7 +2,6 @@ import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import { makeRoomForOutline, launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
 
-// Nested headings, and enough height that the caret has to travel.
 const DOC = [
   '# Introduction',
   '',
@@ -43,7 +42,7 @@ const getHighlightedTocLabel = (page: Page): Promise<string | null> =>
     const current = document.querySelector(
       '.side-bar-toc .el-tree-node.is-current > .el-tree-node__content .el-tree-node__label'
     ) as HTMLElement | null
-    return current ? current.textContent!.trim() : null
+    return current ? current.textContent.trim() : null
   })
 
 // A rendered ATX heading keeps its `# ` markers in separate spans, so match the
@@ -87,7 +86,6 @@ test.describe('TOC active heading highlight', () => {
     await waitForEditor(page)
     await showSidebar(app, page)
     await page.waitForSelector('.side-bar-toc .el-tree', { state: 'visible', timeout: 10000 })
-    // Wait for TOC to populate with all headings.
     await page.waitForFunction(
       () => document.querySelectorAll('.side-bar-toc .el-tree-node__label').length >= 6,
       null,

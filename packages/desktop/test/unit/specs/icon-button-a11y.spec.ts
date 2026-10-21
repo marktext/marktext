@@ -58,7 +58,6 @@ const elementsOf = (file: string): TemplateNode[] => {
   return out
 }
 
-// The static value or bound expression of an attribute, or null when absent.
 const attr = (el: TemplateNode, name: string): string | null => {
   for (const p of el.props ?? []) {
     if (p.type === ATTRIBUTE && p.name === name) return p.value?.content ?? ''
@@ -184,7 +183,6 @@ const contrast = (a: Rgb, b: Rgb): number => {
   return (hi + 0.05) / (lo + 0.05)
 }
 
-// The variable the `.plain-button:focus-visible` outline is drawn with.
 const ringVar = (): string => {
   const rule = BASE_CSS.match(/\.plain-button:focus-visible\s*\{([^}]*)\}/)
   const color = rule?.[1].match(/outline:[^;]*var\((--[\w-]+)\)/)

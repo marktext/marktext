@@ -34,8 +34,6 @@ describe('deriveKeyedToc', () => {
     const before = deriveKeyedToc(doc('old'))
     const after = deriveKeyedToc(doc('new'))
 
-    // Keys are stable across the rebuild, so collapse state keyed by them
-    // survives the switch (they would differ if keyed by `slug`).
     expect(flatKeys(after)).toEqual(flatKeys(before))
     expect(flatKeys(after)).toEqual(['a', 'b', 'c'])
   })

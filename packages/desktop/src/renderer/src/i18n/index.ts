@@ -1,7 +1,6 @@
 import { createI18n } from 'vue-i18n'
 import { compile, type MessageCompiler } from '@intlify/core-base'
 import bus from '../bus'
-// Directly import translation files
 import enTranslations from '../../../../static/locales/en.json'
 
 // vue-i18n compiles each translation lazily on first use, and its compiler
@@ -31,27 +30,22 @@ const i18n = createI18n({
   locale: 'en', // default is en
   fallbackLocale: 'en',
   messages: { en: enTranslations }, // Load en by default only
-  // Disable linking to avoid '@' symbols being misinterpreted
   modifiers: {
     '@': () => '@'
   },
-  // Disable plural parsing
   pluralRules: {},
   // Degrade malformed translations to raw text instead of crashing the renderer.
   messageCompiler: safeMessageCompiler
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any)
 
-// Export the translation function - Fix: correctly handle the Vue i18n v9+ global getter
 export const t = (key: string, ...args: unknown[]): string => {
-  // Check if the i18n instance is available
   if (!i18n) {
     console.warn('⚠️ i18n实例不可用，使用英文fallback')
     return key
   }
 
   try {
-    // Correctly access the global property
     if (!i18n.global) {
       console.warn('⚠️ i18n.global not ready yet, falling back to EN')
       return key
@@ -82,7 +76,7 @@ export const setLanguage = async(locale: string): Promise<void> => {
       inflightLoads.set(locale, pending)
     }
     const translation = await pending
-    if (!translation) return // Failed to load locale file
+    if (!translation) return
 
     if (!globalI18n.availableLocales.includes(locale)) {
       globalI18n.setLocaleMessage(locale, translation)
@@ -92,23 +86,19 @@ export const setLanguage = async(locale: string): Promise<void> => {
   globalI18n.locale.value = locale
 }
 
-// Export the current language getter function
 export const getCurrentLanguage = (): string => {
   return i18n.global.locale.value
 }
 
-// Export the i18n instance (named and default export)
 export { i18n }
 export default i18n
 
-// Listen for language changes
 if (window.electron && window.electron.ipcRenderer) {
   window.electron.ipcRenderer.on('language-changed', (_event, newLocale) => {
     setLanguage(newLocale)
     bus.emit('language-changed', newLocale)
   })
 
-  // Request the current language setting at startup
   window.electron.ipcRenderer.send('mt::get-current-language')
   window.electron.ipcRenderer.on('mt::current-language', (_event, language) => {
     setLanguage(language)

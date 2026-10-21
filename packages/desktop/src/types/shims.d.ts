@@ -1,5 +1,4 @@
-// Module shims for third-party libraries that ship no type declarations.
-// Each entry is `any`-typed; refine as we discover the real shape.
+// Shims for third-party libraries without declarations; refine opaque types as needed.
 
 declare module 'dom-autoscroller'
 declare module 'flowchart.js'

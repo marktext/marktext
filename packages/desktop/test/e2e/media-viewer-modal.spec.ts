@@ -154,7 +154,6 @@ test.describe('media viewer is modal to the keyboard', () => {
   test('Enter activates the focused control instead of being swallowed', async() => {
     await openViewer(page)
 
-    // Tab to the close control, which is the first thing in the overlay.
     await page.keyboard.press('Tab')
     expect(await page.evaluate(() => document.activeElement?.className)).toContain('icon-close')
 

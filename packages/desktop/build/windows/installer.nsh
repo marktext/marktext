@@ -1,12 +1,7 @@
-; installer.nsh — include via electron-builder's nsis.include
-
 ; Windows remembers an "Open with" choice as a UserChoice naming this ProgId,
 ; and that pin outlives any reinstall, so the name must stay as it is.
 !define MT_PROGID "MarkText.Document"
 
-;======================================================================
-; Markdown file associations.
-;
 ; These must be written on every install and removed only on a real uninstall.
 ; electron-builder runs the previous version's uninstaller silently before it
 ; installs, so unregistering there unconditionally while registering only
@@ -34,8 +29,6 @@
   Pop $0
 !macroend
 
-;======================================================================
-; customInstall macro is invoked by electron-builder after files are in $INSTDIR
 !macro customInstall
   !insertmacro mtAssociateExtension ".md"
   !insertmacro mtAssociateExtension ".markdown"
@@ -64,8 +57,6 @@
   System::Call 'shell32::SHChangeNotify(i, i, i, i) v (0x08000000, 0, 0, 0)'
 !macroend
 
-;======================================================================
-; customUnInstall macro cleans up on uninstall
 !macro customUnInstall
   ; An update reaches here through the old uninstaller, right before the new
   ; version registers the association again.

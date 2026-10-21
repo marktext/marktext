@@ -32,7 +32,8 @@
       "closeTab": "탭 닫기",
       "closeWindow": "창 닫기",
       "quit": "종료",
-      "preferences": "환경설정"
+      "preferences": "환경설정",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "편집",
@@ -250,7 +251,16 @@
       "closeAll": "모두 닫기",
       "emptyProject": "빈 프로젝트",
       "createFile": "파일 만들기",
-      "openFolder": "폴더 열기"
+      "openFolder": "폴더 열기",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session"
     },
     "toc": {
       "expand": "목차 펼치기",
@@ -396,6 +406,7 @@
         "autoNormalizeLineEndings": "파일을 열 때 줄 끝을 자동으로 정규화합니다. 비활성화하면 파일을 있는 그대로 엽니다.",
         "titleBarStyle": "제목 표시줄 스타일(Windows 및 Linux 시스템만)",
         "openFilesInNewWindow": "새 창에서 파일 열기",
+        "openFilesInPreviewMode": "사이드바 파일을 미리보기 탭에서 열기",
         "openFolderInNewWindow": "메뉴를 통해 새 창에서 폴더 열기",
         "zoom": "확대/축소 수준. 0.5에서 2.0 사이",
         "hideScrollbar": "스크롤바를 숨길지 여부",
@@ -518,6 +529,7 @@
         "wrapTextInToc": "목차에서 텍스트 줄바꿈",
         "showOpenedFiles": "열린 파일 표시",
         "autoReveal": "사이드바에서 활성 파일 표시",
+        "openFilesInPreviewMode": "사이드바 파일을 미리보기 탭에서 엽니다. 편집하거나 두 번 클릭하면 탭이 유지됩니다.",
         "excludePatterns": "제외 패턴",
         "excludePatternsNotes": "제외 패턴 (참고)",
         "fileSortBy": {
@@ -1046,11 +1058,12 @@
       "title": "맞춤법 검사"
     },
     "tabs": {
-      "close": "{name} 닫기"
+      "close": "{name} 닫기",
+      "preview": "{name}, 미리보기 탭"
     }
   },
   "readingMode": {
-    "title": "읽기 모드 (읽기 전용)",
+    "title": "읽기 모드",
     "edit": "편집 모드",
     "lock": "읽기 모드로 전환",
     "unlock": "편집 모드로 전환",

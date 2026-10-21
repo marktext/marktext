@@ -69,7 +69,6 @@ const getExportExtensionFilter = (type: string): Electron.FileFilter[] | undefin
     ]
   }
 
-  // Allow all extensions.
   return undefined
 }
 
@@ -102,7 +101,6 @@ interface ExportPayload {
 const sanitizeFilename = (name?: string): string =>
   (name || '').replace(/[/\\:*?"<>|]/g, '-').trim() || 'Untitled'
 
-// Handle the export response from renderer process.
 const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): Promise<void> => {
   const { type, content, pathname, title, pageOptions } = payload
   const win = BrowserWindow.fromWebContents(e.sender)
@@ -123,10 +121,7 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
     try {
       await assertExportDestination(pathname, filePath)
       if (type === 'pdf') {
-        // Build a clickable bookmark/outline tree from the document's h1-h6
-        // headings so exported PDFs have a navigation pane (#2989). The outline
-        // is derived from the tagged-PDF structure tree, so generateTaggedPDF is
-        // required — generateDocumentOutline alone produces no outline.
+        // Generate PDF bookmarks from tagged h1–h6 structure (#2989).
         const options: Electron.PrintToPDFOptions = {
           printBackground: true,
           generateTaggedPDF: true,
@@ -135,12 +130,12 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
         Object.assign(options, getPdfPageOptions(pageOptions))
         const data = await win.webContents.printToPDF(options)
         removePrintServiceFromWindow(win)
-        await writeFile(filePath, data, extension!, 'binary')
+        await writeFile(filePath, data, extension, 'binary')
       } else {
         if (!content) {
           throw new Error('No HTML content found.')
         }
-        await writeFile(filePath, content, extension!, 'utf8')
+        await writeFile(filePath, content, extension, 'utf8')
       }
       win.webContents.send('mt::export-success', { type, filePath })
     } catch (err) {
@@ -154,7 +149,6 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
       })
     }
   } else {
-    // User canceled save dialog
     if (type === 'pdf') {
       removePrintServiceFromWindow(win)
     }
@@ -217,7 +211,6 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
       filters: [{ name: format.label, extensions: [format.extension.slice(1)] }]
     })
     if (canceled || !chosen || win.isDestroyed()) return
-    // What comes back is the user's answer, "replace this one" included.
     filePath = chosen
     await assertExportDestination(pathname, filePath)
     // The reader is built once the export is certain: naming `tex_math_gfm` needs pandoc
@@ -251,9 +244,7 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
       }
     })
 
-    // Exit code 0 is not a clean conversion: an image pandoc could not fetch becomes its
-    // alt text with a warning. The summary is the guard — a lone newline is truthy but
-    // shows nothing — and it goes first so one click dismisses it.
+    // Pandoc can exit successfully after replacing unreadable images with alt text; surface its nonblank warnings.
     const message = summarizePandocWarnings(warnings)
     if (message && !win.isDestroyed()) {
       log.warn(`pandoc export warnings for ${filePath}:`, warnings)
@@ -433,11 +424,9 @@ const openPandocFile = async(windowId: number, pathname: string): Promise<void> 
 }
 
 const removePrintServiceFromWindow = (win: BrowserWindow): void => {
-  // remove print service content and restore GUI
   win.webContents.send('mt::print-service-clearup')
 }
 
-// --- events -----------------------------------
 
 ipcMain.on('mt::save-tabs', (e, unsavedFiles: UnsavedFile[]) => {
   Promise.all(
@@ -535,7 +524,6 @@ ipcMain.on('mt::close-window-confirm', async(e, unsavedFiles: UnsavedFile[]) => 
         log.error('Error while saving before quit:', err)
 
         const msg = err instanceof Error ? err.message : String(err)
-        // Notify user about the problem.
         dialog
           .showMessageBox(win, {
             type: 'error',
@@ -576,7 +564,6 @@ ipcMain.on('mt::window::drop', async(e, fileList: string[]) => {
       continue
     }
 
-    // Try to import the file
     if (PANDOC_EXTENSIONS.some((ext: string) => file.endsWith(ext))) {
       const existsPandoc = await pandoc.exists()
       if (!existsPandoc) {
@@ -667,19 +654,12 @@ ipcMain.on(
   }
 )
 
-ipcMain.on('mt::ask-for-open-project-in-sidebar', async(e) => {
-  const win = BrowserWindow.fromWebContents(e.sender)
-  if (!win) {
-    return
-  }
-  const { filePaths } = await dialog.showOpenDialog(win, {
-    properties: ['openDirectory', 'createDirectory']
-  })
+ipcMain.on('mt::ask-for-open-project-in-sidebar', event => {
+  addFolder(BrowserWindow.fromWebContents(event.sender))
+})
 
-  if (filePaths && filePaths[0]) {
-    const resolvedPath = normalizeAndResolvePath(filePaths[0])
-    ipcMain.emit('app-open-directory-by-id', win.id, resolvedPath, true)
-  }
+ipcMain.on('mt::cmd-add-folder', event => {
+  addFolder(BrowserWindow.fromWebContents(event.sender))
 })
 
 interface FormatLinkPayload {
@@ -700,7 +680,6 @@ ipcMain.on('mt::format-link-click', async(e, { data, dirname, readOnly }: Format
   const rawUrl = data.href || data.text!
   const urlCandidate = rawUrl.replace(/^<(.+)>$/, '$1') // Replace any <> CommonMark #489
   if (urlCandidate === rawUrl) {
-    // No <> found, no spaces should be allowed
     if (/\s/.test(rawUrl)) {
       win.webContents.send('mt::show-notification', {
         title: 'Links cannot contain spaces',
@@ -716,7 +695,6 @@ ipcMain.on('mt::format-link-click', async(e, { data, dirname, readOnly }: Format
     shell.openExternal(urlCandidate)
     return
   } else if (/^[a-z0-9]+:\/\//i.test(urlCandidate)) {
-    // Prevent other URLs.
     return
   }
 
@@ -750,7 +728,6 @@ ipcMain.on('mt::format-link-click', async(e, { data, dirname, readOnly }: Format
   }
 })
 
-// --- commands -------------------------------------
 
 ipcMain.on('mt::cmd-open-file', (e) => {
   const win = BrowserWindow.fromWebContents(e.sender)
@@ -780,7 +757,6 @@ ipcMain.on('mt::cmd-import-file', (e) => {
   }
 })
 
-// --- menu -------------------------------------
 
 export const exportFile = (win: Win, type: string): void => {
   if (win && win.webContents) {
@@ -788,8 +764,7 @@ export const exportFile = (win: Win, type: string): void => {
   }
 }
 
-// Convert the current document with pandoc. Unlike `exportFile` (HTML/PDF in the renderer)
-// this needs the markdown source and a file target, which the reply carries.
+// Pandoc needs Markdown and an output path; renderer HTML/PDF export uses rendered HTML instead.
 export const exportWithPandoc = async(win: Win, target: string): Promise<void> => {
   if (!win || !win.webContents) return
   if (!(await pandoc.exists())) return noticePandocNotFound(win, 'dialog.exportWarning')
@@ -844,6 +819,29 @@ export const openFile = async(win: BrowserWindow | null): Promise<void> => {
 
   if (Array.isArray(filePaths) && filePaths.length > 0) {
     ipcMain.emit('app-open-files-by-id', win.id, filePaths)
+  }
+}
+
+const folderDialogs = new Set<number>()
+
+export const addFolder = async(win: Win): Promise<void> => {
+  if (!win || folderDialogs.has(win.id)) return
+  folderDialogs.add(win.id)
+  try {
+    const { filePaths } = await dialog.showOpenDialog(win, {
+      title: t('menu.file.addFolder'),
+      properties: ['openDirectory', 'createDirectory']
+    })
+    if (!win.isDestroyed() && filePaths?.[0]) {
+      ipcMain.emit('app-add-directory-by-id', win.id, filePaths[0])
+    }
+  } catch (error) {
+    log.error('Unable to choose a project folder:', error)
+    if (!win.isDestroyed()) win.webContents.send('mt::show-notification', {
+      title: t('menu.file.addFolder'), type: 'error', message: String(error)
+    })
+  } finally {
+    folderDialogs.delete(win.id)
   }
 }
 
@@ -937,7 +935,6 @@ export const clearRecentlyUsed = (): void => {
   ipcMain.emit('menu-clear-recently-used')
 }
 
-// --- Commands -------------------------------------------------------------
 
 export const loadFileCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.FILE_CHECK_UPDATE, checkUpdates)

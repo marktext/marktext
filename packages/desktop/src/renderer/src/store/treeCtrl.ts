@@ -1,7 +1,6 @@
 import { getUniqueId } from '../util'
 import { PATH_SEPARATOR } from '../config'
 
-// Helper module (NOT a Pinia store): file-tree mutation helpers.
 
 const naturalCompare = (a: string, b: string): number =>
   a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
@@ -52,9 +51,6 @@ const makeFileComparator = (sortBy: string, sortOrder: string) =>
     return byName !== 0 ? byName : a.pathname.localeCompare(b.pathname)
   }
 
-/**
- * Return all sub-directories relative to the root directory.
- */
 const getSubdirectoriesFromRoot = (rootPath: string, pathname: string): string[] => {
   if (!window.path.isAbsolute(pathname)) {
     throw new Error('Invalid path!')
@@ -63,9 +59,6 @@ const getSubdirectoriesFromRoot = (rootPath: string, pathname: string): string[]
   return relativePath ? relativePath.split(PATH_SEPARATOR) : []
 }
 
-/**
- * Add a new file to the tree list.
- */
 export const addFile = (tree: TreeFolder, file: AddFileInput, sortBy: string = 'title', sortOrder: string = 'asc'): void => {
   const { pathname, name } = file
   const dirname = window.path.dirname(pathname)
@@ -101,9 +94,7 @@ export const addFile = (tree: TreeFolder, file: AddFileInput, sortBy: string = '
     currentSubFolders = childFolder.folders
   }
 
-  // Add file to related directory.
   if (!currentFolder.files.find((f) => f.name === name)) {
-    // Remove file content from object.
     const fileCopy: TreeFile = {
       id: getUniqueId(),
       birthTime: file.birthTime,
@@ -125,9 +116,6 @@ export const addFile = (tree: TreeFolder, file: AddFileInput, sortBy: string = '
   }
 }
 
-/**
- * Add a new directory to the tree list.
- */
 export const addDirectory = (tree: TreeFolder, dir: { pathname: string }): void => {
   const subDirectories = getSubdirectoriesFromRoot(tree.pathname, dir.pathname)
 
@@ -217,7 +205,6 @@ export const updateFileMtime = (
   const entry = currentFolder.files[index]
   entry.mtimeMs = file.mtimeMs
 
-  // Re-insert only if sorting by modified time — avoids unnecessary churn otherwise.
   if (sortBy === 'modified') {
     currentFolder.files.splice(index, 1)
     const comparator = makeFileComparator(sortBy, sortOrder)
@@ -230,9 +217,6 @@ export const updateFileMtime = (
   }
 }
 
-/**
- * Re-sort an already-populated tree in place when the sort preference changes.
- */
 export const resortTree = (tree: TreeFolder, sortBy: string, sortOrder: string): void => {
   tree.files.sort(makeFileComparator(sortBy, sortOrder))
   tree.folders.sort((a, b) => naturalCompare(a.name, b.name))
@@ -241,9 +225,6 @@ export const resortTree = (tree: TreeFolder, sortBy: string, sortOrder: string):
   }
 }
 
-/**
- * Remove the given file from the tree list.
- */
 export const unlinkFile = (tree: TreeFolder, file: { pathname: string }): void => {
   const { pathname } = file
   const dirname = window.path.dirname(pathname)
@@ -264,9 +245,6 @@ export const unlinkFile = (tree: TreeFolder, file: { pathname: string }): void =
   }
 }
 
-/**
- * Remove the given directory from the tree list.
- */
 export const unlinkDirectory = (tree: TreeFolder, dir: { pathname: string }): void => {
   const { pathname } = dir
   const subDirectories = getSubdirectoriesFromRoot(tree.pathname, pathname)

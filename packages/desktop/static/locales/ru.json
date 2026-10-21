@@ -32,7 +32,8 @@
       "closeTab": "Закрыть вкладку",
       "closeWindow": "Закрыть окно",
       "quit": "Выход",
-      "preferences": "Настройки"
+      "preferences": "Настройки",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "Правка",
@@ -250,7 +251,16 @@
       "closeAll": "Закрыть всё",
       "emptyProject": "Пустой проект",
       "createFile": "Создать файл",
-      "openFolder": "Открыть папку"
+      "openFolder": "Открыть папку",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session"
     },
     "toc": {
       "expand": "Развернуть оглавление",
@@ -395,6 +405,7 @@
         "autoSaveDelay": "Время в мс после изменения, через которое файл сохраняется",
         "titleBarStyle": "Стиль заголовка окна (только Windows и Linux)",
         "openFilesInNewWindow": "Открывать файлы в новом окне",
+        "openFilesInPreviewMode": "Открывать файлы боковой панели во вкладках предпросмотра",
         "openFolderInNewWindow": "Открывать папку через меню в новом окне",
         "zoom": "Уровень масштаба. От 0.5 до 2.0 включительно",
         "hideScrollbar": "Скрывать полосы прокрутки",
@@ -518,6 +529,7 @@
         "wrapTextInToc": "Переносить текст в оглавлении",
         "showOpenedFiles": "Показывать открытые файлы",
         "autoReveal": "Показывать активный файл на боковой панели",
+        "openFilesInPreviewMode": "Открывать файлы боковой панели во вкладках предпросмотра. Редактирование или двойной щелчок сохраняют вкладку.",
         "excludePatterns": "Исключающие шаблоны",
         "excludePatternsNotes": "Исключающие шаблоны (примечания)",
         "fileSortBy": {
@@ -1046,11 +1058,12 @@
       "title": "Проверка орфографии"
     },
     "tabs": {
-      "close": "Закрыть {name}"
+      "close": "Закрыть {name}",
+      "preview": "{name}, вкладка предпросмотра"
     }
   },
   "readingMode": {
-    "title": "Режим чтения (только для чтения)",
+    "title": "Режим чтения",
     "edit": "Режим редактирования",
     "lock": "Включить режим чтения",
     "unlock": "Перейти в режим редактирования",

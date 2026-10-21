@@ -22,7 +22,6 @@ afterEach(() => {
   for (const host of hosts.splice(0)) host.remove()
 })
 
-// Same steps as the editor's `handleExport` for styled HTML / PDF / print.
 const exportWithToc = async(markdown: string): Promise<string> => {
   const host = document.createElement('div')
   document.body.appendChild(host)

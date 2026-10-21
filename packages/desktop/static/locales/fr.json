@@ -32,7 +32,8 @@
       "closeTab": "Fermer l'onglet",
       "closeWindow": "Fermer la fenêtre",
       "quit": "Quitter",
-      "preferences": "Préférences"
+      "preferences": "Préférences",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "Édition",
@@ -250,7 +251,16 @@
       "closeAll": "Tout fermer",
       "emptyProject": "Projet vide",
       "createFile": "Créer un fichier",
-      "openFolder": "Ouvrir un dossier"
+      "openFolder": "Ouvrir un dossier",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session"
     },
     "toc": {
       "expand": "Développer la table des matières",
@@ -396,6 +406,7 @@
         "autoNormalizeLineEndings": "Normaliser automatiquement les fins de ligne à l'ouverture des fichiers. Lorsque désactivé, les fichiers sont ouverts tels quels.",
         "titleBarStyle": "Le style de la barre de titre (systèmes Windows et Linux uniquement)",
         "openFilesInNewWindow": "Ouvrir les fichiers dans une nouvelle fenêtre",
+        "openFilesInPreviewMode": "Ouvrir les fichiers de la barre latérale dans des onglets d’aperçu",
         "openFolderInNewWindow": "Ouvrir le dossier via le menu dans une nouvelle fenêtre",
         "zoom": "Le niveau de zoom. Entre 0.5 et 2.0 inclus",
         "hideScrollbar": "Masquer les barres de défilement",
@@ -518,6 +529,7 @@
         "wrapTextInToc": "Retour à la ligne dans la table des matières",
         "showOpenedFiles": "Afficher les fichiers ouverts",
         "autoReveal": "Afficher le fichier actif dans la barre latérale",
+        "openFilesInPreviewMode": "Ouvrir les fichiers de la barre latérale dans des onglets d’aperçu. La modification ou le double-clic conserve l’onglet.",
         "excludePatterns": "Motifs d'exclusion",
         "excludePatternsNotes": "Notes sur les motifs d'exclusion",
         "fileSortBy": {
@@ -1046,11 +1058,12 @@
       "title": "Vérification orthographique"
     },
     "tabs": {
-      "close": "Fermer {name}"
+      "close": "Fermer {name}",
+      "preview": "{name}, onglet d’aperçu"
     }
   },
   "readingMode": {
-    "title": "Mode lecture (lecture seule)",
+    "title": "Mode lecture",
     "edit": "Mode édition",
     "lock": "Activer le mode lecture",
     "unlock": "Passer en mode édition",

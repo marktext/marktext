@@ -1,5 +1,4 @@
 :root {
-  /*editor - Everforest Dark theme*/
   --themeColor: #a7c080;
   --themeColor90: rgba(167, 192, 128, 0.9);
   --themeColor80: rgba(167, 192, 128, 0.8);
@@ -57,7 +56,6 @@
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(24, 26, 31, 0.5), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #343f44;
 
-  /* Markdown element colors */
   --headingColor: #d3c6aa;
   --h1Color: #e67e80;
   --h2Color: #dbbc7f;
@@ -73,7 +71,6 @@
   --emColor: #dbbc7f;
   --listMarkerColor: #a7c080;
 
-  /*marktext*/
   --sideBarColor: rgba(211, 198, 170, 0.6);
   --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: rgba(211, 198, 170, 0.8);
@@ -90,11 +87,6 @@
   --maskColor: rgba(0, 0, 0, 0.7);
   --editorAreaWidth: 750px;
 
-  /* @muyajs/core (kebab-case) editor variables
-     Additive prep for the muyajs -> @muyajs/core editor swap. These
-     mirror the camelCase vars above; the legacy editor ignores them.
-     Do NOT remove the camelCase vars — they still drive the current
-     editor until editor.vue switches engines. */
   --theme-color: var(--themeColor);
   --highlight-color: var(--highlightColor);
   --selection-color: var(--selectionColor);
@@ -197,7 +189,6 @@
   box-shadow: none !important;
 }
 
-/* ------------------------------------ */
 
 :not(pre) > code[class*='language-'],
 pre:not(.CodeMirror-line),

@@ -46,8 +46,6 @@ const callEditorStoreAction = (
     { actionName: action, id: tabId }
   )
 
-// The live tab list as the ordered `data-id`s rendered in the tab bar. The
-// close-* survivor assertions compare against this.
 const readTabIds = (page: Page): Promise<string[]> =>
   page.evaluate(() =>
     Array.from(document.querySelectorAll('.tabs-container > li')).map(
@@ -135,8 +133,6 @@ test.describe('Tab management', () => {
   // just the active-tab highlight. Proves UPDATE_CURRENT_FILE -> file-changed ->
   // setContent re-renders the document on every switch.
   test('Switching tabs swaps the editor body to match the tab', async() => {
-    // Tab index 0 is the launch tab ('# Tab base'); open a fresh tab B whose
-    // body is distinct, auto-selected.
     const before = await page.locator(tabSelector).count()
     await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, 'second body\n')
     await page.waitForFunction(
@@ -147,20 +143,16 @@ test.describe('Tab management', () => {
     const bId = await activeTabId(page)
     expect(bId).toBeTruthy()
 
-    // The newly-selected tab B shows B's body.
     await expect
       .poll(async() => (await getMarkdownContent(page, app)).trim(), { timeout: 5000 })
       .toBe('second body')
 
-    // Switch to index 0 — the editor body must revert to tab A's content and the
-    // active tab id must change away from B.
     await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 0)
     await expect
       .poll(async() => (await getMarkdownContent(page, app)).trim(), { timeout: 5000 })
       .toBe('# Tab base')
     expect(await activeTabId(page)).not.toBe(bId)
 
-    // Switch to tab B by id (re-derive its index) — body swaps back to B.
     const ids = await readTabIds(page)
     const bIndex = ids.indexOf(bId as string)
     expect(bIndex).toBeGreaterThanOrEqual(0)
@@ -195,7 +187,6 @@ test.describe('Tab management', () => {
     await page.waitForTimeout(300)
     expect(await page.evaluate(activeIsClean)).toBe(true)
 
-    // First real character marks the tab unsaved.
     await placeCaretInEditor(page)
     await typeIntoEditor(page, 'X')
     await expect
@@ -224,7 +215,6 @@ test.describe('Tab management', () => {
   // caret is correctly seated. The mandatory per-tab undo isolation below is
   // fully and faithfully exercised.)
   test('Per-tab undo history survives a tab switch', async() => {
-    // Tab A: a known saved baseline so the dirty/undo round-trip is observable.
     const aLaunch = await launchWithMarkdown('alpha\n')
     const aApp = aLaunch.app
     const aPage = aLaunch.page
@@ -244,7 +234,6 @@ test.describe('Tab management', () => {
       const aTabId = await activeTabId(aPage)
       expect(aTabId).toBeTruthy()
 
-      // Open tab B (auto-selected) and make a DIFFERENT edit in it.
       await sendIpcToRenderer(aApp, 'mt::new-untitled-tab', true, 'bravo\n')
       await aPage.waitForFunction(
         (sel) => document.querySelectorAll(sel).length >= 2,
@@ -258,7 +247,6 @@ test.describe('Tab management', () => {
         .poll(async() => (await getMarkdownContent(aPage, aApp)).trim(), { timeout: 5000 })
         .toContain('MARKERB')
 
-      // Switch back to tab A by its id's index.
       const ids = await readTabIds(aPage)
       const aIndex = ids.indexOf(aTabId as string)
       expect(aIndex).toBeGreaterThanOrEqual(0)
@@ -266,8 +254,6 @@ test.describe('Tab management', () => {
       await expect
         .poll(async() => (await getMarkdownContent(aPage, aApp)).trim(), { timeout: 5000 })
         .toContain('MARKERA')
-      // A is shown again (its own edit), B's edit never leaked into A, and A is
-      // still dirty from its own un-undone edit.
       expect((await getMarkdownContent(aPage, aApp)).trim()).not.toContain('MARKERB')
       expect(await activeTabId(aPage)).toBe(aTabId)
       await expect.poll(isDirty, { timeout: 5000 }).toBe(true)
@@ -290,9 +276,7 @@ test.describe('Tab management', () => {
           { timeout: 8000 }
         )
         .toBe('alpha')
-      // It reverted A's edit, NOT B's (B's edit never appears).
       expect((await getMarkdownContent(aPage, aApp)).trim()).not.toContain('MARKERB')
-      // Undoing back to the exact on-disk content clears A's unsaved indicator.
       await expect.poll(isDirty, { timeout: 5000 }).toBe(false)
     } finally {
       await aApp.close()
@@ -335,7 +319,6 @@ test.describe('Tab management', () => {
         )
         .toBe(true)
 
-      // The active tab's box must sit fully inside the scroll viewport.
       const activeTabVisible = () =>
         sPage.evaluate(() => {
           const container = document.querySelector('.scrollable-tabs')
@@ -346,7 +329,6 @@ test.describe('Tab management', () => {
           return t.width > 0 && t.left >= c.left - 1 && t.right <= c.right + 1
         })
 
-      // Far-left tab: must be brought into view.
       await sendIpcToRenderer(sApp, 'mt::switch-tab-by-index', 0)
       await expect.poll(activeTabVisible, { timeout: 5000 }).toBe(true)
 
@@ -356,7 +338,6 @@ test.describe('Tab management', () => {
       await sendIpcToRenderer(sApp, 'mt::switch-tab-by-index', ids.length - 1)
       await expect.poll(activeTabVisible, { timeout: 5000 }).toBe(true)
 
-      // Back to the first tab: must scroll left again.
       await sendIpcToRenderer(sApp, 'mt::switch-tab-by-index', 0)
       await expect.poll(activeTabVisible, { timeout: 5000 }).toBe(true)
     } finally {
@@ -398,7 +379,6 @@ test.describe('Tab management', () => {
           .toBe(false)
       }
 
-      // --- close-others: keep exactly the chosen tab ---
       await openSavedTabs(['body one\n', 'body two\n'])
       let ids = await readTabIds(cPage)
       expect(ids.length).toBeGreaterThanOrEqual(3)
@@ -408,15 +388,12 @@ test.describe('Tab management', () => {
         .poll(() => readTabIds(cPage), { timeout: 5000 })
         .toEqual([keepId])
 
-      // --- close-saved: every saved tab closes ---
-      // Top up to several SAVED tabs again, then close-saved -> none survive.
       await openSavedTabs(['saved A\n', 'saved B\n'])
       ids = await readTabIds(cPage)
       expect(ids.length).toBeGreaterThanOrEqual(3)
       expect(await callEditorStoreAction(cPage, 'CLOSE_SAVED_TABS')).toBe(true)
       await expect.poll(() => readTabIds(cPage), { timeout: 5000 }).toEqual([])
 
-      // --- close-all: all remaining tabs close ---
       await openSavedTabs(['final A\n', 'final B\n', 'final C\n'])
       ids = await readTabIds(cPage)
       expect(ids.length).toBeGreaterThanOrEqual(3)

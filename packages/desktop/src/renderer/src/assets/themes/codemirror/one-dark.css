@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/* basic */
 .cm-s-one-dark {
   font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
   font-weight: 350;
@@ -80,7 +79,6 @@ SOFTWARE.
 .cm-s-one-dark .CodeMirror-activeline-background {
   background-color: rgba(153, 187, 255, 0.04);
 }
-/* basic syntax */
 .cm-s-one-dark .cm-header {
   color: #e06c75;
 }

@@ -88,16 +88,13 @@ test.describe('TOC collapse state survives edits (#3028)', () => {
   })
 
   test('a collapsed heading stays collapsed after a content edit', async() => {
-    // Everything expanded initially.
     await expect.poll(() => readVisibleTocLabels(page), { timeout: 8000 })
       .toEqual(['A', 'B', 'B1', 'C'])
 
-    // Collapse "B": its child "B1" disappears.
     await collapseNode(page, 'B')
     await expect.poll(() => readVisibleTocLabels(page), { timeout: 5000 })
       .toEqual(['A', 'B', 'C'])
 
-    // Edit a different heading ("C" -> "C2"), triggering UPDATE_TOC.
     const cContent = page
       .locator('.mu-container h2 .mu-atxheading-content')
       .filter({ hasText: 'C' })
@@ -106,7 +103,6 @@ test.describe('TOC collapse state survives edits (#3028)', () => {
     await page.keyboard.press('End')
     await page.keyboard.type('2', { delay: 20 })
 
-    // After the live TOC update, "B" must still be collapsed (B1 hidden).
     await expect.poll(() => readVisibleTocLabels(page), { timeout: 8000 })
       .toEqual(['A', 'B', 'C2'])
   })

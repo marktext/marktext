@@ -32,11 +32,8 @@ test.describe('Find bar reopen selects the existing term (#3458)', () => {
     await expect.poll(() => page.locator('.search-bar .search-result').innerText())
       .toContain('/ 2')
 
-    // Re-trigger Find while the bar is already open with a term present.
     await sendIpcToRenderer(app, 'mt::editor-edit-action', 'find')
 
-    // The whole term must be selected (so a keystroke replaces it), not left
-    // with a collapsed caret at the end.
     await expect
       .poll(() =>
         page.evaluate((sel) => {
@@ -47,7 +44,6 @@ test.describe('Find bar reopen selects the existing term (#3458)', () => {
       )
       .toEqual({ start: 0, end: 5, len: 5 })
 
-    // Typing over the selection replaces the term rather than appending to it.
     await page.keyboard.type('cherry')
     await expect.poll(() => page.locator(FIND_INPUT).inputValue()).toBe('cherry')
   })

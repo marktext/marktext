@@ -63,10 +63,8 @@ export const resolveLocalLinkTarget = (
 }
 
 /**
- * Copies `src` into the existing `outputDir` as `<SHA-1 of its bytes><ext>` and
- * returns the destination. The source is hashed while it is copied, so it is
- * read only once; if an identical file is already there it is kept and the new
- * copy is discarded.
+ * Copies src once while hashing to <SHA-1><extension> in the existing outputDir.
+ * Returns the destination; keeps an identical existing file and discards the new copy.
  */
 export const copyFileWithContentHash = async(src: string, outputDir: string): Promise<string> => {
   const hash = createHash('sha1')

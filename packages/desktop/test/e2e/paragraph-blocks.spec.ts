@@ -133,7 +133,6 @@ test.describe('Paragraph block transforms', () => {
       .then(() => true)
       .catch(() => false)
     expect(dialogVisible).toBe(true)
-    // Confirm default 3x3 by pressing Enter.
     await page.keyboard.press('Enter')
     const tableAppeared = await page
       .locator('.editor-component table')
@@ -169,7 +168,6 @@ test.describe('Insert table dialog (item 73)', () => {
   })
 
   test('opens the picker dialog, confirms, and inserts the 4x3 default table', async() => {
-    // Start from an empty paragraph with a live engine cursor in it.
     await setSourceMarkdown(page, app, '\n')
     await placeCaretInEditor(page)
 
@@ -182,12 +180,9 @@ test.describe('Insert table dialog (item 73)', () => {
     await dialog.waitFor({ state: 'visible', timeout: 5000 })
     await expect(dialog).toBeVisible()
 
-    // The seeded default shape is 4 rows x 3 columns.
     const rows = await dialog.locator('.el-input-number input').first().inputValue()
     expect(rows).toBe('4')
 
-    // Confirm via the primary OK button (handleDialogTableConfirm →
-    // editor.createTable(tableChecker)).
     await dialog.locator('.el-button--primary').click()
     await dialog.waitFor({ state: 'hidden', timeout: 5000 })
 
@@ -233,7 +228,6 @@ test.describe('Table source-mode round-trip + modified indicator (item 89)', () 
     const launched = await launchWithDoc('test/e2e/data/table.md')
     app = launched.app
     page = launched.page
-    // Let Muya finish rendering the table blocks.
     await page.waitForSelector('.editor-component table', { state: 'attached', timeout: 10000 })
   })
 
@@ -264,20 +258,16 @@ test.describe('Table source-mode round-trip + modified indicator (item 89)', () 
     expect(delimiterRow).toMatch(/\|\s*:-+:\s*\|/) // center: both colons
     expect(delimiterRow).toMatch(/\|\s*-+:\s*\|/) // right: trailing colon only
 
-    // The header/body content also round-trips intact.
     expect(md).toContain('Name')
     expect(md).toContain('Score')
     expect(md).toContain('Ada')
   })
 
   test('editing a table cell marks the tab as unsaved', async() => {
-    // Sanity: a freshly loaded file starts clean.
     expect(
       await page.evaluate(() => !!document.querySelector('.editor-tabs li.unsaved'))
     ).toBe(false)
 
-    // Click into the first table cell so the engine's active block is a cell,
-    // then type into it.
     const firstCell = page.locator('.editor-component table td.mu-table-cell').first()
     await firstCell.click()
     await page.waitForTimeout(150)
@@ -292,7 +282,6 @@ test.describe('Table source-mode round-trip + modified indicator (item 89)', () 
       )
       .toBe(true)
 
-    // The modified content is observable through the source-mode round-trip.
     const md = await getMarkdownContent(page, app)
     expect(md).toContain('X')
   })

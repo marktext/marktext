@@ -20,7 +20,6 @@ type RootState = { editor: EditorState; project: FolderState; [key: string]: unk
 
 type CancelFn = (() => void) | null
 
-// The quick open command
 class QuickOpenCommand {
   id: string
   description: string
@@ -42,7 +41,6 @@ class QuickOpenCommand {
     this.subcommands = []
     this.subcommandSelectedIndex = -1
 
-    // Reference to folder and editor and project state.
     this._editorState = rootState.editor
     this._folderState = rootState.project
 
@@ -51,7 +49,6 @@ class QuickOpenCommand {
   }
 
   search = async(query: string): Promise<QuickOpenSubcommand[]> => {
-    // Show opened files when no query given.
     if (!query) {
       return this.subcommands
     }
@@ -80,7 +77,6 @@ class QuickOpenCommand {
 
     this.subcommands = _editorState.tabs
       .map((tab) => tab.pathname)
-      // Filter untitled tabs
       .filter((tabPath: string | null | undefined) => !!tabPath)
       .map((pathname: string) => {
         const item: QuickOpenSubcommand = { id: pathname }
@@ -104,7 +100,6 @@ class QuickOpenCommand {
     this.subcommands = []
   }
 
-  // --- private ------------------------------------------
 
   _doSearch = (query: string): QuickOpenSubcommand[] | Promise<QuickOpenSubcommand[]> => {
     this._cancelFn = null
@@ -112,7 +107,6 @@ class QuickOpenCommand {
     const isRootDirOpened = !!_folderState.projectTree
     const tabsAvailable = _editorState.tabs.length > 0
 
-    // Only show opened files if no directory is opened.
     if (!isRootDirOpened && !tabsAvailable) {
       return []
     }
@@ -120,7 +114,6 @@ class QuickOpenCommand {
     const searchResult: string[] = []
     const rootPath: string | null = isRootDirOpened ? _folderState.projectTree!.pathname : null
 
-    // Add files that are not in the current root directory but opened.
     if (tabsAvailable) {
       const re = new RegExp(
         query.replace(SPECIAL_CHARS, (p) => {
@@ -152,7 +145,6 @@ class QuickOpenCommand {
       })
     }
 
-    // Search root directory on disk.
     return new Promise<QuickOpenSubcommand[]>((resolve, reject) => {
       let canceled = false
       const promises: Promise<void> & { cancel?: () => void } = this._directorySearcher
@@ -171,7 +163,6 @@ class QuickOpenCommand {
             }
           },
 
-          // Only search markdown files that contain the query string.
           inclusions: this._getInclusions(query)
         })
         .then(() => {

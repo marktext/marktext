@@ -77,7 +77,6 @@ export const reloadImageCache = (win: Win): void => {
   }
 }
 
-// --- Commands -------------------------------------------------------------
 
 export const loadViewCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.VIEW_READ_ONLY_MODE, (win: Win) =>
@@ -96,15 +95,10 @@ export const loadViewCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.VIEW_TOGGLE_DEV_TOOLS, debugToggleDevTools)
 }
 
-// --- IPC events -------------------------------------------------------------
 
 // NOTE: Don't use static `getMenuItemById` here, instead request the menu by
 //       window id from `AppMenu` manager.
 
-/**
- * @param applicationMenu The application menu instance.
- * @param changes Array of changed view settings (e.g. [ {showSideBar: true} ]).
- */
 export const viewLayoutChanged = (
   applicationMenu: Menu,
   changes: Record<string, unknown>

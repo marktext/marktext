@@ -38,7 +38,6 @@ describe('SpellcheckerLanguageCommand', () => {
       expect(command.subcommands).toHaveLength(3)
       expect(command.subcommands.map((c) => c.value)).toEqual(['en-US', 'de-DE', 'fr-FR'])
       expect(command.subcommands[1].id).toBe('spellchecker.switch-language-id-de-DE')
-      // de-DE is index 1 in the dictionary list.
       expect(command.subcommandSelectedIndex).toBe(1)
     })
 

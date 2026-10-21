@@ -37,7 +37,6 @@ const COMMANDS = Object.freeze({
   FILE_SAVE: 'file.save',
   FILE_SAVE_AS: 'file.save-as',
   FILE_EXPORT_FILE_PDF: 'file.export-file.pdf',
-  // FILE_TOGGLE_AUTO_SAVE: 'file.toggle-auto-save',
 
   FORMAT_CLEAR_FORMAT: 'format.clear-format',
   FORMAT_EMPHASIS: 'format.emphasis',

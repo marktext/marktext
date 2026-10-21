@@ -9,9 +9,7 @@ export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number]
 
 let translationsCache: Record<string, Translations> = {}
 
-// Directory holding `<language>.json` and the minified `<language>.min.json`.
-// The main process points it at the app's resources while bootstrapping (see
-// main/globalSetting.ts); the default suits a run from the package directory.
+// Locale directory for raw and minified translations; main configures it during startup.
 let localesDirectory = path.join(process.cwd(), 'static', 'locales')
 
 /**
@@ -118,7 +116,7 @@ function matchSupportedLanguage(locale: string): string | null {
   if (isLanguageSupported(locale)) {
     return locale
   }
-  const primarySubtag = locale.split('-')[0]!.toLowerCase()
+  const primarySubtag = locale.split('-')[0].toLowerCase()
 
   // The zh family splits by script rather than region: traditional characters
   // are used in TW, HK and MO (zh-Hant), everything else is simplified.
@@ -128,7 +126,7 @@ function matchSupportedLanguage(locale: string): string | null {
   }
 
   return (
-    getSupportedLanguages().find(lang => lang.split('-')[0]!.toLowerCase() === primarySubtag) ??
+    getSupportedLanguages().find(lang => lang.split('-')[0].toLowerCase() === primarySubtag) ??
     null
   )
 }

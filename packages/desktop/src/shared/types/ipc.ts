@@ -1,26 +1,14 @@
+import type { ProjectRootsSnapshot, ProjectTreeEvent } from './project'
 /**
- * IPC channel contract — single source of truth for renderer↔main messaging.
- *
- * Four channel categories:
- *   - IpcInvokeChannels      : renderer → main, returns Promise<T>
- *   - IpcSendChannels        : renderer → main, fire-and-forget
- *   - IpcSyncChannels        : renderer → main, synchronous
- *   - IpcMainEventChannels   : main → renderer, push events (renderer .on)
- *
- * Channel names are typed strictly; argument and return shapes are
- * intentionally permissive (`unknown[]` / `unknown`) during the migration.
- * Concrete types tighten as each handler/caller converts in commits 5–8.
- *
- * To register a new channel:
- *   1. Add an entry to the appropriate interface here.
- *   2. Wire the handler in src/main (ipcMain.handle / ipcMain.on / webContents.send).
- *   3. Wire the caller via the typed preload bridge in src/preload/index.ts.
+ * Cross-process IPC contract: invoke returns a Promise, send is fire-and-forget,
+ * sync returns directly, and main events push payloads to renderer listeners.
  */
 
 import type { IKeyboardLayoutInfo, IKeyboardMapping } from 'native-keymap'
 import type {
   MarkdownDocument,
   TabOptions,
+  SidebarOpenOptions,
   BootstrapEditorConfig,
   PageOptions,
   ExportType,
@@ -44,11 +32,10 @@ export interface SaveDialogRequest {
 export type PlantumlFetchResult =
   { ok: true; mime: string; data: Uint8Array } | { ok: false; error: string }
 
-// =================================================================
-// Invoke channels (renderer → main, returns Promise<T>)
-// =================================================================
 
 export interface IpcInvokeChannels {
+  'mt::project-remove-root': { args: [key: string]; ret: boolean }
+  'mt::project-retry-root': { args: [key: string]; ret: boolean }
   'mt::clipboard::write-text': { args: [text: string]; ret: boolean }
   'mt::set-document-read-only': { args: [tabId: string, readOnly: boolean]; ret: void }
   'mt::ask-for-image-path': { args: []; ret: string[] }
@@ -104,14 +91,13 @@ export interface IpcInvokeChannels {
   'mt::win::is-maximized': { args: []; ret: boolean }
   // Main derives the BrowserWindow via BrowserWindow.fromWebContents(e.sender);
   // no need to pass windowId. Payload is the editor+project+layout snapshot.
-  'update-buffer-state': { args: [payload: unknown]; ret: void }
+  'update-buffer-state': { args: [payload: unknown]; ret: boolean }
 }
 
-// =================================================================
-// Send channels (renderer → main, fire-and-forget)
-// =================================================================
 
 export interface IpcSendChannels {
+  'mt::cmd-add-folder': []
+  'mt::project-renderer-ready': []
   'mt::forget-document': [tabId: string]
   'mt::update-document-mode': [readOnly: boolean, hasDocument?: boolean]
   'app-create-editor-window': [config?: unknown]
@@ -133,6 +119,7 @@ export interface IpcSendChannels {
   'mt::ask-for-user-data': []
   'mt::ask-for-user-preference': []
   'mt::check-for-update': []
+  'mt::cancel-pending-preview': [requestId: number]
   'mt::close-window': []
   'mt::close-window-confirm': [unsavedFiles: UnsavedFile[]]
   'mt::cmd-close-window': []
@@ -149,7 +136,7 @@ export interface IpcSendChannels {
   'mt::make-screenshot': []
   'mt::menu::popup': [template: MenuTemplate, position?: MenuPopupPosition]
   'mt::menu::popup-application': [position?: MenuPopupPosition]
-  'mt::open-file': [filePath: string, options?: unknown]
+  'mt::open-file': [filePath: string, options?: SidebarOpenOptions]
   'mt::open-file-by-window-id': [windowId: number, filePath: string, options?: unknown]
   'mt::open-keybindings-config': []
   'mt::open-setting-window': []
@@ -227,18 +214,12 @@ export interface IpcSendChannels {
   'window-toggle-always-on-top': [windowId: number]
 }
 
-// =================================================================
-// Sync channels (synchronous renderer → main)
-// =================================================================
 
 export interface IpcSyncChannels {
   'mt::boot-info': { args: []; ret: BootInfo }
   'mt::paths::is-same-sync': { args: [a: string, b: string]; ret: boolean }
 }
 
-// =================================================================
-// Push events (main → renderer, listened on ipcRenderer.on)
-// =================================================================
 
 export interface IpcMainEventChannels {
   'mt::discard-and-close-window': [tabIds: string[]]
@@ -277,7 +258,7 @@ export interface IpcMainEventChannels {
   'mt::menu::click': [menuId: string]
   'mt::menu::closed': []
   'mt::new-untitled-tab': [selected?: boolean, markdown?: string]
-  'mt::open-directory': [directoryPath: string]
+  'mt::project-roots-changed': [snapshot: ProjectRootsSnapshot]
   'mt::open-new-tab': [
     markdownDocument: MarkdownDocument | null,
     options?: TabOptions,
@@ -310,7 +291,7 @@ export interface IpcMainEventChannels {
   'mt::toggle-view-layout-entry': [entry: string]
   'mt::toggle-view-mode-entry': [entry: string]
   'mt::update-file': [payload: { type: 'add' | 'change' | 'unlink'; change: FileChangeDetail }]
-  'mt::update-object-tree': [payload: unknown]
+  'mt::update-object-tree': [payload: ProjectTreeEvent]
   'mt::user-preference': [partial: unknown]
   'mt::window-active-status': [active: boolean]
   'mt::window-enter-full-screen': []
@@ -321,9 +302,6 @@ export interface IpcMainEventChannels {
   'settings::change-tab': [tab: string]
 }
 
-// =================================================================
-// Auxiliary types
-// =================================================================
 
 /**
  * Snapshot of the active OS keyboard layout, returned by
@@ -350,9 +328,6 @@ export interface BootInfo {
   MARKDOWN_INCLUSIONS: string[]
 }
 
-// =================================================================
-// Helper types for the preload bridge generic wrappers
-// =================================================================
 
 export type InvokeArgs<K extends keyof IpcInvokeChannels> = IpcInvokeChannels[K]['args']
 export type InvokeRet<K extends keyof IpcInvokeChannels> = IpcInvokeChannels[K]['ret']

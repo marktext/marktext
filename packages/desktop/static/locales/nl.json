@@ -32,7 +32,8 @@
       "closeTab": "Tabblad sluiten",
       "closeWindow": "Venster sluiten",
       "quit": "Afsluiten",
-      "preferences": "Voorkeuren"
+      "preferences": "Voorkeuren",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "Bewerken",
@@ -250,7 +251,16 @@
       "closeAll": "Alles sluiten",
       "emptyProject": "Leeg project",
       "createFile": "Bestand aanmaken",
-      "openFolder": "Map openen"
+      "openFolder": "Map openen",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session"
     },
     "toc": {
       "expand": "Inhoudsopgave uitklappen",
@@ -395,6 +405,7 @@
         "autoSaveDelay": "De tijd in ms na een wijziging voordat het bestand wordt opgeslagen",
         "titleBarStyle": "De titelbalkstijl (alleen Windows en Linux)",
         "openFilesInNewWindow": "Bestanden openen in een nieuw venster",
+        "openFilesInPreviewMode": "Bestanden in de zijbalk openen in voorbeeldtabbladen",
         "openFolderInNewWindow": "Map openen via menu in een nieuw venster",
         "zoom": "Het zoomniveau. Tussen 0,5 en 2,0",
         "hideScrollbar": "Schuifbalken verbergen",
@@ -518,6 +529,7 @@
         "wrapTextInToc": "Tekstterugloop in inhoudsopgave",
         "showOpenedFiles": "Geopende bestanden tonen",
         "autoReveal": "Actief bestand tonen in de zijbalk",
+        "openFilesInPreviewMode": "Bestanden in de zijbalk openen in voorbeeldtabbladen. Bewerken of dubbelklikken houdt het tabblad open.",
         "excludePatterns": "Uitsluitpatronen",
         "excludePatternsNotes": "Uitsluitpatronen (opmerkingen)",
         "fileSortBy": {
@@ -1046,11 +1058,12 @@
       "title": "Spellingcontrole"
     },
     "tabs": {
-      "close": "{name} sluiten"
+      "close": "{name} sluiten",
+      "preview": "{name}, voorbeeldtabblad"
     }
   },
   "readingMode": {
-    "title": "Leesmodus (alleen-lezen)",
+    "title": "Leesmodus",
     "edit": "Bewerkingsmodus",
     "lock": "Leesmodus inschakelen",
     "unlock": "Overschakelen naar bewerkingsmodus",

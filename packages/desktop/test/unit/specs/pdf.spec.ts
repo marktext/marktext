@@ -63,7 +63,6 @@ describe('getCssForOptions', () => {
     const def = await getCssForOptions({ theme: 'default' })
     const empty = await getCssForOptions({})
 
-    // Both produce the same base stylesheet (no theme block appended).
     expect(def).toBe(empty)
     expect(def).not.toContain('Georgia')
     expect(def).toContain('.markdown-body{')
@@ -118,7 +117,6 @@ describe('getCssForOptions', () => {
     expect(css).toContain('"Noto Music","Noto Sans Math"')
     expect(css).toContain('font-size:14px;')
     expect(css).toContain('line-height:1.6;')
-    // The font-family also seeds the header/footer container.
     expect(css).toContain('.hf-container{font-family:"Noto Music","Noto Sans Math","Foo"')
   })
 
@@ -183,7 +181,6 @@ describe('getCssForOptions', () => {
     const styledHtml = await getCssForOptions({ type: 'styledHtml' })
 
     expect(printable).toContain('@media print{@page{')
-    // type === 'styledHtml' is the only non-printable mode.
     expect(styledHtml).not.toContain('@media print')
   })
 })
@@ -199,7 +196,6 @@ describe('getHtmlToc', () => {
 
     expect(html).toContain('class="toc-title"')
     expect(html).toContain('Table of Contents')
-    // Top H1 is dropped, its sub-heading is kept.
     expect(html).not.toContain('href="#top"')
     expect(html).toContain('href="#sub"')
   })
@@ -227,7 +223,6 @@ describe('getHtmlToc', () => {
     const second = getHtmlToc(toc, { tocIncludeTopHeading: true })
 
     expect(second).toBe(first)
-    // The caller's array is untouched (no shift leaked out).
     expect(toc).toHaveLength(2)
     expect(toc[0]).toEqual({ lvl: 1, content: 'Top' })
   })
@@ -256,8 +251,6 @@ describe('getHtmlToc', () => {
 
   it('returns an empty string when the TOC has no qualifying entries', async() => {
     const { getHtmlToc } = await loadPdf()
-    // A lone top-level H1 is shifted away by the default (exclude-top) path,
-    // leaving nothing to render.
     expect(getHtmlToc([{ lvl: 1, content: 'Only' }], {})).toBe('')
     expect(getHtmlToc([], {})).toBe('')
   })

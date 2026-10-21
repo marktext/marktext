@@ -32,7 +32,8 @@
       "closeTab": "Tab schließen",
       "closeWindow": "Fenster schließen",
       "quit": "Beenden",
-      "preferences": "Einstellungen"
+      "preferences": "Einstellungen",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "Bearbeiten",
@@ -250,7 +251,16 @@
       "closeAll": "Alle schließen",
       "emptyProject": "Leeres Projekt",
       "createFile": "Datei erstellen",
-      "openFolder": "Ordner öffnen"
+      "openFolder": "Ordner öffnen",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session"
     },
     "toc": {
       "expand": "Inhaltsverzeichnis aufklappen",
@@ -396,6 +406,7 @@
         "autoNormalizeLineEndings": "Zeilenenden beim Öffnen von Dateien automatisch normalisieren. Wenn deaktiviert, werden Dateien unverändert geöffnet.",
         "titleBarStyle": "Der Titelleisten-Stil (nur Windows und Linux-System)",
         "openFilesInNewWindow": "Dateien in einem neuen Fenster öffnen",
+        "openFilesInPreviewMode": "Sidebar-Dateien in Vorschauregistern öffnen",
         "openFolderInNewWindow": "Ordner über Menü in einem neuen Fenster öffnen",
         "zoom": "Das Zoom-Level. Zwischen 0.5 und 2.0 inklusive",
         "hideScrollbar": "Ob Scrollbalken ausgeblendet werden sollen",
@@ -518,6 +529,7 @@
         "wrapTextInToc": "Text im Inhaltsverzeichnis umbrechen",
         "showOpenedFiles": "Geöffnete Dateien anzeigen",
         "autoReveal": "Aktive Datei in der Seitenleiste anzeigen",
+        "openFilesInPreviewMode": "Sidebar-Dateien in Vorschauregistern öffnen. Bearbeiten oder Doppelklicken behält das Register bei.",
         "excludePatterns": "Ausschlussmuster",
         "excludePatternsNotes": "Hinweise zu Ausschlussmustern",
         "fileSortBy": {
@@ -1046,11 +1058,12 @@
       "title": "Rechtschreibprüfung"
     },
     "tabs": {
-      "close": "{name} schließen"
+      "close": "{name} schließen",
+      "preview": "{name}, Vorschauregister"
     }
   },
   "readingMode": {
-    "title": "Lesemodus (schreibgeschützt)",
+    "title": "Lesemodus",
     "edit": "Bearbeitungsmodus",
     "lock": "Lesemodus aktivieren",
     "unlock": "Zum Bearbeitungsmodus wechseln",

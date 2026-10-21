@@ -1,6 +1,5 @@
 <template>
   <div class="tree-view">
-    <!-- Opened tabs -->
     <div
       v-if="openedFilesInSidebar"
       class="opened-files"
@@ -65,94 +64,121 @@
       </div>
     </div>
 
-    <!-- Project tree view -->
     <div
-      v-if="projectTree"
-      class="project-tree"
+      ref="treeWrapper"
+      class="project-trees tree-wrapper"
+      :class="{ 'no-project': !roots.length }"
+      tabindex="0"
+      @mousedown="handleTreeMouseDown"
+      @focusout="handleTreeFocusOut"
+      @keydown="handleTreeKeydown"
     >
       <div
-        class="title"
-        @contextmenu.prevent="handleRootContextMenu"
+        v-for="root in roots"
+        :key="root.key"
+        class="project-tree"
       >
-        <el-icon
-          class="icon-arrow"
-          :class="{ fold: !showDirectories }"
-          :size="12"
-          @click.stop="toggleDirectories()"
-        >
-          <ArrowRight />
-        </el-icon>
-        <span
-          class="default-cursor text-overflow"
-          @click.stop="toggleDirectories()"
-        >{{
-          projectTree.name
-        }}</span>
-      </div>
-      <div
-        v-show="showDirectories"
-        ref="treeWrapper"
-        class="tree-wrapper"
-        tabindex="0"
-        @mousedown="handleTreeMouseDown"
-        @focusout="handleTreeFocusOut"
-        @keydown="handleTreeKeydown"
-      >
-        <folder
-          v-for="folder of projectTree.folders"
-          :key="folder.id"
-          :folder="folder"
-          :depth="depth"
-        />
-        <input
-          v-show="createCacheDirname === projectTree.pathname"
-          ref="input"
-          v-model="nameInputValue"
-          placeholder="Enter .md file name"
-          type="text"
-          class="new-input"
-          :style="{ 'margin-left': `${depth * 5 + 15}px` }"
-          @keypress.enter="handleInputEnter"
-        >
-        <file
-          v-for="file of projectTree.files"
-          :key="file.id"
-          :file="file"
-          :depth="depth"
-        />
         <div
-          v-if="
-            projectTree.files.length === 0 &&
-              projectTree.folders.length === 0 &&
-              createCacheDirname !== projectTree.pathname
+          :ref="
+            (el) => {
+              if (el) rootRows.set(root.key, el as HTMLElement)
+            }
           "
-          class="empty-project"
+          class="title project-root"
+          role="button"
+          tabindex="0"
+          :title="root.error || root.pathname"
+          :aria-expanded="!root.tree.isCollapsed"
+          @click.stop="toggleRoot(root)"
+          @contextmenu.prevent="handleRootContextMenu($event, root)"
+          @keydown="handleRootKeydown($event, root)"
         >
-          <span>{{ t('sideBar.tree.emptyProject') }}</span>
-          <div class="centered-group">
-            <button
-              class="button-primary"
-              @click.stop="createFile"
-            >
-              {{ t('sideBar.tree.createFile') }}
-            </button>
+          <el-icon
+            class="icon-arrow"
+            :class="{ fold: root.tree.isCollapsed }"
+            :size="12"
+          >
+            <ArrowRight />
+          </el-icon>
+          <span class="text-overflow">{{ projectStore.ROOT_LABEL(root) }}</span>
+        </div>
+        <div
+          v-show="!root.tree.isCollapsed"
+          class="tree-contents"
+        >
+          <div
+            v-if="root.status !== 'ready'"
+            class="root-status"
+            role="status"
+          >
+            {{
+              t(
+                root.status === 'loading'
+                  ? 'sideBar.tree.loadingFolder'
+                  : 'sideBar.tree.unavailableFolder'
+              )
+            }}
+          </div>
+          <folder
+            v-for="folder of root.tree.folders"
+            :key="folder.id"
+            :folder="folder"
+            :depth="depth"
+          />
+          <input
+            v-if="createCacheDirname === root.pathname"
+            :ref="
+              (el) => {
+                if (el) input = el as HTMLInputElement
+              }
+            "
+            v-model="nameInputValue"
+            type="text"
+            class="new-input"
+            :style="{ 'margin-left': `${depth * 5 + 15}px` }"
+            @keypress.enter="handleInputEnter"
+          >
+          <file
+            v-for="file of root.tree.files"
+            :key="file.id"
+            :file="file"
+            :depth="depth"
+          />
+          <div
+            v-if="
+              root.status === 'ready' &&
+                !root.tree.files.length &&
+                !root.tree.folders.length &&
+                createCacheDirname !== root.pathname
+            "
+            class="empty-project"
+          >
+            <span>{{ t('sideBar.tree.emptyProject') }}</span>
+            <div class="centered-group">
+              <button
+                class="button-primary"
+                @click.stop="createFile(root)"
+              >
+                {{ t('sideBar.tree.createFile') }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div
-      v-else
-      class="open-project"
-    >
-      <div class="centered-group">
-        <el-button
-          text
-          bg
-          type="primary"
-          @click="openFolder"
-        >
-          {{ t('sideBar.tree.openFolder') }}
-        </el-button>
+      <div
+        v-if="!roots.length"
+        class="open-project"
+      >
+        <div class="centered-group">
+          <el-button
+            text
+            bg
+            type="primary"
+            @click="projectStore.ASK_FOR_OPEN_PROJECT()"
+          >
+            {{ t('sideBar.tree.openFolder') }}
+          </el-button>
+        </div>
       </div>
     </div>
   </div>
@@ -170,7 +196,8 @@ import File from './treeFile.vue'
 import OpenedFile from './treeOpenedTab.vue'
 import IconTooltip from '@/components/iconTooltip/index.vue'
 import bus from '../../bus'
-import { showContextMenu } from '../../contextMenu/sideBar'
+import { showRootContextMenu } from '../../contextMenu/sideBar'
+import type { RootView } from '@/store/project'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { PATH_SEPARATOR } from '@/config'
@@ -185,30 +212,22 @@ import {
 } from './trashKey'
 import { shouldRenameSelection } from './renameKey'
 import { TREE_ROW_REGISTRY_KEY, toRowKey, type TreeRowRegistry } from './rowRegistry'
-import type { TreeNode, TabDescriptor } from './types'
+import type { TabDescriptor } from './types'
 
 const { t } = useI18n()
 
-const props = defineProps<{
-  // The project store seeds `projectTree` as `null` until a folder is
-  // opened; the template renders the "open project" empty-state behind
-  // `v-if="projectTree"`. Type the prop nullable to match runtime + the
-  // template guard.
-  projectTree: TreeNode | null
-  tabs?: TabDescriptor[]
-}>()
+defineProps<{ tabs?: TabDescriptor[] }>()
 
 const depth = 0
 // Switching views remounts the tree; persist section expansion across those
 // remounts and app restarts (#2421).
-const SHOW_DIRECTORIES_KEY = 'side-bar-show-directories'
 const SHOW_OPENED_FILES_KEY = 'side-bar-show-opened-files'
 const readSectionExpanded = (key: string): boolean => localStorage.getItem(key) !== 'false'
-const showDirectories = ref(readSectionExpanded(SHOW_DIRECTORIES_KEY))
 const showOpenedFiles = ref(readSectionExpanded(SHOW_OPENED_FILES_KEY))
 const input = ref<HTMLInputElement | null>(null)
 const treeWrapper = ref<HTMLDivElement | null>(null)
 
+const rootRows = new Map<string, HTMLElement>()
 const rowRegistry: TreeRowRegistry = new Map()
 provide(TREE_ROW_REGISTRY_KEY, rowRegistry)
 
@@ -217,53 +236,72 @@ const editorStore = useEditorStore()
 const layoutStore = useLayoutStore()
 const preferencesStore = usePreferencesStore()
 
-// Computed properties
-const { createCache } = storeToRefs(projectStore)
+const { roots, createCache } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
 const { activeItem } = storeToRefs(projectStore)
 const { renameCache } = storeToRefs(projectStore)
 const { nameInputValue } = storeToRefs(projectStore)
 const { openedFilesInSidebar } = storeToRefs(preferencesStore)
 
-// The createCache state is `{ dirname, type }` while an input is shown, and
-// `{}` otherwise. Expose a typed accessor for the template so we don't have
-// to thread `as any` through every comparison.
+// The create cache is empty when no input is shown.
 const createCacheDirname = computed<string | undefined>(() => {
   const cache = createCache.value as { dirname?: string }
   return cache.dirname
 })
 
-// Methods
-const openFolder = (): void => {
-  projectStore.ASK_FOR_OPEN_PROJECT()
-}
-
 const saveAll = (isClose: boolean): void => {
   editorStore.ASK_FOR_SAVE_ALL(isClose)
 }
 
-const createFile = (): void => {
-  projectStore.CHANGE_ACTIVE_ITEM(props.projectTree)
+const createFile = (root: RootView): void => {
+  projectStore.CHANGE_ACTIVE_ITEM(root.tree)
   bus.emit('SIDEBAR::new', 'file')
 }
 
-const handleRootContextMenu = (event: MouseEvent): void => {
-  projectStore.CHANGE_ACTIVE_ITEM(props.projectTree)
-  showContextMenu(event, !!clipboard.value)
+const toggleRoot = (root: RootView): void => {
+  projectStore.CHANGE_ACTIVE_ITEM(root.tree)
+  projectStore.SET_FOLDER_COLLAPSED(root.tree, !root.tree.isCollapsed)
+}
+
+const handleRootContextMenu = (
+  event: { clientX: number; clientY: number },
+  root: RootView
+): void => {
+  projectStore.CHANGE_ACTIVE_ITEM(root.tree)
+  showRootContextMenu(
+    event,
+    !!clipboard.value,
+    root.status === 'ready',
+    () => {
+      void window.electron.ipcRenderer.invoke('mt::project-remove-root', root.key)
+    },
+    () => {
+      void window.electron.ipcRenderer.invoke('mt::project-retry-root', root.key)
+    }
+  )
+}
+
+const handleRootKeydown = (event: KeyboardEvent, root: RootView): void => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault()
+    event.stopPropagation()
+    toggleRoot(root)
+  } else if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+    event.preventDefault()
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+    handleRootContextMenu({ clientX: rect.left, clientY: rect.bottom }, root)
+  }
+}
+
+const focusRoot = (key: unknown): void => {
+  const row = typeof key === 'string' ? rootRows.get(key) : undefined
+  if (row?.isConnected) row.focus()
+  else document.querySelector<HTMLButtonElement>('.side-bar .add-folder-button')?.focus()
 }
 
 const toggleOpenedFiles = (): void => {
   showOpenedFiles.value = !showOpenedFiles.value
   localStorage.setItem(SHOW_OPENED_FILES_KEY, String(showOpenedFiles.value))
-}
-
-const setShowDirectories = (value: boolean): void => {
-  showDirectories.value = value
-  localStorage.setItem(SHOW_DIRECTORIES_KEY, String(value))
-}
-
-const toggleDirectories = (): void => {
-  setShowDirectories(!showDirectories.value)
 }
 
 const findRow = (pathname: string): HTMLElement | undefined => {
@@ -298,9 +336,11 @@ const revealPath = async (
 ): Promise<void> => {
   if (!pathname) return
   if (!force && !preferencesStore.autoRevealInSidebar) return
-  if (!showDirectories.value) {
+  const root = projectStore.FIND_ROOT(pathname)
+  if (!root || root.status !== 'ready') return
+  if (root.tree.isCollapsed) {
     if (!force) return
-    setShowDirectories(true)
+    projectStore.SET_FOLDER_COLLAPSED(root.tree, false)
   }
   // Hidden views have no visible row to scroll into view.
   if (!layoutStore.showSideBar || layoutStore.rightColumn !== 'files') return
@@ -311,7 +351,7 @@ const revealPath = async (
   // Hidden views report a zero-size viewport.
   if (!container || container.offsetParent === null) return
 
-  const row = findRow(pathname)
+  const row = findRow(projectStore.TREE_PATH(pathname))
   if (row) scrollRowIntoView(container, row)
 }
 
@@ -319,7 +359,6 @@ const handleRevealPath = (pathname: unknown): void => {
   revealPath(typeof pathname === 'string' ? pathname : null, { force: true })
 }
 
-// From createFileOrDirectoryMixins
 const handleInputFocus = (): void => {
   nextTick(() => {
     if (input.value) {
@@ -387,7 +426,7 @@ const handleTreeKeydown = (event: KeyboardEvent): void => {
   const shouldRename = shouldRenameSelection({
     key,
     selection: activeItem.value,
-    projectRootPath: props.projectTree?.pathname,
+    projectRootPath: projectStore.FIND_ROOT(activeItem.value?.pathname || '')?.pathname,
     pathSeparator: PATH_SEPARATOR,
     isEditingName,
     editableTarget
@@ -403,7 +442,7 @@ const handleTreeKeydown = (event: KeyboardEvent): void => {
     metaKey,
     isMac,
     selection: activeItem.value,
-    projectRootPath: props.projectTree?.pathname,
+    projectRootPath: projectStore.FIND_ROOT(activeItem.value?.pathname || '')?.pathname,
     pathSeparator: PATH_SEPARATOR,
     isEditingName,
     editableTarget
@@ -437,6 +476,7 @@ watch(
 )
 
 onMounted(() => {
+  bus.on('SIDEBAR::focus-root', focusRoot)
   bus.on('SIDEBAR::show-new-input', handleInputFocus)
   bus.on('SIDEBAR::focus-tree', focusTree)
   bus.on('SIDEBAR::reveal-path', handleRevealPath)
@@ -449,6 +489,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  bus.off('SIDEBAR::focus-root', focusRoot)
   bus.off('SIDEBAR::show-new-input', handleInputFocus)
   bus.off('SIDEBAR::focus-tree', focusTree)
   bus.off('SIDEBAR::reveal-path', handleRevealPath)
@@ -536,11 +577,29 @@ onUnmounted(() => {
   width: 8px;
 }
 
+.project-trees {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.project-trees.no-project {
+  display: flex;
+  flex-direction: column;
+}
 .project-tree {
   display: flex;
   flex-direction: column;
-  overflow: auto;
-  flex: 1;
+}
+.project-root {
+  cursor: pointer;
+}
+.project-root:focus-visible {
+  outline: 1px solid var(--focusColor);
+  outline-offset: -1px;
+}
+.root-status {
+  padding: 8px 15px;
+  color: var(--sideBarTextColor);
 }
 
 .project-tree > .title {

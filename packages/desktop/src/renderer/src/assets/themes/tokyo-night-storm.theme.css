@@ -1,5 +1,4 @@
 :root {
-  /*editor - Tokyo Night Storm theme*/
   --themeColor: #7aa2f7;
   --themeColor90: rgba(122, 162, 247, 0.9);
   --themeColor80: rgba(122, 162, 247, 0.8);
@@ -57,7 +56,6 @@
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(24, 26, 31, 0.5), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #1f2335;
 
-  /* Markdown element colors */
   --headingColor: #c0caf5;
   --h1Color: #bb9af7;
   --h2Color: #7aa2f7;
@@ -73,7 +71,6 @@
   --emColor: #bb9af7;
   --listMarkerColor: #7aa2f7;
 
-  /*marktext*/
   --sideBarColor: rgba(192, 202, 245, 0.6);
   --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: rgba(192, 202, 245, 0.8);
@@ -90,11 +87,6 @@
   --maskColor: rgba(0, 0, 0, 0.7);
   --editorAreaWidth: 750px;
 
-  /* @muyajs/core (kebab-case) editor variables
-     Additive prep for the muyajs -> @muyajs/core editor swap. These
-     mirror the camelCase vars above; the legacy editor ignores them.
-     Do NOT remove the camelCase vars — they still drive the current
-     editor until editor.vue switches engines. */
   --theme-color: var(--themeColor);
   --highlight-color: var(--highlightColor);
   --selection-color: var(--selectionColor);
@@ -197,7 +189,6 @@
   box-shadow: none !important;
 }
 
-/* ------------------------------------ */
 
 :not(pre) > code[class*='language-'],
 pre:not(.CodeMirror-line),

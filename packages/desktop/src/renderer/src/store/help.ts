@@ -2,22 +2,14 @@ import type { IFileState } from '@shared/types/files'
 import { wordCount as getWordCount } from '@muyajs/core'
 import { getUniqueId, deepClone } from '../util'
 
-// Helper module (NOT a Pinia store): defaults and factories for the editor
-// document state objects.
 
-/**
- * Canonical document state shape used by the editor store. Re-exported as a
- * structural alias of `IFileState` from `@shared/types/files` so consumers
- * that historically imported `IDocumentState` keep compiling.
- */
 export type IDocumentState = IFileState
 
-// Re-export the cross-process shape for convenience so renderer code can
-// continue to import these from `./help`.
 export type { IFileState }
 
 const defaultFileStateWithoutId = {
   readOnly: false,
+  isPreview: false,
   isSaved: true,
   pathname: '',
   filename: 'Untitled-1',
@@ -50,12 +42,7 @@ const defaultFileStateWithoutId = {
   notifications: []
 } satisfies Omit<IFileState, 'id'>
 
-/**
- * Default internal markdown document with editor options. Acts as the
- * template for cloning into per-tab state. Note: `id` is intentionally
- * omitted — every actual file state must allocate a unique id via
- * `getBlankFileState` / `createDocumentState`.
- */
+/** Template for per-tab state; callers assign the ID so every document receives a unique one. */
 export const defaultFileState: Omit<IFileState, 'id'> = defaultFileStateWithoutId
 
 export const getOptionsFromState = (
@@ -120,7 +107,6 @@ export const getBlankFileState = (
 
   const id = getUniqueId()
 
-  // We may pass markdown=null as a parameter.
   if (markdown == null) {
     markdown = defaultFileStateWithoutId.markdown
   }

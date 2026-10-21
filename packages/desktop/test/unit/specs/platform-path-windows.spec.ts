@@ -122,7 +122,6 @@ describe('path consistency with a native win32 window.path (#5683)', () => {
     treeCtrl.addDirectory(tree as never, { pathname: `${NATIVE_ROOT}\\pkg` })
     treeCtrl.addFile(tree as never, markdownFile(`${NATIVE_ROOT}\\pkg\\a.md`) as never)
 
-    // Raw `===` matches: no separator folding required.
     expect(tree.folders[0].pathname).toBe(`${NATIVE_ROOT}\\pkg`)
     expect((tree.folders[0].files[0] as TestFile).pathname).toBe(`${NATIVE_ROOT}\\pkg\\a.md`)
   })
@@ -165,6 +164,8 @@ describe('path consistency with a native win32 window.path (#5683)', () => {
     const handler = ipcListeners.get('mt::update-object-tree')
     expect(handler).toBeTruthy()
     handler!({}, {
+      rootKey: store.roots[0].key,
+      watchToken: store.roots[0].watchToken,
       type: 'add',
       change: { pathname: nativeNew, isMarkdown: true, data: { markdown: '# note' } }
     })

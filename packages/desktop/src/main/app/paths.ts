@@ -10,11 +10,9 @@ class AppPaths extends EnvPaths {
    */
   constructor(userDataPath: string = '') {
     if (!userDataPath) {
-      // Use default user data path.
       userDataPath = app.getPath('userData')
     }
 
-    // Initialize environment paths
     super(userDataPath)
 
     // Changing the user data directory is only allowed during application bootstrap.

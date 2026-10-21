@@ -184,7 +184,7 @@ watch(
 const searchMatches = computed(() => currentFile.value?.searchMatches)
 
 watch(searchValue, () => {
-  if (!showSearch.value) return // make sure search box is actually open
+  if (!showSearch.value) return
   debouncedSearchFn()
 })
 
@@ -312,7 +312,6 @@ const toggleSearchType = () => {
   type.value = type.value === 'search' ? 'replace' : 'search'
 }
 
-/** Find the previous or next search result. */
 const find = (action: 'previous' | 'next') => {
   bus.emit('find-action', action)
 }

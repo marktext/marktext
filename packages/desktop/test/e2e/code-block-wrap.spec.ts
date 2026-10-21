@@ -44,7 +44,6 @@ test.describe('Code block wrap + line-numbers preferences', () => {
     const launched = await launchWithMarkdown(CODE_DOC)
     app = launched.app
     page = launched.page
-    // The fenced code block renders into pre.mu-code-block > code.mu-code.
     await page.waitForSelector(CODE_SELECTOR, { state: 'attached', timeout: 15000 })
   })
 
@@ -58,7 +57,6 @@ test.describe('Code block wrap + line-numbers preferences', () => {
     // .mu-code-wrap class and white-space is pre. Establish the baseline first.
     await expect.poll(() => readWhiteSpace(page), { timeout: 10000 }).toBe('pre')
 
-    // Enable wrapping -> selector should resolve to `pre-wrap`.
     await setPreference(app, page, { wrapCodeBlocks: true })
     await expect.poll(() => readWhiteSpace(page), { timeout: 10000 }).toBe('pre-wrap')
 
@@ -78,7 +76,6 @@ test.describe('Code block wrap + line-numbers preferences', () => {
       })
     }
 
-    // Default is codeBlockLineNumbers: false.
     await expect.poll(hasLineNumbers, { timeout: 10000 }).toBe(false)
 
     // Enabling forces a re-render that re-creates the code block with the
@@ -86,7 +83,6 @@ test.describe('Code block wrap + line-numbers preferences', () => {
     await setPreference(app, page, { codeBlockLineNumbers: true })
     await expect.poll(hasLineNumbers, { timeout: 10000 }).toBe(true)
 
-    // And toggling back off removes it.
     await setPreference(app, page, { codeBlockLineNumbers: false })
     await expect.poll(hasLineNumbers, { timeout: 10000 }).toBe(false)
   })
@@ -98,7 +94,6 @@ test.describe('Code block wrap + line-numbers preferences', () => {
     await setPreference(app, page, { wrapCodeBlocks: true })
     await expect.poll(() => readWhiteSpace(page), { timeout: 10000 }).toBe('pre-wrap')
 
-    // Force a full re-render of the code block via the line-numbers option.
     await setPreference(app, page, { codeBlockLineNumbers: true })
     await page.waitForFunction(
       () => {
@@ -112,7 +107,6 @@ test.describe('Code block wrap + line-numbers preferences', () => {
     // The newly-rendered .mu-code must still pick up the muya wrap CSS.
     await expect.poll(() => readWhiteSpace(page), { timeout: 10000 }).toBe('pre-wrap')
 
-    // Restore defaults so the suite leaves no global preference state behind.
     await setPreference(app, page, { codeBlockLineNumbers: false, wrapCodeBlocks: false })
     await expect.poll(() => readWhiteSpace(page), { timeout: 10000 }).toBe('pre')
   })

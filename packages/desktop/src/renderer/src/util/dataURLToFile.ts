@@ -1,6 +1,5 @@
-// Convert a `data:` URL (e.g. a screenshot pasted from the clipboard bitmap)
-// back into a `File` so `imageAction` routes it through the copy-to-folder /
-// upload flows. Returns null when the payload is not a base64 image data URL.
+// Convert clipboard bitmap data URLs to Files for imageAction.
+// Returns null for payloads that are not base64 image data URLs.
 export function dataURLToFile(dataUrl: string): File | null {
   const match = /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/s.exec(dataUrl)
   if (!match) return null

@@ -3,9 +3,6 @@ import { defineStore } from 'pinia'
 import bus from '../bus'
 import { setLanguage } from '../i18n'
 
-// Finite-value unions where the runtime currently constrains the field.
-// We keep these as plain strings everywhere else to avoid forcing prematurely
-// narrow casts on consumers that read raw values from disk.
 export type EndOfLine = 'default' | 'lf' | 'crlf'
 export type TitleBarStyle = 'custom' | 'native'
 export type StartUpAction = 'restoreAll' | 'lastSession' | 'blank'
@@ -21,7 +18,6 @@ export type FileSortBy = 'created' | 'modified' | 'title'
 export type FileSortOrder = 'asc' | 'desc'
 
 export interface PreferencesState {
-  // ----- General -----
   autoSave: boolean
   autoSaveDelay: number
   titleBarStyle: TitleBarStyle | string
@@ -41,7 +37,6 @@ export interface PreferencesState {
   language: string
   showPandocConvert: boolean
 
-  // ----- Editor / typography -----
   editorFontFamily: string
   fontSize: number
   lineHeight: number
@@ -53,7 +48,6 @@ export interface PreferencesState {
   wrapCodeBlocks: boolean
   editorLineWidth: string
 
-  // ----- Markdown editing -----
   autoPairBracket: boolean
   autoPairMarkdownSyntax: boolean
   autoPairQuote: boolean
@@ -95,27 +89,24 @@ export interface PreferencesState {
   sequenceTheme: SequenceTheme | string
   plantumlServer: string
 
-  // ----- Theme -----
   theme: string
   followSystemTheme: boolean
   lightModeTheme: string
   darkModeTheme: string
   customCss: string
 
-  // ----- Spellchecker -----
   spellcheckerEnabled: boolean
   spellcheckerNoUnderline: boolean
   spellcheckerLanguage: string
 
-  // ----- Side bar / tab bar visibility (persisted) -----
   tocVisibility: boolean
   sideBarVisibility: boolean
   tabBarVisibility: boolean
   sourceCodeModeEnabled: boolean
   openedFilesInSidebar: boolean
   autoRevealInSidebar: boolean
+  openFilesInPreviewMode: boolean
 
-  // ----- Search -----
   searchExclusions: string[]
   searchMaxFileSize: string
   searchIncludeHidden: boolean
@@ -124,12 +115,10 @@ export interface PreferencesState {
 
   watcherUsePolling: boolean
 
-  // ----- Edit modes (per-window, not persisted) -----
   typewriter: boolean
   focus: boolean
   sourceCode: boolean
 
-  // ----- User config -----
   imageFolderPath: string
   webImages: unknown[]
   cloudImages: unknown[]
@@ -235,13 +224,13 @@ export const usePreferencesStore = defineStore('preferences', {
     spellcheckerNoUnderline: false,
     spellcheckerLanguage: 'en-US',
 
-    // Default values that are overwritten with the entries below.
     tocVisibility: true,
     sideBarVisibility: false,
     tabBarVisibility: false,
     sourceCodeModeEnabled: false,
     openedFilesInSidebar: true,
     autoRevealInSidebar: true,
+    openFilesInPreviewMode: true,
 
     searchExclusions: [],
     searchMaxFileSize: '',
@@ -251,14 +240,12 @@ export const usePreferencesStore = defineStore('preferences', {
 
     watcherUsePolling: false,
 
-    // --------------------------------------------------------------------------
 
     // Edit modes of the current window (not part of persistent settings)
     typewriter: false, // typewriter mode
     focus: false,
     sourceCode: false, // source code mode
 
-    // user configration
     imageFolderPath: '',
     webImages: [],
     cloudImages: [],
@@ -284,7 +271,6 @@ export const usePreferencesStore = defineStore('preferences', {
         }
       })
 
-      // Update i18n language if language preference changed
       const lang = (preference as { language?: string }).language
       if (lang && lang !== oldLanguage) {
         setLanguage(lang)
@@ -315,15 +301,12 @@ export const usePreferencesStore = defineStore('preferences', {
     },
 
     SET_SINGLE_PREFERENCE({ type, value }: SingleSetPreferencePayload): void {
-      // Update local state
       ;(this as unknown as Record<string, unknown>)[type as string] = value
 
-      // Update i18n language if language preference changed
       if (type === 'language' && typeof value === 'string') {
         setLanguage(value)
       }
 
-      // save to electron-store
       window.electron.ipcRenderer.send('mt::set-user-preference', { [type as string]: value })
     },
 
@@ -350,7 +333,7 @@ export const usePreferencesStore = defineStore('preferences', {
       })
     },
 
-    // Toggle a view option and notify main process to toggle menu item.
+    // Notify main so native menus use the updated preferences.
     LISTEN_TOGGLE_VIEW(): void {
       bus.on('view:toggle-view-entry', (entryName) => {
         const name = entryName as string

@@ -28,7 +28,6 @@ beforeAll(async() => {
   if (skipOnWindows) return
 
   tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'mt-picgo-discovery-'))
-  // Stands in for ~/Library/pnpm.
   const binDir = path.join(tmpDir, 'pnpm-home')
   await fs.ensureDir(binDir)
   await writeFakePicgo(binDir)

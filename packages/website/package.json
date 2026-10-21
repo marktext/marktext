@@ -6,12 +6,14 @@
   "scripts": {
     "dev": "tsx scripts/build-docs-index.ts --if-missing && next dev --port 3000",
     "docs:index": "tsx scripts/build-docs-index.ts",
-    "prebuild": "tsx scripts/build-docs-index.ts",
+    "project-info:update": "tsx scripts/update-project-info.ts",
+    "prebuild": "pnpm run project-info:update && tsx scripts/build-docs-index.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
     "type-check": "tsc --noEmit",
-    "cf:build": "opennextjs-cloudflare build && opennextjs-cloudflare populateCache local",
+    "test:project-info": "tsx --tsconfig scripts/tsconfig.test.json --test scripts/project-info.test.tsx",
+    "cf:build": "opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare populateCache local",
     "cf:preview": "opennextjs-cloudflare preview",
     "cf:smoke": "node scripts/smoke-worker.mjs",
     "cf:deploy": "opennextjs-cloudflare deploy"

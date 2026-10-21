@@ -89,7 +89,6 @@ describe('searchFilesAndDir', () => {
     tmpDirs.push(dir)
 
     await searchFilesAndDir(dir, '')
-    // Mutate the directory on disk; the cached result must be returned as-is.
     fs.writeFileSync(path.join(dir, 'c.gif'), '')
 
     const cached = await searchFilesAndDir(dir, '')
@@ -120,7 +119,6 @@ describe('searchFilesAndDir', () => {
     const result = await searchFilesAndDir(dir, '')
 
     expect(result.some((e) => e.file === 'a.png')).toBe(true)
-    // The unwatchable directory is simply not tracked.
     expect(watchers.has(dir)).toBe(false)
 
     spy.mockRestore()

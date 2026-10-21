@@ -91,7 +91,6 @@ const setupEnvironment = (args: Record<string, unknown>): AppEnvironment => {
 
   ensureAppDirectoriesSync(appEnvironment.paths)
 
-  // Keep this for easier access.
   const mutableGlobal = global as unknown as {
     MARKTEXT_DEBUG: boolean
     MARKTEXT_DEBUG_VERBOSE: number

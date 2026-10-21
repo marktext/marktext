@@ -129,11 +129,7 @@ const onExpand = (data: { key?: string }): void => {
   collapsedKeys.value = next
 }
 
-// The set el-tree should have expanded: every node that is neither collapsed
-// nor inside a collapsed ancestor. On each content edit el-tree rebuilds and
-// re-applies these keys, so binding the *correct* set makes it paint the right
-// state directly — instead of expanding everything and then collapsing, which
-// flickered.
+// Exclude collapsed nodes and their descendants so tree rebuilds preserve collapse state.
 const expandedKeys = computed<string[]>(() => {
   const keys: string[] = []
   const walk = (nodes: KeyedTocNode[], hiddenByAncestor: boolean): void => {
@@ -189,9 +185,7 @@ const revealActiveHeading = async(): Promise<void> => {
 watch([activeNodeKey, () => props.visible, keyedToc, expandedKeys], revealActiveHeading, { flush: 'post' })
 
 const handleClick = (data: { slug?: unknown }): void => {
-  // editor.vue resolves the slug to a heading by document order — bail out if
-  // the node has no slug (e.g. unsluggable headings) rather than emitting an
-  // `undefined` / non-string payload it cannot match.
+  // Skip headings without usable slugs; the editor resolves scroll targets by slug.
   if (typeof data.slug !== 'string' || data.slug.length === 0) return
   preserveOutlinePosition = true
   bus.emit('scroll-to-header', data.slug)
@@ -318,6 +312,9 @@ const handleClick = (data: { slug?: unknown }): void => {
   color: var(--codeBlockColor);
   background: var(--codeBgColor);
   border-radius: 3px;
+  /* Prism sets `white-space: normal` on every non-`pre` code element, which
+     overrides the label's nowrap setting and makes the row overflow. */
+  white-space: inherit;
 }
 
 .side-bar-toc .el-tree-node__label sup,

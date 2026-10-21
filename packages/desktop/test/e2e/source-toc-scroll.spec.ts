@@ -71,9 +71,7 @@ test.describe('Source Code mode: TOC click scrolls to the heading at the top', (
 
     await page.locator('.side-bar-toc').getByText('Heading Number 18', { exact: true }).click()
 
-    // animated scroll down
     await expect.poll(() => srcScrollTop(page), { timeout: 8000 }).toBeGreaterThan(0)
-    // heading sits near the TOP of the viewport (not the bottom)
     await expect
       .poll(() => headingLineTopInViewport(page, 'Heading Number 18'), { timeout: 8000 })
       .toBeLessThan(150)

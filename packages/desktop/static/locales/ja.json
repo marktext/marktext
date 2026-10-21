@@ -32,7 +32,8 @@
       "closeTab": "タブを閉じる",
       "closeWindow": "ウィンドウを閉じる",
       "quit": "終了",
-      "preferences": "環境設定"
+      "preferences": "環境設定",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "編集",
@@ -250,7 +251,16 @@
       "closeAll": "すべて閉じる",
       "emptyProject": "空のプロジェクト",
       "createFile": "ファイルの作成",
-      "openFolder": "フォルダーを開く"
+      "openFolder": "フォルダーを開く",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session"
     },
     "toc": {
       "expand": "目次を展開",
@@ -396,6 +406,7 @@
         "autoNormalizeLineEndings": "開くときに改行コードを自動的に LF へ統一",
         "titleBarStyle": "タイトルバーのスタイル (Windows および Linux システムのみ)",
         "openFilesInNewWindow": "新しいウィンドウでファイルを開く",
+        "openFilesInPreviewMode": "サイドバーのファイルをプレビュータブで開く",
         "openFolderInNewWindow": "メニューから新しいウィンドウでフォルダーを開く",
         "zoom": "ズームレベル。0.5 から 2.0 の間",
         "hideScrollbar": "スクロールバーを非表示にするかどうか",
@@ -518,6 +529,7 @@
         "wrapTextInToc": "目次でテキストを折り返し",
         "showOpenedFiles": "開いているファイルを表示",
         "autoReveal": "サイドバーで現在のファイルを表示",
+        "openFilesInPreviewMode": "サイドバーのファイルをプレビュータブで開きます。編集またはダブルクリックするとタブが保持されます。",
         "excludePatterns": "除外パターン",
         "excludePatternsNotes": "除外パターンの注意事項",
         "fileSortBy": {
@@ -1046,11 +1058,12 @@
       "title": "スペルチェック"
     },
     "tabs": {
-      "close": "{name} を閉じる"
+      "close": "{name} を閉じる",
+      "preview": "{name}、プレビュータブ"
     }
   },
   "readingMode": {
-    "title": "閲覧モード（読み取り専用）",
+    "title": "閲覧モード",
     "edit": "編集モード",
     "lock": "閲覧モードに切り替え",
     "unlock": "編集モードに切り替え",

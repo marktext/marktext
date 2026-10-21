@@ -35,7 +35,6 @@ export const useCommandCenterStore = defineStore('commandCenter', () => {
     rootCommand.value.subcommands = await getCommandsWithDescriptions()
     SORT_COMMANDS()
 
-    // Listen for language changes and update command descriptions.
     bus.on('language-changed', async() => {
       rootCommand.value.subcommands = await getCommandsWithDescriptions()
       SORT_COMMANDS()
@@ -56,12 +55,10 @@ export const useCommandCenterStore = defineStore('commandCenter', () => {
       }
     })
 
-    // Register commands that are created at runtime.
     bus.on('cmd::register-command', (command: unknown) => {
       REGISTER_COMMAND(command as Command)
     })
 
-    // Allow other components to execute commands with predefined values.
     bus.on('cmd::execute', (commandId: unknown) => {
       executeCommand(rootCommand.value, String(commandId))
     })

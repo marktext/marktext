@@ -63,7 +63,6 @@ test.describe('Theme switching', () => {
       })
     }
 
-    // Dark theme: dracula colors `.token.keyword` #ff79c6 -> rgb(255, 121, 198).
     await clickMenuById(app, 'dracula')
     await expect(page.locator('body')).toHaveClass(/(^|\s)dark(\s|$)/)
     let darkColor = ''
@@ -75,11 +74,9 @@ test.describe('Theme switching', () => {
         },
         { timeout: 10000 }
       )
-      // Themed (not the default black text color).
       .not.toBe('rgb(0, 0, 0)')
     expect(darkColor).not.toBe('')
 
-    // Light baseline: removing body.dark restores the light Prism palette.
     await clickMenuById(app, 'light')
     await page.waitForFunction(() => !document.body.classList.contains('dark'), null, {
       timeout: 5000
@@ -96,7 +93,6 @@ test.describe('Theme switching', () => {
       .not.toBe('rgb(0, 0, 0)')
     expect(lightColor).not.toBe('')
 
-    // The whole point: the keyword token is colored differently per theme.
     expect(lightColor).not.toBe(darkColor)
   })
 })

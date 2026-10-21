@@ -63,19 +63,14 @@ test.describe('Code block typing — real-keyboard fenced conversion (item 95)',
     await page.waitForTimeout(300)
     await page.keyboard.press('Enter')
 
-    // A fenced code block appears: <pre.mu-code-block.mu-fenced-code>.
     const fenced = page.locator('.editor-component pre.mu-code-block.mu-fenced-code').first()
     await expect(fenced).toBeVisible({ timeout: 5000 })
 
-    // The language-input row shows the applied language 'js'.
     const langInput = fenced.locator('.mu-language-input').first()
     await expect(langInput).toHaveText('js')
 
-    // The code leaf node is present (mu-codeblock-content), confirming the
-    // block structure rendered.
     await expect(fenced.locator('.mu-codeblock-content').first()).toBeAttached()
 
-    // Round-trip: serializes back to a fenced block tagged with the language.
     await expect.poll(() => getMarkdownContent(page, app)).toContain('```js')
   })
 })

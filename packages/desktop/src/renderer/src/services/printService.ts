@@ -31,9 +31,6 @@ class MarkdownPrint {
     await document.fonts.ready
   }
 
-  /**
-   * Remove the print container from the window.
-   */
   clearup(): void {
     if (this.container) {
       this.container.remove()

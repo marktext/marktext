@@ -32,7 +32,8 @@
       "closeTab": "Cerrar Pestaña",
       "closeWindow": "Cerrar Ventana",
       "quit": "Salir",
-      "preferences": "Preferencias"
+      "preferences": "Preferencias",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "Editar",
@@ -250,7 +251,16 @@
       "closeAll": "Cerrar",
       "emptyProject": "Proyecto vacío",
       "createFile": "Crear Archivo",
-      "openFolder": "Abrir Carpeta"
+      "openFolder": "Abrir Carpeta",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session"
     },
     "toc": {
       "expand": "Expandir tabla de contenido",
@@ -396,6 +406,7 @@
         "autoNormalizeLineEndings": "Normalizar automáticamente los finales de línea al abrir archivos. Si está desactivado, los archivos se abren tal cual",
         "titleBarStyle": "El estilo de la barra de título (solo sistema Windows y Linux)",
         "openFilesInNewWindow": "Abrir archivos en una nueva ventana",
+        "openFilesInPreviewMode": "Abrir archivos de la barra lateral en pestañas de vista previa",
         "openFolderInNewWindow": "Abrir carpeta vía menú en una nueva ventana",
         "zoom": "El nivel de zoom. Entre 0.5 y 2.0 inclusive",
         "hideScrollbar": "Si ocultar las barras de desplazamiento",
@@ -518,6 +529,7 @@
         "wrapTextInToc": "Ajustar texto en tabla de contenidos",
         "showOpenedFiles": "Mostrar archivos abiertos",
         "autoReveal": "Mostrar el archivo activo en la barra lateral",
+        "openFilesInPreviewMode": "Abrir archivos de la barra lateral en pestañas de vista previa. Al editar o hacer doble clic se conserva la pestaña.",
         "excludePatterns": "Patrones de exclusión",
         "excludePatternsNotes": "Patrones de exclusión (Notas)",
         "fileSortBy": {
@@ -1046,11 +1058,12 @@
       "title": "Corrector ortográfico"
     },
     "tabs": {
-      "close": "Cerrar {name}"
+      "close": "Cerrar {name}",
+      "preview": "{name}, pestaña de vista previa"
     }
   },
   "readingMode": {
-    "title": "Modo de lectura (solo lectura)",
+    "title": "Modo de lectura",
     "edit": "Modo de edición",
     "lock": "Activar el modo de lectura",
     "unlock": "Cambiar al modo de edición",

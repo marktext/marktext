@@ -25,7 +25,6 @@ const CED_ICONV_ENCODINGS: Record<string, string> = {
   MACINTOSH: 'macintosh'
 }
 
-// Byte Order Marks to detect endianness and encoding.
 const BOM_ENCODINGS: Record<string, number[]> = {
   utf8: [0xef, 0xbb, 0xbf],
   utf16be: [0xfe, 0xff],
@@ -55,21 +54,16 @@ const isLikelyUtf8 = (buffer: Buffer): boolean => {
   }
 }
 
-/**
- * Guess the encoding from the buffer.
- */
 export const guessEncoding = (buffer: Buffer, autoGuessEncoding: boolean): Encoding => {
   const isBom = false
   let encoding = 'utf8'
 
-  // Detect UTF8- and UTF16-BOM encodings.
   for (const [key, value] of Object.entries(BOM_ENCODINGS)) {
     if (checkSequence(buffer, value)) {
       return { encoding: key, isBom: true }
     }
   }
 
-  // Auto guess encoding, otherwise use UTF-8.
   if (autoGuessEncoding) {
     // A file that is already valid UTF-8 must be decoded as UTF-8, regardless
     // of what `ced` heuristically guesses (#3151).
