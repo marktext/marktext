@@ -14,7 +14,7 @@
       >
         <button
           type="button"
-          class="plain-button link-icon"
+          class="plain-button"
           :aria-label="t('preferences.learnMore', { name: description })"
           @click="handleMoreClick"
         >
