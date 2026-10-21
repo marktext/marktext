@@ -242,8 +242,11 @@
       "noFolderOpen": "フォルダーが開かれていません",
       "noResultsFound": "一致するものがありません。",
       "cancel": "キャンセル",
-      "openFolder": "フォルダーを開く",
-      "showMoreMatches": "さらに一致するものを表示"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "さらに一致するものを表示",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "開いているファイル",

@@ -67,8 +67,9 @@
 
 <script setup lang="ts">
 import { isReadingCommandAllowed } from 'common/commands/readingMode'
+import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
-import { ref, onMounted, onBeforeUnmount, nextTick, onBeforeUpdate, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, onBeforeUpdate, computed, watch } from 'vue'
 import { useCommandCenterStore } from '@/store/commandCenter'
 import log from 'electron-log'
 import bus from '../../bus'
@@ -253,6 +254,10 @@ const search = (commandId: string | null = null) => {
 
   updateCommands()
 }
+
+watch(() => useProjectStore().roots.map(root => `${root.key}:${root.status}`).join('|'), () => {
+  if (currentCommand.value?.id === 'file.quick-open') updateCommands()
+})
 
 const updateCommands = () => {
   const queryString = query.value.trim()

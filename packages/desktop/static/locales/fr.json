@@ -242,8 +242,11 @@
       "noFolderOpen": "Aucun dossier ouvert",
       "noResultsFound": "Aucun résultat trouvé.",
       "cancel": "Annuler",
-      "openFolder": "Ouvrir un dossier",
-      "showMoreMatches": "Afficher plus de correspondances"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "Afficher plus de correspondances",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "Fichiers ouverts",

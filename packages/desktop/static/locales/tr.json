@@ -242,8 +242,11 @@
       "noFolderOpen": "Açık klasör yok",
       "noResultsFound": "Sonuç bulunamadı.",
       "cancel": "İptal",
-      "openFolder": "Klasör Aç",
-      "showMoreMatches": "Daha fazla eşleşme göster"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "Daha fazla eşleşme göster",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "Açık dosyalar",
