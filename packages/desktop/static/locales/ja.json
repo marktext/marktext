@@ -396,6 +396,7 @@
         "autoNormalizeLineEndings": "開くときに改行コードを自動的に LF へ統一",
         "titleBarStyle": "タイトルバーのスタイル (Windows および Linux システムのみ)",
         "openFilesInNewWindow": "新しいウィンドウでファイルを開く",
+        "openFilesInPreviewMode": "サイドバーのファイルをプレビュータブで開く",
         "openFolderInNewWindow": "メニューから新しいウィンドウでフォルダーを開く",
         "zoom": "ズームレベル。0.5 から 2.0 の間",
         "hideScrollbar": "スクロールバーを非表示にするかどうか",
@@ -517,6 +518,7 @@
         "wrapTextInToc": "目次でテキストを折り返し",
         "showOpenedFiles": "開いているファイルを表示",
         "autoReveal": "サイドバーで現在のファイルを表示",
+        "openFilesInPreviewMode": "サイドバーのファイルをプレビュータブで開きます。編集またはダブルクリックするとタブが保持されます。",
         "excludePatterns": "除外パターン",
         "excludePatternsNotes": "除外パターンの注意事項",
         "fileSortBy": {
@@ -1044,7 +1046,8 @@
       "title": "スペルチェック"
     },
     "tabs": {
-      "close": "{name} を閉じる"
+      "close": "{name} を閉じる",
+      "preview": "{name}、プレビュータブ"
     }
   },
   "readingMode": {

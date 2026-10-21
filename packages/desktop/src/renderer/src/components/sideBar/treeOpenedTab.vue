@@ -2,7 +2,14 @@
   <div
     class="opened-file"
     :title="file.pathname"
-    :class="[{ active: currentFile?.id === file.id, unsaved: !file.isSaved }]"
+    :aria-label="file.isPreview ? t('editor.tabs.preview', { name: file.filename }) : file.filename"
+    :class="[
+      {
+        active: currentFile?.id === file.id,
+        preview: file.isPreview,
+        unsaved: !file.isSaved
+      }
+    ]"
     @click="selectFile(file)"
   >
     <button
@@ -96,6 +103,9 @@ const removeFileInTab = (file: TabDescriptor): void => {
 }
 .opened-file.active {
   color: var(--highlightThemeColor);
+}
+.opened-file.preview > .name {
+  font-style: italic;
 }
 .unsaved.opened-file > .close-icon {
   opacity: 0;

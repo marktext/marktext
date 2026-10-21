@@ -63,6 +63,8 @@ export interface FileSearchMatches {
 /** Canonical per-tab state shared by renderer stores, buffered persistence and IPC. */
 export interface IFileState {
   readOnly: boolean
+  // Transient navigation state; deliberately excluded from buffered tab state.
+  isPreview: boolean
   modeChanging?: boolean
   diskMissing?: boolean
   diskConflict?: boolean
@@ -113,6 +115,11 @@ export interface TabOptions {
   /** Link fragment to reveal once the tab is active, e.g. `setup` from `other.md#setup`. */
   anchor?: string
   [key: string]: unknown
+}
+
+export interface SidebarOpenOptions extends TabOptions {
+  preview?: boolean
+  requestId?: number
 }
 
 export interface SaveOptions {

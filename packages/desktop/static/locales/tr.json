@@ -395,6 +395,7 @@
         "autoSaveDelay": "Bir değişiklikten sonra dosyanın kaydedileceği süre (ms)",
         "titleBarStyle": "Başlık çubuğu stili (yalnızca Windows ve Linux)",
         "openFilesInNewWindow": "Dosyaları yeni pencerede aç",
+        "openFilesInPreviewMode": "Kenar çubuğu dosyalarını önizleme sekmelerinde aç",
         "openFolderInNewWindow": "Klasörü menü aracılığıyla yeni pencerede aç",
         "zoom": "Yakınlaştırma düzeyi. 0.5 ile 2.0 arasında (dahil)",
         "hideScrollbar": "Kaydırma çubuklarının gizlenip gizlenmeyeceği",
@@ -517,6 +518,7 @@
         "wrapTextInToc": "İçindekilerde metni kaydır",
         "showOpenedFiles": "Açık dosyaları göster",
         "autoReveal": "Etkin dosyayı kenar çubuğunda göster",
+        "openFilesInPreviewMode": "Kenar çubuğu dosyalarını önizleme sekmelerinde açar. Düzenleme veya çift tıklama sekmeyi korur.",
         "excludePatterns": "Hariç tutma desenleri",
         "excludePatternsNotes": "Hariç tutma desenleri (Notlar)",
         "fileSortBy": {
@@ -1044,7 +1046,8 @@
       "title": "Yazım Denetimi"
     },
     "tabs": {
-      "close": "Kapat: {name}"
+      "close": "Kapat: {name}",
+      "preview": "{name}, önizleme sekmesi"
     }
   },
   "readingMode": {

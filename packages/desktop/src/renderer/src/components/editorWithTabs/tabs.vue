@@ -12,7 +12,14 @@
           v-for="file of tabs"
           :key="file.id"
           :title="file.pathname"
-          :class="{ active: currentFile?.id === file.id, unsaved: !file.isSaved }"
+          :aria-label="
+            file.isPreview ? t('editor.tabs.preview', { name: file.filename }) : file.filename
+          "
+          :class="{
+            active: currentFile?.id === file.id,
+            preview: file.isPreview,
+            unsaved: !file.isSaved
+          }"
           :data-id="file.id"
           @click.stop="selectFile(file)"
           @click.middle="closeTab(file.id)"
@@ -404,6 +411,9 @@ onBeforeUnmount(() => {
       height: 2px;
       background: var(--themeColor);
     }
+  }
+  & > li.preview > span {
+    font-style: italic;
   }
 }
 .editor-tabs > .new-file {

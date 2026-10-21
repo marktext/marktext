@@ -396,6 +396,7 @@
         "autoNormalizeLineEndings": "Normalizar automaticamente as quebras de linha ao abrir arquivos. Quando desativado, os arquivos são abertos como estão.",
         "titleBarStyle": "O estilo da barra de título (apenas sistemas Windows e Linux)",
         "openFilesInNewWindow": "Abrir arquivos em uma nova janela",
+        "openFilesInPreviewMode": "Abrir arquivos da barra lateral em abas de visualização",
         "openFolderInNewWindow": "Abrir pasta via menu em uma nova janela",
         "zoom": "O nível de zoom. Entre 0.5 e 2.0 inclusive",
         "hideScrollbar": "Se ocultar as barras de rolagem",
@@ -517,6 +518,7 @@
         "wrapTextInToc": "Quebrar texto no índice",
         "showOpenedFiles": "Mostrar arquivos abertos",
         "autoReveal": "Mostrar o arquivo ativo na barra lateral",
+        "openFilesInPreviewMode": "Abrir arquivos da barra lateral em abas de visualização. Editar ou clicar duas vezes mantém a aba.",
         "excludePatterns": "Padrões de exclusão",
         "excludePatternsNotes": "Padrões de exclusão (Notas)",
         "fileSortBy": {
@@ -1044,7 +1046,8 @@
       "title": "Verificação Ortográfica"
     },
     "tabs": {
-      "close": "Fechar {name}"
+      "close": "Fechar {name}",
+      "preview": "{name}, aba de visualização"
     }
   },
   "readingMode": {

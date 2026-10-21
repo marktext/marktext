@@ -29,6 +29,7 @@ import { inject, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
+import { usePreferencesStore } from '@/store/preferences'
 import FileIcon from './icon.vue'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import bus from '../../bus'
@@ -43,6 +44,7 @@ const props = defineProps<{
 
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
+const preferencesStore = usePreferencesStore()
 
 const fileEl = ref<HTMLDivElement | null>(null)
 const renameInput = ref<HTMLInputElement | null>(null)
@@ -73,6 +75,7 @@ const handleFileClick = (event: MouseEvent): void => {
   if (!isMarkdown) return
   const openedTab = tabs.value.find((f) => window.fileUtils.isSamePathSync(f.pathname, pathname))
   if (openedTab) {
+    editorStore.CANCEL_PENDING_SIDEBAR_OPEN()
     if (currentFile.value?.pathname === openedTab.pathname) {
       return
     }
@@ -80,8 +83,10 @@ const handleFileClick = (event: MouseEvent): void => {
     // Restoring the tab's caret pulls DOM focus into the editor.
     bus.emit('SIDEBAR::focus-tree')
   } else {
-    editorStore.SET_OPEN_INTENT(pathname, false)
-    window.electron.ipcRenderer.send('mt::open-file', pathname)
+    const preview = preferencesStore.openFilesInPreviewMode
+    const requestId = editorStore.BEGIN_SIDEBAR_OPEN(pathname, preview)
+    if (requestId == null) return
+    window.electron.ipcRenderer.send('mt::open-file', pathname, { preview, requestId })
   }
 }
 

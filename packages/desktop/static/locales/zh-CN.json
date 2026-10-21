@@ -396,6 +396,7 @@
         "autoNormalizeLineEndings": "打开文件时自动规范化行尾。禁用时按原样打开文件",
         "titleBarStyle": "标题栏样式（仅限 Windows 和 Linux 系统）",
         "openFilesInNewWindow": "在新窗口中打开文件",
+        "openFilesInPreviewMode": "在预览标签页中打开侧栏文件",
         "openFolderInNewWindow": "通过菜单在新窗口中打开文件夹",
         "zoom": "缩放级别。介于 0.5 和 2.0 之间",
         "hideScrollbar": "是否隐藏滚动条",
@@ -517,6 +518,7 @@
         "wrapTextInToc": "在目录中换行文本",
         "showOpenedFiles": "显示已打开文件",
         "autoReveal": "在侧边栏中定位当前文件",
+        "openFilesInPreviewMode": "单击侧栏文件时复用预览标签页；编辑或双击后保留该标签页",
         "excludePatterns": "排除模式",
         "excludePatternsNotes": "排除模式（注释）",
         "fileSortBy": {
@@ -1044,7 +1046,8 @@
       "switchError": "{languageCode} 拼写检查切换错误，{error}"
     },
     "tabs": {
-      "close": "关闭 {name}"
+      "close": "关闭 {name}",
+      "preview": "{name}，预览标签页"
     }
   },
   "readingMode": {

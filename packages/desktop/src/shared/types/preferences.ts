@@ -24,6 +24,7 @@ export interface IUserPreferences {
   hideLinkPopup?: boolean
   openedFilesInSidebar?: boolean
   autoRevealInSidebar?: boolean
+  openFilesInPreviewMode?: boolean
   autoPairBracket?: boolean
   autoPairMarkdownSyntax?: boolean
   autoPairQuote?: boolean

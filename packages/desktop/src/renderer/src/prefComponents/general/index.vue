@@ -96,6 +96,11 @@
           :bool="autoRevealInSidebar"
           :on-change="(value) => onSelectChange('autoRevealInSidebar', value)"
         />
+        <bool
+          :description="t('preferences.general.sidebar.openFilesInPreviewMode')"
+          :bool="openFilesInPreviewMode"
+          :on-change="(value) => onSelectChange('openFilesInPreviewMode', value)"
+        />
 
         <text-box
           :description="t('preferences.general.sidebar.excludePatterns')"
@@ -270,6 +275,7 @@ const {
   language,
   openedFilesInSidebar,
   autoRevealInSidebar,
+  openFilesInPreviewMode,
   showPandocConvert
 } = storeToRefs(preferenceStore)
 

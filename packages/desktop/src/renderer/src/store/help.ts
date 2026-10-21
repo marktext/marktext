@@ -9,6 +9,7 @@ export type { IFileState }
 
 const defaultFileStateWithoutId = {
   readOnly: false,
+  isPreview: false,
   isSaved: true,
   pathname: '',
   filename: 'Untitled-1',
