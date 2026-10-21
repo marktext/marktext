@@ -57,8 +57,8 @@ export function toTransform(state: ZoomState): string {
   return `translate(${state.x}px, ${state.y}px) scale(${state.scale})`
 }
 
-/** ln(scale) per pixel of wheel delta; a 100px mouse notch is ≈1.08×. */
-export const WHEEL_ZOOM_PER_PIXEL = 0.00077
+/** ln(scale) per pixel of wheel delta; a 100px mouse notch is ≈1.105×. */
+export const WHEEL_ZOOM_PER_PIXEL = 0.001
 /** Gain for a macOS pinch, which arrives as ctrl+wheel with far smaller deltas. */
 export const PINCH_ZOOM_BOOST = 3
 

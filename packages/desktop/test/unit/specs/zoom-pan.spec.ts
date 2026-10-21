@@ -92,8 +92,8 @@ describe('wheelZoomFactor', () => {
     }
   )
 
-  it('takes a 100px mouse notch to about 8%', () => {
-    expect(wheelZoomFactor(wheel(-100))).toBeCloseTo(1.08, 2)
+  it('takes a 100px mouse notch to about 10.5%', () => {
+    expect(wheelZoomFactor(wheel(-100))).toBeCloseTo(1.105, 3)
   })
 
   it('undoes itself when the same distance is scrolled back', () => {
