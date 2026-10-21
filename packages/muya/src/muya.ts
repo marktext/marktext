@@ -22,8 +22,9 @@ import {
     URL_REG,
 } from './config/index';
 import { Editor } from './editor/index';
-
+import { attachReadingEvents, prepareReadingLinks } from './editor/readOnly';
 import EventCenter from './event/index';
+
 import I18n from './i18n/index';
 import {
     injectSentinels,
@@ -32,6 +33,7 @@ import {
     resolveSentinelCursor,
 } from './selection/offsetCursor';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState } from './state/types';
+import { ChangeSource } from './types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
 import { getBlock } from './utils/dom';
@@ -174,6 +176,44 @@ export class Muya {
     public i18n: I18n;
 
     private _uiPlugins: Record<string, unknown> = {};
+    private _documentUpdateDepth = 0;
+    private _cancelReadingLink: () => void;
+
+    get readOnly() {
+        return this.options.readOnly;
+    }
+
+    get canMutate() {
+        return !this.readOnly || this._documentUpdateDepth > 0;
+    }
+
+    isBlockInDocument(block: Nullable<Content | Parent>): boolean {
+        return !!block?.domNode && this.domNode.isConnected && this.domNode.contains(block.domNode);
+    }
+
+    /** Host content loads may replace a locked document; user commands cannot. */
+    runDocumentUpdate<T>(update: () => T): T {
+        this._documentUpdateDepth++;
+        try {
+            return update();
+        }
+        finally {
+            this._documentUpdateDepth--;
+        }
+    }
+
+    setReadOnly(readOnly: boolean) {
+        if (readOnly === this.readOnly)
+            return;
+        this.flush();
+        this.editor.activeContentBlock = null;
+        this.options.readOnly = readOnly;
+        this.hideAllFloatTools();
+        this.editor.selection.clearImage();
+        this.editor.selection.table.clear();
+        this._refreshReadingPresentation();
+        this.eventCenter.emit('read-only-changed', readOnly);
+    }
 
     constructor(element: HTMLElement, options?: Partial<IMuyaOptions>) {
         this.options = Object.assign({}, MUYA_DEFAULT_OPTIONS, options ?? {});
@@ -184,6 +224,27 @@ export class Muya {
         this.ui = new Ui(this);
         this.i18n = new I18n(this, this.options.locale);
         this._bindFocusBlurEvents();
+        this._cancelReadingLink = attachReadingEvents(this);
+    }
+
+    private _refreshReadingPresentation(): void {
+        const { domNode, readOnly } = this;
+        domNode.contentEditable = String(!readOnly);
+        domNode.classList.toggle('mu-read-only', readOnly);
+        domNode.setAttribute('tabindex', '0');
+        domNode.setAttribute('role', readOnly ? 'document' : 'textbox');
+        domNode.setAttribute('aria-label', this.i18n.t(readOnly ? 'Read-only document' : 'Document'));
+        this.editor.scrollPage?.breadthFirstTraverse((node) => {
+            if (node.isParent() && readOnly)
+                node.active = false;
+            if (node.isContent()) {
+                node.domNode?.setAttribute('contenteditable', String(!readOnly));
+                if (readOnly)
+                    node.update({});
+            }
+        });
+        if (readOnly)
+            prepareReadingLinks(domNode);
     }
 
     private _bindFocusBlurEvents() {
@@ -196,7 +257,8 @@ export class Muya {
     }
 
     init(options: { focus?: boolean } = {}) {
-        this.editor.init(options);
+        this.runDocumentUpdate(() => this.editor.init({ ...options, focus: !this.readOnly && options.focus !== false }));
+        this._refreshReadingPresentation();
         // UI plugins
         if (Muya.plugins.length) {
             for (const { plugin: Plugin, options: opts } of Muya.plugins)
@@ -250,10 +312,14 @@ export class Muya {
     }
 
     undo() {
+        if (!this.canMutate)
+            return;
         this.editor.history.undo();
     }
 
     redo() {
+        if (!this.canMutate)
+            return;
         this.editor.history.redo();
     }
 
@@ -305,11 +371,14 @@ export class Muya {
     }
 
     replace(replaceValue: string, opt: IReplaceOption = { isSingle: true, isRegexp: false }) {
+        if (!this.canMutate)
+            return;
         return this.editor.searchModule.replace(replaceValue, opt);
     }
 
     setContent(content: TState[] | string, autoFocus = false) {
-        this.editor.setContent(content, autoFocus);
+        this.runDocumentUpdate(() => this.editor.setContent(content, autoFocus && !this.readOnly));
+        this._refreshReadingPresentation();
     }
 
     /**
@@ -350,14 +419,17 @@ export class Muya {
         // the inverse must restore. The forward apply dispatches a json-change,
         // so suppress History's own recording of it to avoid a duplicate entry.
         history.recordRebuild(op, prevState, boundarySelection);
-        history.suppressRecording(() => {
-            this.editor.rebuildContents(op, selection, 'api');
-        });
+        this.runDocumentUpdate(() => history.suppressRecording(() => {
+            this.editor.rebuildContents(op, this.readOnly ? null : selection, ChangeSource.Api);
+        }));
+        this._refreshReadingPresentation();
 
         return true;
     }
 
     setOptions(options: Partial<IMuyaOptions>, forceRender = false) {
+        if (typeof options.readOnly === 'boolean')
+            this.setReadOnly(options.readOnly);
         Object.assign(this.options, options);
 
         if ('spellcheckEnabled' in options)
@@ -390,12 +462,17 @@ export class Muya {
     }
 
     private _forceRender() {
+        this.runDocumentUpdate(() => this._renderDocument());
+        this._refreshReadingPresentation();
+    }
+
+    private _renderDocument() {
         const selection = this.editor.selection.getSelection();
         this.editor.scrollPage?.updateState(this.getState());
 
         this.editor.searchModule.refresh();
 
-        if (selection && selection.isSelectionInSameBlock) {
+        if (!this.readOnly && selection && selection.isSelectionInSameBlock) {
             const begin = Math.min(selection.anchor.offset, selection.focus.offset);
             const end = Math.max(selection.anchor.offset, selection.focus.offset);
             const cursorBlock = this.editor.scrollPage?.queryBlock(selection.anchor.path);
@@ -410,6 +487,10 @@ export class Muya {
     }
 
     focus() {
+        if (this.readOnly) {
+            this.domNode.focus({ preventScroll: true });
+            return;
+        }
         this.editor.focus();
     }
 
@@ -427,6 +508,8 @@ export class Muya {
     }
 
     format(type: string) {
+        if (!this.canMutate)
+            return;
         const { selection } = this.editor;
 
         // Cross-leaf selection: apply to each formattable leaf in range. The
@@ -588,6 +671,8 @@ export class Muya {
      * @returns True when the replacement was applied.
      */
     replaceCurrentWordInlineUnsafe(word: string, replacement: string): boolean {
+        if (!this.canMutate)
+            return false;
         const block = this.editor.activeContentBlock;
         if (!block)
             return false;
@@ -687,6 +772,8 @@ export class Muya {
      * Paste the clipboard content as plain text at the current cursor.
      */
     pasteAsPlainText(): Promise<void> {
+        if (!this.canMutate)
+            return Promise.resolve();
         return this.editor.clipboard.pasteAsPlainText();
     }
 
@@ -697,6 +784,8 @@ export class Muya {
      * no longer rely on the removed `document.execCommand('paste')`.
      */
     pasteImage(src: string): Promise<void> {
+        if (!this.canMutate)
+            return Promise.resolve();
         return this.editor.clipboard.pasteImage(src);
     }
 
@@ -930,6 +1019,8 @@ export class Muya {
      * copy. No-op when there is no current block.
      */
     duplicate() {
+        if (!this.canMutate)
+            return;
         const block = this._outmostBlockAtCursor();
         if (!block)
             return;
@@ -951,6 +1042,8 @@ export class Muya {
      *   context-menu "Insert Paragraph Before/After" behaviour.
      */
     insertParagraph(location: 'before' | 'after' = 'after', text = '', outMost = false) {
+        if (!this.canMutate)
+            return;
         const block = outMost
             ? this._outmostBlockAtCursor()
             : this._immediateBlockAtCursor();
@@ -973,6 +1066,8 @@ export class Muya {
      * block, or to a fresh empty paragraph when it was the only block.
      */
     deleteParagraph() {
+        if (!this.canMutate)
+            return;
         const block = this._outmostBlockAtCursor();
         if (!block)
             return;
@@ -1006,6 +1101,8 @@ export class Muya {
         { rows, columns }: { rows: number; columns: number },
         { replace = false, block = this._immediateBlockAtCursor() }: { replace?: boolean; block?: Parent | null } = {},
     ) {
+        if (!this.canMutate)
+            return;
         if (!block?.outMostBlock)
             return;
 
@@ -1048,6 +1145,8 @@ export class Muya {
      * or with no cursor.
      */
     insertImage({ src = '', alt = '' }: { src?: string; alt?: string }) {
+        if (!this.canMutate)
+            return;
         const block = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
         if (!(block instanceof Format))
             return;
@@ -1270,6 +1369,8 @@ export class Muya {
      * `loose-list-item`, `reset-to-paragraph`, and the diagram types.
      */
     updateParagraph(type: string) {
+        if (!this.canMutate)
+            return;
         const block = this._outmostBlockAtCursor();
         if (!block)
             return;
@@ -1498,6 +1599,8 @@ export class Muya {
      * block).
      */
     resetToParagraph(block: Parent) {
+        if (!this.canMutate)
+            return;
         if (block.blockName === 'table')
             return;
 
@@ -1742,6 +1845,7 @@ export class Muya {
     }
 
     destroy() {
+        this._cancelReadingLink();
         this.eventCenter.detachAllDomEvents();
         this.eventCenter.unsubscribeAll();
         // this.domNode[BLOCK_DOM_PROPERTY] = null;
@@ -1805,7 +1909,7 @@ function getContainer(originContainer: HTMLElement, options: IMuyaOptions) {
 
     newContainer.classList.add(CLASS_NAMES.MU_EDITOR);
 
-    newContainer.setAttribute('contenteditable', 'true');
+    newContainer.setAttribute('contenteditable', options.readOnly ? 'false' : 'true');
     newContainer.setAttribute('autocorrect', 'false');
     newContainer.setAttribute('autocomplete', 'off');
     newContainer.setAttribute('spellcheck', spellcheckEnabled ? 'true' : 'false');

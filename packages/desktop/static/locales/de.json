@@ -3,6 +3,8 @@
     "counter": {
       "words": "Wörter",
       "characters": "Zeichen",
+      "charactersNoSpaces": "Zeichen (ohne Leerzeichen)",
+      "charactersWithSpaces": "Zeichen (mit Leerzeichen)",
       "paragraphs": "Absätze",
       "allCharacters": "Alle Zeichen",
       "document": "Dokument",
@@ -122,7 +124,7 @@
       "sourceCodeMode": "Quellcode-Modus",
       "typewriterMode": "Schreibmaschinen-Modus",
       "focusMode": "Fokus-Modus",
-      "toggleTableOfContents": "Inhaltsverzeichnis umschalten",
+      "toggleTableOfContents": "Inhaltsverzeichnis anzeigen",
       "reloadImages": "Bilder neu laden",
       "showDeveloperTools": "Entwicklertools anzeigen",
       "reloadWindow": "Fenster neu laden"
@@ -146,8 +148,8 @@
       "theme": "Design (&T)",
       "dark": "Dunkel",
       "followThemDisabled": "Themenauswahl deaktiviert, wenn dem Systemdesign gefolgt wird",
-      "lightThemes": "— Helle Designs —",
-      "darkThemes": "— Dunkle Designs —",
+      "lightThemes": "Helle Designs",
+      "darkThemes": "Dunkle Designs",
       "ayuDark": "Ayu Dunkel",
       "ayuLight": "Ayu Hell",
       "ayuMirage": "Ayu Mirage",
@@ -234,6 +236,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Zurück zu Dateien",
       "searchInFolder": "Im Ordner suchen...",
       "noFolderOpen": "Kein Ordner geöffnet",
       "noResultsFound": "Keine Ergebnisse gefunden.",
@@ -250,6 +253,9 @@
       "openFolder": "Ordner öffnen"
     },
     "toc": {
+      "expand": "Inhaltsverzeichnis aufklappen",
+      "collapse": "Inhaltsverzeichnis zuklappen",
+      "empty": "Keine Überschriften",
       "title": "Inhaltsverzeichnis",
       "expandAll": "Alle ausklappen",
       "collapseAll": "Alle einklappen"
@@ -257,7 +263,6 @@
     "icons": {
       "files": "Dateien",
       "search": "Suchen",
-      "toc": "Inhaltsverzeichnis",
       "settings": "Einstellungen"
     }
   },
@@ -266,7 +271,15 @@
     "minimize": "Minimieren",
     "maximize": "Maximieren",
     "restore": "Wiederherstellen",
-    "close": "Schließen"
+    "close": "Schließen",
+    "documentStatistics": {
+      "title": "Dokumentstatistik",
+      "fileInformation": "Dateiinformationen",
+      "created": "Erstellt",
+      "lastModified": "Geändert",
+      "unavailable": "—",
+      "open": "Dokumentstatistik öffnen"
+    }
   },
   "commandPalette": {
     "placeholder": "Befehl zum Ausführen eingeben",
@@ -1035,5 +1048,22 @@
     "tabs": {
       "close": "{name} schließen"
     }
+  },
+  "readingMode": {
+    "title": "Lesemodus (schreibgeschützt)",
+    "edit": "Bearbeitungsmodus",
+    "lock": "Lesemodus aktivieren",
+    "unlock": "Zum Bearbeitungsmodus wechseln",
+    "defaultMode": "Standardmodus beim Öffnen von Dateien",
+    "defaultNote": "Gilt für vorhandene Dateien, die ab jetzt geöffnet werden. Neue Dokumente bleiben bearbeitbar.",
+    "unsaved": "Der Lesemodus ist aktiviert. Ungespeicherte Änderungen bleiben erhalten; das automatische Speichern ist pausiert.",
+    "failed": "Der Dokumentmodus konnte nicht gewechselt werden",
+    "closeSave": "Zum Bearbeitungsmodus wechseln und speichern",
+    "exportSource": "Wählen Sie ein anderes Exportziel als die Quelldatei.",
+    "unavailable": "Im Lesemodus nicht verfügbar",
+    "skipped": "Schreibgeschützte Dokumente mit ungespeicherten Änderungen wurden übersprungen.",
+    "viewImage": "Bild anzeigen",
+    "copyLink": "Linkadresse kopieren",
+    "resumed": "Der Bearbeitungsmodus ist aktiviert. Das automatische Speichern wurde fortgesetzt."
   }
 }

@@ -74,7 +74,13 @@ class Clipboard {
     constructor(public muya: Muya) {}
 
     private _listen() {
-        const ownsEvent = () => this.muya.hasFocus();
+        const ownsEvent = () => {
+            if (this.muya.hasFocus())
+                return true;
+            return this.muya.readOnly
+                && !document.activeElement?.matches('input, textarea, [contenteditable="true"]')
+                && this.muya.domNode.contains(document.getSelection()?.anchorNode ?? null);
+        };
 
         const copyCutHandler = (event: Event) => {
             if (!ownsEvent() || !isClipboardEvent(event))
@@ -83,6 +89,8 @@ class Clipboard {
             event.stopPropagation();
 
             const isCut = event.type === 'cut';
+            if (isCut && this.muya.readOnly)
+                return;
 
             this.copyHandler(event);
 
@@ -91,6 +99,8 @@ class Clipboard {
         };
 
         const keydownHandler = (event: Event) => {
+            if (this.muya.readOnly)
+                return;
             if (!ownsEvent() || !isKeyboardEvent(event))
                 return;
             const { key, metaKey } = event;
@@ -128,6 +138,8 @@ class Clipboard {
         };
 
         const beforeInputHandler = (event: Event) => {
+            if (this.muya.readOnly)
+                return;
             if (!ownsEvent() || !isInputEvent(event) || !event.cancelable)
                 return;
 
@@ -168,6 +180,8 @@ class Clipboard {
     }
 
     cutHandler(): void {
+        if (!this.muya.canMutate)
+            return;
         cutSelection(this);
     }
 
@@ -176,6 +190,8 @@ class Clipboard {
         rawText?: string,
         rawHtml?: string,
     ): Promise<void> {
+        if (!this.muya.canMutate)
+            return Promise.resolve();
         return pasteSelection(this, event, rawText, rawHtml);
     }
 
@@ -202,7 +218,10 @@ class Clipboard {
     // event, so the old flag + execCommand approach pasted nothing. Read the
     // clipboard text ourselves and feed it through the paste pipeline.
     async pasteAsPlainText(): Promise<void> {
+        const target = this.selection.getSelection()?.anchor.block;
         const text = await this._readClipboardText();
+        if (this.muya.readOnly || !this.muya.isBlockInDocument(target) || this.selection.getSelection()?.anchor.block !== target)
+            return;
         if (text)
             await pastePlainText(this, text);
     }

@@ -134,6 +134,8 @@ class Renderer {
         token: Token,
         cursor: IRenderCursor,
     ) {
+        if (this.muya.readOnly)
+            return CLASS_NAMES.MU_HIDE;
         return (
             outerClass
             || (this._checkConflicted(block, token, cursor)

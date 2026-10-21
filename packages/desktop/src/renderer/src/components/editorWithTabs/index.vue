@@ -5,18 +5,21 @@
   >
     <tabs v-show="showTabBar" />
     <div class="container">
-      <editor
-        :markdown="markdown"
-        :cursor="cursor"
-        :text-direction="textDirection"
-        :platform="platform"
-      />
-      <source-code
-        v-if="sourceCode"
-        :markdown="markdown"
-        :muya-index-cursor="muyaIndexCursor"
-        :text-direction="textDirection"
-      />
+      <document-outline />
+      <div class="document-body">
+        <editor
+          :markdown="markdown"
+          :cursor="cursor"
+          :text-direction="textDirection"
+          :platform="platform"
+        />
+        <source-code
+          v-if="sourceCode"
+          :markdown="markdown"
+          :muya-index-cursor="muyaIndexCursor"
+          :text-direction="textDirection"
+        />
+      </div>
     </div>
     <tab-notifications />
   </div>
@@ -25,6 +28,7 @@
 <script setup lang="ts">
 import { useLayoutStore } from '@/store/layout'
 import { storeToRefs } from 'pinia'
+import DocumentOutline from './outline.vue'
 import Tabs from './tabs.vue'
 import Editor from './editor.vue'
 import SourceCode from './sourceCode.vue'
@@ -51,14 +55,25 @@ const { effectiveSideBarWidth } = storeToRefs(useLayoutStore())
   position: relative;
   height: 100%;
   flex: 1;
+  min-width: 0;
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
 
   overflow: hidden;
   background: var(--editorBgColor);
   & > .container {
+    display: flex;
+    position: relative;
+    min-height: 0;
     flex: 1;
     overflow: hidden;
   }
+}
+.document-body {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
 }
 </style>

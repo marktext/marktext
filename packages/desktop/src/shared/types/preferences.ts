@@ -7,12 +7,14 @@
 // is mechanically derived from schema.json in a follow-up.
 
 export interface IUserPreferences {
+  defaultOpenMode?: 'edit' | 'read'
   autoSave?: boolean
   autoSaveDelay?: number
   titleBarStyle?: 'custom' | 'native'
   openFilesInNewWindow?: boolean
   openFolderInNewWindow?: boolean
   hideScrollbar?: boolean
+  tocVisibility?: boolean
   sidebarColumn?: number
   fileSortBy?: string
   fileSortOrder?: string
@@ -84,7 +86,7 @@ export interface IUserPreferences {
 }
 
 export interface LayoutState {
-  rightColumn: 'files' | 'search' | 'toc'
+  rightColumn: 'files' | 'search'
   showSideBar: boolean
   showTabBar: boolean
   [key: string]: unknown

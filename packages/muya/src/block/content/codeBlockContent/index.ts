@@ -9,6 +9,7 @@ import type {
 import type Code from '../../commonMark/codeBlock/code';
 import type HTMLPreview from '../../commonMark/html/htmlPreview';
 import { CLASS_NAMES, HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
+import { ChangeSource } from '../../../types';
 import { adjustOffset, escapeHTML, firstGraphemeLength, firstWordOfInfo, lastGraphemeLength, lineBounds } from '../../../utils';
 import { computeLineCount, repositionLineNumberSpans, syncLineNumbersSpans } from '../../../utils/codeBlockLineNumbers';
 import { getHighlightHtml, MARKER_HASH } from '../../../utils/highlightHTML';
@@ -178,6 +179,9 @@ class CodeBlockContent extends Content {
 
     override update(_cursor?: IRenderCursor, highlights = []) {
         const { _lang: lang, text } = this;
+        const parentCode = this.parent as Code | null;
+        if (parentCode?.copyButton && parentCode.parent?.blockName === 'code-block')
+            parentCode.copyButton.hidden = !text;
         // transform alias to original language
         const fullLengthLang = transformAliasToOrigin([lang])[0];
         const domNode = this.domNode!;
@@ -293,7 +297,7 @@ class CodeBlockContent extends Content {
                     this.muya,
                     newNodeState,
                 );
-                this.scrollPage?.append(newNode, 'user');
+                this.scrollPage?.append(newNode, ChangeSource.User);
                 cursorBlock = newNode.firstChild;
             }
             const offset = adjustOffset(0, cursorBlock, event);

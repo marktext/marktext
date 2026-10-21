@@ -18,6 +18,14 @@
           @click.middle="closeTab(file.id)"
           @contextmenu.prevent="handleContextMenu($event, file)"
         >
+          <el-icon
+            v-if="file.readOnly"
+            class="reading-lock"
+            :title="t('readingMode.title')"
+            :aria-label="t('readingMode.title')"
+          >
+            <Lock />
+          </el-icon>
           <span>{{ file.filename }}</span>
           <span class="unsaved-dot" />
           <button
@@ -51,11 +59,10 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useEditorStore } from '@/store/editor'
-import { useLayoutStore } from '@/store/layout'
 import { storeToRefs } from 'pinia'
 import autoScroll from 'dom-autoscroller'
 import dragula from 'dragula'
-import { Plus, Close } from '@element-plus/icons-vue'
+import { Plus, Close, Lock } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import IconTooltip from '@/components/iconTooltip/index.vue'
 import { showContextMenu } from '../../contextMenu/tabs'
@@ -64,7 +71,6 @@ import type { IFileState } from '@shared/types/files'
 
 const { t } = useI18n()
 const editorStore = useEditorStore()
-const layoutStore = useLayoutStore()
 
 const { currentFile, tabs } = storeToRefs(editorStore)
 
@@ -160,10 +166,6 @@ const closeAll = () => {
   editorStore.CLOSE_ALL_TABS()
 }
 
-const changeMaxWidth = (width: unknown) => {
-  layoutStore.CHANGE_SIDE_BAR_WIDTH(width as number)
-}
-
 const rename = (tabId: unknown) => {
   const tab = tabs.value.find((f) => f.id === tabId)
   if (tab && tab.pathname) {
@@ -206,7 +208,6 @@ onMounted(() => {
   bus.on('TABS::rename', rename)
   bus.on('TABS::copy-path', copyPath)
   bus.on('TABS::show-in-folder', showInFolder)
-  bus.on('EDITOR_TABS::change-max-width', changeMaxWidth)
 
   const tabsEl = tabContainer.value
   if (!tabsEl || !tabDropContainer.value) return
@@ -278,21 +279,27 @@ onBeforeUnmount(() => {
   bus.off('TABS::rename', rename)
   bus.off('TABS::copy-path', copyPath)
   bus.off('TABS::show-in-folder', showInFolder)
-  bus.off('EDITOR_TABS::change-max-width', changeMaxWidth)
 })
 </script>
 
 <style scoped>
-/* The padding widens the hit area and keeps the inset focus ring off the
-   glyph; the negative margin keeps the tab as wide as before. */
+.reading-lock {
+  margin-inline-end: 6px;
+  flex-shrink: 0;
+}
+
+/* Padding widens the hit area and keeps the inset focus ring off the glyph. */
 .close-icon {
   padding: 2px;
-  margin: 0 -2px;
-  transition: opacity 0.15s ease-in-out;
+  border-radius: 4px;
+  transition:
+    opacity 0.15s ease-in-out,
+    background-color 0.15s ease-in-out;
 }
 
 .close-icon:hover {
   color: var(--focusColor);
+  background-color: var(--floatHoverColor);
 }
 
 .editor-tabs {
@@ -329,7 +336,8 @@ onBeforeUnmount(() => {
   & > li {
     transition: all 0.15s ease-in-out;
     position: relative;
-    padding: 0 8px;
+    padding: 0 28px 0 8px;
+    cursor: pointer;
     color: var(--editorColor50);
     font-size: 12px;
     line-height: 28px;
@@ -341,6 +349,13 @@ onBeforeUnmount(() => {
       color: var(--editorColor30) !important;
     }
     & > .close-icon {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      box-sizing: border-box;
       opacity: 0;
     }
     &:focus {
@@ -353,18 +368,16 @@ onBeforeUnmount(() => {
     & > .close-icon:focus-visible {
       opacity: 1;
     }
-    &:hover > .unsaved-dot,
-    &:focus-within > .unsaved-dot {
-      display: none;
-    }
     & > span {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      margin-right: 3px;
     }
     & > .unsaved-dot {
       display: none;
+      position: absolute;
+      top: 11px;
+      right: 11px;
       width: 6px;
       height: 6px;
       border-radius: 50%;
@@ -372,20 +385,20 @@ onBeforeUnmount(() => {
       flex-shrink: 0;
     }
   }
-  & > li.unsaved:not(.active) {
+  & > li.unsaved {
     & > .close-icon {
       opacity: 0;
     }
     & > .unsaved-dot {
       display: block;
     }
-    &:hover > .close-icon,
+    &:has(> .close-icon:hover) > .close-icon,
     & > .close-icon:focus-visible {
       opacity: 1;
     }
-    &:hover > .unsaved-dot,
+    &:has(> .close-icon:hover) > .unsaved-dot,
     &:focus-within > .unsaved-dot {
-      display: none;
+      visibility: hidden;
     }
   }
   & > li.active {
@@ -399,12 +412,6 @@ onBeforeUnmount(() => {
       right: 0;
       height: 2px;
       background: var(--themeColor);
-    }
-    & > .close-icon {
-      opacity: 1;
-    }
-    & > .unsaved-dot {
-      display: none;
     }
   }
 }

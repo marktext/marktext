@@ -3,6 +3,7 @@ import type { Muya } from '../muya';
 import type { TDiff } from '../utils';
 import type { TState } from './types';
 import * as json1 from 'ot-json1';
+import { ChangeSource } from '../types';
 import { deepClone } from '../utils';
 import logger from '../utils/logger';
 import { getTOC } from './getTOC';
@@ -201,7 +202,7 @@ class JSONState {
         this._emitStateChange();
     }
 
-    dispatch(op: JSONOp, source = 'user' /* user, api */) {
+    dispatch(op: JSONOp, source: ChangeSource = ChangeSource.User) {
         const prevDoc = this.getState();
         this._apply(op);
         // TODO: remove doc in future
@@ -288,7 +289,7 @@ class JSONState {
 
         this._muya.eventCenter.emit('json-change', {
             op,
-            source: 'user',
+            source: ChangeSource.User,
             prevDoc,
             doc,
         });

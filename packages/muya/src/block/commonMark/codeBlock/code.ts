@@ -7,6 +7,7 @@ import { fromEvent } from 'rxjs';
 import copyIcon from '../../../assets/icons/copy/2.png';
 import { CopyType } from '../../../clipboard/types';
 import { LINE_NUMBERS_ROWS_CLASS, lineNumbersWrapperHTML } from '../../../utils/codeBlockLineNumbers';
+import { showCopyFeedback } from '../../../utils/copyFeedback';
 import logger from '../../../utils/logger';
 import { h, toHTML } from '../../../utils/snabbdom';
 import Parent from '../../base/parent';
@@ -15,7 +16,7 @@ import { ScrollPage } from '../../scrollPage';
 const debug = logger('code:');
 
 function renderCopyButton(i18n: I18n) {
-    const selector = 'a.mu-code-copy';
+    const selector = 'button.mu-code-copy';
     const iconVnode = h(
         'i.icon',
         h(
@@ -34,8 +35,10 @@ function renderCopyButton(i18n: I18n) {
         selector,
         {
             attrs: {
-                title: i18n.t('Copy content'),
-                contenteditable: 'false',
+                'type': 'button',
+                'aria-label': i18n.t('Copy content'),
+                'title': i18n.t('Copy content'),
+                'contenteditable': 'false',
             },
         },
         iconVnode,
@@ -51,6 +54,7 @@ class Code extends Parent {
     // Cached reference to the gutter wrapper so CodeBlockContent.update() does
     // not pay a querySelector on every keystroke.
     public lineNumbersWrapper: HTMLElement | null = null;
+    public copyButton: HTMLButtonElement | null = null;
 
     static override blockName = 'code';
 
@@ -58,6 +62,9 @@ class Code extends Parent {
         const code = new Code(muya, state.name === 'code-block');
 
         code.append(ScrollPage.loadBlock('codeblock.content').create(muya, state));
+        const copyButton = code.copyButton;
+        if (copyButton)
+            copyButton.hidden = state.name !== 'code-block' || !state.text;
 
         return code;
     }
@@ -96,6 +103,7 @@ class Code extends Parent {
         if (withLineNumbers)
             html += lineNumbersWrapperHTML();
         this.domNode!.innerHTML = html;
+        this.copyButton = this.domNode!.querySelector<HTMLButtonElement>('.mu-code-copy');
         this.lineNumbersWrapper = withLineNumbers
             ? this.domNode!.querySelector<HTMLElement>(`.${LINE_NUMBERS_ROWS_CLASS}`)
             : null;
@@ -119,17 +127,29 @@ class Code extends Parent {
                 return;
             }
 
-            editor.clipboard.copy(CopyType.COPY_CODE_CONTENT, codeContent.text);
+            if (!codeContent.text)
+                return;
+            const button = this.copyButton;
+            if (!button)
+                return;
+            const writer = this.muya.options.clipboardWriteText;
+            if (!writer) {
+                editor.clipboard.copy(CopyType.COPY_CODE_CONTENT, codeContent.text);
+                return;
+            }
+            void writer(codeContent.text).catch(() => false).then((ok) => {
+                showCopyFeedback(button, ok, this.muya.i18n.t('Copy content'), this.muya.i18n);
+            });
         };
 
         const mousedownHandler = (event: Event) => {
             event.preventDefault();
         };
 
-        const clickObservable = fromEvent(this.domNode.firstElementChild!, 'click');
+        const clickObservable = fromEvent(this.copyButton!, 'click');
         clickObservable.subscribe(clickHandler);
 
-        const mousedownObservable = fromEvent(this.domNode.firstElementChild!, 'mousedown');
+        const mousedownObservable = fromEvent(this.copyButton!, 'mousedown');
         mousedownObservable.subscribe(mousedownHandler);
     }
 }

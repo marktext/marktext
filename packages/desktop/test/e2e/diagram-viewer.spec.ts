@@ -139,15 +139,14 @@ const hoverDiagram = async(page: Page, index: number): Promise<void> => {
   await page.waitForTimeout(150)
   const box = await block.boundingBox()
   if (!box) throw new Error('diagram block has no box')
-  // A block taller or wider than the window has its centre off-screen, and the
-  // pointer would then land outside the viewport entirely.
-  const view = await page.evaluate(() => ({ w: window.innerWidth, h: window.innerHeight }))
-  const clamp = (lo: number, mid: number, hi: number): number =>
-    Math.min(Math.max(mid, lo), hi)
-  await page.mouse.move(
-    clamp(20, box.x + box.width / 2, view.w - 20),
-    clamp(20, box.y + box.height / 2, view.h - 20)
-  )
+  const editor = await page.locator('.editor-component').boundingBox()
+  if (!editor) throw new Error('editor has no box')
+  // Hover the visible intersection; window edges can belong to title bars or panels.
+  const left = Math.max(box.x, editor.x)
+  const right = Math.min(box.x + box.width, editor.x + editor.width)
+  const top = Math.max(box.y, editor.y)
+  const bottom = Math.min(box.y + box.height, editor.y + editor.height)
+  await page.mouse.move((left + right) / 2, (top + bottom) / 2)
   await expect.poll(() => toolbarShownFor(page, index), { timeout: 10000 }).toBe(true)
 }
 
@@ -322,7 +321,7 @@ test.describe('diagram viewer', () => {
     await openDiagram(page)
 
     await page.locator('.media-viewer-toolbar button').nth(4).click()
-    const notice = page.locator('.mt-notification').first()
+    const notice = page.locator('.mt-notification').last()
     await expect(notice).toBeVisible({ timeout: 15000 })
 
     // `notify()` rejects when the notice is closed rather than confirmed, and
@@ -333,9 +332,9 @@ test.describe('diagram viewer', () => {
     }
     page.on('console', listener)
 
-    // The close affordance only materialises while the notice is hovered.
+    // Element Plus puts the dismiss control in the top-right corner.
     await notice.hover()
-    await notice.locator('.close').click()
+    await notice.locator('.el-notification__closeBtn').click()
     await expect(notice).toBeHidden({ timeout: 5000 })
     await page.waitForTimeout(500)
     page.off('console', listener)
@@ -354,7 +353,7 @@ test.describe('diagram viewer', () => {
 
     try {
       await page.locator('.media-viewer-toolbar button').nth(4).click()
-      const notice = page.locator('.mt-notification').first()
+      const notice = page.locator('.mt-notification').last()
       await expect(notice).toBeVisible({ timeout: 20000 })
 
       const consoleErrors: string[] = []
@@ -364,7 +363,7 @@ test.describe('diagram viewer', () => {
       page.on('console', listener)
 
       await notice.hover()
-      await notice.locator('.close').click()
+      await notice.locator('.el-notification__closeBtn').click()
       await expect(notice).toBeHidden({ timeout: 5000 })
       await page.waitForTimeout(500)
       page.off('console', listener)
@@ -382,23 +381,31 @@ test.describe('diagram viewer', () => {
 
     await page.locator('.media-viewer-toolbar button').nth(4).click()
 
-    const notice = page.locator('.mt-notification').first()
+    const notice = page.locator('.mt-notification').last()
     await expect(notice).toBeVisible({ timeout: 15000 })
 
-    // `.mt-notification` transitions `all`, and z-index is an integer the
-    // browser will happily interpolate — sample mid-flight and you read a
-    // number that belongs to neither the stylesheet nor the inline style.
-    // Wait for the re-stack to land and the transition to settle.
+    // Element Plus slides the notice in from the right. The hit test below
+    // needs the final position, not a point that is still off-screen.
     await expect
       .poll(
         () =>
           notice.evaluate((el) => {
-            const inline = (el as HTMLElement).style.zIndex
-            return inline !== '' && getComputedStyle(el).zIndex === inline
+            const style = getComputedStyle(el)
+            return {
+              inlineZIndex: (el as HTMLElement).style.zIndex,
+              zIndex: style.zIndex,
+              transform: style.transform,
+              right: style.right
+            }
           }),
         { timeout: 5000 }
       )
-      .toBe(true)
+      .toEqual({
+        inlineZIndex: '10100',
+        zIndex: '10100',
+        transform: 'none',
+        right: '16px'
+      })
 
     const onTop = await notice.evaluate((el) => {
       const { left, top, width, height } = el.getBoundingClientRect()
@@ -477,7 +484,7 @@ test.describe('diagram viewer', () => {
     await expect(page.locator('.mt-notification')).toHaveCount(priorNotices + 1, {
       timeout: 15000
     })
-    const notice = page.locator('.mt-notification').first()
+    const notice = page.locator('.mt-notification').last()
     await expect(notice).toBeVisible({ timeout: 15000 })
     await expect(notice).toHaveClass(/mt-confirm/)
     expect((await notice.innerText()).trim().length).toBeGreaterThan(0)

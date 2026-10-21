@@ -24,7 +24,7 @@
         :markdown="markdown"
         :cursor="cursor"
         :muya-index-cursor="muyaIndexCursor"
-        :source-code="sourceCode"
+        :source-code="sourceCode && !currentFile?.readOnly"
         :show-tab-bar="showTabBar"
         :text-direction="textDirection"
         :platform="platform"
@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, nextTick, onMounted, ref } from 'vue'
+import { computed, watch, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useMainStore } from '@/store'
 import { storeToRefs } from 'pinia'
 import { addStyles, addThemeStyle, addCustomStyle, type AddStylesOptions } from '@/util/theme'
@@ -80,6 +80,18 @@ const { showTabBar } = storeToRefs(layoutStore)
 const { sourceCode, theme, customCss, textDirection, zoom } = storeToRefs(preferencesStore)
 const { projectTree } = storeToRefs(projectStore)
 const { currentFile, selectionWordCount } = storeToRefs(editorStore)
+
+watch(
+  () => [currentFile.value?.id, currentFile.value?.readOnly],
+  () => {
+    window.electron.ipcRenderer.send(
+      'mt::update-document-mode',
+      !!currentFile.value?.readOnly,
+      !!currentFile.value
+    )
+  },
+  { immediate: true }
+)
 
 const pathname = computed(() => currentFile.value?.pathname)
 const filename = computed(() => currentFile.value?.filename)
@@ -124,6 +136,15 @@ const setupDragDropHandler = (): void => {
   window.addEventListener(
     'dragover',
     (e: DragEvent) => {
+      if (
+        editorStore.currentFile?.readOnly &&
+        e.target instanceof Element &&
+        e.target.closest('.mu-editor')
+      ) {
+        e.preventDefault()
+        e.stopPropagation()
+        return
+      }
       if (!e.dataTransfer || !e.dataTransfer.types.length) return
 
       if (e.dataTransfer.types.indexOf('Files') >= 0) {
@@ -156,6 +177,10 @@ const setupDragDropHandler = (): void => {
     false
   )
 }
+
+let stopSidebarContextMenu: (() => void) | undefined
+onUnmounted(() => stopSidebarContextMenu?.())
+
 onMounted(async () => {
   if (window.marktext?.initialState) {
     preferencesStore.SET_USER_PREFERENCE(window.marktext.initialState)
@@ -171,11 +196,12 @@ onMounted(async () => {
   listenForMainStore.LISTEN_FOR_PARAGRAPH_INLINE_STYLE()
   projectStore.LISTEN_FOR_UPDATE_PROJECT()
   projectStore.LISTEN_FOR_LOAD_PROJECT()
-  projectStore.LISTEN_FOR_SIDEBAR_CONTEXT_MENU()
+  stopSidebarContextMenu = projectStore.LISTEN_FOR_SIDEBAR_CONTEXT_MENU()
   autoUpdateStore.LISTEN_FOR_UPDATE()
   preferencesStore.ASK_FOR_USER_PREFERENCE()
   preferencesStore.LISTEN_TOGGLE_VIEW()
   editorStore.LISTEN_SCREEN_SHOT()
+  editorStore.LISTEN_FOR_READING_MODE()
   editorStore.LISTEN_FOR_CLOSE()
   editorStore.LISTEN_FOR_SAVE_AS()
   editorStore.LISTEN_FOR_MOVE_TO()

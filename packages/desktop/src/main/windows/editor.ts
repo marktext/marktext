@@ -541,7 +541,18 @@ class EditorWindow extends BaseWindow {
       appMenu.addRecentlyUsedDocument(pathname)
     }
     if (!_openedFiles!.includes(pathname)) _openedFiles!.push(pathname)
-    browserWindow!.webContents.send('mt::open-new-tab', rawDocument, options, selected)
+    browserWindow!.webContents.send(
+      'mt::open-new-tab',
+      rawDocument,
+      {
+        ...options,
+        readOnly:
+          options.readOnly ??
+          (!rawDocument.isPendingCreation &&
+            _accessor.preferences.getItem('defaultOpenMode') === 'read')
+      },
+      selected
+    )
   }
 
   private _doOpenFilesToOpen(): void {
@@ -589,6 +600,10 @@ class EditorWindow extends BaseWindow {
 
       const fileOpenRequests: Promise<void>[] = []
       for (const tab of bufferState.tabs) {
+        tab.readOnly ??=
+          !!tab.pathname &&
+          !tab.isPendingCreation &&
+          preferences.getItem('defaultOpenMode') === 'read'
         if (!tab.pathname) {
           continue
         }
@@ -607,7 +622,10 @@ class EditorWindow extends BaseWindow {
               if (rawDocument.markdown !== tab.markdown) {
                 // File has changed since it was last opened, if it is not saved, we should NOT override the buffer
                 if (tab.isSaved) {
-                  tab.markdown = rawDocument.markdown
+                  Object.assign(tab, rawDocument)
+                  tab.diskMissing = false
+                } else {
+                  tab.diskConflict = true
                 }
               }
 
@@ -623,7 +641,8 @@ class EditorWindow extends BaseWindow {
                 return
               }
               const { message, stack } = err
-              tab.isSaved = false // Set to false as base file could not be found, needs saving
+              tab.diskMissing = true
+              if (!tab.readOnly) tab.isSaved = false
               log.error(`[ERROR] Cannot open file: ${message}\n\n${stack}`)
               browserWindow!.webContents.send('mt::show-notification', {
                 title: `Could not find file ${tab.filename} on disk, please save your work.`,

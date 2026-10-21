@@ -4,6 +4,7 @@ import type { Nullable } from '../../../types';
 import type TaskList from '../taskList';
 import type TaskListItem from '../taskListItem';
 import { CLASS_NAMES, isFirefox } from '../../../config';
+import { ChangeSource } from '../../../types';
 import { isHTMLInputElement, isMouseEvent } from '../../../utils';
 import { operateClassName } from '../../../utils/dom';
 import logger from '../../../utils/logger';
@@ -158,6 +159,10 @@ class TaskListCheckbox extends TreeNode {
         const { domNode, muya } = this;
         const { eventCenter } = muya;
         const clickHandler = (event: Event) => {
+            if (this.muya.readOnly) {
+                event.preventDefault();
+                return;
+            }
             if (!isMouseEvent(event))
                 return;
 
@@ -166,12 +171,12 @@ class TaskListCheckbox extends TreeNode {
             if (isFirefox) {
                 this._checked = !this._checked;
 
-                this.update(this._checked, 'user');
+                this.update(this._checked, ChangeSource.User);
             }
             else if (isHTMLInputElement(event.target)) {
                 const { checked } = event.target;
                 this._checked = checked;
-                this.update(checked, 'user');
+                this.update(checked, ChangeSource.User);
             }
 
             // The control is not editable, so clicking it does not move the
@@ -187,7 +192,9 @@ class TaskListCheckbox extends TreeNode {
         this._eventIds.push(...eventIds);
     }
 
-    update = (checked: boolean, source = 'api') => {
+    update = (checked: boolean, source: ChangeSource = ChangeSource.Api) => {
+        if (!this.muya.canMutate)
+            return;
         const taskListItem = this.parent as TaskListItem;
         const taskList = taskListItem!.parent as TaskList;
 
@@ -199,7 +206,7 @@ class TaskListCheckbox extends TreeNode {
         // ancestor (checked iff all its siblings are checked). `source === 'api'`
         // is the silent, OT-free path used by the cascade itself, so it never
         // recurses.
-        if (source !== 'api' && this.muya.options.autoCheck) {
+        if (source !== ChangeSource.Api && this.muya.options.autoCheck) {
             cascadeToDescendants(taskListItem, checked);
             rederiveAncestors(taskListItem);
         }
@@ -211,11 +218,11 @@ class TaskListCheckbox extends TreeNode {
     // state. A `user` source dispatches the OT `replace` op (via the
     // `TaskListItem.checked` setter); an `api` source mutates the state
     // silently so the cascade can update many items without op spam.
-    private _applyChecked(checked: boolean, source: string) {
+    private _applyChecked(checked: boolean, source: ChangeSource) {
         this.syncDom(checked);
 
         const taskListItem = this.parent as TaskListItem;
-        if (source === 'api')
+        if (source === ChangeSource.Api)
             taskListItem.meta.checked = checked;
         else
             taskListItem.checked = checked;
@@ -242,7 +249,7 @@ class TaskListCheckbox extends TreeNode {
             this.muya.eventCenter.detachDOMEvent(id);
     }
 
-    override remove(_source: string) {
+    override remove(_source: ChangeSource) {
         super.remove();
         this._detachDOMEvents();
 

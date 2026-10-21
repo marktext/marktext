@@ -5,6 +5,7 @@ import type Cell from '../../gfm/table/cell';
 import type Row from '../../gfm/table/row';
 import type TableInner from '../../gfm/table/table';
 import { EVENT_KEYS, isOsx } from '../../../config';
+import { ChangeSource } from '../../../types';
 import { isKeyboardEvent } from '../../../utils';
 import Format from '../../base/format';
 import { ScrollPage } from '../../scrollPage';
@@ -112,7 +113,7 @@ class TableCellContent extends Format {
                     this.muya,
                     state,
                 );
-                this.scrollPage?.append(newParagraphBlock, 'user');
+                this.scrollPage?.append(newParagraphBlock, ChangeSource.User);
                 cursorBlock = newParagraphBlock.firstContentInDescendant();
             }
         }
@@ -189,7 +190,7 @@ class TableCellContent extends Format {
                         this.muya,
                         state,
                     );
-                    this.scrollPage?.append(newParagraphBlock, 'user');
+                    this.scrollPage?.append(newParagraphBlock, ChangeSource.User);
                     cursorBlock = newParagraphBlock.firstContentInDescendant();
                 }
 

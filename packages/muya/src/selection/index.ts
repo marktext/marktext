@@ -135,6 +135,11 @@ class Selection {
     }
 
     selectAll(): void {
+        if (this._muya.readOnly) {
+            this._text.selectAllContent();
+            return;
+        }
+
         const tableSelection = this._table;
 
         // A frozen rectangular table selection escalates: the whole table jumps

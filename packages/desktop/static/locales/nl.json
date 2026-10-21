@@ -3,6 +3,8 @@
     "counter": {
       "words": "Woorden",
       "characters": "Tekens",
+      "charactersNoSpaces": "Tekens (zonder spaties)",
+      "charactersWithSpaces": "Tekens (met spaties)",
       "paragraphs": "Alinea's",
       "allCharacters": "Alle tekens",
       "document": "Document",
@@ -122,7 +124,7 @@
       "sourceCodeMode": "Broncodeweergave",
       "typewriterMode": "Typemachinestand",
       "focusMode": "Focusstand",
-      "toggleTableOfContents": "Inhoudsopgave in-/uitschakelen",
+      "toggleTableOfContents": "Inhoudsopgave tonen",
       "reloadImages": "Afbeeldingen herladen",
       "showDeveloperTools": "Ontwikkelaarshulpmiddelen tonen",
       "reloadWindow": "Venster herladen"
@@ -146,8 +148,8 @@
       "theme": "&Thema",
       "dark": "Donker",
       "followThemDisabled": "Themaselectie uitgeschakeld bij het volgen van systeemthema",
-      "lightThemes": "— Lichte thema's —",
-      "darkThemes": "— Donkere thema's —",
+      "lightThemes": "Lichte thema's",
+      "darkThemes": "Donkere thema's",
       "ayuDark": "Ayu Dark",
       "ayuLight": "Ayu Light",
       "ayuMirage": "Ayu Mirage",
@@ -234,6 +236,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Terug naar bestanden",
       "searchInFolder": "Zoeken in map...",
       "noFolderOpen": "Geen map geopend",
       "noResultsFound": "Geen resultaten gevonden.",
@@ -250,6 +253,9 @@
       "openFolder": "Map openen"
     },
     "toc": {
+      "expand": "Inhoudsopgave uitklappen",
+      "collapse": "Inhoudsopgave inklappen",
+      "empty": "Geen koppen",
       "title": "Inhoudsopgave",
       "expandAll": "Alles uitklappen",
       "collapseAll": "Alles inklappen"
@@ -257,7 +263,6 @@
     "icons": {
       "files": "Bestanden",
       "search": "Zoeken",
-      "toc": "Inhoudsopgave",
       "settings": "Instellingen"
     }
   },
@@ -266,7 +271,15 @@
     "minimize": "Minimaliseren",
     "maximize": "Maximaliseren",
     "restore": "Vorig formaat",
-    "close": "Sluiten"
+    "close": "Sluiten",
+    "documentStatistics": {
+      "title": "Documentstatistieken",
+      "fileInformation": "Bestandsinformatie",
+      "created": "Aangemaakt",
+      "lastModified": "Gewijzigd",
+      "unavailable": "—",
+      "open": "Documentstatistieken openen"
+    }
   },
   "commandPalette": {
     "placeholder": "Typ een opdracht om uit te voeren",
@@ -1035,5 +1048,22 @@
     "tabs": {
       "close": "{name} sluiten"
     }
+  },
+  "readingMode": {
+    "title": "Leesmodus (alleen-lezen)",
+    "edit": "Bewerkingsmodus",
+    "lock": "Leesmodus inschakelen",
+    "unlock": "Overschakelen naar bewerkingsmodus",
+    "defaultMode": "Standaardmodus bij het openen van bestanden",
+    "defaultNote": "Geldt voor bestaande bestanden die vanaf nu worden geopend. Nieuwe documenten blijven bewerkbaar.",
+    "unsaved": "De leesmodus is ingeschakeld. Niet-opgeslagen wijzigingen blijven behouden en automatisch opslaan is gepauzeerd.",
+    "failed": "De documentmodus kon niet worden gewijzigd",
+    "closeSave": "Overschakelen naar bewerkingsmodus en opslaan",
+    "exportSource": "Kies een andere exportbestemming dan het bronbestand.",
+    "unavailable": "Niet beschikbaar in leesmodus",
+    "skipped": "Alleen-lezen documenten met niet-opgeslagen wijzigingen zijn overgeslagen.",
+    "viewImage": "Afbeelding bekijken",
+    "copyLink": "Linkadres kopiëren",
+    "resumed": "De bewerkingsmodus is ingeschakeld. Automatisch opslaan is hervat."
   }
 }

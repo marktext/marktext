@@ -5,6 +5,7 @@ import type Content from '../base/content';
 import type TreeNode from '../base/treeNode';
 import type { IConstructor, TBlockPath } from '../types';
 import { BLOCK_DOM_PROPERTY } from '../../config';
+import { ChangeSource } from '../../types';
 import { isHTMLElement, isMouseEvent } from '../../utils';
 import logger from '../../utils/logger';
 import Parent from '../base/parent';
@@ -164,6 +165,10 @@ export class ScrollPage extends Parent {
     }
 
     private _updateActiveStatus = () => {
+        if (this.muya.readOnly) {
+            this._blurFocus = { blur: null, focus: null };
+            return;
+        }
         const { blur, focus } = this._blurFocus;
 
         if (blur == null && focus == null)
@@ -208,6 +213,8 @@ export class ScrollPage extends Parent {
 
     // Create a new paragraph if click the blank area in editor.
     private _clickHandler(event: Event) {
+        if (this.muya.readOnly)
+            return;
         if (!isMouseEvent(event) || !isHTMLElement(event.target))
             return;
 
@@ -236,7 +243,7 @@ export class ScrollPage extends Parent {
                         this.muya,
                         state,
                     );
-                    this.append(newNode, 'user');
+                    this.append(newNode, ChangeSource.User);
                     const cursorBlock = newNode.lastContentInDescendant();
                     cursorBlock.setCursor(0, 0, true);
                 }

@@ -1,6 +1,16 @@
 <template>
   <div class="pref-general">
     <h4>{{ t('preferences.general.title') }}</h4>
+    <cur-select
+      :description="t('readingMode.defaultMode')"
+      :notes="t('readingMode.defaultNote')"
+      :value="defaultOpenMode"
+      :options="[
+        { label: t('readingMode.edit'), value: 'edit' },
+        { label: t('readingMode.title'), value: 'read' }
+      ]"
+      :on-change="(value) => onSelectChange('defaultOpenMode', value)"
+    />
     <compound>
       <template #head>
         <h6 class="title">
@@ -244,6 +254,7 @@ const { t } = useI18n()
 const preferenceStore = usePreferencesStore()
 
 const {
+  defaultOpenMode,
   autoSave,
   autoSaveDelay,
   titleBarStyle,

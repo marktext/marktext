@@ -103,6 +103,35 @@ test.describe('Sidebar Delete key (#3148)', () => {
     expect(String(dialogs[dialogs.length - 1]?.message)).toContain(String(pathname).split('/').pop())
   })
 
+  test('one Delete opens one confirmation after the editor page remounts', async() => {
+    await page.evaluate(async() => {
+      const root = document.querySelector('#app') as HTMLElement & {
+        __vue_app__: { config: { globalProperties: { $router: { push: (path: string) => Promise<unknown> } } } }
+      }
+      const router = root.__vue_app__.config.globalProperties.$router
+      await router.push('/preference')
+      await router.push('/editor')
+    })
+    const file = page.locator('.side-bar-file[title$=".md"]').first()
+    await file.click()
+    const before = (await trashDialogs(app)).length
+    await page.evaluate(() => {
+      document.body.dataset.deleteKeydowns = '0'
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Delete') {
+          document.body.dataset.deleteKeydowns = String(Number(document.body.dataset.deleteKeydowns) + 1)
+        }
+      }, { capture: true, once: true })
+    })
+    await app.evaluate(() => {
+      ;(global as unknown as TrashGlobals).__mt_trash_response__ = 1
+    })
+    await page.keyboard.press('Delete')
+    await page.waitForTimeout(300)
+    expect(await page.evaluate(() => document.body.dataset.deleteKeydowns)).toBe('1')
+    expect((await trashDialogs(app)).length - before).toBe(1)
+  })
+
   test('Delete inside the editor edits text instead of trashing the selection', async() => {
     const file = page.locator('.side-bar-file[title$=".md"]').first()
     const pathname = await file.getAttribute('title')

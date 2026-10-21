@@ -6,19 +6,12 @@ import {
   isDirectory as commonIsDirectory,
   isExecutableFile
 } from 'common/filesystem'
+import type { SerializedStat } from '@shared/types/files'
 import { copyFileWithContentHash } from '../filesystem'
-
-interface SerializedStat {
-  size: number
-  mtimeMs: number
-  ctimeMs: number
-  isFile: boolean
-  isDirectory: boolean
-  isSymbolicLink: boolean
-}
 
 const serializeStat = (stats: Stats): SerializedStat => ({
   size: stats.size,
+  birthtimeMs: stats.birthtimeMs,
   mtimeMs: stats.mtimeMs,
   ctimeMs: stats.ctimeMs,
   isFile: stats.isFile(),

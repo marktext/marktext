@@ -49,6 +49,9 @@ class CodeBlock extends Parent {
 
         codeBlock.append(langInput);
         codeBlock.append(code);
+        const copyButton = (code as { copyButton?: HTMLButtonElement | null }).copyButton;
+        if (copyButton)
+            codeBlock.domNode!.appendChild(copyButton);
 
         // Move the line-numbers gutter from .mu-code into the pre so that
         // .mu-code's overflow (hidden/auto) does not clip the left-side gutter.
@@ -67,7 +70,7 @@ class CodeBlock extends Parent {
 
         if (lang) {
             requestAnimationFrame(() => {
-                codeBlock.lang = lang;
+                codeBlock._renderLanguage();
             });
         }
 
@@ -79,6 +82,8 @@ class CodeBlock extends Parent {
     }
 
     set lang(value) {
+        if (!this.muya.canMutate)
+            return;
         this.meta.lang = value;
 
         if (this.meta.type !== 'fenced') {
@@ -99,6 +104,10 @@ class CodeBlock extends Parent {
             operateClassName(this.domNode!, 'add', 'mu-fenced-code');
         }
 
+        this._renderLanguage();
+    }
+
+    private _renderLanguage() {
         // Render when the grammar the block is drawn with changes — including
         // to none, which is what clearing the language or naming one Prism does
         // not have amounts to. Those two used to render nothing at all and left
@@ -119,8 +128,8 @@ class CodeBlock extends Parent {
             this.lastContentInDescendant()?.update();
         };
 
-        // `value` is the full info string; load Prism for its first word only.
-        const language = firstWordOfInfo(value);
+        // The full info string may include attributes; Prism uses only its first word.
+        const language = firstWordOfInfo(this.meta.lang ?? '');
         if (!language) {
             rerenderIfGrammarChanged();
 

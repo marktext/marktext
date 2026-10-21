@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 
-// The notification service renders a DOM toast from a raw HTML template; stub
-// it so we can observe `notify` without touching the DOM.
+// The notification service renders through Element Plus; stub it so we can
+// observe `notify` without touching the DOM.
 vi.mock('@/services/notification', () => ({
   default: { notify: vi.fn(), name: 'notify' }
 }))

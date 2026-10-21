@@ -3,6 +3,8 @@
     "counter": {
       "words": "字数",
       "characters": "字符数",
+      "charactersNoSpaces": "字符数（不含空格）",
+      "charactersWithSpaces": "字符数（含空格）",
       "paragraphs": "段落数",
       "allCharacters": "总字符数",
       "document": "文档",
@@ -122,7 +124,7 @@
       "sourceCodeMode": "源码模式",
       "typewriterMode": "打字机模式",
       "focusMode": "专注模式",
-      "toggleTableOfContents": "切换目录",
+      "toggleTableOfContents": "显示目录",
       "reloadImages": "重新加载图片",
       "showDeveloperTools": "显示开发者工具",
       "reloadWindow": "重新加载窗口"
@@ -146,8 +148,8 @@
       "theme": "主题(&T)",
       "dark": "深色",
       "followThemDisabled": "跟随系统主题时无法选择主题",
-      "lightThemes": "— 浅色主题 —",
-      "darkThemes": "— 深色主题 —",
+      "lightThemes": "浅色主题",
+      "darkThemes": "深色主题",
       "ayuDark": "Ayu 深色",
       "ayuLight": "Ayu 浅色",
       "ayuMirage": "Ayu Mirage",
@@ -234,6 +236,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "返回文件",
       "searchInFolder": "在文件夹中搜索…",
       "noFolderOpen": "没有打开的文件夹",
       "noResultsFound": "未找到结果。",
@@ -250,6 +253,9 @@
       "openFolder": "打开文件夹"
     },
     "toc": {
+      "expand": "展开目录",
+      "collapse": "收起目录",
+      "empty": "暂无标题",
       "title": "目录",
       "expandAll": "全部展开",
       "collapseAll": "全部折叠"
@@ -257,7 +263,6 @@
     "icons": {
       "files": "文件",
       "search": "搜索",
-      "toc": "目录",
       "settings": "设置"
     }
   },
@@ -266,7 +271,15 @@
     "minimize": "最小化",
     "maximize": "最大化",
     "restore": "向下还原",
-    "close": "关闭"
+    "close": "关闭",
+    "documentStatistics": {
+      "title": "文档统计",
+      "fileInformation": "文件信息",
+      "created": "创建时间",
+      "lastModified": "修改时间",
+      "unavailable": "—",
+      "open": "打开文档统计"
+    }
   },
   "commandPalette": {
     "placeholder": "输入要执行的命令",
@@ -1035,5 +1048,22 @@
     "tabs": {
       "close": "关闭 {name}"
     }
+  },
+  "readingMode": {
+    "title": "阅读模式（只读）",
+    "edit": "编辑模式",
+    "lock": "进入阅读模式",
+    "unlock": "切换到编辑模式",
+    "defaultMode": "文件默认打开模式",
+    "defaultNote": "仅影响之后打开的现有文件；新建文档仍以编辑模式打开。",
+    "unsaved": "已进入阅读模式，未保存修改已保留，自动保存已暂停。",
+    "failed": "切换文档模式失败",
+    "closeSave": "切换到编辑模式并保存",
+    "exportSource": "请选择源文件以外的导出位置。",
+    "unavailable": "阅读模式下不可用",
+    "skipped": "已跳过存在未保存修改的只读文档。",
+    "viewImage": "查看图片",
+    "copyLink": "复制链接地址",
+    "resumed": "已切换到编辑模式，自动保存已恢复。"
   }
 }

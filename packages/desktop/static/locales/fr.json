@@ -3,6 +3,8 @@
     "counter": {
       "words": "Mots",
       "characters": "Caractères",
+      "charactersNoSpaces": "Caractères (sans espaces)",
+      "charactersWithSpaces": "Caractères (avec espaces)",
       "paragraphs": "Paragraphes",
       "allCharacters": "Tous les caractères",
       "document": "Document",
@@ -122,7 +124,7 @@
       "sourceCodeMode": "Mode code source",
       "typewriterMode": "Mode machine à écrire",
       "focusMode": "Mode focus",
-      "toggleTableOfContents": "Basculer la table des matières",
+      "toggleTableOfContents": "Afficher la table des matières",
       "reloadImages": "Recharger les images",
       "showDeveloperTools": "Afficher les outils de développement",
       "reloadWindow": "Recharger la fenêtre"
@@ -146,8 +148,8 @@
       "theme": "Thème (&T)",
       "dark": "Sombre",
       "followThemDisabled": "Sélection du thème désactivée lorsque le thème du système est suivi",
-      "lightThemes": "— Thèmes Clairs —",
-      "darkThemes": "— Thèmes Sombres —",
+      "lightThemes": "Thèmes Clairs",
+      "darkThemes": "Thèmes Sombres",
       "ayuDark": "Ayu Sombre",
       "ayuLight": "Ayu Clair",
       "ayuMirage": "Ayu Mirage",
@@ -234,6 +236,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Retour aux fichiers",
       "searchInFolder": "Rechercher dans le dossier...",
       "noFolderOpen": "Aucun dossier ouvert",
       "noResultsFound": "Aucun résultat trouvé.",
@@ -250,6 +253,9 @@
       "openFolder": "Ouvrir un dossier"
     },
     "toc": {
+      "expand": "Développer la table des matières",
+      "collapse": "Réduire la table des matières",
+      "empty": "Aucun titre",
       "title": "Table des matières",
       "expandAll": "Tout développer",
       "collapseAll": "Tout réduire"
@@ -257,7 +263,6 @@
     "icons": {
       "files": "Fichiers",
       "search": "Rechercher",
-      "toc": "Table des matières",
       "settings": "Paramètres"
     }
   },
@@ -266,7 +271,15 @@
     "minimize": "Réduire",
     "maximize": "Agrandir",
     "restore": "Restaurer",
-    "close": "Fermer"
+    "close": "Fermer",
+    "documentStatistics": {
+      "title": "Statistiques du document",
+      "fileInformation": "Informations sur le fichier",
+      "created": "Créé",
+      "lastModified": "Modifié",
+      "unavailable": "—",
+      "open": "Ouvrir les statistiques du document"
+    }
   },
   "commandPalette": {
     "placeholder": "Tapez une commande à exécuter",
@@ -1035,5 +1048,22 @@
     "tabs": {
       "close": "Fermer {name}"
     }
+  },
+  "readingMode": {
+    "title": "Mode lecture (lecture seule)",
+    "edit": "Mode édition",
+    "lock": "Activer le mode lecture",
+    "unlock": "Passer en mode édition",
+    "defaultMode": "Mode par défaut à l’ouverture des fichiers",
+    "defaultNote": "S’applique aux fichiers existants ouverts à partir de maintenant. Les nouveaux documents restent modifiables.",
+    "unsaved": "Le mode lecture est activé. Les modifications non enregistrées sont conservées et l’enregistrement automatique est suspendu.",
+    "failed": "Impossible de changer le mode du document",
+    "closeSave": "Passer en mode édition et enregistrer",
+    "exportSource": "Choisissez une destination d’exportation différente du fichier source.",
+    "unavailable": "Indisponible en mode lecture",
+    "skipped": "Les documents en lecture seule contenant des modifications non enregistrées ont été ignorés.",
+    "viewImage": "Afficher l’image",
+    "copyLink": "Copier l’adresse du lien",
+    "resumed": "Le mode édition est activé. L’enregistrement automatique a repris."
   }
 }

@@ -53,26 +53,37 @@ const removeFileInTab = (file: TabDescriptor): void => {
 
 <style scoped>
 .opened-file {
+  /* The section chevron is inset 15px and 12px wide; both row indicators
+     share its center line. */
+  --indicator-center: 21px;
   display: flex;
   user-select: none;
   height: 28px;
   line-height: 28px;
-  padding-left: 35px;
+  padding: 0 15px 0 35px;
   position: relative;
   color: var(--sideBarColor);
   /* Clipped rather than `display: none` while the row is not hovered, so the
      button stays reachable with Tab and shows itself once focused. */
   & > .close-icon {
     position: absolute;
-    top: 2px;
-    left: 3px;
-    width: 24px;
-    height: 24px;
-    clip-path: inset(50%);
+    top: 4px;
+    left: calc(var(--indicator-center) - 10px);
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    opacity: 0;
+    transition:
+      opacity 0.15s ease-in-out,
+      background-color 0.15s ease-in-out;
   }
   &:hover > .close-icon,
   & > .close-icon:focus-visible {
-    clip-path: none;
+    opacity: 1;
+  }
+  & > .close-icon:hover {
+    color: var(--focusColor);
+    background-color: var(--floatHoverColor);
   }
   &:hover {
     background: var(--sideBarItemHoverBgColor);
@@ -86,6 +97,9 @@ const removeFileInTab = (file: TabDescriptor): void => {
 .opened-file.active {
   color: var(--highlightThemeColor);
 }
+.unsaved.opened-file > .close-icon {
+  opacity: 0;
+}
 .unsaved.opened-file::before {
   content: '';
   width: 7px;
@@ -93,11 +107,16 @@ const removeFileInTab = (file: TabDescriptor): void => {
   border-radius: 50%;
   background: var(--highlightThemeColor);
   position: absolute;
-  top: 11px;
-  left: 12px;
+  top: 50%;
+  left: calc(var(--indicator-center) - 3.5px);
+  transform: translateY(-50%);
 }
-.unsaved.opened-file:hover::before,
+.unsaved.opened-file:has(> .close-icon:hover) > .close-icon,
+.unsaved.opened-file > .close-icon:focus-visible {
+  opacity: 1;
+}
+.unsaved.opened-file:has(> .close-icon:hover)::before,
 .unsaved.opened-file:focus-within::before {
-  content: none;
+  visibility: hidden;
 }
 </style>

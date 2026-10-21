@@ -3,6 +3,8 @@
     "counter": {
       "words": "Sözcükler",
       "characters": "Karakterler",
+      "charactersNoSpaces": "Karakterler (boşluksuz)",
+      "charactersWithSpaces": "Karakterler (boşluklu)",
       "paragraphs": "Paragraflar",
       "allCharacters": "Tüm karakterler",
       "document": "Belge",
@@ -122,7 +124,7 @@
       "sourceCodeMode": "Kaynak Kod Modu",
       "typewriterMode": "Daktilo Modu",
       "focusMode": "Odak Modu",
-      "toggleTableOfContents": "İçindekileri Aç/Kapat",
+      "toggleTableOfContents": "İçindekileri göster",
       "reloadImages": "Görselleri Yeniden Yükle",
       "showDeveloperTools": "Geliştirici Araçlarını Göster",
       "reloadWindow": "Pencereyi Yeniden Yükle"
@@ -146,8 +148,8 @@
       "theme": "&Tema",
       "dark": "Koyu",
       "followThemDisabled": "Sistem temasını takip ederken tema seçimi devre dışı",
-      "lightThemes": "— Açık Temalar —",
-      "darkThemes": "— Koyu Temalar —",
+      "lightThemes": "Açık Temalar",
+      "darkThemes": "Koyu Temalar",
       "ayuDark": "Ayu Dark",
       "ayuLight": "Ayu Light",
       "ayuMirage": "Ayu Mirage",
@@ -234,6 +236,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Dosyalara dön",
       "searchInFolder": "Klasörde ara...",
       "noFolderOpen": "Açık klasör yok",
       "noResultsFound": "Sonuç bulunamadı.",
@@ -250,6 +253,9 @@
       "openFolder": "Klasör Aç"
     },
     "toc": {
+      "expand": "İçindekileri genişlet",
+      "collapse": "İçindekileri daralt",
+      "empty": "Başlık yok",
       "title": "İçindekiler",
       "expandAll": "Tümünü genişlet",
       "collapseAll": "Tümünü daralt"
@@ -257,7 +263,6 @@
     "icons": {
       "files": "Dosyalar",
       "search": "Ara",
-      "toc": "İçindekiler",
       "settings": "Ayarlar"
     }
   },
@@ -266,7 +271,15 @@
     "minimize": "Simge Durumuna Küçült",
     "maximize": "Ekranı Kapla",
     "restore": "Önceki Boyut",
-    "close": "Kapat"
+    "close": "Kapat",
+    "documentStatistics": {
+      "title": "Belge istatistikleri",
+      "fileInformation": "Dosya bilgileri",
+      "created": "Oluşturulma",
+      "lastModified": "Değişti",
+      "unavailable": "—",
+      "open": "Belge istatistiklerini aç"
+    }
   },
   "commandPalette": {
     "placeholder": "Çalıştırmak için bir komut yazın",
@@ -1035,5 +1048,22 @@
     "tabs": {
       "close": "Kapat: {name}"
     }
+  },
+  "readingMode": {
+    "title": "Okuma Modu (salt okunur)",
+    "edit": "Düzenleme Modu",
+    "lock": "Okuma Moduna Geç",
+    "unlock": "Düzenleme Moduna Geç",
+    "defaultMode": "Dosyalar açılırken kullanılacak varsayılan mod",
+    "defaultNote": "Bundan sonra açılacak mevcut dosyalar için geçerlidir. Yeni belgeler düzenlenebilir kalır.",
+    "unsaved": "Okuma Modu açık. Kaydedilmemiş değişiklikler korunuyor ve otomatik kaydetme duraklatıldı.",
+    "failed": "Belge modu değiştirilemedi",
+    "closeSave": "Düzenleme Moduna Geç ve Kaydet",
+    "exportSource": "Dışa aktarma için kaynak dosyadan farklı bir hedef seçin.",
+    "unavailable": "Okuma Modunda kullanılamaz",
+    "skipped": "Kaydedilmemiş değişiklikleri olan salt okunur belgeler atlandı.",
+    "viewImage": "Görseli Görüntüle",
+    "copyLink": "Bağlantı Adresini Kopyala",
+    "resumed": "Düzenleme Modu açık. Otomatik kaydetme devam ediyor."
   }
 }

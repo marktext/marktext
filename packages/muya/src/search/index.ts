@@ -103,6 +103,8 @@ export class Search {
     }
 
     replace(replaceValue: string, opt: IReplaceOption = { isSingle: true, isRegexp: false }) {
+        if (!this._muya.canMutate)
+            return this;
         const { isSingle, isRegexp, ...rest } = opt;
         const options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, rest);
         const { matches, index } = this;

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
+import { makeRoomForOutline, launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
 
 // Nested headings, and enough height that the caret has to travel.
 const DOC = [
@@ -83,9 +83,9 @@ test.describe('TOC active heading highlight', () => {
     const launched = await launchWithMarkdown(DOC)
     app = launched.app
     page = launched.page
+    await makeRoomForOutline(app, page)
     await waitForEditor(page)
     await showSidebar(app, page)
-    await clickMenuById(app, 'tocMenuItem')
     await page.waitForSelector('.side-bar-toc .el-tree', { state: 'visible', timeout: 10000 })
     // Wait for TOC to populate with all headings.
     await page.waitForFunction(

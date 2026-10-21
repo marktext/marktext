@@ -63,7 +63,7 @@ function makeAnchorBlock(initialText = '', cursor = 0) {
 }
 
 function makeClipboard(options: Record<string, unknown>, anchorBlock: Content) {
-    const clipboard = new Clipboard({ options } as unknown as Muya);
+    const clipboard = new Clipboard({ canMutate: true, isBlockInDocument: () => true, options } as unknown as Muya);
     Object.defineProperty(clipboard, 'selection', {
         get: () => ({
             getSelection: () => ({

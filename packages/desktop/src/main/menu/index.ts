@@ -1,4 +1,5 @@
 import fs from 'fs'
+import { applyReadingMenu } from './readingMode'
 import path from 'path'
 import { app, Menu, ipcMain, BrowserWindow } from 'electron'
 import log from 'electron-log'
@@ -41,6 +42,24 @@ interface ThemeMenuChange {
 }
 
 class AppMenu {
+  private _documentModes = new Map<number, boolean>()
+  private _documentPresence = new Map<number, boolean>()
+
+  private _applyDocumentMode(windowId: number, update?: (menu: Menu) => void): void {
+    const menu = this.windowMenus.get(windowId)?.menu
+    if (!menu) return
+    if (update) {
+      // Updates must see the underlying availability, not the reading-mode override.
+      applyReadingMenu(menu, false)
+      update(menu)
+    }
+    applyReadingMenu(
+      menu,
+      this._documentModes.get(windowId) ?? false,
+      this._documentPresence.get(windowId) ?? true
+    )
+  }
+
   private readonly _preferences: Preference
   private readonly _keybindings: Keybindings
   private readonly _userDataPath: string
@@ -54,11 +73,7 @@ class AppMenu {
    * @param keybindings The keybindings instances.
    * @param userDataPath The user data path.
    */
-  constructor(
-    preferences: Preference,
-    keybindings: Keybindings,
-    userDataPath: string
-  ) {
+  constructor(preferences: Preference, keybindings: Keybindings, userDataPath: string) {
     this._preferences = preferences
     this._keybindings = keybindings
     this._userDataPath = userDataPath
@@ -226,6 +241,8 @@ class AppMenu {
    * @param windowId The window id.
    */
   removeWindowMenu(windowId: number): void {
+    this._documentModes.delete(windowId)
+    this._documentPresence.delete(windowId)
     // NOTE: Shortcut handler is automatically unregistered when window is closed.
     const { activeWindowId } = this
     this.windowMenus.delete(windowId)
@@ -266,6 +283,7 @@ class AppMenu {
    * @param windowId The window id.
    */
   setActiveWindow(windowId: number): void {
+    this._applyDocumentMode(windowId)
     if (this.activeWindowId !== windowId) {
       // Off macOS the application menu is every window's menu bar, so a window
       // without a menu of its own must not be pushed there — it would strip the
@@ -456,6 +474,7 @@ class AppMenu {
   }
 
   _reapplyMenus(): void {
+    for (const id of this.windowMenus.keys()) this._applyDocumentMode(id)
     const active = this.windowMenus.get(this.activeWindowId)
     if (active?.menu && active.menu !== Menu.getApplicationMenu()) {
       this._setApplicationMenu(active.menu)
@@ -508,12 +527,19 @@ class AppMenu {
   }
 
   _listenForIpcMain(): void {
+    ipcMain.on('mt::update-document-mode', (event, readOnly: boolean, hasDocument = true) => {
+      const win = BrowserWindow.fromWebContents(event.sender)
+      if (!win) return
+      this._documentModes.set(win.id, readOnly)
+      this._documentPresence.set(win.id, hasDocument)
+      this._applyDocumentMode(win.id)
+    })
     ipcMain.on('mt::add-recently-used-document', (_e, pathname: string) => {
       this.addRecentlyUsedDocument(pathname)
     })
     ipcMain.on('mt::update-line-ending-menu', (_e, windowId: number, lineEnding: string) => {
       if (!this.has(windowId)) return
-      this.updateLineEndingMenu(windowId, lineEnding)
+      this._applyDocumentMode(windowId, () => this.updateLineEndingMenu(windowId, lineEnding))
     })
     ipcMain.on(
       'mt::update-format-menu',
@@ -522,7 +548,7 @@ class AppMenu {
           log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
           return
         }
-        updateFormatMenu(this.getWindowMenuById(windowId), formats)
+        this._applyDocumentMode(windowId, (menu) => updateFormatMenu(menu, formats))
       }
     )
     ipcMain.on('mt::update-sidebar-menu', (_e, windowId: number, value: unknown) => {
@@ -539,7 +565,7 @@ class AppMenu {
           log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
           return
         }
-        viewLayoutChanged(this.getWindowMenuById(windowId), viewSettings)
+        this._applyDocumentMode(windowId, (menu) => viewLayoutChanged(menu, viewSettings))
       }
     )
     ipcMain.on('mt::editor-selection-changed', (_e, windowId: number, changes: SelectionState) => {
@@ -547,7 +573,7 @@ class AppMenu {
         log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
         return
       }
-      updateSelectionMenus(this.getWindowMenuById(windowId), changes)
+      this._applyDocumentMode(windowId, (menu) => updateSelectionMenus(menu, changes))
     })
 
     // In source-code mode the Paragraph and Format commands act on the hidden
@@ -555,11 +581,12 @@ class AppMenu {
     // and the next selection change refines them (#3531).
     ipcMain.on('mt::set-editor-format-menus-enabled', (_e, windowId: number, enabled: boolean) => {
       if (!this.has(windowId)) return
-      const menu = this.getWindowMenuById(windowId)
-      for (const id of ['paragraphMenuEntry', 'formatMenuItem']) {
-        const entry = menu.getMenuItemById(id)
-        entry?.submenu?.items.forEach((item) => (item.enabled = enabled))
-      }
+      this._applyDocumentMode(windowId, (menu) => {
+        for (const id of ['paragraphMenuEntry', 'formatMenuItem']) {
+          const entry = menu.getMenuItemById(id)
+          entry?.submenu?.items.forEach((item) => (item.enabled = enabled))
+        }
+      })
     })
 
     onInternalChannel('menu-add-recently-used', (pathname: string) => {

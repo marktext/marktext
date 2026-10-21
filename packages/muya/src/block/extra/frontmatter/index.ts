@@ -38,7 +38,7 @@ class Frontmatter extends Parent {
         frontmatter.append(code);
 
         if (lang)
-            frontmatter.lang = lang;
+            frontmatter._renderLanguage();
 
         return frontmatter;
     }
@@ -48,8 +48,14 @@ class Frontmatter extends Parent {
     }
 
     set lang(value) {
+        if (!this.muya.canMutate)
+            return;
         this.meta.lang = value;
+        this._renderLanguage();
+    }
 
+    private _renderLanguage() {
+        const value = this.meta.lang;
         !!value
         && loadLanguage(value)
             .then((infoList) => {

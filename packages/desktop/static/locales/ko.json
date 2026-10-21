@@ -3,6 +3,8 @@
     "counter": {
       "words": "단어 수",
       "characters": "글자 수",
+      "charactersNoSpaces": "글자 수(공백 제외)",
+      "charactersWithSpaces": "글자 수(공백 포함)",
       "paragraphs": "단락 수",
       "allCharacters": "전체 글자 수",
       "document": "문서",
@@ -122,7 +124,7 @@
       "sourceCodeMode": "소스 코드 모드",
       "typewriterMode": "타자기 모드",
       "focusMode": "집중 모드",
-      "toggleTableOfContents": "목차 토글",
+      "toggleTableOfContents": "목차 표시",
       "reloadImages": "이미지 새로고침",
       "showDeveloperTools": "개발자 도구 보기",
       "reloadWindow": "창 새로고침"
@@ -146,8 +148,8 @@
       "theme": "&테마",
       "dark": "어둡게",
       "followThemDisabled": "시스템 테마를 따를 때는 테마 선택이 비활성화됩니다",
-      "lightThemes": "— 라이트 테마 —",
-      "darkThemes": "— 다크 테마 —",
+      "lightThemes": "라이트 테마",
+      "darkThemes": "다크 테마",
       "ayuDark": "Ayu 다크",
       "ayuLight": "Ayu 라이트",
       "ayuMirage": "Ayu Mirage",
@@ -234,6 +236,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "파일로 돌아가기",
       "searchInFolder": "폴더에서 검색...",
       "noFolderOpen": "열린 폴더 없음",
       "noResultsFound": "결과를 찾을 수 없습니다.",
@@ -250,6 +253,9 @@
       "openFolder": "폴더 열기"
     },
     "toc": {
+      "expand": "목차 펼치기",
+      "collapse": "목차 접기",
+      "empty": "제목 없음",
       "title": "목차",
       "expandAll": "모두 펼치기",
       "collapseAll": "모두 접기"
@@ -257,7 +263,6 @@
     "icons": {
       "files": "파일",
       "search": "검색",
-      "toc": "목차",
       "settings": "설정"
     }
   },
@@ -266,7 +271,15 @@
     "minimize": "최소화",
     "maximize": "최대화",
     "restore": "이전 크기로 복원",
-    "close": "닫기"
+    "close": "닫기",
+    "documentStatistics": {
+      "title": "문서 통계",
+      "fileInformation": "파일 정보",
+      "created": "생성됨",
+      "lastModified": "수정됨",
+      "unavailable": "—",
+      "open": "문서 통계 열기"
+    }
   },
   "commandPalette": {
     "placeholder": "실행할 명령을 입력하세요",
@@ -1035,5 +1048,22 @@
     "tabs": {
       "close": "{name} 닫기"
     }
+  },
+  "readingMode": {
+    "title": "읽기 모드 (읽기 전용)",
+    "edit": "편집 모드",
+    "lock": "읽기 모드로 전환",
+    "unlock": "편집 모드로 전환",
+    "defaultMode": "파일을 열 때 사용할 기본 모드",
+    "defaultNote": "이후에 여는 기존 파일에 적용됩니다. 새 문서는 계속 편집할 수 있습니다.",
+    "unsaved": "읽기 모드가 켜졌습니다. 저장하지 않은 변경 사항은 유지되며 자동 저장은 일시 중지됩니다.",
+    "failed": "문서 모드를 전환할 수 없습니다",
+    "closeSave": "편집 모드로 전환하고 저장",
+    "exportSource": "원본 파일과 다른 내보내기 위치를 선택하세요.",
+    "unavailable": "읽기 모드에서는 사용할 수 없습니다",
+    "skipped": "저장하지 않은 변경 사항이 있는 읽기 전용 문서는 건너뛰었습니다.",
+    "viewImage": "이미지 보기",
+    "copyLink": "링크 주소 복사",
+    "resumed": "편집 모드가 켜졌습니다. 자동 저장이 재개되었습니다."
   }
 }

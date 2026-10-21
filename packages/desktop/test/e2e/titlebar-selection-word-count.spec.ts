@@ -53,7 +53,10 @@ test.describe('Title bar selection word count', () => {
   let page: Page
 
   test.beforeEach(async() => {
-    const launched = await launchWithMarkdown(DOC, { suppressErrorDialog: true })
+    const launched = await launchWithMarkdown(DOC, {
+      suppressErrorDialog: true,
+      preferences: { language: 'en' }
+    })
     app = launched.app
     page = launched.page
     await clearRendererErrors(app)
@@ -63,21 +66,22 @@ test.describe('Title bar selection word count', () => {
     if (app) await app.close()
   })
 
-  test('shows document count first and selected count second', async() => {
+  test('shows selected count first and document count second', async() => {
     const counter = page.locator('.word-count')
-    await expect(counter).toHaveText('W 5')
+    await expect(counter).toHaveText('Words 5')
 
     await dragAcrossParagraphs(page, 0, 0)
-    await expect(counter).toHaveText('W 5 / 3')
+    await expect(counter).toHaveText('Words 3 / 5')
 
     await counter.hover()
-    const tooltip = page.locator('.word-count-tooltip').filter({ hasText: '5 / 3' }).last()
-    await expect(tooltip).toContainText('5 / 3')
-    await expect(tooltip.locator('.title-item .text').nth(1)).toHaveText('26 / 14')
-    await expect(tooltip.locator('.title-item .text').nth(3)).toHaveText('32 / 16')
+    const panel = page.locator('.document-statistics-popover').last()
+    await expect(panel).toBeVisible()
+    await expect(panel.locator('.document-statistics__value').nth(0)).toHaveText('3 / 5')
+    await expect(panel.locator('.document-statistics__value').nth(1)).toHaveText('14 / 26')
+    await expect(panel.locator('.document-statistics__value').nth(3)).toHaveText('16 / 32')
 
     await placeCaretInEditor(page)
-    await expect(counter).toHaveText('W 5')
+    await expect(counter).toHaveText('Words 5')
     await expectNoRendererErrors(app)
   })
 
@@ -85,12 +89,12 @@ test.describe('Title bar selection word count', () => {
     const counter = page.locator('.word-count')
 
     await dragAcrossParagraphs(page, 0, 1)
-    await expect(counter).toHaveText('W 5 / 5')
+    await expect(counter).toHaveText('Words 5 / 5')
 
     await counter.hover()
-    const tooltip = page.locator('.word-count-tooltip').filter({ hasText: '5 / 5' }).last()
-    await expect(tooltip.locator('.title-item .text').nth(2)).toHaveText('2 / 2')
-    await expect(tooltip.locator('.title-item .text').nth(3)).toHaveText('32 / 31')
+    const panel = page.locator('.document-statistics-popover').last()
+    await expect(panel.locator('.document-statistics__value').nth(2)).toHaveText('2 / 2')
+    await expect(panel.locator('.document-statistics__value').nth(3)).toHaveText('31 / 32')
     await expectNoRendererErrors(app)
   })
 
@@ -100,10 +104,10 @@ test.describe('Title bar selection word count', () => {
     await placeCaretInEditor(page)
     await page.keyboard.press(process.platform === 'darwin' ? 'Meta+ArrowUp' : 'Control+Home')
     for (let i = 0; i < 3; i++) await page.keyboard.press('Shift+ArrowDown')
-    await expect(counter).toHaveText('W 5 / 5')
+    await expect(counter).toHaveText('Words 5 / 5')
 
     await page.keyboard.press('ArrowRight')
-    await expect(counter).toHaveText('W 5')
+    await expect(counter).toHaveText('Words 5')
     await expectNoRendererErrors(app)
   })
 
@@ -111,49 +115,49 @@ test.describe('Title bar selection word count', () => {
     const counter = page.locator('.word-count')
 
     await dragAcrossParagraphs(page, 0, 0)
-    await expect(counter).toHaveText('W 5 / 3')
+    await expect(counter).toHaveText('Words 3 / 5')
 
     await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, 'Alpha beta gamma\n')
-    await expect(counter).toHaveText('W 3')
+    await expect(counter).toHaveText('Words 3')
 
     await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 0)
     await expect.poll(() => page.evaluate(() => window.getSelection()?.toString())).toBe(
       'Alpha beta gamma'
     )
-    await expect(counter).toHaveText('W 5 / 3')
+    await expect(counter).toHaveText('Words 3 / 5')
 
     await placeCaretInEditor(page)
-    await expect(counter).toHaveText('W 5')
+    await expect(counter).toHaveText('Words 5')
     await expectNoRendererErrors(app)
   })
 
   test('shows and clears selected count in source-code mode', async() => {
     const counter = page.locator('.word-count')
-    await expect(counter).toHaveText('W 5')
+    await expect(counter).toHaveText('Words 5')
 
     await enterSourceMode(page, app)
-    await expect(counter).toHaveText('W 5')
+    await expect(counter).toHaveText('Words 5')
 
     await selectAllSourceText(page)
-    await expect(counter).toHaveText('W 5 / 5')
+    await expect(counter).toHaveText('Words 5 / 5')
 
     await clearSourceSelection(page)
-    await expect(counter).toHaveText('W 5')
+    await expect(counter).toHaveText('Words 5')
     await expectNoRendererErrors(app)
   })
 
   test('preserves selected count after leaving source-code mode', async() => {
     const counter = page.locator('.word-count')
-    await expect(counter).toHaveText('W 5')
+    await expect(counter).toHaveText('Words 5')
 
     await enterSourceMode(page, app)
     await selectAllSourceText(page)
-    await expect(counter).toHaveText('W 5 / 5')
+    await expect(counter).toHaveText('Words 5 / 5')
 
     await exitSourceMode(page, app)
-    await expect(counter).toHaveText('W 5 / 5')
+    await expect(counter).toHaveText('Words 5 / 5')
     await placeCaretInEditor(page)
-    await expect(counter).toHaveText('W 5')
+    await expect(counter).toHaveText('Words 5')
     await expectNoRendererErrors(app)
   })
 
@@ -162,13 +166,13 @@ test.describe('Title bar selection word count', () => {
 
     await enterSourceMode(page, app)
     await selectAllSourceText(page)
-    await expect(counter).toHaveText('W 5 / 5')
+    await expect(counter).toHaveText('Words 5 / 5')
 
     await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, 'Alpha beta gamma\n')
-    await expect(counter).toHaveText('W 3')
+    await expect(counter).toHaveText('Words 3')
 
     await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 0)
-    await expect(counter).toHaveText('W 5 / 5')
+    await expect(counter).toHaveText('Words 5 / 5')
     await expectNoRendererErrors(app)
   })
 })
@@ -177,14 +181,17 @@ test.describe('Title bar selection word count', () => {
 // the engine reads, so it contributes no selected count. Pinned here so the
 // Selection rework has to decide about it deliberately.
 test('shows no selected count for a rectangular table selection', async() => {
-  const { app, page } = await launchWithMarkdown(TABLE_DOC, { suppressErrorDialog: true })
+  const { app, page } = await launchWithMarkdown(TABLE_DOC, {
+    suppressErrorDialog: true,
+    preferences: { language: 'en' }
+  })
   try {
     await clearRendererErrors(app)
     const counter = page.locator('.word-count')
-    await expect(counter).toHaveText(/^W \d+$/)
+    await expect(counter).toHaveText(/^Words\s+\d+$/)
 
     await dragSelectTableCells(page)
-    await expect(counter).toHaveText(/^W \d+$/)
+    await expect(counter).toHaveText(/^Words\s+\d+$/)
     await expectNoRendererErrors(app)
   } finally {
     await app.close()

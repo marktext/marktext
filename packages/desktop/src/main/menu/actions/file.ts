@@ -1,4 +1,5 @@
 import { rename as fsRename } from 'fs-extra'
+import { stat } from 'fs/promises'
 import path from 'path'
 import {
   BrowserWindow,
@@ -7,11 +8,16 @@ import {
   shell,
   ipcMain,
   type IpcMainEvent,
-  type MenuItem
+  type MenuItem,
+  type WebContents
 } from 'electron'
 import log from 'electron-log'
 import { isDirectory, isFile, exists } from 'common/filesystem'
-import { MARKDOWN_EXTENSIONS, isDangerousExecutableFile, isMarkdownFile } from 'common/filesystem/paths'
+import {
+  MARKDOWN_EXTENSIONS,
+  isDangerousExecutableFile,
+  isMarkdownFile
+} from 'common/filesystem/paths'
 import { checkUpdates, userSetting } from './marktext'
 import { showTabBar } from './view'
 import { COMMANDS } from '../../commands'
@@ -19,6 +25,7 @@ import type { CommandManager } from '../../commands'
 import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
 import { normalizeAndResolvePath, resolveLocalLinkTarget, writeFile } from '../../filesystem'
 import { writeMarkdownFile } from '../../filesystem/markdown'
+import { documentWrites } from '../../filesystem/documentWrites'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
 import pandoc, {
   PANDOC_EXPORT_FORMATS,
@@ -114,6 +121,7 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
 
   if (filePath && !canceled) {
     try {
+      await assertExportDestination(pathname, filePath)
       if (type === 'pdf') {
         // Build a clickable bookmark/outline tree from the document's h1-h6
         // headings so exported PDFs have a navigation pane (#2989). The outline
@@ -211,6 +219,7 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
     if (canceled || !chosen || win.isDestroyed()) return
     // What comes back is the user's answer, "replace this one" included.
     filePath = chosen
+    await assertExportDestination(pathname, filePath)
     // The reader is built once the export is certain: naming `tex_math_gfm` needs pandoc
     // to have answered `--list-extensions`, and a cancelled dialog should not pay for it.
     const reader = getPandocReader(
@@ -289,12 +298,14 @@ const handleResponseForSave = async(
   pathname: string | undefined,
   markdown: string,
   options: UnsavedFile['options'],
-  defaultPath?: string
+  defaultPath?: string,
+  saveAs = false
 ): Promise<string | void> => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  if (!win) {
-    return Promise.resolve()
-  }
+  if (!win) return
+  registerDocumentOwner(e.sender)
+  const writeEpoch = documentWrites.capture(e.sender.id, id)
+  if (writeEpoch === null) return
   let recommendFilename = getRecommendTitleFromMarkdownString(markdown)
   if (!recommendFilename) {
     recommendFilename = filename || 'Untitled'
@@ -303,7 +314,7 @@ const handleResponseForSave = async(
   // CLI buffers have a target pathname before their first disk write.
   const alreadyExistOnDisk = !!pathname && !options.isPendingCreation
 
-  if (pathname && options.isPendingCreation && (await exists(pathname))) {
+  if (!saveAs && pathname && options.isPendingCreation && (await exists(pathname))) {
     const { response } = await dialog.showMessageBox(win, {
       type: 'warning',
       buttons: [t('dialog.replace'), t('dialog.cancel')],
@@ -316,41 +327,47 @@ const handleResponseForSave = async(
 
   let filePath = pathname
 
-  if (!filePath) {
+  if (saveAs || !filePath) {
     const { filePath: dialogPath, canceled } = await dialog.showSaveDialog(win, {
-      defaultPath: path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
+      defaultPath:
+        saveAs && pathname
+          ? pathname
+          : path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
     })
-
-    if (dialogPath && !canceled) {
-      filePath = dialogPath
-    }
+    if (canceled || !dialogPath) return
+    filePath = dialogPath
   }
 
-  // Save dialog canceled by user - no error.
-  if (!filePath) {
-    return Promise.resolve()
-  }
+  const destination = path.resolve(!saveAs && !path.extname(filePath) ? `${filePath}.md` : filePath)
+  // SaveOptions is partial on the IPC surface; renderer save requests supply all document options.
+  return documentWrites
+    .write(e.sender.id, id, writeEpoch, () =>
+      writeMarkdownFile(
+        destination,
+        markdown,
+        options as Parameters<typeof writeMarkdownFile>[2]
+      ).then(() => true)
+    )
+    .then((written) => {
+      if (!written) return
+      if (!alreadyExistOnDisk || pathname !== destination) {
+        if (pathname && pathname !== destination) {
+          ipcMain.emit('window-change-file-path', win.id, destination, pathname)
+        } else {
+          ipcMain.emit('window-add-file-path', win.id, destination)
+        }
+        if (!alreadyExistOnDisk) ipcMain.emit('menu-add-recently-used', destination)
 
-  filePath = path.resolve(filePath)
-  const extension = path.extname(filePath) || '.md'
-  filePath = !filePath.endsWith(extension) ? (filePath += extension) : filePath
-  // The original JS passed `win` here; writeMarkdownFile only takes 3 args
-  // (the 4th was silently ignored). Drop it explicitly under strict mode.
-  // The IPC `SaveOptions` has every field optional, but writeMarkdownFile
-  // requires the strict `MarkdownDocumentOptions` shape — the renderer always
-  // populates every field for the unsaved-file dialog payload, so the cast
-  // is safe at this seam.
-  return writeMarkdownFile(filePath, markdown, options as Parameters<typeof writeMarkdownFile>[2])
-    .then(() => {
-      if (!alreadyExistOnDisk) {
-        ipcMain.emit('window-add-file-path', win.id, filePath)
-        ipcMain.emit('menu-add-recently-used', filePath)
-
-        const newFilename = path.basename(filePath!)
-        win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename: newFilename })
+        const newFilename = path.basename(destination)
+        win.webContents.send('mt::set-pathname', {
+          id,
+          pathname: destination,
+          filename: newFilename,
+          savedMarkdown: markdown
+        })
       } else {
-        ipcMain.emit('window-file-saved', win.id, filePath)
-        win.webContents.send('mt::tab-saved', id)
+        ipcMain.emit('window-file-saved', win.id, destination)
+        win.webContents.send('mt::tab-saved', id, markdown)
       }
       return id
     })
@@ -367,7 +384,11 @@ const showUnsavedFilesMessage = async(
 ): Promise<{ needSave: boolean } | null> => {
   const { response } = await dialog.showMessageBox(win, {
     type: 'warning',
-    buttons: [t('dialog.save'), t('dialog.dontSave'), t('dialog.cancel')],
+    buttons: [
+      t(files.some((file) => file.readOnly) ? 'readingMode.closeSave' : 'dialog.save'),
+      t('dialog.dontSave'),
+      t('dialog.cancel')
+    ],
     defaultId: 0,
     message: t('dialog.saveChanges', {
       count: files.length,
@@ -446,6 +467,7 @@ ipcMain.on('mt::save-and-close-tabs', async(e, unsavedFiles: UnsavedFile[]) => {
 
   const { needSave } = userResult
   if (needSave) {
+    await unlockDocumentsForSave(e, unsavedFiles)
     Promise.all(
       unsavedFiles.map((file) =>
         handleResponseForSave(
@@ -474,72 +496,8 @@ ipcMain.on('mt::save-and-close-tabs', async(e, unsavedFiles: UnsavedFile[]) => {
 
 ipcMain.on(
   'mt::response-file-save-as',
-  async(
-    e: IpcMainEvent,
-    id: string,
-    filename: string,
-    pathname: string | undefined,
-    markdown: string,
-    options: UnsavedFile['options'],
-    defaultPath?: string
-  ) => {
-    const win = BrowserWindow.fromWebContents(e.sender)
-    if (!win) {
-      return
-    }
-    let recommendFilename = getRecommendTitleFromMarkdownString(markdown)
-    if (!recommendFilename) {
-      recommendFilename = filename || 'Untitled'
-    }
-
-    const alreadyExistOnDisk = !!pathname && !options.isPendingCreation
-
-    const { filePath: dialogFilePath, canceled } = await dialog.showSaveDialog(win, {
-      defaultPath:
-        pathname || path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
-    })
-    let filePath = dialogFilePath
-
-    if (filePath && !canceled) {
-      filePath = path.resolve(filePath)
-      writeMarkdownFile(filePath, markdown, options as Parameters<typeof writeMarkdownFile>[2])
-        .then(() => {
-          if (!alreadyExistOnDisk) {
-            if (pathname && pathname !== filePath) {
-              ipcMain.emit('window-change-file-path', win.id, filePath, pathname)
-            } else {
-              ipcMain.emit('window-add-file-path', win.id, filePath)
-            }
-            ipcMain.emit('menu-add-recently-used', filePath)
-
-            const newFilename = path.basename(filePath!)
-            win.webContents.send('mt::set-pathname', {
-              id,
-              pathname: filePath,
-              filename: newFilename
-            })
-          } else if (pathname !== filePath) {
-            // Update window file list and watcher.
-            ipcMain.emit('window-change-file-path', win.id, filePath, pathname)
-
-            const newFilename = path.basename(filePath!)
-            win.webContents.send('mt::set-pathname', {
-              id,
-              pathname: filePath,
-              filename: newFilename
-            })
-          } else {
-            ipcMain.emit('window-file-saved', win.id, filePath)
-            win.webContents.send('mt::tab-saved', id)
-          }
-        })
-        .catch((err: unknown) => {
-          log.error('Error while save as:', err)
-          const msg = err instanceof Error ? err.message : String(err)
-          win.webContents.send('mt::tab-save-failure', id, msg)
-        })
-    }
-  }
+  (e, id, filename, pathname, markdown, options, defaultPath) =>
+    handleResponseForSave(e, id, filename, pathname, markdown, options, defaultPath, true)
 )
 
 ipcMain.on('mt::close-window-confirm', async(e, unsavedFiles: UnsavedFile[]) => {
@@ -554,6 +512,7 @@ ipcMain.on('mt::close-window-confirm', async(e, unsavedFiles: UnsavedFile[]) => 
 
   const { needSave } = userResult
   if (needSave) {
+    await unlockDocumentsForSave(e, unsavedFiles)
     Promise.all(
       unsavedFiles.map((file) =>
         handleResponseForSave(
@@ -569,7 +528,7 @@ ipcMain.on('mt::close-window-confirm', async(e, unsavedFiles: UnsavedFile[]) => 
     )
       .then((savedIds) => {
         if (savedIds.every((id) => typeof id === 'string')) {
-          ipcMain.emit('window-close-by-id', win.id)
+          win.webContents.send('mt::finish-close-window')
         }
       })
       .catch((err: unknown) => {
@@ -591,7 +550,10 @@ ipcMain.on('mt::close-window-confirm', async(e, unsavedFiles: UnsavedFile[]) => 
           })
       })
   } else {
-    ipcMain.emit('window-close-by-id', win.id)
+    win.webContents.send(
+      'mt::discard-and-close-window',
+      unsavedFiles.map((file) => file.id)
+    )
   }
 })
 
@@ -723,9 +685,10 @@ ipcMain.on('mt::ask-for-open-project-in-sidebar', async(e) => {
 interface FormatLinkPayload {
   data: { href?: string; text?: string }
   dirname?: string
+  readOnly?: boolean
 }
 
-ipcMain.on('mt::format-link-click', async(e, { data, dirname }: FormatLinkPayload) => {
+ipcMain.on('mt::format-link-click', async(e, { data, dirname, readOnly }: FormatLinkPayload) => {
   if (!data || (!data.href && !data.text)) {
     return
   }
@@ -762,7 +725,7 @@ ipcMain.on('mt::format-link-click', async(e, { data, dirname }: FormatLinkPayloa
     if (isMarkdownFile(pathname)) {
       const innerWin = BrowserWindow.fromWebContents(e.sender)
       if (innerWin) {
-        openFileOrFolder(innerWin, pathname, { anchor })
+        openFileOrFolder(innerWin, pathname, { anchor, readOnly })
       }
     } else {
       // A link in an untrusted document could point at a co-located script or
@@ -995,3 +958,49 @@ export const loadFileCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.FILE_SAVE_AS, saveAs)
   commandManager.add(COMMANDS.FILE_EXPORT_FILE_PDF, exportPDF)
 }
+
+const documentOwners = new Set<number>()
+function registerDocumentOwner(sender: WebContents): void {
+  if (documentOwners.has(sender.id)) return
+  documentOwners.add(sender.id)
+  sender.once('destroyed', () => {
+    documentOwners.delete(sender.id)
+    documentWrites.clearOwner(sender.id)
+  })
+}
+ipcMain.handle('mt::set-document-read-only', async(event, tabId: string, readOnly: boolean) => {
+  if (typeof tabId !== 'string' || typeof readOnly !== 'boolean')
+    throw new Error('Invalid document mode')
+  const owner = event.sender.id
+  registerDocumentOwner(event.sender)
+  await documentWrites.setReadOnly(owner, tabId, readOnly)
+})
+
+async function unlockDocumentsForSave(event: IpcMainEvent, files: UnsavedFile[]): Promise<void> {
+  const ids = files.filter((file) => file.readOnly).map((file) => file.id)
+  for (const id of ids) await documentWrites.setReadOnly(event.sender.id, id, false)
+  if (ids.length) event.sender.send('mt::unlock-documents-for-save', ids)
+}
+
+async function assertExportDestination(
+  source: string | undefined,
+  destination: string
+): Promise<void> {
+  if (!source) return
+  if (path.resolve(source) === path.resolve(destination))
+    throw new Error(t('readingMode.exportSource'))
+  const [left, right] = await Promise.allSettled([stat(source), stat(destination)])
+  if (
+    left.status === 'fulfilled' &&
+    right.status === 'fulfilled' &&
+    left.value.dev === right.value.dev &&
+    left.value.ino === right.value.ino
+  ) {
+    throw new Error(t('readingMode.exportSource'))
+  }
+}
+
+ipcMain.on('mt::forget-document', (event, tabId: string) => {
+  registerDocumentOwner(event.sender)
+  documentWrites.forget(event.sender.id, tabId)
+})

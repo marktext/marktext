@@ -1,4 +1,5 @@
 import type { Muya } from '../muya';
+import type { IMuyaOptions } from '../types';
 import githubMarkdownCss from 'github-markdown-css/github-markdown-light.css?inline';
 import katexCss from 'katex/dist/katex.css?inline';
 import prismCss from 'prismjs/themes/prism.css?inline';
@@ -193,19 +194,20 @@ export class MarkdownToHtml {
 
     // render pure html by marked
     async renderHtml() {
-        const footnote = this._muya?.options?.footnote ?? false;
+        const options: Partial<IMuyaOptions> = this._muya?.options ?? {};
+        const footnote = options.footnote ?? false;
         let html = getHighlightHtml(this.markdown, {
-            superSubScript: this._muya?.options?.superSubScript ?? true,
+            superSubScript: options.superSubScript ?? true,
             footnote,
-            texMathGfm: this._muya?.options?.texMathGfm ?? false,
-            texMathSingleBackslash: this._muya?.options?.texMathSingleBackslash ?? false,
-            texMathDoubleBackslash: this._muya?.options?.texMathDoubleBackslash ?? false,
-            texMathDollars: this._muya?.options?.texMathDollars ?? true,
-            highlightSyntax: this._muya?.options?.highlightSyntax ?? false,
-            inlineDiff: this._muya?.options?.inlineDiff ?? false,
-            multilineBlockquote: this._muya?.options?.multilineBlockquote ?? false,
-            githubAlerts: this._muya?.options?.githubAlerts ?? false,
-            fancyLists: this._muya?.options?.fancyLists ?? false,
+            texMathGfm: options.texMathGfm ?? false,
+            texMathSingleBackslash: options.texMathSingleBackslash ?? false,
+            texMathDoubleBackslash: options.texMathDoubleBackslash ?? false,
+            texMathDollars: options.texMathDollars ?? true,
+            highlightSyntax: options.highlightSyntax ?? false,
+            inlineDiff: options.inlineDiff ?? false,
+            multilineBlockquote: options.multilineBlockquote ?? false,
+            githubAlerts: options.githubAlerts ?? false,
+            fancyLists: options.fancyLists ?? false,
         });
 
         // Post-process footnotes into the standard GFM / pandoc shape (inline

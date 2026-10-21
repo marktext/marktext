@@ -6,6 +6,7 @@ import type Content from './content';
 import type { ILinkedNode } from './linkedList/linkedNode';
 import type Parent from './parent';
 import { BLOCK_DOM_PROPERTY, CLASS_NAMES } from '../../config';
+import { ChangeSource } from '../../types';
 import { createDomNode } from '../../utils/dom';
 import { isHiddenByFold, refreshFoldVisibility } from '../folding';
 
@@ -259,6 +260,8 @@ class TreeNode implements ILinkedNode {
     }
 
     insertInto(parent: Parent, refBlock: Nullable<Parent> = null) {
+        if (!this.muya.canMutate)
+            return;
         if (this.parent === parent && this.next === refBlock)
             return;
 
@@ -275,7 +278,9 @@ class TreeNode implements ILinkedNode {
     /**
      * Remove the current block in the block tree.
      */
-    remove(_source = 'user') {
+    remove(_source: ChangeSource = ChangeSource.User) {
+        if (!this.muya.canMutate)
+            return;
         if (!this.parent)
             return;
 

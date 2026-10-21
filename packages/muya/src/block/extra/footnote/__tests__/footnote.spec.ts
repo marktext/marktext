@@ -7,6 +7,7 @@ import { CLASS_NAMES } from '../../../../config';
 import { MarkdownToState } from '../../../../state/markdownToState';
 import ExportMarkdown from '../../../../state/stateToMarkdown';
 import { isFootnoteBlockState } from '../../../../state/types';
+import { ChangeSource } from '../../../../types';
 import Parent from '../../../base/parent';
 import { registerBlocks } from '../../../index';
 import { ScrollPage } from '../../../scrollPage';
@@ -23,6 +24,7 @@ registerBlocks();
 // getState() without booting a real editor.
 function makeFakeMuya(): Muya {
     return {
+        canMutate: true,
         i18n: { t: (s: string) => s },
         options: {
             autoPairBracket: false,
@@ -82,7 +84,7 @@ describe('footnote block — class API', () => {
         parent.append(block);
         const parentDom = parent.domNode!;
 
-        block.remove('api');
+        block.remove(ChangeSource.Api);
 
         expect(parentDom.contains(block.domNode!)).toBe(false);
         expect(block.parent).toBeNull();

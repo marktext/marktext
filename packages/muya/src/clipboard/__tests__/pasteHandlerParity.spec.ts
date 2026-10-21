@@ -119,10 +119,7 @@ function makeClipboard(
         clear: vi.fn(),
     },
 ) {
-    const clipboard = new Clipboard({
-        options: { bulletListMarker: '-', frontMatter: true, ...options },
-        editor: {},
-    } as unknown as Muya);
+    const clipboard = new Clipboard({ canMutate: true, isBlockInDocument: () => true, options: { bulletListMarker: '-', frontMatter: true, ...options }, editor: {} } as unknown as Muya);
     Object.defineProperty(clipboard, 'selection', {
         get: () => ({
             getSelection: () => ({ isSelectionInSameBlock: true, anchor: { block: anchorBlock } }),

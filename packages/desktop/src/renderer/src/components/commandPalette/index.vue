@@ -38,13 +38,15 @@
                     if (el) commandItems[index] = el as HTMLElement
                   }
                 "
-                :class="{ active: index === selectedCommandIndex }"
+                :class="{ active: index === selectedCommandIndex, disabled: !canRun(item.id) }"
+                :aria-disabled="!canRun(item.id)"
                 @click="search(item.id)"
               >
                 <span
                   class="title"
                   :title="item.title"
-                >{{ item.description }}</span>
+                >{{ item.description
+                }}{{ !canRun(item.id) ? ` · ${t('readingMode.unavailable')}` : '' }}</span>
                 <span class="shortcut">
                   <span
                     v-for="(accelerator, idx) of item.shortcut"
@@ -64,6 +66,8 @@
 </template>
 
 <script setup lang="ts">
+import { isReadingCommandAllowed } from 'common/commands/readingMode'
+import { useEditorStore } from '@/store/editor'
 import { ref, onMounted, onBeforeUnmount, nextTick, onBeforeUpdate, computed } from 'vue'
 import { useCommandCenterStore } from '@/store/commandCenter'
 import log from 'electron-log'
@@ -113,6 +117,8 @@ const availableCommands = ref<CommandItem[]>([])
 const searcherBusy = ref(false)
 
 const commandCenterStore = useCommandCenterStore()
+const editorStore = useEditorStore()
+const canRun = (id: string) => !editorStore.currentFile?.readOnly || isReadingCommandAllowed(id)
 
 onBeforeUpdate(() => {
   commandItems = []
@@ -262,7 +268,8 @@ const updateCommands = () => {
   // Allow to handle search result by command (e.g. quick search).
   if (cmd.search) {
     searcherBusy.value = true
-    cmd.search(queryString)
+    cmd
+      .search(queryString)
       .then((result) => {
         searcherBusy.value = false
         availableCommands.value = result || []
@@ -285,14 +292,15 @@ const updateCommands = () => {
   if (!queryString) {
     availableCommands.value = cmd.subcommands ?? []
   } else {
-    availableCommands.value = (cmd.subcommands ?? []).filter(
-      (c) => (c.description ?? '').toLowerCase().includes(queryString.toLowerCase())
+    availableCommands.value = (cmd.subcommands ?? []).filter((c) =>
+      (c.description ?? '').toLowerCase().includes(queryString.toLowerCase())
     )
   }
   selectedCommandIndex.value = availableCommands.value.length ? 0 : -1
 }
 
 const executeCommand = (commandId: string) => {
+  if (!canRun(commandId) || !canRun(currentCommand.value?.id ?? '')) return
   const command = availableCommands.value.find((c) => c.id === commandId)
   if (!command) {
     log.error(`Command not found: ${commandId}`)

@@ -1,5 +1,6 @@
 import type { Muya } from '../../../muya';
 import type { IDiagramState, TState } from '../../../state/types';
+import type { IPreviewDiagramPayload } from '../../../ui/previewToolBar';
 import { fromEvent } from 'rxjs';
 import { CLASS_NAMES, PREVIEW_DOMPURIFY_CONFIG } from '../../../config';
 import { sanitize } from '../../../utils';
@@ -12,6 +13,7 @@ const debug = logger('diagramPreview:');
 class DiagramPreview extends Parent {
     private _code: string;
     private _type: string;
+    private _rendered = false;
     private _cancelFinalize: (() => void) | null = null;
     static override blockName = 'diagram-preview';
 
@@ -55,6 +57,18 @@ class DiagramPreview extends Parent {
         event.preventDefault();
         event.stopPropagation();
 
+        if (this.muya.readOnly) {
+            if (this._rendered) {
+                this.muya.eventCenter.emit('preview-diagram', {
+                    type: this._type,
+                    code: this._code,
+                    preview: this.domNode!,
+                    label: this.domNode!.getAttribute('aria-label'),
+                } satisfies IPreviewDiagramPayload);
+            }
+            return;
+        }
+
         if (this.parent == null)
             return;
 
@@ -64,6 +78,7 @@ class DiagramPreview extends Parent {
 
     async update(code = this._code) {
         const { i18n } = this.muya;
+        this._rendered = false;
         if (this._code !== code)
             this._code = code;
 
@@ -89,6 +104,7 @@ class DiagramPreview extends Parent {
                     plantumlServer,
                     sequenceTheme,
                 });
+                this._rendered = true;
                 this._cancelFinalize = finalizeRenderedDiagram(this.domNode!, i18n.t('Diagram'));
             }
             catch (error) {

@@ -51,7 +51,7 @@ declare global {
   }
 
   interface ElectronClipboardAPI {
-    writeText(text: string): void
+    writeText(text: string): Promise<boolean>
     readText(): Promise<string>
     guessFilePath(): Promise<string | null>
     writeImage(png: Uint8Array): Promise<boolean>

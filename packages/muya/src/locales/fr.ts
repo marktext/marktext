@@ -1,6 +1,10 @@
 export const fr = {
     name: 'fr',
     resource: {
+        'Copied': 'Copié',
+        'Copy failed': 'Échec de la copie. Veuillez réessayer.',
+        'Read-only document': 'Document en lecture seule',
+        'Document': 'Document',
         'GitHub Alerts': 'Alertes GitHub',
         'GitHub Alert: NOTE': 'Alerte GitHub: NOTE',
         'GitHub Alert: TIP': 'Alerte GitHub: TIP',

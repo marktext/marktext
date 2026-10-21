@@ -273,3 +273,90 @@ body {
 
     background: var(--highlight-color);
 }
+
+.mu-read-only {
+    caret-color: transparent;
+}
+
+.mu-read-only .mu-content {
+    cursor: text;
+}
+
+.mu-read-only .mu-link,
+.mu-read-only a[href] {
+    cursor: pointer;
+}
+
+.mu-code-copy {
+    background: transparent;
+    border: 0;
+}
+
+.mu-container .mu-copy-header-link,
+.mu-code-copy {
+    border-radius: 4px;
+
+    transition:
+        opacity 0.2s ease,
+        background-color 0.15s ease;
+}
+
+.mu-container .mu-copy-header-link:hover,
+.mu-container .mu-copy-header-link:focus-visible,
+.mu-code-copy:hover,
+.mu-code-copy:focus-visible {
+    background-color: var(--float-hover-color);
+}
+
+.mu-read-only .mu-code-copy:focus-visible {
+    visibility: visible;
+    opacity: 1;
+}
+
+.mu-code-block:hover > .mu-code-copy,
+.mu-code-block > .mu-code-copy:focus-visible {
+    opacity: 1;
+}
+
+.mu-code-copy[data-copy-feedback]::after,
+.mu-copy-header-link[data-copy-feedback]::after {
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+
+    padding: 4px 8px;
+
+    color: var(--editor-color);
+    font: 12px sans-serif;
+    white-space: nowrap;
+
+    background: var(--float-bg-color);
+    border-radius: 4px;
+    box-shadow: var(--float-shadow);
+
+    content: attr(data-copy-feedback);
+}
+
+.mu-copy-success > * {
+    visibility: hidden;
+}
+
+.mu-copy-success::before {
+    position: absolute;
+
+    width: 14px;
+    height: 14px;
+
+    background: var(--theme-color);
+
+    transform: translate(-50%, -50%);
+
+    content: '';
+    clip-path: polygon(14% 44%, 38% 68%, 86% 20%, 96% 30%, 38% 88%, 4% 54%);
+    inset: 50% auto auto 50%;
+}
+
+.mu-container .mu-copy-success {
+    visibility: visible;
+    opacity: 1;
+}

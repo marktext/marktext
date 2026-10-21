@@ -82,6 +82,8 @@ async function insertImageSrc(
     anchorBlock: Content,
     src: string,
 ): Promise<void> {
+    if (clipboard.muya.readOnly || !clipboard.muya.isBlockInDocument(anchorBlock))
+        return;
     const { imageAction } = clipboard.muya.options;
 
     // No async insert preference: write the final image directly, no
@@ -97,6 +99,8 @@ async function insertImageSrc(
 
     let finalSrc = src;
     const resolved = await imageAction({ src, alt: '', title: '' });
+    if (clipboard.muya.readOnly || !clipboard.muya.isBlockInDocument(anchorBlock))
+        return;
     if (resolved)
         finalSrc = resolved;
 
@@ -150,9 +154,9 @@ export async function pasteImageSrc(
 }
 
 /**
- * Insert a pasted image when the clipboard carries one. Returns `true` when an
- * image was inserted so the caller skips the text/HTML paste, `false` to fall
- * through.
+ * Insert a pasted image when the clipboard carries one. An image consumes the
+ * paste even if its target disappeared while resolving it; only a clipboard
+ * without an image falls through to text/HTML paste.
  */
 export async function tryPasteImage(
     clipboard: Clipboard,
@@ -258,6 +262,8 @@ function reselectImageAt(clipboard: Clipboard, block: Format, startOffset: numbe
 
     let attempts = 60;
     const positionWhenLoaded = (): void => {
+        if (clipboard.muya.readOnly || !clipboard.muya.isBlockInDocument(block))
+            return;
         const current = findImageWrapper(block, startOffset);
         if (current?.querySelector('img')) {
             positionImageControls(clipboard, block, current);
@@ -294,6 +300,8 @@ async function replaceImageAt(
 
     let finalSrc = src;
     const resolved = await imageAction({ src, alt: '', title: '' });
+    if (clipboard.muya.readOnly || !clipboard.muya.isBlockInDocument(block))
+        return;
     if (resolved)
         finalSrc = resolved;
 
@@ -304,7 +312,8 @@ async function replaceImageAt(
 /**
  * Pasting an image while an inline image is selected replaces that image
  * (muyajs `pasteImage` selectedImage branch) instead of inserting a new one.
- * Returns `true` when it replaced the selected image.
+ * Returns `true` when handled, including a target invalidated while resolving
+ * the image, so the caller cannot redirect that paste to a new selection.
  */
 export async function tryReplaceSelectedImage(
     clipboard: Clipboard,
@@ -314,7 +323,12 @@ export async function tryReplaceSelectedImage(
     if (selectedImage == null)
         return false;
 
+    const original = selectedImage.block.text.slice(selectedImage.token.range.start, selectedImage.token.range.end);
     const src = await resolveImageSrc(clipboard, imageFile);
+    if (clipboard.muya.readOnly || !clipboard.muya.isBlockInDocument(selectedImage.block)
+        || selectedImage.block.text.slice(selectedImage.token.range.start, selectedImage.token.range.end) !== original) {
+        return true;
+    }
     if (src == null)
         return false;
 

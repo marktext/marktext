@@ -18,6 +18,7 @@ import type Paragraph from '../../commonMark/paragraph';
 import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
 import { tokenizer } from '../../../inlineRenderer/lexer';
 import { isListItemState, isTaskListItemState } from '../../../state/types';
+import { ChangeSource } from '../../../types';
 import { firstWordOfInfo, isKeyboardEvent, isLengthEven, parseFenceLine } from '../../../utils';
 import { createDiagramState, diagramTypeOfLang } from '../../../utils/diagram/fence';
 import { matchGithubAlertMarker } from '../../../utils/githubAlerts';
@@ -759,7 +760,7 @@ class ParagraphContent extends Format {
             const previousListItem = listItem.prev;
             listItem.forEach((node, i: number) => {
                 const paragraph = (node as Parent).clone() as Parent;
-                previousListItem!.append(paragraph, 'user');
+                previousListItem!.append(paragraph, ChangeSource.User);
                 if (i === 0)
                     paragraph?.firstContentInDescendant()?.setCursor(0, 0, true);
             });
@@ -870,7 +871,7 @@ class ParagraphContent extends Format {
                     this.muya,
                     state,
                 );
-                newListItem.append(childList, 'user');
+                newListItem.append(childList, ChangeSource.User);
             }
 
             if (listItem.next) {
@@ -880,7 +881,7 @@ class ParagraphContent extends Format {
                     if (node.isParent()) {
                         (newListItem.lastChild as Parent).append(
                             node.clone() as Parent,
-                            'user',
+                            ChangeSource.User,
                         );
                     }
                     node.remove();
@@ -896,7 +897,7 @@ class ParagraphContent extends Format {
                         // list items — putting them inside a list block
                         // corrupts the state and the next composed op crashes
                         // ot-json1 (#4899). Append them to the item itself.
-                        newListItem.append(node.clone() as Parent, 'user');
+                        newListItem.append(node.clone() as Parent, ChangeSource.User);
                     }
                     node.remove();
                 });
@@ -1046,10 +1047,10 @@ class ParagraphContent extends Format {
                 children: [listItem.getState()],
             };
             newList = ScrollPage.loadBlock(state.name).create(muya, state);
-            prevListItem!.append(newList as Parent, 'user');
+            prevListItem!.append(newList as Parent, ChangeSource.User);
         }
         else {
-            (newList as Parent).append(listItem.clone() as Parent, 'user');
+            (newList as Parent).append(listItem.clone() as Parent, ChangeSource.User);
         }
 
         listItem.remove();

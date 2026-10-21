@@ -3,6 +3,8 @@
     "counter": {
       "words": "Palabras",
       "characters": "Caracteres",
+      "charactersNoSpaces": "Caracteres (sin espacios)",
+      "charactersWithSpaces": "Caracteres (con espacios)",
       "paragraphs": "Párrafos",
       "allCharacters": "Todos los caracteres",
       "document": "Documento",
@@ -122,7 +124,7 @@
       "sourceCodeMode": "Modo Código Fuente",
       "typewriterMode": "Modo Máquina de Escribir",
       "focusMode": "Modo Enfoque",
-      "toggleTableOfContents": "Alternar Tabla de Contenidos",
+      "toggleTableOfContents": "Mostrar tabla de contenido",
       "reloadImages": "Recargar Imágenes",
       "showDeveloperTools": "Mostrar Herramientas de Desarrollador",
       "reloadWindow": "Recargar Ventana"
@@ -146,8 +148,8 @@
       "theme": "&Tema",
       "dark": "Oscuro",
       "followThemDisabled": "Selección de tema desactivada al seguir el tema del sistema",
-      "lightThemes": "— Temas Claros —",
-      "darkThemes": "— Temas Oscuros —",
+      "lightThemes": "Temas Claros",
+      "darkThemes": "Temas Oscuros",
       "ayuDark": "Ayu Oscuro",
       "ayuLight": "Ayu Claro",
       "ayuMirage": "Ayu Mirage",
@@ -234,6 +236,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Volver a archivos",
       "searchInFolder": "Buscar en carpeta...",
       "noFolderOpen": "No hay carpeta abierta",
       "noResultsFound": "No se encontraron resultados.",
@@ -250,6 +253,9 @@
       "openFolder": "Abrir Carpeta"
     },
     "toc": {
+      "expand": "Expandir tabla de contenido",
+      "collapse": "Contraer tabla de contenido",
+      "empty": "Sin encabezados",
       "title": "Tabla de Contenidos",
       "expandAll": "Expandir todo",
       "collapseAll": "Contraer todo"
@@ -257,7 +263,6 @@
     "icons": {
       "files": "Archivos",
       "search": "Buscar",
-      "toc": "Tabla de Contenidos",
       "settings": "Configuración"
     }
   },
@@ -266,7 +271,15 @@
     "minimize": "Minimizar",
     "maximize": "Maximizar",
     "restore": "Restaurar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "documentStatistics": {
+      "title": "Estadísticas del documento",
+      "fileInformation": "Información del archivo",
+      "created": "Creado",
+      "lastModified": "Modificado",
+      "unavailable": "—",
+      "open": "Abrir estadísticas del documento"
+    }
   },
   "commandPalette": {
     "placeholder": "Escriba un comando para ejecutar",
@@ -1035,5 +1048,22 @@
     "tabs": {
       "close": "Cerrar {name}"
     }
+  },
+  "readingMode": {
+    "title": "Modo de lectura (solo lectura)",
+    "edit": "Modo de edición",
+    "lock": "Activar el modo de lectura",
+    "unlock": "Cambiar al modo de edición",
+    "defaultMode": "Modo predeterminado al abrir archivos",
+    "defaultNote": "Se aplica a los archivos existentes que se abran a partir de ahora. Los documentos nuevos siguen siendo editables.",
+    "unsaved": "El modo de lectura está activado. Se conservan los cambios sin guardar y el guardado automático está en pausa.",
+    "failed": "No se pudo cambiar el modo del documento",
+    "closeSave": "Cambiar al modo de edición y guardar",
+    "exportSource": "Elija un destino de exportación distinto del archivo de origen.",
+    "unavailable": "No disponible en el modo de lectura",
+    "skipped": "Se omitieron los documentos de solo lectura con cambios sin guardar.",
+    "viewImage": "Ver imagen",
+    "copyLink": "Copiar dirección del enlace",
+    "resumed": "El modo de edición está activado. Se ha reanudado el guardado automático."
   }
 }

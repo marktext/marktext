@@ -96,6 +96,19 @@ describe('locale completeness', () => {
         }
     });
 
+    describe('reading mode translations', () => {
+        for (const [tag, locale] of nonEnLocales) {
+            it(`${tag} translates reading and clipboard messages`, () => {
+                for (const key of ['Copied', 'Copy failed', 'Read-only document', 'Document'] as const) {
+                    // "Document" is also the French and Dutch word for a document.
+                    if (key === 'Document' && (tag === 'fr' || tag === 'nl'))
+                        continue;
+                    expect(locale.resource[key], `${tag}: ${key}`).not.toBe(en.resource[key]);
+                }
+            });
+        }
+    });
+
     describe('every resource value is a non-empty string', () => {
         for (const [tag, locale] of [['en', en] as [string, typeof en], ...nonEnLocales]) {
             it(`${tag} has only non-empty string values`, () => {

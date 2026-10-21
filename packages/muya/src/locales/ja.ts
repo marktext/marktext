@@ -1,6 +1,10 @@
 export const ja = {
     name: 'ja',
     resource: {
+        'Copied': 'コピーしました',
+        'Copy failed': 'コピーに失敗しました。もう一度お試しください。',
+        'Read-only document': '読み取り専用ドキュメント',
+        'Document': 'ドキュメント',
         'GitHub Alerts': 'GitHub アラート',
         'GitHub Alert: NOTE': 'GitHub アラート: NOTE',
         'GitHub Alert: TIP': 'GitHub アラート: TIP',

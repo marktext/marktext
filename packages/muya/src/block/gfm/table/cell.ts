@@ -56,6 +56,8 @@ class TableBodyCell extends Parent {
     }
 
     set align(value) {
+        if (!this.muya.canMutate)
+            return;
         this.domNode!.dataset.align = value;
         this.meta.align = value;
     }

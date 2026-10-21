@@ -3,6 +3,8 @@
     "counter": {
       "words": "Words",
       "characters": "Characters",
+      "charactersNoSpaces": "Characters (no spaces)",
+      "charactersWithSpaces": "Characters (with spaces)",
       "paragraphs": "Paragraphs",
       "allCharacters": "All characters",
       "document": "Document",
@@ -122,7 +124,7 @@
       "sourceCodeMode": "Source Code Mode",
       "typewriterMode": "Typewriter Mode",
       "focusMode": "Focus Mode",
-      "toggleTableOfContents": "Toggle Table of Contents",
+      "toggleTableOfContents": "Show Table of Contents",
       "reloadImages": "Reload Images",
       "showDeveloperTools": "Show Developer Tools",
       "reloadWindow": "Reload Window"
@@ -146,8 +148,8 @@
       "theme": "&Theme",
       "dark": "Dark",
       "followThemDisabled": "Theme selection disabled when following system theme",
-      "lightThemes": "— Light Themes —",
-      "darkThemes": "— Dark Themes —",
+      "lightThemes": "Light Themes",
+      "darkThemes": "Dark Themes",
       "ayuDark": "Ayu Dark",
       "ayuLight": "Ayu Light",
       "ayuMirage": "Ayu Mirage",
@@ -234,6 +236,7 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Back to files",
       "searchInFolder": "Search in folder...",
       "noFolderOpen": "No folder open",
       "noResultsFound": "No results found.",
@@ -250,6 +253,9 @@
       "openFolder": "Open Folder"
     },
     "toc": {
+      "expand": "Expand table of contents",
+      "collapse": "Collapse table of contents",
+      "empty": "No headings",
       "title": "Table Of Contents",
       "expandAll": "Expand all",
       "collapseAll": "Collapse all"
@@ -257,7 +263,6 @@
     "icons": {
       "files": "Files",
       "search": "Search",
-      "toc": "Table of Contents",
       "settings": "Settings"
     }
   },
@@ -266,7 +271,15 @@
     "minimize": "Minimize",
     "maximize": "Maximize",
     "restore": "Restore",
-    "close": "Close"
+    "close": "Close",
+    "documentStatistics": {
+      "title": "Document statistics",
+      "fileInformation": "File information",
+      "created": "Created",
+      "lastModified": "Modified",
+      "unavailable": "—",
+      "open": "Open document statistics"
+    }
   },
   "commandPalette": {
     "placeholder": "Type a command to execute",
@@ -1035,5 +1048,22 @@
     "tabs": {
       "close": "Close {name}"
     }
+  },
+  "readingMode": {
+    "title": "Reading Mode (read-only)",
+    "edit": "Edit Mode",
+    "lock": "Enter Reading Mode",
+    "unlock": "Switch to Edit Mode",
+    "defaultMode": "Default mode for opened files",
+    "defaultNote": "Applies to existing files opened from now on. New documents remain editable.",
+    "unsaved": "Reading Mode is on. Unsaved changes are retained and auto-save is paused.",
+    "failed": "Could not switch document mode",
+    "closeSave": "Switch to Edit Mode and Save",
+    "exportSource": "Choose an export destination other than the source file.",
+    "unavailable": "Unavailable in Reading Mode",
+    "skipped": "Read-only documents with unsaved changes were skipped.",
+    "viewImage": "View Image",
+    "copyLink": "Copy Link Address",
+    "resumed": "Edit Mode is on. Auto-save has resumed."
   }
 }

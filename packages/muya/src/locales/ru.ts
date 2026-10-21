@@ -1,6 +1,10 @@
 export const ru = {
     name: 'ru',
     resource: {
+        'Copied': 'Скопировано',
+        'Copy failed': 'Не удалось скопировать. Повторите попытку.',
+        'Read-only document': 'Документ только для чтения',
+        'Document': 'Документ',
         'GitHub Alerts': 'Оповещения GitHub',
         'GitHub Alert: NOTE': 'Оповещение GitHub: NOTE',
         'GitHub Alert: TIP': 'Оповещение GitHub: TIP',

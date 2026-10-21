@@ -3,7 +3,7 @@ import type { ElectronApplication, Page } from 'playwright'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import { launchElectron, openProjectFolder } from './helpers'
+import { launchElectron, openProjectFolder, clickMenuById } from './helpers'
 
 // #528 — the fixture overflows the list on purpose: the folder of many files
 // sorts above the folder holding the deep file, pushing that row below the fold.
@@ -45,9 +45,6 @@ const folderHeader = (page: Page, folderPath: string) =>
 
 const tab = (page: Page, filePath: string) =>
   page.locator(`.editor-tabs .tabs-container li[title="${filePath}"]`)
-
-const filesIcon = (page: Page) =>
-  page.locator('.side-bar .left-column > ul').first().locator('li').nth(0)
 
 const sideBarWidth = (page: Page): Promise<number> =>
   page.evaluate(() => {
@@ -222,8 +219,8 @@ test.describe('#528 reveal with autoRevealInSidebar turned off', () => {
   test('the tab context menu reveals the file anyway', async() => {
     await clickNextPopupItem(app, 'showInSideBar')
 
-    await filesIcon(page).click()
-    await expect.poll(() => sideBarWidth(page)).toBeLessThan(60)
+    await clickMenuById(app, 'sideBarMenuItem')
+    await expect(page.locator('.side-bar')).toBeHidden()
 
     await tab(page, fixture.deep).click({ button: 'right' })
 

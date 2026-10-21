@@ -95,6 +95,7 @@ const keybindings: Map<string, string> = new Map([
   ['window.toggle-full-screen', 'F11'],
 
   // View menu
+  ['view.read-only-mode', 'Ctrl+Alt+R'],
   ['view.command-palette', 'Ctrl+Shift+P'],
   ['view.source-code-mode', 'Ctrl+E'],
   ['view.typewriter-mode', 'Ctrl+Shift+G'],

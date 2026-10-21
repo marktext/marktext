@@ -1,6 +1,12 @@
 import type { TState } from './state/types';
 
+export enum ChangeSource {
+    User = 'user',
+    Api = 'api',
+}
+
 export interface IMuyaOptions {
+    readOnly: boolean;
     fontSize: number;
     lineHeight: number;
     editorFontFamily?: string;
@@ -72,6 +78,7 @@ export interface IMuyaOptions {
      * When omitted, muya falls back to `navigator.clipboard.readText()`.
      */
     clipboardText?: () => Promise<string>;
+    clipboardWriteText?: (text: string) => Promise<boolean>;
     /**
      * Fetch HTML for pasted HTTP(S) links when the host can bypass browser
      * CSP/CORS restrictions. Muya parses the title and falls back to the URL
