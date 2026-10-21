@@ -837,7 +837,8 @@
       "exportFile": "Exportar Arquivo",
       "exportFilePdf": "Exportar como PDF",
       "zoom": "Zoom",
-      "checkUpdate": "Verificar Atualizações"
+      "checkUpdate": "Verificar Atualizações",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "Desfazer",

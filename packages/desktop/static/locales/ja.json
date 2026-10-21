@@ -837,7 +837,8 @@
       "exportFile": "ファイルのエクスポート",
       "exportFilePdf": "PDF としてエクスポート",
       "zoom": "ズーム",
-      "checkUpdate": "更新の確認"
+      "checkUpdate": "更新の確認",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "元に戻す",

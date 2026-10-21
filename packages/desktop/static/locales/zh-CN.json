@@ -837,7 +837,8 @@
       "exportFilePdf": "导出为 PDF",
       "zoom": "缩放",
       "checkUpdate": "检查更新",
-      "changeLineEnding": "更改行结束符"
+      "changeLineEnding": "更改行结束符",
+      "addFolder": "添加文件夹…"
     },
     "edit": {
       "undo": "撤销",

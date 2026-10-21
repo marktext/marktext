@@ -62,7 +62,12 @@ test('multi-folder sidebar completes add, search, remove and restore (#2222)', a
     await plus.click()
     await expect(roots()).toHaveCount(2)
     await choose(directories[2])
-    await plus.click()
+    await sendIpcToRenderer(app, 'mt::show-command-palette')
+    const commandInput = page.locator('input.search:visible').first()
+    await commandInput.pressSequentially('Add Folder')
+    const command = page.locator('.commands li').filter({ hasText: 'Add Folder' })
+    await expect(command).toHaveCount(1)
+    await command.click()
     await expect(roots()).toHaveCount(3)
     await expect(page.locator('.root-status')).toHaveCount(0)
 
