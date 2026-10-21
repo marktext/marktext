@@ -2,9 +2,12 @@ import { describe, it, expect } from 'vitest'
 import {
   IDENTITY,
   MAX_SCALE,
+  MAX_WHEEL_STEP,
   MIN_SCALE,
+  PINCH_ZOOM_BOOST,
   fitScale,
   pan,
+  wheelZoomFactor,
   zoomAt,
   type ZoomState
 } from '@/util/zoomPan'
@@ -70,6 +73,39 @@ describe('zoomAt', () => {
   it('does not move anything when the clamp swallows the zoom', () => {
     const before: ZoomState = { scale: MAX_SCALE, x: 30, y: -40 }
     expect(zoomAt(before, 2, 120, 90, 0, 0)).toEqual(before)
+  })
+})
+
+describe('wheelZoomFactor', () => {
+  const wheel = (deltaY: number, init?: WheelEventInit): WheelEvent =>
+    new WheelEvent('wheel', { deltaY, ...init })
+
+  it('zooms a distance the same however it is split into events', () => {
+    expect(wheelZoomFactor(wheel(-50)) ** 3).toBeCloseTo(wheelZoomFactor(wheel(-150)), 12)
+  })
+
+  it('takes a 100px mouse notch to about 8%', () => {
+    expect(wheelZoomFactor(wheel(-100))).toBeCloseTo(1.08, 2)
+  })
+
+  it('undoes itself when the same distance is scrolled back', () => {
+    expect(wheelZoomFactor(wheel(-100)) * wheelZoomFactor(wheel(100))).toBeCloseTo(1, 12)
+  })
+
+  it('leaves the scale alone when nothing is scrolled vertically', () => {
+    expect(wheelZoomFactor(wheel(0))).toBe(1)
+  })
+
+  it('caps how far a single event can jump', () => {
+    expect(wheelZoomFactor(wheel(-1e6))).toBe(Math.exp(MAX_WHEEL_STEP))
+    expect(wheelZoomFactor(wheel(1e6))).toBe(Math.exp(-MAX_WHEEL_STEP))
+  })
+
+  it('gives a ctrl+wheel pinch the coarser gain', () => {
+    const pinch = Math.log(wheelZoomFactor(wheel(-10, { ctrlKey: true })))
+    const scroll = Math.log(wheelZoomFactor(wheel(-10)))
+
+    expect(pinch).toBeCloseTo(scroll * PINCH_ZOOM_BOOST, 12)
   })
 })
 
