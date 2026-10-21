@@ -86,7 +86,6 @@ test.describe('#5094 TOC follows the active theme', () => {
       seen.push(themedColor)
     }
 
-    // The whole point of the report: the color actually changes with the theme.
     expect(seen[0]).not.toBe(seen[1])
   })
 })

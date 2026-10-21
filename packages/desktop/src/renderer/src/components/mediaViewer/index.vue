@@ -421,7 +421,6 @@ const openImage = (url: string) =>
     img.src = url
     img.style.cssText = 'user-select:none;display:block;'
     img.draggable = false
-    // Only measurable once the bytes are in.
     img.addEventListener('load', fitIfUntouched, { once: true })
     stage.appendChild(img)
     return img
@@ -478,8 +477,7 @@ const close = () => {
   restoreFocusTo = null
 }
 
-// One teardown path: the two used to drift, and unmounting while open left
-// the parent's `viewer-open` latch set.
+// Close on unmount too, clearing the parent viewer-open state.
 onBeforeUnmount(close)
 
 defineExpose({ openImage, openDiagram, close })

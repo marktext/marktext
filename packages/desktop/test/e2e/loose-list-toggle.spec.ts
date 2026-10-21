@@ -52,31 +52,25 @@ test.describe('Loose/tight list-item toggle', () => {
   // itself is unit-covered in packages/muya/src/__tests__/updateParagraph.spec.ts
   // ('toggles loose/tight on the current list').
   test.fixme('menu click toggles a tight list loose (blank line) and back to tight', async() => {
-    // Start from a tight 2-item bullet list — no blank line between items.
     await setSourceMarkdown(page, app, '- one\n- two\n')
     await expect(page.locator('.mu-bullet-list .mu-paragraph-content').first()).toBeAttached()
 
-    // Sanity: the list serializes tight before any toggle.
     const tightBefore = await getMarkdownContent(page, app)
     expect(tightBefore).toMatch(/- one\n- two/)
 
-    // Caret inside the first item, then toggle Loose List Item → loose.
     await placeCaretInEditor(page)
     await clickMenuById(app, 'looseListItemMenuItem')
 
-    // The serialized source now separates the items with a blank line.
     await expect
       .poll(async() => getMarkdownContent(page, app), { timeout: 5000 })
       .toMatch(/- one\n\n- two/)
 
-    // Toggle again → tight: the blank line between items is removed.
     await placeCaretInEditor(page)
     await clickMenuById(app, 'looseListItemMenuItem')
 
     await expect
       .poll(async() => getMarkdownContent(page, app), { timeout: 5000 })
       .toMatch(/- one\n- two/)
-    // And it is genuinely tight again (no blank line slipped through).
     const tightAgain = await getMarkdownContent(page, app)
     expect(tightAgain).not.toMatch(/- one\n\n- two/)
   })

@@ -46,27 +46,17 @@ class App {
   private _windowManager: WindowManager
   private _themeListenerRegistered: boolean
 
-  /**
-   * @param accessor The application accessor for application instances.
-   * @param args Parsed application arguments.
-   */
   constructor(accessor: Accessor, args: Partial<CliArgs>) {
     this._accessor = accessor
     this._args = (args as CliArgs) || ({ _: [] } as CliArgs)
     this._openFilesCache = []
     this._openFilesTimer = null
     this._windowManager = this._accessor.windowManager
-    // this.launchScreenshotWin = null // The window which call the screenshot.
-    // this.shortcutCapture = null
 
     this._listenForIpcMain()
-    // Initialize theme listener
     this._themeListenerRegistered = false
   }
 
-  /**
-   * The entry point into the application.
-   */
   init(): void {
     // Enable these features to use `backdrop-filter` css rules!
     if (isOsx) {
@@ -85,7 +75,6 @@ class App {
 
       const buf: PathInfo[] = []
       for (const pathname of args._) {
-        // Ignore all unknown flags
         if (pathname.startsWith('--')) {
           continue
         }
@@ -117,7 +106,6 @@ class App {
     app.on('ready', this.ready)
 
     app.on('window-all-closed', () => {
-      // Close all the image path watcher
       for (const watcher of watchers.values()) {
         watcher.close()
       }
@@ -161,7 +149,6 @@ class App {
     try {
       let currentLanguage = this._accessor.preferences.getItem<string>('language')
 
-      // If no language is set (first start), auto-detect from the system language
       if (!currentLanguage) {
         const systemLocale = app.getLocale()
         currentLanguage = matchSupportedLanguage(systemLocale) ?? 'en'
@@ -175,7 +162,6 @@ class App {
       log.info(`Main process language initialized to: ${currentLanguage}`)
     } catch (error) {
       log.error('Failed to initialize main process language:', error)
-      // If an error occurs, use English as the default language
       setLanguage('en')
     }
   }
@@ -192,7 +178,6 @@ class App {
     const { _args: args, _openFilesCache } = this
     const { preferences, editorBufferStore } = this._accessor
 
-    // Initialize language settings (detects the system language on first start)
     this._initializeLanguage()
     const { startUpAction, defaultDirectoryToOpen, theme } = preferences.getAll()
     const followSystemTheme = preferences.getItem<boolean>('followSystemTheme')
@@ -202,7 +187,6 @@ class App {
 
     if (args._.length) {
       for (const pathname of args._) {
-        // Ignore all unknown flags
         if (pathname.startsWith('--')) {
           continue
         }
@@ -218,7 +202,6 @@ class App {
     let isRestorePathway = false
     if (_openFilesCache.length === 0) {
       if (startUpAction === 'restoreAll') {
-        // Restore based off the previous buffer
         isRestorePathway = true
       } else if (startUpAction === 'folder' && defaultDirectoryToOpen) {
         const info = normalizeMarkdownPath(defaultDirectoryToOpen)
@@ -235,7 +218,6 @@ class App {
 
     nativeTheme.themeSource = getNativeThemeSource({ followSystemTheme, theme })
 
-    // Apply theme at startup if "Follow system theme" is enabled
     const isDarkTheme = isDarkApplicationTheme(theme)
     const systemIsDark = nativeTheme.shouldUseDarkColors
 
@@ -256,7 +238,6 @@ class App {
         }
         nativeTheme.themeSource = getNativeThemeSource(nextPreferences)
 
-      // When followSystemTheme is enabled, immediately switch to match system
         if (change.followSystemTheme === true) {
           const systemIsDark = nativeTheme.shouldUseDarkColors
           const lightModeTheme = preferences.getItem<string>('lightModeTheme')
@@ -269,18 +250,16 @@ class App {
           selectTheme(newTheme)
           preferences.setItem('theme', newTheme)
         }
-      // When light/dark mode theme preferences change, apply immediately if following system
         if (
           preferences.getItem<boolean>('followSystemTheme') &&
         (change.lightModeTheme || change.darkModeTheme)
         ) {
           const systemIsDark = nativeTheme.shouldUseDarkColors
 
-        // Get current values, but prefer the NEW values from the change event
+        // Use newly changed theme preferences before the stored values are refreshed.
           let lightModeTheme = preferences.getItem<string>('lightModeTheme')
           let darkModeTheme = preferences.getItem<string>('darkModeTheme')
 
-        // If these preferences were just changed, use the new values from the change object
           if (change.lightModeTheme !== undefined) {
             lightModeTheme = change.lightModeTheme
           }
@@ -296,7 +275,6 @@ class App {
         }
       })
 
-    // Listen for system theme changes and auto-switch if enabled
     if (!this._themeListenerRegistered) {
       nativeTheme.on('updated', () => {
         const followSystemTheme = preferences.getItem<boolean>('followSystemTheme')
@@ -308,7 +286,6 @@ class App {
           const newTheme = systemIsDark ? darkModeTheme : lightModeTheme
           const currentTheme = preferences.getItem<string>('theme')
 
-          // Only switch if the theme actually needs to change
           if (newTheme !== currentTheme) {
             log.info(
               `System theme changed, switching to: ${newTheme} (system ${systemIsDark ? 'dark' : 'light'})`
@@ -347,7 +324,6 @@ class App {
 
     const createWindow = (): void => {
       if (isRestorePathway) {
-        // We will restore based off the previous buffer, one window per buffer store file
         const bufferStores = editorBufferStore.getAll()
         const bufferStoreList = Object.values(bufferStores) as Array<{
           id: string
@@ -359,11 +335,10 @@ class App {
         }
 
         bufferStoreList.forEach((bufferStoreInfo) => {
-          // Read the buffer store file and pass the content
           this._createEditorWindow(null, [], [], {}, bufferStoreInfo)
         })
       } else if (_openFilesCache.length) {
-        // We should wipe the buffer store if not it will keep creating new windows whenever we open files via double click in the file manager
+        // Discard clean saved buffers so later file-manager launches cannot restore duplicate windows.
         editorBufferStore.clearBufferStoresWithAllSaved()
         this._openFilesToOpen()
       } else {
@@ -385,23 +360,10 @@ class App {
       // Fallback timeout in case 'updated' never fires (no theme change)
       setTimeout(createWindowOnce, 150)
     } else {
-      // Create immediately on Windows/macOS
       createWindow()
     }
 
-    // this.shortcutCapture = new ShortcutCapture()
-    // if (process.env.NODE_ENV === 'development') {
-    //   this.shortcutCapture.dirname = path.resolve(path.join(__dirname, '../../../node_modules/shortcut-capture'))
-    // }
-    // this.shortcutCapture.on('capture', async ({ dataURL }) => {
-    //   const { screenshotFileName } = this
-    //   const image = nativeImage.createFromDataURL(dataURL)
-    //   const bufferImage = image.toPNG()
 
-    //   if (this.launchScreenshotWin) {
-    //     this.launchScreenshotWin.webContents.send('mt::screenshot-captured')
-    //     this.launchScreenshotWin = null
-    //   }
 
     //   try {
     //     // write screenshot image into screenshot folder.
@@ -431,11 +393,7 @@ class App {
     }
   }
 
-  // --- private --------------------------------
 
-  /**
-   * Creates a new editor window.
-   */
   private _createEditorWindow(
     rootDirectory: string | null = null,
     fileList: string[] = [],
@@ -463,9 +421,6 @@ class App {
     return editor
   }
 
-  /**
-   * Create a new setting window.
-   */
   private _createSettingWindow(category?: string | null): void {
     const setting = new SettingWindow(this._accessor)
     setting.createWindow(category ?? null)
@@ -479,13 +434,7 @@ class App {
     this._openPathList(this._openFilesCache, false)
   }
 
-  /**
-   * Open the path list in the best window(s).
-   *
-   * @param pathsToOpen The path list to open.
-   * @param openFilesInSameWindow Open all files in the same window with
-   * the first directory and discard other directories.
-   */
+  /** When openFilesInSameWindow is true, discard all but the first directory and open its files together. */
   private _openPathList(pathsToOpen: PathInfo[], openFilesInSameWindow: boolean = false): void {
     const { _windowManager } = this
     const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
@@ -501,7 +450,6 @@ class App {
       }
     }
 
-    // Filter out directories that are already opened.
     for (const window of _windowManager.windows.values()) {
       if (window.type === WindowType.EDITOR) {
         const { openedRootDirectory } = window as EditorWindow
@@ -520,7 +468,6 @@ class App {
     }))
     const filesToOpen = Array.from(fileSet)
 
-    // Discard all directories except first one and add files.
     if (openFilesInSameWindow) {
       if (directoriesToOpen.length) {
         directoriesToOpen[0].fileList.push(...filesToOpen)
@@ -531,11 +478,9 @@ class App {
       filesToOpen.length = 0
     }
 
-    // Find the best window(s) to open the files in.
     if (!openFilesInSameWindow && !openFilesInNewWindow) {
       const isFirstWindow = _windowManager.getActiveEditorId() === null
 
-      // Prefer new directories
       for (let i = 0; i < directoriesToOpen.length; ++i) {
         const { fileList, rootDirectory } = directoriesToOpen[i]
 
@@ -560,7 +505,6 @@ class App {
         }
       }
 
-      // Find for the remaining files the best window to open the files in.
       if (isFirstWindow && directoriesToOpen.length && filesToOpen.length) {
         const { fileList } = directoriesToOpen[0]
         fileList.push(...filesToOpen)
@@ -570,7 +514,6 @@ class App {
         for (const item of windowList) {
           const { windowId, fileList } = item
 
-          // File list is empty when all files are already opened.
           if (fileList.length === 0) {
             continue
           }
@@ -588,13 +531,11 @@ class App {
         }
       }
 
-      // Directores are always opened in a new window if not already opened.
       for (const item of directoriesToOpen) {
         const { rootDirectory, fileList } = item
         this._createEditorWindow(rootDirectory, fileList, [], {}, null, allowMissingPaths)
       }
     } else {
-      // Open each file and directory in a new window.
 
       for (const pathname of filesToOpen) {
         this._createEditorWindow(null, [pathname], [], {}, null, allowMissingPaths)
@@ -606,14 +547,12 @@ class App {
       }
     }
 
-    // Empty the file list
     pathsToOpen.length = 0
   }
 
   private _openSettingsWindow(category?: string | null): void {
     const settingWins = this._windowManager.getWindowsByType(WindowType.SETTINGS)
     if (settingWins.length >= 1) {
-      // A setting window is already created
       const browserSettingWindow = settingWins[0].win.browserWindow!
       browserSettingWindow.webContents.send('settings::change-tab', category)
       if (isLinux) {
@@ -630,7 +569,6 @@ class App {
     registerKeyboardListeners()
     registerSpellcheckerListeners()
 
-    // Handle language setting requests
     ipcMain.on('mt::get-current-language', (event) => {
       const { language } = this._accessor.preferences.getAll()
       event.reply('mt::current-language', language || 'en')
@@ -642,16 +580,13 @@ class App {
 
     onInternalChannel('screen-capture', async(win: BrowserWindow) => {
       if (isOsx) {
-        // Use macOs `screencapture` command line when in macOs system.
         const screenshotFileName = await this.getScreenshotFileName()
         exec('screencapture -i -c', async(err) => {
           if (err) {
             log.error(err)
             return
           }
-          // The renderer can no longer paste the clipboard bitmap via the
-          // removed `document.execCommand('paste')`, so persist the capture to a
-          // PNG and hand the path to the renderer to insert at the cursor.
+          // Persist screenshot bitmaps and pass a file path: Chromium no longer supports programmatic paste.
           let savedPath = ''
           try {
             const image = clipboard.readImage()
@@ -739,7 +674,6 @@ class App {
       }
     )
 
-    // --- renderer -------------------
 
     ipcMain.on('mt::app-try-quit', () => {
       app.quit()
@@ -786,7 +720,6 @@ class App {
       const win = BrowserWindow.fromWebContents(e.sender)
       if (!win) return
       const { keybindings } = this._accessor
-      // Convert map to object
       win.webContents.send('mt::keybindings-response', Object.fromEntries(keybindings.keys))
     })
 

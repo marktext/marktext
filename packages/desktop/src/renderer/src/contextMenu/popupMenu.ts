@@ -1,6 +1,4 @@
-// Renderer-side helper that turns an array of menu descriptors into a
-// serializable template, ships them to the main process to popup an Electron
-// menu, and dispatches click events back to per-item click handlers.
+// Serialize menu descriptors for main-process popup and route returned IDs to renderer callbacks.
 
 import type { MenuTemplate, MenuTemplateItem, MenuPopupPosition } from '@shared/types/menu'
 

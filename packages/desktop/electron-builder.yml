@@ -10,9 +10,6 @@ files:
   - '!electron.vite.config.{js,ts,mjs,cjs}'
   - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
-  # ================================
-  # Do not bundle these files
-  # ================================
   - '!node_modules/dragula/resources'
   - '!node_modules/**/*.js.map'
   - '!node_modules/**/*.cjs.map'
@@ -22,24 +19,21 @@ files:
   - '!node_modules/@vscode/ripgrep/lib/download.js'
   - '!node_modules/@vscode/ripgrep/lib/postinstall.js'
   - '!node_modules/ced/vendor'
-  # Large source files
   - '!node_modules/mermaid/dist/mermaid.js'
   - '!node_modules/mermaid/dist/mermaid.min.js'
   - '!node_modules/mermaid/dist/mermaid.esm.min.mjs'
   - '!node_modules/katex/dist/katex.min.js'
   - '!node_modules/katex/dist/katex.mjs'
-  # Don't bundle Linux build files
   - '!node_modules/ced/build/Release/compact_enc_det.a'
   - '!node_modules/**/{*.vcxproj,*.vcxproj.filters}'
   - '!node_modules/**/build/Release/{*.lib,*.exp,*.ilk,*.pdb,*.iobj,*.ipdb}'
   - '!node_modules/**/build/Release/obj'
-  # Do not bundle development related files
   - '!eslint.config.js'
   - '!jsconfig.json'
   - '!docs/*'
 extraResources:
   - from: build/icons
-    to: icons # ends up at resources/icons/
+    to: icons
     filter:
       - '*.ico'
   - from: static

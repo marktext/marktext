@@ -15,7 +15,6 @@ import fs from 'fs'
 
 type RawMarkdownDocument = Awaited<ReturnType<typeof loadMarkdownFile>>
 
-// The deferred file/markdown to open before the window finishes loading.
 interface PendingFile {
   doc: RawMarkdownDocument
   options: Record<string, unknown>
@@ -48,7 +47,6 @@ interface RestoredBufferState {
 }
 
 class EditorWindow extends BaseWindow {
-  // Root directory and file list to open when the window is ready.
   private _directoryToOpen: string | null
   private _filesToOpen: PendingFile[] | null
   private _markdownToOpen: string[] | null
@@ -59,29 +57,20 @@ class EditorWindow extends BaseWindow {
 
   public bufferStoreInfo: BufferStoreInfo | null
 
-  /**
-   * @param accessor The application accessor for application instances.
-   */
   constructor(accessor: Accessor) {
     super(accessor)
     this.type = WindowType.EDITOR
 
-    // Root directory and file list to open when the window is ready.
     this._directoryToOpen = null
-    this._filesToOpen = [] // {doc: IMarkdownDocumentRaw, options: any, selected: boolean}
+    this._filesToOpen = []
     this._markdownToOpen = [] // List of markdown strings or an empty string will open a new untitled tab
 
-    // Root directory and file list that are currently opened. These lists are
-    // used to find the best window to open new files in.
     this._openedRootDirectory = ''
     this._openedFiles = []
 
     this.bufferStoreInfo = null
   }
 
-  /**
-   * Creates a new editor window.
-   */
   createWindow(
     rootDirectory: string | null = null,
     fileList: string[] = [],
@@ -121,7 +110,6 @@ class EditorWindow extends BaseWindow {
     } = preferences.getAll()
     const resolvedSideBarVisibility = restoreLayoutState ? !!sideBarVisibility : false
 
-    // Enable native or custom/frameless window and titlebar
     if (!isOsx) {
       winOptions.titleBarStyle = 'default'
       if (titleBarStyle === 'native') {
@@ -131,7 +119,6 @@ class EditorWindow extends BaseWindow {
 
     winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
     if (env.disableSpellcheck) {
-      // winOptions.webPreferences is set by editorWinOptions spread above
       ;(winOptions.webPreferences as { spellcheck: boolean }).spellcheck = false
     }
 
@@ -155,7 +142,6 @@ class EditorWindow extends BaseWindow {
       }
     }
 
-    // Create a menu for the current window
     appMenu.addEditorMenu(win, { sourceCodeModeEnabled: sourceCodeModeEnabled as boolean })
 
     win.webContents.on('context-menu', (event, params) => {
@@ -166,7 +152,6 @@ class EditorWindow extends BaseWindow {
       this.lifecycle = WindowLifecycle.READY
       this.emit('window-ready')
 
-      // Restore and focus window
       this.bringToFront()
 
       const lineEnding = preferences.getPreferredEol()
@@ -188,7 +173,6 @@ class EditorWindow extends BaseWindow {
         this._markdownToOpen!.length = 0
       }
 
-      // Listen on default system mouse zoom event (e.g. Ctrl+MouseWheel on Linux/Windows).
       win!.webContents.on('zoom-changed', (_event, zoomDirection) => {
         if (zoomDirection === 'in') {
           zoomIn(win!)
@@ -238,7 +222,6 @@ class EditorWindow extends BaseWindow {
       win!.webContents.send('mt::window-active-status', { status: true })
     })
 
-    // Lost focus
     win.on('blur', () => {
       this.emit('window-blur')
       win!.webContents.send('mt::window-active-status', { status: false })
@@ -263,12 +246,10 @@ class EditorWindow extends BaseWindow {
       // TODO: Close all watchers etc. Should we do this manually or listen to 'quit' event?
     })
 
-    // The window is now destroyed.
     win.on('closed', () => {
       this.lifecycle = WindowLifecycle.QUITTED
       this.emit('window-closed')
 
-      // Free window reference
       win = null
     })
 
@@ -281,7 +262,6 @@ class EditorWindow extends BaseWindow {
     // Disable application menu shortcuts because we want to handle key bindings ourself.
     win.webContents.setIgnoreMenuShortcuts(true)
 
-    // Delay load files and directories after the current control flow.
     setTimeout(() => {
       if (rootDirectory) {
         this.openFolder(rootDirectory)
@@ -294,18 +274,11 @@ class EditorWindow extends BaseWindow {
     return win
   }
 
-  /**
-   * Open a new tab from a markdown file.
-   */
   openTab(filePath: string, options: Record<string, unknown> = {}, selected: boolean = true): void {
-    // TODO: Don't allow new files if quitting.
     if (this.lifecycle === WindowLifecycle.QUITTED) return
     this.openTabs([{ filePath, options, selected }])
   }
 
-  /**
-   * Open new tabs from the given file paths.
-   */
   openTabsFromPaths(filePaths: string[], allowMissingPaths: string[] = []): void {
     if (!filePaths || filePaths.length === 0) return
 
@@ -318,13 +291,9 @@ class EditorWindow extends BaseWindow {
     this.openTabs(fileList)
   }
 
-  /**
-   * Open new tabs from markdown files with options for editor window.
-   */
   openTabs(
     fileList: { filePath: string; selected: boolean; options: Record<string, unknown> }[]
   ): void {
-    // TODO: Don't allow new files if quitting.
     if (this.lifecycle === WindowLifecycle.QUITTED) return
 
     const { browserWindow } = this
@@ -335,7 +304,6 @@ class EditorWindow extends BaseWindow {
 
     for (const { filePath, options, selected } of fileList) {
       if (this._openedFiles!.includes(filePath)) {
-        // File is already opened - avoid opening it again so we dont have duplicate watchers
         browserWindow!.webContents.send('mt::switch-tab-by-file_path', filePath, options)
         continue
       }
@@ -364,11 +332,7 @@ class EditorWindow extends BaseWindow {
     }
   }
 
-  /**
-   * Open a new untitled tab optional with a markdown string.
-   */
   openUntitledTab(selected: boolean = true, markdown: string = ''): void {
-    // TODO: Don't allow new files if quitting.
     if (this.lifecycle === WindowLifecycle.QUITTED) return
 
     if (this.lifecycle === WindowLifecycle.READY) {
@@ -379,11 +343,7 @@ class EditorWindow extends BaseWindow {
     }
   }
 
-  /**
-   * Open a (new) directory and replaces the old one.
-   */
   openFolder(pathname: string): void {
-    // TODO: Don't allow new files if quitting.
     if (
       !pathname ||
       this.lifecycle === WindowLifecycle.QUITTED ||
@@ -410,23 +370,16 @@ class EditorWindow extends BaseWindow {
     }
   }
 
-  /**
-   * Add a new path to the file list and watch the given path.
-   */
   addToOpenedFiles(filePath: string): void {
     const { _openedFiles, browserWindow } = this
     if (!_openedFiles!.includes(filePath)) _openedFiles!.push(filePath)
     ipcMain.emit('watcher-watch-file', browserWindow, filePath)
   }
 
-  /**
-   * Change a path in the opened file list and update the watcher.
-   */
   changeOpenedFilePath(pathname: string, oldPathname: string): void {
     const { _openedFiles, browserWindow } = this
     const index = _openedFiles!.findIndex((p) => p === oldPathname)
     if (index === -1) {
-      // The old path was not found but add the new one.
       _openedFiles!.push(pathname)
     } else {
       _openedFiles![index] = pathname
@@ -435,9 +388,6 @@ class EditorWindow extends BaseWindow {
     ipcMain.emit('watcher-watch-file', browserWindow, pathname)
   }
 
-  /**
-   * Remove a path from the opened file list and stop watching the path.
-   */
   removeFromOpenedFiles(pathname: string): void {
     const { _openedFiles, browserWindow } = this
     const index = _openedFiles!.findIndex((p) => p === pathname)
@@ -447,9 +397,6 @@ class EditorWindow extends BaseWindow {
     ipcMain.emit('watcher-unwatch-file', browserWindow, pathname)
   }
 
-  /**
-   * Returns a score list for a given file list.
-   */
   getCandidateScores(fileList: string[]): CandidateScore[] {
     const { _openedFiles, _openedRootDirectory, id } = this
     const buf: CandidateScore[] = []
@@ -475,10 +422,8 @@ class EditorWindow extends BaseWindow {
   override reload(): void {
     const { id, browserWindow } = this
 
-    // Close watchers
     ipcMain.emit('watcher-unwatch-all-by-id', id)
 
-    // Reset saved state
     this._directoryToOpen = ''
     this._filesToOpen = []
     this._markdownToOpen = []
@@ -522,11 +467,7 @@ class EditorWindow extends BaseWindow {
     return this._openedRootDirectory
   }
 
-  // --- private ---------------------------------
 
-  /**
-   * Open a new new tab from the markdown document.
-   */
   private _doOpenTab(
     rawDocument: RawMarkdownDocument,
     options: Record<string, unknown>,
@@ -655,7 +596,6 @@ class EditorWindow extends BaseWindow {
 
       Promise.all(fileOpenRequests)
         .then(() => {
-          // After all files are loaded, we can send the state to the renderer and open the tabs
           browserWindow!.webContents.send('mt::load-state', bufferState)
         })
         .catch((err: Error) => {

@@ -7,14 +7,11 @@ import { encodeDirnameForUrl, localPathToFileUrl } from './fileUrl'
 // already-absolute paths are left untouched.
 export function resolveLocalLinkHref(href: string): string {
   if (!href) return href
-  // In-page fragment anchor (#heading) — never a filesystem path.
   if (href.startsWith('#')) return href
   // Windows drive-absolute path (C:\… / C:/…) → file://. Checked before the
   // scheme test, since `C:` otherwise reads as a URL scheme.
   if (/^[a-z]:[\\/]/i.test(href)) return `file://${href}`
-  // POSIX / UNC absolute path → file://.
   if (/^(?:\/|\\\\)/.test(href)) return `file://${href}`
-  // Any URL scheme (http:, https:, file:, mailto:, tel:, data:…) — leave as-is.
   if (/^[a-z][a-z\d+.-]*:/i.test(href)) return href
   // Relative local path — resolve against the document directory. `join`, not
   // `resolve`: pathe's `resolve` turns a UNC `//host/share` root into `/host/share`.

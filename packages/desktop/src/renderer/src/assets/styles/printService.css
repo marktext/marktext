@@ -13,10 +13,7 @@ body article.print-container {
   /* Set all settings like margin with @page or Electron settings. */
 
   @page {
-    /* 
-      Recent versions of chromemium will treat margins as "transparent" - but we should set it to white so it isn't so ugly.
-      This should not affect the actual printing.
-    */
+    /* Chromium renders transparent page margins; white keeps the preview readable. */
     background: white;
     margin: 15mm 20mm 15mm 20mm;
   }
@@ -25,7 +22,6 @@ body article.print-container {
     display: none !important;
   }
 
-  /* General rules for printing. */
   html,
   body {
     position: relative !important;

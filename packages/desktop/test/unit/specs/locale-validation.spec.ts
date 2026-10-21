@@ -36,7 +36,6 @@ const LOCALES_DIR = path.join(__dirname, '../../../static/locales')
 const loadLocale = (lang: string): Record<string, unknown> =>
   JSON.parse(fs.readFileSync(path.join(LOCALES_DIR, `${lang}.json`), 'utf8'))
 
-// Recursively collect all leaf keys as dot-separated paths
 const collectKeys = (obj: unknown, prefix = ''): string[] => {
   if (obj === null || typeof obj !== 'object') return [prefix]
   const keys: string[] = []
@@ -51,14 +50,12 @@ const collectKeys = (obj: unknown, prefix = ''): string[] => {
   return keys
 }
 
-// Extract {placeholder} variables from a string
 const extractPlaceholders = (str: string): string[] => {
   if (typeof str !== 'string') return []
   const matches = str.match(/\{[^}]+\}/g)
   return matches ? matches.sort() : []
 }
 
-// Get a nested value by dot-separated path
 const getByPath = (obj: unknown, dotPath: string): unknown => {
   let current: unknown = obj
   for (const part of dotPath.split('.')) {

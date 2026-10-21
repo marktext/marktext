@@ -24,7 +24,7 @@ ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
   let dir: string | null
   let searchKey: string | null
   if (fullPath.endsWith(path.sep)) {
-    dir = fullPath.slice(0, -1) // It should be the entire path minus just the trailing slash
+    dir = fullPath.slice(0, -1)
     searchKey = ''
   } else {
     dir = path.dirname(fullPath)
@@ -40,7 +40,6 @@ ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
     })
 })
 
-// --- Menu actions -------------------------------------------------------------
 
 /**
  * macOS native panels (Open/Save, "Go to Folder") are not `BrowserWindow`s, so
@@ -159,7 +158,6 @@ export const lineEnding = (win: Win, lineEnding: string): void => {
   }
 }
 
-// --- Commands -------------------------------------------------------------
 
 export const loadEditCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.EDIT_COPY, nativeCopy)
@@ -182,7 +180,6 @@ export const loadEditCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.EDIT_UNDO, editorUndo)
 }
 
-// --- IPC events -------------------------------------------------------------
 
 // NOTE: Don't use static `getMenuItemById` here, instead request the menu by
 //       window id from `AppMenu` manager.

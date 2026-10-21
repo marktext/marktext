@@ -82,7 +82,6 @@ test.describe('Sidebar name input commits on click-away (#3207)', () => {
 
     await input.pressSequentially('renamed', { delay: 20 })
     await expect(input).toHaveValue('renamed.md')
-    // Click a different row instead of pressing Enter.
     await page.locator('.side-bar-file[title$="second.md"]').first().click()
 
     await expect.poll(() => fs.existsSync(path.join(projectDir, 'renamed.md'))).toBe(true)
@@ -112,7 +111,6 @@ test.describe('Sidebar name input commits on click-away (#3207)', () => {
       .first()
     await expect(input).toBeVisible()
     await input.pressSequentially('note', { delay: 20 })
-    // Click another row (outside the input) to accept the create.
     await page.locator('.side-bar-file[title$="second.md"]').first().click()
 
     await expect.poll(() => fs.existsSync(path.join(projectDir, 'docs', 'note.md'))).toBe(true)
@@ -127,7 +125,6 @@ test.describe('Sidebar name input commits on click-away (#3207)', () => {
     await expect(input).toBeVisible()
     await input.pressSequentially('renamed-two', { delay: 20 })
 
-    // Click outside the tree entirely — the editor area.
     await page.locator('.mu-editor').first().click()
 
     await expect

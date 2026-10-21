@@ -120,7 +120,6 @@ const preferenceStore = usePreferencesStore()
 const { followSystemTheme, lightModeTheme, darkModeTheme, theme, customCss } =
   storeToRefs(preferenceStore)
 
-// Generate dropdown options from configThemes
 const themeOptions: PrefSelectOption<string>[] = configThemes.map((theme) => ({
   label: theme.name
     .split('-')
@@ -156,7 +155,6 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   font-weight: 600;
 }
 
-/* The light/dark mode pickers sit on one row under the "follow system" toggle. */
 .pref-theme .mode-themes-row {
   display: flex;
   align-items: flex-start;
@@ -229,7 +227,6 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
       }
     }
 
-    /* New gogh themes - Dark */
     &.dracula {
       color: #f8f8f2;
       background: #282a36;
@@ -371,7 +368,6 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
       }
     }
 
-    /* New gogh themes - Light */
     &.catppuccin-latte {
       color: #4c4f69;
       background: #eff1f5;
@@ -422,20 +418,18 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
       }
     }
 
-    /* Disabled state when followSystemTheme is on */
     &.disabled {
       opacity: 0.4;
       cursor: not-allowed;
     }
 
-    /* Active theme - use outline instead of border to avoid layout shift? */
+    /* Use an outline to avoid changing the layout on selection. */
     &.active {
       box-shadow: var(--floatShadow);
       outline: 2px solid var(--themeColor);
       outline-offset: -2px;
     }
 
-    /* Active + disabled: slightly more visible */
     &.disabled.active {
       opacity: 0.7;
     }

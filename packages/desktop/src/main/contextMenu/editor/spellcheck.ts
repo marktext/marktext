@@ -32,7 +32,6 @@ export default (
     })
   )
 
-  // Handle misspelled word if wordSuggestions is set, otherwise word is correct.
   if (isMisspelled && misspelledWord && wordSuggestions) {
     spellingSubmenu.push({
       label: t('contextMenu.addToDictionary'),

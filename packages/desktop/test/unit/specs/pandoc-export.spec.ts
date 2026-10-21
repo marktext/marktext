@@ -428,7 +428,6 @@ describe('pandoc export', () => {
       ])
     })
 
-    // The hit is remembered: a third call spawns nothing more.
     await expect(getReaderExtensions()).resolves.toEqual({
       gfm: new Map([['tex_math_gfm', true]]),
       markdown: new Map([

@@ -111,10 +111,7 @@ const windowControlAPI = {
     send('mt::menu::popup-application', position)
 }
 
-// These three predicates are pure path-string operations: implementing them
-// in the preload keeps them synchronous so existing call sites like
-// `tabs.find(t => isSamePathSync(t.pathname, ...))` keep returning the right
-// item instead of a truthy Promise.
+// Keep pure path predicates synchronous for tab matching without filesystem IPC.
 const MARKDOWN_EXTENSIONS = [
   'markdown',
   'mdown',
@@ -175,7 +172,6 @@ const fileUtilsAPI = {
   unlink: (p: string) => invoke('mt::fs::unlink', p),
   readdir: (p: string) => invoke('mt::fs::readdir', p),
   isExecutable: (p: string) => invoke('mt::fs::is-executable', p),
-  // Pure-string predicates — synchronous, no IPC for the common case.
   isChildOfDirectory,
   hasMarkdownExtension,
   isSamePathSync,
@@ -279,7 +275,6 @@ const processShim = {
   env: bootInfo?.env || {},
   resourcesPath: bootInfo?.paths?.resources,
   cwd: () => bootInfo?.paths?.cwd,
-  // Some libraries call `process.nextTick`; map it to the microtask queue.
   nextTick: (fn: (...args: unknown[]) => void, ...args: unknown[]) =>
     Promise.resolve().then(() => fn(...args))
 }

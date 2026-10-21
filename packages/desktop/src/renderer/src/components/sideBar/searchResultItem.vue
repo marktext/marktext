@@ -22,9 +22,6 @@
           </span>
           <span class="match-count">{{ matchCount }}</span>
         </div>
-        <!-- <div class="folder-path">
-            <span>{{ dirname }}</span>
-          </div> -->
       </div>
     </div>
     <div
@@ -39,7 +36,6 @@
           :title="searchMatch.lineText"
           @click="handleSearchResultClick(searchMatch)"
         >
-          <!-- <span class="line-number">{{ searchMatch.range[0][0] }}</span> -->
           <span>{{
             ellipsisText(searchMatch.lineText.substring(0, searchMatch.range[0][1]))
           }}</span>

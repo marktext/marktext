@@ -1,5 +1,4 @@
 :root {
-  /*editor - Catppuccin Mocha theme*/
   --themeColor: #89b4fa;
   --themeColor90: rgba(137, 180, 250, 0.9);
   --themeColor80: rgba(137, 180, 250, 0.8);
@@ -57,7 +56,6 @@
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(24, 26, 31, 0.5), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #313244;
 
-  /* Markdown element colors */
   --headingColor: #cdd6f4;
   --h1Color: #cba6f7;
   --h2Color: #89b4fa;
@@ -73,7 +71,6 @@
   --emColor: #f5c2e7;
   --listMarkerColor: #cba6f7;
 
-  /*marktext*/
   --sideBarColor: rgba(205, 214, 244, 0.6);
   --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: rgba(205, 214, 244, 0.8);
@@ -90,11 +87,6 @@
   --maskColor: rgba(0, 0, 0, 0.7);
   --editorAreaWidth: 750px;
 
-  /* @muyajs/core (kebab-case) editor variables
-     Additive prep for the muyajs -> @muyajs/core editor swap. These
-     mirror the camelCase vars above; the legacy editor ignores them.
-     Do NOT remove the camelCase vars — they still drive the current
-     editor until editor.vue switches engines. */
   --theme-color: var(--themeColor);
   --highlight-color: var(--highlightColor);
   --selection-color: var(--selectionColor);
@@ -197,7 +189,6 @@
   box-shadow: none !important;
 }
 
-/* ------------------------------------ */
 
 :not(pre) > code[class*='language-'],
 pre:not(.CodeMirror-line),

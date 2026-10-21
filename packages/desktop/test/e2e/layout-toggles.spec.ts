@@ -54,7 +54,6 @@ test.describe('Layout panel toggles', () => {
   })
 
   test('TOC menu toggles ToC panel without throwing', async() => {
-    // Ensure sidebar is visible so TOC has somewhere to render.
     const sideBar = page.locator('.side-bar')
     if (!(await sideBar.isVisible())) {
       await clickMenuById(app, 'sideBarMenuItem')

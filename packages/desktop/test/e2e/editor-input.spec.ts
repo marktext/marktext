@@ -66,11 +66,9 @@ test.describe('Editor input and source-mode roundtrip', () => {
 
 const WORD_COUNT_TEXT = '.document-statistics-trigger'
 
-// Read the title-bar counter text, e.g. "Words 12". Returns the trimmed string.
 const counterText = (page: Page): Promise<string> =>
   page.locator(WORD_COUNT_TEXT).innerText()
 
-// Parse the trailing integer off a counter label like "Words 12" / "Paragraphs 3".
 const counterValue = async(page: Page): Promise<number> => {
   const text = await counterText(page)
   const match = text.trim().match(/(\d+)\s*$/)
@@ -146,13 +144,11 @@ test.describe('Title-bar word counter (item 24)', () => {
     await setSourceMarkdown(page, app, 'alpha beta\n\ngamma 字数\n')
     await page.waitForTimeout(400)
 
-    // Derive the four expected values from the exact markdown that is loaded.
     const markdown = await getMarkdownContent(page, app)
     const expected = expectedCount(markdown)
 
     const counter = page.locator(WORD_COUNT_TEXT)
 
-    // Default word mode.
     await expect.poll(() => counterText(page)).toMatch(/^Words\s+/)
     await expect.poll(() => counterValue(page)).toBe(expected.word)
 
@@ -227,7 +223,6 @@ test.describe('Edit > Select All (item 169)', () => {
   })
 
   test('Select All while focus is in the search input leaves the editor selection alone', async() => {
-    // Establish a known whole-document editor selection first (escalate fully).
     await placeCaretInEditor(page)
     await expect
       .poll(async() => {
@@ -262,7 +257,6 @@ test.describe('Edit > Select All (item 169)', () => {
     })
     expect(inputSelection).toBe('beta')
 
-    // Tear down the find bar so the shared app is left clean.
     await page.keyboard.press('Escape')
     await expect(page.locator('.search-bar')).toBeHidden({ timeout: 5000 })
   })

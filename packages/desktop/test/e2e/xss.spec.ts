@@ -12,7 +12,6 @@ test.describe('Test XSS Vulnerabilities', () => {
     app = electronApp
     page = firstPage
 
-    // Wait to parse and render the document.
     await new Promise((resolve) => setTimeout(resolve, 3000))
   })
 

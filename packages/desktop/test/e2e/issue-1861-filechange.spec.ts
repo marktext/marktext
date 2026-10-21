@@ -29,7 +29,6 @@ test.describe('Issue #1861 — content-identical file change', () => {
     await page.waitForTimeout(500)
     expect(await isDirty(page)).toBe(false)
 
-    // Identical bytes — the watcher fires, but the tab must stay clean.
     fs.writeFileSync(filePath, 'hello\nworld\n', 'utf-8')
     await page.waitForTimeout(WATCH_SETTLE)
     expect(await isDirty(page)).toBe(false)

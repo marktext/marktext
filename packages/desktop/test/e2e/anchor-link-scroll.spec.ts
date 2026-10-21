@@ -109,7 +109,6 @@ test.describe('In-document anchor link click scrolls the editor (item 236)', () 
   })
 
   test('Cmd/Ctrl-clicking the link scrolls the editor down to the heading', async() => {
-    // Start at the top of the document.
     await page.evaluate(() => {
       const el = document.querySelector('.editor-component') as HTMLElement | null
       if (el) el.scrollTop = 0
@@ -143,7 +142,6 @@ test.describe('In-document anchor link click scrolls the editor (item 236)', () 
   })
 
   test('a plain (no-modifier) click on the link does NOT scroll', async() => {
-    // Reset to the top.
     await page.evaluate(() => {
       const el = document.querySelector('.editor-component') as HTMLElement | null
       if (el) el.scrollTop = 0

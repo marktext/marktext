@@ -1,5 +1,4 @@
 :root {
-  /*editor*/
   --themeColor: rgba(77, 120, 204, 1);
   --themeColor90: rgba(77, 120, 204, 0.9);
   --themeColor80: rgba(77, 120, 204, 0.8);
@@ -58,7 +57,6 @@
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(24, 26, 31, 0.5), 0 0 0 1px #568af2;
   --tableBorderColor: #363839;
 
-  /* Markdown element colors */
   --headingColor: #e2c08d;
   --h1Color: #e06c75;
   --h2Color: #61afef;
@@ -74,7 +72,6 @@
   --emColor: #c678dd;
   --listMarkerColor: #e06c75;
 
-  /*marktext*/
   --sideBarColor: #9da5b4;
   --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: #9da5b4;
@@ -91,11 +88,6 @@
   --maskColor: rgba(0, 0, 0, 0.7);
   --editorAreaWidth: 750px;
 
-  /* @muyajs/core (kebab-case) editor variables
-     Additive prep for the muyajs -> @muyajs/core editor swap. These
-     mirror the camelCase vars above; the legacy editor ignores them.
-     Do NOT remove the camelCase vars — they still drive the current
-     editor until editor.vue switches engines. */
   --theme-color: var(--themeColor);
   --highlight-color: var(--highlightColor);
   --selection-color: var(--selectionColor);
@@ -157,7 +149,6 @@
   background: #4b5362;
 }
 
-/* --- Element UI ------------------------------------------------ */
 
 .v-modal {
   background: #08090a !important;
@@ -179,7 +170,6 @@
   background: var(--buttonPrimaryBgColor);
 }
 
-/* --- Core elements --------------------------------------------- */
 
 .mu-front-menu,
 .mu-float-wrapper {
@@ -200,7 +190,6 @@
   background: #1b1d23 !important;
 }
 
-/* --- UI elements ----------------------------------------------- */
 
 .side-bar {
   border-right: 1px solid #181a1f !important;
@@ -252,7 +241,6 @@
   fill: #4d78cc;
 }
 
-/* --- Editor ---------------------------------------------------- */
 
 blockquote::before {
   background: var(--highlightThemeColor);
@@ -336,11 +324,3 @@ figure.mu-active.mu-math-block > div.mu-math-preview,
 figure.mu-active.mu-diagram-block > div.mu-diagram-preview {
   box-shadow: 0 3px 8px 0 var(--floatShadow) !important;
 }
-
-/* ------------------------------------ */
-
-/*
- * Prism.js theme (override light theme)
- */
-
-/* @import url("prismjs/one-dark.theme.css"); */

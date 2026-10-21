@@ -18,7 +18,6 @@ const buildLongDoc = (): string => {
   const parts: string[] = []
   for (let i = 1; i <= HEADING_COUNT; i++) {
     parts.push(`# Heading Number ${i}`)
-    // Several filler paragraphs so each section is taller than the viewport.
     for (let p = 0; p < 6; p++) {
       parts.push(`Filler paragraph ${p} under heading ${i}. Lorem ipsum dolor sit amet, consectetur adipiscing elit.`)
     }
@@ -131,7 +130,6 @@ test.describe('TOC sidebar click scrolls the live editor', () => {
       HEADING_COUNT,
       { timeout: 10000 }
     )
-    // Open the sidebar and switch its right column to the ToC (el-tree).
     await showSidebar(app, page)
     await page.waitForSelector('.side-bar-toc .el-tree', { state: 'visible', timeout: 10000 })
     // The TOC is seeded from `editor.getTOC()` on mount / json-change. Wait
@@ -152,7 +150,6 @@ test.describe('TOC sidebar click scrolls the live editor', () => {
     const targetIndex = await headingIndexByText(page, targetText)
     expect(targetIndex).toBeGreaterThanOrEqual(0)
 
-    // Start near the top so the click must scroll DOWN to reveal heading 18.
     await page.evaluate(() => {
       const el = document.querySelector('.editor-component') as HTMLElement | null
       if (el) el.scrollTop = 0
@@ -160,14 +157,11 @@ test.describe('TOC sidebar click scrolls the live editor', () => {
     await expect.poll(() => getScrollTop(page)).toBe(0)
     expect(await isHeadingInViewport(page, targetIndex)).toBe(false)
 
-    // Click the matching el-tree node label (the real user path: this fires the
-    // `scroll-to-header` bus event with the heading's slug).
     const label = tocLabel(page, targetText)
     await label.click()
 
     // The scroll is animated (~300ms). Poll until it settles above 0.
     await expect.poll(() => getScrollTop(page), { timeout: 8000 }).toBeGreaterThan(0)
-    // And the target heading must be in the viewport.
     await expect
       .poll(() => isHeadingInViewport(page, targetIndex), { timeout: 8000 })
       .toBe(true)
@@ -175,7 +169,6 @@ test.describe('TOC sidebar click scrolls the live editor', () => {
   })
 
   test('clicking an earlier heading scrolls back up toward it', async() => {
-    // Start at the bottom so the click must scroll UP to reveal heading 3.
     await page.evaluate(() => {
       const el = document.querySelector('.editor-component') as HTMLElement | null
       if (el) el.scrollTop = el.scrollHeight
@@ -190,7 +183,6 @@ test.describe('TOC sidebar click scrolls the live editor', () => {
     const label = tocLabel(page, targetText)
     await label.click()
 
-    // Scrolling up to heading 3 must reduce scrollTop substantially.
     await expect
       .poll(() => getScrollTop(page), { timeout: 8000 })
       .toBeLessThan(fromTop)
@@ -209,7 +201,6 @@ test.describe('TOC sidebar click scrolls the live editor', () => {
     await expectHeadingAtTocGap(page, targetIndex)
     const firstScroll = await getScrollTop(page)
 
-    // Click again — should land on (essentially) the same scroll position.
     await label.click()
     await page.waitForTimeout(500)
     await expect

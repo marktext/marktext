@@ -9,19 +9,11 @@ import { TITLE_BAR_HEIGHT, preferencesWinOptions, isLinux, isOsx } from '../conf
 import log from 'electron-log'
 
 class SettingWindow extends BaseWindow {
-  /**
-   * @param accessor The application accessor for application instances.
-   */
   constructor(accessor: Accessor) {
     super(accessor)
     this.type = WindowType.SETTINGS
   }
 
-  /**
-   * Creates a new setting window.
-   *
-   * @param category The settings category tab name.
-   */
   createWindow(category: string | null = null): BrowserWindow {
     const { menu: appMenu, env, keybindings, preferences } = this._accessor
     const winOptions: BrowserWindowConstructorOptions = Object.assign({}, preferencesWinOptions)
@@ -44,7 +36,6 @@ class SettingWindow extends BaseWindow {
     // setting a fixed window size.
     winOptions.resizable = true
 
-    // Enable native or custom/frameless window and titlebar
     const { titleBarStyle, theme } = preferences.getAll()
     if (!isOsx) {
       winOptions.titleBarStyle = 'default'
@@ -65,7 +56,6 @@ class SettingWindow extends BaseWindow {
 
     this.id = win.id
 
-    // Create a menu for the current window
     appMenu.addSettingMenu(win)
 
     win.once('ready-to-show', () => {
@@ -78,7 +68,6 @@ class SettingWindow extends BaseWindow {
       win!.webContents.send('mt::window-active-status', { status: true })
     })
 
-    // Lost focus
     win.on('blur', () => {
       this.emit('window-blur')
       win!.webContents.send('mt::window-active-status', { status: false })
@@ -91,11 +80,9 @@ class SettingWindow extends BaseWindow {
       ipcMain.emit('window-close-by-id', win!.id)
     })
 
-    // The window is now destroyed.
     win.on('closed', () => {
       this.emit('window-closed')
 
-      // Free window reference
       win = null
     })
 
@@ -120,7 +107,6 @@ class SettingWindow extends BaseWindow {
   ): string {
     const url = this._buildUrlWithSettings(windowId, env, userPreference)
     if (category) {
-      // Overwrite type to add category name
       url.searchParams.set('type', `${WindowType.SETTINGS}/${category}`)
     }
     return url.toString()

@@ -27,7 +27,6 @@ class TrailingNewlineCommand {
     this.subcommands = []
     this.subcommandSelectedIndex = -1
 
-    // Reference to editor state.
     this._editorState = editorState
   }
 

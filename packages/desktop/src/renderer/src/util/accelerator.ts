@@ -1,7 +1,4 @@
-// Turn an Electron accelerator string (e.g. "Command+Shift+T") into the
-// per-key tokens the command palette renders. On macOS modifiers become the
-// native symbols (⌘ ⇧ ⌥ ⌃) so the palette matches the muya front menu and the
-// system menus; elsewhere they stay readable words.
+// macOS accelerator modifiers use native symbols in the command palette.
 
 const MAC_SYMBOLS: Record<string, string> = {
   cmdorctrl: '⌘',

@@ -13,7 +13,6 @@ test('a built app finds the locale files next to the app', async() => {
       return menu ? menu.items.map((item) => item.label) : []
     })
     expect(labels.length).toBeGreaterThanOrEqual(5)
-    // A missing locale file leaves the raw keys, e.g. `menu.file.file`.
     expect(labels.filter((label) => /^[a-z]+(\.[a-zA-Z]+)+$/.test(label))).toEqual([])
   } finally {
     await app.close()

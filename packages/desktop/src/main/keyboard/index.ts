@@ -80,7 +80,6 @@ class KeyboardLayoutMonitor extends EventEmitter {
   }
 }
 
-// Export a single-instance of the monitor.
 export const keyboardLayoutMonitor = new KeyboardLayoutMonitor()
 
 export const registerKeyboardListeners = (): void => {

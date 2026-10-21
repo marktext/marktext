@@ -69,7 +69,6 @@ const getExportExtensionFilter = (type: string): Electron.FileFilter[] | undefin
     ]
   }
 
-  // Allow all extensions.
   return undefined
 }
 
@@ -102,7 +101,6 @@ interface ExportPayload {
 const sanitizeFilename = (name?: string): string =>
   (name || '').replace(/[/\\:*?"<>|]/g, '-').trim() || 'Untitled'
 
-// Handle the export response from renderer process.
 const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): Promise<void> => {
   const { type, content, pathname, title, pageOptions } = payload
   const win = BrowserWindow.fromWebContents(e.sender)
@@ -123,10 +121,7 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
     try {
       await assertExportDestination(pathname, filePath)
       if (type === 'pdf') {
-        // Build a clickable bookmark/outline tree from the document's h1-h6
-        // headings so exported PDFs have a navigation pane (#2989). The outline
-        // is derived from the tagged-PDF structure tree, so generateTaggedPDF is
-        // required — generateDocumentOutline alone produces no outline.
+        // Generate PDF bookmarks from tagged h1–h6 structure (#2989).
         const options: Electron.PrintToPDFOptions = {
           printBackground: true,
           generateTaggedPDF: true,
@@ -154,7 +149,6 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
       })
     }
   } else {
-    // User canceled save dialog
     if (type === 'pdf') {
       removePrintServiceFromWindow(win)
     }
@@ -216,7 +210,6 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
       filters: [{ name: format.label, extensions: [format.extension.slice(1)] }]
     })
     if (canceled || !chosen || win.isDestroyed()) return
-    // What comes back is the user's answer, "replace this one" included.
     filePath = chosen
     await assertExportDestination(pathname, filePath)
     // The reader is built once the export is certain: naming `tex_math_gfm` needs pandoc
@@ -249,9 +242,7 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
       }
     })
 
-    // Exit code 0 is not a clean conversion: an image pandoc could not fetch becomes its
-    // alt text with a warning. The summary is the guard — a lone newline is truthy but
-    // shows nothing — and it goes first so one click dismisses it.
+    // Pandoc can exit successfully after replacing unreadable images with alt text; surface its nonblank warnings.
     const message = summarizePandocWarnings(warnings)
     if (message && !win.isDestroyed()) {
       log.warn(`pandoc export warnings for ${filePath}:`, warnings)
@@ -431,11 +422,9 @@ const openPandocFile = async(windowId: number, pathname: string): Promise<void> 
 }
 
 const removePrintServiceFromWindow = (win: BrowserWindow): void => {
-  // remove print service content and restore GUI
   win.webContents.send('mt::print-service-clearup')
 }
 
-// --- events -----------------------------------
 
 ipcMain.on('mt::save-tabs', (e, unsavedFiles: UnsavedFile[]) => {
   Promise.all(
@@ -533,7 +522,6 @@ ipcMain.on('mt::close-window-confirm', async(e, unsavedFiles: UnsavedFile[]) => 
         log.error('Error while saving before quit:', err)
 
         const msg = err instanceof Error ? err.message : String(err)
-        // Notify user about the problem.
         dialog
           .showMessageBox(win, {
             type: 'error',
@@ -574,7 +562,6 @@ ipcMain.on('mt::window::drop', async(e, fileList: string[]) => {
       continue
     }
 
-    // Try to import the file
     if (PANDOC_EXTENSIONS.some((ext: string) => file.endsWith(ext))) {
       const existsPandoc = await pandoc.exists()
       if (!existsPandoc) {
@@ -698,7 +685,6 @@ ipcMain.on('mt::format-link-click', async(e, { data, dirname, readOnly }: Format
   const rawUrl = data.href || data.text!
   const urlCandidate = rawUrl.replace(/^<(.+)>$/, '$1') // Replace any <> CommonMark #489
   if (urlCandidate === rawUrl) {
-    // No <> found, no spaces should be allowed
     if (/\s/.test(rawUrl)) {
       win.webContents.send('mt::show-notification', {
         title: 'Links cannot contain spaces',
@@ -714,7 +700,6 @@ ipcMain.on('mt::format-link-click', async(e, { data, dirname, readOnly }: Format
     shell.openExternal(urlCandidate)
     return
   } else if (/^[a-z0-9]+:\/\//i.test(urlCandidate)) {
-    // Prevent other URLs.
     return
   }
 
@@ -748,7 +733,6 @@ ipcMain.on('mt::format-link-click', async(e, { data, dirname, readOnly }: Format
   }
 })
 
-// --- commands -------------------------------------
 
 ipcMain.on('mt::cmd-open-file', (e) => {
   const win = BrowserWindow.fromWebContents(e.sender)
@@ -778,7 +762,6 @@ ipcMain.on('mt::cmd-import-file', (e) => {
   }
 })
 
-// --- menu -------------------------------------
 
 export const exportFile = (win: Win, type: string): void => {
   if (win && win.webContents) {
@@ -786,8 +769,7 @@ export const exportFile = (win: Win, type: string): void => {
   }
 }
 
-// Convert the current document with pandoc. Unlike `exportFile` (HTML/PDF in the renderer)
-// this needs the markdown source and a file target, which the reply carries.
+// Pandoc needs Markdown and an output path; renderer HTML/PDF export uses rendered HTML instead.
 export const exportWithPandoc = async(win: Win, target: string): Promise<void> => {
   if (!win || !win.webContents) return
   if (!(await pandoc.exists())) return noticePandocNotFound(win, 'dialog.exportWarning')
@@ -935,7 +917,6 @@ export const clearRecentlyUsed = (): void => {
   ipcMain.emit('menu-clear-recently-used')
 }
 
-// --- Commands -------------------------------------------------------------
 
 export const loadFileCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.FILE_CHECK_UPDATE, checkUpdates)

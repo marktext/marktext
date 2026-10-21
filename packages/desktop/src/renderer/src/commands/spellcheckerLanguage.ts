@@ -13,7 +13,6 @@ interface SpellcheckerSubcommand {
   value: string
 }
 
-// Command to switch the spellchecker language
 class SpellcheckerLanguageCommand {
   id: string
   description: string

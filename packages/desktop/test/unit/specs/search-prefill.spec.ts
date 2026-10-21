@@ -104,10 +104,8 @@ describe('find-bar prefill from selection', () => {
 
   it('does not let the focus-steal selection-change clobber the prefill', async() => {
     const { ret, setSelection } = makeBindings()
-    // User selects a word in the editor.
     setSelection('fox')
     await nextTick()
-    // Find bar opens (prefills "fox") and steals focus.
     ret.listenFind()
     await nextTick()
     expect(ret.searchValue.value).toBe('fox')

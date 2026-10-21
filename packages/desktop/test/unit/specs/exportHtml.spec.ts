@@ -57,7 +57,6 @@ describe('exportStyledHTML — wrapper parity', () => {
     const out = await exportStyledHTML(NO_MUYA, '# Hi\n\ntext', {})
 
     expect((out.match(/<article class="markdown-body">/g) || []).length).toBe(1)
-    // Heading rendered, and the engine injects a github-compatible slug id.
     expect(out).toMatch(/<h1[^>]*\sid="hi"[^>]*>Hi<\/h1>/)
     expect(out).toContain('<p>text</p>')
   })
@@ -119,7 +118,6 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
 
     expect(out).toContain('toc-container')
     expect(out).toContain('Table of Contents')
-    // The literal [TOC] paragraph is gone — replaced by the toc list.
     expect(out).not.toMatch(/<p>\s*\[TOC\]\s*<\/p>/i)
   })
 
@@ -127,7 +125,6 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
     const toc = getHtmlToc(TOC, {})
     const out = await exportStyledHTML(NO_MUYA, MD, { toc })
 
-    // Engine-written heading ids in document order.
     const ids = [...out.matchAll(/<h[1-6][^>]*\sid="([^"]+)"/g)].map((m) => m[1])
     expect(ids).toEqual([
       'getting-started',
@@ -136,7 +133,6 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
       'use-bold-and-a-link'
     ])
 
-    // The two plain-text anchors resolve to real heading ids.
     expect(out).toContain('href="#installation"')
     expect(out).toContain('href="#installation-1"')
     expect(ids).toContain('installation')
@@ -179,12 +175,10 @@ describe('exportStyledHTML — header/footer assembly', () => {
     })
 
     expect(out).toContain('page-container')
-    // type !== 1 → no 'single'; headerFooterStyled === true → ' styled'.
     expect(out).toMatch(/class="page-header\s+styled"/)
     expect(out).toContain('header-content-left')
     expect(out).toContain('header-content-right')
     expect(out).toMatch(/<div class="header-content">C<\/div>/)
-    // A hidden footer placeholder row inside the table, plus a fixed real footer.
     expect(out).toContain('page-footer-fake')
     expect(out).toMatch(/class="page-footer\s+styled"/)
     expect(out).toMatch(/<div class="footer-content">FC<\/div>/)
@@ -197,7 +191,6 @@ describe('exportStyledHTML — header/footer assembly', () => {
     })
 
     expect(out).toContain('page-container')
-    // type === 1 → 'single'; headerFooterStyled === false → ' simple'.
     expect(out).toMatch(/page-header[^"]*single/)
     expect(out).toMatch(/page-header[^"]*simple/)
   })
@@ -207,7 +200,6 @@ describe('exportStyledHTML — header/footer assembly', () => {
 
     expect(out).not.toContain('page-container')
     expect(out).not.toContain('page-footer')
-    // Body is just the plain article.
     const body = /<body>([\s\S]*)<\/body>/.exec(out)![1]
     expect(body.trim()).toMatch(/^<article class="markdown-body">/)
   })
@@ -219,8 +211,6 @@ describe('exportStyledHTML — header/footer assembly', () => {
 
     expect(out).toContain('page-container')
     expect(out).toContain('page-footer-fake')
-    // No type and no headerFooterStyled → bare `page-footer` class (sanitize
-    // collapses the trailing space the template leaves behind).
     expect(out).toMatch(/class="page-footer"/)
     expect(out).toContain('only-footer')
   })

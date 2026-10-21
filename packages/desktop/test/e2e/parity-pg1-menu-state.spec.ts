@@ -18,7 +18,6 @@ import { launchWithMarkdown, setSourceMarkdown, waitForMenuReady } from './helpe
 
 interface MenuItemState { id: string; checked: boolean; enabled: boolean }
 
-// Read the id/checked/enabled state of every identifiable Paragraph submenu item.
 const paragraphItemStates = async(app: ElectronApplication): Promise<MenuItemState[]> => {
   return await app.evaluate(({ Menu }) => {
     const menu = Menu.getApplicationMenu()
@@ -128,7 +127,6 @@ test.describe('Parity PG1 — Paragraph menu reflects the current block', () => 
       await placeCaretIn(page, block.selector)
 
       const states = await waitForMenuState(app, block.expected)
-      // Exactly the matching item(s) are checked — no residual checks.
       expect(checkedIds(states).sort()).toEqual([...block.expected].sort())
       // 0.19.1 parity for the enabled state: code-fence-like blocks and tables
       // keep the submenu disabled (check mark stays, greyed); everything else is

@@ -160,7 +160,6 @@ test.describe('#528 reveal active file in the side bar', () => {
     expect(await isFolderCollapsed(page, fixture.target)).toBe(false)
     await expect.poll(() => isRowVisible(page, fixture.deep)).toBe(true)
     expect(await treeScrollTop(page)).toBeGreaterThan(0)
-    // Other folders keep the state the user left them in.
     expect(await isFolderCollapsed(page, fixture.bulk)).toBe(false)
   })
 

@@ -113,7 +113,6 @@ const hasCurrentFile = computed<boolean>(() => {
   return currentFile.value?.markdown !== undefined
 })
 
-// Watchers
 watch(theme, (value, oldValue) => {
   if (value !== oldValue) {
     addThemeStyle(value)
@@ -225,7 +224,6 @@ onMounted(async () => {
   editorStore.LISTEN_FOR_CONTEXT_MENU()
   editorStore.LISTEN_FOR_STATE_REPLACE()
 
-  // module: notification
   notificationStore.listenForNotification()
 
   setupDragDropHandler()

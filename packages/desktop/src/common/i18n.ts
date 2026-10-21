@@ -9,9 +9,7 @@ export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number]
 
 let translationsCache: Record<string, Translations> = {}
 
-// Directory holding `<language>.json` and the minified `<language>.min.json`.
-// The main process points it at the app's resources while bootstrapping (see
-// main/globalSetting.ts); the default suits a run from the package directory.
+// Locale directory for raw and minified translations; main configures it during startup.
 let localesDirectory = path.join(process.cwd(), 'static', 'locales')
 
 /**

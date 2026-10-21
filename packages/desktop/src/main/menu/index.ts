@@ -68,11 +68,6 @@ class AppMenu {
   public activeWindowId: number
   public windowMenus: Map<number, WindowMenuEntry>
 
-  /**
-   * @param preferences The preferences instances.
-   * @param keybindings The keybindings instances.
-   * @param userDataPath The user data path.
-   */
   constructor(preferences: Preference, keybindings: Keybindings, userDataPath: string) {
     this._preferences = preferences
     this._keybindings = keybindings
@@ -83,17 +78,11 @@ class AppMenu {
     this.activeWindowId = -1
     this.windowMenus = new Map()
 
-    // Initialize main process language from preferences
     this._initializeLanguage()
 
     this._listenForIpcMain()
   }
 
-  /**
-   * Add the file or directory path to the recently used documents.
-   *
-   * @param filePath The file or directory full path.
-   */
   addRecentlyUsedDocument(filePath: string): void {
     const { isOsxOrWindows, RECENTS_PATH } = this
 
@@ -127,9 +116,6 @@ class AppMenu {
     }
   }
 
-  /**
-   * Returns a list of all recently used documents and folders.
-   */
   getRecentlyUsedDocuments(): string[] {
     const { RECENTS_PATH } = this
     if (!isFile2(RECENTS_PATH)) {
@@ -154,9 +140,6 @@ class AppMenu {
     }
   }
 
-  /**
-   * Clear recently used documents.
-   */
   clearRecentlyUsedDocuments(): void {
     const { isOsxOrWindows, RECENTS_PATH } = this
     if (isOsxOrWindows) app.clearRecentDocuments()
@@ -169,22 +152,12 @@ class AppMenu {
     fs.writeFileSync(RECENTS_PATH, json, 'utf-8')
   }
 
-  /**
-   * Add a default menu to the given window.
-   *
-   * @param windowId The window id.
-   */
   addDefaultMenu(windowId: number): void {
     const { windowMenus } = this
     const menu = this._buildSettingMenu() // Setting menu is also the fallback menu.
     windowMenus.set(windowId, menu)
   }
 
-  /**
-   * Add the settings menu to the given window.
-   *
-   * @param window The settings browser window.
-   */
   addSettingMenu(window: BrowserWindow): void {
     const { windowMenus } = this
     const menu = this._buildSettingMenu()
@@ -192,12 +165,6 @@ class AppMenu {
     this._applyWindowMenu(window.id, menu.menu)
   }
 
-  /**
-   * Add the editor menu to the given window.
-   *
-   * @param window The editor browser window.
-   * @param options The menu options.
-   */
   addEditorMenu(window: BrowserWindow, options: AddEditorMenuOptions = {}): void {
     const isSourceMode = !!options.sourceCodeModeEnabled
     const { windowMenus } = this
@@ -206,7 +173,6 @@ class AppMenu {
     const entry = windowMenus.get(window.id)!
     const menu = entry.menu!
 
-    // Set source-code editor if preferred.
     const sourceCodeModeMenuItem = menu.getMenuItemById('sourceCodeModeMenuItem')
     if (sourceCodeModeMenuItem) {
       sourceCodeModeMenuItem.checked = isSourceMode
@@ -235,11 +201,6 @@ class AppMenu {
     }
   }
 
-  /**
-   * Remove menu from the given window.
-   *
-   * @param windowId The window id.
-   */
   removeWindowMenu(windowId: number): void {
     this._documentModes.delete(windowId)
     this._documentPresence.delete(windowId)
@@ -251,11 +212,6 @@ class AppMenu {
     }
   }
 
-  /**
-   * Returns the window menu.
-   *
-   * @param windowId The window id.
-   */
   getWindowMenuById(windowId: number): Menu {
     const menu = this.windowMenus.get(windowId)
     if (!menu) {
@@ -268,20 +224,10 @@ class AppMenu {
     return menu.menu as Menu
   }
 
-  /**
-   * Check whether the given window has a menu.
-   *
-   * @param windowId The window id.
-   */
   has(windowId: number): boolean {
     return this.windowMenus.has(windowId)
   }
 
-  /**
-   * Set the given window as last active.
-   *
-   * @param windowId The window id.
-   */
   setActiveWindow(windowId: number): void {
     this._applyDocumentMode(windowId)
     if (this.activeWindowId !== windowId) {
@@ -298,21 +244,13 @@ class AppMenu {
     }
   }
 
-  /**
-   * Updates all window menus.
-   *
-   * NOTE: We need this method to add or remove menu items at runtime.
-   */
   updateAppMenu(recentUsedDocuments?: string[]): void {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
     }
 
-    // "we don't support changing menu object after calling setMenu, the behavior
-    // is undefined if user does that." That mean we have to recreate the editor
-    // application menu each time.
+    // Electron does not support mutating menu objects after setMenu; rebuild them instead.
 
-    // rebuild all window menus
     this.windowMenus.forEach((value) => {
       const { menu: oldMenu, type } = value
       if (type !== MenuType.EDITOR || !oldMenu) return
@@ -320,25 +258,19 @@ class AppMenu {
       const { menu: newMenu } = this._buildEditorMenu(recentUsedDocuments)
       if (!newMenu) return
 
-      // all other menu items are set automatically
       updateMenuItem(oldMenu, newMenu, 'sourceCodeModeMenuItem')
       updateMenuItem(oldMenu, newMenu, 'typewriterModeMenuItem')
       updateMenuItem(oldMenu, newMenu, 'focusModeMenuItem')
       updateMenuItem(oldMenu, newMenu, 'sideBarMenuItem')
       updateMenuItem(oldMenu, newMenu, 'tabBarMenuItem')
 
-      // update window menu
       value.menu = newMenu
     })
 
     this._reapplyMenus()
   }
 
-  /**
-   * Rebuild every window menu so updated keybinding accelerators are reflected
-   * wherever shortcuts are shown: the menu bar on Windows/Linux and the macOS
-   * application menu for both editor and settings windows.
-   */
+  /** Rebuild menus so accelerator changes appear in every window and the macOS application menu. */
   updateKeybindings(): void {
     const recentUsedDocuments = this.getRecentlyUsedDocuments()
     this.windowMenus.forEach((value) => {
@@ -369,12 +301,6 @@ class AppMenu {
     this._reapplyMenus()
   }
 
-  /**
-   * Update line ending menu items.
-   *
-   * @param windowId The window id.
-   * @param lineEnding Either >lf< or >crlf<.
-   */
   updateLineEndingMenu(windowId: number, lineEnding: string): void {
     const menus = this.getWindowMenuById(windowId)
     const crlfMenu = menus.getMenuItemById('crlfLineEndingMenuEntry')
@@ -386,21 +312,12 @@ class AppMenu {
     }
   }
 
-  /**
-   * Update always on top menu item.
-   *
-   * @param windowId The window id.
-   * @param flag Always on top.
-   */
   updateAlwaysOnTopMenu(windowId: number, flag: boolean): void {
     const menus = this.getWindowMenuById(windowId)
     const menu = menus.getMenuItemById('alwaysOnTopMenuItem')
     if (menu) menu.checked = flag
   }
 
-  /**
-   * Update theme menu state across editor menus.
-   */
   updateThemeMenu = ({ theme, followSystemTheme }: ThemeMenuChange = {}): void => {
     this.windowMenus.forEach((value) => {
       const { menu, type } = value
@@ -431,9 +348,6 @@ class AppMenu {
     })
   }
 
-  /**
-   * Update all auto save entries from editor menus to the given state.
-   */
   updateAutoSaveMenu = (autoSave: boolean): void => {
     this.windowMenus.forEach((value) => {
       const { menu, type } = value
@@ -511,9 +425,6 @@ class AppMenu {
     }
   }
 
-  /**
-   * Initialize main process language from preferences
-   */
   async _initializeLanguage(): Promise<void> {
     try {
       const currentLanguage = this._preferences.getItem<string>('language')
@@ -610,7 +521,6 @@ class AppMenu {
         this.updateAppMenu()
       }
       if (prefs.language) {
-        // Update main process language and rebuild menu
         setLanguage(prefs.language)
         this.updateAppMenu()
       }
@@ -626,17 +536,9 @@ const updateMenuItem = (oldMenus: Menu, newMenus: Menu, id: string): void => {
   }
 }
 
-// ----------------------------------------------
 
-// HACKY: We have one application menu per window and switch the menu when
-// switching windows, so we can access and change the menu items via Electron.
+// Each window owns a menu; switch the application menu when the active window changes.
 
-/**
- * Return the menu from the application menu.
- *
- * @param menuId Menu ID
- * @returns Returns the menu or null.
- */
 export const getMenuItemById = (menuId: string): Electron.MenuItem | null => {
   const menus = Menu.getApplicationMenu()
   if (!menus) return null

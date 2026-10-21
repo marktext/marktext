@@ -20,7 +20,6 @@ test.describe('#2421 sidebar state survives view switches', () => {
     const launched = await launchWithMarkdown('# Doc\n\n## A\n\n## B\n')
     app = launched.app
     page = launched.page
-    // The files panel is the default right column; make sure it is open + wide.
     await page.waitForFunction(() => {
       const el = document.querySelector('.side-bar') as HTMLElement | null
       return !!(el && el.offsetParent !== null && el.getBoundingClientRect().width >= 220)
@@ -62,7 +61,6 @@ test.describe('#2421 sidebar state survives view switches', () => {
     const arrow = page.locator('.side-bar .opened-files > .title .icon-arrow').first()
     await expect(arrow).toBeVisible()
 
-    // Collapse the "Opened files" section.
     await arrow.click()
     await page.waitForFunction(() => {
       const a = document.querySelector('.side-bar .opened-files .icon-arrow')

@@ -217,7 +217,6 @@ const handleSearchKeyup = (event: KeyboardEvent): void => {
 }
 
 const search = (): void => {
-  // No root directory is opened.
   if (showNoFolderOpenedMessage.value || !projectTree.value) {
     return
   }
@@ -250,7 +249,6 @@ const search = (): void => {
       newSearchResult.push(res as SearchResult)
     },
     didSearchPaths: (numPathsFound: unknown) => {
-      // More than 100 files with (multiple) matches were found.
       if (!canceled && typeof numPathsFound === 'number' && numPathsFound > 100) {
         canceled = true
         cancellable.cancel()
@@ -258,19 +256,16 @@ const search = (): void => {
       }
     },
 
-    // UI options
     isCaseSensitive: isCaseSensitive.value,
     isWholeWord: isWholeWord.value,
     isRegexp: isRegexp.value,
 
-    // Options loaded from settings
     exclusions: searchExclusions.value,
     maxFileSize: searchMaxFileSize.value || null,
     includeHidden: searchIncludeHidden.value,
     noIgnore: searchNoIgnore.value,
     followSymlinks: searchFollowSymlinks.value,
 
-    // Only search markdown files
     inclusions: window.fileUtils.MARKDOWN_INCLUSIONS
   })
 

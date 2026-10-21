@@ -1,6 +1,5 @@
 <template>
   <div class="tree-view">
-    <!-- Opened tabs -->
     <div
       v-if="openedFilesInSidebar"
       class="opened-files"
@@ -65,7 +64,6 @@
       </div>
     </div>
 
-    <!-- Project tree view -->
     <div
       v-if="projectTree"
       class="project-tree"
@@ -190,10 +188,7 @@ import type { TreeNode, TabDescriptor } from './types'
 const { t } = useI18n()
 
 const props = defineProps<{
-  // The project store seeds `projectTree` as `null` until a folder is
-  // opened; the template renders the "open project" empty-state behind
-  // `v-if="projectTree"`. Type the prop nullable to match runtime + the
-  // template guard.
+  // Null until a project is opened.
   projectTree: TreeNode | null
   tabs?: TabDescriptor[]
 }>()
@@ -217,7 +212,6 @@ const editorStore = useEditorStore()
 const layoutStore = useLayoutStore()
 const preferencesStore = usePreferencesStore()
 
-// Computed properties
 const { createCache } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
 const { activeItem } = storeToRefs(projectStore)
@@ -225,15 +219,12 @@ const { renameCache } = storeToRefs(projectStore)
 const { nameInputValue } = storeToRefs(projectStore)
 const { openedFilesInSidebar } = storeToRefs(preferencesStore)
 
-// The createCache state is `{ dirname, type }` while an input is shown, and
-// `{}` otherwise. Expose a typed accessor for the template so we don't have
-// to thread `as any` through every comparison.
+// The create cache is empty when no input is shown.
 const createCacheDirname = computed<string | undefined>(() => {
   const cache = createCache.value as { dirname?: string }
   return cache.dirname
 })
 
-// Methods
 const openFolder = (): void => {
   projectStore.ASK_FOR_OPEN_PROJECT()
 }
@@ -319,7 +310,6 @@ const handleRevealPath = (pathname: unknown): void => {
   revealPath(typeof pathname === 'string' ? pathname : null, { force: true })
 }
 
-// From createFileOrDirectoryMixins
 const handleInputFocus = (): void => {
   nextTick(() => {
     if (input.value) {

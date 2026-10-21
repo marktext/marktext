@@ -1,7 +1,4 @@
-// Renderer-side global declarations: build-time defines (electron-vite
-// `define` block in electron.vite.config.ts), the contextBridge surface
-// exposed by src/preload/index.ts, and a handful of legacy globals that
-// survived the sandbox migration.
+// Renderer build-time globals, preload bridge types and legacy window globals.
 
 import type {
   IpcInvokeChannels,
@@ -16,12 +13,10 @@ import type { MenuTemplate, MenuPopupPosition } from '@shared/types/menu'
 import type { SerializedStat } from '@shared/types/files'
 
 declare global {
-  // ---- Build-time defines (electron-vite `define`) ----
   const MARKTEXT_VERSION: string
   const MARKTEXT_VERSION_STRING: string
   const __static: string
 
-  // ---- contextBridge surface ----
 
   interface ElectronIpcRenderer {
     send<K extends keyof IpcSendChannels>(channel: K, ...args: IpcSendChannels[K]): void

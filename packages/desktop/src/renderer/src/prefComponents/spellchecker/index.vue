@@ -160,9 +160,7 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
 }
 
-// No-op handler for the disabled "auto-detect language" toggle. The control
-// is permanently disabled, so the callback is never invoked, but the typed
-// bool component requires `onChange` to be present.
+// The disabled control still requires an onChange callback.
 const noop = (): void => {}
 
 const handleDeleteClick = (selectedItem: CustomDictionaryWord): void => {

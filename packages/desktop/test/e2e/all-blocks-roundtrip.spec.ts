@@ -67,7 +67,6 @@ test.describe('All blocks round-trip + save byte-stability (item 39)', () => {
     app = launched.app
     page = launched.page
     await waitForMenuReady(app)
-    // Let muya finish the initial render of every block.
     await page.waitForTimeout(800)
   })
 
@@ -83,7 +82,6 @@ test.describe('All blocks round-trip + save byte-stability (item 39)', () => {
   })
 
   test('every block type renders (sanity that the fixture loaded)', async() => {
-    // Front matter + the structural block types are all present in the DOM.
     await page.waitForSelector('.editor-component h1', { state: 'attached', timeout: 10000 })
     const counts = await page.evaluate(() => {
       const root = document.querySelector('.editor-component') as HTMLElement
@@ -112,7 +110,6 @@ test.describe('All blocks round-trip + save byte-stability (item 39)', () => {
   })
 
   test('the freshly loaded doc is clean and serializes back to the original bytes', async() => {
-    // A freshly opened (unedited) file must not be marked dirty.
     expect(await isDirty(page)).toBe(false)
 
     // The engine's serialization of the loaded document equals the on-disk
@@ -151,11 +148,8 @@ test.describe('All blocks round-trip + save byte-stability (item 39)', () => {
     // The saved/clean indicator is set on the async mt::tab-saved reply.
     await expect.poll(() => isDirty(page), { timeout: 5000 }).toBe(false)
 
-    // The bytes written to disk equal the original fixture (no reformat on
-    // save). Poll because the disk write is async on the main side.
     await expect.poll(() => readDisk(), { timeout: 5000 }).toBe(original)
 
-    // And the in-editor serialization still matches.
     expect(await getMarkdownContent(page, app)).toBe(original)
   })
 

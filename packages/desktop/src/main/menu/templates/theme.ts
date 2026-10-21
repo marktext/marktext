@@ -63,7 +63,6 @@ export default function(userPreference: Preference): MenuItemConstructorOptions 
   })
 
   const submenu: MenuItemConstructorOptions[] = [
-    // Follow System Theme
     {
       label: t('preferences.theme.followSystemTheme'),
       type: 'checkbox',

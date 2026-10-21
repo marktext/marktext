@@ -90,7 +90,6 @@ test.describe('Source code mode line numbers preference', () => {
     // before toggling source mode again.
     await settings.close()
 
-    // A fresh CodeMirror instance must read the preference on mount too.
     await exitSourceMode(page, app)
     await enterSourceMode(page, app)
     expect((await readGutter(page)).lineCount).toBeGreaterThan(10)

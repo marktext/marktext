@@ -15,8 +15,6 @@ import spellcheckMenuBuilder from './spellcheck'
 import { t } from '../../i18n'
 import { isOsx } from '../../config'
 
-// Electron's ContextMenuParams shape we rely on. Kept narrow — the renderer
-// supplies the full surface so we only annotate the fields we use.
 interface ContextMenuParams {
   isEditable: boolean
   hasImageContents?: boolean
@@ -36,15 +34,11 @@ interface ContextMenuParams {
   y: number
 }
 
-// Electron `webContents.on('context-menu', (event, params) => ...)` provides
-// a simple event object with preventDefault — nothing on it is consumed by
-// this function, so we keep the type minimal.
 type ContextMenuEvent = {
   preventDefault?: () => void
   readonly defaultPrevented?: boolean
 }
 
-// Dynamically fetch menu items to ensure correct translation
 const getContextItems = (): MenuItemConstructorOptions[] => [
   getInsertBefore(),
   getInsertAfter(),
@@ -82,11 +76,9 @@ export const showEditorContextMenu = (
   // NOTE: We have to get the word suggestions from this event because `webFrame.getWordSuggestions` and
   //       `webFrame.isWordMisspelled` doesn't work on Windows (Electron#28684).
 
-  // Make sure that the request comes from a contenteditable inside the editor container.
   if (isInsideEditor(params) && !hasImageContents) {
     const hasText = selectionText.trim().length > 0
     const canCopy = hasText && editFlags.canCut && editFlags.canCopy
-    // const canPaste = hasText && editFlags.canPaste
     const isMisspelled = isEditable && !!selectionText && !!misspelledWord
 
     const menu = new Menu()

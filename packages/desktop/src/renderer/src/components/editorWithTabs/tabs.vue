@@ -89,9 +89,7 @@ const tabDropContainer = ref<HTMLElement | null>(null)
 let autoScroller: AutoScroller | null = null
 let drake: dragula.Drake | null = null
 
-// Computed properties
 
-// Methods incorporated from tabsMixins
 const selectFile = (file: IFileState) => {
   if (file.id !== currentFile.value?.id) {
     editorStore.UPDATE_CURRENT_FILE(file)
@@ -107,7 +105,6 @@ const removeFileInTab = (file: IFileState) => {
   }
 }
 
-// Original methods
 const newFile = () => {
   editorStore.NEW_UNTITLED_TAB({})
 }
@@ -212,10 +209,8 @@ onMounted(() => {
   const tabsEl = tabContainer.value
   if (!tabsEl || !tabDropContainer.value) return
 
-  // Allow to scroll through the tabs by mouse wheel or touchpad.
   tabsEl.addEventListener('wheel', handleTabScroll)
 
-  // Allow tab drag and drop to reorder tabs.
   drake = dragula([tabDropContainer.value], {
     direction: 'horizontal',
     revertOnSpill: true,
@@ -229,7 +224,6 @@ onMounted(() => {
     slideFactorX: DRAG_THRESHOLD_PX,
     slideFactorY: DRAG_THRESHOLD_PX
   }).on('drop', (el, _target, _source, sibling) => {
-    // Current tab that was dropped and need to be reordered.
     const droppedId = el?.getAttribute('data-id')
     // This should be the next tab (tab | ... | el | sibling | tab | ...) but may be
     // the mirror image or null (tab | ... | el | sibling or null) if last tab.
@@ -246,7 +240,6 @@ onMounted(() => {
     })
   })
 
-  // Scroll when dragging a tab to the beginning or end of the tab container.
   autoScroller = autoScroll([tabsEl], {
     margin: 20,
     maxSpeed: 6,
@@ -264,14 +257,12 @@ onBeforeUnmount(() => {
   }
 
   if (autoScroller) {
-    // Force destroy
     autoScroller.destroy(true)
   }
   if (drake) {
     drake.destroy()
   }
 
-  // Remove event listeners
   bus.off('TABS::close-this', closeTab)
   bus.off('TABS::close-others', closeOthers)
   bus.off('TABS::close-saved', closeSaved)
@@ -440,7 +431,6 @@ onBeforeUnmount(() => {
   }
 }
 
-/* dragula effects */
 .gu-mirror {
   position: fixed !important;
   margin: 0 !important;

@@ -1,4 +1,3 @@
-// Buffered editor state (persisted across window close/reopen).
 
 import type { IFileState } from './files'
 

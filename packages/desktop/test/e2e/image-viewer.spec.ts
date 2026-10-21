@@ -59,7 +59,6 @@ test.describe('image preview (Space-to-preview + Esc close)', () => {
   })
 
   test.beforeEach(async() => {
-    // Ensure no stale viewer is open from a prior test.
     const open = await viewerVisible(page)
     if (open) {
       await page.keyboard.press('Escape')
@@ -86,7 +85,6 @@ test.describe('image preview (Space-to-preview + Esc close)', () => {
       .locator('.editor-component .mu-inline-image .mu-image-container img')
       .count()
     expect(imgCount).toBeGreaterThanOrEqual(1)
-    // Viewer starts hidden.
     expect(await viewerVisible(page)).toBe(false)
   })
 
@@ -131,7 +129,6 @@ test.describe('image preview (Space-to-preview + Esc close)', () => {
 
     const after = await getMarkdownContent(page, app)
     expect(after.trim()).toBe(before.trim())
-    // The original image markdown is intact (no stray space injected).
     expect(after).toContain(`![alt](${SVG_DATA_URI})`)
 
     await expectNoRendererErrors(app)
@@ -150,8 +147,6 @@ test.describe('image preview (Space-to-preview + Esc close)', () => {
     const overlaySrc = await page.locator('.image-viewer img').first().getAttribute('src')
     expect(overlaySrc).toBe(SVG_DATA_URI)
 
-    // Close via the overlay's close affordance (the .icon-close span calls
-    // setImageViewerVisible(false)).
     await page.locator('.image-viewer .icon-close').click({ timeout: 5000 })
     await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(false)
     await expect.poll(() => viewerImgCount(page), { timeout: 5000 }).toBe(0)

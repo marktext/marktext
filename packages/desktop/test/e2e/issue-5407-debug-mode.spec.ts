@@ -47,6 +47,5 @@ test('a built app offers no developer tools unless debug mode is turned on', asy
     await debugRun.app.close()
   }
   expect(debugState.debug).toBe(true)
-  // The separator, "Show Developer Tools" and "Reload Window".
   expect(debugState.viewItemCount).toBe(plainState.viewItemCount + 3)
 })

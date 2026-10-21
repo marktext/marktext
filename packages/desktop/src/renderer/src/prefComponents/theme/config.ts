@@ -39,6 +39,3 @@ export const themes: ReadonlyArray<ThemeDescriptor> = [
   { name: 'tokyo-night' },
   { name: 'tokyo-night-storm' }
 ]
-
-// getAutoSwitchThemeOptions removed - no longer needed
-// We now use a boolean toggle for followSystemTheme instead of a dropdown

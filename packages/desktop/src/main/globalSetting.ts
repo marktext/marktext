@@ -7,7 +7,6 @@ import { setLocalesDirectory } from 'common/i18n'
 // the app directory.
 const staticPath = path.join(app.isPackaged ? process.resourcesPath : app.getAppPath(), 'static')
 
-// Set `__static` path to static files in production / development depending on the environment
 ;(global as unknown as { __static: string }).__static = staticPath.replace(/\\/g, '\\\\')
 
 setLocalesDirectory(path.join(staticPath, 'locales'))

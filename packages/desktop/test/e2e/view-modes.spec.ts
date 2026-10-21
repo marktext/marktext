@@ -113,7 +113,6 @@ test.describe('View modes', () => {
   // `focusModeMenuItem.enabled` / `typewriterModeMenuItem.enabled` off; nothing
   // else covers this disabled-in-source assertion.
   test('Item 155: source mode disables Typewriter + Focus menu items, exit re-enables', async() => {
-    // Baseline: both enabled in WYSIWYG.
     expect((await waitForEnabled(app, 'typewriterModeMenuItem', true)).enabled).toBe(true)
     expect((await waitForEnabled(app, 'focusModeMenuItem', true)).enabled).toBe(true)
 
@@ -134,21 +133,18 @@ test.describe('View modes', () => {
   // state must flip with each toggle. view-modes' other tests only assert the
   // `.editor-wrapper` class; menu-sanity only asserts the ids EXIST.
   test('Item 265: view-mode menu items track their checked state on toggle', async() => {
-    // Source-code mode checkbox.
     expect((await viewModeMenuItem(app, 'sourceCodeModeMenuItem'))?.checked).toBe(false)
     await enterSourceMode(page, app)
     expect((await waitForChecked(app, 'sourceCodeModeMenuItem', true)).checked).toBe(true)
     await exitSourceMode(page, app)
     expect((await waitForChecked(app, 'sourceCodeModeMenuItem', false)).checked).toBe(false)
 
-    // Typewriter mode checkbox.
     expect((await viewModeMenuItem(app, 'typewriterModeMenuItem'))?.checked).toBe(false)
     await clickMenuById(app, 'typewriterModeMenuItem')
     expect((await waitForChecked(app, 'typewriterModeMenuItem', true)).checked).toBe(true)
     await clickMenuById(app, 'typewriterModeMenuItem')
     expect((await waitForChecked(app, 'typewriterModeMenuItem', false)).checked).toBe(false)
 
-    // Focus mode checkbox.
     expect((await viewModeMenuItem(app, 'focusModeMenuItem'))?.checked).toBe(false)
     await clickMenuById(app, 'focusModeMenuItem')
     expect((await waitForChecked(app, 'focusModeMenuItem', true)).checked).toBe(true)
@@ -200,8 +196,6 @@ test.describe('View modes — focus mode dims non-active blocks (item 250)', () 
     await clickMenuById(app, 'focusModeMenuItem')
     await expect(page.locator('.editor-component')).toHaveClass(/(^|\s)mu-focus-mode(\s|$)/)
 
-    // Put the caret in the FIRST paragraph; its top-level block must carry
-    // `.mu-active`, the others must not.
     await placeCaretIn(page, '.mu-container > p.mu-paragraph:nth-of-type(1) .mu-paragraph-content')
 
     // The selection-change -> mu-active flip is async; poll for it.
@@ -245,12 +239,10 @@ test.describe('View modes — focus mode dims non-active blocks (item 250)', () 
       .toBe(true)
 
     const opacities = (await readOpacities())!
-    // Active block is fully opaque; siblings are dimmed (CSS sets 0.25).
     expect(opacities.active).toBeCloseTo(1, 2)
     expect(opacities.inactive).toBeLessThan(opacities.active)
     expect(opacities.inactive).toBeLessThan(0.5)
 
-    // Reset: turn focus mode back off so the class is cleared.
     await clickMenuById(app, 'focusModeMenuItem')
     await page.waitForFunction(
       () => {
@@ -315,7 +307,6 @@ test.describe('View modes — typewriter scrolling (item 173)', () => {
     await clickMenuById(app, 'typewriterModeMenuItem')
     await expect(page.locator('.editor-wrapper')).toHaveClass(/(^|\s)typewriter(\s|$)/)
 
-    // Place the caret in a middle paragraph and type so the engine re-centers.
     await placeCaretIn(
       page,
       '.mu-container > p.mu-paragraph:nth-of-type(40) .mu-paragraph-content'
@@ -342,7 +333,6 @@ test.describe('View modes — typewriter scrolling (item 173)', () => {
 
     const centered = await caretBlockOffset()
     expect(centered).not.toBeNull()
-    // Caret block sits in the vertical middle band, not pinned to top/bottom.
     expect(centered!.relativeTop).toBeGreaterThan(120)
     expect(centered!.relativeTop).toBeLessThan(centered!.containerHeight - 120)
 

@@ -2,38 +2,23 @@ import { BrowserWindow, ipcMain } from 'electron'
 import log from 'electron-log'
 import { isOsx } from '../config'
 
-/**
- * Add the given word to the spellchecker dictionary.
- */
 export const addToDictionary = (win: BrowserWindow, word: string): boolean => {
   return win.webContents.session.addWordToSpellCheckerDictionary(word)
 }
 
-/**
- * Remove the given word from the spellchecker dictionary.
- */
 export const removeFromDictionary = (win: BrowserWindow, word: string): boolean => {
   return win.webContents.session.removeWordFromSpellCheckerDictionary(word)
 }
 
-/**
- * Returns a list of all words in the custom dictionary.
- */
 export const getCustomDictionaryWords = async(win: BrowserWindow): Promise<string[]> => {
   return win.webContents.session.listWordsInSpellCheckerDictionary()
 }
 
-/**
- * Sets whether to enable the builtin spell checker.
- */
 export const setSpellCheckerEnabled = (win: BrowserWindow, enabled: boolean): boolean => {
   win.webContents.session.setSpellCheckerEnabled(enabled)
   return win.webContents.session.isSpellCheckerEnabled() === enabled
 }
 
-/**
- * Switch the spellchecker to the given language and enable the builtin spell checker.
- */
 export const switchLanguage = (win: BrowserWindow, lang: string): void => {
   win.webContents.session.setSpellCheckerLanguages([lang])
 }

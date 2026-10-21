@@ -1,6 +1,5 @@
 import type CodeMirror from 'codemirror'
 
-/** The CodeMirror surface `scrollSourceEditorToLine` needs. */
 type ISourceEditor = Pick<CodeMirror.Editor, 'setCursor' | 'heightAtLine'>
 
 /**
@@ -50,7 +49,6 @@ export function getMarkdownHeadingLines(markdown: string): number[] {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
 
-    // Toggle fenced-code-block state on ``` / ~~~ markers.
     const fenceMatch = line.match(/^ {0,3}(`{3,}|~{3,})/)
     if (fenceMatch) {
       const marker = fenceMatch[1][0]
@@ -60,14 +58,11 @@ export function getMarkdownHeadingLines(markdown: string): number[] {
     }
     if (fence !== null) continue
 
-    // ATX heading.
     if (/^ {0,3}#{1,6}(?:\s|$)/.test(line)) {
       result.push(i)
       continue
     }
 
-    // Setext heading: a non-blank line immediately followed by an `===`/`---`
-    // underline.
     const next = lines[i + 1]
     if (line.trim() !== '' && next !== undefined && /^ {0,3}(?:=+|-+)\s*$/.test(next)) {
       result.push(i)

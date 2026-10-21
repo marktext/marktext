@@ -54,15 +54,12 @@ test.describe('Issue #781 — undo/redo in source code mode', () => {
     await enterSourceMode(page, app)
     const baseline = await cmValue(page)
 
-    // A single CodeMirror edit (one undo step).
     await typeInCm(page, ' SRCKEY')
     expect(await cmValue(page)).toContain('saved baseline SRCKEY')
 
-    // Undo through the same IPC the Edit › Undo menu uses — must hit CodeMirror.
     await undo(app)
     await expect.poll(() => cmValue(page)).toBe(baseline)
 
-    // Redo restores the edit.
     await redo(app)
     await expect.poll(() => cmValue(page)).toContain('saved baseline SRCKEY')
 

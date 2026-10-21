@@ -3,8 +3,6 @@ import { type Menu } from 'electron'
 
 import { updateSelectionMenus } from 'main_renderer/menu/actions/paragraph'
 
-// Real paragraph submenu ids (see src/main/menu/templates/paragraph.ts). The
-// source reads the paragraph entry via getMenuItemById('paragraphMenuEntry').
 const PARAGRAPH_MENU_IDS = [
   'heading1MenuItem',
   'heading2MenuItem',
@@ -28,7 +26,6 @@ const PARAGRAPH_MENU_IDS = [
   'frontMatterMenuItem'
 ]
 
-// Real format submenu ids (see src/main/menu/templates/format.ts).
 const FORMAT_MENU_IDS = [
   'strongMenuItem',
   'emphasisMenuItem',
@@ -88,12 +85,10 @@ describe('updateSelectionMenus', () => {
 
     updateSelectionMenus(menu as unknown as Menu, { affiliation: {}, isMultiline: true })
 
-    // Paragraph: only code/quote/ordered/bullet/task are actionable across blocks.
     expect(enabledIds(menu.paragraphItems).sort()).toEqual(
       ['bulletListMenuItem', 'codeFencesMenuItem', 'orderListMenuItem', 'quoteBlockMenuItem', 'taskListMenuItem'].sort()
     )
 
-    // Format: only link/image are disabled.
     const formatDisabled = menu.formatItems.filter((i) => !i.enabled).map((i) => i.id)
     expect(formatDisabled.sort()).toEqual(['hyperlinkMenuItem', 'imageMenuItem'].sort())
   })
@@ -107,14 +102,11 @@ describe('updateSelectionMenus', () => {
       isCodeContent: true
     })
 
-    // Every format item is disabled inside code content.
     expect(menu.formatItems.every((i) => i.enabled === false)).toBe(true)
 
-    // Paragraph submenu is disabled wholesale by isCodeFences...
     const paraItem = (id: string) => menu.paragraphItems.find((i) => i.id === id)!
     expect(paraItem('paragraphMenuItem').enabled).toBe(false)
     expect(paraItem('heading1MenuItem').enabled).toBe(false)
-    // ...except codeFencesMenuItem is re-enabled because affiliation has a code element.
     expect(paraItem('codeFencesMenuItem').enabled).toBe(true)
   })
 

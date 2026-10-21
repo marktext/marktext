@@ -4,7 +4,6 @@ import * as actions from '../actions/marktext'
 import { t } from '../../i18n'
 import type Keybindings from '../../keyboard/shortcutHandler'
 
-// macOS only menu.
 
 export default function(keybindings: Keybindings): MenuItemConstructorOptions {
   return {
