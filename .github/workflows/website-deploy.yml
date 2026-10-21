@@ -54,7 +54,12 @@ jobs:
       - name: Type-check
         run: pnpm --filter marktext-website run type-check
 
+      - name: Test project info
+        run: pnpm --filter marktext-website run test:project-info
+
       - name: Next build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: pnpm --filter marktext-website run build
 
       - name: OpenNext Cloudflare build

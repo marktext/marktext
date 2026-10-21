@@ -1,16 +1,15 @@
 'use client'
 
 import { revealClass, type RevealDelay } from '@/lib/sections'
-import { DEFAULT_GITHUB_STARS } from '@/lib/project-info'
-import { useProjectInfo } from './ProjectInfoProvider'
+import { PROJECT_INFO } from '@/lib/project-info'
 
 type Stat = { value: string; label: string; delay?: RevealDelay }
 
 export default function Stats() {
-  const { githubStars, contributors } = useProjectInfo()
+  const { githubStars, contributors } = PROJECT_INFO
   const stats: Stat[] = [
-    { value: (githubStars ?? DEFAULT_GITHUB_STARS).toLocaleString('en-US'), label: 'GitHub stars' },
-    { value: contributors?.toLocaleString('en-US') ?? '—', label: 'Contributors', delay: 'd1' },
+    { value: githubStars.toLocaleString('en-US'), label: 'GitHub stars' },
+    { value: contributors.toLocaleString('en-US'), label: 'Contributors', delay: 'd1' },
     { value: '3', label: 'Platforms supported', delay: 'd2' },
     { value: 'MIT', label: 'Free & open source', delay: 'd3' }
   ]

@@ -6,7 +6,6 @@ import Hero from '@/components/Hero'
 import Nav from '@/components/Nav'
 import PageEffects from '@/components/PageEffects'
 import Preview from '@/components/Preview'
-import ProjectInfoProvider from '@/components/ProjectInfoProvider'
 import Stats from '@/components/Stats'
 import Support from '@/components/Support'
 import Themes from '@/components/Themes'
@@ -18,10 +17,8 @@ export default function Home() {
       <div className="bg-grid" />
       <Nav />
       <span id="top" />
-      <ProjectInfoProvider>
-        <Hero />
-        <Stats />
-      </ProjectInfoProvider>
+      <Hero />
+      <Stats />
       <Preview />
       <Extensions />
       <Themes />
