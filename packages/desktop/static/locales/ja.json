@@ -250,7 +250,8 @@
       "closeAll": "すべて閉じる",
       "emptyProject": "空のプロジェクト",
       "createFile": "ファイルの作成",
-      "openFolder": "フォルダーを開く"
+      "openFolder": "フォルダーを開く",
+      "resizeOpenedFiles": "開いているファイル一覧のサイズを変更"
     },
     "toc": {
       "expand": "目次を展開",

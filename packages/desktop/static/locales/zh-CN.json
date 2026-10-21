@@ -250,7 +250,8 @@
       "closeAll": "关闭全部",
       "emptyProject": "空项目",
       "createFile": "创建文件",
-      "openFolder": "打开文件夹"
+      "openFolder": "打开文件夹",
+      "resizeOpenedFiles": "调整已打开文件列表的大小"
     },
     "toc": {
       "expand": "展开目录",

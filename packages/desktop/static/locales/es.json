@@ -250,7 +250,8 @@
       "closeAll": "Cerrar",
       "emptyProject": "Proyecto vacío",
       "createFile": "Crear Archivo",
-      "openFolder": "Abrir Carpeta"
+      "openFolder": "Abrir Carpeta",
+      "resizeOpenedFiles": "Cambiar el tamaño de la lista de archivos abiertos"
     },
     "toc": {
       "expand": "Expandir tabla de contenido",

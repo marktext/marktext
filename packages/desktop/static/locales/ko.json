@@ -250,7 +250,8 @@
       "closeAll": "모두 닫기",
       "emptyProject": "빈 프로젝트",
       "createFile": "파일 만들기",
-      "openFolder": "폴더 열기"
+      "openFolder": "폴더 열기",
+      "resizeOpenedFiles": "열린 파일 목록 크기 조절"
     },
     "toc": {
       "expand": "목차 펼치기",

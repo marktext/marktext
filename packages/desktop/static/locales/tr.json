@@ -250,7 +250,8 @@
       "closeAll": "Tümünü Kapat",
       "emptyProject": "Boş proje",
       "createFile": "Dosya Oluştur",
-      "openFolder": "Klasör Aç"
+      "openFolder": "Klasör Aç",
+      "resizeOpenedFiles": "Açık dosyalar listesini yeniden boyutlandır"
     },
     "toc": {
       "expand": "İçindekileri genişlet",

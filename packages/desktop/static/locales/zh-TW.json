@@ -250,7 +250,8 @@
       "closeAll": "全部關閉",
       "emptyProject": "空專案",
       "createFile": "建立檔案",
-      "openFolder": "開啟資料夾"
+      "openFolder": "開啟資料夾",
+      "resizeOpenedFiles": "調整已開啟檔案清單的大小"
     },
     "toc": {
       "expand": "展開目錄",

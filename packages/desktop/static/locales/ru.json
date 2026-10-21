@@ -250,7 +250,8 @@
       "closeAll": "Закрыть всё",
       "emptyProject": "Пустой проект",
       "createFile": "Создать файл",
-      "openFolder": "Открыть папку"
+      "openFolder": "Открыть папку",
+      "resizeOpenedFiles": "Изменить размер списка открытых файлов"
     },
     "toc": {
       "expand": "Развернуть оглавление",

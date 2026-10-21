@@ -250,7 +250,8 @@
       "closeAll": "Tout fermer",
       "emptyProject": "Projet vide",
       "createFile": "Créer un fichier",
-      "openFolder": "Ouvrir un dossier"
+      "openFolder": "Ouvrir un dossier",
+      "resizeOpenedFiles": "Redimensionner la liste des fichiers ouverts"
     },
     "toc": {
       "expand": "Développer la table des matières",

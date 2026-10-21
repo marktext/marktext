@@ -250,7 +250,8 @@
       "closeAll": "Alles sluiten",
       "emptyProject": "Leeg project",
       "createFile": "Bestand aanmaken",
-      "openFolder": "Map openen"
+      "openFolder": "Map openen",
+      "resizeOpenedFiles": "Lijst met geopende bestanden aanpassen"
     },
     "toc": {
       "expand": "Inhoudsopgave uitklappen",
