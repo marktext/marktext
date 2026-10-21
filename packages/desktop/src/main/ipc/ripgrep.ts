@@ -185,16 +185,18 @@ const startTextSearch = (
   let pendingPaths = 0
   let pendingDirs = directories.length
   let finished = false
+  const errors: string[] = []
 
   const finishIfDone = (err?: unknown): void => {
     if (finished) return
-    if (pendingDirs === 0 || err) {
+    if (err) errors.push(err instanceof Error ? err.message : String(err))
+    if (pendingDirs === 0) {
       finished = true
       activeSearches.delete(searchId)
-      if (err) {
+      if (errors.length) {
         sendIfAlive(sender, 'mt::rg::error', {
           searchId,
-          error: err instanceof Error ? err.message : String(err)
+          error: errors.join('\n')
         })
       } else {
         sendIfAlive(sender, 'mt::rg::done', { searchId })
@@ -219,6 +221,7 @@ const startTextSearch = (
   }
   activeSearches.set(searchId, { sender, cancel })
 
+  finishIfDone()
   for (const directoryPath of directories) {
     let regexpStr: string | null = null
     let textPattern: string | null = null
@@ -250,8 +253,9 @@ const startTextSearch = (
     try {
       child = spawn(rgPath, args, { cwd: directoryPath, stdio: ['pipe', 'pipe', 'pipe'] })
     } catch (err) {
+      pendingDirs--
       finishIfDone(err)
-      return
+      continue
     }
     children.push(child)
 
@@ -261,6 +265,13 @@ const startTextSearch = (
     let pendingLeadingContext: unknown[] = []
     let pendingTrailingContexts: Set<unknown[]> = new Set()
 
+    let settled = false
+    const settle = (error?: unknown): void => {
+      if (settled) return
+      settled = true
+      pendingDirs--
+      finishIfDone(error)
+    }
     child.on('close', (code) => {
       if (code !== null && code > 1 && bufferError) {
         log.warn('Ripgrep finished with errors (exit code ' + code + '):', bufferError)
@@ -277,15 +288,14 @@ const startTextSearch = (
           /* parse error */
         }
       }
-      pendingDirs--
-      finishIfDone()
+      settle(code !== null && code > 1 ? new Error(bufferError || `Ripgrep exited with code ${code}`) : undefined)
     })
-    child.on('error', (err) => finishIfDone(err))
+    child.on('error', settle)
     child.stderr?.on('data', (chunk: Buffer | string) => {
       bufferError += chunk
     })
     child.stdout?.on('data', (chunk: Buffer | string) => {
-      if (cancelled) return
+      if (cancelled || finished) return
       buffer += chunk
       const lines = buffer.split('\n')
       buffer = lines.pop() ?? ''
@@ -341,16 +351,18 @@ const startFileSearch = (
   let pendingPaths = 0
   let pendingDirs = directories.length
   let finished = false
+  const errors: string[] = []
 
   const finishIfDone = (err?: unknown): void => {
     if (finished) return
-    if (pendingDirs === 0 || err) {
+    if (err) errors.push(err instanceof Error ? err.message : String(err))
+    if (pendingDirs === 0) {
       finished = true
       activeSearches.delete(searchId)
-      if (err) {
+      if (errors.length) {
         sendIfAlive(sender, 'mt::rg::error', {
           searchId,
-          error: err instanceof Error ? err.message : String(err)
+          error: errors.join('\n')
         })
       } else {
         sendIfAlive(sender, 'mt::rg::done', { searchId })
@@ -375,6 +387,7 @@ const startFileSearch = (
   }
   activeSearches.set(searchId, { sender, cancel })
 
+  finishIfDone()
   for (const directoryPath of directories) {
     const args = ['--files']
     if (options.followSymlinks) args.push('--follow')
@@ -388,27 +401,30 @@ const startFileSearch = (
     try {
       child = spawn(rgPath, args, { cwd: directoryPath, stdio: ['pipe', 'pipe', 'pipe'] })
     } catch (err) {
+      pendingDirs--
       finishIfDone(err)
-      return
+      continue
     }
     children.push(child)
 
     let buffer = ''
     let bufferError = ''
-    child.on('close', (code) => {
-      if (code !== null && code > 1) {
-        finishIfDone(new Error(bufferError))
-        return
-      }
+    let settled = false
+    const settle = (error?: unknown): void => {
+      if (settled) return
+      settled = true
       pendingDirs--
-      finishIfDone()
+      finishIfDone(error)
+    }
+    child.on('close', (code) => {
+      settle(code !== null && code > 1 ? new Error(bufferError || `Ripgrep exited with code ${code}`) : undefined)
     })
-    child.on('error', (err) => finishIfDone(err))
+    child.on('error', settle)
     child.stderr?.on('data', (chunk: Buffer | string) => {
       bufferError += chunk
     })
     child.stdout?.on('data', (chunk: Buffer | string) => {
-      if (cancelled) return
+      if (cancelled || finished) return
       buffer += chunk
       const lines = buffer.split('\n')
       buffer = lines.pop() ?? ''

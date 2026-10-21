@@ -242,8 +242,11 @@
       "noFolderOpen": "Папка не открыта",
       "noResultsFound": "Ничего не найдено.",
       "cancel": "Отмена",
-      "openFolder": "Открыть папку",
-      "showMoreMatches": "Показать ещё"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "Показать ещё",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "Открытые файлы",

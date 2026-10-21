@@ -242,8 +242,11 @@
       "noFolderOpen": "Nenhuma pasta aberta",
       "noResultsFound": "Nenhum resultado encontrado.",
       "cancel": "Cancelar",
-      "openFolder": "Abrir Pasta",
-      "showMoreMatches": "Mostrar mais correspondências"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "Mostrar mais correspondências",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "Arquivos abertos",

@@ -242,8 +242,11 @@
       "noFolderOpen": "没有打开的文件夹",
       "noResultsFound": "未找到结果。",
       "cancel": "取消",
-      "openFolder": "打开文件夹",
-      "showMoreMatches": "显示更多匹配"
+      "openFolder": "添加文件夹…",
+      "showMoreMatches": "显示更多匹配",
+      "searchInFolders": "在已添加的文件夹中搜索",
+      "partialSearch": "部分文件夹无法搜索。",
+      "noSearchableFolders": "没有可供搜索的文件夹。"
     },
     "tree": {
       "openedFiles": "已打开的文件",

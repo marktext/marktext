@@ -22,7 +22,7 @@
           v-model="keyword"
           type="text"
           class="search-input"
-          :placeholder="t('sideBar.search.searchInFolder')"
+          :placeholder="t('sideBar.search.searchInFolders')"
           @keydown="handleSearchKeydown"
           @keyup="handleSearchKeyup"
         >
@@ -71,7 +71,14 @@
       v-if="showNoFolderOpenedMessage"
       class="search-message-section"
     >
-      <span>{{ t('sideBar.search.noFolderOpen') }}</span>
+      <span>{{ t(roots.length ? 'sideBar.search.noSearchableFolders' : 'sideBar.search.noFolderOpen') }}</span>
+    </div>
+    <div
+      v-if="roots.some(root => root.status === 'unavailable')"
+      class="search-message-section"
+      role="status"
+    >
+      {{ t('sideBar.search.partialSearch') }}
     </div>
     <div
       v-if="showNoResultFoundMessage"
@@ -175,7 +182,8 @@ const searchEl = ref<HTMLInputElement | null>(null)
 
 const { showSideBar } = storeToRefs(layoutStore)
 const { currentFile } = storeToRefs(editorStore)
-const { projectTree } = storeToRefs(projectStore)
+const { roots, availableRoots } = storeToRefs(projectStore)
+let searchSequence = 0
 const {
   searchExclusions,
   searchMaxFileSize,
@@ -196,12 +204,12 @@ const searchResultInfo = computed(() => {
 })
 
 const showNoFolderOpenedMessage = computed(() => {
-  return !projectTree.value || !projectTree.value.pathname
+  return !availableRoots.value.length
 })
 
 const showNoResultFoundMessage = computed(() => {
   return (
-    searchResult.value.length === 0 && searcherRunning.value === false && keyword.value.length > 0
+    !showNoFolderOpenedMessage.value && !searchErrorString.value && searchResult.value.length === 0 && searcherRunning.value === false && keyword.value.length > 0
   )
 })
 
@@ -217,20 +225,16 @@ const handleSearchKeyup = (event: KeyboardEvent): void => {
 }
 
 const search = (): void => {
-  if (showNoFolderOpenedMessage.value || !projectTree.value) {
-    return
-  }
-
-  const { pathname: rootDirectoryPath } = projectTree.value
-
-  if (searcherRunning.value && searcherCancelCallback) {
-    searcherCancelCallback()
-  }
-
+  const sequence = ++searchSequence
+  searcherCancelCallback?.()
+  const directories = availableRoots.value.map(root => root.pathname)
+  searchResult.value = []
+  searcherRunning.value = false
+  stopShowSearchCancelAreaTimer()
   searchErrorString.value = ''
   searcherCancelCallback = null
 
-  if (!keyword.value) {
+  if (!keyword.value || !directories.length) {
     searchResult.value = []
     searcherRunning.value = false
     return
@@ -243,13 +247,14 @@ const search = (): void => {
   const newSearchResult: SearchResult[] = []
   // Keep a handle on the cancellable thenable separately from the chained
   // `.then().catch()` (which is a plain `Promise<void>` and loses `cancel`).
-  const cancellable = ripgrepDirectorySearcher.search([rootDirectoryPath], keyword.value, {
+  const cancellable = ripgrepDirectorySearcher.search(directories, keyword.value, {
     didMatch: (res: unknown) => {
-      if (canceled) return
-      newSearchResult.push(res as SearchResult)
+      if (canceled || sequence !== searchSequence) return
+      const result = res as SearchResult
+      if (!newSearchResult.some(item => window.fileUtils.isSamePathSync(item.filePath, result.filePath))) newSearchResult.push(result)
     },
     didSearchPaths: (numPathsFound: unknown) => {
-      if (!canceled && typeof numPathsFound === 'number' && numPathsFound > 100) {
+      if (sequence === searchSequence && !canceled && typeof numPathsFound === 'number' && numPathsFound > 100) {
         canceled = true
         cancellable.cancel()
         searchErrorString.value = t('search.searchLimited', { count: 100 })
@@ -271,16 +276,19 @@ const search = (): void => {
 
   cancellable
     .then(() => {
+      if (sequence !== searchSequence) return
       searchResult.value = newSearchResult
       searcherRunning.value = false
       searcherCancelCallback = null
       stopShowSearchCancelAreaTimer()
     })
     .catch((err) => {
+      if (sequence !== searchSequence) return
       canceled = true
       cancellable.cancel()
       log.error('Error while searching in directory:', err)
-      searchResult.value = []
+      searchResult.value = newSearchResult
+      searchErrorString.value = newSearchResult.length ? t('sideBar.search.partialSearch') : String(err.message || err)
       searcherRunning.value = false
       searcherCancelCallback = null
       stopShowSearchCancelAreaTimer()
@@ -346,10 +354,10 @@ const stopShowSearchCancelAreaTimer = (): void => {
 }
 
 const cancelSearcher = (): void => {
-  if (searcherRunning.value && searcherCancelCallback) {
-    searcherCancelCallback()
-  }
+  searcherCancelCallback?.()
 }
+
+watch(() => roots.value.map(root => `${root.key}:${root.status}`).join('|'), () => search())
 
 watch(showSideBar, (value, oldValue) => {
   if (value && !oldValue) {
@@ -364,6 +372,7 @@ onMounted(() => {
   bus.on('findInFolder', handleFindInFolder)
 })
 onUnmounted(() => {
+  searchSequence++
   bus.off('findInFolder', handleFindInFolder)
   cancelSearcher()
   stopShowSearchCancelAreaTimer()
