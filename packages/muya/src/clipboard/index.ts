@@ -77,7 +77,7 @@ class Clipboard {
         const ownsEvent = () => {
             if (this.muya.hasFocus())
                 return true;
-            return this.muya.readOnly
+            return this.muya.isReadOnly
                 && !document.activeElement?.matches('input, textarea, [contenteditable="true"]')
                 && this.muya.domNode.contains(document.getSelection()?.anchorNode ?? null);
         };
@@ -89,7 +89,7 @@ class Clipboard {
             event.stopPropagation();
 
             const isCut = event.type === 'cut';
-            if (isCut && this.muya.readOnly)
+            if (isCut && this.muya.isReadOnly)
                 return;
 
             this.copyHandler(event);
@@ -99,7 +99,7 @@ class Clipboard {
         };
 
         const keydownHandler = (event: Event) => {
-            if (this.muya.readOnly)
+            if (this.muya.isReadOnly)
                 return;
             if (!ownsEvent() || !isKeyboardEvent(event))
                 return;
@@ -138,7 +138,7 @@ class Clipboard {
         };
 
         const beforeInputHandler = (event: Event) => {
-            if (this.muya.readOnly)
+            if (this.muya.isReadOnly)
                 return;
             if (!ownsEvent() || !isInputEvent(event) || !event.cancelable)
                 return;
@@ -220,7 +220,7 @@ class Clipboard {
     async pasteAsPlainText(): Promise<void> {
         const target = this.selection.getSelection()?.anchor.block;
         const text = await this._readClipboardText();
-        if (this.muya.readOnly || !this.muya.isBlockInDocument(target) || this.selection.getSelection()?.anchor.block !== target)
+        if (this.muya.isReadOnly || !this.muya.isBlockInDocument(target) || this.selection.getSelection()?.anchor.block !== target)
             return;
         if (text)
             await pastePlainText(this, text);

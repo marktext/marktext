@@ -57,7 +57,7 @@ class DiagramPreview extends Parent {
         event.preventDefault();
         event.stopPropagation();
 
-        if (this.muya.readOnly) {
+        if (this.muya.isReadOnly) {
             if (this._rendered) {
                 this.muya.eventCenter.emit('preview-diagram', {
                     type: this._type,

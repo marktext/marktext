@@ -444,7 +444,7 @@ class Content extends TreeNode {
         this.tagName = 'span';
         this.classList = ['mu-content'];
         this.attributes = {
-            contenteditable: !muya.readOnly,
+            contenteditable: !muya.isReadOnly,
         };
         this._text = text;
         this.isComposed = false;

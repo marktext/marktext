@@ -194,7 +194,7 @@ describe('reading mode', () => {
         expect(muya.getMarkdown()).toContain('pending');
         const history = muya.getHistory();
         muya.setReadOnly(false);
-        expect(!muya.readOnly && muya.isBlockInDocument(target)).toBe(true);
+        expect(!muya.isReadOnly && muya.isBlockInDocument(target)).toBe(true);
         expect(muya.getHistory()).toEqual(history);
         muya.undo();
         expect(muya.getMarkdown()).toContain('original');

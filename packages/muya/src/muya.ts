@@ -177,12 +177,12 @@ export class Muya {
     private _documentUpdateDepth = 0;
     private _cancelReadingLink: () => void;
 
-    get readOnly() {
+    get isReadOnly(): boolean {
         return this.options.readOnly;
     }
 
     get canMutate() {
-        return !this.readOnly || this._documentUpdateDepth > 0;
+        return !this.isReadOnly || this._documentUpdateDepth > 0;
     }
 
     isBlockInDocument(block: Nullable<Content | Parent>): boolean {
@@ -201,7 +201,7 @@ export class Muya {
     }
 
     setReadOnly(readOnly: boolean) {
-        if (readOnly === this.readOnly)
+        if (readOnly === this.isReadOnly)
             return;
         this.flush();
         this.editor.activeContentBlock = null;
@@ -226,22 +226,22 @@ export class Muya {
     }
 
     private _refreshReadingPresentation(): void {
-        const { domNode, readOnly } = this;
-        domNode.contentEditable = String(!readOnly);
-        domNode.classList.toggle('mu-read-only', readOnly);
+        const { domNode, isReadOnly } = this;
+        domNode.contentEditable = String(!isReadOnly);
+        domNode.classList.toggle('mu-read-only', isReadOnly);
         domNode.setAttribute('tabindex', '0');
-        domNode.setAttribute('role', readOnly ? 'document' : 'textbox');
-        domNode.setAttribute('aria-label', this.i18n.t(readOnly ? 'Read-only document' : 'Document'));
+        domNode.setAttribute('role', isReadOnly ? 'document' : 'textbox');
+        domNode.setAttribute('aria-label', this.i18n.t(isReadOnly ? 'Read-only document' : 'Document'));
         this.editor.scrollPage?.breadthFirstTraverse((node) => {
-            if (node.isParent() && readOnly)
+            if (node.isParent() && isReadOnly)
                 node.active = false;
             if (node.isContent()) {
-                node.domNode?.setAttribute('contenteditable', String(!readOnly));
-                if (readOnly)
+                node.domNode?.setAttribute('contenteditable', String(!isReadOnly));
+                if (isReadOnly)
                     node.update({});
             }
         });
-        if (readOnly)
+        if (isReadOnly)
             prepareReadingLinks(domNode);
     }
 
@@ -255,7 +255,7 @@ export class Muya {
     }
 
     init(options: { focus?: boolean } = {}) {
-        this.runDocumentUpdate(() => this.editor.init({ ...options, focus: !this.readOnly && options.focus !== false }));
+        this.runDocumentUpdate(() => this.editor.init({ ...options, focus: !this.isReadOnly && options.focus !== false }));
         this._refreshReadingPresentation();
         // UI plugins
         if (Muya.plugins.length) {
@@ -375,7 +375,7 @@ export class Muya {
     }
 
     setContent(content: TState[] | string, autoFocus = false) {
-        this.runDocumentUpdate(() => this.editor.setContent(content, autoFocus && !this.readOnly));
+        this.runDocumentUpdate(() => this.editor.setContent(content, autoFocus && !this.isReadOnly));
         this._refreshReadingPresentation();
     }
 
@@ -418,7 +418,7 @@ export class Muya {
         // so suppress History's own recording of it to avoid a duplicate entry.
         history.recordRebuild(op, prevState, boundarySelection);
         this.runDocumentUpdate(() => history.suppressRecording(() => {
-            this.editor.rebuildContents(op, this.readOnly ? null : selection, ChangeSource.Api);
+            this.editor.rebuildContents(op, this.isReadOnly ? null : selection, ChangeSource.Api);
         }));
         this._refreshReadingPresentation();
 
@@ -470,7 +470,7 @@ export class Muya {
 
         this.editor.searchModule.refresh();
 
-        if (!this.readOnly && selection && selection.isSelectionInSameBlock) {
+        if (!this.isReadOnly && selection && selection.isSelectionInSameBlock) {
             const begin = Math.min(selection.anchor.offset, selection.focus.offset);
             const end = Math.max(selection.anchor.offset, selection.focus.offset);
             const cursorBlock = this.editor.scrollPage?.queryBlock(selection.anchor.path);
@@ -485,7 +485,7 @@ export class Muya {
     }
 
     focus() {
-        if (this.readOnly) {
+        if (this.isReadOnly) {
             this.domNode.focus({ preventScroll: true });
             return;
         }

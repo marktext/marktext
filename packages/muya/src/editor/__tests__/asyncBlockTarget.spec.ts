@@ -55,7 +55,7 @@ describe('asynchronous block targets', () => {
         upload.resolve('assets/completed.png');
         await done;
         expect(target.text).toBe(before);
-        expect(!muya.readOnly && muya.isBlockInDocument(target)).toBe(false);
+        expect(!muya.isReadOnly && muya.isBlockInDocument(target)).toBe(false);
     });
 
     it('finishes an upload after locking and unlocking when the same target remains', async () => {
@@ -64,7 +64,7 @@ describe('asynchronous block targets', () => {
         const done = muya.editor.clipboard.pasteImage('/pending.png');
         muya.setReadOnly(true);
         muya.setReadOnly(false);
-        expect(!muya.readOnly && muya.isBlockInDocument(target)).toBe(true);
+        expect(!muya.isReadOnly && muya.isBlockInDocument(target)).toBe(true);
         upload.resolve('assets/completed.png');
         await done;
         expect(target.text).toContain('![](assets/completed.png)');
@@ -114,7 +114,7 @@ describe('asynchronous block targets', () => {
         const done = muya.editor.clipboard.pasteAsPlainText();
         const next = muya.editor.scrollPage!.lastContentInDescendant()!;
         next.setCursor(0, 0, true);
-        expect(!muya.readOnly && muya.isBlockInDocument(target)).toBe(true);
+        expect(!muya.isReadOnly && muya.isBlockInDocument(target)).toBe(true);
         read.resolve('stale paste');
         await done;
         expect(muya.getMarkdown()).not.toContain('stale paste');

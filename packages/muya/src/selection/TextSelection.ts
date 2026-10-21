@@ -168,7 +168,7 @@ class TextSelection {
         if (aBlock == null || fBlock == null)
             return;
 
-        if (this._muya.readOnly) {
+        if (this._muya.isReadOnly) {
             const first = aBlock.domNode;
             const last = fBlock.domNode;
             if (!first || !last)
@@ -318,7 +318,7 @@ class TextSelection {
         const { eventCenter, domNode } = this._muya;
 
         const handleMousedown = (event: Event) => {
-            if (this._muya.readOnly)
+            if (this._muya.isReadOnly)
                 return;
             this._selectInfo = {
                 isSelect: true,
@@ -338,7 +338,7 @@ class TextSelection {
         };
 
         const handleMouseupOrLeave = () => {
-            if (this._muya.readOnly)
+            if (this._muya.isReadOnly)
                 return;
             const { selection } = this._selectInfo;
             if (selection?.anchor.block.outMostBlock && selection.focus.block.outMostBlock)
@@ -351,7 +351,7 @@ class TextSelection {
         };
 
         const handleMousemoveOrClick = (event: Event) => {
-            if (this._muya.readOnly)
+            if (this._muya.isReadOnly)
                 return;
             if (!isMouseEvent(event))
                 return;
