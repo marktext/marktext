@@ -1048,7 +1048,7 @@
     }
   },
   "readingMode": {
-    "title": "Lesemodus (schreibgeschützt)",
+    "title": "Lesemodus",
     "edit": "Bearbeitungsmodus",
     "lock": "Lesemodus aktivieren",
     "unlock": "Zum Bearbeitungsmodus wechseln",

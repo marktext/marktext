@@ -1048,7 +1048,7 @@
     }
   },
   "readingMode": {
-    "title": "Okuma Modu (salt okunur)",
+    "title": "Okuma Modu",
     "edit": "Düzenleme Modu",
     "lock": "Okuma Moduna Geç",
     "unlock": "Düzenleme Moduna Geç",

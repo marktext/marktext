@@ -37,6 +37,26 @@ for (const language of getSupportedLanguages()) {
       expect(await panel.locator('.document-statistics__reading-mode').evaluate(el =>
         el.scrollWidth <= el.clientWidth + 1
       )).toBe(true)
+      await expect(panel.locator('.document-statistics__file-info .document-statistics__file-row')).toHaveCount(2)
+      for (const row of await panel.locator('.document-statistics__file-info .document-statistics__file-row').all()) {
+        const layout = await row.evaluate(el => {
+          const label = el.querySelector('.document-statistics__file-label')
+          const value = el.querySelector('.document-statistics__file-value')
+          if (!label || !value) return null
+          const labelRect = label.getBoundingClientRect()
+          const valueRect = value.getBoundingClientRect()
+          return {
+            stacked: valueRect.top >= labelRect.bottom,
+            labelFits: label.scrollWidth <= label.clientWidth + 1,
+            valueFits: value.scrollWidth <= value.clientWidth + 1
+          }
+        })
+        expect(layout).toEqual({
+          stacked: true,
+          labelFits: true,
+          valueFits: true
+        })
+      }
       await page.keyboard.press('Escape')
     } finally {
       await app.evaluate(({ app }) => app.exit(0)).catch(() => {})

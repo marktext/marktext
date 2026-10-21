@@ -157,7 +157,7 @@ test.describe('Title-bar word counter (item 24)', () => {
     await expect.poll(() => counterValue(page)).toBe(expected.paragraph)
 
     await counter.click()
-    await expect.poll(() => counterText(page)).toMatch(/^Characters \(no spaces\)\s+/)
+    await expect.poll(() => counterText(page)).toMatch(/^Characters\s+/)
     await expect.poll(() => counterValue(page)).toBe(expected.character)
 
     await counter.click()

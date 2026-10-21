@@ -1048,7 +1048,7 @@
     }
   },
   "readingMode": {
-    "title": "Reading Mode (read-only)",
+    "title": "Reading Mode",
     "edit": "Edit Mode",
     "lock": "Enter Reading Mode",
     "unlock": "Switch to Edit Mode",
