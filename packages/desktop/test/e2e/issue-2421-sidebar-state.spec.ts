@@ -17,7 +17,7 @@ test.describe('#2421 sidebar state survives view switches', () => {
   let page: Page
 
   test.beforeAll(async() => {
-    const launched = await launchWithMarkdown('# Doc\n\n## A\n\n## B\n')
+    const launched = await launchWithMarkdown('# Doc\n\n## A\n\n## B\n', { preferences: { sideBarVisibility: true, restoreLayoutState: true } })
     app = launched.app
     page = launched.page
     await page.waitForFunction(() => {

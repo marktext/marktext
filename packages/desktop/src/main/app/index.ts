@@ -8,7 +8,7 @@ import type { BrowserWindowConstructorOptions } from 'electron'
 import { isChildOfDirectory } from 'common/filesystem/paths'
 import type { IUserPreferences } from '@shared/types/preferences'
 import { isLinux, isOsx, isWindows } from '../config'
-import parseArgs from '../cli/parser'
+import parseArgs, { userArguments } from '../cli/parser'
 import { normalizeAndResolvePath } from '../filesystem'
 import { normalizeCliMarkdownPath, normalizeMarkdownPath } from '../filesystem/markdown'
 import { confirmAndTrashItem } from '../filesystem/trash'
@@ -70,7 +70,7 @@ class App {
       // A second instance of a version that doesn't send it falls back to `argv`.
       const sent = additionalData as { argv?: unknown } | null | undefined
       const secondArgv = Array.isArray(sent?.argv) ? (sent.argv as string[]) : argv
-      const args = parseArgs(secondArgv.slice(1)) as CliArgs
+      const args = parseArgs(userArguments(secondArgv, !!process.defaultApp, app.getAppPath())) as CliArgs
       const readOnly = args['--read-only'] === true
 
       const buf: PathInfo[] = []
