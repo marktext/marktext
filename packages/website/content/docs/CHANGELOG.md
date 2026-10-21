@@ -1,3 +1,22 @@
+## 0.23.0
+
+### Features
+
+- Added per-tab editing, source-code, reading, and read-only document modes, including protected writes and coordinated save and reload behavior (#5801, #5802, #5793).
+- Added a `--read-only` command-line option for opening documents without allowing edits (#5821).
+- Added foldable headings in the WYSIWYG editor and an independent, responsive document outline (#5276, #5791).
+- Added preview tabs for sidebar files and simplified the sidebar navigation and search layout (#5820, #5792).
+- Added a document statistics popover to the title bar (#5794, #5819).
+- Added Linux arm64 packages to official releases (#5778).
+- Improved icon accessibility and tooltips, and unified heading and code-copy feedback (#5739, #5788, #5800, #5805).
+
+### Fixes
+
+- Declared the ALSA and libgbm dependencies required by Linux deb and rpm packages (#5785).
+- Aligned dirty-state actions between tabs and the sidebar and removed duplicate trash confirmations (#5804, #5806).
+- Localized recent documents and corrected theme labels in application menus (#5803).
+- Validated asynchronous edits against the current document and unified inline and block code fonts (#5799, #5783).
+
 ## 0.22.0
 
 ### Features
