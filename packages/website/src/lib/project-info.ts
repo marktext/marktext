@@ -1,7 +1,9 @@
+import snapshot from './project-info.snapshot.json'
+
 const REPOSITORY_API = 'https://api.github.com/repos/marktext/marktext'
 
-// Last verified on GitHub on 2026-10-11; live API data takes precedence.
-export const DEFAULT_GITHUB_STARS = 62_403
+export const DEFAULT_PROJECT_INFO: Required<ProjectInfo> = snapshot
+export const DEFAULT_GITHUB_STARS = snapshot.githubStars
 
 export type ProjectInfo = {
   releaseVersion?: string
@@ -9,8 +11,12 @@ export type ProjectInfo = {
   contributors?: number
 }
 
-async function readGitHub(path: string, signal: AbortSignal): Promise<unknown> {
-  const response = await fetch(`${REPOSITORY_API}${path}`, {
+async function readGitHub(
+  path: string,
+  signal: AbortSignal,
+  fetcher: typeof fetch
+): Promise<unknown> {
+  const response = await fetcher(`${REPOSITORY_API}${path}`, {
     headers: { Accept: 'application/vnd.github+json' },
     cache: 'no-store',
     signal
@@ -19,8 +25,8 @@ async function readGitHub(path: string, signal: AbortSignal): Promise<unknown> {
   return response.status === 204 ? [] : response.json()
 }
 
-async function getStars(signal: AbortSignal): Promise<number> {
-  const repository = await readGitHub('', signal)
+async function getStars(signal: AbortSignal, fetcher: typeof fetch): Promise<number> {
+  const repository = await readGitHub('', signal, fetcher)
   if (
     typeof repository !== 'object' ||
     repository === null ||
@@ -33,8 +39,8 @@ async function getStars(signal: AbortSignal): Promise<number> {
   return repository.stargazers_count
 }
 
-async function getRelease(signal: AbortSignal): Promise<string> {
-  const release = await readGitHub('/releases/latest', signal)
+async function getRelease(signal: AbortSignal, fetcher: typeof fetch): Promise<string> {
+  const release = await readGitHub('/releases/latest', signal, fetcher)
   if (
     typeof release !== 'object' ||
     release === null ||
@@ -46,23 +52,30 @@ async function getRelease(signal: AbortSignal): Promise<string> {
   return release.tag_name
 }
 
-async function getContributors(signal: AbortSignal): Promise<number> {
+async function getContributors(signal: AbortSignal, fetcher: typeof fetch): Promise<number> {
   let count = 0
   for (let page = 1; ; page++) {
     // Count all registered accounts, including bots; the API excludes anonymous contributors.
-    const contributors = await readGitHub(`/contributors?per_page=100&page=${page}`, signal)
+    const contributors = await readGitHub(
+      `/contributors?per_page=100&page=${page}`,
+      signal,
+      fetcher
+    )
     if (!Array.isArray(contributors)) throw new Error('Invalid GitHub contributors')
     count += contributors.length
     if (contributors.length < 100) return count
   }
 }
 
-export async function getProjectInfo(signal: AbortSignal): Promise<ProjectInfo> {
+export async function getProjectInfo(
+  signal: AbortSignal,
+  fetcher: typeof fetch = fetch
+): Promise<ProjectInfo> {
   // A rate-limited or unavailable endpoint must not discard the other successful values.
   const [release, stars, contributors] = await Promise.allSettled([
-    getRelease(signal),
-    getStars(signal),
-    getContributors(signal)
+    getRelease(signal, fetcher),
+    getStars(signal, fetcher),
+    getContributors(signal, fetcher)
   ])
   return {
     releaseVersion: release.status === 'fulfilled' ? release.value : undefined,
