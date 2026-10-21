@@ -61,22 +61,15 @@ export function toTransform(state: ZoomState): string {
 export const WHEEL_ZOOM_PER_PIXEL = 0.00077
 /** Gain for a macOS pinch, which arrives as ctrl+wheel with far smaller deltas. */
 export const PINCH_ZOOM_BOOST = 3
-/** ln(scale) per event, so one event never jumps past ≈1.28×. */
-export const MAX_WHEEL_STEP = 0.25
 
 /**
- * The scale factor for one wheel event, as a function of how far the wheel moved.
- *
- * A step fixed per event ties the total zoom to how many events the platform
- * split the gesture into: one trackpad flick arrives as dozens and compounds to
- * ~17×. Exponents add, so a proportional factor makes the total depend on the
- * distance alone. A zero delta yields 1, leaving a horizontal scroll inert.
+ * Exponential factors compose by distance, as in d3-zoom. Clamp the final scale
+ * in zoomAt rather than individual deltas so event coalescing loses no distance.
  */
 export function wheelZoomFactor(event: WheelEvent): number {
   const perPixel = WHEEL_ZOOM_PER_PIXEL * (event.ctrlKey ? PINCH_ZOOM_BOOST : 1)
-  const step = -event.deltaY * perPixel
 
-  return Math.exp(Math.max(-MAX_WHEEL_STEP, Math.min(MAX_WHEEL_STEP, step)))
+  return Math.exp(-event.deltaY * perPixel)
 }
 
 export interface ZoomPanOptions {

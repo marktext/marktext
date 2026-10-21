@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest'
 import {
   IDENTITY,
   MAX_SCALE,
-  MAX_WHEEL_STEP,
   MIN_SCALE,
   PINCH_ZOOM_BOOST,
+  ZoomPanController,
   fitScale,
   pan,
   wheelZoomFactor,
@@ -80,9 +80,17 @@ describe('wheelZoomFactor', () => {
   const wheel = (deltaY: number, init?: WheelEventInit): WheelEvent =>
     new WheelEvent('wheel', { deltaY, ...init })
 
-  it('zooms a distance the same however it is split into events', () => {
-    expect(wheelZoomFactor(wheel(-50)) ** 3).toBeCloseTo(wheelZoomFactor(wheel(-150)), 12)
-  })
+  it.each([false, true])(
+    'preserves large distances across event splits (ctrlKey=%s)',
+    (ctrlKey) => {
+      for (const deltaY of [-600, 600]) {
+        expect(wheelZoomFactor(wheel(deltaY / 3, { ctrlKey })) ** 3).toBeCloseTo(
+          wheelZoomFactor(wheel(deltaY, { ctrlKey })),
+          12
+        )
+      }
+    }
+  )
 
   it('takes a 100px mouse notch to about 8%', () => {
     expect(wheelZoomFactor(wheel(-100))).toBeCloseTo(1.08, 2)
@@ -96,9 +104,17 @@ describe('wheelZoomFactor', () => {
     expect(wheelZoomFactor(wheel(0))).toBe(1)
   })
 
-  it('caps how far a single event can jump', () => {
-    expect(wheelZoomFactor(wheel(-1e6))).toBe(Math.exp(MAX_WHEEL_STEP))
-    expect(wheelZoomFactor(wheel(1e6))).toBe(Math.exp(-MAX_WHEEL_STEP))
+  it('limits the final scale for extreme wheel deltas', () => {
+    expect(zoomAt(IDENTITY, wheelZoomFactor(wheel(-1e6)), 550, 380, 400, 300)).toEqual({
+      scale: MAX_SCALE,
+      x: -2250,
+      y: -1200
+    })
+    expect(zoomAt(IDENTITY, wheelZoomFactor(wheel(1e6)), 550, 380, 400, 300)).toEqual({
+      scale: MIN_SCALE,
+      x: 135,
+      y: 72
+    })
   })
 
   it('gives a ctrl+wheel pinch the coarser gain', () => {
@@ -107,6 +123,40 @@ describe('wheelZoomFactor', () => {
 
     expect(pinch).toBeCloseTo(scroll * PINCH_ZOOM_BOOST, 12)
   })
+})
+
+describe('ZoomPanController wheel gestures', () => {
+  it.each([false, true])(
+    'restores scale and position after differently split reverse input (ctrlKey=%s)',
+    (ctrlKey) => {
+      const viewport = document.createElement('div')
+      const content = document.createElement('div')
+      viewport.getBoundingClientRect = () => new DOMRect(0, 0, 800, 600)
+      const controller = new ZoomPanController(viewport, content)
+
+      try {
+        for (const deltaY of [-600, 200, 200, 200]) {
+          const event = new WheelEvent('wheel', {
+            deltaY,
+            ctrlKey,
+            clientX: 550,
+            clientY: 380,
+            cancelable: true
+          })
+          viewport.dispatchEvent(event)
+          expect(event.defaultPrevented).toBe(true)
+        }
+
+        expect(controller.scale).toBeCloseTo(1, 12)
+        const translation = content.style.transform.match(/translate\(([^p]+)px, ([^p]+)px\)/)
+        expect(translation).not.toBeNull()
+        expect(Number(translation?.[1])).toBeCloseTo(0, 10)
+        expect(Number(translation?.[2])).toBeCloseTo(0, 10)
+      } finally {
+        controller.destroy()
+      }
+    }
+  )
 })
 
 describe('fitScale', () => {
