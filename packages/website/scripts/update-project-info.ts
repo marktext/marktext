@@ -1,5 +1,6 @@
 import { writeFile } from 'node:fs/promises'
-import { DEFAULT_PROJECT_INFO, getProjectInfo } from '../src/lib/project-info'
+import { PROJECT_INFO } from '../src/lib/project-info'
+import { getProjectInfo } from './fetch-project-info'
 
 const token = process.env.GITHUB_TOKEN
 const authenticatedFetch: typeof fetch = (input, init) => {
@@ -10,7 +11,7 @@ const authenticatedFetch: typeof fetch = (input, init) => {
 
 // Ship the last verified values when GitHub is unavailable during a build.
 const info = await getProjectInfo(AbortSignal.timeout(10_000), authenticatedFetch)
-const snapshot = { ...DEFAULT_PROJECT_INFO }
+const snapshot = { ...PROJECT_INFO }
 for (const key of ['releaseVersion', 'githubStars', 'contributors'] as const) {
   if (info[key] === undefined) console.warn(`GitHub ${key} unavailable; keeping snapshot`)
 }

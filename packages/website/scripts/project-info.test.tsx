@@ -1,24 +1,24 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { renderToStaticMarkup } from 'react-dom/server'
-import ProjectInfoProvider, { useProjectInfo } from '../src/components/ProjectInfoProvider'
-import { DEFAULT_PROJECT_INFO, getProjectInfo } from '../src/lib/project-info'
+import Hero from '../src/components/Hero'
+import Stats from '../src/components/Stats'
+import { PROJECT_INFO } from '../src/lib/project-info'
+import { getProjectInfo } from './fetch-project-info'
 
 test('initial HTML includes project data without contacting GitHub', () => {
-  function Consumer() {
-    return JSON.stringify(useProjectInfo())
-  }
   const html = renderToStaticMarkup(
-    <ProjectInfoProvider>
-      <Consumer />
-    </ProjectInfoProvider>
+    <>
+      <Hero />
+      <Stats />
+    </>
   )
-  assert.ok(html.includes(DEFAULT_PROJECT_INFO.releaseVersion))
-  assert.ok(html.includes(String(DEFAULT_PROJECT_INFO.contributors)))
-  assert.ok(html.includes(String(DEFAULT_PROJECT_INFO.githubStars)))
+  assert.ok(html.includes(PROJECT_INFO.releaseVersion))
+  assert.ok(html.includes(String(PROJECT_INFO.contributors)))
+  assert.ok(html.includes(PROJECT_INFO.githubStars.toLocaleString('en-US')))
 })
 
-test('live values include every page of contributors', async () => {
+test('build values include every page of contributors', async () => {
   const pages: string[] = []
   const fetcher: typeof fetch = async (input) => {
     const url = new URL(String(input))
@@ -53,7 +53,7 @@ test('a failed contributor page cannot publish an incomplete count or discard th
   })
 })
 
-test('network failures settle without rejecting the refresh', async () => {
+test('network failures settle without rejecting the build update', async () => {
   const fetcher: typeof fetch = async () => {
     throw new TypeError('Failed to fetch')
   }

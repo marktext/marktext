@@ -2,16 +2,15 @@
 
 import { useRef } from 'react'
 import { DOWNLOAD } from '@/lib/downloads'
-import { DEFAULT_GITHUB_STARS } from '@/lib/project-info'
+import { PROJECT_INFO } from '@/lib/project-info'
 import { EXT_LINK } from '@/lib/links'
 import { revealClass } from '@/lib/sections'
 import { useTilt } from '@/hooks/useTilt'
 import MockWindow from './MockWindow'
 import { CheckIcon, DownloadIcon, GitHubIcon } from './Icons'
-import { useProjectInfo } from './ProjectInfoProvider'
 
 export default function Hero() {
-  const { releaseVersion, githubStars } = useProjectInfo()
+  const { releaseVersion, githubStars } = PROJECT_INFO
   const stageRef = useRef<HTMLDivElement>(null)
   const winRef = useRef<HTMLDivElement>(null)
   useTilt(stageRef, winRef)
@@ -20,7 +19,7 @@ export default function Hero() {
     <header className="hero">
       <div className="wrap">
         <div className={revealClass(undefined, 'eyebrow')}>
-          <span className="tag">{releaseVersion ?? 'Latest release'}</span> Free &amp; open source forever
+          <span className="tag">{releaseVersion}</span> Free &amp; open source forever
         </div>
         <h1 className={revealClass('d1', 'hero-title')}>
           Write in Markdown. <span className="grad-text">Stay in flow.</span>
@@ -46,7 +45,7 @@ export default function Hero() {
             <CheckIcon /> No account, no tracking
           </span>
           <span>
-            <CheckIcon /> {(githubStars ?? DEFAULT_GITHUB_STARS).toLocaleString('en-US')} stars on GitHub
+            <CheckIcon /> {githubStars.toLocaleString('en-US')} stars on GitHub
           </span>
         </div>
 
@@ -58,8 +57,9 @@ export default function Hero() {
             </h1>
             <p className="doc-sub">A living document, written entirely in Markdown.</p>
             <p className="lead">
-              MarkText renders your formatting <strong>as you type</strong> — headings grow, <em>emphasis</em> leans, and{' '}
-              <code className="inline">code</code> snaps into place without ever leaving the page.
+              MarkText renders your formatting <strong>as you type</strong> — headings grow,{' '}
+              <em>emphasis</em> leans, and <code className="inline">code</code> snaps into place
+              without ever leaving the page.
             </p>
             <h2>What changed</h2>
             <ul>
@@ -67,7 +67,9 @@ export default function Hero() {
               <li>33 built-in themes plus full custom CSS</li>
               <li>Tables, math, footnotes &amp; diagrams out of the box</li>
             </ul>
-            <blockquote>“The best Markdown editors disappear. MarkText disappears beautifully.”</blockquote>
+            <blockquote>
+              “The best Markdown editors disappear. MarkText disappears beautifully.”
+            </blockquote>
             <pre>
               <span className="c">{'# export.sh'}</span>
               {'\n'}
