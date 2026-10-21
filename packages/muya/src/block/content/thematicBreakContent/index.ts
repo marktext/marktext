@@ -27,10 +27,6 @@ class ThematicBreakContent extends Format {
         return this.inlineRenderer.patch(this, cursor, highlights);
     }
 
-    /**
-     * Create an empty paragraph bellow.
-     * @param {*} event
-     */
     override enterHandler(event: Event) {
         const { text, muya } = this;
         const { start, end } = this.getCursor()!;
@@ -59,7 +55,6 @@ class ThematicBreakContent extends Format {
         const { start, end } = this.getCursor()!;
         if (start.offset === 0 && end.offset === 0) {
             event.preventDefault();
-            // Remove the text content and convert it to paragraph
             this.text = '';
             this.convertToParagraph();
         }

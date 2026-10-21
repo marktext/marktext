@@ -16,17 +16,8 @@ function capRegExpExec() {
     });
 }
 
-// Defensive coverage for the search helpers migrated from marktext.
-//
-// `buildRegexValue` already lines up with marktext 4c517b16 ("fix: search
-// group"): it skips literal `\$N`, honours `$0` as the full match and
-// `$N` (N≥1) as the captured subgroups. Pin the contract here so the
-// next refactor in `utils/search.ts` doesn't silently regress group
-// expansion when users rely on regex replace.
 function makeMatch(matchText: string, subMatches: (string | undefined)[]): IMatch {
     return {
-        // `buildRegexValue` only reads .match / .subMatches; the `block`
-        // field is required by the IMatch type but never consulted here.
         block: null as unknown as IMatch['block'],
         start: 0,
         end: matchText.length,
@@ -51,8 +42,6 @@ describe('buildRegexValue — marktext 4c517b16 group expansion', () => {
 
     it('leaves `\\$1` literal alone (escape with backslash)', () => {
         const value = buildRegexValue(makeMatch('foo', ['cap']), 'pre \\$1 post');
-        // backslash is preserved verbatim — the regex `(?<!\\)\$\d`
-        // guards against it.
         expect(value).toBe('pre \\$1 post');
     });
 
@@ -124,11 +113,6 @@ describe('buildRegexValue — two-digit group references', () => {
     });
 });
 
-// `matchString` is the search engine's lexer: it turns the user-facing
-// search options (case sensitivity / whole word / regexp) into a global
-// RegExp and returns matches shaped `{ match, subMatches, index }`.
-// Pin the option matrix so a refactor of the regex assembly in
-// `utils/search.ts` can't silently change which substrings are found.
 describe('matchString — search option matrix', () => {
     describe('isCaseSensitive', () => {
         it('matches every casing when false (3 matches, indices 0/4/8)', () => {
@@ -165,8 +149,6 @@ describe('matchString — search option matrix', () => {
                 isWholeWord: true,
                 isCaseSensitive: true,
             });
-            // 'Cat' (index 0) is excluded by case sensitivity, 'scatter' by the
-            // word boundary — only the standalone lowercase 'cat' survives.
             expect(matches).toHaveLength(1);
             expect(matches[0].index).toBe(4);
             expect(matches[0].match).toBe('cat');
@@ -182,8 +164,6 @@ describe('matchString — search option matrix', () => {
         });
 
         it('returns [] for an invalid pattern instead of throwing', () => {
-            // A bare '(' is an invalid RegExp; matchString swallows the
-            // SyntaxError and returns an empty result.
             expect(() => matchString('abc', '(', { isRegexp: true })).not.toThrow();
             expect(matchString('abc', '(', { isRegexp: true })).toEqual([]);
         });

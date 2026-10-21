@@ -30,25 +30,12 @@ function getIndentSpace(text: string, offset: number) {
     return match ? match[1] : '';
 }
 
-/**
- * Write `html` only when it differs from what the node already holds.
- *
- * Assigning `innerHTML` always destroys and recreates the child nodes, even for
- * a byte-identical string — so every keystroke in a code block tore down the
- * text node the caret was sitting in and built a new one, taking the native
- * selection and any IME composition anchored to it along. `Format.inputHandler`
- * has the same guard via `checkNeedRender`, which is why paragraphs never paid
- * this cost.
- */
+// Assigning identical innerHTML replaces caret text nodes and can freeze WebKit input.
+// Keep unchanged nodes alive.
 function replaceIfChanged(domNode: HTMLElement, html: string) {
     if (domNode.innerHTML !== html)
         domNode.innerHTML = html;
 }
-
-/**
- * parseSelector
- * div#id.className => {tag: 'div', id: 'id', className: 'className', isVoid: false}
- */
 
 function parseSelector(str = '') {
     const REG_EXP = /(#|\.)([^#.]+)/;
@@ -110,20 +97,13 @@ class CodeBlockContent extends Content {
         return content;
     }
 
-    // The language word for highlighting / tokenizing — the first word of the
-    // code container's info string (which may carry attributes, e.g.
-    // `js title="x"`). Every consumer of `_lang` wants the language, never the
-    // full info string (that is read from `meta.lang` directly by the language
-    // input), so derive it once here.
+    // Info strings can include attributes; highlighting uses only their first word.
     private get _lang() {
         const { _codeContainer: codeContainer } = this;
 
         return firstWordOfInfo(codeContainer ? codeContainer.lang : this._initialLang);
     }
 
-    /**
-     * Always be the `pre` element
-     */
     private get _codeContainer() {
         return this.parent?.parent;
     }
@@ -136,9 +116,7 @@ class CodeBlockContent extends Content {
             : codeContainer!.parent;
     }
 
-    // The text the preview was last rendered from. Seeded with the initial
-    // text so the create-pass update() does not re-trigger a render that races
-    // the preview's own one-shot render on append (async for diagrams).
+    // Seeded at creation to avoid racing the preview’s initial async render.
     private _lastPreviewText: string;
 
     constructor(muya: Muya, state: CodeContentState) {
@@ -150,7 +128,6 @@ class CodeBlockContent extends Content {
             this._initialLang = LANG_HASH[state.name];
 
         this.classList = [...this.classList, 'mu-codeblock-content'];
-        // Used for empty status prompts
         this.attributes.frontMatter = muya.i18n.t('Input Front Matter...');
         this.attributes.math = muya.i18n.t('Input Mathematical Formula...');
         this.createDomNode();
@@ -160,16 +137,12 @@ class CodeBlockContent extends Content {
         return this.outContainer;
     }
 
-    // Some block has a preview container, like math, diagram, html, should update the preview if the text changed.
     private _updatePreviewIfHave(text: string) {
         // update() runs during the initial create pass before this block is
         // attached, when outContainer cannot resolve its parent chain.
         if (!this._codeContainer)
             return;
-        // Only re-render when the text actually changed. update() is called on
-        // every render pass; without this guard a diagram's create-pass render
-        // and update()'s render race (DiagramPreview.update is async), leaving
-        // the SVG unmounted.
+        // Repeated renders can race async diagram creation and leave its SVG unmounted.
         if (text === this._lastPreviewText)
             return;
         this._lastPreviewText = text;
@@ -182,7 +155,6 @@ class CodeBlockContent extends Content {
         const parentCode = this.parent as Code | null;
         if (parentCode?.copyButton && parentCode.parent?.blockName === 'code-block')
             parentCode.copyButton.hidden = !text;
-        // transform alias to original language
         const fullLengthLang = transformAliasToOrigin([lang])[0];
         const domNode = this.domNode!;
         const code = escapeHTML(getHighlightHtml(text, highlights, true))
@@ -240,9 +212,7 @@ class CodeBlockContent extends Content {
         this._observeLineNumberResize(wrapper);
     }
 
-    // Re-measure the gutter after any code-block reflow (initial render, font /
-    // wrap change, content edit, viewport resize). Fires post-layout, so it
-    // can't read stale positions; owns all repositioning.
+    // Measure after layout so code gutters follow content, wrapping and font changes.
     private _observeLineNumberResize(wrapper: HTMLElement) {
         if (this._lineNumberResizeObserver != null || typeof ResizeObserver === 'undefined')
             return;
@@ -281,7 +251,6 @@ class CodeBlockContent extends Content {
     override enterHandler(event: KeyboardEvent): void {
         event.preventDefault();
 
-        // Shift + Enter to jump out of code block.
         if (event.shiftKey) {
             let cursorBlock;
             const nextContentBlock = this.nextContentInContext();
@@ -404,8 +373,6 @@ class CodeBlockContent extends Content {
 
     override backspaceHandler(event: KeyboardEvent): void {
         const { start, end } = this.getCursor()!;
-        // If the cursor is in the first position of the code block text,
-        // when backspace is pressed, this time the code block should be converted to a normal paragraph
         if (start.offset === end.offset && start.offset === 0) {
             event.preventDefault();
             const { text, muya } = this;
@@ -424,9 +391,7 @@ class CodeBlockContent extends Content {
         if (event.ctrlKey || event.altKey || event.metaKey)
             return;
 
-        // The following code should fix a certain bug:
-        // when there is one newline(\n) character before cursor.
-        // pressing the backspace key should work properly.(compatibility with Firefox)
+        // Firefox needs manual deletion at a newline boundary.
         if (
             start.offset === end.offset
             && this.text[start.offset - 1] === '\n'
@@ -437,14 +402,9 @@ class CodeBlockContent extends Content {
             this._updatePreviewIfHave(this.text);
             return this.setCursor(--start.offset, --end.offset, true);
         }
-        // The following code is aimed at ensuring compatibility with Firefox.
-        // If the preceding character is the end of a token or the second preceding
-        // character is the end of a token, the cursor may become dislocated when
-        // the backspace key is pressed in Firefox. Therefore, we need to manually
-        // simulate the backspace key in order to set the cursor position correctly.
+        // Firefox can misplace the caret at highlighted token boundaries; delete and restore it manually.
         if (start.offset === end.offset) {
             const { _lang: lang, text } = this;
-            // transform alias to original language
             const fullLengthLang = transformAliasToOrigin([lang])[0];
             if (fullLengthLang && /\S/.test(text) && loadedLanguages.has(fullLengthLang)) {
                 const tokens = prism.tokenize(text, prism.languages[fullLengthLang]);
@@ -468,7 +428,6 @@ class CodeBlockContent extends Content {
                         }
                     }
                     code += token.content;
-                    // string and Token both has length property...
                     offset -= token.length;
                 });
 
@@ -487,7 +446,6 @@ class CodeBlockContent extends Content {
             return;
 
         const { anchor, focus } = this.getCursor()!;
-        // TODO: @JOCS remove use this.selection directly
         const { anchor: oldAnchor, focus: oldFocus } = this.selection;
 
         if (

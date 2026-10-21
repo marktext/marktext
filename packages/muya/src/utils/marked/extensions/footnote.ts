@@ -1,10 +1,6 @@
 import type { Lexer, MarkedExtension, Tokens } from 'marked';
 
-// marked's `tokenizer`/`renderer` hooks are bound to a context object that
-// exposes the active `lexer` (for nested block tokenisation) and `parser`
-// (for rendering nested tokens). Marked's public `RendererThis` /
-// `TokenizerThis` types don't surface those fields, so we declare narrow
-// structural views and narrow `this` once per hook.
+// Marked binds lexer/parser on hook contexts, but public types omit these internal members.
 interface IFootnoteTokenizerThis {
     lexer: Lexer;
 }
@@ -49,12 +45,7 @@ interface IFootnoteRefToken {
 }
 
 export default function footnoteExtension(): MarkedExtension {
-    // pandoc: a footnote "may appear anywhere except inside other block
-    // elements", which rules out a definition nested in another note's body.
-    // Both hooks stand down while the body below is being lexed, so an
-    // indented `[^id]:` line stays literal text instead of becoming a child
-    // footnote. Scoped to this extension instance, so concurrent Marked
-    // instances don't see each other's state.
+    // Disable both hooks inside note bodies: nested notes remain literal.
     let inFootnoteBody = false;
 
     return {
@@ -65,12 +56,7 @@ export default function footnoteExtension(): MarkedExtension {
                 start(src: string) {
                     if (inFootnoteBody)
                         return;
-                    // Marked calls start() with `src.slice(1)` to look for the
-                    // earliest position the paragraph should terminate at.
-                    // Only signal a match when `[^id]:` follows an actual
-                    // newline inside that slice — never when the slice merely
-                    // begins with `[^`, because that would split paragraphs
-                    // at inline footnote references like `Lorem [^1] ipsum`.
+                    // Marked passes src.slice(1); only a real newline before the identifier ends a paragraph.
                     const m = /\n\[\^[^^[\]\s]+(?<!\\)\]:/.exec(src);
                     return m ? m.index + 1 : undefined;
                 },
@@ -82,14 +68,7 @@ export default function footnoteExtension(): MarkedExtension {
                         return;
 
                     const [raw, identifier, rest] = match;
-                    // Strip leading whitespace after the `:` marker (so both
-                    // `[^id]: text` and `[^id]:\n    text` start clean) and
-                    // de-indent the 4-space continuation indent on every
-                    // line. The first line needs an explicit `^ {4}` strip
-                    // because the per-line de-indent rule below is anchored
-                    // to a preceding `\n`; without that strip an indented-
-                    // continuation body (`[^id]:\n    text`) lexes as an
-                    // indented code block instead of a paragraph.
+                    // Strip initial whitespace and four-space continuation indentation before lexing the body.
                     const cleaned = rest
                         .replace(/^[ \t]*/, '')
                         .replace(/^\n+/, '')
@@ -129,7 +108,6 @@ export default function footnoteExtension(): MarkedExtension {
                     if (token.type !== 'footnote')
                         return false;
                     const t = token as IFootnoteToken;
-                    // The parser is bound to `this` at render time.
                     const { parser } = this as IFootnoteRendererThis;
                     const inner = parser ? parser.parse(t.tokens) : '';
                     return `<div class="footnote-block" data-identifier="${escapeAttr(t.identifier)}">${inner}</div>\n`;
@@ -154,11 +132,7 @@ export default function footnoteExtension(): MarkedExtension {
                         return false;
                     const t = token as IFootnoteRefToken;
 
-                    // A marker, not the final `<sup>`: numbering depends on
-                    // the order references appear across the whole document,
-                    // which only `transformFootnotes` can see. It rewrites
-                    // every marker — into a link where a definition exists,
-                    // back into literal `[^id]` where none does.
+                    // Emit a marker: transformFootnotes numbers references after seeing the whole document.
                     return `<span class="footnote-ref" data-identifier="${escapeAttr(t.identifier)}"></span>`;
                 },
             },

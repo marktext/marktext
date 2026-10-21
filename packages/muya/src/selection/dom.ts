@@ -1,4 +1,3 @@
-// utils used in selection/index.js
 import type Content from '../block/base/content';
 import type { IAnchorFocusInfo } from './types';
 import { CLASS_NAMES } from '../config';
@@ -162,7 +161,6 @@ export function getTextContent(node: Node, blackList: string[] = []) {
         isElement(node)
         && node.classList.contains(`${CLASS_NAMES.MU_INLINE_IMAGE}`)
     ) {
-    // handle inline image
         const raw = node.getAttribute('data-raw');
         const imageContainer = node.querySelector(
             `.${CLASS_NAMES.MU_IMAGE_CONTAINER}`,

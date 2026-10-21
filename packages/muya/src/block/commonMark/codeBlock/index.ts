@@ -11,14 +11,7 @@ import { ScrollPage } from '../../scrollPage';
 
 const debug = logger('codeblock:');
 
-/**
- * The grammar a block with this info string will actually be highlighted with,
- * or `''` when it will render as plain text.
- *
- * Mirrors the lookup in `CodeBlockContent.update()` — the two have to agree, or
- * the setter's "did the rendering change" check reads a different answer than
- * the renderer acts on.
- */
+// Must match CodeBlockContent.update() so grammar-change detection agrees with rendering.
 function renderedGrammarFor(infoString: string): string {
     const language = firstWordOfInfo(infoString);
     if (!language)
@@ -53,16 +46,11 @@ class CodeBlock extends Parent {
         if (copyButton)
             codeBlock.domNode!.appendChild(copyButton);
 
-        // Move the line-numbers gutter from .mu-code into the pre so that
-        // .mu-code's overflow (hidden/auto) does not clip the left-side gutter.
-        // The pre already has position:relative and padding-left:2.5em for this.
+        // Keep the gutter outside the code element’s clipping overflow.
         const lnWrapper = (code as { lineNumbersWrapper?: HTMLElement | null }).lineNumbersWrapper;
         if (lnWrapper) {
             codeBlock.domNode!.appendChild(lnWrapper);
-            // The gutter fills from CodeBlockContent.update(), a no-op until the
-            // tree is wired. The language-load callback below re-runs it, but
-            // language-less / unknown-language / indented blocks never load one —
-            // seed them here so first render fills the gutter regardless of language.
+            // Seed gutters after attachment: unknown or absent languages never trigger a language-load render.
             requestAnimationFrame(() => {
                 codeBlock.lastContentInDescendant()?.update();
             });
@@ -88,7 +76,6 @@ class CodeBlock extends Parent {
 
         if (this.meta.type !== 'fenced') {
             this.meta.type = 'fenced';
-            // dispatch change to modify json state
             const diffs = diff('indented', 'fenced');
             const { path } = this;
             path.push('meta', 'type');
@@ -108,17 +95,8 @@ class CodeBlock extends Parent {
     }
 
     private _renderLanguage() {
-        // Render when the grammar the block is drawn with changes — including
-        // to none, which is what clearing the language or naming one Prism does
-        // not have amounts to. Those two used to render nothing at all and left
-        // the previous grammar's markup on screen (#5515).
-        //
-        // The load `status` cannot stand in for this. It reports whether the
-        // grammar reached `loadedLanguages`, i.e. whether the block *will*
-        // highlight — not whether that differs from what it already shows. The
-        // language input calls this setter on every keystroke, so typing a name
-        // Prism does not have walks a run of unknown prefixes that must render
-        // once, not once each.
+        // Rerender only when the displayed grammar changes, including to plain text (#5515).
+        // Load status cannot detect this; every unknown language prefix should not rebuild the DOM.
         const rerenderIfGrammarChanged = () => {
             const grammar = renderedGrammarFor(this.meta.lang ?? '');
             if (grammar === this._renderedGrammar)

@@ -5,14 +5,6 @@ import type Table from '../index';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../../../muya';
 
-// Coverage for `Table.insertRow` / `Table.insertColumn`. The migration audit
-// noted only the REMOVAL paths are unit-tested (removeRowColumn.spec.ts) — the
-// insertion paths, which the floating table toolbar / row-column menu drive,
-// had no direct test. A miscount here silently mis-shapes the table or drops
-// per-column alignment. These tests boot a real table and assert the resulting
-// shape, alignment inheritance, and the returned caret cell so the toolbar can
-// place the cursor in the new cell.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -62,7 +54,6 @@ function flush(): Promise<void> {
     return new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 }
 
-// A 1-header + 1-body table whose two columns are left- and right-aligned.
 const ALIGNED_TABLE = '| a | b |\n| :--- | ---: |\n| 1 | 2 |\n';
 
 describe('table.insertRow', () => {
@@ -75,7 +66,6 @@ describe('table.insertRow', () => {
 
         await flush();
         expect(table.rowCount).toBe(3);
-        // The new row carries the same column count, all cells empty.
         const state = table.getState();
         const newRow = state.children[1];
         expect(newRow.children.length).toBe(2);
@@ -91,8 +81,6 @@ describe('table.insertRow', () => {
         await flush();
         const state = table.getState();
         const newRow = state.children[1];
-        // Column 0 is left-aligned, column 1 right-aligned in the header — the
-        // inserted row's cells copy that.
         expect(newRow.children[0].meta.align).toBe('left');
         expect(newRow.children[1].meta.align).toBe('right');
     });
@@ -114,7 +102,6 @@ describe('table.insertRow', () => {
 
         await flush();
         const md = muya.getMarkdown();
-        // The :--- (left) / ---: (right) delimiter survives the row insert.
         expect(md).toContain(':---');
         expect(md).toContain('---:');
     });
@@ -130,7 +117,6 @@ describe('table.insertColumn', () => {
 
         await flush();
         expect(table.columnCount).toBe(3);
-        // Every row gained one empty cell.
         const state = table.getState();
         for (const row of state.children)
             expect(row.children.length).toBe(3);
@@ -144,7 +130,6 @@ describe('table.insertColumn', () => {
 
         await flush();
         const state = table.getState();
-        // The inserted column (index 1) is center-aligned in every row.
         for (const row of state.children)
             expect(row.children[1].meta.align).toBe('center');
     });
@@ -166,7 +151,6 @@ describe('table.insertColumn', () => {
 
         await flush();
         const md = muya.getMarkdown();
-        // Delimiter row now reads left | center | right.
         expect(md).toContain(':---:');
     });
 });

@@ -19,7 +19,6 @@ afterEach(() => {
 describe('normalizePastedHTML — bare URL link normalization', () => {
     it('keeps a link whose href is not a URL even when text === href', async () => {
         const out = await normalizePastedHTML('<a href="foo">foo</a>');
-        // Non-URL href: the link must survive, not collapse into a bare span.
         expect(out).toContain('href="foo"');
     });
 
@@ -29,7 +28,6 @@ describe('normalizePastedHTML — bare URL link normalization', () => {
     });
 
     it('unlinks a bare URL link (text === href) when no page title resolves', async () => {
-        // Offline → getPageTitle returns '' immediately → fallback span path.
         setOnline(false);
         const out = await normalizePastedHTML(
             '<a href="http://example.com/page">http://example.com/page</a>',

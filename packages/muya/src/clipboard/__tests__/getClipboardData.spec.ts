@@ -32,7 +32,6 @@ function selectionOver(
     end: number,
     blockName: string = 'paragraph.content',
 ) {
-    // The fake block only exposes the two fields getClipboardData reads.
     const block = { text, blockName } as unknown as Content;
     return {
         isSelectionInSameBlock: true,

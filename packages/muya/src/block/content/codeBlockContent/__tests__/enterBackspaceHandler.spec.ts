@@ -4,21 +4,6 @@ import type Content from '../../../base/content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../../muya';
 
-// CHARACTERIZATION — codeBlockContent enter / backspace handlers.
-//
-// `CodeBlockContent` (src/block/content/codeBlockContent/index.ts) owns three
-// keystroke paths that the migration audit flagged as untested:
-//   - backspaceHandler at offset 0 converts the whole code block back into a
-//     plain paragraph (data-loss guard — the code text must survive verbatim);
-//   - the plain enterHandler inserts `\n` plus the line indent (and, when the
-//     caret sits between an auto-indent pair, an extra tabSize block);
-//   - Shift+Enter jumps OUT of the code block, appending a trailing paragraph
-//     when there is no following content.
-//
-// We boot a real Muya so the json1 op / selection plumbing matches a live
-// keystroke, then drive the handler off the resolved content block the way the
-// keydown listener does (the handler reads `getCursor()` + `this.text`).
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -50,8 +35,6 @@ function bootMuya(markdown: string): Muya {
     return muya;
 }
 
-// Resolve the single `codeblock.content` leaf, the way a click on the code
-// block resolves the active content block.
 function codeContent(muya: Muya): Content {
     let target: Content | null = null;
     const visit = (block: {
@@ -96,7 +79,6 @@ describe('codeBlockContent.backspaceHandler — offset-0 converts to paragraph',
         await flush();
         const state = muya.getState();
         expect(state[0].name).toBe('paragraph');
-        // Data-loss guard: the code text survives verbatim into the paragraph.
         expect((state[0] as { text: string }).text).toBe(original);
         expect(event.preventDefault).toHaveBeenCalledTimes(1);
     });
@@ -121,7 +103,6 @@ describe('codeBlockContent.backspaceHandler — offset-0 converts to paragraph',
         const muya = bootMuya('```js\nfoo\n```\n');
         const content = codeContent(muya);
         muya.editor.activeContentBlock = content;
-        // Caret one in from the start — the offset-0 conversion branch must not fire.
         content.setCursor(1, 1, true);
 
         const event = keyEvent({ key: 'Backspace' });
@@ -129,8 +110,6 @@ describe('codeBlockContent.backspaceHandler — offset-0 converts to paragraph',
 
         await flush();
         const state = muya.getState();
-        // The block stays a code-block: the offset-0 paragraph conversion guard
-        // only triggers when start === end === 0.
         expect(state[0].name).toBe('code-block');
     });
 });
@@ -198,10 +177,8 @@ describe('codeBlockContent.enterHandler — plain Enter inserts newline + indent
         const event = keyEvent({ key: 'Enter' });
         content.enterHandler(event);
 
-        // indent = leading whitespace `  `; no auto-indent pair at the caret.
         expect(content.text).toBe('  foo\n  ');
         const cursor = content.getCursor()!;
-        // offset = start(5) + 1 (newline) + indent.length(2)
         expect(cursor.start.offset).toBe(8);
         expect(event.preventDefault).toHaveBeenCalledTimes(1);
     });
@@ -209,7 +186,6 @@ describe('codeBlockContent.enterHandler — plain Enter inserts newline + indent
     it('inherits the CURRENT line indent when Enter is pressed on a later line, not line 0', () => {
         const muya = bootMuya('```js\nfoo\n```\n');
         const content = codeContent(muya);
-        // Two lines: line 0 has no indent, line 1 is indented 4 spaces.
         content.text = 'def foo():\n    bar()';
         muya.editor.activeContentBlock = content;
         const offset = content.text.length; // caret at end of the indented 2nd line
@@ -217,7 +193,6 @@ describe('codeBlockContent.enterHandler — plain Enter inserts newline + indent
 
         content.enterHandler(keyEvent({ key: 'Enter' }));
 
-        // The new line must inherit line 1's 4-space indent, not line 0's empty indent.
         expect(content.text).toBe('def foo():\n    bar()\n    ');
         const cursor = content.getCursor()!;
         expect(cursor.start.offset).toBe(offset + 1 + 4);
@@ -226,17 +201,14 @@ describe('codeBlockContent.enterHandler — plain Enter inserts newline + indent
     it('adds an extra tabSize block when the caret sits inside an auto-indent pair', () => {
         const muya = bootMuya('```js\nfoo\n```\n');
         const content = codeContent(muya);
-        // Caret between `{` and `}` → checkAutoIndent true; default tabSize 4.
         content.text = '{}';
         muya.editor.activeContentBlock = content;
         content.setCursor(1, 1, true);
 
         content.enterHandler(keyEvent({ key: 'Enter' }));
 
-        // `{` + \n + (indent + 4 spaces) + \n + (indent) + `}`; indent is '' here.
         expect(content.text).toBe('{\n    \n}');
         const cursor = content.getCursor()!;
-        // offset = start(1) + 1 + indent.length(0) + tabSize(4)
         expect(cursor.start.offset).toBe(6);
         expect(muya.options.tabSize).toBe(4);
     });
@@ -244,7 +216,6 @@ describe('codeBlockContent.enterHandler — plain Enter inserts newline + indent
 
 describe('codeBlockContent.enterHandler — Shift+Enter jumps out of the code block', () => {
     it('appends a trailing paragraph and moves the caret to it when nothing follows', async () => {
-        // A doc that is ONLY a fenced code block — no following content block.
         const muya = bootMuya('```js\ncode\n```');
         const content = codeContent(muya);
         muya.editor.activeContentBlock = content;
@@ -258,7 +229,6 @@ describe('codeBlockContent.enterHandler — Shift+Enter jumps out of the code bl
         const state = muya.getState();
         expect(state.length).toBe(before + 1);
         expect(state[state.length - 1].name).toBe('paragraph');
-        // Caret moved to the new trailing paragraph at offset 0.
         const active = muya.editor.activeContentBlock!;
         expect(active.blockName).toBe('paragraph.content');
         expect(active.getCursor()!.start.offset).toBe(0);
@@ -276,7 +246,6 @@ describe('codeBlockContent.enterHandler — Shift+Enter jumps out of the code bl
 
         await flush();
         const state = muya.getState();
-        // Reuses the existing next content block — no paragraph is appended.
         expect(state.length).toBe(before);
         const active = muya.editor.activeContentBlock!;
         expect(active.text).toBe('after');

@@ -1,12 +1,4 @@
-// Extract the `linkInfo` payload that the linkTools popover hands back to
-// `contentState.unlink` / `options.jumpClick`.
-//
-// The link renderers (`link.ts`, `referenceLink.ts`,
-// `htmlTag.ts`) all emit `dataset.{start,end,raw}` on the rendered link
-// wrapper plus an `href` — markdown `[]()` via snabbdom `props.href`
-// (DOM property on the `<span>`), HTML `<a>` and reference link via real
-// `href` attribute on the `<a>`. We read both forms so the caller doesn't
-// need to know which renderer produced the element.
+// Link renderers store raw text and ranges in dataset attributes for the link popover.
 
 export interface IExtractedLinkInfo {
     href: string | null;
@@ -16,15 +8,11 @@ export interface IExtractedLinkInfo {
 }
 
 function readHref(el: HTMLElement): string | null {
-    // Real attribute on a rendered <a> (reference link with resolved href,
-    // or html_tag <a href=...>).
     const attr = el.getAttribute('href');
     if (attr)
         return attr;
 
-    // snabbdom `props.href` on the markdown `<span class="mu-link">` wrapper
-    // sets `elm.href` as a custom DOM property (no attribute). HTMLElement
-    // has no such field in lib.dom; declare only the slice we read.
+    // snabbdom stores href as a custom property on Markdown span wrappers, not as an attribute.
     const prop = (el as HTMLElement & { href?: unknown }).href;
     if (typeof prop === 'string' && prop)
         return prop;
@@ -33,16 +21,12 @@ function readHref(el: HTMLElement): string | null {
 }
 
 function parseRange(startStr: string | undefined, endStr: string | undefined): { start: number; end: number } | null {
-    // Reject missing or empty dataset values up front — `Number('')` is 0,
-    // not NaN, so without this check an empty attribute would silently
-    // produce `{ start: 0, end: 0 }`.
+    // Number('') is zero; reject empty offsets before conversion.
     if (!startStr || !endStr)
         return null;
 
     const start = Number(startStr);
     const end = Number(endStr);
-    // Reject NaN / Infinity from non-numeric dataset values so consumers
-    // never receive `{ start: NaN, end: NaN }`.
     if (!Number.isFinite(start) || !Number.isFinite(end))
         return null;
 

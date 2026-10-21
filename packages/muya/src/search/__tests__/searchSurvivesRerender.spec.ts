@@ -140,8 +140,6 @@ describe('search refresh after a parse-affecting toggle', () => {
 
         muya.setOptions({ multilineBlockquote: true }, true);
 
-        // Only the plain paragraph still holds a `>>>`; the active match has to
-        // land inside the refreshed result set instead of past its end.
         expect(search.matches.length).toBe(1);
         expect(search.index).toBe(0);
         expect(highlightCount(muya)).toBe(1);

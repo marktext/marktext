@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getHighlightHtml } from '../getHighlightHtml';
 
-// The export renders through marked, which recognises GFM task-list-items on
-// ordered lists too (#1691).
 describe('getHighlightHtml — ordered task list (#1691)', () => {
     it('renders `1. [x] …` as an ordered list with checkboxes', () => {
         const html = getHighlightHtml('1. [x] a\n2. [ ] b\n');

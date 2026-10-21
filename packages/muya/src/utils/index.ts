@@ -10,9 +10,7 @@ interface IUnion {
     active?: boolean;
 }
 
-// `never[]` in the contravariant arg-tuple position lets the @methodMixins
-// decorator accept any concrete class constructor (`new (muya: Muya, …)`),
-// without dragging the loosely-typed `any[]` back in.
+// A contravariant never[] tuple accepts concrete constructor signatures without any[].
 type Constructor = new (...args: never[]) => object;
 
 interface IDefer<T> {
@@ -51,11 +49,7 @@ export function snakeToCamel(name: string) {
     return name.replace(/_([a-z])/g, (_p0, p1) => p1.toUpperCase());
 }
 
-// The fenced code block info string's first non-whitespace run is the
-// "language" used for syntax highlighting and the `language-*` class
-// (CommonMark §4.5). The rest of the info string is preserved as-is on the
-// block so the fence round-trips. Info strings reach us untrimmed (`~~~ js`,
-// ` ``` js `), so skip the leading whitespace before taking the first run.
+// Highlight only the first non-whitespace word; preserve the full fence info string elsewhere.
 export function firstWordOfInfo(info: string): string {
     return info.trimStart().match(/\S*/)?.[0] ?? '';
 }
@@ -68,10 +62,7 @@ export interface IFenceLine {
 
 const FENCE_LINE_REG = /^ {0,3}(`{3,}|~{3,})([^\n]*)/;
 
-// Parse a CommonMark opening code fence (§4.5) at the start of a line, or
-// return null when the line is not a valid fence opener. The two fence
-// characters are asymmetric: a backtick fence's info string may not contain a
-// backtick, while a tilde fence's may contain either fence character.
+// Return null for invalid opening fences. Backtick info strings cannot contain backticks; tilde info can.
 export function parseFenceLine(text: string): IFenceLine | null {
     const match = FENCE_LINE_REG.exec(text);
     if (!match)
@@ -84,9 +75,6 @@ export function parseFenceLine(text: string): IFenceLine | null {
 
     return { fenceChar: fence[0] as '`' | '~', fenceLength: fence.length, info };
 }
-/**
- *  Are two arrays have intersection
- */
 export function conflict(arr1: [number, number], arr2: [number, number]) {
     return !(arr1[1] < arr2[0] || arr2[1] < arr1[0]);
 }
@@ -112,8 +100,7 @@ export function union({ start: tStart, end: tEnd }: IUnion, { start: lStart, end
     return null;
 }
 
-// https://github.com/jashkenas/underscore
-// TODO: @jocs rewrite in the future.
+// Adapted from https://github.com/jashkenas/underscore.
 export function throttle<TArgs extends unknown[], TReturn>(
     func: (...args: TArgs) => TReturn,
     wait = 50,
@@ -172,16 +159,8 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
     return proto === Object.prototype || proto === null;
 }
 
-/**
- * Deep copy of JSON-shaped data. Arrays and plain objects are walked with an
- * explicit stack, so the nesting depth of the input never consumes engine
- * stack: `structuredClone` recurses once per level and throws `RangeError`
- * on a bullet list a few hundred levels deep, which is still ordinary
- * Markdown (#4747). Shared references inside `value` stay shared in the
- * copy. Values that are neither arrays nor plain objects (Date, Map, typed
- * arrays, ...) are still copied with `structuredClone`, so they keep the
- * semantics callers relied on before.
- */
+// Clone arrays and plain objects iteratively to support deeply nested Markdown (#4747).
+// Preserve shared references; use structuredClone for other object types.
 export function deepClone<T>(value: T): T {
     if (!Array.isArray(value) && !isPlainObject(value))
         return structuredClone(value);
@@ -275,12 +254,6 @@ export function sanitize(html: string, purifyOptions: Config, disableHtml: boole
         return runSanitize(escapeInBlockHtml(html), purifyOptions);
 }
 
-/**
- * TODO: @jocs remove in the future, because it's not used.
- * @param ele
- * @param id
- * @returns A floating-ui-compatible virtual reference positioned at the element's bounding rect.
- */
 export function getParagraphReference(ele: HTMLElement, id: string) {
     const { x, y, left, top, bottom, height } = ele.getBoundingClientRect();
 
@@ -294,14 +267,8 @@ export function getParagraphReference(ele: HTMLElement, id: string) {
     };
 }
 
-// `ot-text-unicode` counts its positions in Unicode code points: both of the
-// offsets it walks a string by advance one or two UTF-16 code units, depending
-// on whether the current unit starts a surrogate pair (`uniToStrPos` /
-// `strPosToUni`). A skipped run of unchanged text therefore has to be measured
-// in code points as well. Measuring it in grapheme clusters drifts as soon as a
-// character is more than one code point — `👨‍👩‍👧` is one cluster but five code
-// points — and the op then edits the wrong offsets, silently desyncing the JSON
-// state from the document (the corruption behind the #4926 family of crashes).
+// ot-text-unicode measures positions in code points, not grapheme clusters.
+// Unchanged diff spans must use the same units or subsequent operations corrupt state (#4926).
 function codePointLength(str: string) {
     let length = 0;
     for (let i = 0; i < str.length; i++) {
@@ -315,17 +282,8 @@ function codePointLength(str: string) {
     return length;
 }
 
-// ---------------------------------------------------------------------------
-// Extended grapheme clusters (UAX #29).
-//
-// One "character" from the user's point of view can be several code points
-// (`👨‍👩‍👧` is 5) and several UTF-16 code units (8). Anything that moves over or
-// deletes "one character" therefore has to work on grapheme cluster boundaries
-// rather than on code units or code points — otherwise it can stop inside a
-// cluster and leave half of it behind. `Intl.Segmenter` applies the same UAX
-// #29 segmentation the browser uses for its own caret movement and for the
-// deletion commands, so the editor stays consistent with it.
-// ---------------------------------------------------------------------------
+// Visible characters can span multiple code points; caret movement and deletion
+// use grapheme boundaries to match browser behavior (UAX #29).
 
 export interface IGraphemeCluster {
     /** Offset of the cluster's first UTF-16 code unit. */
@@ -347,9 +305,7 @@ function getGraphemeSegmenter(): Intl.Segmenter | null {
     return graphemeSegmenter;
 }
 
-// The grapheme clusters of `text`, as `[start, end)` code-unit ranges. Engines
-// without `Intl.Segmenter` degrade to code points (surrogate-pair aware), which
-// is the narrowest unit the delete handlers can then rely on.
+// Yield [start, end) UTF-16 ranges. Without Intl.Segmenter, fall back to whole code points.
 export function* graphemeClusters(text: string): Generator<IGraphemeCluster> {
     const segmenter = getGraphemeSegmenter();
     if (segmenter) {
@@ -366,15 +322,14 @@ export function* graphemeClusters(text: string): Generator<IGraphemeCluster> {
     }
 }
 
-// Length in UTF-16 code units of the first grapheme cluster of `text`, so
-// callers can advance one whole character instead of one code unit.
+// UTF-16 length of the first grapheme cluster.
 export function firstGraphemeLength(text: string): number {
     const [first] = graphemeClusters(text);
 
     return first ? first.end - first.start : 0;
 }
 
-// Length in UTF-16 code units of the last grapheme cluster of `text`.
+// UTF-16 length of the last grapheme cluster.
 export function lastGraphemeLength(text: string): number {
     let length = 0;
     for (const cluster of graphemeClusters(text))
@@ -385,10 +340,6 @@ export function lastGraphemeLength(text: string): number {
 
 export type TDiff = (string | number | { d: string });
 
-/**
- * transform diff to text-unicode op
- * @param {Array} diffs
- */
 export function diffToTextOp(diffs: Diff[]) {
     const op: TDiff[] = [];
 
@@ -448,12 +399,6 @@ export function verticalPositionInRect(event: MouseEvent, rect: DOMRect) {
     return clientY - top > height / 2 ? 'down' : 'up';
 }
 
-// `hasPick` is called by editor.updateContents on each element of an
-// ot-json1 op descent. The element shape is one of (number | string |
-// JSONOpComponent | JSONOpList) — only the component case (`{p?, r?, ...}`)
-// is interesting. Accept the structural subset we actually read instead of
-// dragging in the whole union (most callers pass an already-narrowed
-// object).
 export function hasPick(c: { p?: number; r?: unknown } | null | undefined): boolean {
     return !!c && (c.p != null || c.r !== undefined);
 }
@@ -492,7 +437,6 @@ export function mixins(...constructors: Constructor[]) {
     return (derivedCtor: Constructor) => {
         constructors.forEach((baseCtor) => {
             Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
-                // Do not rewrite the constructor of derivedCtor.
                 if (name === 'constructor')
                     return;
 
@@ -507,12 +451,10 @@ export function mixins(...constructors: Constructor[]) {
     };
 }
 
-// narrowing Event type to KeyboardEvent.
 export function isKeyboardEvent(event: Event): event is KeyboardEvent {
     return 'key' in event;
 }
 
-// narrowing Event type to MouseEvent.
 export function isMouseEvent(event: Event): event is MouseEvent {
     return 'x' in event;
 }
@@ -521,15 +463,11 @@ export function isInputEvent(event: Event): event is InputEvent {
     return 'inputType' in event;
 }
 
-// narrowing Event type to the `compositionend` CompositionEvent that
-// `Content.composeHandler` forwards into the input pipeline. It carries the
-// committed text on `data` but, unlike an InputEvent, has no `inputType` —
-// so `isInputEvent` rejects it.
+// IME compositionend carries committed data without the inputType required by isInputEvent.
 export function isCompositionEndEvent(event: Event): event is CompositionEvent {
     return event.type === 'compositionend';
 }
 
-// narrowing Note type to Element.
 export function isElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
 }

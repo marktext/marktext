@@ -22,12 +22,6 @@ export class ScrollPage extends Parent {
 
     static override blockName = 'scrollpage';
 
-    // Registry of block constructors keyed by their static blockName.
-    // Stored as Parent constructors — the overwhelming majority of
-    // call sites do `loadBlock(...).create(...).append(child)`, which only
-    // makes sense for Parent. Content leaves register themselves through
-    // their containing Parent's create flow and don't go through
-    // `loadBlock(...).create()` externally.
     private static _registeredBlocks = new Map<string, IConstructor<Parent>>();
 
     static register(Block: IConstructor<TreeNode>) {
@@ -35,11 +29,7 @@ export class ScrollPage extends Parent {
         this._registeredBlocks.set(blockName, Block as IConstructor<Parent>);
     }
 
-    // Returns the registered constructor. Asserts non-undefined for
-    // callers (the registry is populated by `registerBlocks()` once at
-    // `editor.init()` time, and `loadBlock` runs strictly after init.).
-    // Mismatched names hit the warn branch and the caller crashes at
-    // `.create()` — matches the original loose contract.
+    // Requires registerBlocks() during editor initialization; unknown names warn and cannot be created.
     static loadBlock(blockName: string): IConstructor<Parent> {
         const block = this._registeredBlocks.get(blockName);
 
@@ -98,7 +88,6 @@ export class ScrollPage extends Parent {
         const { muya } = this;
         // A resize owns references into the old tree and cannot survive a rebuild (#5394).
         muya.eventCenter.emit('muya-transformer', { reference: null });
-        // Empty scrollPage dom
         this.empty();
         this.append(
             ...state.map((block) => {
@@ -125,10 +114,6 @@ export class ScrollPage extends Parent {
         return replacements;
     }
 
-    /**
-     * Find the content block by the path
-     * @param {Array} path
-     */
     queryBlock(path: TBlockPath) {
         if (path.length === 0)
             return this;

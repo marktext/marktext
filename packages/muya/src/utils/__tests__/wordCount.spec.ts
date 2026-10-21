@@ -1,14 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { wordCount } from '../index';
 
-// Characterization of the current wordCount algorithm in src/utils/index.ts.
-// It returns { word, paragraph, character, all }:
-//  - paragraph: count of non-empty chunks split on two-or-more newlines.
-//  - word: number of CJK chars (一-龥) + number of whitespace tokens
-//    in the CJK-stripped string.
-//  - character: total length of those non-CJK tokens + number of CJK chars
-//    (i.e. excludes whitespace between tokens).
-//  - all: the raw markdown string length.
 describe('wordCount', () => {
     it('counts plain ASCII words', () => {
         expect(wordCount('hello world')).toEqual({

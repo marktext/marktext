@@ -46,8 +46,6 @@ function bootMuya(markdown: string): Muya {
     return muya;
 }
 
-// Resolve the single `codeblock.content` leaf, the way a click on the code
-// block resolves the active content block.
 function codeContent(muya: Muya): Content {
     let target: Content | null = null;
     const visit = (block: {

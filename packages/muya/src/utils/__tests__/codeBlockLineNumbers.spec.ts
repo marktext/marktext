@@ -8,10 +8,6 @@ import {
     syncLineNumbersSpans,
 } from '../codeBlockLineNumbers';
 
-// Locks the row-count semantics from marktext a028a7c2 ("feat: add code block
-// line numbers"). The implementation switched to a charCode loop to avoid the
-// regex match-array allocation on every code-block update; the behaviour
-// (including the trailing-newline extra row) must stay identical.
 describe('computeLineCount', () => {
     it('counts 1 for empty string', () => {
         expect(computeLineCount('')).toBe(1);
@@ -82,7 +78,6 @@ describe('syncLineNumbersSpans', () => {
         const firstSpan = wrapper.firstElementChild;
         syncLineNumbersSpans(wrapper, 5);
         expect(wrapper.childElementCount).toBe(5);
-        // The original spans must survive — proves no full rebuild.
         expect(wrapper.firstElementChild).toBe(firstSpan);
     });
 
@@ -105,7 +100,6 @@ describe('repositionLineNumberSpans', () => {
     it('keeps the only line of an empty code block flush with the top', () => {
         const wrapper = document.createElement('span');
         syncLineNumbersSpans(wrapper, 1);
-        // An empty code element has no text nodes to measure from.
         const codeEl = document.createElement('code');
 
         repositionLineNumberSpans(wrapper, codeEl);

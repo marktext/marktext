@@ -118,7 +118,6 @@ describe('code block re-render on language change (#5515)', () => {
             await settle();
         }
 
-        // One render, for the transition out of JavaScript.
         expect(update).toHaveBeenCalledTimes(1);
         expect(tokenCount(muya)).toBe(0);
     });

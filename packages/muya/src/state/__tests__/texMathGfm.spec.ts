@@ -112,14 +112,6 @@ describe('tex_math_gfm — round-trip stability', () => {
     });
 });
 
-// Characterization of where the new engine (@muyajs/core) agrees with and
-// diverges from the legacy engine (packages/muyajs) for the SAME input under
-// tex_math_gfm. muyajs gated promotion on the regex
-//   /^ {0,3}(`{3,})math\n.../
-// — backtick-only, `math` immediately before the newline, ≤3 leading spaces.
-// muya instead promotes any marked `code` token whose lang === 'math', so its
-// acceptance set is "whatever marked treats as a fenced code block labelled
-// math". Most cases coincide; the tilde-fence case is the one real divergence.
 describe('tex_math_gfm — consistency with legacy muyajs', () => {
     it('agree — a 3-space indented ```math is still promoted (both engines)', () => {
         const [block] = parse('   ```math\nx^2\n```\n');

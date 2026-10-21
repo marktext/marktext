@@ -35,10 +35,6 @@ class LangInputContent extends Content {
         this.domNode!.innerHTML = escapeLangInputInnerHtml(this.text, highlights);
     }
 
-    /**
-     * Update this block lang and parent's lang, and show/hide language selector.
-     * @param lang
-     */
     private _updateLanguage(lang: string) {
         const { start, end } = this.getCursor()!;
         this.text = lang;
@@ -49,18 +45,13 @@ class LangInputContent extends Content {
         this.muya.eventCenter.emit('content-change', { block: this });
     }
 
-    // Public entry for setting the language programmatically (e.g. pasting into
-    // the language input), so the code block re-highlights and `parent.lang`
-    // updates; the DOM input handlers use `_updateLanguage` directly.
     updateLanguage(lang: string): void {
         this._updateLanguage(lang);
     }
 
     override inputHandler() {
         const textContent = this.domNode!.textContent ?? '';
-        // Store the whole info string; the language is derived as its first word
-        // elsewhere (`firstWordOfInfo`). Previously this truncated at the first
-        // whitespace, which dropped `title="x"` / Pandoc attributes on edit.
+        // Keep info-string attributes when editing; highlighting derives the first word elsewhere.
         this._updateLanguage(textContent);
     }
 
@@ -84,7 +75,6 @@ class LangInputContent extends Content {
     // fence does (#5060).
     private _convertToDiagramIfNeeded() {
         const codeBlock = this.parent;
-        // Detached before the microtask ran, e.g. the document was replaced.
         if (!codeBlock?.outMostBlock)
             return;
 
@@ -116,7 +106,6 @@ class LangInputContent extends Content {
         if (start.offset === 0 && end.offset === 0) {
             event.preventDefault();
             const cursorBlock = this.previousContentInContext();
-            // The cursorBlock will be null, if the code block is the first block in doc.
             if (cursorBlock) {
                 const offset = cursorBlock.text.length;
                 cursorBlock.setCursor(offset, offset, true);

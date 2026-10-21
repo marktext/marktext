@@ -45,10 +45,6 @@ import './assets/styles/inlineSyntax.css';
 import './assets/styles/githubAlerts.css';
 import './assets/styles/prismjs/light.theme.css';
 
-// UI plugins (e.g. InlineFormatToolbar, EmojiSelector) follow a common
-// shape: a class with a static `pluginName` and a constructor that takes
-// `(muya: Muya, options: object)`. `Muya.use` records the constructor + an
-// arbitrary options object; `init()` instantiates each plugin.
 export interface IMuyaPluginConstructor {
     pluginName: string;
     new(muya: Muya, options: Record<string, unknown>): unknown;
@@ -59,10 +55,7 @@ interface IPlugin {
     options: Record<string, unknown>;
 }
 
-// A selection reduced to document paths + offsets, with block references
-// dropped so it survives a wholesale tree rebuild (paths are re-resolved
-// against the fresh tree). Used to keep the caret/selection put across a
-// loose/tight list toggle.
+// Paths survive block-tree rebuilds; block references do not.
 interface ISelectionSnapshot {
     anchor: number;
     focus: number;
@@ -118,10 +111,7 @@ const TOGGLEABLE_BLOCK_LABELS = new Set([
     'thematic-break',
 ]);
 
-// Blocks whose content leaves sit on inner nodes (table cells, the code node),
-// so a paragraph command at such a caret acts on the block as a whole. As in
-// muyajs, such a block is never converted into another type, and never
-// replaced just because its first leaf is empty.
+// Inner leaves are not standalone document blocks; paragraph commands must target their container.
 const WHOLE_BLOCK_NAMES = new Set([
     'table',
     'code-block',
@@ -133,11 +123,7 @@ const WHOLE_BLOCK_NAMES = new Set([
 
 const HEADING_LEVEL_BLOCK_NAMES = new Set(['paragraph', 'atx-heading', 'setext-heading']);
 
-// Options consumed by the markdown→state lexer (markdownToState / lexBlock).
-// Changing any of these re-classifies block structure (e.g. ```math ⇄ code
-// block under tex_math_gfm, front matter, footnote definitions), which
-// a render-only rebuild from the already-parsed state cannot reflect — the
-// document must be re-parsed from markdown. See setOptions below.
+// These options change block structure, so a render-only rebuild cannot apply them.
 const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
     'texMathGfm',
     'texMathDollars',
@@ -217,7 +203,6 @@ export class Muya {
         this.options = Object.assign({}, MUYA_DEFAULT_OPTIONS, options ?? {});
         this.eventCenter = new EventCenter();
         this.domNode = getContainer(element, this.options);
-        // this.domNode[BLOCK_DOM_PROPERTY] = this;
         this.editor = new Editor(this);
         this.ui = new Ui(this);
         this.i18n = new I18n(this, this.options.locale);
@@ -257,7 +242,6 @@ export class Muya {
     init(options: { focus?: boolean } = {}) {
         this.runDocumentUpdate(() => this.editor.init({ ...options, focus: !this.isReadOnly && options.focus !== false }));
         this._refreshReadingPresentation();
-        // UI plugins
         if (Muya.plugins.length) {
             for (const { plugin: Plugin, options: opts } of Muya.plugins)
                 this._uiPlugins[Plugin.pluginName] = new Plugin(this, opts);
@@ -270,23 +254,14 @@ export class Muya {
             this._forceRender();
     }
 
-    /**
-     * [on] on custom event
-     */
     on(event: string, listener: Listener) {
         this.eventCenter.on(event, listener);
     }
 
-    /**
-     * [off] off custom event
-     */
     off(event: string, listener: Listener) {
         this.eventCenter.off(event, listener);
     }
 
-    /**
-     * [once] subscribe event and listen once
-     */
     once(event: string, listener: Listener) {
         this.eventCenter.once(event, listener);
     }
@@ -329,9 +304,6 @@ export class Muya {
         this.editor.history.setHistory(history);
     }
 
-    /**
-     * Clear the undo/redo history (e.g. after loading a fresh document).
-     */
     clearHistory() {
         this.editor.history.clear();
     }
@@ -351,19 +323,10 @@ export class Muya {
         }
     }
 
-    /**
-     * Search value in current document.
-     * @param {string} value
-     * @param {object} opts
-     */
     search(value: string, opts: ISearchOption = {}) {
         return this.editor.searchModule.search(value, opts);
     }
 
-    /**
-     * Find preview or next value, and highlight it.
-     * @param {string} action : previous or next.
-     */
     find(action: 'previous' | 'next') {
         return this.editor.searchModule.find(action);
     }
@@ -380,28 +343,14 @@ export class Muya {
     }
 
     /**
-     * Replace the whole document with `content` (markdown or a state array) as a
-     * SINGLE undo boundary — the first subsequent `undo()` reverts the entire
-     * replacement in one step. Unlike `setContent`, the existing undo/redo
-     * history is preserved and a new boundary is pushed on top of it.
+     * Replace the document as one undo step, preserving existing history.
+     * No-op when the content is unchanged.
      *
-     * Used by the desktop shell when handing a tab back from source-code mode:
-     * the bulk source-mode edit becomes one undo step. The change is recorded
-     * as a `rebuild` history entry, so undo /
-     * redo re-create the block tree wholesale (`ScrollPage.updateState`) rather
-     * than walking it incrementally — making arbitrary block-type changes
-     * (paragraph<->heading, list/table/code/frontmatter, multi-block reorder…)
-     * safe to round-trip. No-op when `content` is identical to the current
-     * document.
+     * `recordSelection` is the selection restored by undo. Omit it to use the
+     * live selection, or pass the saved WYSIWYG selection when focus has moved
+     * to source mode.
      *
-     * `recordSelection` overrides the caret stored on the rebuild boundary (the
-     * one the first `undo()` restores). Pass it when the live DOM selection no
-     * longer points into the muya tree at call time — notably the source-mode
-     * handoff, where focus has moved to CodeMirror, so the desktop shell hands
-     * back the caret captured when the user switched INTO source mode. Omitted,
-     * it falls back to the current live selection.
-     *
-     * @returns `true` if a boundary was recorded, `false` if nothing changed.
+     * @returns Whether an undo boundary was recorded.
      */
     replaceContent(content: TState[] | string, recordSelection?: Nullable<IHistorySelection>): boolean {
         const { jsonState, history } = this.editor;
@@ -479,7 +428,6 @@ export class Muya {
         }
     }
 
-    /** Update list indentation and re-render so it takes effect. */
     setListIndentation(listIndentation: IMuyaOptions['listIndentation']) {
         this.setOptions({ listIndentation }, true);
     }
@@ -510,11 +458,8 @@ export class Muya {
             return;
         const { selection } = this.editor;
 
-        // Cross-leaf selection: apply to each formattable leaf in range. The
-        // live DOM selection collapses across blocks, so detect via the cached
-        // endpoints (the same ones the menu/IPC round-trip relies on). Compare
-        // at the LEAF level, not the outmost block: two paragraphs nested in the
-        // same blockquote share an outmost block but are distinct leaves (#3462).
+        // Cached leaf endpoints survive the menu/IPC round-trip and distinguish
+        // paragraphs inside the same blockquote (#3462).
         if (!this._selectionInSameLeaf()) {
             this._formatAcrossBlocks(type);
             return;
@@ -561,10 +506,7 @@ export class Muya {
 
         const { first, last, firstOffset, lastOffset } = range;
 
-        // Restore the span across the formatted leaves using each leaf's
-        // post-format offsets (adding a marker shifts them), so the SAME text
-        // stays selected in both endpoints rather than collapsing onto the
-        // pre-format offsets.
+        // Formatting inserts markers, so restore the span using post-format offsets.
         let anchorLeaf: Content | null = null;
         let focusLeaf: Content | null = null;
         let anchorOffset = 0;
@@ -596,7 +538,6 @@ export class Muya {
         }
     }
 
-    /** The selection's first/last content leaves and offsets, in document order. */
     private _orderedSelectionRange() {
         const { selection } = this.editor;
         const anchorLeaf = selection.anchorBlock;
@@ -627,7 +568,6 @@ export class Muya {
         if (!(leaf instanceof Format))
             return null;
 
-        // Never format a heading's leading `# ` marker, only its content.
         const from = Math.max(start, this._headingMarkerLen(leaf));
         if (end <= from)
             return null;
@@ -647,7 +587,6 @@ export class Muya {
         };
     }
 
-    /** Length of a heading content's leading `#{1,6}` + space marker, else 0. */
     private _headingMarkerLen(leaf: Content): number {
         if (leaf.parent?.blockName !== 'atx-heading')
             return 0;
@@ -656,17 +595,8 @@ export class Muya {
     }
 
     /**
-     * Replace the word at the current cursor with `replacement`, then place the
-     * cursor after the replacement.
-     *
-     * The desktop spell checker calls this when the user picks a suggestion
-     * from the misspelled-word
-     * context menu (Chromium has already selected the whole word). Unsafe: the
-     * call is a no-op unless the word at the cursor matches `word`.
-     *
-     * @param word The expected (misspelled) word at the cursor.
-     * @param replacement The replacement word.
-     * @returns True when the replacement was applied.
+     * Replace only when the word at the cursor still matches `word`, then move
+     * the cursor after the replacement. Returns whether it was applied.
      */
     replaceCurrentWordInlineUnsafe(word: string, replacement: string): boolean {
         if (!this.canMutate)
@@ -678,9 +608,6 @@ export class Muya {
         return block.replaceCurrentWordInlineUnsafe(word, replacement);
     }
 
-    /**
-     * Return the current selection, or null when the editor has no selection.
-     */
     getSelection() {
         return this.editor.selection.getSelection();
     }
@@ -693,9 +620,6 @@ export class Muya {
         return this.editor.selection.getSelectedText();
     }
 
-    /**
-     * Whether the editor (or one of its descendants) currently holds focus.
-     */
     hasFocus() {
         const { activeElement } = document;
 
@@ -721,66 +645,36 @@ export class Muya {
         this.domNode.blur();
     }
 
-    /**
-     * Hide every floating tool/menu (toolbars, pickers, front button, …).
-     */
     hideAllFloatTools() {
         this.ui.hideAllFloatTools();
     }
 
-    /**
-     * Flush every cached inline image and force them to reload.
-     *
-     * The renderer memoises loaded images, so an image whose file changed on
-     * disk would otherwise keep showing the stale bitmap. Desktop calls this
-     * after a watched image file changes or on the `mt::invalidate-image-cache`
-     * IPC; it clears the image caches and re-renders all content blocks so the
-     * images load afresh.
-     */
+    /** Reload images whose files changed on disk despite cached bitmaps. */
     invalidateImageCache() {
         this.editor.inlineRenderer.invalidateImageCache();
     }
 
-    /**
-     * Copy the current document as Markdown to the clipboard.
-     */
     copyAsMarkdown() {
         this.editor.clipboard.copyAsMarkdown();
     }
 
-    /**
-     * Copy the current selection as rendered HTML to the clipboard.
-     */
+    /** Copy rendered HTML as literal markup in the plain-text clipboard slot. */
     copyAsHtml() {
         this.editor.clipboard.copyAsHtml();
     }
 
-    /**
-     * Copy the current selection as rich text to the clipboard: the rendered
-     * HTML goes in the `text/html` slot so a rich-text target (Word, email, a
-     * contenteditable) renders formatting, and the markdown source goes in the
-     * `text/plain` slot. Unlike {@link copyAsHtml}, which blanks `text/html`
-     * and drops the markup into `text/plain` as literal source.
-     */
+    /** Copy rendered HTML as rich text, with Markdown as the plain-text fallback. */
     copyAsRich() {
         this.editor.clipboard.copyAsRich();
     }
 
-    /**
-     * Paste the clipboard content as plain text at the current cursor.
-     */
     pasteAsPlainText(): Promise<void> {
         if (!this.canMutate)
             return Promise.resolve();
         return this.editor.clipboard.pasteAsPlainText();
     }
 
-    /**
-     * Insert an image at the current cursor from an explicit `src` (a saved file
-     * path or `data:` URL), routing through the configured `imageAction` like a
-     * clipboard image paste. Drives the desktop macOS screenshot flow, which can
-     * no longer rely on the removed `document.execCommand('paste')`.
-     */
+    /** Insert a file path or data URL through the configured `imageAction`. */
     pasteImage(src: string): Promise<void> {
         if (!this.canMutate)
             return Promise.resolve();
@@ -793,11 +687,8 @@ export class Muya {
         return content?.outMostBlock ?? null;
     }
 
-    // The caret leaf's own block. For a table cell or code leaf that is the
-    // whole table or code-like block: the cell and the inner code node are not
-    // blocks in the document state, so nothing may be inserted beside them.
-    // Null while the caret caches still hold a block that left the document
-    // (e.g. undo removed it), as `_outmostBlockAtCursor` is (#5355).
+    // Table cells and inner code nodes cannot have document blocks inserted beside them.
+    // Return null for detached cached caret blocks (#5355).
     private _immediateBlockAtCursor(): Parent | null {
         const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
         if (!content?.outMostBlock)
@@ -833,13 +724,7 @@ export class Muya {
         return false;
     }
 
-    /**
-     * The outmost-block endpoints of the current selection. Prefers the pair
-     * that spans two different outmost blocks: the live DOM selection is the
-     * truth in the browser, but the cached selection endpoints survive the
-     * menu/IPC round-trip (and the headless test environment, where
-     * `Selection.extend` collapses a cross-node range to one block).
-     */
+    /** Prefer cross-block endpoints when the live range collapses during a menu/IPC round-trip. */
     private _selectionEndpoints(): { anchor: Parent; focus: Parent } | null {
         const sel = this.editor.selection.getSelection();
         const live = endpointPair(sel?.anchor.block?.outMostBlock, sel?.focus.block?.outMostBlock);
@@ -856,7 +741,6 @@ export class Muya {
         return live ?? cached;
     }
 
-    /** Whether the current selection stays within a single outmost block. */
     private _selectionInSameBlock(): boolean {
         const endpoints = this._selectionEndpoints();
         if (!endpoints)
@@ -865,13 +749,7 @@ export class Muya {
         return endpoints.anchor === endpoints.focus;
     }
 
-    /**
-     * Whether the current selection stays within a single content leaf. Unlike
-     * `_selectionInSameBlock` (outmost-block granularity, for paragraph-menu
-     * dispatch), this compares the actual leaves so a selection spanning two
-     * paragraphs nested in one blockquote is correctly treated as cross-leaf
-     * for inline formatting (#3462).
-     */
+    /** Nested paragraphs share an outmost block but need separate inline formatting (#3462). */
     private _selectionInSameLeaf(): boolean {
         const sel = this.editor.selection;
         const liveSel = sel.getSelection();
@@ -887,10 +765,7 @@ export class Muya {
         return true;
     }
 
-    /**
-     * The contiguous run of OUTMOST (scrollPage-child) blocks the current
-     * selection spans, in document order. Mirrors clipboard's outmost walk.
-     */
+    /** ScrollPage children covered by the selection, in document order. */
     private _selectedOutmostBlocks(): Parent[] {
         const endpoints = this._selectionEndpoints();
         if (!endpoints)
@@ -934,12 +809,7 @@ export class Muya {
         );
     }
 
-    /**
-     * Replace the selected outmost blocks with a single container built by
-     * `buildState`, then position the cursor/selection via `place`. Shared by the
-     * cross-block list / block-quote / code-block wraps (ported from muyajs's
-     * handleListMenu / handleQuoteMenu / handleCodeBlockMenu multi-block branches).
-     */
+    /** Replace selected outmost blocks with one container, then restore the selection via `place`. */
     private _wrapSelectedBlocks(
         buildState: (blocks: Parent[]) => { name: string } & Record<string, unknown>,
         place: (container: Parent) => void,
@@ -970,7 +840,6 @@ export class Muya {
         return { name: 'block-quote', children };
     }
 
-    /** Wrap the selected outmost blocks as items of a new list of `label`. */
     private _wrapSelectedBlocksInList(label: 'bullet-list' | 'order-list' | 'task-list') {
         const { bulletListMarker, orderListDelimiter, preferLooseListItem } = this.options;
         const itemName = label === 'task-list' ? 'task-list-item' : 'list-item';
@@ -990,7 +859,6 @@ export class Muya {
         );
     }
 
-    /** Wrap the selected outmost blocks into a single block-quote. */
     private _wrapSelectedBlocksInQuote() {
         this._wrapSelectedBlocks(
             blocks => ({ name: 'block-quote', children: blocks.map(block => this._getStateForWrapping(block)) }),
@@ -1135,12 +1003,8 @@ export class Muya {
     }
 
     /**
-     * Insert an inline image at the current cursor in the active formattable
-     * block. The `![alt](src)` markdown is
-     * written through the `Format` block's text setter so it dispatches a JSON
-     * op (state stays in sync) rather than mutating the DOM directly. No-op when
-     * there is no active formattable (`Format`) block — e.g. inside a code block
-     * or with no cursor.
+     * Insert an inline image in a formattable block; no-op elsewhere.
+     * Selected text takes precedence over `alt`; otherwise an empty alt uses the file name.
      */
     insertImage({ src = '', alt = '' }: { src?: string; alt?: string }) {
         if (!this.canMutate)
@@ -1153,17 +1017,12 @@ export class Muya {
         if (cursor == null)
             return;
 
-        // Derive a sensible alt from the file name when none is provided.
         if (!alt) {
             const match = /[/\\]?([^./\\]+)\.[a-z]+$/i.exec(src);
             alt = match?.[1] ?? '';
         }
 
-        // Only percent-encode plain paths; leave full URLs / well-formed data
-        // URLs as-is. `DATA_URL_REG` requires the full `data:image/<type>...,<payload>`
-        // shape (the same regex `utils/image.ts` `getImageSrc` uses), so a bare
-        // `data:image/` prefix is not embedded verbatim and instead falls through
-        // to the plain-path branch.
+        // Keep valid data URLs intact; incomplete data prefixes must be encoded as paths.
         let imgUrl: string;
         if (URL_REG.test(src))
             imgUrl = encodeURI(src);
@@ -1174,27 +1033,14 @@ export class Muya {
 
         const { start, end } = cursor;
         const { text } = block;
-        // When there is a selection, use it as the alt text.
         const imageAlt = start.offset !== end.offset ? text.substring(start.offset, end.offset) : alt;
         const imageText = `![${imageAlt}](${imgUrl})`;
 
-        // The `text` setter diffs against the old value and dispatches a JSON op.
         block.text = text.substring(0, start.offset) + imageText + text.substring(end.offset);
-        // Re-render and place the caret on the alt text (offset of `![`).
         block.setCursor(start.offset + 2, start.offset + 2 + imageAlt.length, true);
     }
 
-    /**
-     * Set the cursor programmatically. The desktop passes a cursor like
-     * `{ anchor, focus, anchorPath, focusPath }` (and may use `{ start, end }`
-     * / `block` / `path`). Resolves the target block(s) by path on the live tree
-     * and restores the selection the same way `Editor.updateContents` does —
-     * `block.setCursor` for the same-block case, `selection.setSelection` with
-     * resolved block instances for the cross-block case. Passing bare paths to
-     * `setSelection` does not work (it needs a block's `domNode`), so we always
-     * resolve and pass the block instance. No-op when the target can't be
-     * resolved.
-     */
+    /** Restore a cursor against the live block tree; no-op when its target cannot be resolved. */
     setCursor(cursor: IPublicCursorInput) {
         const { scrollPage } = this.editor;
         if (!scrollPage)
@@ -1263,21 +1109,8 @@ export class Muya {
     }
 
     /**
-     * Restore the WYSIWYG caret from a source-mode (CodeMirror) `{ line, ch }`
-     * index cursor. The block tree has no source-line mapping, so the offsets
-     * are resolved as follows: inject sentinel
-     * strings into the current markdown at the line/ch positions, rebuild the
-     * tree (sentinels embed as literal text), find which content blocks they
-     * landed in, then rebuild the clean document and set the cursor by the
-     * resolved block paths + offsets. The sentinel-bearing tree is transient —
-     * both `setContent` calls run synchronously within this task, so no
-     * intermediate paint happens.
-     *
-     * `Editor.setContent` clears the undo history, so this method snapshots the
-     * history before its internal rebuild and restores it afterwards — the undo
-     * stack is preserved, leaving only the caret changed. No-op (returns
-     * `false`) when the cursor is stale / unresolvable, letting the caller fall
-     * back to its default.
+     * Restore a source-mode line/ch cursor without changing the document or
+     * undo history. Returns false when the cursor cannot be resolved.
      */
     setCursorByOffset(indexCursor: IIndexCursor): boolean {
         const { scrollPage } = this.editor;
@@ -1289,8 +1122,8 @@ export class Muya {
         if (sentinelMarkdown == null)
             return false;
 
-        // Preserve the undo history across the internal setContent rebuild
-        // (setContent clears it) so this stays a caret-only operation.
+        // The tree has no source-line map; a synchronous sentinel rebuild resolves it
+        // without an intermediate paint. setContent clears history, so preserve it here.
         const savedHistory = this.getHistory();
 
         this.editor.setContent(sentinelMarkdown);
@@ -1307,25 +1140,15 @@ export class Muya {
     }
 
     /**
-     * Read the current WYSIWYG caret as a source-mode (CodeMirror) `{ line, ch }`
-     * index cursor — the INVERSE of `setCursorByOffset`. The desktop emits this
-     * on every change so toggling WYSIWYG -> source
-     * opens CodeMirror at the same caret.
-     *
-     * The block tree has no source-line mapping, so the offset is recovered the
-     * same way `setCursorByOffset` resolves the reverse: clone the current
-     * state, splice sentinel strings into the selected block's text at the
-     * anchor/focus offsets, serialize that clone to markdown (identical to what
-     * source mode shows), then read each sentinel's line/column back out. The
-     * live document and undo history are untouched — only a throwaway clone is
-     * mutated. Returns `null` when there is no selection or the caret can't be
-     * located (the caller then falls back to its default cursor placement).
+     * Read the selection as source-mode line/ch positions without changing the
+     * document or undo history. Returns null when it cannot be located.
      */
     getCursorOffset(): IIndexCursor | null {
         const selection = this.editor.selection.getSelection();
         if (!selection)
             return null;
 
+        // Serialize sentinels in a cloned state because the tree has no source-line map.
         const sentinelState = injectStateSentinels(
             this.editor.jsonState.getState(),
             selection,
@@ -1395,9 +1218,6 @@ export class Muya {
             return;
         }
 
-        // `reset-to-paragraph` returns the current block to plain paragraph
-        // form; structured containers (lists/blockquote) unwrap to preserve
-        // every child, tables are left untouched.
         if (type === 'reset-to-paragraph') {
             this.resetToParagraph(block);
             return;
@@ -1415,26 +1235,14 @@ export class Muya {
             return;
         }
 
-        // The plain `paragraph` menu item only converts the *leaf* block that
-        // directly wraps the cursor (heading, hr, …) back to a paragraph; it
-        // never touches the enclosing container. Operating on the leaf (not the
-        // outermost container) means a heading inside a list item still converts
-        // while the list stays intact, and avoids the data loss where routing
-        // `paragraph` to the *whole* list/blockquote collapsed every item/line
-        // into a single paragraph built from the first content's text.
-        // `reset-to-paragraph` remains the explicit "unwrap the container"
-        // command (handled above).
+        // Converting the enclosing list/quote would lose all but its leading text.
+        // `paragraph` converts the inner block; `reset-to-paragraph` unwraps the container.
         if (label === 'paragraph')
             return this._convertLeafToParagraph();
 
-        // Clicking an already-active type (its block is an ancestor of the
-        // cursor, i.e. the menu item is checked) toggles it off: unwrap every
-        // ancestor of that kind, or convert the matching leaf back to a paragraph.
         if (this._toggleIfActive(label))
             return;
 
-        // A list kind clicked while inside a list of a DIFFERENT kind converts
-        // the cursor's (innermost) list to that kind.
         if (label.endsWith('-list')) {
             const list = this._closestListAtCursor();
             if (list) {
@@ -1447,11 +1255,9 @@ export class Muya {
     }
 
     /**
-     * If the cursor is inside a block matching `label` (the menu item is
-     * checked), toggle it off and return true: unwrap EVERY ancestor of that
-     * kind (so nested same-kind lists collapse in one click and the item ends up
-     * un-checked), or convert a matching leaf (heading of that level / hr) back
-     * to a paragraph. Returns false when nothing matches.
+     * Toggle off a matching type, unwrapping all same-kind ancestors so the menu
+     * item becomes unchecked. Headings match only at the requested level.
+     * Returns whether a matching type was found.
      */
     private _toggleIfActive(label: string): boolean {
         const cursorContent = () => this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
@@ -1459,7 +1265,6 @@ export class Muya {
         if (!content)
             return false;
 
-        // Headings match only when the cursor's heading is exactly that level.
         if (label.startsWith('atx-heading ')) {
             const heading = content.closestBlock('atx-heading') as Parent | null;
             if (!heading)
@@ -1489,7 +1294,6 @@ export class Muya {
         return true;
     }
 
-    /** The nearest list ancestor of the cursor, of any kind. */
     private _closestListAtCursor(): Parent | null {
         let node: Nullable<Parent> = (this.editor.activeContentBlock ?? this.editor.selection.anchorBlock)?.parent;
         while (node) {
@@ -1501,11 +1305,7 @@ export class Muya {
         return null;
     }
 
-    /**
-     * Run a conversion, then restore the prior selection (anchor AND focus, so a
-     * range stays selected) on the active content block — every conversion ends
-     * with the caret's content active (unwraps restore it themselves).
-     */
+    /** Conversions must leave the caret content active so its selection can be restored. */
     private _withPreservedOffset(fn: () => void) {
         const { selection } = this.editor;
         const anchorBlock = selection.anchorBlock;
@@ -1548,12 +1348,7 @@ export class Muya {
         target.setCursor(clampTo(anchorOffset + delta, len), clampTo(focusOffset + delta, len), true);
     }
 
-    /**
-     * The first FORMATTABLE content leaf whose text equals `text`, in document
-     * order. Restricting to Format leaves skips marker-only content (a thematic
-     * break's `---`, code/math/html), so toggling one never lands the caret on
-     * an unrelated block that happens to share that text.
-     */
+    /** Skip marker-only leaves so restoring a caret cannot land on an unrelated code/math block. */
     private _findContentByText(text: string): Content | null {
         let leaf: Nullable<Content> = this.editor.scrollPage?.firstContentInDescendant();
         while (leaf) {
@@ -1565,13 +1360,7 @@ export class Muya {
         return null;
     }
 
-    /**
-     * General same-block conversion: the front menu's turn-into set is the
-     * single source of truth. Operate on the IMMEDIATE block so a heading inside
-     * a list item converts while the list stays intact; a target that is not a
-     * valid turn-into replaces an empty block in place, or is inserted as a new
-     * block directly below a non-empty one (focus moves into it).
-     */
+    /** Preserve enclosing lists/quotes when converting their inner paragraph or heading. */
     private _convertOrInsertBelow(label: string) {
         const immediate = this._immediateBlockAtCursor();
         if (!immediate || WHOLE_BLOCK_NAMES.has(immediate.blockName))
@@ -1590,11 +1379,8 @@ export class Muya {
     }
 
     /**
-     * Return a block to plain paragraph form: lists and blockquotes unwrap to
-     * preserve every child, tables are left untouched, and everything else is
-     * replaced by a paragraph carrying its leading text. Public so the
-     * paragraph front menu can reset the block it targets (not just the cursor
-     * block).
+     * Unwrap lists and quotes without losing children; leave tables untouched.
+     * Other blocks become paragraphs carrying their leading text.
      */
     resetToParagraph(block: Parent) {
         if (!this.canMutate)
@@ -1610,12 +1396,7 @@ export class Muya {
         replaceBlockByLabel({ block, muya: this, label: 'paragraph', text: this._paragraphTextFor(block) });
     }
 
-    /**
-     * The text a plain paragraph should carry when `block` is reset/converted to
-     * one: a code block keeps its raw code; a thematic break is all marker
-     * (`---` / `***` / …) with no content, so it yields an empty paragraph;
-     * everything else keeps its leading text (heading hashes stripped).
-     */
+    /** Preserve raw code, discard thematic-break markers, and strip heading hashes. */
     private _paragraphTextFor(block: Parent): string {
         const state = block.getState();
         if (isCodeBlockState(state))
@@ -1626,13 +1407,7 @@ export class Muya {
         return this._blockLeadingText(block);
     }
 
-    /**
-     * Convert the *leaf* block that directly wraps the cursor (the immediate
-     * parent of the active content) to a plain paragraph. No-op when that leaf
-     * is already a paragraph. Because it targets the leaf rather
-     * than the outermost container, a heading inside a list item / blockquote
-     * converts to a paragraph while leaving the surrounding list/quote intact.
-     */
+    /** Convert the inner block without unwrapping its enclosing list or quote. */
     private _convertLeafToParagraph() {
         const leaf = this._immediateBlockAtCursor();
         if (!leaf || leaf.blockName === 'paragraph' || WHOLE_BLOCK_NAMES.has(leaf.blockName))
@@ -1685,7 +1460,6 @@ export class Muya {
         restored?.setCursor(0, 0, true);
     }
 
-    /** Leading text of a block, with the atx hash run stripped for headings. */
     private _blockLeadingText(block: Parent): string {
         const text = block.firstContentInDescendant()?.text ?? '';
 
@@ -1694,7 +1468,6 @@ export class Muya {
             : text;
     }
 
-    /** Cycle the heading level (marktext upgrade/degrade semantics). */
     private _changeHeadingLevel(block: Parent, type: 'upgrade heading' | 'degrade heading') {
         const state = block.getState();
         const level = isAtxHeadingState(state) || isSetextHeadingState(state) ? state.meta.level : 0;
@@ -1716,16 +1489,12 @@ export class Muya {
         });
     }
 
-    /** Toggle loose/tight on the list at the cursor. */
     private _toggleLooseList(block: Parent) {
         const state = block.getState();
         if (!isAnyListState(state))
             return;
 
-        // Toggling only flips meta.loose, so the rebuilt list keeps the same
-        // structure and document position. Snapshot the selection as paths +
-        // offsets so a caret OR a multi-item range can be restored afterwards
-        // instead of collapsing to the first item.
+        // A loose/tight toggle rebuilds blocks without changing their paths.
         const snapshot = this._snapshotSelection();
 
         const newState = deepClone(state);
@@ -1737,24 +1506,12 @@ export class Muya {
             newBlock.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
-    /**
-     * Capture the current selection as document paths + offsets. The live DOM
-     * selection is the source of truth (it carries a click-placed caret), with
-     * the cached selection — committed on mouse-up and surviving the menu/IPC
-     * round-trip — as the fallback. Block references are intentionally dropped:
-     * they go stale when the list is rebuilt, so the paths are re-resolved on
-     * restore.
-     */
+    /** Capture paths and offsets so the selection survives a block-tree rebuild. */
     private _snapshotSelection(): ISelectionSnapshot | null {
         const sel = this.editor.selection;
         const live = sel.getSelection();
 
-        // The live DOM selection carries a click-placed caret, so it is the
-        // source of truth for a single block. But it COLLAPSES to one block for
-        // a cross-block selection — so when the cached endpoints (committed on
-        // mouse-up, the same ones the menu/IPC round-trip relies on) span
-        // several blocks while live has collapsed, trust the cached endpoints so
-        // the whole span survives the rebuild.
+        // A menu/IPC round-trip can collapse the live range; retain cached cross-block endpoints.
         const cachedCrossBlock = !!sel.anchorBlock && !!sel.focusBlock && sel.anchorBlock !== sel.focusBlock;
         const useLive = !!live && !(cachedCrossBlock && live.isSelectionInSameBlock);
 
@@ -1773,11 +1530,7 @@ export class Muya {
         };
     }
 
-    /**
-     * Re-resolve a snapshot's paths against the live tree and re-apply it via
-     * the selection API. Returns false when either path no longer resolves to a
-     * content block so the caller can fall back.
-     */
+    /** Return false if snapshot paths no longer resolve to content blocks. */
     private _restoreSelection(snapshot: ISelectionSnapshot | null): boolean {
         if (!snapshot)
             return false;
@@ -1800,7 +1553,6 @@ export class Muya {
         return true;
     }
 
-    /** Convert an existing list to another list type, preserving items. */
     private _convertListType(block: Parent, label: string) {
         const state = block.getState();
         if (!isAnyListState(state) || block.blockName === label)
@@ -1846,11 +1598,9 @@ export class Muya {
         this._cancelReadingLink();
         this.eventCenter.detachAllDomEvents();
         this.eventCenter.unsubscribeAll();
-        // this.domNode[BLOCK_DOM_PROPERTY] = null;
         if (this.domNode.remove)
             this.domNode.remove();
 
-        // Hide all float tools.
         if (this.ui)
             this.ui.hideAllFloatTools();
 
@@ -1865,7 +1615,6 @@ export class Muya {
     }
 }
 
-// Write provided appearance options as `--mu-*` vars / a wrap class on the root.
 function applyAppearance(domNode: HTMLElement, options: Partial<IMuyaOptions>) {
     const { style } = domNode;
     if (typeof options.fontSize === 'number')
@@ -1882,14 +1631,10 @@ function applyAppearance(domNode: HTMLElement, options: Partial<IMuyaOptions>) {
         domNode.classList.toggle(CLASS_NAMES.MU_CODE_WRAP, !!options.wrapCodeBlocks);
 }
 
-/**
- * [ensureContainerDiv ensure container element is div]
- */
 function getContainer(originContainer: HTMLElement, options: IMuyaOptions) {
     const { spellcheckEnabled, spellcheckHideMarks, hideQuickInsertHint, focusMode } = options;
     const newContainer = document.createElement('div');
     const attrs = originContainer.attributes;
-    // Copy attrs from origin container to new container
     Array.from(attrs).forEach((attr: { name: string; value: string }) => {
         newContainer.setAttribute(attr.name, attr.value);
     });
@@ -1900,8 +1645,6 @@ function getContainer(originContainer: HTMLElement, options: IMuyaOptions) {
     if (spellcheckHideMarks)
         newContainer.classList.add(CLASS_NAMES.MU_HIDE_SPELLING_MARKS);
 
-    // Apply focus mode at construction when initially enabled; `setFocusMode`
-    // toggles it thereafter.
     if (focusMode)
         newContainer.classList.add(CLASS_NAMES.MU_FOCUS_MODE);
 

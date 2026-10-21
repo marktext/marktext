@@ -40,9 +40,7 @@ const DEFAULT_OPTIONS = {
     multilineBlockquote: false,
 };
 
-// Token types whose handler manipulates the `parentList` stack (push a
-// container and recurse via synthetic `block-end`), as opposed to the leaf
-// tokens that only append a state to the current level.
+// Container tokens push the parent stack; synthetic block-end tokens pop it.
 const CONTAINER_TOKEN_TYPES = new Set([
     'block-end',
     'blockquote',
@@ -73,9 +71,7 @@ export class MarkdownToState {
             githubAlerts = false,
         } = this._options;
 
-        // markdownToState injects synthetic `block-end` markers (see the
-        // blockquote/list/list_item/footnote cases below) to pop the parent
-        // stack, so the working stream is wider than what `lexBlock` returns.
+        // Synthetic block-end markers make this stream wider than the lexer output.
         const tokens: TBlockToken[] = lexBlock(markdown, {
             footnote,
             texMathDollars,
@@ -109,7 +105,6 @@ export class MarkdownToState {
     ) {
         let state: TState;
         switch (token.type) {
-            // Marks the end of the children's traversal and a return to the previous level
             case 'block-end': {
                 // Fix #1735 the blockquote maybe empty. like bellow:
                 // >
@@ -205,10 +200,7 @@ export class MarkdownToState {
             }
 
             case 'footnote': {
-                // The footnote extension (utils/marked/extensions/footnote.ts)
-                // emits a parent token whose `tokens` array holds nested
-                // block tokens. Mirror that into a `footnote` container
-                // state and recurse via tokens.unshift / block-end.
+                // Footnote tokens contain nested block tokens; traverse them as container children.
                 const { identifier } = token;
                 state = {
                     name: 'footnote' as const,
@@ -332,7 +324,6 @@ export class MarkdownToState {
 
             case 'html': {
                 const text = token.text.trim();
-                // TODO: Treat html state which only contains one img as paragraph, we maybe add image state in the future.
                 const isSingleImage = /^<img[^<>]+>$/.test(text);
                 if (isSingleImage) {
                     state = {
@@ -392,14 +383,7 @@ export class MarkdownToState {
             }
 
             case 'def': {
-                // Marked v16 hoists `[label]: url "title"` reference
-                // definitions to block-level `def` tokens. Lower them back
-                // to paragraph state nodes so the rest of the pipeline —
-                // `InlineRenderer.collectReferenceDefinitions` (regex scan
-                // over paragraph text) and round-trip serialization —
-                // keeps working without a dedicated state node.
-                // Aligns with marktext's "definition is paragraph text"
-                // model. See plan section 13 (PR-16).
+                // Keep reference definitions as raw paragraph text for rendering and lossless Markdown round-trips.
                 state = {
                     name: 'paragraph' as const,
                     text: token.raw.replace(/\n+$/, ''),
@@ -478,8 +462,7 @@ export class MarkdownToState {
         // run length both survive the round trip (CommonMark §4.5).
         const fence = parseFenceLine(raw);
         const { fenceLength, fenceChar } = fence ?? {};
-        // Keep the whole info string; the language for highlighting / diagram
-        // detection is its first word (CommonMark §4.5).
+        // Preserve info-string attributes; diagram detection uses only the first word.
         const info = (infoString || '').trim();
         const lang = firstWordOfInfo(info);
 
@@ -496,19 +479,12 @@ export class MarkdownToState {
         if (diagramType)
             return createDiagramState(diagramType, value);
 
-        // walkTokens (utils/marked/walkTokens.ts) writes
-        // codeBlockStyle = 'fenced' for fenced blocks and
-        // leaves 'indented' for indented blocks. marked's
-        // type widens the field to `'indented' | undefined`,
-        // but `'fenced'` reaches us at runtime via the
-        // walkTokens assignment — hence the cast.
+        // walkTokens adds 'fenced', which marked's declared codeBlockStyle type omits.
         const isFenced = (codeBlockStyle as 'indented' | 'fenced' | undefined) === 'fenced';
         return {
             name: 'code-block' as const,
             meta: {
                 type: isFenced ? 'fenced' : 'indented',
-                // The full info string verbatim (empty for indented blocks); the
-                // language is its first word — see `firstWordOfInfo`.
                 lang: info,
                 ...(isFenced && fenceLength && fenceLength > 3 ? { fenceLength } : {}),
                 ...(isFenced ? { fenceChar: fenceChar ?? '`' } : {}),

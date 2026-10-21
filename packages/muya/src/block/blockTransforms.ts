@@ -11,13 +11,7 @@ import { ScrollPage } from './scrollPage';
 
 const debug = logger('quickInsert:');
 
-/**
- * Derive the frontmatter `lang`/`style` from the user's `frontmatterType`
- * preference: `-` -> yaml `---`, `+` -> toml `+++`,
- * `;`/`{` -> json (`;;;`/`{}`). The serializer (`serializeFrontMatter`)
- * switches on `lang`, so getting `lang` right is what makes YAML/TOML emit
- * their fences instead of falling through to JSON braces.
- */
+// Frontmatter language and style must agree so the serializer emits the chosen delimiters.
 export function frontmatterMeta(frontmatterType: string): IFrontmatterMeta {
     switch (frontmatterType) {
         case '+':
@@ -32,14 +26,7 @@ export function frontmatterMeta(frontmatterType: string): IFrontmatterMeta {
     }
 }
 
-/**
- * Prepend a front matter block at the very start of the document. Front matter
- * is only valid as the first
- * block, so this never replaces the block at the cursor. Idempotent: a no-op
- * when the document already starts with front matter, so it never duplicates
- * the block. Shared by `Muya.updateParagraph('front-matter')` and the
- * quick-insert menu's `frontmatter` entry so both follow identical semantics.
- */
+// Front matter is valid only at document start. No-op when it is already present.
 export function insertFrontMatterAtStart(muya: Muya): boolean {
     const { scrollPage } = muya.editor;
     if (!scrollPage)
@@ -59,19 +46,8 @@ export function insertFrontMatterAtStart(muya: Muya): boolean {
     return true;
 }
 
-/**
- * Show the in-editor table grid picker. The in-editor "table" insert (the `/`
- * quick-insert menu and the paragraph front-menu) must offer a hover-grid
- * dimension picker rather than dropping a fixed-size table — the picker UI
- * (`TableChessboard`) subscribes to `muya-table-picker` and invokes the
- * dispatched callback with the zero-based `(row, column)` the user picked, so
- * the table is created at `row + 1 × column + 1` to match legacy semantics.
- *
- * The float anchors to the caret (`getCursorReference`); when the cursor has
- * no coords (e.g. the front-menu took focus) it falls back to the block's DOM
- * node. No-op if neither is available, or if the block is no longer in the
- * document.
- */
+// Open the dimension picker at the caret, falling back to the target block.
+// Its callback supplies zero-based row/column indices; ignore unavailable or detached targets.
 export function showTablePicker(muya: Muya, block: Parent) {
     const { eventCenter } = muya;
     const reference = getCursorReference() ?? block.domNode;
@@ -83,19 +59,12 @@ export function showTablePicker(muya: Muya, block: Parent) {
     const triggerText = block.firstContentInDescendant()?.text ?? '';
 
     const handler = (row: number, column: number) => {
-        // The grid stays open while typing, undo and redo change the document,
-        // so a pick acts on the line that opened it only while that line is
-        // still in the document holding the text it had then, or nothing
-        // (#5355). Any other pick is ignored and changes nothing at all: it
-        // used to replace whichever block held the caret, or throw on a block
-        // undo had removed.
+        // Ignore picks if typing or undo changed or detached the original trigger (#5355).
         const text = block.firstContentInDescendant()?.text ?? '';
         if (!block.outMostBlock || (text !== triggerText && text.trim() !== ''))
             return;
 
-        // The picker's trigger block (a `/table` quick-insert line or the empty
-        // paragraph the front-menu offers) is disposable, so always replace it
-        // rather than inserting the table below it.
+        // Replace the disposable /table or empty trigger paragraph.
         muya.createTable({ rows: row + 1, columns: column + 1 }, { replace: true, block });
     };
 
@@ -179,10 +148,7 @@ function buildDiagramBlock(label: string, muya: Muya) {
     return ScrollPage.loadBlock(name).create(muya, diagramState);
 }
 
-// A display-math block serializes to `$$…$$`, which this editor no longer reads
-// back once pandoc's tex_math_dollars is off. The single source of truth for
-// "may this block be offered and built at all", consulted by every menu that
-// lists blocks and by the builder every insertion path funnels through (#5446).
+// Menus and insertion paths must reject math blocks when their serialized $$ syntax is disabled (#5446).
 export function canInsertLabel(label: string, muya: Muya): boolean {
     if (label.startsWith('github-alert '))
         return muya.options.githubAlerts;
@@ -237,19 +203,9 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
         return;
     }
 
-    // Front matter is only valid as the document's first block, so the
-    // quick-insert "Front Matter" entry must NOT replace the cursor block in
-    // place (which destroyed its content and produced invalid mid-document
-    // front matter). Prepend at document start and bail before the in-place
-    // `block.replaceWith` below — sharing the idempotent doc-start logic with
-    // `Muya.updateParagraph('front-matter')`.
+    // Front matter must be prepended, never substituted for a block in the document body.
     if (label === 'frontmatter') {
-        // Every other label drops the `/` quick-insert trigger text implicitly
-        // via `block.replaceWith(newBlock)`. Front matter is prepended at the
-        // document start instead (the trigger paragraph survives), so clear its
-        // `/…` text and refresh the DOM. Only do so when a block was actually
-        // inserted — when the document already starts with front matter the
-        // insert is a no-op and the trigger paragraph must be left untouched.
+        // Prepending leaves the / query behind; clear it only when front matter was actually inserted.
         if (insertFrontMatterAtStart(muya)) {
             const triggerContent = block.firstContentInDescendant();
             if (triggerContent) {
@@ -260,18 +216,12 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
         return;
     }
 
-    // The in-editor "table" insert shows a hover-grid dimension picker
-    // instead of dropping a fixed-size
-    // table. The picker's callback creates the table at the chosen size, so
-    // bail before the in-place empty-table replacement below.
     if (label === 'table') {
         showTablePicker(muya, block);
         return;
     }
 
     const newBlock = buildReplacementBlock(label, muya, text);
-    // An unknown label, or one an option has switched off, yields nothing —
-    // leave the block the user was on alone rather than replacing it with null.
     if (!newBlock)
         return;
 
@@ -279,10 +229,7 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
     finishInsertedBlock(newBlock, muya, label);
 }
 
-// Position the caret after a block was inserted or replaced. A thematic-break
-// is not editable, so append a trailing empty paragraph and put the caret there
-// (so the user can keep typing below the rule); otherwise move the caret into
-// the new block.
+// A thematic break needs a trailing paragraph so the user can continue typing.
 function finishInsertedBlock(newBlock: Parent, muya: Muya, label: string) {
     if (label === 'thematic-break') {
         const nextParagraphBlock = ScrollPage.loadBlock('paragraph').create(
@@ -297,8 +244,7 @@ function finishInsertedBlock(newBlock: Parent, muya: Muya, label: string) {
     placeCaretInNewBlock(newBlock, label);
 }
 
-// Move the caret into a freshly-built block: between <div>\n\n</div> for an
-// html-block, otherwise to the end of its text.
+// HTML-block carets start between the opening and closing tags.
 function placeCaretInNewBlock(newBlock: Parent, label: string) {
     const cursorBlock = newBlock.firstContentInDescendant();
     if (!cursorBlock)
@@ -308,10 +254,6 @@ function placeCaretInNewBlock(newBlock: Parent, label: string) {
     cursorBlock.setCursor(offset, offset, true);
 }
 
-// Build a fresh block of `label` and insert it directly AFTER `block`
-// (inside the same container), then move the caret into the new block.
-// Used by the Paragraph menu when the target type is not a valid front-menu
-// turn-into of a non-empty block.
 export function insertBlockBelowByLabel({ block, muya, label }: {
     block: Parent;
     muya: Muya;

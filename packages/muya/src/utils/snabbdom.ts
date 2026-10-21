@@ -25,7 +25,6 @@ export const toVnode = sToVNode;
 
 export const toHTML = sToHTML; // helper function for convert vnode to HTML string
 export function htmlToVNode(html: string) {
-    // helper function for convert html to vnode
     const wrapper = document.createElement('div');
     wrapper.innerHTML = html;
 

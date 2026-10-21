@@ -61,7 +61,6 @@ function findContent(muya: Muya, text: string): Content {
     return block;
 }
 
-// Every content leaf in document order, as `blockName:text`.
 function outline(muya: Muya): string[] {
     return contentBlocks(muya).map(block => `${block.blockName}:${block.text}`);
 }
@@ -86,7 +85,6 @@ function cut(muya: Muya, anchor: Content, anchorOffset: number, focus: Content, 
     muya.editor.clipboard.cutHandler();
 }
 
-// The json state still matches the block tree.
 function expectNoDrift(muya: Muya): void {
     muya.editor.jsonState.flush();
     const tree: TState[] = [];

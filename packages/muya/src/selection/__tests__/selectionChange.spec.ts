@@ -3,12 +3,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
 
-// Coverage for the selection-change payload extras added for the
-// muyajs -> @muyajs/core desktop migration: `cursorCoords` (typewriter-mode
-// scrolling) and `formats` (active inline formats, for lighting up the
-// desktop toolbar). The legacy engine put both on its `selectionChange`
-// event; the desktop reads `changes.cursorCoords.y` and the format list.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;

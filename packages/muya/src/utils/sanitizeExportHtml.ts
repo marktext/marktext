@@ -4,19 +4,13 @@ import { addHook, removeHook } from './dompurify';
 import { resolveExportImageSrc } from './fileUrl';
 import { sanitize } from './index';
 
-// Runs before DOMPurify validates the attribute, so the allowlist checks the
-// final `file://` URL. Covers Markdown images and raw `<img>` tags alike; a
-// Windows drive path would otherwise be dropped as an unknown `c:` scheme
-// (#3323).
+// Resolve local URLs before DOMPurify validates schemes, or Windows drives are rejected as c: URLs.
 const resolveImageSrc: UponSanitizeAttributeHook = (node, data) => {
     if (node.nodeName === 'IMG' && data.attrName === 'src')
         data.attrValue = resolveExportImageSrc(data.attrValue);
 };
 
-/**
- * Sanitize rendered export HTML with `EXPORT_DOMPURIFY_CONFIG`, resolving every
- * local `<img>` src to an absolute `file://` URL on the way.
- */
+// Sanitize export HTML after resolving local image sources to absolute file URLs.
 export function sanitizeExportHtml(html: string): string {
     // The purifier is shared, so the hook is attached for this call only.
     addHook('uponSanitizeAttribute', resolveImageSrc);

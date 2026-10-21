@@ -3,11 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
 
-// #1932 — switching tabs replaces the document via `Editor.setContent`, which
-// rebuilds the block tree. The Search module kept its old `matches` (now
-// pointing at detached blocks) and its old match count/value, so the search bar
-// still showed the previous tab's results and "Find Next" operated on orphaned
-// blocks. setContent must reset the search state.
+// Tab switches must discard matches pointing to the previous document’s detached blocks (#1932).
 
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;

@@ -56,7 +56,6 @@ class HTMLPreview extends Parent {
         const { disableHtml } = this.muya.options;
         const htmlContent = sanitize(html, PREVIEW_DOMPURIFY_CONFIG, disableHtml) as string;
 
-        // handle empty html bock
         if (isEmptyHtmlBlock(htmlContent)) {
             this.domNode!.innerHTML
                 = `<div class="${CLASS_NAMES.MU_EMPTY}">&lt;Empty HTML Block&gt;</div>`;

@@ -7,17 +7,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
 import { SelectionCaretType, SelectionDirection } from '../../selection/types';
 
-// Track C — Cut (clipboard chain step 2). Ports `packages/muyajs`
-// `copyCutCtrl.cutHandler` + `removeBlocks` semantics into `@muyajs/core`:
-//   1. A cross-block cut merges at the LEAF level —
-//      `startBlock.text = start.head + end.tail` — keeping BOTH endpoint tails
-//      and removing only the structure strictly between. The start block keeps
-//      its container (list item stays a list item, blockquote stays a quote).
-//   2. A whole-document selection collapses to a single empty paragraph
-//      (muyajs `isSelectAll` reset).
-//   3. An empty whole-row / whole-column / whole-table table-cell cut removes
-//      that row / column / table structurally.
-
 // The clipboard module pulls in CodeBlockContent → utils/prism which touches
 // `window` at import time. Stub the prism shim (same stub as sibling specs).
 vi.mock('../../utils/prism/index', () => ({
@@ -57,7 +46,6 @@ function bootMuya(markdown: string): Muya {
     return muya;
 }
 
-// Document-order list of every content leaf.
 function contentBlocks(muya: Muya): Content[] {
     const out: Content[] = [];
     let c: Content | null = muya.editor.scrollPage!.firstContentInDescendant();
@@ -229,7 +217,6 @@ describe('track C — cross-block cut keeps both endpoint tails (leaf merge)', (
         // 'a'@1 -> 'a' merged with '2'@0 -> '2'; cells between emptied.
         stubSelection(muya, cellA, 1, cell2, 0);
         const md = await cutAndRead(muya);
-        // Two-column, two-row grid survives.
         expect(md.match(/\| --- \| --- \|/g)?.length).toBe(1);
         expect(md).toMatch(/\|\s*a2\s*\|/);
         expect(md).not.toMatch(/\|\s*b\s*\|/); // 'b' emptied

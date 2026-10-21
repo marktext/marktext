@@ -1,17 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import LangInputContent from '../index';
 
-// `LangInputContent.enterHandler` / `backspaceHandler` only touch a small,
-// structurally-typed slice of the block surface:
-//   - enterHandler reads `this.parent` and calls
-//     `parent.lastContentInDescendant()?.setCursor(0, 0)` plus
-//     `event.preventDefault()` / `event.stopPropagation()`.
-//   - backspaceHandler reads `this.getCursor()` (start/end offsets) and
-//     `this.text`, then either calls `this.updateLanguage('')` (Firefox
-//     single-char compat branch) or walks to `this.previousContentInContext()`.
-// So — like autoPair.spec.ts — we drive the prototype methods off a fake
-// `this` and avoid the full Muya/DOM bootstrap.
-
 function makeFakeEvent() {
     return {
         preventDefault: vi.fn(),
@@ -80,7 +69,6 @@ describe('langInputContent.backspaceHandler', () => {
 
         expect(event.preventDefault).toHaveBeenCalledTimes(1);
         expect(fakeThis._updateLanguage).toHaveBeenCalledWith('');
-        // The {1,1} branch does not also enter the {0,0} branch.
         expect(fakeThis.previousContentInContext).not.toHaveBeenCalled();
     });
 
@@ -108,7 +96,6 @@ describe('langInputContent.backspaceHandler', () => {
         expect(event.preventDefault).toHaveBeenCalledTimes(1);
         const offset = previousBlock.text.length;
         expect(previousBlock.setCursor).toHaveBeenCalledWith(offset, offset, true);
-        // The {0,0} branch must not trigger the single-char updateLanguage path.
         expect(fakeThis._updateLanguage).not.toHaveBeenCalled();
     });
 

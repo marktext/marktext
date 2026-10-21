@@ -6,7 +6,6 @@ function isListToken(token: Token | ListToken): token is ListToken {
 }
 
 const BULL_REG = /^ {0,3}([*+-]|\d{1,9}(?:\.|\)))/;
-// The marker may be a bullet or an ordered number (`- [x] …` / `1. [x] …`).
 const EMPTY_TASK_REG = /^ {0,3}(?:[*+-]|\d{1,9}[.)])[ \t]+\[([ x])\][ \t]*$/i;
 const TASK_MARKER_PREFIX_REG = /^ {0,3}(?:[*+-]|\d{1,9}[.)])[ \t]+\[([ x])\][ \t]+/i;
 
@@ -43,11 +42,7 @@ function stripSyntheticTaskMarker(item: ListItemToken, marker: string) {
     }
 }
 
-// marked >=17 keeps the GFM task marker inside the item content: a leading
-// `checkbox` token, plus the literal "[ ] " / "[x] " prefix in the first
-// paragraph's `text` for loose lists. muya renders the marker from the
-// task-list-item `checked` meta, so strip it here to avoid double-emitting it
-// on serialization.
+// Strip marked’s checkbox token and loose-list prefix because checked metadata renders the task marker.
 function stripTaskMarker(item: ListItemToken) {
     const tokens = item.tokens;
     if (!tokens || !tokens.length)
@@ -164,7 +159,6 @@ function splitIntoRuns(
                 ...base,
                 listType: listItemType,
                 items: [item],
-                // The run keeps the number its first item had in the whole list.
                 start: typeof base.start === 'number' ? base.start + index : base.start,
             });
         }
@@ -173,13 +167,8 @@ function splitIntoRuns(
     return runs;
 }
 
-// Add `listType` to token, it's type: "order" | "bullet" | "task".
-// Add `listItemType` to list_item token. it's type: "order" | "bullet" | "task".
-// Add `bulletMarkerOrDelimiter` to list_item token. it's type: "." | ")" | "*" | "+" | "-"
-// Add `orderMarker` to ordered list_item token, the number and delimiter as written, e.g. "1." | "007." | "10)"
-//
-// GFM task-list-items apply to ordered lists too
-// (https://github.github.com/gfm/#task-list-items-extension-).
+// Add list/item discriminators and original markers, splitting mixed lists into same-kind runs.
+// Ordered task items retain GFM numbering.
 function compatibleTaskList(tokens: (Token | ListToken | ListItemToken)[] = []) {
     const results = [];
 
@@ -221,11 +210,7 @@ function compatibleTaskList(tokens: (Token | ListToken | ListItemToken)[] = []) 
             results.push(token);
         }
         else if (token.type === 'footnote') {
-            // The footnote extension stores its body block tokens under
-            // `tokens` (see utils/marked/extensions/footnote.ts). Without
-            // this branch a nested bullet/order/task list inside a footnote
-            // never receives a `listType`, and markdownToState produces
-            // `undefined-list` for the child state.
+            // Footnote bodies keep block tokens under tokens; process their nested lists too.
             const ft = token as { tokens?: (Token | ListToken | ListItemToken)[] };
             ft.tokens = compatibleTaskList(ft.tokens);
             results.push(token);

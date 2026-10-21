@@ -1,25 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import Format from '../format';
 
-// `Format.prototype._addFormat` is the small text-rewriter that:
-//   1. Wraps `text[start..end]` with the format's opening + closing
-//      markers.
-//   2. Adjusts `start.offset` / `end.offset` so the public `format()` call
-//      can `setCursor(start, end, true)` afterwards.
-//
-// Two distinct cursor states drive two distinct outcomes:
-//   - Non-empty selection: the originally-selected text must STAY selected
-//     after wrapping (matching legacy muyajs and every standard editor —
-//     select a word, bold it, the word is still highlighted). Both offsets
-//     shift by the OPENING marker length so the range lands on the original
-//     text now sitting inside the markers. (PR-10b's f3b53427 had collapsed
-//     this selection to a caret past the closing marker — a regression.)
-//   - Collapsed selection (toggle-then-type): the caret stays BETWEEN the
-//     markers so the next keystroke is captured INSIDE the format.
-//
-// `_addFormat` only reads/writes `this.text`, so a structurally-typed
-// fake `this` is enough — no Muya bootstrap needed.
-
 interface IOffset {
     offset: number;
 }
@@ -86,7 +67,6 @@ describe('format._addFormat caret/selection placement after wrapping', () => {
         it('mid-text selection: "hello world" select "world" -> "world" still selected', () => {
             const { text, start, end } = applyAddFormat('hello world', 6, 11, 'strong');
             expect(text).toBe('hello **world**');
-            // 'hello ' (6) + '**' (2) = 8 .. 8 + 'world' (5) = 13
             expect(start).toBe(8);
             expect(end).toBe(13);
         });

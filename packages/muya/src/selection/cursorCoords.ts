@@ -34,9 +34,7 @@ export function getSelectionStart(): Node | null {
 
 export function getCursorYOffset(paragraph: HTMLElement): { topOffset: number; bottomOffset: number } {
     const coords = getCursorCoords();
-    // The collapsed caret can yield no client rects (e.g. an HTML/code block
-    // boundary position), so `getCursorCoords()` returns null. Treat that as
-    // "position unknown" and let arrow navigation leave the block.
+    // A missing client rect means an unknown caret position; let navigation leave the block.
     if (coords == null)
         return { topOffset: 0, bottomOffset: 0 };
 

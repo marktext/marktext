@@ -28,21 +28,16 @@ export function getImageInfo(image: HTMLElement): IImageInfo {
 
 export function getImageSrc(src: string) {
     const EXT_REG = /\.(?:jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i;
-    // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
     const URL_REG
         = /^https?:\/\/(?:[\w\-.~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(?::\d{1,5})?\/\S+/i;
     const DATA_URL_REG
         = /^data:image\/[\w+-]+(?:;[\w-]+=[\w-]+|;base64)*,[a-zA-Z0-9+/]+={0,2}$/;
     const imageExtension = EXT_REG.test(src);
-    // An already-`file://` src must not be re-prefixed (avoids `file://file://`).
     const isFileUrl = /^file:\/\//i.test(src);
     const isUrl = URL_REG.test(src) || (imageExtension && isFileUrl);
     if (imageExtension) {
         const isAbsoluteLocal = ABSOLUTE_LOCAL_REG.test(src);
-        // Anchor a relative local path to the document directory. The
-        // engine runs in the host renderer where `window.DIRNAME` tracks the
-        // current document's directory; when it is absent (headless / no open
-        // file) we fall back to the `file://${src}` form.
+        // Resolve relative paths against the host document directory; retain relative form when unavailable.
         const baseUrl
             = typeof window !== 'undefined' ? window.DIRNAME : undefined;
         if (isUrl) {
@@ -87,19 +82,12 @@ export function getImageSrc(src: string) {
     }
 }
 
-// The CSS default object size (CSS Images 3 §5.4) a browser falls back to for
-// an image that states no size of its own. An image that carries an aspect
-// ratio is contained inside that box, so one of its two dimensions always
-// lands on the box.
+// CSS Images default object dimensions for images without intrinsic size (300×150).
 const DEFAULT_OBJECT_WIDTH = 300;
 const DEFAULT_OBJECT_HEIGHT = 150;
 
-/**
- * Whether a loaded image's measured size is that fallback rather than a size of
- * its own — true for an SVG carrying only a `viewBox`. An image that really is
- * 300px wide (or 150px tall) answers `true` as well; that costs nothing, since
- * the width callers pin for it is its own intrinsic width.
- */
+// Detect a possible CSS fallback size, including viewBox-only SVGs.
+// Real images can share these dimensions, so callers must separately exclude bitmaps.
 export function usesDefaultObjectSize(width?: number, height?: number): boolean {
     if (typeof width !== 'number' || typeof height !== 'number')
         return false;
@@ -114,9 +102,7 @@ export async function loadImage(url: string, detectContentType = false): Promise
 }> {
     if (detectContentType) {
         const isImage = await checkImageContentType(url);
-        // Only bail out when we positively know it is NOT an image. `null`
-        // means we couldn't check (e.g. a cross-origin HEAD blocked by CSP);
-        // fall through to the actual load, which `img-src` permits (#3837).
+        // An unavailable HEAD result is not proof of failure; img-src may still permit loading (#3837).
         if (isImage === false)
             // eslint-disable-next-line prefer-promise-reject-errors
             return Promise.reject('not an image.');
@@ -139,11 +125,7 @@ export async function loadImage(url: string, detectContentType = false): Promise
     });
 }
 
-// Only a same-origin URL can have its Content-Type read from the renderer: a
-// cross-origin response has its headers stripped by CORS, and the app's CSP
-// (no `connect-src`, so it falls back to `default-src 'self'`) refuses the
-// request outright. Relative/opaque URLs are treated as same-origin so the
-// check is still attempted.
+// Cross-origin headers are unreadable under CORS and renderer CSP blocks the HEAD request.
 function isSameOrigin(url: string): boolean {
     try {
         return new URL(url, window.location.href).origin === window.location.origin;
@@ -153,15 +135,9 @@ function isSameOrigin(url: string): boolean {
     }
 }
 
-// Returns `true`/`false` when a HEAD response positively identifies the URL as
-// an image (or not), or `null` when that can't be determined. A `null` must NOT
-// be read as "not an image": the actual <img> load is governed by the far more
-// permissive `img-src`, so callers should still attempt it (#3837 — shields.io
-// badges and other extensionless remote images).
+// Return null when Content-Type cannot be checked. The caller must still try the img load.
 export async function checkImageContentType(url: string): Promise<boolean | null> {
-    // Don't fire a HEAD we could never read: a cross-origin request is refused
-    // by the CSP (logging a console error) and unreadable under CORS anyway.
-    // Report "undetermined" and let the caller fall through to the <img> load.
+    // Skip unreadable cross-origin HEAD requests and allow the actual image load.
     if (!isSameOrigin(url))
         return null;
 
@@ -204,8 +180,7 @@ export function correctImageSrc(src: string) {
             src = `file:///${src.substring(4).replace(/\\/g, '/')}`;
         }
         else if (/^\/.+/.test(src)) {
-            // Also adding file protocol on UNIX.
-            // Do nothing: src = src
+            // POSIX absolute paths intentionally remain unchanged.
         }
     }
 

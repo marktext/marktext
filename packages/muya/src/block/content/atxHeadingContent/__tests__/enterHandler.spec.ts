@@ -77,7 +77,6 @@ describe('atxHeadingContent.enterHandler — prevents default when inserting par
         );
 
         expect(event.preventDefault).toHaveBeenCalledTimes(1);
-        // Sanity: the paragraph insert path actually ran.
         expect(content.parent.parent.insertBefore).toHaveBeenCalledTimes(1);
     });
 

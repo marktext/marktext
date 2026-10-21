@@ -51,11 +51,7 @@ class TaskList extends Parent {
         this.createDomNode();
     }
 
-    /**
-     * Auto move checked list item to the end of task list.
-     *
-     * Ordered task lists keep the source order, so checked items stay put.
-     */
+    // Ordered task lists preserve item order even when checked.
     orderIfNecessary() {
         const { autoMoveCheckedToEnd } = this.muya.options;
         if (!autoMoveCheckedToEnd || this.meta.ordered)

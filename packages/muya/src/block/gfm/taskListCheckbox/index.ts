@@ -12,8 +12,6 @@ import TreeNode from '../../base/treeNode';
 
 const debug = logger('tasklistCheckbox:');
 
-// Block-name discriminators used by the autoCheck cascade to narrow the
-// generic `TreeNode`/`Parent` tree shapes without a double-cast.
 function isTaskListItem(node: Nullable<TreeNode>): node is TaskListItem {
     return !!node && node.blockName === 'task-list-item';
 }
@@ -26,7 +24,6 @@ function isCheckbox(node: TreeNode): node is TaskListCheckbox {
     return node.blockName === TaskListCheckbox.blockName;
 }
 
-// Find the `task-list-checkbox` attachment of a `task-list-item`.
 function checkboxOf(item: TaskListItem): TaskListCheckbox | null {
     let found: TaskListCheckbox | null = null;
     item.attachments.forEach((attachment) => {
@@ -37,8 +34,7 @@ function checkboxOf(item: TaskListItem): TaskListCheckbox | null {
     return found;
 }
 
-// Set a task item's checked state, dispatching the OT op (`TaskListItem.checked`
-// setter) and syncing its checkbox DOM. No-op when already in the target state.
+// Update the checked state and checkbox DOM; no-op when unchanged.
 function setItemChecked(item: TaskListItem, checked: boolean): void {
     if (item.checked === checked)
         return;
@@ -49,8 +45,6 @@ function setItemChecked(item: TaskListItem, checked: boolean): void {
         checkbox.syncDom(checked);
 }
 
-// The nested `task-list` directly under a `task-list-item`, if any. A task item
-// holds a leading paragraph plus an optional nested list of sub-tasks.
 function nestedTaskListOf(item: TaskListItem): TaskList | null {
     let nested: TaskList | null = null;
     item.children.forEach((child: TreeNode) => {
@@ -61,7 +55,6 @@ function nestedTaskListOf(item: TaskListItem): TaskList | null {
     return nested;
 }
 
-// Cascade `checked` to every descendant task item (depth-first).
 function cascadeToDescendants(item: TaskListItem, checked: boolean): void {
     const nested = nestedTaskListOf(item);
     if (!nested)
@@ -76,7 +69,6 @@ function cascadeToDescendants(item: TaskListItem, checked: boolean): void {
     });
 }
 
-// A parent item is checked iff every sibling in its task-list is checked.
 function allSiblingsChecked(list: TaskList): boolean {
     let all = true;
     list.children.forEach((child: TreeNode) => {
@@ -87,8 +79,6 @@ function allSiblingsChecked(list: TaskList): boolean {
     return all;
 }
 
-// Re-derive each ancestor task item: walking up from the toggled item's list,
-// set every enclosing item to the computed state until one is unchanged.
 function rederiveAncestors(item: TaskListItem): void {
     let list = item.parent;
 
@@ -106,11 +96,8 @@ function rederiveAncestors(item: TaskListItem): void {
     }
 }
 
-// The Task List Item component is Firefox compatible, because in Firefox,
-// the input element is not clickable in the contenteditable element(li),
-// and in Firefox, the span element is used instead of the input element.
-// In the Chrome browser, the input element is still preserved because in Chrome,
-// span has a cursor staggered problem.
+// Firefox needs a span because inputs are not clickable inside editable list items.
+// Chromium keeps an input to avoid caret misalignment.
 class TaskListCheckbox extends TreeNode {
     private _checked: boolean;
 
@@ -200,12 +187,7 @@ class TaskListCheckbox extends TreeNode {
 
         this._applyChecked(checked, source);
 
-        // marktext `clickCtrl.js#listItemCheckBoxClick` cascaded a user toggle
-        // through `muya.options.autoCheck`: checking/unchecking an item set the
-        // same state on every descendant task item, then re-derived each
-        // ancestor (checked iff all its siblings are checked). `source === 'api'`
-        // is the silent, OT-free path used by the cascade itself, so it never
-        // recurses.
+        // Only user changes cascade; Api updates synchronize silently without recursive edits.
         if (source !== ChangeSource.Api && this.muya.options.autoCheck) {
             cascadeToDescendants(taskListItem, checked);
             rederiveAncestors(taskListItem);
@@ -214,10 +196,7 @@ class TaskListCheckbox extends TreeNode {
         taskList.orderIfNecessary();
     };
 
-    // Reflect `checked` onto this checkbox's DOM and onto its task-list-item
-    // state. A `user` source dispatches the OT `replace` op (via the
-    // `TaskListItem.checked` setter); an `api` source mutates the state
-    // silently so the cascade can update many items without op spam.
+    // User updates dispatch an OT operation; Api updates synchronize state silently.
     private _applyChecked(checked: boolean, source: ChangeSource) {
         this.syncDom(checked);
 
@@ -228,10 +207,7 @@ class TaskListCheckbox extends TreeNode {
             taskListItem.checked = checked;
     }
 
-    // Sync only this checkbox's DOM + internal flag to `checked`. Used by the
-    // autoCheck cascade, which has already mutated the owning item's state (and
-    // dispatched the OT op) via the `TaskListItem.checked` setter, so this must
-    // not touch state again.
+    // Update DOM only: the cascade has already changed state and dispatched its operation.
     syncDom(checked: boolean) {
         this._checked = checked;
         operateClassName(

@@ -20,8 +20,6 @@ function nestedBulletList(depth: number): TState[] {
     return [state];
 }
 
-// Descend through the nested lists and return the innermost paragraph plus
-// the number of list levels passed on the way.
 function innermostLeaf(state: TState[]): { leaf: TState; levels: number } {
     let levels = 0;
     let current = state[0];
