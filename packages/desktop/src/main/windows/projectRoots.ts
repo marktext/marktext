@@ -51,23 +51,23 @@ const resolveRoot = (pathname: string): string => {
 
 export class ProjectRoots {
   roots: ProjectRoot[] = []
-  private revision = 0
-  private restoredTokens = new Set<string>()
+  private _revision = 0
+  private _restoredTokens = new Set<string>()
 
-  constructor(private effects: RootEffects) {}
+  constructor(private _effects: RootEffects) {}
 
-  private publish(reason: ProjectRootsSnapshot['reason'], targetKey?: string): void {
-    this.effects.publish({
-      revision: ++this.revision,
+  private _publish(reason: ProjectRootsSnapshot['reason'], targetKey?: string): void {
+    this._effects.publish({
+      revision: ++this._revision,
       roots: this.roots.map((root) => ({ ...root })),
       reason,
       targetKey
     })
   }
 
-  private watch(root: ProjectRoot): void {
+  private _watch(root: ProjectRoot): void {
     try {
-      this.effects.watch(root)
+      this._effects.watch(root)
     } catch (error) {
       this.setStatus(root.key, root.watchToken, 'unavailable', String(error))
     }
@@ -77,7 +77,7 @@ export class ProjectRoots {
     const resolved = resolveRoot(pathname)
     const duplicate = this.roots.find((root) => path.relative(root.key, resolved) === '')
     if (duplicate && !replace) {
-      this.publish('reveal', duplicate.key)
+      this._publish('reveal', duplicate.key)
       return
     }
     if (
@@ -96,32 +96,32 @@ export class ProjectRoots {
     }
     if (replace) this.clear()
     this.roots.push(root)
-    this.effects.remember(root.pathname)
-    this.publish(replace ? 'replace' : 'add', root.key)
-    this.watch(root)
+    this._effects.remember(root.pathname)
+    this._publish(replace ? 'replace' : 'add', root.key)
+    this._watch(root)
   }
 
   remove(key: string): boolean {
     const root = this.roots.find((root) => root.key === key)
     if (!root) return false
     this.roots = this.roots.filter((entry) => entry.key !== key)
-    this.effects.unwatch(root)
-    this.publish('remove', key)
+    this._effects.unwatch(root)
+    this._publish('remove', key)
     return true
   }
 
   retry(key: string): boolean {
     const root = this.roots.find((root) => root.key === key)
     if (!root) return false
-    this.effects.unwatch(root)
+    this._effects.unwatch(root)
     root.watchToken = randomUUID()
     try {
       const resolved = resolveRoot(root.pathname)
       if (path.relative(root.key, resolved) !== '') throw new Error('Folder location changed')
       root.status = 'loading'
       delete root.error
-      this.publish('status', key)
-      this.watch(root)
+      this._publish('status', key)
+      this._watch(root)
     } catch (error) {
       this.setStatus(key, root.watchToken, 'unavailable', String(error))
     }
@@ -133,7 +133,7 @@ export class ProjectRoots {
     if (!root) return
     root.status = status
     root.error = error
-    this.publish('status', key)
+    this._publish('status', key)
   }
 
   restore(entries: BufferedRoot[]): void {
@@ -157,21 +157,21 @@ export class ProjectRoots {
         error
       })
     }
-    this.restoredTokens = new Set(
+    this._restoredTokens = new Set(
       this.roots.filter((root) => root.status === 'loading').map((root) => root.watchToken)
     )
-    this.publish('restore')
+    this._publish('restore')
   }
 
   startRestored(): void {
     for (const root of this.roots) {
-      if (this.restoredTokens.delete(root.watchToken)) this.watch(root)
+      if (this._restoredTokens.delete(root.watchToken)) this._watch(root)
     }
   }
 
   clear(): void {
-    for (const root of this.roots) this.effects.unwatch(root)
+    for (const root of this.roots) this._effects.unwatch(root)
     this.roots = []
-    this.restoredTokens.clear()
+    this._restoredTokens.clear()
   }
 }
