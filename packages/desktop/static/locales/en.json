@@ -395,6 +395,7 @@
         "autoSaveDelay": "The time in ms after a change that the file is saved",
         "titleBarStyle": "The title bar style (Windows and Linux system only)",
         "openFilesInNewWindow": "Open files in a new window",
+        "openFilesInPreviewMode": "Open sidebar files in preview tabs",
         "openFolderInNewWindow": "Open folder via menu in a new window",
         "zoom": "The zoom level. Between 0.5 and 2.0 inclusive",
         "hideScrollbar": "Whether to hide scrollbars",
@@ -517,6 +518,7 @@
         "wrapTextInToc": "Wrap text in table of contents",
         "showOpenedFiles": "Show opened files",
         "autoReveal": "Reveal the active file in the sidebar",
+        "openFilesInPreviewMode": "Open sidebar files in preview tabs. Editing or double-clicking keeps the tab open.",
         "excludePatterns": "Exclude patterns",
         "excludePatternsNotes": "Exclude patterns (Notes)",
         "fileSortBy": {
@@ -1044,7 +1046,8 @@
       "title": "Spellcheck"
     },
     "tabs": {
-      "close": "Close {name}"
+      "close": "Close {name}",
+      "preview": "{name}, preview tab"
     }
   },
   "readingMode": {

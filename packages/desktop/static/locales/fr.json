@@ -396,6 +396,7 @@
         "autoNormalizeLineEndings": "Normaliser automatiquement les fins de ligne à l'ouverture des fichiers. Lorsque désactivé, les fichiers sont ouverts tels quels.",
         "titleBarStyle": "Le style de la barre de titre (systèmes Windows et Linux uniquement)",
         "openFilesInNewWindow": "Ouvrir les fichiers dans une nouvelle fenêtre",
+        "openFilesInPreviewMode": "Ouvrir les fichiers de la barre latérale dans des onglets d’aperçu",
         "openFolderInNewWindow": "Ouvrir le dossier via le menu dans une nouvelle fenêtre",
         "zoom": "Le niveau de zoom. Entre 0.5 et 2.0 inclus",
         "hideScrollbar": "Masquer les barres de défilement",
@@ -517,6 +518,7 @@
         "wrapTextInToc": "Retour à la ligne dans la table des matières",
         "showOpenedFiles": "Afficher les fichiers ouverts",
         "autoReveal": "Afficher le fichier actif dans la barre latérale",
+        "openFilesInPreviewMode": "Ouvrir les fichiers de la barre latérale dans des onglets d’aperçu. La modification ou le double-clic conserve l’onglet.",
         "excludePatterns": "Motifs d'exclusion",
         "excludePatternsNotes": "Notes sur les motifs d'exclusion",
         "fileSortBy": {
@@ -1044,7 +1046,8 @@
       "title": "Vérification orthographique"
     },
     "tabs": {
-      "close": "Fermer {name}"
+      "close": "Fermer {name}",
+      "preview": "{name}, onglet d’aperçu"
     }
   },
   "readingMode": {

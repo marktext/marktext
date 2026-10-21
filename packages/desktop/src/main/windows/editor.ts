@@ -54,6 +54,8 @@ class EditorWindow extends BaseWindow {
   // used to find the best window to open new files in.
   private _openedRootDirectory: string | null
   private _openedFiles: string[] | null
+  private _latestPreviewRequestId: number | null
+  private _pendingPreviewPaths: Map<string, number>
 
   public bufferStoreInfo: BufferStoreInfo | null
 
@@ -67,6 +69,8 @@ class EditorWindow extends BaseWindow {
 
     this._openedRootDirectory = ''
     this._openedFiles = []
+    this._latestPreviewRequestId = null
+    this._pendingPreviewPaths = new Map()
 
     this.bufferStoreInfo = null
   }
@@ -279,6 +283,18 @@ class EditorWindow extends BaseWindow {
     this.openTabs([{ filePath, options, selected }])
   }
 
+  cancelPendingPreview(requestId: number): void {
+    if (requestId !== this._latestPreviewRequestId) return
+
+    for (const [pathname, pendingId] of this._pendingPreviewPaths) {
+      if (pendingId === requestId) {
+        this._pendingPreviewPaths.delete(pathname)
+        break
+      }
+    }
+    this._latestPreviewRequestId = null
+  }
+
   openTabsFromPaths(filePaths: string[], allowMissingPaths: string[] = []): void {
     if (!filePaths || filePaths.length === 0) return
 
@@ -303,16 +319,41 @@ class EditorWindow extends BaseWindow {
       preferences.getAll()
 
     for (const { filePath, options, selected } of fileList) {
+      const isPreview = options.preview === true && typeof options.requestId === 'number'
+      const previewRequestId = isPreview ? (options.requestId as number) : null
+      if (previewRequestId !== null) {
+        const pendingRequestId = this._pendingPreviewPaths.get(filePath)
+        if (pendingRequestId !== undefined) continue
+        if (
+          this._latestPreviewRequestId !== null &&
+          previewRequestId < this._latestPreviewRequestId
+        ) {
+          continue
+        }
+        this._latestPreviewRequestId = previewRequestId
+        this._pendingPreviewPaths.set(filePath, previewRequestId)
+      }
+
       if (this._openedFiles!.includes(filePath)) {
+        if (previewRequestId !== null) {
+          this._pendingPreviewPaths.delete(filePath)
+          if (this._latestPreviewRequestId === previewRequestId) {
+            this._latestPreviewRequestId = null
+          }
+        }
         browserWindow!.webContents.send('mt::switch-tab-by-file_path', filePath, options)
         continue
       }
-      this._openedFiles!.push(filePath)
+      if (!isPreview) this._openedFiles!.push(filePath)
       const load = options.allowMissing
         ? loadCliMarkdownFile.bind(null, filePath, preferences.getAll().defaultEncoding ?? 'utf8')
         : loadMarkdownFile.bind(null, filePath)
       load(eol, autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings)
         .then((rawDocument) => {
+          if (previewRequestId !== null) {
+            this._pendingPreviewPaths.delete(filePath)
+            if (previewRequestId !== this._latestPreviewRequestId) return
+          }
           if (this.lifecycle === WindowLifecycle.READY) {
             this._doOpenTab(rawDocument, options, selected)
           } else {
@@ -320,7 +361,11 @@ class EditorWindow extends BaseWindow {
           }
         })
         .catch((err: Error) => {
-          this._openedFiles = this._openedFiles!.filter((p) => p !== filePath)
+          if (previewRequestId !== null) {
+            this._pendingPreviewPaths.delete(filePath)
+          } else {
+            this._openedFiles = this._openedFiles!.filter((p) => p !== filePath)
+          }
           const { message, stack } = err
           log.error(`[ERROR] Cannot open file or directory: ${message}\n\n${stack}`)
           browserWindow!.webContents.send('mt::show-notification', {
@@ -461,12 +506,13 @@ class EditorWindow extends BaseWindow {
     this._markdownToOpen = null
     this._openedRootDirectory = null
     this._openedFiles = null
+    this._latestPreviewRequestId = null
+    this._pendingPreviewPaths.clear()
   }
 
   get openedRootDirectory(): string | null {
     return this._openedRootDirectory
   }
-
 
   private _doOpenTab(
     rawDocument: RawMarkdownDocument,

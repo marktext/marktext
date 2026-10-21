@@ -7,6 +7,7 @@ import type { IKeyboardLayoutInfo, IKeyboardMapping } from 'native-keymap'
 import type {
   MarkdownDocument,
   TabOptions,
+  SidebarOpenOptions,
   BootstrapEditorConfig,
   PageOptions,
   ExportType,
@@ -113,6 +114,7 @@ export interface IpcSendChannels {
   'mt::ask-for-user-data': []
   'mt::ask-for-user-preference': []
   'mt::check-for-update': []
+  'mt::cancel-pending-preview': [requestId: number]
   'mt::close-window': []
   'mt::close-window-confirm': [unsavedFiles: UnsavedFile[]]
   'mt::cmd-close-window': []
@@ -129,7 +131,7 @@ export interface IpcSendChannels {
   'mt::make-screenshot': []
   'mt::menu::popup': [template: MenuTemplate, position?: MenuPopupPosition]
   'mt::menu::popup-application': [position?: MenuPopupPosition]
-  'mt::open-file': [filePath: string, options?: unknown]
+  'mt::open-file': [filePath: string, options?: SidebarOpenOptions]
   'mt::open-file-by-window-id': [windowId: number, filePath: string, options?: unknown]
   'mt::open-keybindings-config': []
   'mt::open-setting-window': []

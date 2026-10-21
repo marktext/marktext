@@ -342,6 +342,13 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
       editor.openTab(filePath, options, true)
     })
 
+    ipcMain.on('mt::cancel-pending-preview', (e, requestId: number) => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      if (!win) return
+      const editor = this.get(win.id) as EditorWindow | undefined
+      editor?.cancelPendingPreview(requestId)
+    })
+
     ipcMain.on('mt::window-tab-closed', (e, pathname: string) => {
       const win = BrowserWindow.fromWebContents(e.sender)
       if (!win) return

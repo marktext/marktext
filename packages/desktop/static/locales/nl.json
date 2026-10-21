@@ -395,6 +395,7 @@
         "autoSaveDelay": "De tijd in ms na een wijziging voordat het bestand wordt opgeslagen",
         "titleBarStyle": "De titelbalkstijl (alleen Windows en Linux)",
         "openFilesInNewWindow": "Bestanden openen in een nieuw venster",
+        "openFilesInPreviewMode": "Bestanden in de zijbalk openen in voorbeeldtabbladen",
         "openFolderInNewWindow": "Map openen via menu in een nieuw venster",
         "zoom": "Het zoomniveau. Tussen 0,5 en 2,0",
         "hideScrollbar": "Schuifbalken verbergen",
@@ -517,6 +518,7 @@
         "wrapTextInToc": "Tekstterugloop in inhoudsopgave",
         "showOpenedFiles": "Geopende bestanden tonen",
         "autoReveal": "Actief bestand tonen in de zijbalk",
+        "openFilesInPreviewMode": "Bestanden in de zijbalk openen in voorbeeldtabbladen. Bewerken of dubbelklikken houdt het tabblad open.",
         "excludePatterns": "Uitsluitpatronen",
         "excludePatternsNotes": "Uitsluitpatronen (opmerkingen)",
         "fileSortBy": {
@@ -1044,7 +1046,8 @@
       "title": "Spellingcontrole"
     },
     "tabs": {
-      "close": "{name} sluiten"
+      "close": "{name} sluiten",
+      "preview": "{name}, voorbeeldtabblad"
     }
   },
   "readingMode": {

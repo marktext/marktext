@@ -433,6 +433,11 @@
     "type": "boolean",
     "default": true
   },
+  "openFilesInPreviewMode": {
+    "description": "General--Open sidebar files in a reusable preview tab. Editing or double-clicking keeps the tab open.",
+    "type": "boolean",
+    "default": true
+  },
   "showPandocConvert": {
     "description": "General--Show the Pandoc conversion menu. Requires Pandoc to be installed.",
     "type": "boolean",

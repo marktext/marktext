@@ -30,6 +30,7 @@ import type {
   LineEnding,
   MarkdownDocument,
   PageOptions,
+  SidebarOpenOptions,
   TabOptions
 } from '@shared/types/files'
 
@@ -150,9 +151,16 @@ export interface EditorState {
 
 const autoSaveTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
-// Sidebar opens record whether the editor should take focus once that pathname
-// finishes loading. Keyed by pathname so concurrent opens keep their own intent.
-const openIntents = new Map<string, boolean>()
+interface OpenIntent {
+  focus: boolean
+  preview: boolean
+}
+
+// A pathname can change from preview to pinned while its file is loading, so
+// focus and preview intent must survive until separate consumers read them.
+const openIntents = new Map<string, OpenIntent>()
+let sidebarRequestSequence = 0
+let latestSidebarRequest: { id: number; pathname: string } | null = null
 
 export const useEditorStore = defineStore('editor', {
   state: (): EditorState => ({
@@ -1330,22 +1338,80 @@ export const useEditorStore = defineStore('editor', {
       this.UPDATE_CURRENT_FILE(nextTab)
     },
 
-    // The sidebar records what should happen to focus when this open lands:
-    // `false` keeps it in the tree, `true` hands it to the editor.
-    SET_OPEN_INTENT(pathname: string, focus: boolean): void {
-      openIntents.set(pathname, focus)
+    SET_OPEN_INTENT(pathname: string, focus: boolean, preview = false): void {
+      openIntents.set(pathname, { focus, preview })
     },
 
-    // Reads and clears the intent for this pathname; `null` means no opinion.
+    PEEK_OPEN_INTENT(pathname: string | null | undefined): OpenIntent | null {
+      if (!pathname) return null
+      for (const [key, intent] of openIntents) {
+        if (window.fileUtils.isSamePathSync(key, pathname)) return intent
+      }
+      return null
+    },
+
     TAKE_OPEN_INTENT(pathname: string | null | undefined): boolean | null {
       if (!pathname) return null
-      for (const [key, focus] of openIntents) {
+      for (const [key, intent] of openIntents) {
         if (window.fileUtils.isSamePathSync(key, pathname)) {
           openIntents.delete(key)
-          return focus
+          return intent.focus
         }
       }
       return null
+    },
+
+    DISCARD_OPEN_INTENT(pathname: string | null | undefined): void {
+      if (!pathname) return
+      for (const key of openIntents.keys()) {
+        if (window.fileUtils.isSamePathSync(key, pathname)) openIntents.delete(key)
+      }
+    },
+
+    BEGIN_SIDEBAR_OPEN(pathname: string, preview: boolean): number | null {
+      if (
+        latestSidebarRequest &&
+        window.fileUtils.isSamePathSync(latestSidebarRequest.pathname, pathname)
+      ) {
+        return null
+      }
+
+      const requestId = ++sidebarRequestSequence
+      latestSidebarRequest = { id: requestId, pathname }
+      this.SET_OPEN_INTENT(pathname, false, preview)
+      return requestId
+    },
+
+    PROMOTE_SIDEBAR_OPEN(pathname: string): void {
+      const intent = this.PEEK_OPEN_INTENT(pathname)
+      if (!intent) {
+        this.SET_OPEN_INTENT(pathname, true)
+        return
+      }
+
+      intent.focus = true
+      intent.preview = false
+    },
+
+    CANCEL_PENDING_SIDEBAR_OPEN(): void {
+      if (!latestSidebarRequest) return
+      const { id, pathname } = latestSidebarRequest
+      latestSidebarRequest = null
+      this.DISCARD_OPEN_INTENT(pathname)
+      window.electron.ipcRenderer.send('mt::cancel-pending-preview', id)
+    },
+
+    IS_LATEST_SIDEBAR_OPEN(requestId: number, pathname: string): boolean {
+      return (
+        latestSidebarRequest?.id === requestId &&
+        window.fileUtils.isSamePathSync(latestSidebarRequest.pathname, pathname)
+      )
+    },
+
+    SETTLE_SIDEBAR_OPEN(requestId: number, pathname: string): void {
+      if (this.IS_LATEST_SIDEBAR_OPEN(requestId, pathname)) {
+        latestSidebarRequest = null
+      }
     },
 
     SWITCH_TAB_BY_FILEPATH(filePath: string, options: TabOptions = {}): void {
@@ -1373,11 +1439,12 @@ export const useEditorStore = defineStore('editor', {
     FOCUS_FILE(pathname: string): void {
       const existing = this.tabs.find((t) => window.fileUtils.isSamePathSync(t.pathname, pathname))
       if (existing) {
+        existing.isPreview = false
         this.UPDATE_CURRENT_FILE(existing)
         bus.emit('editor-focus')
         return
       }
-      this.SET_OPEN_INTENT(pathname, true)
+      this.PROMOTE_SIDEBAR_OPEN(pathname)
     },
 
     SWITCH_TAB_BY_INDEX(nextTabIndex: number): void {
@@ -1440,7 +1507,7 @@ export const useEditorStore = defineStore('editor', {
       selected
     }: {
       markdownDocument: MarkdownDocument | null | undefined
-      options?: TabOptions
+      options?: SidebarOpenOptions
       selected?: boolean
     }): void {
       if (!markdownDocument) {
@@ -1455,6 +1522,20 @@ export const useEditorStore = defineStore('editor', {
 
       const { currentFile, tabs } = this
       const { pathname } = markdownDocument
+      const requestId = options.requestId
+      const requestedPreviewMode = options.preview === true
+      if (
+        requestedPreviewMode &&
+        typeof requestId === 'number' &&
+        !this.IS_LATEST_SIDEBAR_OPEN(requestId, pathname ?? '')
+      ) {
+        this.DISCARD_OPEN_INTENT(pathname)
+        return
+      }
+      if (typeof requestId === 'number') {
+        this.SETTLE_SIDEBAR_OPEN(requestId, pathname ?? '')
+      }
+
       const existingTab = tabs.find((t) =>
         window.fileUtils.isSamePathSync(t.pathname, pathname ?? '')
       )
@@ -1463,6 +1544,11 @@ export const useEditorStore = defineStore('editor', {
         if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
         return
       }
+
+      const preferencesStore = usePreferencesStore()
+      const openIntent = this.PEEK_OPEN_INTENT(pathname)
+      const preview =
+        (openIntent?.preview ?? requestedPreviewMode) && preferencesStore.openFilesInPreviewMode
 
       let keepTabBarState = false
       if (currentFile) {
@@ -1473,7 +1559,7 @@ export const useEditorStore = defineStore('editor', {
         }
       }
 
-      if (!keepTabBarState) {
+      if (!keepTabBarState && !preview) {
         this.SHOW_TAB_VIEW(false)
       }
 
@@ -1485,6 +1571,7 @@ export const useEditorStore = defineStore('editor', {
           options as Record<string, unknown>
         )
       )
+      docState.isPreview = preview
       docState.readOnly =
         options.readOnly ??
         (!!docState.pathname &&
@@ -1493,6 +1580,53 @@ export const useEditorStore = defineStore('editor', {
       if (docState.readOnly)
         void window.electron.ipcRenderer.invoke('mt::set-document-read-only', docState.id, true)
       const { id, cursor } = docState
+
+      if (preview) {
+        let previewIndex = tabs.findIndex((tab) => tab.isPreview)
+        if (previewIndex >= 0 && tabs[previewIndex]?.id === currentFile?.id) {
+          this.flushActiveEditor()
+          previewIndex = tabs.findIndex((tab) => tab.isPreview)
+        }
+
+        const previousPreview = previewIndex >= 0 ? tabs[previewIndex] : null
+        if (previousPreview) {
+          if (autoSaveTimers.has(previousPreview.id)) {
+            clearTimeout(autoSaveTimers.get(previousPreview.id))
+            autoSaveTimers.delete(previousPreview.id)
+          }
+          window.electron.ipcRenderer.send('mt::forget-document', previousPreview.id)
+          if (previousPreview.pathname) {
+            window.electron.ipcRenderer.send('mt::window-tab-closed', previousPreview.pathname)
+          }
+          tabs.splice(previewIndex, 1)
+        }
+
+        if (selected) {
+          if (previousPreview) tabs.splice(previewIndex, 0, docState)
+          this.updateTabIdToIndex()
+          this.UPDATE_CURRENT_FILE(docState)
+          bus.emit('file-loaded', { id, markdown, cursor })
+          if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
+        } else {
+          if (previousPreview) tabs.splice(previewIndex, 0, docState)
+          else tabs.push(docState)
+          this.updateTabIdToIndex()
+          debouncedSendBufferedState()
+        }
+        if (isMixedLineEndings) {
+          const { filename, lineEnding } = markdownDocument
+          if (typeof lineEnding === 'string') {
+            this.pushTabNotification({
+              tabId: id,
+              msg: t('store.editor.mixedLineEndingsNormalized', {
+                name: filename,
+                lineEnding: lineEnding.toUpperCase()
+              })
+            })
+          }
+        }
+        return
+      }
 
       if (selected) {
         this.UPDATE_CURRENT_FILE(docState)
@@ -1646,6 +1780,7 @@ export const useEditorStore = defineStore('editor', {
           tab.lastSavedHistoryId !== tab.history.lastInitIndex) // Edge Case: Undo to original content (lastEditIndex === -1) after saving means we cant use the lastEditIndex. Compare it against the lastInitIndex instead.
       const isDirty = history === undefined ? markdown !== oldMarkdown : historyMarksDirty
       if (isDirty) {
+        tab.isPreview = false
         tab.isSaved = false
         if (pathname && autoSave && !tab.modeChanging) {
           this.HANDLE_AUTO_SAVE(tab)
