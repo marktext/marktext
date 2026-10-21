@@ -165,7 +165,7 @@ export class ScrollPage extends Parent {
     }
 
     private _updateActiveStatus = () => {
-        if (this.muya.readOnly) {
+        if (this.muya.isReadOnly) {
             this._blurFocus = { blur: null, focus: null };
             return;
         }
@@ -213,7 +213,7 @@ export class ScrollPage extends Parent {
 
     // Create a new paragraph if click the blank area in editor.
     private _clickHandler(event: Event) {
-        if (this.muya.readOnly)
+        if (this.muya.isReadOnly)
             return;
         if (!isMouseEvent(event) || !isHTMLElement(event.target))
             return;

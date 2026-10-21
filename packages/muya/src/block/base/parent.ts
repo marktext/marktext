@@ -29,7 +29,7 @@ class Parent extends TreeNode {
     }
 
     set active(value) {
-        this._active = value && !this.muya.readOnly;
+        this._active = value && !this.muya.isReadOnly;
         value = this._active;
 
         if (this.domNode == null) {

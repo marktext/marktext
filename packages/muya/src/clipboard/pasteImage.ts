@@ -82,7 +82,7 @@ async function insertImageSrc(
     anchorBlock: Content,
     src: string,
 ): Promise<void> {
-    if (clipboard.muya.readOnly || !clipboard.muya.isBlockInDocument(anchorBlock))
+    if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(anchorBlock))
         return;
     const { imageAction } = clipboard.muya.options;
 
@@ -99,7 +99,7 @@ async function insertImageSrc(
 
     let finalSrc = src;
     const resolved = await imageAction({ src, alt: '', title: '' });
-    if (clipboard.muya.readOnly || !clipboard.muya.isBlockInDocument(anchorBlock))
+    if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(anchorBlock))
         return;
     if (resolved)
         finalSrc = resolved;
@@ -262,7 +262,7 @@ function reselectImageAt(clipboard: Clipboard, block: Format, startOffset: numbe
 
     let attempts = 60;
     const positionWhenLoaded = (): void => {
-        if (clipboard.muya.readOnly || !clipboard.muya.isBlockInDocument(block))
+        if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(block))
             return;
         const current = findImageWrapper(block, startOffset);
         if (current?.querySelector('img')) {
@@ -300,7 +300,7 @@ async function replaceImageAt(
 
     let finalSrc = src;
     const resolved = await imageAction({ src, alt: '', title: '' });
-    if (clipboard.muya.readOnly || !clipboard.muya.isBlockInDocument(block))
+    if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(block))
         return;
     if (resolved)
         finalSrc = resolved;
@@ -325,7 +325,7 @@ export async function tryReplaceSelectedImage(
 
     const original = selectedImage.block.text.slice(selectedImage.token.range.start, selectedImage.token.range.end);
     const src = await resolveImageSrc(clipboard, imageFile);
-    if (clipboard.muya.readOnly || !clipboard.muya.isBlockInDocument(selectedImage.block)
+    if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(selectedImage.block)
         || selectedImage.block.text.slice(selectedImage.token.range.start, selectedImage.token.range.end) !== original) {
         return true;
     }

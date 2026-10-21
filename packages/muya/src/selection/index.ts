@@ -135,7 +135,7 @@ class Selection {
     }
 
     selectAll(): void {
-        if (this._muya.readOnly) {
+        if (this._muya.isReadOnly) {
             this._text.selectAllContent();
             return;
         }

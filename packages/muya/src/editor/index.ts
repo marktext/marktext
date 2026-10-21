@@ -299,7 +299,7 @@ export class Editor {
         const { domNode } = this._muya;
 
         const eventHandler = (event: Event) => {
-            if (this._muya.readOnly)
+            if (this._muya.isReadOnly)
                 return;
             const selectionResult = this.selection.getSelection();
             const anchorBlock = selectionResult?.anchor.block;

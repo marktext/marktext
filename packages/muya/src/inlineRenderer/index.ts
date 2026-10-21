@@ -70,10 +70,10 @@ class InlineRenderer {
         const html = this.renderer.output(
             tokens,
             block,
-            !this.muya.readOnly && cursor && cursor.block === block ? cursor : {},
+            !this.muya.isReadOnly && cursor && cursor.block === block ? cursor : {},
         );
         domNode!.innerHTML = html;
-        if (this.muya.readOnly)
+        if (this.muya.isReadOnly)
             prepareReadingLinks(domNode!);
     }
 

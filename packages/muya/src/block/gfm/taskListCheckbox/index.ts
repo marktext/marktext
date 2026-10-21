@@ -159,7 +159,7 @@ class TaskListCheckbox extends TreeNode {
         const { domNode, muya } = this;
         const { eventCenter } = muya;
         const clickHandler = (event: Event) => {
-            if (this.muya.readOnly) {
+            if (this.muya.isReadOnly) {
                 event.preventDefault();
                 return;
             }

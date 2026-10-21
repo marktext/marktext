@@ -150,7 +150,7 @@ abstract class BaseFloat {
     // tableChessboard → `(row, column)`). `never[]` in the contravariant
     // arg position accepts any concrete callback shape.
     show(reference: ReferenceElement, cb: (...args: never[]) => void = noop) {
-        if (this.muya.readOnly)
+        if (this.muya.isReadOnly)
             return;
         const { floatBox } = this;
         const { eventCenter } = this.muya;

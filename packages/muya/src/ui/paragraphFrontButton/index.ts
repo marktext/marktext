@@ -142,7 +142,7 @@ export class ParagraphFrontButton {
         }, 300);
 
         const clickHandler = () => {
-            if (this.muya.readOnly)
+            if (this.muya.isReadOnly)
                 return;
             eventCenter.emit('muya-front-menu', {
                 reference: {
@@ -154,7 +154,7 @@ export class ParagraphFrontButton {
 
         eventCenter.subscribe('read-only-changed', this._syncReadOnly);
         eventCenter.attachDOMEvent(container, 'dragstart', (event) => {
-            if (this.muya.readOnly)
+            if (this.muya.isReadOnly)
                 event.preventDefault();
         });
         eventCenter.attachDOMEvent(container, 'mousedown', this._dragBarMouseDown);
@@ -166,7 +166,7 @@ export class ParagraphFrontButton {
     private _dragBarMouseDown = (event: Event) => {
         event.preventDefault();
         event.stopPropagation();
-        if (this.muya.readOnly)
+        if (this.muya.isReadOnly)
             return;
         this._dragTimer = setTimeout(() => {
             this._startDrag();
@@ -183,7 +183,7 @@ export class ParagraphFrontButton {
 
     private _syncReadOnly = () => {
         this._cancelDrag();
-        this._container.classList.toggle('mu-front-read-only', this.muya.readOnly);
+        this._container.classList.toggle('mu-front-read-only', this.muya.isReadOnly);
         if (this._block)
             this.render();
     };
@@ -203,7 +203,7 @@ export class ParagraphFrontButton {
     };
 
     private _mouseMove = (event: Event) => {
-        if (this.muya.readOnly) {
+        if (this.muya.isReadOnly) {
             this._cancelDrag();
             return;
         }
@@ -255,7 +255,7 @@ export class ParagraphFrontButton {
 
         const { block, target, position } = this._dragInfo || {};
         this._cancelDrag();
-        if (this.muya.readOnly)
+        if (this.muya.isReadOnly)
             return;
 
         if (target && position && block) {
@@ -292,7 +292,7 @@ export class ParagraphFrontButton {
     private _startDrag = () => {
         const { _block: block } = this;
         // Frontmatter should not be drag.
-        if (this.muya.readOnly || !block || block.blockName === 'frontmatter')
+        if (this.muya.isReadOnly || !block || block.blockName === 'frontmatter')
             return;
 
         this._disableListen = true;
@@ -374,7 +374,7 @@ export class ParagraphFrontButton {
         const iconParagraph = renderIcon(i, 'paragraph');
         const iconDrag = renderIcon(dragIcon, 'drag');
 
-        const vnode = h(iconWrapperSelector, this.muya.readOnly ? [iconParagraph] : [iconParagraph, iconDrag]);
+        const vnode = h(iconWrapperSelector, this.muya.isReadOnly ? [iconParagraph] : [iconParagraph, iconDrag]);
 
         if (oldVNode)
             patch(oldVNode, vnode);

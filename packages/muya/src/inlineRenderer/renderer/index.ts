@@ -134,7 +134,7 @@ class Renderer {
         token: Token,
         cursor: IRenderCursor,
     ) {
-        if (this.muya.readOnly)
+        if (this.muya.isReadOnly)
             return CLASS_NAMES.MU_HIDE;
         return (
             outerClass
