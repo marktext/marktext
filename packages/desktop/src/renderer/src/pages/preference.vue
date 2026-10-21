@@ -25,10 +25,8 @@ import { addThemeStyle } from '@/util/theme'
 import { DEFAULT_STYLE } from '@/config'
 import { isMac } from '@/util'
 
-// Store
 const preferencesStore = usePreferencesStore()
 
-// Computed properties
 const { theme, titleBarStyle } = storeToRefs(preferencesStore)
 
 const showCustomTitleBar = computed<boolean>(() => {
@@ -39,14 +37,12 @@ const showCustomTitleBar = computed<boolean>(() => {
   return titleBarStyle.value === 'custom'
 })
 
-// Watchers
 watch(theme, (newValue, oldValue) => {
   if (newValue !== oldValue) {
     addThemeStyle(newValue)
   }
 })
 
-// Lifecycle
 onMounted(() => {
   nextTick(() => {
     const state = window.marktext?.initialState ?? DEFAULT_STYLE

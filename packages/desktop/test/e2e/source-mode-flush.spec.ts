@@ -45,7 +45,6 @@ test.describe('source mode entry flushes same-frame edits', () => {
     const md = await getMarkdownContent(page, app)
     expect(md).toContain('- [x] parent')
 
-    // And the toggle survives the roundtrip back to WYSIWYG.
     await page.waitForTimeout(300)
     const after = await getMarkdownContent(page, app)
     expect(after).toContain('- [x] parent')

@@ -82,7 +82,7 @@ test.describe('Issue #4346: list-block null guards', () => {
       if (!last) return
       const range = document.createRange()
       range.selectNodeContents(last)
-      range.collapse(true) // start
+      range.collapse(true)
       const sel = window.getSelection()
       sel?.removeAllRanges()
       sel?.addRange(range)

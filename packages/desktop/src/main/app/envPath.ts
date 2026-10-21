@@ -45,7 +45,6 @@ const windowsShimDirs = (env: NodeJS.ProcessEnv): string[] =>
     env.LOCALAPPDATA && path.join(env.LOCALAPPDATA, 'Microsoft', 'WinGet', 'Links')
   ].filter((dir): dir is string => !!dir)
 
-/** The arguments let a spec pin both. */
 export const extraPathDirs = (platform: NodeJS.Platform, env: NodeJS.ProcessEnv): string[] => {
   if (platform === 'win32') return [...new Set(windowsShimDirs(env))]
   // Keyed off win32 rather than off this table, or the BSDs would get no

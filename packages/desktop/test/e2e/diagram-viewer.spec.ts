@@ -254,7 +254,6 @@ test.describe('diagram viewer', () => {
     await openDiagram(page)
 
     await expect(page.locator('.image-viewer .mu-diagram-preview svg')).toHaveCount(1)
-    // zoom out / readout / zoom in / fit + save svg / save png / copy
     await expect(page.locator('.media-viewer-toolbar button')).toHaveCount(7)
 
     await expectNoRendererErrors(app)
@@ -309,7 +308,6 @@ test.describe('diagram viewer', () => {
     // A notification would land under the overlay, which is the whole point.
     await expect(page.locator('.mt-notification')).toHaveCount(0)
 
-    // The state is transient.
     await expect(copyButton).not.toHaveClass(/is-done/, { timeout: 10000 })
 
     await expectNoRendererErrors(app)
@@ -332,7 +330,6 @@ test.describe('diagram viewer', () => {
     }
     page.on('console', listener)
 
-    // Element Plus puts the dismiss control in the top-right corner.
     await notice.hover()
     await notice.locator('.el-notification__closeBtn').click()
     await expect(notice).toBeHidden({ timeout: 5000 })

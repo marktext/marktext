@@ -60,7 +60,6 @@ test.describe('TOC updates live when a markdown preference changes', () => {
   })
 
   test('toggling superscript/subscript re-renders its outline entry', async() => {
-    // The default preference is off, so the outline shows the raw `^2^` markers.
     expect(await tocSupContent(page)).toEqual([])
     expect(await tocHasLiteralMarkers(page)).toBe(true)
 
@@ -68,7 +67,6 @@ test.describe('TOC updates live when a markdown preference changes', () => {
     await expect.poll(() => tocSupContent(page), { timeout: 8000 }).toEqual(['2'])
     await expect.poll(() => tocHasLiteralMarkers(page), { timeout: 8000 }).toBe(false)
 
-    // Turning it back off must refresh too, not just the first toggle.
     await setPreference(page, { superSubScript: false })
     await expect.poll(() => tocSupContent(page), { timeout: 8000 }).toEqual([])
     await expect.poll(() => tocHasLiteralMarkers(page), { timeout: 8000 }).toBe(true)

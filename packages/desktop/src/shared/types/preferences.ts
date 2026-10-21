@@ -1,10 +1,4 @@
-// User preferences shape. The canonical schema lives in
-// src/main/preferences/schema.json + src/main/preferences/index.js — this
-// interface is the renderer-facing mirror that lets the preferences store
-// (Commit 7) and the preferences pane (Commit 8) consume typed values.
-//
-// Kept intentionally open with `[key: string]: unknown` until the schema
-// is mechanically derived from schema.json in a follow-up.
+// Renderer-facing preference shape; the canonical schema lives in main/preferences/schema.json.
 
 export interface IUserPreferences {
   defaultOpenMode?: 'edit' | 'read'

@@ -17,18 +17,10 @@
 
 <script setup lang="ts">
 /**
- * Shows the label of an icon-only control when the pointer rests on it.
- *
- * The tooltip is for sighted users only and does not name the control: give
- * the slotted <button> an `aria-label` with the same text. The button stays in
- * the caller's template, so the caller's scoped styles still reach it.
- *
- * It does not open on keyboard focus: while open, el-tooltip points the
- * trigger's `aria-describedby` at it, so screen readers would read every label
- * twice. el-tooltip also overwrites `aria-expanded`, `aria-haspopup` and
- * `aria-controls` on the slotted element, so a disclosure or menu button cannot
- * be wrapped directly without losing its state; use a non-focusable span
- * around such a button to keep these attributes on the button.
+ * Pointer tooltip only: callers must label the slotted button with aria-label.
+ * Opening on keyboard focus would repeat the label through aria-describedby.
+ * el-tooltip overwrites its trigger's aria-expanded/haspopup/controls; wrap menu
+ * and disclosure buttons in a non-focusable span to preserve their state.
  */
 import { ref, onBeforeUnmount } from 'vue'
 import type { Placement, TooltipInstance } from 'element-plus'

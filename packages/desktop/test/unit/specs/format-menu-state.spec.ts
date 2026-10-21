@@ -161,8 +161,6 @@ describe('Format-menu accelerators vs muya inlineFormatToolbar shortcuts', () =>
     expect(toolbarShortcutOf('strong')).toBe('Ctrl+B')
   })
 
-  // strong/em are the requested reconcilable mapping, plus the rest of the set
-  // that agrees once notation is normalized.
   const RECONCILABLE = ['strong', 'em', 'u', 'del', 'mark', 'inline_math', 'link', 'image', 'clear'] as const
 
   it.each(RECONCILABLE)(
@@ -184,7 +182,6 @@ describe('Format-menu accelerators vs muya inlineFormatToolbar shortcuts', () =>
   it('inlineCode toolbar matches Windows but diverges from the Linux accelerator (Ctrl+Y)', () => {
     const toolbar = normalizeShortcut(toolbarShortcutOf('inline_code'))
     expect(toolbar).toBe(normalizeShortcut('Ctrl+`'))
-    // Windows binds Ctrl+` too, so toolbar and menu now agree there.
     expect(normalizeShortcut(keybindingsWindows.get('format.inline-code'))).toBe(toolbar)
     // Linux intentionally binds Ctrl+Y, which still diverges from the toolbar.
     expect(normalizeShortcut(keybindingsLinux.get('format.inline-code'))).toBe(
@@ -222,7 +219,6 @@ describe('menu template accelerators match the platform keybinding tables (Parag
   // tests, so resolve to '' rather than sprinkling non-null assertions.
   const accel = (map: Map<string, string>, id: string): string => map.get(id) ?? ''
 
-  // Walk the submenu tree, collecting every defined `accelerator` in source order.
   const collectAccelerators = (node: MenuItemConstructorOptions): (string | undefined)[] => {
     const out: (string | undefined)[] = []
     const submenu = node.submenu
@@ -236,7 +232,6 @@ describe('menu template accelerators match the platform keybinding tables (Parag
     return out
   }
 
-  // The ids the template actually referenced, in the order items appear.
   const referencedIds = (template: Template): string[] =>
     collectAccelerators(template(makeIdProbe()))
       .filter((a): a is string => typeof a === 'string' && a.startsWith(SENTINEL))
@@ -287,11 +282,9 @@ describe('menu template accelerators match the platform keybinding tables (Parag
           const id = ids[i]
           const expected = map.get(id) ?? ''
           if (expected) {
-            // Non-empty binding: the item must carry exactly that accelerator.
             expect(typeof value).toBe('string')
             expect(isEqualAccelerator(value as string, expected)).toBe(true)
           } else {
-            // Empty binding collapses to `accelerator: undefined`.
             expect(value).toBeUndefined()
           }
         })

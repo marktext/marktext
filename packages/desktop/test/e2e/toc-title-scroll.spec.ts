@@ -2,7 +2,6 @@ import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import { makeRoomForOutline, launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
 
-// Enough headings that the outline is taller than the sidebar.
 const sections: string[] = []
 for (let i = 1; i <= 30; i++) {
   sections.push(`## Section ${i}`, '', `Body text for section ${i}.`, '')

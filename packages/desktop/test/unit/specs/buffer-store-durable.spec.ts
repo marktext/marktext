@@ -35,7 +35,6 @@ describe('EditorBufferStore.writeBufferStoreFile — durable atomic write (#4852
     writeBufferStoreFile(target, state)
 
     expect(JSON.parse(readFileSync(target, 'utf8'))).toEqual(state)
-    // The temp file was renamed over the target — nothing left in the dir.
     expect(readdirSync(dir)).toEqual(['buffer.json'])
   })
 

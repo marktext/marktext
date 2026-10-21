@@ -40,7 +40,6 @@ const setAutoCheck = async(app: ElectronApplication, value: boolean): Promise<vo
   await sendIpcToRenderer(app, 'mt::user-preference', { autoCheck: value })
 }
 
-// Read the `.checked` flag of the nth rendered task checkbox input.
 const checkboxChecked = async(page: Page, index: number): Promise<boolean> => {
   return await page.evaluate((i) => {
     const inputs = document.querySelectorAll<HTMLInputElement>(
@@ -76,7 +75,6 @@ test.describe('Checklist 32 — task list autoCheck cascade via a real checkbox 
     app = launched.app
     page = launched.page
     await waitForMenuReady(app)
-    // Three task items render three native checkboxes.
     await expect.poll(() => checkboxCount(page)).toBe(3)
   })
 
@@ -88,20 +86,16 @@ test.describe('Checklist 32 — task list autoCheck cascade via a real checkbox 
     await setAutoCheck(app, true)
     await page.waitForTimeout(200)
 
-    // Baseline: every checkbox is unchecked.
     expect(await checkboxChecked(page, 0)).toBe(false)
     expect(await checkboxChecked(page, 1)).toBe(false)
     expect(await checkboxChecked(page, 2)).toBe(false)
 
-    // Click the REAL parent checkbox input.
     await page.click('.editor-component input[type=checkbox] >> nth=0')
 
-    // The cascade flips both children checked.
     await expect.poll(() => checkboxChecked(page, 0)).toBe(true)
     await expect.poll(() => checkboxChecked(page, 1)).toBe(true)
     await expect.poll(() => checkboxChecked(page, 2)).toBe(true)
 
-    // Saved markdown shows the checked marker for all three task items.
     const md = await getMarkdownContent(page, app)
     const checked = (md.match(/- \[x\]/g) || []).length
     expect(checked).toBe(3)
@@ -110,22 +104,16 @@ test.describe('Checklist 32 — task list autoCheck cascade via a real checkbox 
   })
 
   test('with autoCheck OFF, clicking the parent changes only the parent (no cascade)', async() => {
-    // Turn the cascade off and reset to a clean all-unchecked nested list.
-    // (The previous test left all three checked.)
     await setAutoCheck(app, false)
     await page.waitForTimeout(200)
     await reloadFixture(page, app)
 
-    // Click the REAL parent checkbox input — the exact same gesture as the ON
-    // test, so the only difference is the autoCheck option.
     await page.click('.editor-component input[type=checkbox] >> nth=0')
 
     await expect.poll(() => checkboxChecked(page, 0)).toBe(true)
-    // No cascade: both children stay unchecked.
     expect(await checkboxChecked(page, 1)).toBe(false)
     expect(await checkboxChecked(page, 2)).toBe(false)
 
-    // Saved markdown shows exactly one checked marker (the parent).
     const md = await getMarkdownContent(page, app)
     const checked = (md.match(/- \[x\]/g) || []).length
     expect(checked).toBe(1)

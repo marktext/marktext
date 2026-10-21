@@ -1,5 +1,4 @@
 :root {
-  /*editor - Monokai Pro theme*/
   --themeColor: #ffd866;
   --themeColor90: rgba(255, 216, 102, 0.9);
   --themeColor80: rgba(255, 216, 102, 0.8);
@@ -57,7 +56,6 @@
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(24, 26, 31, 0.5), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #403e41;
 
-  /* Markdown element colors */
   --headingColor: #fcfcfa;
   --h1Color: #ff6188;
   --h2Color: #ffd866;
@@ -73,7 +71,6 @@
   --emColor: #ffd866;
   --listMarkerColor: #ff6188;
 
-  /*marktext*/
   --sideBarColor: rgba(252, 252, 250, 0.6);
   --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: rgba(252, 252, 250, 0.8);
@@ -90,11 +87,6 @@
   --maskColor: rgba(0, 0, 0, 0.7);
   --editorAreaWidth: 750px;
 
-  /* @muyajs/core (kebab-case) editor variables
-     Additive prep for the muyajs -> @muyajs/core editor swap. These
-     mirror the camelCase vars above; the legacy editor ignores them.
-     Do NOT remove the camelCase vars — they still drive the current
-     editor until editor.vue switches engines. */
   --theme-color: var(--themeColor);
   --highlight-color: var(--highlightColor);
   --selection-color: var(--selectionColor);
@@ -197,7 +189,6 @@
   box-shadow: none !important;
 }
 
-/* ------------------------------------ */
 
 :not(pre) > code[class*='language-'],
 pre:not(.CodeMirror-line),

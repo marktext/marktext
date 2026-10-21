@@ -39,7 +39,6 @@ describe('writeFile — durable atomic save (#3786, #3828)', () => {
     await writeFile(target, 'NEW', undefined)
 
     expect(readFileSync(target, 'utf-8')).toBe('NEW')
-    // The temp file was renamed over the target — nothing left in the dir.
     expect(readdirSync(dir)).toEqual(['note.md'])
   })
 

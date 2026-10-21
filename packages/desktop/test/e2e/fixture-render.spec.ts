@@ -13,7 +13,6 @@ const runFixture = (name: string, relativePath: string, assertion: FixtureAssert
       const launched = await launchWithDoc(relativePath)
       app = launched.app
       page = launched.page
-      // Allow Muya to finish rendering blocks.
       await page.waitForTimeout(800)
     })
 

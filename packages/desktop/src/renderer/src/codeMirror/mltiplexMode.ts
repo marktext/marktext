@@ -23,7 +23,7 @@ const fromOffset = (pattern: RegExp): RegExp => {
 }
 
 const multiplexMode = (CodeMirror: CodeMirrorLike): void => {
-  CodeMirror.multiplexingMode = function(outer: AnyObj /*, others */): AnyObj {
+  CodeMirror.multiplexingMode = function(outer: AnyObj): AnyObj {
     // Others should be {open, close, mode [, delimStyle] [, innerStyle]} objects
     // eslint-disable-next-line prefer-rest-params
     const others = Array.prototype.slice.call(arguments, 1)
@@ -72,7 +72,6 @@ const multiplexMode = (CodeMirror: CodeMirrorLike): void => {
               if (!other.parseDelimiters) stream.match(other.open)
               state.innerActive = other
 
-              // Get the outer indent, making sure to handle CodeMirror.Pass
               let outerIndent = 0
               if (outer.indent) {
                 const possibleOuterIndent = outer.indent(state.outer, '')

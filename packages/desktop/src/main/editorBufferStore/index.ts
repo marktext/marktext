@@ -39,9 +39,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
 
     const { editorBufferStorePath } = paths
     this.editorBufferStorePath = editorBufferStorePath
-    // Object of paths to buffer stores. Buffer stores are NOT held in memory
-    // for performance reasons — they are read from disk when needed and
-    // written to disk when updated.
+    // Keep buffer stores on disk rather than retaining all documents in memory.
     this.bufferStores = null
     this.serviceName = 'marktext'
     this.encryptKeys = []
@@ -176,11 +174,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
   }
 
   writeBufferStoreFile(filePath: string, newState: unknown): void {
-    // Durable atomic write: write-file-atomic writes to a temp file, fsyncs it,
-    // then renames it over the target. The previous temp-file + rename here was
-    // namespace-atomic (crash-safe) but omitted the fsync, so a power loss could
-    // still leave this crash-recovery buffer — which holds unsaved tab content —
-    // truncated or zero-filled, the same gap the document save path had (#3786).
+    // Atomic replacement must fsync before rename to survive power loss, not only application crashes.
     writeFileAtomic.sync(filePath, JSON.stringify(newState), 'utf8')
   }
 

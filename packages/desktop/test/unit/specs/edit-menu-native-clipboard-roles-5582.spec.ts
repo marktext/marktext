@@ -20,7 +20,6 @@ vi.mock('main_renderer/commands', () => ({
   COMMANDS: new Proxy(
     {},
     {
-      // `EDIT_CUT` -> `edit.cut` so assertions can use the real command ids.
       get: (_target, prop: string | symbol) => String(prop).toLowerCase().replace('_', '.')
     }
   )

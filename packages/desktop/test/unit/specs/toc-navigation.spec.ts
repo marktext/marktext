@@ -46,7 +46,6 @@ describe('useEditorStore UPDATE_TOC', () => {
     ])
 
     expect(store.listToc.map((i) => i.slug)).toEqual(['uid-1', 'uid-2'])
-    // listToTree nests the lvl-2 entry under the lvl-1 entry.
     expect(store.toc).toHaveLength(1)
     expect(store.toc[0].slug).toBe('uid-1')
     expect(store.toc[0].children).toHaveLength(1)

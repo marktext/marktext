@@ -1,9 +1,7 @@
 import type { Muya } from '@muyajs/core'
 
-// A source-mode (CodeMirror) index cursor: `{ anchor, focus }` in `{ line, ch }`
-// coordinates. Carried by folder-search jumps and the source -> WYSIWYG handoff.
-// Both `line` AND `ch` must be present numbers — otherwise the engine clamps a
-// missing `ch` to 0 and restores the caret to the wrong column.
+// Source-mode cursors use zero-based line/ch pairs. Both coordinates are required
+// so the engine does not silently restore the caret to column zero.
 interface IndexPosition {
   line: number
   ch: number
@@ -24,16 +22,9 @@ export const isIndexCursor = (cursor: unknown): cursor is IndexCursor => {
   return !!c && isIndexPosition(c.anchor) && isIndexPosition(c.focus)
 }
 
-// The two engine entry points this helper picks between, taken from the
-// engine's own type so a signature change here is a compile error rather than
-// a silent no-op.
 type CursorEditor = Pick<Muya, 'setCursor' | 'setCursorByOffset'>
 
-// Restore a persisted caret onto the live editor, picking the right engine API
-// for the cursor's shape. An index cursor (`{ line, ch }`) must go through
-// `setCursorByOffset`, which resolves the offsets against the block tree;
-// `setCursor` only understands block-key cursors (`{ offset, anchorPath }`) and
-// silently no-ops on a `{ line, ch }` cursor.
+// Index cursors require setCursorByOffset; path cursors require setCursor against the live block tree.
 export const applyCursor = (editor: CursorEditor, cursor: unknown): void => {
   if (isIndexCursor(cursor)) {
     editor.setCursorByOffset(cursor)

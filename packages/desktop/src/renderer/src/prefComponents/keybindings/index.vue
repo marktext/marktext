@@ -138,14 +138,12 @@ const keybindingConfigurator = ref<KeybindingConfigurator | null>(null)
 const selectedShortcutId = ref<string | null>(null)
 const keybindingList = ref<UiKeybinding[]>([])
 
-// Function to rebuild the keybinding list
 const rebuildKeybindingList = (): void => {
   if (keybindingConfigurator.value) {
     keybindingList.value = keybindingConfigurator.value.rebuildKeybindingList()
   }
 }
 
-// Listen for language changes to rebuild the keybinding list
 watch(locale, () => {
   rebuildKeybindingList()
 })

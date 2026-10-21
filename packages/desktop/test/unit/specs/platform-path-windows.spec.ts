@@ -122,7 +122,6 @@ describe('path consistency with a native win32 window.path (#5683)', () => {
     treeCtrl.addDirectory(tree as never, { pathname: `${NATIVE_ROOT}\\pkg` })
     treeCtrl.addFile(tree as never, markdownFile(`${NATIVE_ROOT}\\pkg\\a.md`) as never)
 
-    // Raw `===` matches: no separator folding required.
     expect(tree.folders[0].pathname).toBe(`${NATIVE_ROOT}\\pkg`)
     expect((tree.folders[0].files[0] as TestFile).pathname).toBe(`${NATIVE_ROOT}\\pkg\\a.md`)
   })

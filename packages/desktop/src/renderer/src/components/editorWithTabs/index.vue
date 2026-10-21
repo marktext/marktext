@@ -36,9 +36,7 @@ import TabNotifications from './notifications.vue'
 
 defineProps<{
   markdown: string
-  // `cursor` originates as `IFileState.cursor` which is `unknown`
-  // (see src/shared/types/files.ts); align here instead of forcing every
-  // caller to widen.
+  // Tab cursor payloads cross the store boundary as unknown.
   cursor: unknown
   muyaIndexCursor?: unknown
   sourceCode: boolean

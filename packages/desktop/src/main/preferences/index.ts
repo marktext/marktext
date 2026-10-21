@@ -16,7 +16,6 @@ const PREFERENCES_FILE_NAME = 'preferences'
 // events itself — keep the event map empty until concrete events are added.
 type PreferenceEvents = Record<string, unknown[]>
 
-// Structural subset of EnvPaths/AppPaths — only `preferencesPath` is read here.
 interface AppPaths {
   readonly preferencesPath: string
 }
@@ -27,11 +26,7 @@ class Preference extends TypedEmitter<PreferenceEvents> {
   public readonly store: Store<IUserPreferences>
   public readonly staticPath: string
 
-  /**
-   * @param paths The path instance.
-   *
-   * NOTE: This throws an exception when validation fails.
-   */
+  /** Throws when preference validation fails. */
   constructor(paths: AppPaths) {
     // TODO: Preferences should not loaded if global.MARKTEXT_SAFE_MODE is set.
     super()
@@ -65,16 +60,11 @@ class Preference extends TypedEmitter<PreferenceEvents> {
     try {
       defaultSettings = JSON.parse(fs.readFileSync(this.staticPath, { encoding: 'utf8' }) || '{}')
 
-      // Set best theme on first application start.
       if (nativeTheme.shouldUseDarkColors) {
         defaultSettings!.theme = 'dark'
       }
 
-      // First start: leave `language` unset so it can be detected from the
-      // system language once the app is ready. `app.getLocale()` returns an
-      // empty string before the ready event, so detecting here would always
-      // fall back to English. The key stays in preference.json, so the
-      // hasSameKeys cleanup below keeps treating it as a known setting.
+      // Detect the first-start locale after app readiness; app.getLocale() is empty before then.
       if (!this.hasPreferencesFile) {
         delete defaultSettings!.language
       }
@@ -86,14 +76,13 @@ class Preference extends TypedEmitter<PreferenceEvents> {
       throw new Error('Can not load static preference.json file')
     }
 
-    // I don't know why `this.store.size` is 3 when first load, so I just check file existed.
+    // Use file existence: electron-store reports a nonzero size even on the first load.
     if (!this.hasPreferencesFile) {
       this.store.set(defaultSettings)
     } else {
       // Because `this.getAll()` will return a plainObject, so we can not use `hasOwnProperty` method
       // const plainObject = () => Object.create(null)
       const userSetting = this.getAll() as Record<string, unknown>
-      // Update outdated settings
       const requiresUpdate = !hasSameKeys(defaultSettings, userSetting)
       const userSettingKeys = Object.keys(userSetting)
       const defaultSettingKeys = Object.keys(defaultSettings)
@@ -103,7 +92,6 @@ class Preference extends TypedEmitter<PreferenceEvents> {
         //   it does multiple blocking I/O calls when changing entries. There is no transaction or
         //   async I/O available. The core reason we changed to it was JSON scheme validation.
 
-        // Remove outdated settings
         for (const key of userSettingKeys) {
           if (!defaultSettingKeys.includes(key)) {
             delete userSetting[key]
@@ -111,7 +99,6 @@ class Preference extends TypedEmitter<PreferenceEvents> {
           }
         }
 
-        // Add new setting options
         let addedNewEntries = false
         for (const key in defaultSettings) {
           if (!userSettingKeys.includes(key)) {
@@ -141,11 +128,6 @@ class Preference extends TypedEmitter<PreferenceEvents> {
     return this.store.get(key) as T
   }
 
-  /**
-   * Change multiple setting entries.
-   *
-   * @param settings A settings object or subset object with key/value entries.
-   */
   setItems(settings: Record<string, unknown> | null | undefined): void {
     if (!settings) {
       log.error('Cannot change settings without entires: object is undefined or null.')

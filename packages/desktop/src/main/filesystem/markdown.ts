@@ -109,9 +109,6 @@ export const loadCliMarkdownFile = async(
   }
 }
 
-/**
- * Write the content into a file.
- */
 export const writeMarkdownFile = (
   pathname: string,
   content: string,
@@ -130,9 +127,6 @@ export const writeMarkdownFile = (
   return writeFile(pathname, buffer, extension, undefined)
 }
 
-/**
- * Reads the contents of a markdown file.
- */
 export const loadMarkdownFile = async(
   pathname: string,
   preferredEol: LineEnding,
@@ -153,7 +147,6 @@ export const loadMarkdownFile = async(
 
   let markdown = iconv.decode(buffer, encoding.encoding)
 
-  // Detect line ending
   const isLf = LF_LINE_ENDING_REG.test(markdown)
   const isCrlf = CRLF_LINE_ENDING_REG.test(markdown)
   const isMixedLineEndings = isLf && isCrlf
@@ -174,7 +167,6 @@ export const loadMarkdownFile = async(
     adjustLineEndingOnSave = !autoNormalizeLineEndings && lineEnding !== 'lf'
   }
 
-  // Detect final newline
   if (trimTrailingNewline === 2) {
     if (!markdown) {
       trimTrailingNewline = 3

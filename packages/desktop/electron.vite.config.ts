@@ -12,17 +12,9 @@ const __dirname = dirname(__filename)
 
 export default defineConfig({
   main: {
-    // --> Bundled as CommonJS
-    // externalizeDepsPlugin() basically externises all the dependencies from being bundled during build - treating them as runtime dependencies
-    // electron-vite still builds the main and preload processes into commonJS
-    // hence, we need to "exclude" (in order to NOT externalise) ESonly modules so that they can be converted to commonJS and can be required() afterwards correctly
     build: {
       externalizeDeps: {
-        // Bundle electron-store + plist inline so they are available as a
-        // CommonJS require() after electron-vite converts the main process
-        // output. plist 5 ships ESM-only (no CJS `exports` entry), so leaving
-        // it externalized makes the main process `require('plist')` throw
-        // ERR_PACKAGE_PATH_NOT_EXPORTED at startup.
+        // Bundle ESM-only dependencies so main can load them from CommonJS at startup.
         exclude: ['electron-store', 'plist'],
         include: ['native-keymap']
       }
@@ -41,10 +33,7 @@ export default defineConfig({
     }
   },
   preload: {
-    // --> Bundled as CommonJS
-    // With sandbox: true the renderer's preload can only `require('electron')`
-    // (plus a few built-ins). Inline `pathe` and `@std/path` (ESM-only) so the
-    // bundled preload doesn't try to require them from node_modules at runtime.
+    // Sandboxed preload cannot require npm packages; inline its ESM path helpers.
     build: {
       externalizeDeps: {
         exclude: ['pathe', '@jsr/std__path']
@@ -60,18 +49,9 @@ export default defineConfig({
     }
   },
   renderer: {
-    // --> Bundled as ES Modules
-    // The renderer runs in a sandboxed Chromium context (contextIsolation: true,
-    // nodeIntegration: false, sandbox: true). All Node access must go through
-    // the preload → IPC bridge. Aliasing `path` → `pathe` lets the shared
-    // `common/*` helpers keep their `import path from 'path'` statements
-    // without pulling in Node's path module. `pathe` always uses `/`
-    // separators and handles Windows drive letters correctly.
+    // The sandboxed renderer accesses Node only through preload and IPC.
     assetsInclude: ['**/*.md'],
-    // Some bundled deps (e.g. `custom-event` via `dragula`) reference the
-    // Node-only `global` at module load — undefined in a sandboxed renderer.
-    // Substitute it with `globalThis` at build time so the imports don't
-    // throw before Vue mounts.
+    // Some browser dependencies reference Node’s global; map it to globalThis before imports run.
     define: {
       global: 'globalThis'
     },

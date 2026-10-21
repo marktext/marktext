@@ -73,7 +73,6 @@ test.describe('Find bar prefill from selection', () => {
     const input = page.locator('.search-bar input').first()
     await expect(input).toHaveValue('fox')
 
-    // The selection seeds a real search: the result counter reports the match.
     const result = page.locator('.search-bar .search-result')
     await expect(result).toContainText('1 /')
     await expect(result).not.toContainText('/ 0')

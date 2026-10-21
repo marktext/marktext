@@ -71,7 +71,6 @@ test.describe('Source view: math tokenization (#4121)', () => {
     // There is no Markdown emphasis (`_word_` or `*word*`) outside math in the
     // fixture, so any `.cm-em` span proves the bug.
     expect(emTexts).toEqual([])
-    // And the inline-math regions must actually be classified as math.
     expect(mathInline).toBeGreaterThan(0)
   })
 

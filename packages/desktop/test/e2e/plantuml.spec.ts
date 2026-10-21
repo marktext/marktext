@@ -36,7 +36,6 @@ test.describe('PlantUML render via plantuml-encoder', () => {
   })
 
   test('plantuml block uses custom server URL when preference is set', async() => {
-    // Set a custom PlantUML server URL via the preference system.
     await page.evaluate((url) => {
       window.electron.ipcRenderer.send('mt::set-user-preference', { plantumlServer: url })
     }, CUSTOM_SERVER)
@@ -44,7 +43,6 @@ test.describe('PlantUML render via plantuml-encoder', () => {
     // Re-focus the editor to trigger a re-render with the new option.
     await focusEditor(page)
 
-    // Wait for the new img element pointing at the custom server.
     const img = page.locator(`img[src*="${CUSTOM_SERVER}"]`).first()
     await expect(img).toHaveCount(1, { timeout: 10000 })
     const src = await img.getAttribute('src')

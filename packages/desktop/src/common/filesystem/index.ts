@@ -3,9 +3,6 @@ import { accessSync, constants, lstatSync, readlinkSync, statSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { ensureDirSync as fsExtraEnsureDirSync } from 'fs-extra'
 
-/**
- * Test whether or not the given path exists.
- */
 export const exists = async(p: string): Promise<boolean> => {
   try {
     await access(p)
@@ -15,9 +12,6 @@ export const exists = async(p: string): Promise<boolean> => {
   }
 }
 
-/**
- * Ensure that a directory exists.
- */
 export const ensureDirSync = (dirPath: string): void => {
   try {
     fsExtraEnsureDirSync(dirPath)

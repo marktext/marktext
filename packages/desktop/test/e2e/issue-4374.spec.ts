@@ -39,7 +39,7 @@ const placeCaretInSpanContaining = async(page: Page, needle: string) => {
     if (!target) return
     const range = document.createRange()
     range.selectNodeContents(target)
-    range.collapse(false) // caret at end
+    range.collapse(false)
     const sel = window.getSelection()
     sel?.removeAllRanges()
     sel?.addRange(range)
@@ -144,8 +144,6 @@ test.describe('Issue #4374: enterHandler chopBlockByCursor nextSibling crash', (
     const liCountAfter = await page.evaluate(
       () => document.querySelectorAll('.editor-component ul > li').length
     )
-    // Splitting `- one` into `- one` + `- inserted` must yield one more <li>,
-    // not collapse to a paragraph break or duplicate the original item.
     expect(liCountAfter).toBe(liCountBefore + 1)
     await expectNoRendererErrors(app)
   })

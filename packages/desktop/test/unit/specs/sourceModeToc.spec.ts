@@ -18,10 +18,10 @@ describe('findMarkdownHeadingLine', () => {
   ].join('\n')
 
   it('finds the line of the N-th heading (ATX + setext, in order)', () => {
-    expect(findMarkdownHeadingLine(doc, 0)).toBe(0) // # First
-    expect(findMarkdownHeadingLine(doc, 1)).toBe(4) // ## Second
-    expect(findMarkdownHeadingLine(doc, 2)).toBe(6) // Setext (setext heading)
-    expect(findMarkdownHeadingLine(doc, 3)).toBe(9) // ### Third
+    expect(findMarkdownHeadingLine(doc, 0)).toBe(0)
+    expect(findMarkdownHeadingLine(doc, 1)).toBe(4)
+    expect(findMarkdownHeadingLine(doc, 2)).toBe(6)
+    expect(findMarkdownHeadingLine(doc, 3)).toBe(9)
   })
 
   it('returns -1 for an out-of-range index', () => {
@@ -68,11 +68,8 @@ describe('scrollSourceEditorToLine', () => {
 
     scrollSourceEditorToLine(editor, 12, container)
 
-    // line top resolved as a local Y coordinate
     expect(heightAtLine).toHaveBeenCalledWith(12, 'local')
-    // the OUTER container is scrolled so that Y sits at the top, animated
     expect(containerScrollTo).toHaveBeenCalledWith({ top: 480, behavior: 'smooth' })
-    // caret moved without its native scroll fighting the animation
     expect(setCursor).toHaveBeenCalledWith({ line: 12, ch: 0 }, undefined, { scroll: false })
   })
 

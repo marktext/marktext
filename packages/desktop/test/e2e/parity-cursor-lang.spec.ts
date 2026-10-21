@@ -95,7 +95,6 @@ test.describe('Parity G7 — WYSIWYG -> source caret sync', () => {
   })
 
   test('G7: source mode opens at the line/column the WYSIWYG caret was on', async() => {
-    // Caret after "third " (offset 6) in the third paragraph.
     expect(await placeCaretInParagraph(page, 2, 6)).toBe(true)
     await page.waitForTimeout(200)
 
@@ -103,8 +102,6 @@ test.describe('Parity G7 — WYSIWYG -> source caret sync', () => {
     await page.waitForTimeout(300)
 
     const cursor = await getCmCursor(page)
-    // Lines: 0 "first para", 1 blank, 2 "second para", 3 blank,
-    // 4 "third para here".
     expect(cursor).toEqual({ line: 4, ch: 6 })
   })
 })
@@ -134,7 +131,6 @@ test.describe('Parity G8 — language switch refreshes inline hints', () => {
 
     const zhHint = await hintFor()
     expect(zhHint).toBeTruthy()
-    // The rendered hint changed language without re-typing/reloading.
     expect(zhHint).not.toBe(enHint)
 
     await app.close()
@@ -194,8 +190,6 @@ test.describe('Heading creation under zh-CN does not crash the renderer (item 27
     await expect(h1).toHaveCount(1, { timeout: 5000 })
     await expect(h1.first()).toContainText('Hello')
 
-    // The heading round-trips to `# Hello` in the markdown source — proof the
-    // conversion actually produced an ATX heading (not just styled text).
     const markdown = await getMarkdownContent(page, app)
     expect(markdown).toContain('# Hello')
 
@@ -219,8 +213,6 @@ test.describe('Heading creation under zh-CN does not crash the renderer (item 27
     const markdown = await getMarkdownContent(page, app)
     expect(markdown).toContain('## H2')
 
-    // A second heading conversion under zh-CN (another HeadingCopyLink + i18n.t)
-    // must also stay crash-free.
     await expectNoRendererErrors(app)
   })
 })

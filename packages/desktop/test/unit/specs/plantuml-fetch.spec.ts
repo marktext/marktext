@@ -85,7 +85,6 @@ describe('fetchPlantumlImage size cap', () => {
     const result = await fetchPlantumlImage(URL, fetchImpl)
 
     expect(result).toEqual({ ok: false, error: 'Response too large' })
-    // It gave up at the cap rather than buffering whatever the server sends.
     expect(pulls.count).toBeLessThanOrEqual(MAX_BYTES / MEGABYTE + 2)
   })
 

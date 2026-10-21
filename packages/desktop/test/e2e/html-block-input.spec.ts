@@ -70,7 +70,6 @@ test.describe('HTML block typing shortcut and single-image lowering', () => {
   test('typing "<div>" then Enter opens an html-block with caret between the tags', async() => {
     await resetToEmpty(page, app)
 
-    // Type the open tag into the empty paragraph, then commit with Enter.
     await typeIntoEditor(page, '<div>')
     await page.keyboard.press('Enter')
 
@@ -81,7 +80,6 @@ test.describe('HTML block typing shortcut and single-image lowering', () => {
       timeout: 5000
     })
     await expect(page.locator('.editor-component .mu-html-block')).toHaveCount(1)
-    // No stray paragraph survives the conversion.
     await expect(
       page.locator('.editor-component p.mu-paragraph')
     ).toHaveCount(0)
@@ -114,7 +112,6 @@ test.describe('HTML block typing shortcut and single-image lowering', () => {
       timeout: 5000
     })
 
-    // A paragraph is present and NO html-block was created.
     await expect(
       page.locator('.editor-component p.mu-paragraph')
     ).toHaveCount(1)

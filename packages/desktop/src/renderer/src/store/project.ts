@@ -34,7 +34,6 @@ const createProjectRoot = (pathname: string): ProjectTree | null => {
 
   let name = window.path.basename(normalizedPathname)
   if (!name) {
-    // Root directory such as "/" or "C:\"
     name = normalizedPathname
   }
 
@@ -129,7 +128,6 @@ export const useProjectStore = defineStore('project', () => {
     layoutStore.SET_LAYOUT(layout, { scheduleBufferUpdate })
     layoutStore.DISPATCH_LAYOUT_MENU_ITEMS()
 
-    // Process pending events that arrived before projectTree was initialized.
     for (const event of pendingTreeEvents.value) {
       _processTreeEvent(event.type, event.change)
     }

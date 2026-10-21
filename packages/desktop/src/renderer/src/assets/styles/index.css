@@ -1,10 +1,7 @@
-/* Common CSS use by both light and dark themes */
 :root {
   --titleBarHeight: 32px;
   --editorAreaWidth: 750px;
 
-  /*editor*/
-  /*Theme color cluster*/
   --themeColor: rgba(33, 181, 111, 1);
   --themeColor90: rgba(33, 181, 111, 0.9);
   --themeColor80: rgba(33, 181, 111, 0.8);
@@ -62,7 +59,6 @@
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(13, 91, 55, 0.5), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #e5e5e5;
 
-  /* Markdown element colors */
   --headingColor: var(--editorColor80);
   --h1Color: var(--headingColor);
   --h2Color: var(--headingColor);
@@ -78,7 +74,6 @@
   --emColor: var(--editorColor);
   --listMarkerColor: var(--editorColor50);
 
-  /*marktext*/
   --sideBarColor: rgba(0, 0, 0, 0.6);
   --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: rgba(0, 0, 0, 1);
@@ -96,7 +91,6 @@
     rgba(15, 15, 15, 0.05) 0px 9px 24px;
   --maskColor: rgba(232, 232, 232, 0.8);
 
-  /* Notification colors */
   --notificationPrimaryColor: #ffffff;
   --notificationPrimaryBg: var(--themeColor);
   --notificationInfoColor: #ffffff;
@@ -128,9 +122,7 @@
   outline: none;
 }
 
-/* A <button> with no chrome of its own, so it can stand in for a clickable
-   <div>/<span> without changing the layout while the component keeps styling
-   it. When its only content is an icon, give it an `aria-label`. */
+/* Unstyled button for existing clickable layouts. Icon-only buttons need an aria-label. */
 .plain-button {
   display: inline-flex;
   align-items: center;
@@ -187,7 +179,6 @@ body {
   white-space: nowrap;
 }
 
-/* Overwrite Element style */
 .el-tooltip__popper {
   background: var(--floatBgColor);
   color: var(--sideBarColor);
@@ -420,7 +411,6 @@ button.button-primary:not(.custom):focus,
   margin-right: 0;
 }
 
-/* Overwrite element UI button padding */
 .el-button,
 .el-button--primary {
   padding: 7px 14px;

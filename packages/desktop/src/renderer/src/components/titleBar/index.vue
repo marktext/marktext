@@ -422,7 +422,6 @@ div.title > span > .path > bdi > span {
 .title-no-drag {
   -webkit-app-region: no-drag;
 }
-/* frameless window controls */
 .frameless-titlebar-button {
   position: relative;
   display: block;

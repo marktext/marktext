@@ -60,7 +60,6 @@ export const ensureWindowPosition = (
   if (x === undefined || y === undefined) {
     center = true
 
-    // First app start; check whether window size is larger than screen size
     if (screenArea.width < width) width = screenArea.width
     if (screenArea.height < height) height = screenArea.height
   } else {

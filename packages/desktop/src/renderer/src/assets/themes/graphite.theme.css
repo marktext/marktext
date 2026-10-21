@@ -56,7 +56,6 @@
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(53, 74, 99, 0.5), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #e5e5e5;
 
-  /* Markdown element colors */
   --headingColor: rgba(43, 48, 50, 0.8);
   --h1Color: #6886aa;
   --h2Color: #5f9ea0;
@@ -87,11 +86,6 @@
   --maskColor: rgba(232, 232, 232, 0.8);
   --editorAreaWidth: 750px;
 
-  /* @muyajs/core (kebab-case) editor variables
-     Additive prep for the muyajs -> @muyajs/core editor swap. These
-     mirror the camelCase vars above; the legacy editor ignores them.
-     Do NOT remove the camelCase vars — they still drive the current
-     editor until editor.vue switches engines. */
   --theme-color: var(--themeColor);
   --highlight-color: var(--highlightColor);
   --selection-color: var(--selectionColor);
@@ -177,13 +171,11 @@
   background: var(--themeColor) !important;
 }
 
-/* ------------------------------------ */
 
 .mu-container li.mu-list-item {
   color: var(--editorColor);
 }
 
-/*task list*/
 li.mu-task-list-item {
   list-style-type: none;
   position: relative;
@@ -246,7 +238,6 @@ li.mu-task-list-item > span.mu-checkbox-checked::after {
   transform: rotate(-45deg) scale(1);
 }
 
-/*horizontal line*/
 .mu-thematic-break:not(.mu-active)::before {
   content: '';
   position: absolute;

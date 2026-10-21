@@ -1,8 +1,4 @@
-// Persists the export dialog's options across sessions (#2287). The dialog's
-// options were component-local refs with hardcoded defaults, so every restart
-// (and every dialog open) reset them. We store the chosen values in
-// localStorage — the same renderer-side persistence the sidebar width uses —
-// and restore them when the dialog opens.
+// Persist export choices across dialog openings and app restarts (#2287).
 
 export const EXPORT_SETTINGS_STORAGE_KEY = 'export-settings'
 

@@ -1,12 +1,7 @@
-/*
- * ------------------------------------
- * Prism.js dark theme
- */
 
 code[class*='language-'],
 pre.ag-paragraph {
   color: #f8f8f2;
-  /*font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;*/
   text-align: left;
   white-space: pre;
   word-spacing: normal;
@@ -23,20 +18,17 @@ pre.ag-paragraph {
   overflow: visible;
 }
 
-/* Code Fence */
 pre.ag-paragraph {
   padding: 1em;
   margin: 1em 0;
   border-radius: 0.3em;
 }
 
-/* Inline Code */
 :not(pre) > code[class*='language-'],
 pre.ag-paragraph {
   background: #272822;
 }
 
-/* Inline Code */
 :not(pre) > code[class*='language-'] {
   padding: 0.1em;
   border-radius: 0.3em;

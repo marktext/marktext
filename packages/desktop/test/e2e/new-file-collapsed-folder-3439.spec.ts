@@ -64,7 +64,6 @@ test.describe('New File on a collapsed folder (#3439)', () => {
   })
 
   test('the create input appears when New File targets a collapsed folder', async() => {
-    // No tree-folder create input is rendered initially.
     expect(await visibleNewInput(page)).toBe(0)
 
     // Right-click the first (collapsed) sub-folder → sets it active + pops the
@@ -82,7 +81,6 @@ test.describe('New File on a collapsed folder (#3439)', () => {
       )
     })
 
-    // The targeted folder must expand and reveal its create input.
     await expect.poll(() => visibleNewInput(page), { timeout: 6000 }).toBeGreaterThanOrEqual(1)
 
     await page.keyboard.press('Escape')

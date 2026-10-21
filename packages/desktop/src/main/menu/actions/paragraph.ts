@@ -31,7 +31,7 @@ const MENU_ID_MAP: Readonly<Record<string, string>> = Object.freeze({
   taskListMenuItem: 'task',
   paragraphMenuItem: 'p',
   horizontalLineMenuItem: 'hr',
-  frontMatterMenuItem: 'frontmatter' // 'pre'
+  frontMatterMenuItem: 'frontmatter'
 })
 
 const transformEditorElement = (win: Win, type: string): void => {
@@ -124,7 +124,6 @@ export const increaseHeading = (win: Win): void => {
   transformEditorElement(win, 'upgrade heading')
 }
 
-// --- Commands -------------------------------------------------------------
 
 export const loadParagraphCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.PARAGRAPH_BULLET_LIST, bulletList)
@@ -149,7 +148,6 @@ export const loadParagraphCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.PARAGRAPH_INCREASE_HEADING, increaseHeading)
 }
 
-// --- IPC events -------------------------------------------------------------
 
 // NOTE: Don't use static `getMenuItemById` here, instead request the menu by
 //       window id from `AppMenu` manager.
@@ -213,12 +211,6 @@ const setCheckedMenuItem = (
   })
 }
 
-/**
- * Update paragraph menu entires from given state.
- *
- * @param applicationMenu The application menu instance.
- * @param state The selection information.
- */
 export const updateSelectionMenus = (
   applicationMenu: Menu,
   state: SelectionState
@@ -233,11 +225,9 @@ export const updateSelectionMenus = (
     isCodeContent
   } = state
 
-  // Reset format menu.
   const formatMenuItem: MenuItem = applicationMenu.getMenuItemById('formatMenuItem')!
   formatMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = true))
 
-  // Handle menu checked.
   setCheckedMenuItem(applicationMenu, state)
   const alerts = applicationMenu.getMenuItemById('githubAlertsMenuItem')
   const syncAlerts = (): void => {
@@ -255,7 +245,6 @@ export const updateSelectionMenus = (
     }
   }
 
-  // Reset paragraph menu.
   setParagraphMenuItemStatus(applicationMenu, !isDisabled)
   if (isDisabled) {
     syncAlerts()
@@ -279,7 +268,6 @@ export const updateSelectionMenus = (
     formatMenuItem.submenu!.items
       .filter((item: MenuItem) => item.id === 'hyperlinkMenuItem' || item.id === 'imageMenuItem')
       .forEach((item: MenuItem) => (item.enabled = false))
-    // Paragraph: enable only the items that have a defined cross-block action.
     const paragraphMenu = applicationMenu.getMenuItemById('paragraphMenuEntry')!
     paragraphMenu.submenu!.items.forEach((item: MenuItem) => {
       if (item.id) {
@@ -288,7 +276,6 @@ export const updateSelectionMenus = (
     })
   }
 
-  // Disable loose list item when not inside any list (bullet / ordered / task).
   if (!affiliation.ul && !affiliation.ol && !affiliation.task) {
     setMultipleStatus(applicationMenu, ['looseListItemMenuItem'], false)
   }

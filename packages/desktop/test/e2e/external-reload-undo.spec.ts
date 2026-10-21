@@ -7,8 +7,6 @@ import {
   enterSourceMode
 } from './helpers'
 
-// Trigger an editor undo through the same IPC channel the Edit › Undo menu item
-// uses (`mt::editor-edit-action` → bus `undo` → editor.undo()).
 const undo = async(app: Parameters<typeof sendIpcToRenderer>[0]): Promise<void> => {
   await sendIpcToRenderer(app, 'mt::editor-edit-action', 'undo')
 }
@@ -59,7 +57,6 @@ test.describe('External disk reload — undo restores the pre-change document', 
     await reportExternalChange(app, filePath, 'new content here\n')
     await page.waitForTimeout(600)
 
-    // The tab now reflects the new on-disk content...
     expect((await getMarkdownContent(page, app)).trim()).toBe('new content here')
     // ...and stays clean: the reloaded content matches the file on disk, so the
     // tab must NOT be flagged unsaved (replaceContent fires a json-change that
@@ -68,12 +65,9 @@ test.describe('External disk reload — undo restores the pre-change document', 
       false
     )
 
-    // The first undo reverts the external change in one step, back to the
-    // document as it was before the reload.
     await undo(app)
     await page.waitForTimeout(600)
     expect((await getMarkdownContent(page, app)).trim()).toBe('old content here')
-    // The undone document now diverges from on-disk content, so the tab is dirty.
     await expect
       .poll(() => page.evaluate(() => !!document.querySelector('.editor-tabs li.unsaved')))
       .toBe(true)
@@ -140,7 +134,6 @@ test.describe('External disk reload — source-mode scroll position survives a s
     await reportExternalChange(app, filePath, reloadedBody)
     await page.waitForTimeout(600)
 
-    // The reload landed (content updated) and CodeMirror is still mounted.
     expect((await getMarkdownContent(page, app)).trim().endsWith('tail line')).toBe(true)
     await enterSourceMode(page, app)
 

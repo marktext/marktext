@@ -1,10 +1,7 @@
 import { ipcMain } from 'electron'
 import type { IpcMainEvent } from 'electron'
 
-// Subscribe to an in-process channel dispatched via `ipcMain.emit(channel, ...args)`,
-// which forwards the payload args to listeners verbatim — there is no synthetic
-// `IpcMainEvent` like the renderer->main path that `ipcMain.on` is typed for. The
-// signature adaptation is contained here so callers keep real payload types.
+// ipcMain.emit forwards payload arguments verbatim; internal channels have no synthetic IpcMainEvent.
 export function onInternalChannel<TArgs extends unknown[]>(
   channel: string,
   listener: (...args: TArgs) => void

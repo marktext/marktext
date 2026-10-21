@@ -44,13 +44,11 @@ for (const language of getSupportedLanguages()) {
   })
 }
 
-// Open the command palette and wait for its search input to be visible.
 const openPalette = async(app: ElectronApplication, page: Page): Promise<void> => {
   await sendIpcToRenderer(app, 'mt::show-command-palette')
   await expect(page.locator(SEARCH_INPUT).first()).toBeVisible({ timeout: 5000 })
 }
 
-// Close the palette (Escape) and wait until no visible search input remains.
 const closePalette = async(page: Page): Promise<void> => {
   await page.keyboard.press('Escape')
   await page.waitForFunction(
@@ -89,13 +87,10 @@ test.describe('i18n shell — language switch re-translates the Vue shell', () =
   })
 
   test('command palette placeholder re-translates en -> zh-CN', async() => {
-    // 1) Read the English shell label.
     await openPalette(app, page)
     const enPlaceholder = await readPlaceholder(page)
     expect(enPlaceholder).toBeTruthy()
-    // The English string from static/locales/en.json.
     expect(enPlaceholder).toBe('Type a command to execute')
-    // Never the raw i18n key leaking through.
     expect(enPlaceholder).not.toMatch(/commandPalette\./)
     await closePalette(page)
 
@@ -120,13 +115,11 @@ test.describe('i18n shell — language switch re-translates the Vue shell', () =
       )
       .toBe('输入要执行的命令')
 
-    // 3) Re-read once more and assert the post-switch invariants.
     await openPalette(app, page)
     const zhPlaceholder = await readPlaceholder(page)
     await closePalette(page)
     expect(zhPlaceholder).toBeTruthy()
     expect(zhPlaceholder).not.toBe(enPlaceholder)
-    // The Chinese label must not be the raw dotted key either.
     expect(zhPlaceholder).not.toMatch(/commandPalette\./)
   })
 })

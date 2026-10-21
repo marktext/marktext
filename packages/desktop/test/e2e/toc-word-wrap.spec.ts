@@ -18,7 +18,6 @@ const setWordWrap = async(page: Page, wordWrapInToc: boolean): Promise<void> => 
   )
 }
 
-// The long heading's label, and how tall one line of it is.
 const measureLongLabel = (page: Page) =>
   page.evaluate(() => {
     const labels = Array.from(

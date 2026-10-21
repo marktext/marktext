@@ -12,8 +12,6 @@ import {
   placeCaretInEditor
 } from './helpers'
 
-// PARITY SCOREBOARD — desktop gaps PG2 (file PG02), PG14 (file PG15),
-// PG15 (file PG16).
 
 // Trigger an editor undo through the same IPC channel the Edit › Undo menu item
 // uses (`mt::editor-edit-action` → bus `undo` → editor.undo()). More reliable
@@ -43,7 +41,6 @@ test.describe('Parity PG2 — WYSIWYG caret restored after a source-mode edit', 
           CodeMirror: { setCursor(p: { line: number; ch: number }): void; focus(): void }
         }
       ).CodeMirror
-      // Line 4 = "third para here"; place the source cursor inside it.
       cm.setCursor({ line: 4, ch: 6 })
       cm.focus()
     })
@@ -64,7 +61,6 @@ test.describe('Parity PG2 — WYSIWYG caret restored after a source-mode edit', 
       return ''
     })
 
-    // Desired: the caret is restored into the "third para here" block.
     expect(enclosingText).toContain('third para')
     await app.close()
   })
@@ -82,17 +78,13 @@ test.describe('Parity PG14 — first undo after source mode reverts the edit in 
     const { app, page } = await launchWithMarkdown('base\n')
     await waitForMenuReady(app)
 
-    // Bulk source-mode edit.
     await setSourceMarkdown(page, app, 'base\n\nSOURCE ADDED LINE\n')
     await page.waitForTimeout(500)
     expect((await getMarkdownContent(page, app)).trim()).toContain('SOURCE ADDED LINE')
 
-    // First undo after the source-mode handoff.
     await undo(app)
     await page.waitForTimeout(600)
 
-    // Desired: the document reverts to the exact pre-source-mode content in a
-    // single undo step.
     expect((await getMarkdownContent(page, app)).trim()).toBe('base')
     await app.close()
   })
@@ -108,7 +100,6 @@ test.describe('Parity PG14 — first undo after source mode reverts the edit in 
     await page.waitForTimeout(600)
     expect((await getMarkdownContent(page, app)).trim()).toBe('base')
 
-    // Redo restores the entire bulk change in one step.
     await redo(app)
     await page.waitForTimeout(600)
     expect((await getMarkdownContent(page, app)).trim()).toContain('SOURCE ADDED LINE')
@@ -147,14 +138,11 @@ test.describe('Parity PG15 — undo back to on-disk content restores the saved i
     await typeIntoEditor(page, ' EXTRA')
     await page.waitForTimeout(500)
 
-    // Sanity: the edit dirtied the tab and changed the content.
     expect(await page.evaluate(() => !!document.querySelector('.editor-tabs li.unsaved'))).toBe(true)
     expect((await getMarkdownContent(page, app)).trim()).toContain('EXTRA')
 
-    // Undo back to the on-disk content.
     await undo(app)
     await page.waitForTimeout(600)
-    // Content is restored to disk...
     expect((await getMarkdownContent(page, app)).trim()).toBe('hello world')
 
     // ...and the saved/clean indicator comes back (tab no longer marked
@@ -196,7 +184,6 @@ test.describe('Parity PG15 — undo back to on-disk content restores the saved i
     await typeIntoEditor(page, ' C')
     await page.waitForTimeout(500)
 
-    // The divergent document must stay dirty (the G6 false-clean regression).
     const content = (await getMarkdownContent(page, app)).trim()
     expect(content).toContain('C')
     expect(content).not.toContain('B')
@@ -245,7 +232,6 @@ test.describe('Item 248 — a real source-mode keystroke dirties the tab dot', (
     const { app, page } = await launchWithMarkdown('saved baseline\n')
     await waitForMenuReady(app)
 
-    // Freshly-loaded saved doc: no dirty dot yet.
     expect(await isTabDirty(page)).toBe(false)
 
     await enterSourceMode(page, app)
@@ -268,7 +254,6 @@ test.describe('Item 248 — a real source-mode keystroke dirties the tab dot', (
       cm.replaceSelection(' SRCKEY')
     })
 
-    // The CodeMirror value reflects the typed text while still in source mode.
     const sourceValue = await page.evaluate(() => {
       const cm = (
         document.querySelector('.source-code .CodeMirror') as Element & {
@@ -300,7 +285,6 @@ test.describe('Item 256 — save -> clean -> edit -> dirty -> undo-to-saved cycl
     const { app, page } = await launchWithMarkdown('hello world\n')
     await waitForMenuReady(app)
 
-    // Freshly-loaded saved doc: no dirty dot yet.
     expect(await isTabDirty(page)).toBe(false)
 
     // 1) Edit to dirty the tab. Let the type fully commit as its own engine undo
@@ -330,7 +314,6 @@ test.describe('Item 256 — save -> clean -> edit -> dirty -> undo-to-saved cycl
     await sendIpcToRenderer(app, 'mt::tab-saved', tabId)
     await expect.poll(() => isTabDirty(page)).toBe(false)
 
-    // 3) A fresh edit past the saved state re-marks the tab dirty.
     await placeCaretInEditor(page)
     await typeIntoEditor(page, ' MORE')
     await expect.poll(() => isTabDirty(page)).toBe(true)

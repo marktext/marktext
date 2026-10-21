@@ -65,7 +65,6 @@ test.describe('Crash: updateParagraph null block', () => {
       await heading1.waitFor({ state: 'visible', timeout: 5000 })
       await heading1.click()
 
-      // Allow the paragraph to be rewritten as a heading.
       await page.waitForSelector('.editor-component h1', { state: 'attached', timeout: 5000 })
 
       await expectNoRendererErrors(app)
@@ -77,7 +76,6 @@ test.describe('Crash: updateParagraph null block', () => {
   test('Delete a paragraph then invoke Heading 1 menu immediately', async() => {
     const { app, page } = await launchAndReady('# Doc\n\nFirst para.\n\nSecond para.\n')
     try {
-      // Position at end of "Second para." and select the line backwards.
       await page.evaluate(() => {
         const spans = document.querySelectorAll('.editor-component span.mu-paragraph-content')
         const target = spans[spans.length - 1] as HTMLElement | null
@@ -89,7 +87,6 @@ test.describe('Crash: updateParagraph null block', () => {
         sel?.addRange(range)
       })
       await page.waitForTimeout(100)
-      // Delete the selected paragraph contents.
       for (let i = 0; i < 15; i++) {
         await page.keyboard.press('Backspace')
         await page.waitForTimeout(10)

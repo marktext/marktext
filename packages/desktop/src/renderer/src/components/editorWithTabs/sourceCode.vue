@@ -112,8 +112,8 @@ const getMarkdownAndCursor = (cm: CodeMirror.Editor) => {
     )
   }
 
-  anchor = convertToMuyaCursor(anchor) // Selection start as Muya cursor
-  focus = convertToMuyaCursor(focus) // Selection end as Muya cursor
+  anchor = convertToMuyaCursor(anchor)
+  focus = convertToMuyaCursor(focus)
 
   // Normalize cursor that `anchor` is always before `focus` because
   // this is the expected behavior in Muya.
@@ -125,10 +125,6 @@ const getMarkdownAndCursor = (cm: CodeMirror.Editor) => {
   return { cursor: { focus, anchor }, markdown }
 }
 
-/**
- * This is to write the OLD content of the editor before switching to another tab
- * @param id
- */
 const prepareTabSwitch = () => {
   if (tabId.value && editor.value) {
     const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
@@ -201,11 +197,10 @@ const handleFileChange = (payload: unknown) => {
   }
   if (!isSameTabReload) restoreSourceHistory(id, editor.value)
 
-  // t('editor.sourceCode.cursorNullComment')
   if (isValidMuyaIndexCursor(muyaIndexCursor)) {
     const { anchor, focus } = muyaIndexCursor
 
-    editor.value.setSelection(anchor, focus, { scroll: true }) // Scroll the focus into view.
+    editor.value.setSelection(anchor, focus, { scroll: true })
   } else if (scrollTargets.length) {
     const restoreScroll = () => {
       for (const { el, top } of scrollTargets) el.scrollTop = top
@@ -281,7 +276,6 @@ const handleImageAction = (payload: unknown) => {
     cm.setValue(newValue)
     const match = /(!\[.*\]\(.*\))/.exec(oldLine)
     if (!match) {
-      // t('editor.sourceCode.imageStructureDeletedComment')
       return
     }
     const range = {
@@ -340,9 +334,7 @@ const updateSelectionWordCount = (cm: CodeMirror.Editor) => {
 
 const saveContent = (cm: CodeMirror.Editor) => {
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(cm)
-  // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
   const wordCount = getWordCount(newMarkdown)
-  // See "beforeDestroy" note
   if (!viewDestroyed.value) {
     if (tabId.value) {
       editorStore.LISTEN_FOR_CONTENT_CHANGE({
@@ -410,9 +402,7 @@ const handleScrollToHeader = (slug: unknown) => {
 onMounted(() => {
   if (!currentTab.value) return
   const { id } = currentTab.value
-  // reset currentTab scrollTop position because the codeMirror scroll position is completely different from the muya scroll position
-  // reset blocks as well because the blocks are only valid in muya
-  // reset cursor because this is a direct "key-cursor", not a muyaIndexCursor, which is {focus: number, anchor: number}
+  // Reset WYSIWYG scroll, block and cursor state; source mode uses different coordinates.
   currentTab.value.scrollTop = 0
   currentTab.value.blocks = undefined
   currentTab.value.cursor = undefined
@@ -446,7 +436,6 @@ onMounted(() => {
   // CodeMirror's line tree relies on object identity and must not be proxied by Vue.
   const codeMirrorInstance = markRaw(codeMirror(container, codeMirrorConfig))
 
-  // See src/renderer/src/codeMirror/markdownMathMode.ts.
   codeMirrorInstance.setOption('mode', markdownMathMode())
 
   codeMirrorInstance.on('contextmenu', (_cm: CodeMirror.Editor, event: Event) => {

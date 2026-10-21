@@ -15,9 +15,7 @@ import 'codemirror/lib/codemirror.css'
 import './index.css'
 import 'codemirror/theme/railscasts.css'
 
-// The runtime is imported from `codemirror/lib/codemirror` (an `any` shim), but
-// the public editor surface is typed via `@types/codemirror`.
-// Only the legacy `window.CodeMirror` exposure references this; never read typed.
+// Only the legacy window.CodeMirror handle remains intentionally opaque.
 type CodeMirrorLike = unknown
 type CodeMirrorInstance = CodeMirror.Editor
 type CodeMirrorDoc = CodeMirror.Doc
@@ -81,9 +79,6 @@ export const search = (text: string): MatchedMode[] => {
     .filter((lang: MatchedMode | null): lang is MatchedMode => !!lang)
 }
 
-/**
- * set cursor at the end of last line.
- */
 export const setCursorAtLastLine = (cm: CodeMirrorInstance): void => {
   const lastLine = cm.lastLine()
   const lineHandle = cm.getLineHandle(lastLine)
@@ -92,7 +87,6 @@ export const setCursorAtLastLine = (cm: CodeMirrorInstance): void => {
   cm.setCursor(lastLine, lineHandle.text.length)
 }
 
-// if cursor at firstLine return true
 export const isCursorAtFirstLine = (cm: CodeMirrorInstance): boolean => {
   const cursor = cm.getCursor() as CursorPosition
   const { line, ch, outside } = cursor
