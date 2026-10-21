@@ -1,5 +1,10 @@
 import type { TState } from './state/types';
 
+export enum ChangeSource {
+    User = 'user',
+    Api = 'api',
+}
+
 export interface IMuyaOptions {
     readOnly: boolean;
     fontSize: number;

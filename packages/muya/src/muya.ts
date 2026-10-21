@@ -23,8 +23,8 @@ import {
 } from './config/index';
 import { Editor } from './editor/index';
 import { attachReadingEvents, prepareReadingLinks } from './editor/readOnly';
-
 import EventCenter from './event/index';
+
 import I18n from './i18n/index';
 import {
     injectSentinels,
@@ -33,6 +33,7 @@ import {
     resolveSentinelCursor,
 } from './selection/offsetCursor';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState } from './state/types';
+import { ChangeSource } from './types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
 import { getBlock } from './utils/dom';
@@ -417,7 +418,7 @@ export class Muya {
         // so suppress History's own recording of it to avoid a duplicate entry.
         history.recordRebuild(op, prevState, boundarySelection);
         this.runDocumentUpdate(() => history.suppressRecording(() => {
-            this.editor.rebuildContents(op, this.readOnly ? null : selection, 'api');
+            this.editor.rebuildContents(op, this.readOnly ? null : selection, ChangeSource.Api);
         }));
         this._refreshReadingPresentation();
 

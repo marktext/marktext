@@ -1,9 +1,10 @@
+import type TaskListItem from '../../taskListItem';
 // @vitest-environment happy-dom
 
-import type TaskListItem from '../../taskListItem';
 import type TaskListCheckbox from '../index';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../../muya';
+import { ChangeSource } from '../../../../types';
 
 // PARITY SCOREBOARD — gap PG3 (file PG03).
 //
@@ -109,7 +110,7 @@ describe('parity PG3: autoCheck task-list cascade', () => {
 
             // Equivalent to clicking the parent checkbox (the real DOM handler
             // calls `update(checked, 'user')`).
-            checkboxOf(parent).update(true, 'user');
+            checkboxOf(parent).update(true, ChangeSource.User);
 
             // Desired: checking the parent cascades to both children.
             await vi.waitFor(() => {
@@ -125,8 +126,8 @@ describe('parity PG3: autoCheck task-list cascade', () => {
             const [, child1, child2] = taskItems(muya);
             expect(checkedFlags(muya)).toEqual([false, false, false]);
 
-            checkboxOf(child1).update(true, 'user');
-            checkboxOf(child2).update(true, 'user');
+            checkboxOf(child1).update(true, ChangeSource.User);
+            checkboxOf(child2).update(true, ChangeSource.User);
 
             // Desired: when every child is checked, the parent becomes checked.
             await vi.waitFor(() => {
@@ -146,7 +147,7 @@ describe('parity PG3: autoCheck task-list cascade', () => {
             // `autoCheck` disabled, the cascade guard (`source !== 'api' &&
             // this.muya.options.autoCheck`) is false, so only the toggled item
             // changes — descendants stay unchecked.
-            checkboxOf(parent).update(true, 'user');
+            checkboxOf(parent).update(true, ChangeSource.User);
 
             await vi.waitFor(() => {
                 expect(checkedFlags(muya)).toEqual([true, false, false]);
@@ -160,7 +161,7 @@ describe('parity PG3: autoCheck task-list cascade', () => {
             const muya = bootMuya(NESTED_TASKS, { autoCheck: false });
             const [parent] = taskItems(muya);
 
-            checkboxOf(parent).update(true, 'user');
+            checkboxOf(parent).update(true, ChangeSource.User);
 
             await vi.waitFor(() => {
                 expect(checkedFlags(muya)).toEqual([true, false, false]);

@@ -5,6 +5,7 @@ import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import * as json1 from 'ot-json1';
 import { asDoc } from '../state';
+import { ChangeSource } from '../types';
 import { deepClone } from '../utils';
 
 interface IOptions {
@@ -131,7 +132,7 @@ class History {
                 prevDoc,
             }: {
                 op: Nullable<JSONOpList>;
-                source: string;
+                source: ChangeSource;
                 prevDoc: TState[];
                 doc: TState[];
             }) => {
@@ -145,7 +146,7 @@ class History {
                 if (op == null)
                     return;
 
-                if (!this._options.userOnly || source === 'user')
+                if (!this._options.userOnly || source === ChangeSource.User)
                     this._record(op, prevDoc);
                 else
                     this._transform(op);
@@ -173,9 +174,9 @@ class History {
         this._ignoreChange = true;
         try {
             if (rebuild)
-                this._muya.editor.rebuildContents(operation, selection, 'user');
+                this._muya.editor.rebuildContents(operation, selection, ChangeSource.User);
             else
-                this._muya.editor.updateContents(operation, selection, 'user');
+                this._muya.editor.updateContents(operation, selection, ChangeSource.User);
         }
         finally {
             this._ignoreChange = false;

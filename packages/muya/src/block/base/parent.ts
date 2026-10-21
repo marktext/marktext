@@ -4,6 +4,7 @@ import type { TBlockPath } from '../types';
 import { LinkedList } from '../../block/base/linkedList/linkedList';
 import TreeNode from '../../block/base/treeNode';
 import { CLASS_NAMES } from '../../config';
+import { ChangeSource } from '../../types';
 import { operateClassName } from '../../utils/dom';
 import logger from '../../utils/logger';
 import { isFoldableHeading } from '../commonMark/atxHeading/foldSection';
@@ -108,13 +109,15 @@ class Parent extends TreeNode {
      * Append node in linkedList, mounted it into the DOM tree, dispatch operation if necessary.
      * @param  {...any} args
      */
-    append(...childrenAndSource: [...Parent[], string]): void;
+    append(...childrenAndSource: [...Parent[], ChangeSource]): void;
     append(...children: Parent[]): void;
     append(...args: unknown[]) {
         if (!this.muya.canMutate)
             return;
-        const source
-            = typeof args[args.length - 1] === 'string' ? args.pop() : 'api';
+        const last = args[args.length - 1];
+        const source = last === ChangeSource.User || last === ChangeSource.Api ? last : ChangeSource.Api;
+        if (last === ChangeSource.User || last === ChangeSource.Api)
+            args.pop();
         const children = args as Parent[];
 
         children.forEach((node) => {
@@ -127,7 +130,7 @@ class Parent extends TreeNode {
         refreshFoldVisibility(this, children.some(node => isFoldableHeading(node) && node.folded));
 
         // push operations
-        if (source === 'user') {
+        if (source === ChangeSource.User) {
             children.forEach((node) => {
                 const path = node._getJsonPath();
                 const state = node.getState();
@@ -177,7 +180,7 @@ class Parent extends TreeNode {
      * Use the `block` to replace the current block(this)
      * @param {TreeNode} block
      */
-    replaceWith(block: Parent, source = 'user') {
+    replaceWith(block: Parent, source: ChangeSource = ChangeSource.User) {
         if (!this.muya.canMutate)
             return;
         if (!this.parent) {
@@ -196,7 +199,7 @@ class Parent extends TreeNode {
     insertBefore(
         newNode: Parent,
         refNode: Nullable<Parent> = null,
-        source = 'user',
+        source: ChangeSource = ChangeSource.User,
     ) {
         if (!this.muya.canMutate)
             return;
@@ -209,7 +212,7 @@ class Parent extends TreeNode {
 
         refreshFoldVisibility(this, isFoldableHeading(newNode) && newNode.folded);
 
-        if (source === 'user') {
+        if (source === ChangeSource.User) {
             // dispatch json1 operation
             const path = newNode._getJsonPath();
             const state = newNode.getState();
@@ -219,16 +222,16 @@ class Parent extends TreeNode {
         return newNode;
     }
 
-    insertAfter(newNode: Parent, refNode: Nullable<Parent> = null, source = 'user') {
+    insertAfter(newNode: Parent, refNode: Nullable<Parent> = null, source: ChangeSource = ChangeSource.User) {
         this.insertBefore(newNode, refNode ? refNode.next : null, source);
 
         return newNode;
     }
 
-    override remove(source = 'user') {
+    override remove(source: ChangeSource = ChangeSource.User) {
         if (!this.muya.canMutate)
             return;
-        if (source === 'user') {
+        if (source === ChangeSource.User) {
             // dispatch json1 operation
             const path = this._getJsonPath();
             this.jsonState.removeOperation(path);
@@ -241,11 +244,11 @@ class Parent extends TreeNode {
 
     protected empty() {
         this.forEach((child) => {
-            this.removeChild(child, 'api');
+            this.removeChild(child, ChangeSource.Api);
         });
     }
 
-    removeChild(node: TreeNode, source = 'user') {
+    removeChild(node: TreeNode, source: ChangeSource = ChangeSource.User) {
         if (!this.children.contains(node)) {
             debug.warn(
                 'Can not removeChild(node), because node is not child of this block',
