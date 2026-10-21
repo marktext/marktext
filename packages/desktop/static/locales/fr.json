@@ -1048,7 +1048,7 @@
     }
   },
   "readingMode": {
-    "title": "Mode lecture (lecture seule)",
+    "title": "Mode lecture",
     "edit": "Mode édition",
     "lock": "Activer le mode lecture",
     "unlock": "Passer en mode édition",

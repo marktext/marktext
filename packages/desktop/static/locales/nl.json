@@ -1048,7 +1048,7 @@
     }
   },
   "readingMode": {
-    "title": "Leesmodus (alleen-lezen)",
+    "title": "Leesmodus",
     "edit": "Bewerkingsmodus",
     "lock": "Leesmodus inschakelen",
     "unlock": "Overschakelen naar bewerkingsmodus",
