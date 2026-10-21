@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import { launchElectron } from './helpers'
 
 // #3439 — invoking "New File" (sidebar context menu) on a COLLAPSED folder did
@@ -20,11 +23,14 @@ const visibleNewInput = (page: Page): Promise<number> =>
 test.describe('New File on a collapsed folder (#3439)', () => {
   let app: ElectronApplication
   let page: Page
+  let root: string
 
   test.beforeAll(async() => {
-    // launchElectron opens the desktop package folder in the sidebar (its
-    // sub-folders render as collapsed tree-folders).
-    const launched = await launchElectron()
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'marktext-collapsed-folder-'))
+    fs.mkdirSync(path.join(root, 'nested'))
+    const launched = await launchElectron([root], {
+      preferences: { sideBarVisibility: true, restoreLayoutState: true }
+    })
     app = launched.app
     page = launched.page
     await page.waitForSelector('.side-bar-folder .folder-name', { timeout: 10000 })
@@ -60,7 +66,11 @@ test.describe('New File on a collapsed folder (#3439)', () => {
   })
 
   test.afterAll(async() => {
-    if (app) await app.close()
+    try {
+      if (app) await app.close()
+    } finally {
+      if (root) fs.rmSync(root, { recursive: true, force: true })
+    }
   })
 
   test('the create input appears when New File targets a collapsed folder', async() => {
