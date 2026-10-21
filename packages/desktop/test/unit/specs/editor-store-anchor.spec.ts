@@ -220,7 +220,7 @@ describe('useEditorStore copyGithubSlug', () => {
     vi.clearAllMocks()
   })
 
-  it('copies "#<githubSlug>" of the matched block id to the clipboard and notifies', () => {
+  it('copies "#<githubSlug>" of the matched block id to the clipboard without notifying', () => {
     const store = useEditorStore()
     store.listToc = [{ slug: 'uid-1', githubSlug: 'getting-started', lvl: 2 }]
 
@@ -229,7 +229,7 @@ describe('useEditorStore copyGithubSlug', () => {
     store.copyGithubSlug('uid-1')
 
     expect(writeSpy).toHaveBeenCalledWith('#getting-started')
-    expect(notice.notify).toHaveBeenCalledTimes(1)
+    expect(notice.notify).not.toHaveBeenCalled()
   })
 
   it('does nothing (no clipboard write, no notify) when the id is not in the TOC', () => {

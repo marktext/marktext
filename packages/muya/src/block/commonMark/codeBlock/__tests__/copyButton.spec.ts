@@ -74,6 +74,28 @@ describe('code-block copy button', () => {
         expect(button.dataset.copyFeedback).toBeUndefined();
     });
 
+    it.each(['code', 'heading'])('shows a check for two seconds after copying %s', async (kind) => {
+        vi.useFakeTimers();
+        const writer = vi.fn().mockResolvedValue(true);
+        const muya = bootMuya(kind === 'code' ? THREE_LINE_FENCE : '# Heading', { clipboardWriteText: writer });
+        muya.on('heading-copy-link', ({ onCopied }: { onCopied: (ok: boolean) => void }) => {
+            void writer('#heading').then(onCopied);
+        });
+        const button = muya.domNode.querySelector<HTMLElement>(kind === 'code' ? '.mu-code-copy' : '.mu-copy-header-link')!;
+        const label = button.getAttribute('aria-label');
+        button.click();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(button.classList.contains('mu-copy-success')).toBe(true);
+        expect(button.dataset.copyFeedback).toBeUndefined();
+        await vi.advanceTimersByTimeAsync(1000);
+        button.click();
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(button.classList.contains('mu-copy-success')).toBe(true);
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(button.classList.contains('mu-copy-success')).toBe(false);
+        expect(button.getAttribute('aria-label')).toBe(label);
+    });
+
     it('preventDefaults the mousedown so the caret/selection does not move', () => {
         const muya = bootMuya(THREE_LINE_FENCE);
 

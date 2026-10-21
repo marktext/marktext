@@ -103,15 +103,15 @@
 .mu-container h6 > .mu-copy-header-link {
     position: absolute;
     top: 0;
-    left: -62px;
+    left: -67px;
 
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
 
-    transform: translateY(calc(0.7em - 9px));
+    transform: translateY(calc(0.7em - 12px));
     cursor: pointer;
     opacity: 0;
 
@@ -312,8 +312,8 @@
     right: 0.5em;
     z-index: 1;
 
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
 
     border-radius: 4px;
     cursor: pointer;
@@ -336,8 +336,8 @@ code.mu-code .mu-code-copy:hover {
 
 .mu-code-copy i.icon {
     position: absolute;
-    top: 2px;
-    left: 2px;
+    top: 4px;
+    left: 4px;
 
     width: 16px;
     height: 16px;

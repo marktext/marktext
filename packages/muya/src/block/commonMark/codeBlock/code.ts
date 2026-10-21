@@ -7,6 +7,7 @@ import { fromEvent } from 'rxjs';
 import copyIcon from '../../../assets/icons/copy/2.png';
 import { CopyType } from '../../../clipboard/types';
 import { LINE_NUMBERS_ROWS_CLASS, lineNumbersWrapperHTML } from '../../../utils/codeBlockLineNumbers';
+import { showCopyFeedback } from '../../../utils/copyFeedback';
 import logger from '../../../utils/logger';
 import { h, toHTML } from '../../../utils/snabbdom';
 import Parent from '../../base/parent';
@@ -137,15 +138,7 @@ class Code extends Parent {
                 return;
             }
             void writer(codeContent.text).catch(() => false).then((ok) => {
-                const message = this.muya.i18n.t(ok ? 'Copied' : 'Copy failed');
-                button.setAttribute('title', message);
-                button.setAttribute('aria-label', message);
-                button.dataset.copyFeedback = message;
-                setTimeout(() => {
-                    delete button.dataset.copyFeedback;
-                    button.setAttribute('title', this.muya.i18n.t('Copy content'));
-                    button.setAttribute('aria-label', this.muya.i18n.t('Copy content'));
-                }, 2000);
+                showCopyFeedback(button, ok, this.muya.i18n.t('Copy content'), this.muya.i18n);
             });
         };
 

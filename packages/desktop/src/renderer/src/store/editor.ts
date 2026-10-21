@@ -357,19 +357,18 @@ export const useEditorStore = defineStore('editor', {
      * Copies the specified heading's github-slug to the clipboard.
      * @param key The heading-id to copy.
      */
-    copyGithubSlug(key: string): void {
+    async copyGithubSlug(key: string): Promise<boolean> {
       const item = this.listToc.find((i) => i.slug === key)
 
       if (item) {
-        window.electron.clipboard.writeText(`#${item.githubSlug}`)
-        notice.notify({
-          title: t('store.editor.anchorLinkCopied'),
-          type: 'primary',
-          time: 2000,
-          showConfirm: false
-        })
+        try {
+          return await window.electron.clipboard.writeText(`#${item.githubSlug}`)
+        } catch {
+          return false
+        }
       } else {
         console.warn(t('store.editor.tocItemNotFound', { key }))
+        return false
       }
     },
 
