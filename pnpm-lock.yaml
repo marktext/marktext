@@ -330,11 +330,11 @@ importers:
         specifier: ^0.19.0
         version: 0.19.0
       marked:
-        specifier: ^18.1.0
-        version: 18.1.0
+        specifier: ^18.1.1
+        version: 18.1.1
       marked-highlight:
         specifier: ^2.2.4
-        version: 2.2.4(marked@18.1.0)
+        version: 2.2.4(marked@18.1.1)
       mermaid:
         specifier: ^12.1.0
         version: 12.1.0
@@ -7060,8 +7060,8 @@ packages:
     engines: {node: '>= 20'}
     hasBin: true
 
-  marked@18.1.0:
-    resolution: {integrity: sha512-PamYXWWWg2nboG3oX5Ffzpy3EFZROqZJK9hSlMmUnekp7TxPs5DcT95vwd46m73/exfKCRVMtgXoPMI4FEJL6w==}
+  marked@18.1.1:
+    resolution: {integrity: sha512-zEGgrtUG8crk+TrMacJSVABU4DYDDkS8uqgU3ohrn/2fW9C2AEfUrO3m6IhpIpQpl7YcVpiXXC9cSMWDANT3dg==}
     engines: {node: '>= 20'}
     hasBin: true
 
@@ -16875,13 +16875,13 @@ snapshots:
 
   markdown-table@3.0.4: {}
 
-  marked-highlight@2.2.4(marked@18.1.0):
+  marked-highlight@2.2.4(marked@18.1.1):
     dependencies:
-      marked: 18.1.0
+      marked: 18.1.1
 
   marked@16.4.2: {}
 
-  marked@18.1.0: {}
+  marked@18.1.1: {}
 
   matcher@3.0.0:
     dependencies:
