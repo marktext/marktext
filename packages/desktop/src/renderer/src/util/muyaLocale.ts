@@ -1,4 +1,4 @@
-import { en, de, es, fr, ja, ko, nl, pt, ru, tr, zhCN, zhTW, type ILocale } from '@muyajs/core'
+import { en, de, es, fr, it, ja, ko, nl, pt, ru, tr, zhCN, zhTW, type ILocale } from '@muyajs/core'
 
 // Maps the desktop language preference onto the engine's bundled locale
 // objects. Keys must cover every tag in SUPPORTED_LANGUAGES (common/i18n.ts):
@@ -9,6 +9,7 @@ export const MUYA_LOCALES: Record<string, ILocale> = {
   de,
   es,
   fr,
+  it,
   ja,
   ko,
   nl,

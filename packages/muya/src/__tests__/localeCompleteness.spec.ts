@@ -6,7 +6,7 @@ import * as locales from '../locales';
 // `name` tag identifying it. Missing keys would surface untranslated strings;
 // extra keys are dead weight. `en` is the source of truth.
 
-const { de, en, es, fr, ja, ko, nl, pt, ru, tr, zhCN, zhTW } = locales;
+const { de, en, es, fr, it: itLocale, ja, ko, nl, pt, ru, tr, zhCN, zhTW } = locales;
 
 // Spelled out rather than derived from `locales` so the name-tag suite below
 // asserts against an independent expectation instead of the value it checks.
@@ -15,6 +15,7 @@ const nonEnLocales: Array<[string, typeof en]> = [
     ['de', de],
     ['es', es],
     ['fr', fr],
+    ['it', itLocale],
     ['ja', ja],
     ['ko', ko],
     ['nl', nl],
@@ -51,7 +52,7 @@ const TECHNICAL_TERMS: Record<string, string> = {
 // Locales that keep the English product names as-is. Not a script property —
 // ru is Cyrillic and still spells Front Matter, Mermaid and PlantUML the
 // English way — so membership is per-locale convention, not per-alphabet.
-const TERM_PRESERVING_LOCALES = ['de', 'es', 'fr', 'nl', 'pt', 'ru'];
+const TERM_PRESERVING_LOCALES = ['de', 'es', 'fr', 'it', 'nl', 'pt', 'ru'];
 
 describe('locale completeness', () => {
     const enKeys = Object.keys(en.resource).sort();
@@ -80,6 +81,7 @@ describe('locale completeness', () => {
             'de': 'de',
             'es': 'es',
             'fr': 'fr',
+            'it': 'it',
             'ja': 'ja',
             'ko': 'ko',
             'nl': 'nl',
