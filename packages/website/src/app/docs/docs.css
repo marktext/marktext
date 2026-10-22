@@ -440,6 +440,44 @@ html[data-theme='light'] .dochdr-right .theme-icon-light {
 .prose > * {
   scroll-margin-top: calc(var(--doc-top) + 16px);
 }
+.prose kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 2px 0 var(--border);
+  background: var(--code-bg);
+  color: var(--text);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+.prose mark {
+  padding: 0.1em 0.2em;
+  border-radius: 3px;
+  background: #fde68a;
+  color: #422006;
+}
+.prose .doc-diagram {
+  margin: 24px 0;
+}
+.diagram-preview {
+  overflow-x: auto;
+  padding: 16px 0;
+  text-align: center;
+}
+.diagram-preview svg,
+.diagram-preview img {
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+  height: auto;
+}
+.doc-diagram summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+}
 .prose h2 {
   margin: 56px 0 8px;
   padding-top: 8px;
@@ -1202,4 +1240,12 @@ table.md td code {
   .dochdr .brand .divider {
     display: none;
   }
+}
+
+.diagram-preview[data-diagram-language='flowchart'],
+.diagram-preview[data-diagram-language='sequence'],
+.diagram-preview[data-diagram-language='plantuml'] {
+  background: #fff;
+  border-radius: 8px;
+  color: #111;
 }

@@ -484,6 +484,9 @@ importers:
 
   packages/website:
     dependencies:
+      flowchart.js:
+        specifier: ^1.18.0
+        version: 1.18.0
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -493,9 +496,15 @@ importers:
       hast-util-to-string:
         specifier: ^3.0.1
         version: 3.0.1
+      mermaid:
+        specifier: ^12.1.0
+        version: 12.1.0
       next:
         specifier: 15.5.27
         version: 15.5.27(@babel/core@8.0.7)(@opentelemetry/api@1.9.0)(@playwright/test@1.64.0)(@types/node@26.6.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      plantuml-encoder:
+        specifier: ^1.4.0
+        version: 1.4.0
       react:
         specifier: ^19.3.0
         version: 19.3.0
@@ -520,6 +529,9 @@ importers:
       rehype-stringify:
         specifier: ^10.0.1
         version: 10.0.1
+      remark-gemoji:
+        specifier: ^8.0.0
+        version: 8.0.0
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
@@ -538,6 +550,15 @@ importers:
       unist-util-visit:
         specifier: ^5.1.0
         version: 5.1.0
+      vega:
+        specifier: ^6.4.0
+        version: 6.4.0
+      vega-embed:
+        specifier: ^7.3.0
+        version: 7.3.0(vega-lite@6.5.0(vega@6.4.0))(vega@6.4.0)
+      vega-lite:
+        specifier: ^6.5.0
+        version: 6.5.0(vega@6.4.0)
     devDependencies:
       '@opennextjs/cloudflare':
         specifier: ^1.20.9
@@ -6012,6 +6033,9 @@ packages:
   fuzzaldrin@2.1.0:
     resolution: {integrity: sha512-zgllBYwfHR5P3CncJiGbGVPpa3iFYW1yuPaIv8DiTVRrcg5/6uETNL5zvIoKflG1aifXVUZTlIroDehw4WygGA==}
 
+  gemoji@8.1.0:
+    resolution: {integrity: sha512-HA4Gx59dw2+tn+UAa7XEV4ufUKI4fH1KgcbenVA9YKSj1QJTT0xh5Mwv5HMFNN3l2OtUe3ZIfuRwSyZS5pLIWw==}
+
   generator-function@2.0.1:
     resolution: {integrity: sha512-SFdFmIJi+ybC0vjlHN0ZGVGHc3lgE0DxPAT0djjVg+kjOnSqclqmj0KQ7ykTOLP6YxoqOvuAODGdcHJn+43q3g==}
     engines: {node: '>= 0.4'}
@@ -8230,6 +8254,9 @@ packages:
 
   rehype-stringify@10.0.1:
     resolution: {integrity: sha512-k9ecfXHmIPuFVI61B9DeLPN0qFHfawM6RsuX48hoqlaKSF61RskNjSm1lI8PhBEM0MRdLxVVm4WmTqJQccH9mA==}
+
+  remark-gemoji@8.0.0:
+    resolution: {integrity: sha512-/fL9rc72FYwFGtOKcT+QeQdx9Q9t5v4N6KLXSDOTEgaedzK85I9judBqB2eqz+g4b0ERMejlwSOuPK+wket6aA==}
 
   remark-gfm@4.0.1:
     resolution: {integrity: sha512-1quofZ2RQ9EWdeN34S79+KExV1764+wCUGop5CPL1WGdD0ocPpu91lzPGbwWMECpEpd42kJGQwzRfyov9j4yNg==}
@@ -15811,6 +15838,8 @@ snapshots:
 
   fuzzaldrin@2.1.0: {}
 
+  gemoji@8.1.0: {}
+
   generator-function@2.0.1: {}
 
   gensync@1.0.0-beta.2: {}
@@ -18429,6 +18458,12 @@ snapshots:
       '@types/hast': 3.0.4
       hast-util-to-html: 9.0.5
       unified: 11.0.5
+
+  remark-gemoji@8.0.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      gemoji: 8.1.0
+      mdast-util-find-and-replace: 3.0.2
 
   remark-gfm@4.0.1:
     dependencies:

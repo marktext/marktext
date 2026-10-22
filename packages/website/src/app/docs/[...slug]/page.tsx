@@ -12,6 +12,7 @@ import DocsSidebar from '@/components/docs/DocsSidebar'
 import DocsToc from '@/components/docs/DocsToc'
 import Pager from '@/components/docs/Pager'
 import SidebarToggle from '@/components/docs/SidebarToggle'
+import DocProse from '@/components/docs/DocProse'
 import { DOWNLOAD } from '@/lib/downloads'
 
 export const dynamicParams = false
@@ -68,7 +69,7 @@ export default async function DocPage({ params }: { params: Promise<Params> }) {
           </div>
           <h1 className="art-title">{title ?? page.title}</h1>
           {lead && <p className="art-lead">{lead}</p>}
-          <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+          <DocProse key={page.href} html={html} />
           <Pager prev={prev} next={next} />
           <footer className="doc-footer">
             <span>

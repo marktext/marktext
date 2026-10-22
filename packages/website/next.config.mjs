@@ -10,6 +10,12 @@ const config = {
   outputFileTracingRoot: resolve(__dirname, '../..'),
   images: {
     unoptimized: true
+  },
+  webpack(config) {
+    // Documentation charts use SVG; Vega's optional native canvas backend
+    // is unavailable in the browser and Cloudflare runtime.
+    config.resolve.alias.canvas = false
+    return config
   }
   // www -> apex redirect lives in middleware.ts. We tried Next's redirects()
   // here first, but OpenNext Cloudflare currently does not substitute

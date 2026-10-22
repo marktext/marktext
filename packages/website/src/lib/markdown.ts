@@ -4,6 +4,7 @@ import matter from 'gray-matter'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
+import remarkGemoji from 'remark-gemoji'
 import remarkRehype from 'remark-rehype'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
@@ -29,7 +30,7 @@ const CONTENT_ROOT = path.join(process.cwd(), 'content', 'docs')
 
 const SANITIZE_SCHEMA: typeof defaultSchema = {
   ...defaultSchema,
-  tagNames: [...(defaultSchema.tagNames ?? []), 'kbd', 'details', 'summary'],
+  tagNames: [...(defaultSchema.tagNames ?? []), 'kbd', 'mark', 'details', 'summary'],
   attributes: {
     ...defaultSchema.attributes,
     a: [...(defaultSchema.attributes?.a ?? []), 'name', 'target', 'rel'],
@@ -61,6 +62,7 @@ export async function renderMarkdown(source: string, ownerFile: string): Promise
   const processed = await unified()
     .use(remarkParse)
     .use(remarkGfm)
+    .use(remarkGemoji)
     .use(remarkRehype, { allowDangerousHtml: true })
     // Parse raw HTML embedded in markdown into real hast Elements, then
     // sanitize. After this point the tree contains only trusted elements;
@@ -368,10 +370,40 @@ function wrapCodeBlock(pre: Element): Element {
     ]
   }
 
-  return {
+  const block: Element = {
     type: 'element',
     tagName: 'div',
     properties: { className: ['code'] },
     children: [bar, pre]
+  }
+
+  if (!['mermaid', 'vega-lite', 'flowchart', 'sequence', 'plantuml'].includes(lang)) return block
+
+  return {
+    type: 'element',
+    tagName: 'figure',
+    properties: { className: ['doc-diagram'] },
+    children: [
+      {
+        type: 'element',
+        tagName: 'div',
+        properties: { 'data-diagram-source': raw, 'data-diagram-language': lang, className: ['diagram-preview'] },
+        children: []
+      },
+      {
+        type: 'element',
+        tagName: 'details',
+        properties: {},
+        children: [
+          {
+            type: 'element',
+            tagName: 'summary',
+            properties: {},
+            children: [{ type: 'text', value: 'Diagram source' }]
+          },
+          block
+        ]
+      }
+    ]
   }
 }
