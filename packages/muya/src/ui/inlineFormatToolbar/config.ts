@@ -54,8 +54,7 @@ const icons = [
     {
         type: 'inline_code',
         tooltip: 'Inline Code',
-        // Default keybinding is Cmd/Ctrl+` (Linux uses Ctrl+Y); was wrongly +E.
-        shortcut: `${COMMAND_KEY}+\``,
+        shortcut: isOsx ? '⌃+⌘+C' : 'Ctrl+`',
         icon: codeIcon,
     },
     {
