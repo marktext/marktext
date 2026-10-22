@@ -1,33 +1,38 @@
 # Debugging
 
-## Use Visual Studio Code
+Use an unpackaged development or preview build when attaching a debugger. Run the commands below from the repository root.
 
-The most simplest way is to debug using the `Debug MarkText` configuration. You can set breakpoints and use the `debugger` statement.
+## Main and renderer debugging
 
-**Prerequisites:**
+Launch electron-vite with explicit inspector ports:
 
-- VS Code's built-in JavaScript debugger (no extension needed — available since VS Code 1.47)
-
-## Use Chrome Developer Tools
-
-You can use the built-in developer tools via `View -> Toggle Developer Tools` in debug mode or connect via `chrome://inspect` using port `5858` for the main process and `8315` for the renderer process when launched via `pnpm run dev`.
-
-### Debug built application
-
-You can use the default Electron command-line parameters to enable debug mode as described above.
-
-```shell
-$ marktext --inspect=5858 --remote-debugging-port=8315
+```sh
+pnpm -C packages/desktop exec electron-vite --sourcemap --inspect 5858 --remoteDebuggingPort 8315
 ```
 
-## Debug slow startup performance
+Open `chrome://inspect`, configure `localhost:5858` and `localhost:8315`, then select the main-process or renderer target. Use `--inspectBrk 5858` instead of `--inspect 5858` to pause the main process before startup code executes.
 
-Regardless of whether you are using the built or development version, you can use the [node-profiler](https://github.com/fxha/node-profiler) to analysis startup issues. Please follow the tool description for setup. Afterwards, launch the following commands in parallel (e.g. use three terminal windows and launch MarkText last).
+The ordinary `pnpm run dev` command does not explicitly enable those ports. The renderer also has built-in developer tools, available through the View menu in debug mode.
 
-```shell
-$ node-profiler main
-$ node-profiler renderer
-$ marktext --inspect=5858 --remote-debugging-port=8315
+## Production bundle debugging
+
+Compile first, then preview the existing output:
+
+```sh
+pnpm run build:unpack
+pnpm run perf:inspect
 ```
 
-After the successful launch of MarkText, press `Ctrl+C` on both `node-profiler` instances. The tools created two files named `main.cpuprofile` and `renderer.cpuprofile`. You can now analyse these files via *Chrome Developer Tools* or *Visual Studio Code*.
+`perf:inspect` runs electron-vite preview with the main-process inspector on port `5858`; `perf:inspect-brk` pauses before execution. Neither command rebuilds the application. See [Performance testing](PERFORMANCE.md).
+
+Installer builds set `electronFuses.enableNodeCliInspectArguments: false` in `packages/desktop/electron-builder.yml`. The packaged executable therefore does not offer the same Node inspector workflow through `--inspect` or `--inspect-brk`. Use the unpackaged build above to investigate main-process code.
+
+## Visual Studio Code
+
+Attach VS Code's built-in JavaScript debugger to the explicit main-process port (`5858`). For renderer debugging, attach a browser debugger to port `8315` and use `packages/desktop/src/renderer` as the source root.
+
+The checked-in `.vscode/launch.json` contains older launch paths and a renderer port of `9222`; reconcile its paths and ports before using it with the current workspace. The command-line workflow above avoids depending on that launch configuration.
+
+## Startup profiling
+
+In Chrome DevTools, record a main-process CPU profile or renderer Performance trace while launching or reloading the application. For startup measurements, build once and reuse the same preview build. Record the operating system, architecture, application commit and document size so results can be compared.

@@ -4,6 +4,8 @@
 
 - Electron is split into 3 processes: `main`, `preload` and `renderer`. We will be focusing on `main` and `renderer` since these are the heaviest
 
+Before profiling, run `pnpm run build:unpack` from the repository root. The preview commands below use `packages/desktop/out/` and do not rebuild it. See [Debugging](DEBUGGING.md) for attaching to development builds and the inspector limitation in packaged installers.
+
 ## 1. Testing `main` process
 
 ```
@@ -44,10 +46,4 @@ pnpm run start
 
 - This previews the most recent `pnpm run build` output via `electron-vite preview`, so it behaves like a production launch. It does **not** rebuild — re-run `pnpm run build:unpack` first if your sources changed.
 
-- Press `F12` to open Dev Tools and press `Reload and Record` to benchmark start-up render performance
-
-
-
-
-
-
+- Open renderer developer tools and use `Reload and Record` in the Performance panel to benchmark startup rendering. For an explicit remote debugging port, use the command in [Debugging](DEBUGGING.md#main-and-renderer-debugging).

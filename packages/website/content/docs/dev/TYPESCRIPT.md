@@ -1,7 +1,9 @@
 # TypeScript
 
+Paths in this guide are relative to `packages/desktop/` unless stated otherwise. The workspace root holds shared tooling; Muya and the website have separate TypeScript configurations.
+
 MarkText is a TypeScript project. Every file under `src/`, the build
-scripts under `scripts/`, the test specs under `test/`, the build config
+scripts under the repository-root `scripts/`, the test specs under `test/`, the build config
 (`electron.vite.config.ts`), and the test configs (`vitest.config.ts`,
 `playwright.config.ts`) are TS.
 
@@ -12,7 +14,7 @@ once nothing imported them (#4257).
 
 ## tsconfig layout
 
-Single root project, no `composite`/`references`:
+The desktop uses one project with no `composite`/`references`:
 
 ```
 tsconfig.base.json     # shared compiler options (strict, paths, libs)
@@ -42,11 +44,11 @@ Relevant settings (`tsconfig.base.json`):
 Defined in both `tsconfig.base.json` and `electron.vite.config.ts` (the
 two must stay in sync):
 
-| Alias       | Maps to               |
-| ----------- | --------------------- |
-| `@/*`       | `src/renderer/src/*`  |
-| `common/*`  | `src/common/*`        |
-| `@shared/*` | `src/shared/*`        |
+| Alias       | Maps to              |
+| ----------- | -------------------- |
+| `@/*`       | `src/renderer/src/*` |
+| `common/*`  | `src/common/*`       |
+| `@shared/*` | `src/shared/*`       |
 
 `vitest.config.ts` carries the same aliases plus `main_renderer` →
 `src/main` for the few unit specs that reach into main-process code.
@@ -149,28 +151,9 @@ null narrowing where they previously checked `!currentFile.id`.
   overloaded; passing a union of event names (`'maximize'|'unmaximize'|...`)
   can require a cast through `any`.
 
-## Deferred work
+## Linting types
 
-All four items from the original deferred-work list landed across
-PRs #4249–#4255:
-
-- editor.ts + preferences.ts Pinia stores (#4249)
-- prefComponents schemas + leaf SFC controls (#4250)
-- Test specs ESM + strict TS (#4251)
-- Sidebar + top-level page SFCs (#4252)
-- Editor + components SFCs (#4253)
-- Preference page SFCs (#4254)
-- `@typescript-eslint/no-explicit-any` flipped from `warn` to `error` (#4255)
-
-A handful of targeted `eslint-disable-next-line` directives remain, each
-with its own justification — most of them in the CodeMirror 5 mode
-plumbing under `src/renderer/src/codeMirror/`, whose `@types/codemirror`
-surface does not describe the mode API.
-
-The rule covers `.vue` files as well, and no SFC needs an exemption: the
-CodeMirror handles in `sourceCode.vue` use `@types/codemirror` and the
-editor handle in `editor.vue` is a `shallowRef<Muya | null>` typed from
-the engine's own declarations (#4257).
+`@typescript-eslint/no-explicit-any` is an error in desktop TypeScript and Vue files. Narrow unknown values or use library types; keep any necessary suppression local and explain the missing type information. CodeMirror mode APIs are an example where the upstream declarations do not cover every runtime capability.
 
 ## Type-checking
 

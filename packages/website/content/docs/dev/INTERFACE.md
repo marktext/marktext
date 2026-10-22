@@ -14,7 +14,9 @@ The titlebar is located at the top of the window and shows the current opened fi
 
 ### Sidebar
 
-The sidebar is an optional feature of MarkText that contains three panels and has a variable width. The first panel is a tree view of the opened root directory; it also hosts a collapsible _Opened Files_ subsection (toggle via the `openedFilesInSidebar` preference). The latter two panels are a folder searcher (find in files) that is powered by ripgrep and a table of contents of the currently opened document.
+The optional, resizable sidebar contains the filesystem explorer and a find-in-files search powered by ripgrep. The explorer includes a collapsible _Opened Files_ section (`openedFilesInSidebar`). In the 0.24.0 development version, it supports multiple folder roots, search across available roots, and a draggable divider below Opened Files.
+
+The document outline is a separate responsive panel, available since 0.23.0. It lists the active document's headings and can remain expanded or float in a compact window. The title-bar statistics popover shows document and selection counts, file timestamps and a per-tab Reading Mode switch.
 
 ### Editor
 

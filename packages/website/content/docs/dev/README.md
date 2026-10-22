@@ -1,5 +1,9 @@
 # Developer Documentation
 
+## Workspace commands
+
+Run the commands below from the repository root. Desktop scripts proxy to `packages/desktop`; Muya (`packages/muya`) and the Next.js website (`packages/website`) have their own package scripts. See [Architecture](ARCHITECTURE.md) for the directory layout and [Website development](WEBSITE.md) for documentation changes.
+
 ## 1. Project Setup
 
 ### 1.1 Pre-Requisites
@@ -9,7 +13,7 @@
 - Node.js (`>=20.19.0`) — the PR build CI uses Node 22.21.1, the release CI uses Node 24.14.1; any version meeting the minimum should work
   - Using versions significantly newer than the Electron-bundled Node may cause issues compiling native add-ons
 
-- A lot of patience
+- pnpm `>=10`; use the version pinned in the root `package.json` (`packageManager`).
 
 ### 1.2 Linux Specific Pre-requisites
 
@@ -31,7 +35,7 @@ pnpm install
 
 ### 1.5 Create minified locale files
 
-- This is **automatically ran** when building for production, but not for dev for performance
+- Installation and platform packaging scripts minify locales automatically. `build:unpack` also includes this step; `dev` and the plain `build` script do not.
 
 ```
 pnpm run minify-locales
@@ -45,8 +49,7 @@ pnpm run dev
 
 #### 1.6.1 Some Points to Note:
 
-- The `main` and `preload` processes are **NOT** automatically hot-loaded on edit, you need to **reload the development process** on each edit unfortunately
-  - The good news is Vite bundles it _really really quickly_ so it shouldnt be too big of a hassle
+- Restart `pnpm run dev` after changing the main process. A window reload (`Ctrl+R`) reruns preload; restart development if a preload change is not reflected.
 - Although the `renderer` process is hot-loaded, loss of states can often lead to **weird errors**. I recommend doing a full reload if this happens
 - Compile targets:
   - `main` and `preload` still compile to `CommonJS`
@@ -65,11 +68,18 @@ $ pnpm run build:mac
 $ pnpm run build:linux
 ```
 
+### 1.8 Compile and test
+
+`pnpm run build:unpack` compiles without packaging. `pnpm run start` previews the existing build in `packages/desktop/out/`. Platform packaging commands above write installers to the repository-root `dist/`.
+
+Run `pnpm run lint`, `pnpm run typecheck` and `pnpm run test:unit` for desktop changes. See [Build instructions](BUILD.md#development-and-checks) for single-spec commands, E2E tests and Muya checks.
+
 ## 2. Sub-sections
 
 - [Performance testing](PERFORMANCE.md)
 - [Project architecture](ARCHITECTURE.md)
 - [Build instructions](BUILD.md)
+- [Website development](WEBSITE.md)
 - [Debugging](DEBUGGING.md)
 - [Inter-process communication (IPC)](IPC.md)
 - [Interface](INTERFACE.md)

@@ -1,5 +1,7 @@
 # Inter-Process Communication (IPC)
 
+Paths beginning with `src/` in this guide are relative to `packages/desktop/`.
+
 The renderer runs sandboxed (`contextIsolation: true`, `sandbox: true`,
 `nodeIntegration: false` — see `src/main/config.ts`), so it can't import
 `electron` directly. All renderer↔main traffic goes through the typed
@@ -71,10 +73,6 @@ sync), or `webContents.send` (push):
 
 ```ts
 import { ipcMain } from 'electron'
-
-ipcMain.handle('mt::fs::stat', async (_event, path: string) => {
-  return await fs.stat(path)
-})
 
 ipcMain.on('mt::format-link-click', (_event, { data, dirname }) => {
   // …
