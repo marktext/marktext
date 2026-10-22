@@ -1,6 +1,6 @@
 # Key Bindings
 
-All key bindings can be overwritten with the `keybindings.json` file. The file is located in the [application data directory](APPLICATION_DATA_DIRECTORY.md). Each entry consists of a `id`/`accelerator` pair in JSON format.
+Customize registered command shortcuts with the `keybindings.json` file. The file is located in the [application data directory](APPLICATION_DATA_DIRECTORY.md). Each entry maps a command ID to an accelerator string. Use the IDs exactly as listed in the platform tables, including capitalization.
 
 Here is an example:
 
@@ -13,13 +13,14 @@ Here is an example:
 
 ## Available modifiers
 
-- `Cmd` on macOS
-- `Option` on macOS
-- `Ctrl`
+- `Command` (alias `Cmd`) on macOS
+- `Option` (alias `Alt`) on macOS
+- `Control` (alias `Ctrl`)
 - `Shift`
-- `Alt` (equal to `Option` on macOS)
+- `Alt` on Linux and Windows
+- `CommandOrControl` (alias `CmdOrCtrl`), resolved for the current platform
 
-Please don't bind `AltGr`, use `Cltr+Alt` instead.
+Please don't bind `AltGr`, use `Ctrl+Alt` instead.
 
 ## Available keys
 

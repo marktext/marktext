@@ -57,6 +57,9 @@ jobs:
       - name: Test project info
         run: pnpm --filter marktext-website run test:project-info
 
+      - name: Test Markdown rendering
+        run: pnpm --filter marktext-website run test:markdown
+
       - name: Next build
         env:
           GITHUB_TOKEN: ${{ github.token }}

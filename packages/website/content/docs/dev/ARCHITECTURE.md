@@ -1,71 +1,73 @@
 # Project Architecture
 
-## Overview
+MarkText is an Electron application with a Vue 3 interface and a separate TypeScript editor engine, Muya. The desktop application, editor engine and website share a pnpm workspace.
 
-- `.`: Configuration files
-- `package.json`: Project settings
-- `out/`: Compiled source code (main, preload, renderer bundles)
-- `dist/`: Packaged binaries and installers for distribution
-- `resources/`: Application assets (themes, icons, etc) included in builds
-- `docs/`: Documentation and assets
-- `node_modules/`: Dependencies
-- `src`: MarkText source code
-  - `common/`: Common source files that only require Node.js APIs. Code from this folder can be used in all other folders except `muya`.
-  - `main/`: Main process source files that require Electron main-process APIs. `main` files can use `common` source code.
-  - `muya/`: MarkTexts backend that only uses pure JavaScript, BOM and DOM APIs. Don't use Electron or Node.js APIs.
-  - `renderer`: Frontend that require Electron renderer-process APIs and may use `common` or `muya` source code.
-- `static/`: Application assets (images, themes, etc)
-- `test/`: Contains (unit) tests
+## Repository layout
 
-## Introduction to MarkText
+```text
+package.json                 Workspace commands and shared tooling
+pnpm-workspace.yaml          Workspace membership and build permissions
+scripts/                     Installation, locales and license tooling
+.github/workflows/           Desktop, Muya and website CI
+packages/
+  desktop/                   Electron application (marktext)
+    src/common/              Shared Node utilities
+    src/main/                Application lifecycle, windows, IO and IPC
+    src/preload/             Typed contextBridge APIs
+    src/renderer/src/        Vue components, Pinia stores and editor hosts
+    src/shared/types/        Cross-process types and IPC contract
+    src/types/               Ambient declarations
+    static/                  Locales, icons and other app assets
+    build/                   Packaging resources
+    test/                    Desktop unit and Playwright tests
+    out/                     Compiled bundles (generated)
+  muya/                      Editor engine (@muyajs/core)
+    src/                     TypeScript implementation
+    test/spec/               CommonMark and GFM conformance suites
+    examples/                Standalone development demo workspace
+    e2e/                     Editor Playwright workspace
+  website/                   Next.js documentation and project website
+    content/docs/            Documentation Markdown sources
+    public/docs/             Documentation images and other static assets
+dist/                        Packaged installers (generated)
+```
 
-MarkText is a realtime preview (WYSIWYG) editor for markdown with various markdown extensions and our philosophy is to keep things clean, simple and minimal. The application is built with TypeScript, Vue 3 and CSS on top of Electron (Muya, the editor backend, is currently still JavaScript). We use a few native node libraries and Pinia for renderer state. MarkText can be split in three parts: the core called Muya, the main- and renderer process.
+Root desktop commands proxy to `packages/desktop`. Paths beginning with `src/` in the desktop developer guides are relative to `packages/desktop/` unless stated otherwise.
 
-Muya provides realtime preview and markdown editing via multiple modules based on a block structure. You can imagine it as the editor backend with modules for markdown parsing, data store as block structure, markdown document transformations according CommonMark and GitHub Flavored Markdown specification with some extra specifications, event listeners and an exporter to generate standalone HTML and markdown files but also to generate the WYSIWYG editor. Muya is single threaded as well as MarkText but use asynchronous functions to boost performance.
+## Electron boundaries
 
-> NOTE: MarkText's source-code editor is provided by CodeMirror and not well optimized nor feature rich. It's not part of Muya and an editor (renderer process) feature that load the markdown text from Muya (export), operate on it and re-import the text into Muya when switching to preview mode.
+### Main process
 
-> NOTE: Muya requires a core refactoring to provide better modularization, APIs and plugins. Furthermore, the data structure need improvements for better performance and stability.
+`packages/desktop/src/main/index.ts` initializes the application. The main process has Node.js and Electron access and owns windows, filesystem operations, native dialogs, file watchers and operating-system integrations. Avoid blocking it with long synchronous operations.
 
-The editor represents the view and is split into two parts. The first is the main process that have full access to Electron and all OS features. It's mainly used for IO, user interaction with native dialogs and controlls the editor windows. The main process should not (be long) blocked by synchronous operations. The renderer process is the real editor and also a host for Muya. It's responsible for all graphical elements (`src/renderer/components`), data (`src/renderer/store`) and data synchronization. A renderer process is spawned for each window, operates on its own and is controlled by the main process. It contains two text editors: the realtime preview editor provided by Muya and the source-code one by CodeMirror with special features such as tabs, sidebar and editing features.
+### Preload bridge
 
-### Application entry points
+`packages/desktop/src/preload/index.ts` exposes typed APIs through `contextBridge`. Editor and preferences windows both use `contextIsolation: true`, `sandbox: true` and `nodeIntegration: false` in `src/main/config.ts`.
 
-There are two entry points to the application:
+Renderer code accesses capabilities through `window.electron`, `window.fileUtils`, `window.path` and other narrow bridge APIs. It cannot import Node.js or Electron directly. Main and preload compile to CommonJS; the renderer compiles to ES modules.
 
-- `src/main/index.ts` for the main process that is executed first and only once per instance. Once the application is initialized, it's safe to access all the environment variables and single-instances and the application (`App`) is started (`src/main/app/index.ts`). You can use the application after `App::init()` is run successfully.
-- `src/renderer/src/main.ts` for each editor window. At the beginning libraries are loaded, the window is initialized and Vue components are mounted.
+Production windows enable web security. Development disables it to load document-local `file://` images from the Vite HTTP origin. Keep this development exception distinct from production behavior when debugging resources.
 
-### How Muya work
+### Renderer
 
-TBD
+`packages/desktop/src/renderer/src/main.ts` mounts the Vue application for an editor window. Pinia stores coordinate tabs, document modes, preferences, layout and folder roots. Each window hosts the Muya WYSIWYG editor and a CodeMirror source editor.
 
-- Overview about Muya components
-- How Muya work internal
-- Data structure
+Source mode transfers Markdown between CodeMirror and Muya. Reading mode is tracked per document and protects editing and writes across the renderer and main process. The independent document outline derives from the active document's headings.
 
-### Main- and renderer process communication
+## Muya
 
-Main- and renderer process communicate asynchronously via [inter-process communication (IPC)](IPC.md) and it's mainly used for IO and user interaction with native dialogs.
+`packages/muya/src/index.ts` is the public entry point of `@muyajs/core`. The engine handles Markdown parsing, block data, editing interactions, rendering and Markdown/HTML export without Electron APIs. It is consumed as a workspace dependency by the desktop app.
 
-### Editor window (renderer process)
+At runtime, electron-vite and Vitest resolve the package's source through its `exports` map. Desktop type checking uses generated declarations in `packages/muya/lib/types/` to keep the two packages' compiler settings separate. See [TypeScript](TYPESCRIPT.md).
 
-TBD
+## Opening a document
 
-### Examples
+1. A file-menu action or command requests a native open dialog in the main process.
+2. The application selects an editor window, loads the document and registers filesystem watching.
+3. The main process sends `mt::open-new-tab` through IPC.
+4. The renderer editor store creates or selects the document tab and notifies the editor host.
+5. The active document is loaded into the appropriate editor view.
 
-#### Opening a markdown document and render it
+Sidebar opens can reuse a preview tab. Editing the document or double-clicking the sidebar file keeps that tab open. Folder state is maintained separately: one window can host multiple roots, each with its own tree and watcher state; folder search covers available roots.
 
-`MarkdownDocument` is a document that represents a markdown file on disk or an untitled document. To get a markdown document you can use the `loadMarkdownFile` function that asynchronously returns a `RawMarkdownDocument` (= `MarkdownDocument` with some additional information) in the main process.
-
-**Overall steps to open a file:**
-
-1. Click `File -> Open File` and a file dialog is shown that emit `app-open-file-by-id` with the editor window id to open the file in and resolved absolute file path.
-2. The application (`App` instance) tries to find the specified editor and call `openTab` on the editor window. A new editor window is created if no editor window exists.
-3. The editor window tries to load the markdown file via `loadMarkdownFile` and send the result via the `mt::open-new-tab` event to the renderer process.
-  - Each opened file is also added to the filesystem watcher and the full path is saved to track opened file in the current editor window.
-4. The event is triggered in `src/renderer/src/store/editor.ts` (renderer process), does some checks and create a new document state that represent a markdown document and tab state.
-5. The new created tab is either opened and the `file-changed` event is emitted or just added to the tab state.
-6. Both Muya and the source-code editor listen on this event and change the markdown document accordingly.
-
-> NOTE: We currently have no high level APIs to make changes to the document text or lines automatically. All modifications need user interaction!
+See [IPC](IPC.md) for the communication contract, [Interface](INTERFACE.md) for the window layout, and [Build instructions](BUILD.md) for package-specific checks.
