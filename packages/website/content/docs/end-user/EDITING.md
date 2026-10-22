@@ -44,7 +44,7 @@ Links are displayed by default as normal text, but if you click on a link it is 
 
 ## Formatting
 
-MarkText will automatically format your markdown document according CommonMark and GitHub Flavored Markdown specification. Some settings, such as list indentation, can be controlled via preferences. 
+MarkText will automatically format your markdown document according CommonMark and GitHub Flavored Markdown specification. Some settings, such as list indentation, can be controlled via preferences.
 
 ## Editing features
 
@@ -94,7 +94,7 @@ Instantly add emojis to your markdown document without long searches. While typi
 
 ![](../assets/marktext-focus-mode.png)
 
-The focus mode will help you to focus on the currently line only by fading out other lines. To activate the focus mode, simply press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>.
+The focus mode will help you to focus on the currently line only by fading out other lines. To activate the focus mode, simply press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>.
 
 #### Typewriter mode
 
@@ -116,4 +116,12 @@ To quickly find a keyword in your document press <kbd>CmdOrCtrl</kbd>+<kbd>F</kb
 
 **Search in opened folder:**
 
-MarkText provides a built-in filesystem explorer (tree view) with a fast file searcher. Type a keyword in the search bar and select the needed options like regex or case-insensitive search. That's all! MarkText will then search all markdown files in the opened root directory.
+Open find in files from the sidebar or press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>. Enter a keyword and choose search options such as regular expressions and case matching. Search respects the exclusions, ignore-file, hidden-file and size settings documented in [Preferences](PREFERENCES.md).
+
+In the 0.24.0 development version, search covers all available sidebar folder roots. Unavailable roots are excluded until they can be reopened.
+
+## Headings and document navigation
+
+Since 0.23.0, headings in the WYSIWYG editor have a fold control. Click it to hide the section beneath the heading, including deeper headings, up to the next heading of the same or a higher level. Click again to expand it. Folding changes the view only: it does not remove text from saved Markdown or exports.
+
+The independent document outline lists headings for navigation. Toggle its expanded state through the View menu or <kbd>CmdOrCtrl</kbd>+<kbd>K</kbd>; it floats when there is insufficient room to stay expanded. See [Basics](BASICS.md) for Reading Mode and document statistics.

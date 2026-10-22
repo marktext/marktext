@@ -17,7 +17,7 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 | `file.export-file.pdf` | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>E</kbd>   | Export file as PDF                    |
 | `file.move-file`       | -                                             | Move current file to another location |
 | `file.rename-file`     | -                                             | Rename current file                   |
-| `file.print`           | -                                             | Print current tab                     |
+| `file.print`           | <kbd>Ctrl</kbd>+<kbd>P</kbd>                  | Print current tab                     |
 | `file.preferences`     | <kbd>Ctrl</kbd>+<kbd>,</kbd>                  | Open settings window                  |
 | `file.close-tab`       | <kbd>Ctrl</kbd>+<kbd>W</kbd>                  | Close tab                             |
 | `file.close-window`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> | Close window                          |
@@ -36,7 +36,7 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 | `edit.copy-as-html`       | -                                             | Copy selected text as html                      |
 | `edit.paste-as-plaintext` | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> | Paste clipboard contents as plain text          |
 | `edit.select-all`         | <kbd>Ctrl</kbd>+<kbd>A</kbd>                  | Select all text of the document                 |
-| `edit.duplicate`          | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>P</kbd>   | Duplicate the current paragraph                 |
+| `edit.duplicate`          | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>D</kbd>   | Duplicate the current paragraph                 |
 | `edit.create-paragraph`   | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd> | Create a new paragraph after the current one    |
 | `edit.delete-paragraph`   | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd> | Delete current paragraph                        |
 | `edit.find`               | <kbd>Ctrl</kbd>+<kbd>F</kbd>                  | Find information in the document                |
@@ -49,12 +49,12 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 
 | Id                          | Default                                       | Description                              |
 | --------------------------- | --------------------------------------------- | ---------------------------------------- |
-| `paragraph.heading-1`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd> | Set line as heading 1                    |
-| `paragraph.heading-2`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>2</kbd> | Set line as heading 2                    |
-| `paragraph.heading-3`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>3</kbd> | Set line as heading 3                    |
-| `paragraph.heading-4`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd> | Set line as heading 4                    |
-| `paragraph.heading-5`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>5</kbd> | Set line as heading 5                    |
-| `paragraph.heading-6`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>6</kbd> | Set line as heading 6                    |
+| `paragraph.heading-1`       | -                                             | Set line as heading 1                    |
+| `paragraph.heading-2`       | -                                             | Set line as heading 2                    |
+| `paragraph.heading-3`       | -                                             | Set line as heading 3                    |
+| `paragraph.heading-4`       | -                                             | Set line as heading 4                    |
+| `paragraph.heading-5`       | -                                             | Set line as heading 5                    |
+| `paragraph.heading-6`       | -                                             | Set line as heading 6                    |
 | `paragraph.upgrade-heading` | <kbd>Ctrl</kbd>+<kbd>Plus</kbd>               | Upgrade a heading                        |
 | `paragraph.degrade-heading` | <kbd>Ctrl</kbd>+<kbd>-</kbd>                  | Degrade a heading                        |
 | `paragraph.table`           | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> | Insert a table                           |
@@ -77,8 +77,8 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 | `format.strong`       | <kbd>Ctrl</kbd>+<kbd>B</kbd>                  | Set the font of the selected text to bold       |
 | `format.emphasis`     | <kbd>Ctrl</kbd>+<kbd>I</kbd>                  | Set the font of the selected text to italic     |
 | `format.underline`    | <kbd>Ctrl</kbd>+<kbd>U</kbd>                  | Change the selected text to underline           |
-| `format.superscript`  | -                                             | Change the selected text to underline           |
-| `format.subscript`    | -                                             | Change the selected text to underline           |
+| `format.superscript`  | -                                             | Set the selected text as superscript            |
+| `format.subscript`    | -                                             | Set the selected text as subscript              |
 | `format.highlight`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> | Highlight the selected text by <mark>tag</mark> |
 | `format.inline-code`  | <kbd>Ctrl</kbd>+<kbd>`</kbd>                  | Change the selected text to inline code         |
 | `format.inline-math`  | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd> | Change the selected text to inline math         |
@@ -92,7 +92,7 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 | Id                            | Default                      | Description               |
 | ----------------------------- | ---------------------------- | ------------------------- |
 | `window.minimize`             | <kbd>Ctrl</kbd>+<kbd>M</kbd> | Minimize the window       |
-| `window.toggle-always-on-top` | -                            | Toogle always on top mode |
+| `window.toggle-always-on-top` | -                            | Toggle always on top mode |
 | `window.zoomIn`               | -                            | Zoom in                   |
 | `window.zoomOut`              | -                            | Zoom out                  |
 | `window.toggle-full-screen`   | <kbd>F11</kbd>               | Toggle fullscreen mode    |
@@ -102,6 +102,7 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 | Id                      | Default                                       | Description                              |
 | ----------------------- | --------------------------------------------- | ---------------------------------------- |
 | `view.command-palette`  | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | Toggle command palette                   |
+| `view.read-only-mode`   | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>R</kbd>   | Toggle Reading Mode for the current tab  |
 | `view.source-code-mode` | <kbd>Ctrl</kbd>+<kbd>E</kbd>                  | Switch to source code mode               |
 | `view.typewriter-mode`  | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd> | Enable typewriter mode                   |
 | `view.focus-mode`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd> | Enable focus mode                        |
@@ -138,3 +139,22 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 | Id                | Default                      | Description            |
 | ----------------- | ---------------------------- | ---------------------- |
 | `file.quick-open` | <kbd>Ctrl</kbd>+<kbd>P</kbd> | Open quick open dialog |
+
+## Tab navigation
+
+| Id                     | Default                                         | Description           |
+| ---------------------- | ----------------------------------------------- | --------------------- |
+| `tabs.cycleForward`    | <kbd>Ctrl</kbd>+<kbd>Tab</kbd>                  | Next tab              |
+| `tabs.cycleBackward`   | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd> | Previous tab          |
+| `tabs.switchToLeft`    | <kbd>Ctrl</kbd>+<kbd>PageUp</kbd>               | Tab to the left       |
+| `tabs.switchToRight`   | <kbd>Ctrl</kbd>+<kbd>PageDown</kbd>             | Tab to the right      |
+| `tabs.switchToFirst`   | <kbd>Ctrl</kbd>+<kbd>1</kbd>                    | Switch to tab first   |
+| `tabs.switchToSecond`  | <kbd>Ctrl</kbd>+<kbd>2</kbd>                    | Switch to tab second  |
+| `tabs.switchToThird`   | <kbd>Ctrl</kbd>+<kbd>3</kbd>                    | Switch to tab third   |
+| `tabs.switchToFourth`  | <kbd>Ctrl</kbd>+<kbd>4</kbd>                    | Switch to tab fourth  |
+| `tabs.switchToFifth`   | <kbd>Ctrl</kbd>+<kbd>5</kbd>                    | Switch to tab fifth   |
+| `tabs.switchToSixth`   | <kbd>Ctrl</kbd>+<kbd>6</kbd>                    | Switch to tab sixth   |
+| `tabs.switchToSeventh` | <kbd>Ctrl</kbd>+<kbd>7</kbd>                    | Switch to tab seventh |
+| `tabs.switchToEighth`  | <kbd>Ctrl</kbd>+<kbd>8</kbd>                    | Switch to tab eighth  |
+| `tabs.switchToNinth`   | <kbd>Ctrl</kbd>+<kbd>9</kbd>                    | Switch to tab ninth   |
+| `tabs.switchToTenth`   | <kbd>Ctrl</kbd>+<kbd>0</kbd>                    | Switch to tab tenth   |

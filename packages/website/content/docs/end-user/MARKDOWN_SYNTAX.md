@@ -4,7 +4,7 @@ Markdown is a easy-to-use markup language for writing and this document contains
 
 ## Table of contents
 
-- [Markdown Syntax](#markdown-syntax)
+- Markdown Syntax
   - [Headings](#headings)
   - [Paragraphs](#paragraphs)
   - [Breaks](#breaks)
@@ -21,6 +21,7 @@ Markdown is a easy-to-use markup language for writing and this document contains
     - [Link titles](#link-titles)
     - [Named Anchors](#named-anchors)
   - [Images](#images)
+  - [GitHub Alerts](#github-alerts)
   - [Blockquotes](#blockquotes)
     - [Multiline blockquote](#multiline-blockquote)
   - [Lists](#lists)
@@ -501,16 +502,16 @@ Renders to:
 **Links in todo lists**
 
 ```markdown
-- [ ] [foo](#bar)
-- [ ] [baz](#qux)
-- [ ] [fez](#faz)
+- [ ] [Headings](#headings)
+- [ ] [Links](#links)
+- [ ] [Images](#images)
 ```
 
 Renders to:
 
-- [ ] [foo](#bar)
-- [ ] [baz](#qux)
-- [ ] [fez](#faz)
+- [ ] [Headings](#headings)
+- [ ] [Links](#links)
+- [ ] [Images](#images)
 
 <br>
 
@@ -1005,3 +1006,26 @@ Renders to:
 ## Credits
 
 This markdown cheatsheet was created by [@jonschlinkert](https://twitter.com/jonschlinkert) and modified. The source can be found [here](https://gist.github.com/jonschlinkert/5854601).
+
+## GitHub Alerts
+
+Since 0.22.0, MarkText supports GitHub-style alert blocks when **GitHub Alerts** is enabled in Preferences → Markdown (`githubAlerts`, off by default).
+
+```markdown
+> [!NOTE]
+> Information that is useful when reading the document.
+
+> [!TIP]
+> Advice that helps complete a task.
+
+> [!IMPORTANT]
+> Information needed to succeed.
+
+> [!WARNING]
+> A potential problem to watch for.
+
+> [!CAUTION]
+> A consequence that needs particular care.
+```
+
+With the setting enabled, use the Paragraph menu's GitHub Alerts submenu or the quick-insert and paragraph conversion menus to create or convert an alert. The alert marker is preserved in Markdown, and HTML/PDF exports render the alert styling. When disabled, the block is handled as an ordinary blockquote.

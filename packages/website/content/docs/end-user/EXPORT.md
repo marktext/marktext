@@ -27,3 +27,9 @@ You can include a header and/or footer in the exported document if you choose PD
 ![](../assets/marktext-export-header.png)
 
 ![](../assets/marktext-export-pdf.png)
+
+## Markdown extensions and media
+
+HTML and PDF exports use the document's enabled Markdown extensions. For example, enable GitHub Alerts in Preferences → Markdown to render alert blocks with their associated styling (since 0.22.0). Folded headings still export their full section contents.
+
+Exporting a diagram as PNG or SVG is a separate action in the [media viewer](IMAGES.md#media-viewer), rather than a whole-document export format.

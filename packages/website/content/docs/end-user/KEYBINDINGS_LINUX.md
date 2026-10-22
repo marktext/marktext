@@ -49,12 +49,12 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 
 | Id                          | Default                                       | Description                              |
 | --------------------------- | --------------------------------------------- | ---------------------------------------- |
-| `paragraph.heading-1`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd> | Set line as heading 1                    |
-| `paragraph.heading-2`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>2</kbd> | Set line as heading 2                    |
-| `paragraph.heading-3`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>3</kbd> | Set line as heading 3                    |
-| `paragraph.heading-4`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd> | Set line as heading 4                    |
-| `paragraph.heading-5`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>5</kbd> | Set line as heading 5                    |
-| `paragraph.heading-6`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>6</kbd> | Set line as heading 6                    |
+| `paragraph.heading-1`       | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>1</kbd>   | Set line as heading 1                    |
+| `paragraph.heading-2`       | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>2</kbd>   | Set line as heading 2                    |
+| `paragraph.heading-3`       | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>3</kbd>   | Set line as heading 3                    |
+| `paragraph.heading-4`       | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>4</kbd>   | Set line as heading 4                    |
+| `paragraph.heading-5`       | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>5</kbd>   | Set line as heading 5                    |
+| `paragraph.heading-6`       | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>6</kbd>   | Set line as heading 6                    |
 | `paragraph.upgrade-heading` | <kbd>Ctrl</kbd>+<kbd>Plus</kbd>               | Upgrade a heading                        |
 | `paragraph.degrade-heading` | <kbd>Ctrl</kbd>+<kbd>-</kbd>                  | Degrade a heading                        |
 | `paragraph.table`           | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> | Insert a table                           |
@@ -67,7 +67,7 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 | `paragraph.task-list`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>X</kbd> | Insert a task list                       |
 | `paragraph.loose-list-item` | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd> | Convert a list item to a loose list item |
 | `paragraph.paragraph`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>0</kbd> | Convert a heading to a paragraph         |
-| `paragraph.horizontal-line` | <kbd>Ctrl</kbd>+<kbd>\_</kbd>                 | Add a horizontal line                    |
+| `paragraph.horizontal-line` | <kbd>Ctrl</kbd>+<kbd>_</kbd>                  | Add a horizontal line                    |
 | `paragraph.front-matter`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Y</kbd> | Insert a YAML frontmatter block          |
 
 #### Format menu
@@ -77,8 +77,8 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 | `format.strong`       | <kbd>Ctrl</kbd>+<kbd>B</kbd>                  | Set the font of the selected text to bold       |
 | `format.emphasis`     | <kbd>Ctrl</kbd>+<kbd>I</kbd>                  | Set the font of the selected text to italic     |
 | `format.underline`    | <kbd>Ctrl</kbd>+<kbd>U</kbd>                  | Change the selected text to underline           |
-| `format.superscript`  | -                                             | Change the selected text to underline           |
-| `format.subscript`    | -                                             | Change the selected text to underline           |
+| `format.superscript`  | -                                             | Set the selected text as superscript            |
+| `format.subscript`    | -                                             | Set the selected text as subscript              |
 | `format.highlight`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> | Highlight the selected text by <mark>tag</mark> |
 | `format.inline-code`  | <kbd>Ctrl</kbd>+<kbd>Y</kbd>                  | Change the selected text to inline code         |
 | `format.inline-math`  | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd> | Change the selected text to inline math         |
@@ -92,7 +92,7 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 | Id                            | Default                      | Description               |
 | ----------------------------- | ---------------------------- | ------------------------- |
 | `window.minimize`             | <kbd>Ctrl</kbd>+<kbd>M</kbd> | Minimize the window       |
-| `window.toggle-always-on-top` | -                            | Toogle always on top mode |
+| `window.toggle-always-on-top` | -                            | Toggle always on top mode |
 | `window.zoomIn`               | -                            | Zoom in                   |
 | `window.zoomOut`              | -                            | Zoom out                  |
 | `window.toggle-full-screen`   | <kbd>F11</kbd>               | Toggle fullscreen mode    |
@@ -102,6 +102,7 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 | Id                      | Default                                       | Description                              |
 | ----------------------- | --------------------------------------------- | ---------------------------------------- |
 | `view.command-palette`  | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | Toggle command palette                   |
+| `view.read-only-mode`   | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>R</kbd>   | Toggle Reading Mode for the current tab  |
 | `view.source-code-mode` | <kbd>Ctrl</kbd>+<kbd>E</kbd>                  | Switch to source code mode               |
 | `view.typewriter-mode`  | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd> | Enable typewriter mode                   |
 | `view.focus-mode`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd> | Enable focus mode                        |
@@ -138,3 +139,22 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 | Id                | Default                      | Description            |
 | ----------------- | ---------------------------- | ---------------------- |
 | `file.quick-open` | <kbd>Ctrl</kbd>+<kbd>P</kbd> | Show quick open dialog |
+
+## Tab navigation
+
+| Id                     | Default                                         | Description           |
+| ---------------------- | ----------------------------------------------- | --------------------- |
+| `tabs.cycleForward`    | <kbd>Ctrl</kbd>+<kbd>Tab</kbd>                  | Next tab              |
+| `tabs.cycleBackward`   | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd> | Previous tab          |
+| `tabs.switchToLeft`    | <kbd>Ctrl</kbd>+<kbd>PageUp</kbd>               | Tab to the left       |
+| `tabs.switchToRight`   | <kbd>Ctrl</kbd>+<kbd>PageDown</kbd>             | Tab to the right      |
+| `tabs.switchToFirst`   | <kbd>Ctrl</kbd>+<kbd>1</kbd>                    | Switch to tab first   |
+| `tabs.switchToSecond`  | <kbd>Ctrl</kbd>+<kbd>2</kbd>                    | Switch to tab second  |
+| `tabs.switchToThird`   | <kbd>Ctrl</kbd>+<kbd>3</kbd>                    | Switch to tab third   |
+| `tabs.switchToFourth`  | <kbd>Ctrl</kbd>+<kbd>4</kbd>                    | Switch to tab fourth  |
+| `tabs.switchToFifth`   | <kbd>Ctrl</kbd>+<kbd>5</kbd>                    | Switch to tab fifth   |
+| `tabs.switchToSixth`   | <kbd>Ctrl</kbd>+<kbd>6</kbd>                    | Switch to tab sixth   |
+| `tabs.switchToSeventh` | <kbd>Ctrl</kbd>+<kbd>7</kbd>                    | Switch to tab seventh |
+| `tabs.switchToEighth`  | <kbd>Ctrl</kbd>+<kbd>8</kbd>                    | Switch to tab eighth  |
+| `tabs.switchToNinth`   | <kbd>Ctrl</kbd>+<kbd>9</kbd>                    | Switch to tab ninth   |
+| `tabs.switchToTenth`   | <kbd>Ctrl</kbd>+<kbd>0</kbd>                    | Switch to tab tenth   |

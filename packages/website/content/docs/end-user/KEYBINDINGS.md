@@ -19,7 +19,7 @@ Here is an example:
 - `Shift`
 - `Alt` (equal to `Option` on macOS)
 
-Please don't bind `AltGr`, use `Cltr+Alt` instead.
+Please don't bind `AltGr`, use `Ctrl+Alt` instead.
 
 ## Available keys
 

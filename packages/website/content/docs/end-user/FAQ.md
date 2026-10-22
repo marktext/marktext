@@ -4,9 +4,11 @@
 
 MarkText is a desktop application and available for:
 
-- Linux x64 (tested on Debian and Red Hat based distros)
-- macOS 11 (Big Sur) or later, x64 and arm64 (Apple Silicon)
+- Linux x64 and arm64 (arm64 release packages are available since 0.23.0)
+- macOS 12 (Monterey) or later, x64 and arm64 (Apple Silicon)
 - Windows 10 or 11, x64 and arm64
+
+The current Electron 42-based application requires macOS 12 or later. See the [Electron announcement removing macOS 11 support](https://www.electronjs.org/blog/electron-38-0).
 
 ### Is MarkText open-source and free?
 
