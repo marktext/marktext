@@ -1,6 +1,6 @@
 # Commenting Guidelines
 
-Distilled from John Ousterhout's *A Philosophy of Software Design* (ch. 12–16).
+Distilled from John Ousterhout's _A Philosophy of Software Design_ (ch. 12–16).
 One rule governs everything below:
 
 > **Comments should describe things that aren't obvious from the code.**
@@ -31,8 +31,8 @@ same level as the code is just restating it.
 
 ## Rules
 
-**Don't repeat the code.** Before keeping a comment, ask: *could someone write
-this just by looking at the code next to it?* If yes, delete it. A special case
+**Don't repeat the code.** Before keeping a comment, ask: _could someone write
+this just by looking at the code next to it?_ If yes, delete it. A special case
 of this: don't build the comment out of the words already in the name —
 `// Normalize the resource name` above `getNormalizedResourceName()` adds nothing.
 
@@ -40,29 +40,29 @@ of this: don't build the comment out of the words already in the name —
 instance variables, parameters, return values, where the name and type aren't
 enough. Spell out: units; whether bounds are inclusive or exclusive; what `null`
 means if allowed; who owns/frees a resource; any invariant ("this list always
-has at least one entry"). Describe what a variable *is*, not how the code
+has at least one entry"). Describe what a variable _is_, not how the code
 mutates it — think nouns, not verbs.
 
-**Higher-level comments add intuition.** One sentence on what a block *does* and
+**Higher-level comments add intuition.** One sentence on what a block _does_ and
 why, omitting the mechanics. A reader who has that sentence can explain the rest
 of the code themselves — and judge whether it's correct. These are harder to
 write: ask yourself "what is the simplest thing I can say that explains
 everything here?"
 
 **Separate interface from implementation comments.** Interface comments tell a
-caller what they need to use the thing — they *are* the abstraction.
+caller what they need to use the thing — they _are_ the abstraction.
 Implementation comments explain how it works inside. Never let one leak into the
 other. A caller should not have to read a method's body to call it correctly.
 
-  - *Class:* the abstraction it provides, what an instance represents, its
-    limitations. No method-by-method detail.
-  - *Method:* behavior from the caller's view; every parameter and the return
-    value, precisely; side effects; exceptions; preconditions. Keep
-    preconditions few, but document the ones that remain.
-  - The test for any fact: *does a caller need it to use this?* Wire formats,
-    internal data structures, transparent crash recovery — no, those are
-    implementation. A comparison being string-vs-integer, or whether requests
-    fire concurrently (affects performance) — yes.
+- _Class:_ the abstraction it provides, what an instance represents, its
+  limitations. No method-by-method detail.
+- _Method:_ behavior from the caller's view; every parameter and the return
+  value, precisely; side effects; exceptions; preconditions. Keep
+  preconditions few, but document the ones that remain.
+- The test for any fact: _does a caller need it to use this?_ Wire formats,
+  internal data structures, transparent crash recovery — no, those are
+  implementation. A comparison being string-vs-integer, or whether requests
+  fire concurrently (affects performance) — yes.
 
 **Implementation comments say what and why, not how.** Most short methods need
 none. For longer ones, put a high-level line before each major block or
@@ -98,7 +98,7 @@ almost nothing: typing code and comments together is a small fraction of total
 development time.
 
 **A comment is a complexity detector.** The comment for a method or variable
-should be short *and* complete. If you can't write one that's both, the thing
+should be short _and_ complete. If you can't write one that's both, the thing
 you're describing is probably badly designed — that's the signal to fix the
 design, not the comment.
 
@@ -137,12 +137,12 @@ for the places that genuinely need them.
 ## Names are documentation too (ch. 14)
 
 A good name reduces the need for comments. Make names **precise** — `getCount()`
-counts *what*? — and make them **paint an image** of what the thing is and isn't,
+counts _what_? — and make them **paint an image** of what the thing is and isn't,
 in two or three words. A single vague name once cost the author a six-month bug
 hunt: `block` meant both a disk block and a file block; `diskBlock` / `fileBlock`
 would have prevented it. Don't settle for "close enough."
 
 ---
 
-**The test for any comment:** is it something you *couldn't* read off the code,
+**The test for any comment:** is it something you _couldn't_ read off the code,
 and is it both short and complete?

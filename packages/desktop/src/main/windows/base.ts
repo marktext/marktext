@@ -1,18 +1,10 @@
 import path from 'path'
-import type { BrowserWindow } from 'electron'
+import { app, type BrowserWindow } from 'electron'
 import { TypedEmitter } from '@shared/types/typedEmitter'
 import type Accessor from '../app/accessor'
 import { getThemeBackgroundColor } from '../../common/theme'
 
-/**
- * A MarkText window.
- * @property id Identifier (= browserWindow.id) or null during initialization.
- * @property browserWindow The browser window.
- * @property lifecycle The window lifecycle state.
- * @property type The window type.
- */
 
-// Window type marktext support.
 export const WindowType = {
   BASE: 'base', // You shold never create a `BASE` window.
   EDITOR: 'editor',
@@ -30,10 +22,6 @@ export const WindowLifecycle = {
 
 export type WindowLifecycleValue = (typeof WindowLifecycle)[keyof typeof WindowLifecycle]
 
-/**
- * Event payload map for `BaseWindow` and its subclasses (editor/setting).
- * Listeners are subscribed by `WindowManager` and other main-process code.
- */
 export interface BaseWindowEvents {
   'window-ready': []
   'window-focus': []
@@ -42,8 +30,6 @@ export interface BaseWindowEvents {
   'window-closed': []
 }
 
-// Subset of preference accessor used while building the renderer URL. Fields are
-// optional to mirror `IUserPreferences` (the real `Preference.getAll()` return).
 export interface PreferenceLike {
   getAll(): {
     codeFontFamily?: string
@@ -67,9 +53,6 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
   public lifecycle: WindowLifecycleValue
   public type: WindowTypeValue
 
-  /**
-   * @param accessor The application accessor for application instances.
-   */
   constructor(accessor: Accessor) {
     super()
 
@@ -85,6 +68,11 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
     if (!win) return
     if (win.isMinimized()) win.restore()
     if (!win.isVisible()) win.show()
+    // Window focus alone does not activate a background app on macOS.
+    if (process.platform === 'darwin') {
+      app.show()
+      app.focus({ steal: true })
+    }
     win.focus()
     win.moveTop()
   }
@@ -105,7 +93,6 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
     this.id = null
   }
 
-  // --- private ---------------------------------
 
   protected _buildUrlWithSettings(
     windowId: number | null,
@@ -122,7 +109,7 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
     // must not point a built app at the dev server URL (#5053).
     const baseUrl = import.meta.env.DEV
       ? process.env['ELECTRON_RENDERER_URL']!
-      : `file://${path.join(__dirname, '../renderer/index.html')}` // <-- This points to the path inside the packed ASAR archive, hence it is always correct
+      : `file://${path.join(__dirname, '../renderer/index.html')}`
 
     const url = new URL(baseUrl)
     url.searchParams.set('udp', paths.userDataPath)
@@ -130,7 +117,6 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
     url.searchParams.set('wid', String(windowId))
     url.searchParams.set('type', type)
 
-    // Settings
     url.searchParams.set('cff', codeFontFamily ?? '')
     url.searchParams.set('cfs', String(codeFontSize))
     url.searchParams.set('hsb', hideScrollbar ? '1' : '0')
@@ -151,10 +137,7 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
   }
 
   protected _getPreferredBackgroundColor(theme: string | undefined): string {
-    // Paint the window with the active theme's background and show it directly,
-    // for the fastest window-ready time. Previously only a handful of themes
-    // were mapped and every other (dark) theme fell back to white, flashing
-    // white on launch (#3957); the full per-theme map lives in common/theme.
+    // Paint using the active theme immediately to avoid a white startup flash.
     return getThemeBackgroundColor(theme)
   }
 }

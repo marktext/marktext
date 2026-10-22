@@ -107,7 +107,7 @@ const INITIAL_OPTIONS = {
     footnote: true,
     math: true,
     superSubScript: true,
-    isGitlabCompatibilityEnabled: true,
+    texMathGfm: true,
     // Display
     codeBlockLineNumbers: true,
     focusMode: false,

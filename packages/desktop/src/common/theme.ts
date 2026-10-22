@@ -1,7 +1,6 @@
 export const railscastsThemes: readonly string[] = Object.freeze([
   'dark',
   'material-dark',
-  // New gogh dark themes
   'dracula',
   'nord',
   'catppuccin-mocha',
@@ -32,12 +31,7 @@ export const isDarkThemeId = (theme: unknown): theme is string => {
   )
 }
 
-// Each built-in theme's editor background colour, kept in sync with the
-// `--editorBgColor` of the matching renderer theme (renderer/src/assets/themes/
-// *.theme.css; the default light theme lives in styles/index.css and is handled
-// by the white fallback below). The main process paints a freshly-created window
-// with this colour before the renderer loads, so a dark theme no longer flashes
-// white on launch (#3957).
+// Keep window backgrounds aligned with renderer theme variables to avoid startup flashes.
 const themeBackgroundColors: ReadonlyMap<string, string> = new Map([
   ['ayu-dark', '#0a0e14'],
   ['ayu-light', '#fafafa'],

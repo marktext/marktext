@@ -4,21 +4,6 @@ import type Content from '../../../base/content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../../muya';
 
-// ENTER-CONVERT GUARD — pressing Enter on a top-level paragraph whose text is a
-// block-conversion trigger replaces the paragraph with the matching block.
-//
-// `ParagraphContent.enterHandler` routes a plain (non-shift) Enter on a
-// top-level paragraph through `_enterConvert`. That method inspects `this.text`:
-//   - `$$`            -> math-block
-//   - ```` ```lang ```` -> fenced code-block with meta.lang
-//   - `<tag>` (non-void html) -> html-block `<tag>\n\n</tag>`
-//   - `| ... |` with even backlash counts -> table (see tableConversion.spec)
-// Anything else (including VOID html tags like `<br>` and pipe rows with an odd
-// escaped pipe) falls through to `Format.enterHandler`, which just splits the
-// paragraph — the block STAYS a paragraph. These characterization tests drive
-// the handler the way the keydown listener does and assert the document state
-// after the json1 op flushes on the next frame.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -50,8 +35,6 @@ function bootMuya(markdown: string): Muya {
     return muya;
 }
 
-// Find the leaf `.content` block whose rendered text matches `text`, the way a
-// click resolves the active content block.
 function contentByText(muya: Muya, text: string): Content {
     let target: Content | null = null;
     const visit = (block: {
@@ -69,9 +52,6 @@ function contentByText(muya: Muya, text: string): Content {
     return target;
 }
 
-// Replace the paragraph content's text with a conversion trigger, render it,
-// land the caret at the end, then route a plain Enter through the handler the
-// way the keydown listener does.
 function enterWithText(muya: Muya, content: Content, text: string): { preventDefault: ReturnType<typeof vi.fn> } {
     muya.editor.activeContentBlock = content;
     content.text = text;
@@ -282,7 +262,6 @@ describe('enter on `<div>` — converts to an html-block', () => {
         const htmlContent = contentByText(muya, '<div>\n\n</div>');
         const cursor = htmlContent.getCursor();
         expect(cursor).not.toBeNull();
-        // tagName 'div' length 3 + 3 === 6.
         expect(cursor!.start.offset).toBe(6);
     });
 });
@@ -296,8 +275,6 @@ describe('enter on `<br>` (VOID html tag) — NOT converted', () => {
 
         await flush();
         const state = muya.getState();
-        // Fell through to Format.enterHandler: the paragraph split into two
-        // paragraphs (no html-block conversion).
         expect(state.length).toBe(2);
         expect(state.every(block => block.name === 'paragraph')).toBe(true);
         expect(state.some(block => block.name === 'html-block')).toBe(false);
@@ -324,8 +301,6 @@ describe('enter on `|a\\|b|c|` (odd escaped pipe) — NOT converted', () => {
 
         await flush();
         const state = muya.getState();
-        // Odd escaped pipe fails the isLengthEven guard: fell through to
-        // Format.enterHandler, splitting the paragraph (no table conversion).
         expect(state.length).toBe(2);
         expect(state.every(block => block.name === 'paragraph')).toBe(true);
         expect(state.some(block => block.name === 'table')).toBe(false);
@@ -340,5 +315,47 @@ describe('enter on `|a\\|b|c|` (odd escaped pipe) — NOT converted', () => {
         await flush();
         const state = muya.getState();
         expect((state[0] as { text: string }).text).toBe('|a\\|b|c|');
+    });
+});
+
+describe('enter on a tilde fence — converts to a fenced code-block', () => {
+    it('replaces the paragraph with a code-block and records fenceChar === "~"', async () => {
+        const muya = bootMuya('seed\n');
+        const content = contentByText(muya, 'seed');
+
+        enterWithText(muya, content, '~~~js');
+
+        await flush();
+        const state = muya.getState();
+        expect(state.length).toBe(1);
+        expect(state[0].name).toBe('code-block');
+        const meta = (state[0] as { meta: { lang: string; type: string; fenceChar?: string } }).meta;
+        expect(meta.lang).toBe('js');
+        expect(meta.type).toBe('fenced');
+        expect(meta.fenceChar).toBe('~');
+    });
+
+    it('converts a bare `~~~` fence and records fenceChar === "~"', async () => {
+        const muya = bootMuya('seed\n');
+        const content = contentByText(muya, 'seed');
+
+        enterWithText(muya, content, '~~~');
+
+        await flush();
+        const state = muya.getState();
+        expect(state[0].name).toBe('code-block');
+        const meta = (state[0] as { meta: { fenceChar?: string } }).meta;
+        expect(meta.fenceChar).toBe('~');
+    });
+
+    it('records fenceChar === "`" on the backtick path', async () => {
+        const muya = bootMuya('seed\n');
+        const content = contentByText(muya, 'seed');
+
+        enterWithText(muya, content, '```js');
+
+        await flush();
+        const meta = (muya.getState()[0] as { meta: { fenceChar?: string } }).meta;
+        expect(meta.fenceChar).toBe('`');
     });
 });

@@ -7,8 +7,10 @@ import {
   getPASTE,
   getRENAME,
   getDELETE,
+  getCopyPath,
   getShowInFolder
 } from './menuItems'
+import { t } from '../../i18n'
 import { popupContextMenu, type ContextMenuItem } from '../popupMenu'
 
 export const showContextMenu = (
@@ -26,10 +28,10 @@ export const showContextMenu = (
     getRENAME(),
     getDELETE(),
     SEPARATOR,
+    getCopyPath(),
     getShowInFolder()
   ]
 
-  // PASTE entry (index 5) toggles based on the cached source path.
   contextItems[5].enabled = hasPathCache
 
   const items: ContextMenuItem[] = contextItems.map((item) => {
@@ -42,4 +44,23 @@ export const showContextMenu = (
   })
 
   popupContextMenu(items, { x: event.clientX, y: event.clientY })
+}
+
+export const showRootContextMenu = (
+  event: { clientX: number; clientY: number },
+  hasClipboard: boolean,
+  ready: boolean,
+  remove: () => void,
+  retry: () => void
+): void => {
+  const paste = getPASTE()
+  const items: ContextMenuItem[] = ready
+    ? [getNewFile(), getNewDirectory(), { ...paste, enabled: hasClipboard }, SEPARATOR]
+    : [{ label: t('sideBar.tree.retryFolder'), click: retry }, SEPARATOR]
+  items.push(getCopyPath(), getShowInFolder(), SEPARATOR, { label: t('sideBar.tree.removeFolder'), click: remove })
+  popupContextMenu(items.map(item => {
+    if (!item || item.type === 'separator') return item
+    const click = item.click
+    return { ...item, click: click ? () => click(null, null) : undefined }
+  }), { x: event.clientX, y: event.clientY })
 }

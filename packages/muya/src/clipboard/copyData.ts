@@ -6,7 +6,9 @@ import type { ISelection } from '../selection/types';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import type Clipboard from './index';
+import { SelectionDirection } from '../selection/types';
 import StateToMarkdown from '../state/stateToMarkdown';
+import { githubAlertBlockType } from '../utils/githubAlerts';
 import { getClipBoardHtml, getSanitizeClipboardHtml } from '../utils/marked';
 import { CopyType } from './types';
 
@@ -15,9 +17,6 @@ export interface IClipboardPayload {
     text: string;
 }
 
-// Document-order resolution of a cross-block selection: the start/end outmost
-// blocks, the start/end content leaves, and their offsets, ordered so `start`
-// precedes `end` in the document regardless of selection direction.
 interface ICopyOrder {
     anchorBlock: Content;
     focusBlock: Content;
@@ -31,24 +30,31 @@ interface ICopyOrder {
     endOffset: number;
 }
 
+function firstAlertBodyContent(container: Parent) {
+    const first = container.firstContentInDescendant();
+    return first?.blockName === 'language-input' ? first.nextContentInContext() : first;
+}
+
 function buildHtmlOptions(options: Muya['options']) {
     const {
         footnote,
         frontMatter = true,
         texMathDollars,
-        isGitlabCompatibilityEnabled,
+        texMathGfm,
+        texMathSingleBackslash,
+        texMathDoubleBackslash,
         superSubScript,
+        highlightSyntax,
+        inlineDiff,
+        multilineBlockquote,
+        githubAlerts,
     } = options;
 
-    return { footnote, frontMatter, texMathDollars, isGitlabCompatibilityEnabled, superSubScript };
+    return { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote, githubAlerts };
 }
 
-/**
- * Clipboard payload for a frozen cross-cell table selection, or `null` when
- * none is active. A single selected cell with text yields its plain text and
- * no HTML (so a paste lands as literal text, matching legacy
- * `docCopyHandler`); a larger rectangle serialises to GFM table markdown.
- */
+// A single selected cell copies literal text; larger rectangles copy GFM table Markdown.
+// Return null without a frozen table selection.
 function getTableSelectionClipboardData(
     clipboard: Clipboard,
 ): Nullable<IClipboardPayload> {
@@ -68,22 +74,15 @@ function getTableSelectionClipboardData(
     return { html, text };
 }
 
-// Returns `null` when the outmost-block offsets can't be read (e.g. no scroll page).
 function resolveSelectionOrder(
-    clipboard: Clipboard,
     selection: ISelection,
-): Nullable<ICopyOrder> {
+): ICopyOrder {
     const { anchor, focus } = selection;
     const anchorBlock = anchor.block;
     const focusBlock = focus.block;
     const anchorOutMostBlock = anchorBlock.outMostBlock!;
     const focusOutMostBlock = focusBlock.outMostBlock!;
-    const anchorOutMostBlockOffset = clipboard.scrollPage?.offset(anchorOutMostBlock);
-    const focusOutMostBlockOffset = clipboard.scrollPage?.offset(focusOutMostBlock);
-    if (anchorOutMostBlockOffset == null || focusOutMostBlockOffset == null)
-        return null;
-
-    const anchorFirst = anchorOutMostBlockOffset <= focusOutMostBlockOffset;
+    const anchorFirst = selection.direction === SelectionDirection.FORWARD;
 
     return {
         anchorBlock,
@@ -116,11 +115,7 @@ function truncateLeafState(
     return { ...leafState, text } as TState;
 }
 
-// Build the partial state of a container (block-quote and any nested
-// containers) for whichever edge `position` names: keep the sibling blocks on
-// the selected side of the boundary leaf, recurse into the boundary child, and
-// truncate the boundary leaf's own text. Mirrors the legacy DOM-selection
-// serialization, which carried only the selected portion of a quote.
+// Copy only the selected side of a container, including a truncated boundary leaf.
 function buildPartialContainerState(
     container: Parent,
     leaf: Content,
@@ -154,10 +149,7 @@ function buildPartialContainerState(
     return { ...fullState, children: keptChildren } as TState;
 }
 
-// Build the partial state of a container when BOTH selection boundaries stay
-// inside it (e.g. selecting across items of one list, or paragraphs of one
-// block-quote): keep the children between the two boundary leaves, truncate
-// both boundary leaves to the caret, and recurse into nested containers.
+// Copy the selected range within one container, truncating both boundary leaves.
 function buildRangeContainerState(
     container: Parent,
     startLeaf: Content,
@@ -191,8 +183,6 @@ function buildRangeContainerState(
     if (startIdx < 0 || endIdx < 0)
         return fullState;
 
-    // Both boundaries share a child: recurse into it (or truncate it if it is a
-    // leaf block holding text directly).
     if (startIdx === endIdx) {
         const child = childBlocks[startIdx];
         const childFull = childStates[startIdx] as TState & { children?: TState[] };
@@ -222,8 +212,6 @@ function buildRangeContainerState(
     } as TState;
 }
 
-// Handle the start / end outmost block of a cross-block selection, pushing the
-// partial state for whichever edge `position` names.
 function appendPartialState(
     copyState: TState[],
     order: ICopyOrder,
@@ -234,10 +222,15 @@ function appendPartialState(
     const block = position === 'start' ? startBlock : endBlock;
     const offset = position === 'start' ? startOffset : endOffset;
 
-    // A block-quote or list endpoint is partially selected: carry only the
-    // selected side of the container, with the boundary item's own text
-    // truncated to the caret, rather than the whole container/item.
-    if (/block-quote|bullet-list|order-list|task-list/.test(outBlock!.blockName)) {
+    if (outBlock && githubAlertBlockType(outBlock)) {
+        const edge = position === 'start' ? firstAlertBodyContent(outBlock) : outBlock.lastContentInDescendant();
+        if (edge === block && offset === (position === 'start' ? 0 : block.text.length)) {
+            copyState.push(outBlock.getState());
+            return;
+        }
+    }
+
+    if (/github-alert|block-quote|bullet-list|order-list|task-list/.test(outBlock!.blockName)) {
         copyState.push(
             buildPartialContainerState(outBlock as Parent, block, offset, position),
         );
@@ -267,17 +260,13 @@ function appendPartialState(
         return;
     }
 
-    // A table, or a code fence's language line, is copied whole.
     if (outBlock!.blockName === 'table' || block.blockName === 'language-input') {
         copyState.push((outBlock as Parent).getState());
 
         return;
     }
 
-    // Paragraph, atx/setext heading and thematic-break: emit the substring as a
-    // paragraph. An atx heading's `# ` marker lives in the text, so it rides
-    // along when selected (and re-parses to a heading on paste) and is dropped
-    // when the selection starts after it — matching the in-place cut.
+    // ATX markers live in text, so only selected hashes survive copying as a paragraph.
     if (truncated.length === 0)
         return;
 
@@ -296,8 +285,12 @@ function collectSameOutMostBlockState(order: ICopyOrder): TState[] {
         return copyState;
     }
 
-    // List or block-quote: keep only the selected range, with both boundary
-    // items/paragraphs truncated to the caret.
+    if (githubAlertBlockType(anchorOutMostBlock)) {
+        const partial = buildRangeContainerState(anchorOutMostBlock, startBlock, startOffset, endBlock, endOffset);
+        if (partial.name === 'github-alert')
+            return partial.children;
+    }
+
     copyState.push(
         buildRangeContainerState(
             anchorOutMostBlock as Parent,
@@ -319,7 +312,6 @@ function collectCopyState(order: ICopyOrder): TState[] {
 
     const copyState: TState[] = [];
     appendPartialState(copyState, order, 'start');
-    // Get State between the start outmost block and the end outmost block.
     let node: Nullable<TreeNode> = startOutBlock?.next;
     while (node && node !== endOutBlock) {
         copyState.push((node as Parent).getState());
@@ -339,7 +331,6 @@ export function getClipboardData(clipboard: Clipboard): IClipboardPayload {
         };
     }
 
-    // A frozen cross-cell table selection copies just that rectangle.
     const tableData = getTableSelectionClipboardData(clipboard);
     if (tableData != null)
         return tableData;
@@ -356,8 +347,18 @@ export function getClipboardData(clipboard: Clipboard): IClipboardPayload {
         return { html: '', text: '' };
 
     const options = buildHtmlOptions(clipboard.muya.options);
+    const container = anchorBlock.outMostBlock;
+    if (container && container === focusBlock.outMostBlock && githubAlertBlockType(container)) {
+        const first = firstAlertBodyContent(container);
+        const last = container.lastContentInDescendant();
+        const forward = anchorBlock === first && anchor.offset === 0 && focusBlock === last && focus.offset === last.text.length;
+        const backward = focusBlock === first && focus.offset === 0 && anchorBlock === last && anchor.offset === last.text.length;
+        if (forward || backward) {
+            const text = new StateToMarkdown().generate([container.getState()]);
+            return { text, html: getClipBoardHtml(text, options) };
+        }
+    }
 
-    // Handler copy/cut in one block.
     if (isSelectionInSameBlock) {
         const begin = Math.min(anchor.offset, focus.offset);
         const end = Math.max(anchor.offset, focus.offset);
@@ -367,10 +368,7 @@ export function getClipboardData(clipboard: Clipboard): IClipboardPayload {
         return { html: getClipBoardHtml(text, options), text };
     }
 
-    // Handle select multiple blocks.
-    const order = resolveSelectionOrder(clipboard, selection);
-    if (order == null)
-        return { html: '', text: '' };
+    const order = resolveSelectionOrder(selection);
 
     const copyState = collectCopyState(order);
 
@@ -387,8 +385,6 @@ export function writeClipboardData(
     if (!event.clipboardData)
         return;
 
-    // A selected inline image copies its raw `![alt](src)` markdown
-    // verbatim, short-circuiting the text-selection clipboard data.
     const selectedImage = clipboard.muya.editor?.selection?.image;
     if (selectedImage) {
         const { raw } = selectedImage.token;
@@ -403,9 +399,7 @@ export function writeClipboardData(
 
     const { html, text } = clipboard.getClipboardData();
 
-    // Mirror native copy behavior: leave the system clipboard untouched
-    // when the selection has nothing to contribute, so a previous copy
-    // from another app isn't silently clobbered (marktext #3130).
+    // Preserve the system clipboard when there is nothing to copy (#3130).
     switch (copyType) {
         case CopyType.NORMAL: {
             if (text.length === 0)
@@ -429,11 +423,6 @@ export function writeClipboardData(
             break;
         }
 
-        // "Copy as Rich Text": put the rendered HTML in the html slot so a
-        // rich-text target (Word, email, contenteditable) renders formatted
-        // content, and keep the markdown source in the plain slot. Mirrors
-        // the `normal` branch; `copyAsHtml` instead blanks text/html and
-        // drops the markup into text/plain as literal source.
         case CopyType.COPY_AS_RICH: {
             if (text.length === 0)
                 return;

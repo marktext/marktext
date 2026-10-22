@@ -8,7 +8,7 @@
 }
 
 .mu-preview-tools {
-    width: 90px;
+    width: max-content;
     height: 28px;
 }
 

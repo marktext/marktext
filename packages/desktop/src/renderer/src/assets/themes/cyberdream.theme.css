@@ -1,5 +1,4 @@
 :root {
-  /*editor - Cyberdream theme*/
   --themeColor: #5ea1ff;
   --themeColor90: rgba(94, 161, 255, 0.9);
   --themeColor80: rgba(94, 161, 255, 0.8);
@@ -26,6 +25,7 @@
   --iconColor: rgba(255, 255, 255, 0.56);
   --codeBgColor: #1e2124;
   --codeBlockBgColor: #1e2124;
+  --codeBlockColor: #ffffff;
   --footnoteBgColor: rgba(30, 33, 36, 0.3);
   --inputBgColor: #0e1012;
 
@@ -56,7 +56,6 @@
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(24, 26, 31, 0.5), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #1e2124;
 
-  /* Markdown element colors */
   --headingColor: #ffffff;
   --h1Color: #ff6e5e;
   --h2Color: #5ea1ff;
@@ -72,7 +71,6 @@
   --emColor: #bd5eff;
   --listMarkerColor: #5eff6c;
 
-  /*marktext*/
   --sideBarColor: rgba(255, 255, 255, 0.6);
   --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: rgba(255, 255, 255, 0.8);
@@ -89,11 +87,6 @@
   --maskColor: rgba(0, 0, 0, 0.7);
   --editorAreaWidth: 750px;
 
-  /* @muyajs/core (kebab-case) editor variables
-     Additive prep for the muyajs -> @muyajs/core editor swap. These
-     mirror the camelCase vars above; the legacy editor ignores them.
-     Do NOT remove the camelCase vars — they still drive the current
-     editor until editor.vue switches engines. */
   --theme-color: var(--themeColor);
   --highlight-color: var(--highlightColor);
   --selection-color: var(--selectionColor);
@@ -108,6 +101,7 @@
   --delete-color: var(--deleteColor);
   --icon-color: var(--iconColor);
   --code-block-bg-color: var(--codeBlockBgColor);
+  --code-block-color: var(--codeBlockColor);
   --table-border-color: var(--tableBorderColor);
   --input-bg-color: var(--inputBgColor);
   --button-font-color: var(--buttonFontColor);
@@ -146,7 +140,7 @@
   box-shadow: 0 4px 8px 0 var(--floatShadow) !important;
 }
 
-.title-bar .frameless-titlebar-button > div > svg {
+.title-bar .frameless-titlebar-button > span > svg {
   fill: #ffffff;
 }
 .title-bar .frameless-titlebar-minimize:hover,
@@ -195,7 +189,6 @@
   box-shadow: none !important;
 }
 
-/* ------------------------------------ */
 
 :not(pre) > code[class*='language-'],
 pre:not(.CodeMirror-line),

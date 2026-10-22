@@ -3,7 +3,11 @@ import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
 import { sanitize } from '../index';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import footnoteExtension from './extensions/footnote';
-import mathExtension from './extensions/math';
+import githubAlertsExtension from './extensions/githubAlerts';
+import inlineDiffExtension from './extensions/inlineDiff';
+import markExtension from './extensions/mark';
+import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
+import multilineBlockquoteExtension from './extensions/multilineBlockquote';
 import superSubScriptExtension from './extensions/superSubscript';
 import fm, { frontMatterRender } from './frontMatter';
 import { LinearMarked } from './linearMarked';
@@ -12,18 +16,15 @@ import walkTokens from './walkTokens';
 
 export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { footnote, frontMatter, texMathDollars, isGitlabCompatibilityEnabled, superSubScript }
+    const { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote }
         = options;
     let html = '';
 
-    // Use a fresh Marked instance per call to avoid polluting the global
-    // `marked` singleton — `.use({ walkTokens })` chains rather than replaces,
-    // and the global is shared with anything else in the bundle that imports
-    // `marked`.
+    // Use a fresh Marked instance; global use() chains hooks and leaks options across renders.
     const marked = new LinearMarked();
 
     marked.use({
-        walkTokens: walkTokens({ texMathDollars, isGitlabCompatibilityEnabled }),
+        walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
 
     // CJK-as-punctuation emphasis flanking (marktext/marktext#4307); keeps the
@@ -39,8 +40,44 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
         );
     }
 
+    if (texMathGfm) {
+        marked.use(
+            gfmMathExtension({
+                throwOnError: false,
+                useKatexRender: false,
+            }),
+        );
+    }
+
+    if (texMathSingleBackslash) {
+        marked.use(
+            singleBackslashMathExtension({
+                throwOnError: false,
+                useKatexRender: false,
+            }),
+        );
+    }
+
+    if (texMathDoubleBackslash) {
+        marked.use(
+            doubleBackslashMathExtension({
+                throwOnError: false,
+                useKatexRender: false,
+            }),
+        );
+    }
+
     if (superSubScript)
         marked.use(superSubScriptExtension());
+
+    if (highlightSyntax)
+        marked.use(markExtension());
+
+    if (inlineDiff)
+        marked.use(inlineDiffExtension());
+
+    marked.use(multilineBlockquoteExtension(multilineBlockquote === true));
+    marked.use(githubAlertsExtension(options.githubAlerts === true));
 
     if (footnote)
         marked.use(footnoteExtension());

@@ -6,22 +6,10 @@ import { editor, floats } from '../helpers/selectors';
  * TableRowColumMenu (the `.mu-table-bar-tools` row/column operations popup)
  * end-to-end coverage.
  *
- * Trigger contract (source of truth:
- * `packages/core/src/ui/tableDragBar/index.ts`):
- *   - Hovering just OUTSIDE the table — so the cursor sits in no cell but a
- *     cell exists 20px above OR 20px to the left — reveals the drag bar.
- *     `barType` is 'bottom' when a cell is 20px above (cursor below the
- *     table) and 'right' when a cell is 20px to the left (cursor right of
- *     the table).
- *   - A QUICK click on the bar (mousedown + mouseup inside the 300ms drag
- *     arming window) clears the drag timer. ONLY when `barType === 'right'`
- *     does `mouseup` emit `muya-table-bar`, which shows the
- *     `TableRowColumMenu`. A quick click on the BOTTOM bar emits nothing —
- *     no menu opens (the column equivalent is wired through
- *     `TableColumnToolbar`, not this popup).
- *
- * The 'right' menu renders Insert Row Above / Insert Row Below / Remove Row
- * (`packages/core/src/ui/tableRowColumMenu/config.ts::toolList.right`).
+ * Hover outside the table to reveal a row or column handle. A quick click
+ * opens the corresponding operations menu; holding for 300 ms arms a drag.
+ * The popup provides row actions on the right handle and column actions on
+ * the bottom handle.
  */
 
 const TWO_BY_TWO = '| h1 | h2 |\n| --- | --- |\n| a | b |\n';
@@ -151,24 +139,54 @@ test.describe('TableRowColumMenu (row/column bar popup)', () => {
         await expect(menu).not.toContainText('Column');
     });
 
-    test('a quick-click on the BOTTOM bar does NOT open the row/column menu', async ({ page }) => {
+    test('a quick-click on the BOTTOM bar opens the column-operations menu', async ({ page }) => {
         const table = await makeTwoByTwo(page);
         const bar = await revealBottomBar(page, table);
-        await expect.poll(async () => bar.getAttribute('data-drag'), {
-            timeout: 5_000,
-            intervals: [50, 100, 250, 500],
-        }).toBe('bottom');
+        await expect.poll(async () => bar.getAttribute('data-drag')).toBe('bottom');
 
-        // Sanity: the popup is parked (hidden) before we click.
         expect(await wrapperOpacity(page, floats.tableRowColumMenu)).toBe(0);
-
         await quickClickBar(page, bar);
 
-        // `mouseup` emits `muya-table-bar` only for the 'right' bar, so the
-        // bottom bar must leave the popup parked. Give the (absent) emit a
-        // window to land, then assert it never showed.
-        await page.waitForTimeout(400);
-        expect(await wrapperOpacity(page, floats.tableRowColumMenu)).toBe(0);
+        const menu = menuContainer(page);
+        await expectShown(page, floats.tableRowColumMenu);
+        await expect(menu.locator('li.item')).toHaveCount(3);
+        await expect(menu).toContainText('Insert Column Left');
+        await expect(menu).toContainText('Insert Column Right');
+        await expect(menu).toContainText('Remove Column');
+        await expect(menu).not.toContainText('Row');
+        // The base float clips overflow, so each action must fit the wrapper.
+        await expect.poll(async () => menu.evaluate((el) => {
+            const wrapper = el.closest('.mu-float-wrapper') as HTMLElement;
+            return [...el.querySelectorAll('li.item')].every(item =>
+                item.scrollWidth <= wrapper.clientWidth
+            );
+        })).toBe(true);
+
+        // Keep the popup within the viewport and anchored near the clicked handle.
+        const barBox = await bar.boundingBox();
+        const menuBox = await menu.boundingBox();
+        if (!barBox || !menuBox)
+            throw new Error('column handle or menu has no bounding box');
+        const viewport = page.viewportSize()!;
+        expect(menuBox.x).toBeGreaterThanOrEqual(0);
+        expect(menuBox.y).toBeGreaterThanOrEqual(0);
+        expect(menuBox.x + menuBox.width).toBeLessThanOrEqual(viewport.width);
+        expect(menuBox.y + menuBox.height).toBeLessThanOrEqual(viewport.height);
+        expect(menuBox.y).toBeGreaterThanOrEqual(barBox.y + barBox.height - 2);
+    });
+
+    test('Insert Column Right adds a column to the table', async ({ page }) => {
+        const table = await makeTwoByTwo(page);
+        const bar = await revealBottomBar(page, table);
+        await quickClickBar(page, bar);
+
+        const menu = menuContainer(page);
+        await expectShown(page, floats.tableRowColumMenu);
+        await menu.locator('li.item', { hasText: 'Insert Column Right' }).click();
+
+        await expect(table.locator('tr').first().locator('th, td')).toHaveCount(3);
+        await expect(table.locator('tr').last().locator('th, td')).toHaveCount(3);
+        await expect.poll(async () => wrapperOpacity(page, floats.tableRowColumMenu)).toBe(0);
     });
 
     test('Insert Row Below adds a body row to the table', async ({ page }) => {

@@ -1,3 +1,4 @@
+import * as json1 from 'ot-json1';
 // @vitest-environment happy-dom
 
 // Regression for #4806: an identity (`null`) ot-json1 op must never crash
@@ -6,10 +7,10 @@
 // path can surface it through `json-change`. `History` reads `op.length`, so a
 // forwarded `null` threw `Cannot read properties of null (reading 'length')`.
 
-import * as json1 from 'ot-json1';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
 import { asDoc } from '../../state';
+import { ChangeSource } from '../../types';
 
 const bootedHosts: HTMLElement[] = [];
 
@@ -44,7 +45,7 @@ describe('identity (null) op via json-change — #4806', () => {
 
         // `Editor.updateContents` deliberately forwards the identity op to
         // `dispatch`, which emits a `json-change` carrying `op: null`.
-        expect(() => muya.editor.updateContents(null, null, 'user')).not.toThrow();
+        expect(() => muya.editor.updateContents(null, null, ChangeSource.User)).not.toThrow();
 
         expect(muya.getMarkdown().trim()).toBe('hello');
         expect(undoDepth(muya)).toBe(0);

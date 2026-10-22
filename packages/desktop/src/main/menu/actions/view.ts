@@ -64,7 +64,7 @@ export const showTabBar = (win: Win): void => {
 }
 
 export const showTableOfContents = (win: Win): void => {
-  setLayout(win, 'rightColumn', 'toc')
+  toggleLayout(win, 'showToc')
 }
 
 export const toggleTypewriterMode = (win: Win): void => {
@@ -77,9 +77,11 @@ export const reloadImageCache = (win: Win): void => {
   }
 }
 
-// --- Commands -------------------------------------------------------------
 
 export const loadViewCommands = (commandManager: CommandManager): void => {
+  commandManager.add(COMMANDS.VIEW_READ_ONLY_MODE, (win: Win) =>
+    win?.webContents.send('mt::toggle-read-only')
+  )
   commandManager.add(COMMANDS.VIEW_COMMAND_PALETTE, showCommandPalette)
   commandManager.add(COMMANDS.VIEW_FOCUS_MODE, toggleFocusMode)
   commandManager.add(COMMANDS.VIEW_FORCE_RELOAD_IMAGES, reloadImageCache)
@@ -93,15 +95,10 @@ export const loadViewCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.VIEW_TOGGLE_DEV_TOOLS, debugToggleDevTools)
 }
 
-// --- IPC events -------------------------------------------------------------
 
 // NOTE: Don't use static `getMenuItemById` here, instead request the menu by
 //       window id from `AppMenu` manager.
 
-/**
- * @param applicationMenu The application menu instance.
- * @param changes Array of changed view settings (e.g. [ {showSideBar: true} ]).
- */
 export const viewLayoutChanged = (
   applicationMenu: Menu,
   changes: Record<string, unknown>
@@ -118,6 +115,9 @@ export const viewLayoutChanged = (
   for (const key in changes) {
     const value = changes[key]
     switch (key) {
+      case 'showToc':
+        changeMenuByName('tocMenuItem', value)
+        break
       case 'showSideBar':
         changeMenuByName('sideBarMenuItem', value)
         break

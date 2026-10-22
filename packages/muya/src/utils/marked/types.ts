@@ -1,11 +1,19 @@
 import type { MarkedToken, Tokens } from 'marked';
+import type { IGithubAlertToken } from './extensions/githubAlerts';
+import type { IMultilineBlockquoteToken } from './extensions/multilineBlockquote';
 
 export interface ILexOption {
     footnote?: boolean;
     texMathDollars?: boolean;
-    isGitlabCompatibilityEnabled?: boolean;
+    texMathGfm?: boolean;
+    texMathSingleBackslash?: boolean;
+    texMathDoubleBackslash?: boolean;
     frontMatter?: boolean;
     superSubScript?: boolean;
+    highlightSyntax?: boolean;
+    inlineDiff?: boolean;
+    multilineBlockquote?: boolean;
+    githubAlerts?: boolean;
 }
 
 export type Heading = Tokens.Heading & {
@@ -24,9 +32,7 @@ export type ListToken = Tokens.List & {
     items: ListItemToken[];
 };
 
-// Block-level tokens emitted by extensions (footnote, math, frontmatter)
-// plus the synthetic block-end marker `markdownToState` injects to pop the
-// parent stack when descending into block-quote / list / list-item / footnote.
+// Extension tokens and synthetic block-end markers widen marked’s token shapes.
 export interface IFootnoteToken {
     type: 'footnote';
     raw: string;
@@ -39,7 +45,7 @@ export interface IMultipleMathToken {
     raw: string;
     text: string;
     displayMode: boolean;
-    mathStyle: '' | 'gitlab';
+    mathStyle: '' | 'gfm';
 }
 
 export interface IFrontmatterToken {
@@ -52,16 +58,10 @@ export interface IFrontmatterToken {
 
 export interface IBlockEndToken {
     type: 'block-end';
-    tokenType: 'blockquote' | 'list' | 'list-item' | 'footnote';
+    tokenType: 'githubAlert' | 'blockquote' | 'multilineBlockquote' | 'list' | 'list-item' | 'footnote';
 }
 
-// Tokens the lexer (lexBlock) emits. Replace marked's default
-// heading/list/list-item with their muya-extended counterparts so the
-// switch in `markdownToState` narrows to the extension fields directly.
-// We use `MarkedToken` (the discriminated union) rather than `Token`
-// (= MarkedToken | Tokens.Generic) so cases like `'table'` narrow cleanly
-// to `Tokens.Table` instead of `Tokens.Table | Tokens.Generic` — the
-// latter would poison field access with the Generic's `[index: string]: any`.
+// Replace default heading/list/item variants so consumers can narrow to Muya extension fields.
 export type TLexedToken
     = | Exclude<MarkedToken, Tokens.Heading | Tokens.List | Tokens.ListItem>
         | Heading
@@ -69,8 +69,8 @@ export type TLexedToken
         | ListItemToken
         | IFootnoteToken
         | IMultipleMathToken
-        | IFrontmatterToken;
+        | IFrontmatterToken
+        | IMultilineBlockquoteToken
+        | IGithubAlertToken;
 
-// The working token stream `markdownToState` walks: lexer output plus the
-// synthetic `block-end` markers it injects to pop the parent stack.
 export type TBlockToken = TLexedToken | IBlockEndToken;

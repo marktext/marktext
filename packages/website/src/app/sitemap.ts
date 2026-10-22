@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.9
     },
+    { url: SITE + '/sponsors', lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     ...ALL_PAGES.map((page) => ({
       url: SITE + page.href,
       lastModified: now,

@@ -203,7 +203,6 @@ test.describe('Find bar — find next / previous navigation (items 152, 181)', (
     await sendIpcToRenderer(app, 'mt::editor-edit-action', 'findNext')
     await expect.poll(() => counterText(page)).toContain('3 / 3')
 
-    // Wrap around: 3/3 -> 1/3.
     await sendIpcToRenderer(app, 'mt::editor-edit-action', 'findNext')
     await expect.poll(() => counterText(page)).toContain('1 / 3')
     await expect.poll(() => page.locator('.mu-highlight').count()).toBe(1)
@@ -241,14 +240,12 @@ test.describe('Find bar — option toggles re-run the search (items 185, 186, 18
     await seedDocClean(app, page, 'Apple and apple are different.\n')
     await openFind(app, page)
     await page.locator(FIND_INPUT).fill('apple')
-    // Case-insensitive default matches both "Apple" and "apple".
     await expect.poll(() => counterText(page)).toContain('/ 2')
 
     const toggle = page.locator('.search-bar .is-case-sensitive')
     await expect(toggle).not.toHaveClass(/active/)
     await toggle.click()
     await expect(toggle).toHaveClass(/active/)
-    // Case-sensitive now matches only the lowercase "apple".
     await expect.poll(() => counterText(page)).toContain('/ 1')
 
     // Reset the toggle for subsequent tests in this shared app.
@@ -261,14 +258,12 @@ test.describe('Find bar — option toggles re-run the search (items 185, 186, 18
     await seedDocClean(app, page, 'a cat in a category\n')
     await openFind(app, page)
     await page.locator(FIND_INPUT).fill('cat')
-    // Substring matches both the standalone "cat" and the "cat" in "category".
     await expect.poll(() => counterText(page)).toContain('/ 2')
 
     const toggle = page.locator('.search-bar .is-whole-word')
     await expect(toggle).not.toHaveClass(/active/)
     await toggle.click()
     await expect(toggle).toHaveClass(/active/)
-    // Whole-word leaves only the standalone "cat".
     await expect.poll(() => counterText(page)).toContain('/ 1')
 
     await toggle.click()
@@ -292,29 +287,22 @@ test.describe('Find bar — option toggles re-run the search (items 185, 186, 18
     // prior valid match would otherwise linger — that is intentional product
     // behavior, not a bug.)
 
-    // (1) Invalid pattern: unbalanced paren -> "Invalid regular expression"
-    // error and no search runs (no highlights).
     await page.locator(FIND_INPUT).fill('(')
     await expect(errorMsg).toBeVisible({ timeout: 5000 })
     await expect(errorMsg).toContainText('Invalid regular expression')
     await expect.poll(() => page.locator('.mu-highlight').count()).toBe(0)
 
-    // (2) Empty-match pattern: "a*" matches the empty string -> dedicated error,
-    // still no search.
     await page.locator(FIND_INPUT).fill('a*')
     await expect(errorMsg).toBeVisible({ timeout: 5000 })
     await expect(errorMsg).toContainText('Regular expression matches empty string')
     await expect.poll(() => page.locator('.mu-highlight').count()).toBe(0)
 
-    // (3) Valid pattern: matches "apple" and "apricot"; the error clears and the
-    // search runs (one active highlight + one inactive selection).
     await page.locator(FIND_INPUT).fill('ap(ple|ricot)')
     await expect.poll(() => counterText(page)).toContain('/ 2')
     await expect.poll(() => page.locator('.mu-highlight').count()).toBe(1)
     await expect.poll(() => page.locator('.mu-selection').count()).toBe(1)
     await expect(errorMsg).toHaveCount(0)
 
-    // Reset regex toggle + bar for any later tests in this app.
     await page.locator(FIND_INPUT).fill('')
     await regexToggle.click()
     await expect(regexToggle).not.toHaveClass(/active/)
@@ -374,7 +362,6 @@ test.describe('Find bar — replace single / all dirty the tab (items 153, 183, 
       .toEqual({ dog: 3, cat: 0 })
     await expect.poll(() => isTabDirty(page)).toBe(true)
 
-    // Searching the old word now reports zero matches.
     await page.locator(FIND_INPUT).fill('cat')
     await expect.poll(() => counterText(page)).toContain('/ 0')
     await closeAndReset(page)
@@ -395,15 +382,12 @@ test.describe('Find bar — replace single / all dirty the tab (items 153, 183, 
         return { omega: countOccurrences(text, 'omega'), alpha: countOccurrences(text, 'alpha') }
       })
       .toEqual({ omega: 3, alpha: 0 })
-    // The replace-all dirtied the tab (#4431 saved-indicator wiring).
     await expect.poll(() => isTabDirty(page)).toBe(true)
 
     // Close the bar before undoing so the engine cursor is back in the document
     // (the find bar holds focus while open) and the undo applies cleanly.
     await closeAndReset(page)
 
-    // Undo reverts the content AND clears the unsaved indicator (back to the
-    // seeded-clean baseline content + history id).
     await undo(app)
     await expect
       .poll(async() => {
@@ -466,13 +450,22 @@ test.describe('Find bar — Escape clears highlights and restores the cursor (it
   test('Escape after a query clears every highlight and selects the active match', async() => {
     await openFind(app, page)
     await page.locator(FIND_INPUT).fill('needleAlpha')
+    // The bar seeds the query from the editor selection, and that seeded query
+    // can itself yield a single match, so the counter alone does not prove the
+    // typed query was applied. Wait for the highlight to be the typed one
+    // before Escape, otherwise the cursor is restored onto the seeded match.
+    await expect
+      .poll(async() => {
+        const highlights = page.locator('.mu-highlight')
+        return (await highlights.count()) === 1 ? highlights.first().innerText() : ''
+      })
+      .toBe('needleAlpha')
     await expect.poll(() => counterText(page)).toContain('1 / 1')
     await expect.poll(() => page.locator('.mu-highlight').count()).toBe(1)
 
     await page.keyboard.press('Escape')
     await expect(page.locator(SEARCH_BAR)).toBeHidden({ timeout: 5000 })
 
-    // (a) Highlights and selections are fully torn down.
     await expect.poll(() => page.locator('.mu-highlight').count()).toBe(0)
     await expect.poll(() => page.locator('.mu-selection').count()).toBe(0)
 

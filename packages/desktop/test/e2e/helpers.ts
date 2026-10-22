@@ -61,6 +61,9 @@ export interface LaunchOptions {
   suppressErrorDialog?: boolean
   // Variables that override the inherited environment of the app process.
   env?: Record<string, string>
+  // Preferences seeded into the throwaway user data directory before launch.
+  // Preference.init() fills in every key that is left out.
+  preferences?: Record<string, unknown>
 }
 
 export const launchElectron = async(
@@ -72,6 +75,14 @@ export const launchElectron = async(
   // Pass project root as entry so Electron reads package.json and getAppPath() returns project root.
   // Passing out/main/index.js directly bypasses package.json and breaks __static path resolution.
   const userDataDir = trackTempDir(getTempPath())
+  if (options.preferences) {
+    fs.mkdirSync(userDataDir, { recursive: true })
+    fs.writeFileSync(
+      path.join(userDataDir, 'preferences.json'),
+      JSON.stringify(options.preferences, null, 2),
+      'utf-8'
+    )
+  }
   const args = [projectRoot, '--user-data-dir', userDataDir].concat(userArgs)
   const env: Record<string, string> = {}
   for (const [k, v] of Object.entries(process.env)) if (v !== undefined) env[k] = v
@@ -208,6 +219,42 @@ export const waitForEditor = async(page: Page, timeout = 15000): Promise<void> =
     null,
     { timeout }
   )
+}
+
+/**
+ * Opens `root` as the project folder of the running window and waits until
+ * `marker` (a markdown file inside `root`) appears in the tree.
+ *
+ * A launch argument cannot be used: the launcher passes the app path first, so
+ * a second directory would open a second window. This uses the same internal
+ * channel as the side bar's "Open Folder" dialog, which starts the watcher.
+ */
+export const openProjectFolder = async(
+  app: ElectronApplication,
+  page: Page,
+  root: string,
+  marker: string,
+  timeout = 20000
+): Promise<void> => {
+  await app.evaluate(({ BrowserWindow, ipcMain }, target) => {
+    const win = BrowserWindow.getAllWindows()[0]
+    if (!win) throw new Error('no editor window')
+    ipcMain.emit('app-open-directory-by-id', win.id, target, true)
+  }, root)
+  await page.waitForSelector(`.tree-wrapper .side-bar-file[title="${marker}"]`, { timeout })
+}
+
+export const toggleReadingMode = async(page: Page): Promise<void> => {
+  await page.locator('.document-statistics-trigger').hover()
+  const panel = page.locator('.document-statistics-popover')
+  const toggle = panel.getByRole('switch')
+  await expect(panel).toBeVisible()
+  const checked = await toggle.getAttribute('aria-checked')
+  await panel.locator('.document-statistics__mode-switch').click()
+  await expect(toggle).toHaveAttribute('aria-checked', checked === 'true' ? 'false' : 'true')
+  await page.keyboard.press('Escape')
+  await page.mouse.move(2, 200)
+  await expect(panel).toBeHidden()
 }
 
 export const enterSourceMode = async(page: Page, app: ElectronApplication): Promise<void> => {
@@ -366,4 +413,12 @@ export const sendIpcToRenderer = async(
     },
     { channel, args }
   )
+}
+
+export const makeRoomForOutline = async(app: ElectronApplication, page: Page): Promise<void> => {
+  const window = await app.browserWindow(page)
+  await window.evaluate(window => {
+    const [, height] = window.getContentSize()
+    window.setContentSize(1600, height)
+  })
 }

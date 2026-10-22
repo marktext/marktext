@@ -9,13 +9,15 @@
 import { contextBridge, ipcRenderer, webFrame, webUtils } from 'electron'
 import type { IpcRendererEvent } from 'electron'
 import pathe from 'pathe'
+import { createPlatformPath } from 'common/filesystem/platformPath'
 
 import type {
   IpcInvokeChannels,
   IpcSendChannels,
   IpcSyncChannels,
   IpcMainEventChannels,
-  BootInfo
+  BootInfo,
+  SaveDialogRequest
 } from '@shared/types/ipc'
 
 type RendererEventListener<K extends keyof IpcMainEventChannels> = (
@@ -74,9 +76,10 @@ const shellAPI = {
 }
 
 const clipboardAPI = {
-  writeText: (text: string) => send('mt::clipboard::write-text', text),
+  writeText: (text: string) => invoke('mt::clipboard::write-text', text),
   readText: () => invoke('mt::clipboard::read-text'),
-  guessFilePath: () => invoke('mt::clipboard::guess-file-path')
+  guessFilePath: () => invoke('mt::clipboard::guess-file-path'),
+  writeImage: (png: Uint8Array) => invoke('mt::clipboard::write-image', png)
 }
 
 const webFrameAPI = {
@@ -108,10 +111,7 @@ const windowControlAPI = {
     send('mt::menu::popup-application', position)
 }
 
-// These three predicates are pure path-string operations: implementing them
-// in the preload keeps them synchronous so existing call sites like
-// `tabs.find(t => isSamePathSync(t.pathname, ...))` keep returning the right
-// item instead of a truthy Promise.
+// Keep pure path predicates synchronous for tab matching without filesystem IPC.
 const MARKDOWN_EXTENSIONS = [
   'markdown',
   'mdown',
@@ -172,7 +172,6 @@ const fileUtilsAPI = {
   unlink: (p: string) => invoke('mt::fs::unlink', p),
   readdir: (p: string) => invoke('mt::fs::readdir', p),
   isExecutable: (p: string) => invoke('mt::fs::is-executable', p),
-  // Pure-string predicates — synchronous, no IPC for the common case.
   isChildOfDirectory,
   hasMarkdownExtension,
   isSamePathSync,
@@ -228,10 +227,20 @@ const fontsAPI = {
   list: () => invoke('mt::fonts::list')
 }
 
+const dialogAPI = {
+  showSave: (request: SaveDialogRequest) => invoke('mt::dialog::show-save', request)
+}
+
+const diagramAPI = {
+  fetchPlantuml: (server: string, encoded: string, format: 'svg' | 'png') =>
+    invoke('mt::diagram::fetch-plantuml', server, encoded, format)
+}
+
 const electronAPI = {
   ipcRenderer: ipcWrapper,
   shell: shellAPI,
   clipboard: clipboardAPI,
+  fetchLinkHtml: (url: string) => invoke('mt::link::fetch-html', url),
   webFrame: webFrameAPI,
   webUtils: webUtilsAPI,
   process: {
@@ -244,30 +253,16 @@ const electronAPI = {
   },
   paths: bootInfo?.paths || {},
   isUpdatable: !!bootInfo?.isUpdatable,
-  windowControl: windowControlAPI
+  windowControl: windowControlAPI,
+  dialog: dialogAPI
 }
 
-// Expose a Node-`path`-compatible API to the renderer. `pathe` is a
-// cross-platform reimplementation that always uses `/` separators and works
-// inside a sandboxed renderer.
-const pathAPI = {
-  basename: (...args: Parameters<typeof pathe.basename>) => pathe.basename(...args),
-  dirname: (...args: Parameters<typeof pathe.dirname>) => pathe.dirname(...args),
-  extname: (...args: Parameters<typeof pathe.extname>) => pathe.extname(...args),
-  join: (...args: string[]) => pathe.join(...args),
-  resolve: (...args: string[]) => pathe.resolve(...args),
-  relative: (...args: Parameters<typeof pathe.relative>) => pathe.relative(...args),
-  isAbsolute: (...args: Parameters<typeof pathe.isAbsolute>) => pathe.isAbsolute(...args),
-  normalize: (...args: Parameters<typeof pathe.normalize>) => pathe.normalize(...args),
-  parse: (...args: Parameters<typeof pathe.parse>) => pathe.parse(...args),
-  format: (...args: Parameters<typeof pathe.format>) => pathe.format(...args),
-  sep: pathe.sep,
-  delimiter: pathe.delimiter
-  // Note: `pathe.posix` / `pathe.win32` are intentionally not exposed.
-  // Each contains a self-reference (`pathe.posix.posix === pathe.posix`),
-  // which breaks structured cloning inside `contextBridge.exposeInMainWorld`.
-  // No code in this repo reads `window.path.posix` / `window.path.win32`.
-}
+// The sandboxed renderer cannot load node's `path`, so the bridge supplies a
+// platform-correct one (POSIX-only `pathe` would make the renderer build `/`
+// paths while the watcher/main/OS use `\` on Windows, #5683).
+// `pathe.posix` / `pathe.win32` stay unexposed: each self-references
+// (`pathe.posix.posix === pathe.posix`), which breaks `contextBridge` cloning.
+const pathAPI = createPlatformPath((bootInfo?.platform || process.platform) === 'win32')
 
 // Bundled third-party packages occasionally read `process.platform` at module
 // load time (e.g. @hfelix/electron-localshortcut/src/utils.js). Expose a
@@ -280,7 +275,6 @@ const processShim = {
   env: bootInfo?.env || {},
   resourcesPath: bootInfo?.paths?.resources,
   cwd: () => bootInfo?.paths?.cwd,
-  // Some libraries call `process.nextTick`; map it to the microtask queue.
   nextTick: (fn: (...args: unknown[]) => void, ...args: unknown[]) =>
     Promise.resolve().then(() => fn(...args))
 }
@@ -296,6 +290,7 @@ try {
   contextBridge.exposeInMainWorld('ripgrep', ripgrepAPI)
   contextBridge.exposeInMainWorld('uploader', uploaderAPI)
   contextBridge.exposeInMainWorld('fonts', fontsAPI)
+  contextBridge.exposeInMainWorld('diagram', diagramAPI)
 } catch (error) {
   console.error(error)
 }

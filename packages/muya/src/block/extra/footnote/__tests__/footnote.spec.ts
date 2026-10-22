@@ -7,12 +7,11 @@ import { CLASS_NAMES } from '../../../../config';
 import { MarkdownToState } from '../../../../state/markdownToState';
 import ExportMarkdown from '../../../../state/stateToMarkdown';
 import { isFootnoteBlockState } from '../../../../state/types';
+import { ChangeSource } from '../../../../types';
+import Parent from '../../../base/parent';
 import { registerBlocks } from '../../../index';
 import { ScrollPage } from '../../../scrollPage';
 
-// Register the block tree once for the suite. registerBlocks() is idempotent:
-// `ScrollPage.registeredBlocks` is a Map keyed by stable `blockName` strings,
-// so subsequent imports of this file or its sibling specs reuse the same map.
 registerBlocks();
 
 // Footnote.create() walks down through `ScrollPage.loadBlock(child.name)`
@@ -22,6 +21,7 @@ registerBlocks();
 // getState() without booting a real editor.
 function makeFakeMuya(): Muya {
     return {
+        canMutate: true,
         i18n: { t: (s: string) => s },
         options: {
             autoPairBracket: false,
@@ -68,23 +68,19 @@ describe('footnote block — class API', () => {
         block.meta.identifier = 'renamed';
         const next = block.getState();
         expect(next.meta.identifier).toBe('renamed');
-        // children stay intact when only meta changes.
         expect(next.children).toEqual(baseState.children);
     });
 
     it('remove("api") detaches the block DOM and clears its parent link', () => {
         const muya = makeFakeMuya();
         const block = Footnote.create(muya, baseState);
-        const parentDom = document.createElement('div');
-        parentDom.appendChild(block.domNode!);
-        // Plug into a minimal fake Parent so remove('api') walks the tree
-        // without dispatching ot-json1 operations against a real editor.
-        block.parent = {
-            children: { remove: () => {} },
-            domNode: parentDom,
-        } as never;
+        const parent = new Parent(muya);
+        parent.tagName = 'div';
+        parent.createDomNode();
+        parent.append(block);
+        const parentDom = parent.domNode!;
 
-        block.remove('api');
+        block.remove(ChangeSource.Api);
 
         expect(parentDom.contains(block.domNode!)).toBe(false);
         expect(block.parent).toBeNull();
@@ -116,7 +112,9 @@ describe('footnote block — markdown round-trip via state', () => {
         const states = new MarkdownToState({
             footnote: true,
             texMathDollars: false,
-            isGitlabCompatibilityEnabled: false,
+            texMathGfm: false,
+            texMathSingleBackslash: false,
+            texMathDoubleBackslash: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate(md);
@@ -146,7 +144,9 @@ describe('footnote block — markdown round-trip via state', () => {
         const states = new MarkdownToState({
             footnote: true,
             texMathDollars: false,
-            isGitlabCompatibilityEnabled: false,
+            texMathGfm: false,
+            texMathSingleBackslash: false,
+            texMathDoubleBackslash: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate(md);
@@ -156,7 +156,6 @@ describe('footnote block — markdown round-trip via state', () => {
         expect(footnote, 'footnote state should be present').toBeDefined();
         expect(footnote!.meta.identifier).toBe('n');
         expect(footnote!.children.length).toBeGreaterThan(0);
-        // The first child of the footnote must be a list, not the next paragraph.
         expect(footnote!.children[0].name).toBe('bullet-list');
     });
 });

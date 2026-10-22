@@ -8,6 +8,10 @@ export interface ISearchOption {
     highlightIndex?: number;
 }
 
+export interface IReplaceOption extends ISearchOption {
+    isSingle?: boolean;
+}
+
 export interface IMatch {
     start: number;
     end: number;

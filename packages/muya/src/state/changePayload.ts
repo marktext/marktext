@@ -1,19 +1,20 @@
 import type { JSONOp } from 'ot-json1';
+import type { ChangeSource } from '../types';
 import type { TState } from './types';
 import { deepClone } from '../utils';
 
 export interface IJSONChangePayload {
     op: JSONOp;
-    source: string;
+    source: ChangeSource;
     prevDoc: TState[];
     doc: TState[];
 }
 
 // Internal History reads the pre-apply root without exposing shared subtrees
-// to public listeners. Neither this map nor the lazy getters retain Muya.
+// to public listeners.
 const previousRoots = new WeakMap<object, TState[]>();
 
-export function createChangePayload(op: JSONOp, source: string, before: TState[], after: TState[]): IJSONChangePayload {
+export function createChangePayload(op: JSONOp, source: ChangeSource, before: TState[], after: TState[]): IJSONChangePayload {
     let prevDoc: TState[] | undefined;
     let doc: TState[] | undefined;
     const payload = {

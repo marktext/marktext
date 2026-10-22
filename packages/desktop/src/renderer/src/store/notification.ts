@@ -17,14 +17,16 @@ export const useNotificationStore = defineStore('notification', () => {
     })
 
     window.electron.ipcRenderer.on('mt::pandoc-not-exists', async(_e, opts) => {
-      // Preserve the custom title/message from main (e.g. dialog.importWarning
-      // / dialog.installPandoc); previously the opts arg was dropped and the
-      // user saw the generic defaultTitle/defaultMessage.
+      // Preserve custom notification titles and messages from main.
       const options: NotifyOptions = Object.assign({ ...DEFAULT_OPTS }, opts as Partial<NotifyOptions>, {
         showConfirm: true
       })
-      await notice.notify(options)
-      window.electron.shell.openExternal('http://pandoc.org')
+      // Dismissing the notice rejects; only the confirm button means "yes".
+      const confirmed = await notice
+        .notify(options)
+        .then(() => true)
+        .catch(() => false)
+      if (confirmed) window.electron.shell.openExternal('http://pandoc.org')
     })
   }
 

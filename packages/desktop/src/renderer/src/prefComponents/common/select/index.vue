@@ -9,15 +9,23 @@
       style="display: flex; align-items: center"
     >
       <span>{{ description }}:</span>
-      <LinkIcon
+      <icon-tooltip
         v-if="more"
-        :size="14"
-        class="link-icon"
-        @click="handleMoreClick"
-      />
+        :content="t('preferences.learnMore', { name: description })"
+      >
+        <button
+          type="button"
+          class="plain-button"
+          :aria-label="t('preferences.learnMore', { name: description })"
+          @click="handleMoreClick"
+        >
+          <LinkIcon :size="14" />
+        </button>
+      </icon-tooltip>
     </div>
     <el-select
       v-model="selectValue"
+      :aria-label="description || ariaLabel"
       :disabled="disable"
       @change="select"
     >
@@ -39,12 +47,18 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import type { PrefControlBaseProps, PrefSelectOption } from '../types'
+
+const { t } = useI18n()
 
 type SelectValue = string | number | boolean
 
 interface SelectProps extends PrefControlBaseProps {
+  /** Names the select for assistive tech when there is no visible description. */
+  ariaLabel?: string
   notes?: string
   value: SelectValue
   options: ReadonlyArray<PrefSelectOption<SelectValue>>
@@ -120,7 +134,7 @@ li.el-select-dropdown__item {
   color: var(--editorColor);
   height: 30px;
 }
-li.el-select-dropdown__item.hover,
+li.el-select-dropdown__item.is-hovering,
 li.el-select-dropdown__item:hover {
   background: var(--floatHoverColor);
 }

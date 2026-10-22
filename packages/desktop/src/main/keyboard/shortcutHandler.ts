@@ -22,10 +22,6 @@ class Keybindings {
   userKeybindings: Map<string, string>
   keys: Map<string, string>
 
-  /**
-   * @param commandManager The command manager instance.
-   * @param appEnvironment The application environment instance.
-   */
   constructor(commandManager: CommandManager, appEnvironment: AppEnvironment) {
     const { userDataPath } = appEnvironment.paths
     this.configPath = path.join(userDataPath, 'keybindings.json')
@@ -45,7 +41,6 @@ class Keybindings {
       }
     }
 
-    // Load user-defined keybindings
     this._loadLocalKeybindings()
   }
 
@@ -68,7 +63,7 @@ class Keybindings {
     // the event so the native menu is not triggered.
     electronLocalshortcut.register(win, accelerator, () => {
       callback(win)
-      return true // prevent default action
+      return true
     })
   }
 
@@ -103,11 +98,6 @@ class Keybindings {
     return keybindingsWindows
   }
 
-  /**
-   * Returns all user key bindings.
-   *
-   * @returns User key bindings.
-   */
   getUserKeybindings(): Map<string, string> {
     return this.userKeybindings
   }
@@ -151,14 +141,12 @@ class Keybindings {
     }
   }
 
-  // --- private --------------------------------
 
   _prepareKeyMapper(): void {
     // Update the key mapper to prevent problems on non-US keyboards.
     const { layout, keymap } = getKeyboardInfo()
     electronLocalshortcut.setKeyboardLayout(layout, keymap)
 
-    // Notify key mapper when the keyboard layout was changed.
     keyboardLayoutMonitor.addListener(({ layout, keymap }: KeyboardInfo) => {
       const globalDebug = (globalThis as typeof globalThis & { MARKTEXT_DEBUG?: boolean })
         .MARKTEXT_DEBUG
@@ -205,7 +193,6 @@ class Keybindings {
         const value = rawUserKeybindings[key]
         if (typeof value === 'string') {
           if (value.length === 0) {
-            // Unset key
             userAccelerators.set(key, '')
           } else if (isValidElectronAccelerator(value)) {
             userAccelerators.set(key, value)
@@ -216,7 +203,6 @@ class Keybindings {
       }
     }
 
-    // Check for duplicate user shortcuts
     for (const [keyA, valueA] of userAccelerators) {
       for (const [keyB, valueB] of userAccelerators) {
         if (valueA !== '' && keyA !== keyB && isEqualAccelerator(valueA, valueB)) {
@@ -232,10 +218,8 @@ class Keybindings {
       return
     }
 
-    // Deep clone shortcuts
     const accelerators = new Map(this.keys)
 
-    // Check for duplicate shortcuts
     for (const [userKey, userValue] of userAccelerators) {
       // Only search for conflicts when the user actually bound a key. Empty means "unbound"
       // and would incorrectly match any other default-empty entry via isEqualAccelerator.
@@ -245,15 +229,12 @@ class Keybindings {
           // proper settings. Keep this for now, but add the ID to the users key binding that we show the
           // right bindings in settings.
           if (isEqualAccelerator(value, userValue)) {
-            // Unset default key
             accelerators.set(key, '')
 
-            // This entry is actually unset because the user used the accelerator.
             if (userAccelerators.get(key) == null) {
               userAccelerators.set(key, '')
             }
 
-            // A accelerator should only exist once in the default map.
             break
           }
         }
@@ -261,10 +242,8 @@ class Keybindings {
       accelerators.set(userKey, userValue)
     }
 
-    // Update key bindings
     this.keys = accelerators
 
-    // Save user keybindings for settings
     this.userKeybindings = userAccelerators
   }
 

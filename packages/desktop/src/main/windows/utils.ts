@@ -56,11 +56,10 @@ export const ensureWindowPosition = (
   const screenArea = isLinux ? bounds : workArea
 
   let { x, y, width, height } = windowState
-  let center = false
+  let center: boolean
   if (x === undefined || y === undefined) {
     center = true
 
-    // First app start; check whether window size is larger than screen size
     if (screenArea.width < width) width = screenArea.width
     if (screenArea.height < height) height = screenArea.height
   } else {

@@ -5,13 +5,14 @@ import { isOsx } from '../../config'
 import { t } from '../../i18n'
 import type Keybindings from '../../keyboard/shortcutHandler'
 import type Preference from '../../preferences'
+import { PANDOC_EXPORT_FORMATS } from '../../utils/pandoc'
 
 export default function(
   keybindings: Keybindings,
   userPreference: Preference,
   recentlyUsedFiles: string[]
 ): MenuItemConstructorOptions {
-  const { autoSave } = userPreference.getAll() as { autoSave?: boolean }
+  const { autoSave, showPandocConvert } = userPreference.getAll()
   const submenu: MenuItemConstructorOptions[] = [
     {
       label: t('menu.file.newTab'),
@@ -42,6 +43,12 @@ export default function(
       accelerator: keybindings.getAccelerator('file.open-folder') ?? undefined,
       click(_menuItem, browserWindow) {
         actions.openFolder((browserWindow as BrowserWindow | undefined) ?? null)
+      }
+    },
+    {
+      label: t('menu.file.addFolder'),
+      click(_menuItem, browserWindow) {
+        actions.addFolder(browserWindow as BrowserWindow | undefined)
       }
     }
   ]
@@ -88,11 +95,14 @@ export default function(
       // Electron accepts these MenuItem roles. The types stub camelCase
       // ('recentDocuments' / 'clearRecentDocuments') in recent versions; the JS
       // original used lowercase. Cast to satisfy strict role typing while
-      // preserving the original runtime string.
+      // preserving the original runtime string. The labels must be explicit:
+      // roles otherwise use Electron's English defaults, bypassing the app locale.
       role: 'recentdocuments' as unknown as MenuItemConstructorOptions['role'],
+      label: t('menu.file.openRecent'),
       submenu: [
         {
-          role: 'clearrecentdocuments' as unknown as MenuItemConstructorOptions['role']
+          role: 'clearrecentdocuments' as unknown as MenuItemConstructorOptions['role'],
+          label: t('menu.file.clearRecentlyUsed')
         }
       ]
     })
@@ -103,6 +113,7 @@ export default function(
       type: 'separator'
     },
     {
+      id: 'fileSaveMenuItem',
       label: t('menu.file.save'),
       accelerator: keybindings.getAccelerator('file.save') ?? undefined,
       click(_menuItem, browserWindow) {
@@ -110,6 +121,7 @@ export default function(
       }
     },
     {
+      id: 'fileSaveAsMenuItem',
       label: t('menu.file.saveAs'),
       accelerator: keybindings.getAccelerator('file.save-as') ?? undefined,
       click(_menuItem, browserWindow) {
@@ -168,6 +180,16 @@ export default function(
           }
         }
       ]
+    },
+    {
+      label: t('menu.file.convertWithPandoc'),
+      visible: !!showPandocConvert,
+      submenu: PANDOC_EXPORT_FORMATS.map((format) => ({
+        label: format.label,
+        click(_menuItem, browserWindow) {
+          actions.exportWithPandoc(browserWindow as BrowserWindow | undefined, format.id)
+        }
+      }))
     },
     {
       label: t('menu.file.print'),

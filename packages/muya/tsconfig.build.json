@@ -1,0 +1,19 @@
+{
+    // Declaration-only build, for consumers that need the typings without the
+    // bundle (see the desktop package's `typecheck` script). `pnpm build`
+    // emits into the same directory through vite-plugin-dts.
+    //
+    // Deliberately NOT `incremental`: with a build-info cache, checking out a
+    // branch whose sources differ can leave `lib/types` stale while tsc exits
+    // 0 without re-emitting, so the desktop then type-checks against
+    // declarations that do not match the source. The full emit is ~1.6s.
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "noEmit": false,
+        "emitDeclarationOnly": true,
+        "declaration": true
+    },
+    // The specs are type-checked by `lint:types`; emitting declarations for
+    // them only pads the output (and `files: ["lib"]` would publish them).
+    "exclude": ["src/**/__tests__/**"]
+}

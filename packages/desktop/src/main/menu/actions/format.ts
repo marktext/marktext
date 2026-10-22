@@ -72,7 +72,6 @@ export const underline = (win: Win): void => {
   format(win, 'u')
 }
 
-// --- Commands -------------------------------------------------------------
 
 export const loadFormatCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.FORMAT_CLEAR_FORMAT, clearFormat)
@@ -89,22 +88,15 @@ export const loadFormatCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.FORMAT_UNDERLINE, underline)
 }
 
-// --- IPC events -------------------------------------------------------------
 
 // NOTE: Don't use static `getMenuItemById` here, instead request the menu by
 //       window id from `AppMenu` manager.
 
-/**
- * Update format menu entires from given state.
- *
- * @param applicationMenu The application menu instance.
- * @param formats A object map with selected formats.
- */
 export const updateFormatMenu = (applicationMenu: Menu, formats: Record<string, boolean>): void => {
   const formatMenuItem: MenuItem = applicationMenu.getMenuItemById('formatMenuItem')!
   formatMenuItem.submenu!.items.forEach((item: MenuItem) => (item.checked = false))
   formatMenuItem.submenu!.items.forEach((item: MenuItem) => {
-    if (item.id && formats[MENU_ID_FORMAT_MAP[item.id]!]) {
+    if (item.id && formats[MENU_ID_FORMAT_MAP[item.id]]) {
       item.checked = true
     }
   })

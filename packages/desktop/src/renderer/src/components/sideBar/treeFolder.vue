@@ -3,7 +3,7 @@
     <div
       ref="folderEl"
       class="folder-name"
-      :style="{ 'padding-left': `${depth * 6 + 10}px` }"
+      :style="{ 'padding-left': `${depth * 6 + 15}px` }"
       :class="[{ active: folder.id === activeItem.id }]"
       :title="folder.pathname"
       @click="folderNameClick"
@@ -18,7 +18,7 @@
       <input
         v-if="renameCache === folder.pathname"
         ref="renameInput"
-        v-model="newName"
+        v-model="nameInputValue"
         type="text"
         class="rename"
         @click.stop="noop"
@@ -42,7 +42,7 @@
       <input
         v-if="createCache.dirname === folder.pathname"
         ref="input"
-        v-model="createName"
+        v-model="nameInputValue"
         type="text"
         class="new-input"
         :style="{ 'margin-left': `${depth * 5 + 15}px` }"
@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '@/store/project'
 import { showContextMenu } from '../../contextMenu/sideBar'
@@ -75,60 +75,58 @@ const props = defineProps<{
 
 const projectStore = useProjectStore()
 
-const createName = ref('')
-const newName = ref('')
-
 const folderEl = ref<HTMLDivElement | null>(null)
 const renameInput = ref<HTMLInputElement | null>(null)
 const input = ref<HTMLInputElement | null>(null)
 
-// Use a local reactive state for isCollapsed that syncs with the prop
-const isCollapsed = ref<boolean>(!!props.folder.isCollapsed)
+// Kept on the tree node, not locally: the Files view is under a v-if and
+// remounts on every sidebar view switch (#5631).
+const isCollapsed = computed<boolean>({
+  get: () => !!props.folder.isCollapsed,
+  set: (value) => {
+    projectStore.SET_FOLDER_COLLAPSED(props.folder, value)
+  }
+})
 
 const { renameCache } = storeToRefs(projectStore)
 const { createCache } = storeToRefs(projectStore)
+const { nameInputValue } = storeToRefs(projectStore)
 const { activeItem } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
 
 const handleInputFocus = (): void => {
-  // Only the folder that is the create target reacts. Expand it FIRST so the
-  // create input renders even when the folder was collapsed, then focus it on
-  // the next tick — previously the expand sat behind `if (input.value)`, which
-  // is null while collapsed, so New File on a collapsed folder did nothing
-  // (#3439).
+  // Expand the create target before waiting for its input to mount.
   if (createCache.value.dirname !== props.folder.pathname) return
   isCollapsed.value = false
   nextTick(() => {
     if (input.value) {
       input.value.focus()
-      createName.value = ''
     }
   })
 }
 
 const handleInputEnter = (): void => {
-  projectStore.CREATE_FILE_DIRECTORY(createName.value)
+  projectStore.CREATE_FILE_DIRECTORY(nameInputValue.value)
 }
 
 const folderNameClick = (): void => {
+  projectStore.CHANGE_ACTIVE_ITEM(props.folder)
   isCollapsed.value = !isCollapsed.value
 }
 
 const noop = (): void => {}
 
 const focusRenameInput = (): void => {
+  // The `v-if` input mounts on the next tick; the store seeds its value.
   nextTick(() => {
-    if (renameInput.value) {
-      renameInput.value.focus()
-      newName.value = props.folder.name
-    }
+    if (!renameInput.value) return
+    renameInput.value.focus()
+    renameInput.value.setSelectionRange(0, props.folder.name.length)
   })
 }
 
 const rename = (): void => {
-  if (newName.value) {
-    projectStore.RENAME_IN_SIDEBAR(newName.value)
-  }
+  projectStore.RENAME_IN_SIDEBAR(nameInputValue.value)
 }
 
 onMounted(() => {
@@ -166,6 +164,10 @@ onMounted(() => {
     &:hover {
       background: var(--sideBarItemHoverBgColor);
     }
+    /* After :hover so the selection stays visible while the pointer is over it. */
+    &.active {
+      background: var(--themeColor20);
+    }
   }
 }
 .new-input,
@@ -175,7 +177,7 @@ input.rename {
   margin: 5px 0;
   padding: 0 6px;
   color: var(--sideBarColor);
-  border: 1px solid var(--floatBorderColor);
+  border: 1px solid var(--focusColor);
   background: var(--floatBorderColor);
   width: 70%;
   border-radius: 3px;

@@ -4,15 +4,6 @@ import type Content from '../../../base/content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../../muya';
 
-// DATA-LOSS GUARD — forward-Delete-at-end-of-paragraph block merge.
-//
-// Pressing Delete at the very end of a paragraph appends the NEXT paragraph onto
-// it and removes the now-empty next block. The handler performs that merge in the
-// model itself, so it MUST call `event.preventDefault()` — otherwise the browser
-// also runs its native forward-delete on the freshly merged paragraph, eating the
-// first character of the appended text (`alpha` + `beta` -> `alphaeta`). The
-// preventDefault assertion below is the regression guard for that drop.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -61,8 +52,6 @@ function contentByText(muya: Muya, text: string): Content {
     return target;
 }
 
-// Land the caret at the end of the given content block (active block + cursor),
-// then route a Delete through its handler the way the keydown listener does.
 function deleteAtEnd(muya: Muya, content: Content): { preventDefault: ReturnType<typeof vi.fn> } {
     muya.editor.activeContentBlock = content;
     const offset = content.text.length;

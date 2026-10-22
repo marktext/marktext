@@ -2,22 +2,33 @@
   <div
     class="opened-file"
     :title="file.pathname"
-    :class="[{ active: currentFile?.id === file.id, unsaved: !file.isSaved }]"
+    :aria-label="file.isPreview ? t('editor.tabs.preview', { name: file.filename }) : file.filename"
+    :class="[
+      {
+        active: currentFile?.id === file.id,
+        preview: file.isPreview,
+        unsaved: !file.isSaved
+      }
+    ]"
     @click="selectFile(file)"
   >
-    <el-icon
-      class="close-icon"
-      :size="10"
+    <button
+      type="button"
+      class="plain-button close-icon"
+      :aria-label="t('editor.tabs.close', { name: file.filename })"
       @click.stop="removeFileInTab(file)"
     >
-      <Close />
-    </el-icon>
+      <el-icon :size="10">
+        <Close />
+      </el-icon>
+    </button>
     <span class="name">{{ file.filename }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 import { useEditorStore } from '@/store/editor'
 import { Close } from '@element-plus/icons-vue'
 import type { TabDescriptor } from './types'
@@ -26,6 +37,7 @@ defineProps<{
   file: TabDescriptor
 }>()
 
+const { t } = useI18n()
 const editorStore = useEditorStore()
 
 const { currentFile } = storeToRefs(editorStore)
@@ -48,22 +60,37 @@ const removeFileInTab = (file: TabDescriptor): void => {
 
 <style scoped>
 .opened-file {
+  /* The section chevron is inset 15px and 12px wide; both row indicators
+     share its center line. */
+  --indicator-center: 21px;
   display: flex;
   user-select: none;
   height: 28px;
   line-height: 28px;
-  padding-left: 35px;
+  padding: 0 15px 0 35px;
   position: relative;
   color: var(--sideBarColor);
+  /* Clipped rather than `display: none` while the row is not hovered, so the
+     button stays reachable with Tab and shows itself once focused. */
   & > .close-icon {
-    display: none;
     position: absolute;
-    top: 9px;
-    left: 10px;
-    cursor: pointer;
+    top: 4px;
+    left: calc(var(--indicator-center) - 10px);
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    opacity: 0;
+    transition:
+      opacity 0.15s ease-in-out,
+      background-color 0.15s ease-in-out;
   }
-  &:hover > .close-icon {
-    display: inline-flex;
+  &:hover > .close-icon,
+  & > .close-icon:focus-visible {
+    opacity: 1;
+  }
+  & > .close-icon:hover {
+    color: var(--focusColor);
+    background-color: var(--floatHoverColor);
   }
   &:hover {
     background: var(--sideBarItemHoverBgColor);
@@ -77,6 +104,12 @@ const removeFileInTab = (file: TabDescriptor): void => {
 .opened-file.active {
   color: var(--highlightThemeColor);
 }
+.opened-file.preview > .name {
+  font-style: italic;
+}
+.unsaved.opened-file > .close-icon {
+  opacity: 0;
+}
 .unsaved.opened-file::before {
   content: '';
   width: 7px;
@@ -84,10 +117,16 @@ const removeFileInTab = (file: TabDescriptor): void => {
   border-radius: 50%;
   background: var(--highlightThemeColor);
   position: absolute;
-  top: 11px;
-  left: 12px;
+  top: 50%;
+  left: calc(var(--indicator-center) - 3.5px);
+  transform: translateY(-50%);
 }
-.unsaved.opened-file:hover::before {
-  content: none;
+.unsaved.opened-file:has(> .close-icon:hover) > .close-icon,
+.unsaved.opened-file > .close-icon:focus-visible {
+  opacity: 1;
+}
+.unsaved.opened-file:has(> .close-icon:hover)::before,
+.unsaved.opened-file:focus-within::before {
+  visibility: hidden;
 }
 </style>

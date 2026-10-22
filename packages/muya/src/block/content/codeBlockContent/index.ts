@@ -8,8 +8,9 @@ import type {
 } from '../../../state/types';
 import type Code from '../../commonMark/codeBlock/code';
 import type HTMLPreview from '../../commonMark/html/htmlPreview';
-import { CLASS_NAMES, EVENT_KEYS, HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
-import { adjustOffset, escapeHTML, firstGraphemeLength, firstWordOfInfo, isKeyboardEvent, lastGraphemeLength } from '../../../utils';
+import { CLASS_NAMES, HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
+import { ChangeSource } from '../../../types';
+import { adjustOffset, escapeHTML, firstGraphemeLength, firstWordOfInfo, lastGraphemeLength, lineBounds } from '../../../utils';
 import { computeLineCount, repositionLineNumberSpans, syncLineNumbersSpans } from '../../../utils/codeBlockLineNumbers';
 import { getHighlightHtml, MARKER_HASH } from '../../../utils/highlightHTML';
 import prism, { loadedLanguages, transformAliasToOrigin, walkTokens } from '../../../utils/prism/index';
@@ -23,19 +24,18 @@ function checkAutoIndent(text: string, offset: number) {
 }
 
 function getIndentSpace(text: string, offset: number) {
-    const lineStart = text.lastIndexOf('\n', offset - 1) + 1;
-    let lineEnd = text.indexOf('\n', lineStart);
-    if (lineEnd === -1)
-        lineEnd = text.length;
+    const [lineStart, lineEnd] = lineBounds(text, offset);
     const match = /^(\s*)\S/.exec(text.slice(lineStart, lineEnd));
 
     return match ? match[1] : '';
 }
 
-/**
- * parseSelector
- * div#id.className => {tag: 'div', id: 'id', className: 'className', isVoid: false}
- */
+// Assigning identical innerHTML replaces caret text nodes and can freeze WebKit input.
+// Keep unchanged nodes alive.
+function replaceIfChanged(domNode: HTMLElement, html: string) {
+    if (domNode.innerHTML !== html)
+        domNode.innerHTML = html;
+}
 
 function parseSelector(str = '') {
     const REG_EXP = /(#|\.)([^#.]+)/;
@@ -97,20 +97,13 @@ class CodeBlockContent extends Content {
         return content;
     }
 
-    // The language word for highlighting / tokenizing — the first word of the
-    // code container's info string (which may carry attributes, e.g.
-    // `js title="x"`). Every consumer of `_lang` wants the language, never the
-    // full info string (that is read from `meta.lang` directly by the language
-    // input), so derive it once here.
+    // Info strings can include attributes; highlighting uses only their first word.
     private get _lang() {
         const { _codeContainer: codeContainer } = this;
 
         return firstWordOfInfo(codeContainer ? codeContainer.lang : this._initialLang);
     }
 
-    /**
-     * Always be the `pre` element
-     */
     private get _codeContainer() {
         return this.parent?.parent;
     }
@@ -123,9 +116,7 @@ class CodeBlockContent extends Content {
             : codeContainer!.parent;
     }
 
-    // The text the preview was last rendered from. Seeded with the initial
-    // text so the create-pass update() does not re-trigger a render that races
-    // the preview's own one-shot render on append (async for diagrams).
+    // Seeded at creation to avoid racing the preview’s initial async render.
     private _lastPreviewText: string;
 
     constructor(muya: Muya, state: CodeContentState) {
@@ -137,7 +128,6 @@ class CodeBlockContent extends Content {
             this._initialLang = LANG_HASH[state.name];
 
         this.classList = [...this.classList, 'mu-codeblock-content'];
-        // Used for empty status prompts
         this.attributes.frontMatter = muya.i18n.t('Input Front Matter...');
         this.attributes.math = muya.i18n.t('Input Mathematical Formula...');
         this.createDomNode();
@@ -147,16 +137,12 @@ class CodeBlockContent extends Content {
         return this.outContainer;
     }
 
-    // Some block has a preview container, like math, diagram, html, should update the preview if the text changed.
     private _updatePreviewIfHave(text: string) {
         // update() runs during the initial create pass before this block is
         // attached, when outContainer cannot resolve its parent chain.
         if (!this._codeContainer)
             return;
-        // Only re-render when the text actually changed. update() is called on
-        // every render pass; without this guard a diagram's create-pass render
-        // and update()'s render race (DiagramPreview.update is async), leaving
-        // the SVG unmounted.
+        // Repeated renders can race async diagram creation and leave its SVG unmounted.
         if (text === this._lastPreviewText)
             return;
         this._lastPreviewText = text;
@@ -166,7 +152,9 @@ class CodeBlockContent extends Content {
 
     override update(_cursor?: IRenderCursor, highlights = []) {
         const { _lang: lang, text } = this;
-        // transform alias to original language
+        const parentCode = this.parent as Code | null;
+        if (parentCode?.copyButton && parentCode.parent?.blockName === 'code-block')
+            parentCode.copyButton.hidden = !text;
         const fullLengthLang = transformAliasToOrigin([lang])[0];
         const domNode = this.domNode!;
         const code = escapeHTML(getHighlightHtml(text, highlights, true))
@@ -174,6 +162,16 @@ class CodeBlockContent extends Content {
             .replace(new RegExp(MARKER_HASH['>'], 'g'), '>')
             .replace(new RegExp(MARKER_HASH['"'], 'g'), '"')
             .replace(new RegExp(MARKER_HASH['\''], 'g'), '\'');
+
+        // A final newline lays out no line of its own, so the caret after it has
+        // nowhere to sit (#5114). Appended after highlighting: Prism's
+        // keep-markup drops empty elements. Wrapped: Chromium puts the caret
+        // just before the <br>, and (content, childIndex) would read back as
+        // text offset childIndex where (wrapper, 0) reads back as the text
+        // length.
+        const trailingBreak = text.endsWith('\n')
+            ? `<span class="${CLASS_NAMES.MU_TRAILING_BREAK}"><br></span>`
+            : '';
 
         if (
             fullLengthLang
@@ -184,23 +182,11 @@ class CodeBlockContent extends Content {
             wrapper.classList.add(`language-${fullLengthLang}`);
             wrapper.innerHTML = code;
             prism.highlightElement(wrapper, false, function (this: HTMLElement) {
-                domNode.innerHTML = this.innerHTML;
+                replaceIfChanged(domNode, this.innerHTML + trailingBreak);
             });
         }
         else {
-            domNode.innerHTML = code;
-        }
-
-        // A final newline lays out no line of its own, so the caret after it had
-        // nowhere to sit (#5114). Added after highlighting: Prism's keep-markup
-        // drops empty elements. Wrapped: Chromium puts the caret just before the
-        // <br>, and (content, childIndex) would read back as text offset
-        // childIndex where (wrapper, 0) reads back as the text length.
-        if (text.endsWith('\n')) {
-            const trailingBreak = document.createElement('span');
-            trailingBreak.classList.add(CLASS_NAMES.MU_TRAILING_BREAK);
-            trailingBreak.appendChild(document.createElement('br'));
-            domNode.appendChild(trailingBreak);
+            replaceIfChanged(domNode, code + trailingBreak);
         }
 
         this._updateLineNumbers(text);
@@ -226,9 +212,7 @@ class CodeBlockContent extends Content {
         this._observeLineNumberResize(wrapper);
     }
 
-    // Re-measure the gutter after any code-block reflow (initial render, font /
-    // wrap change, content edit, viewport resize). Fires post-layout, so it
-    // can't read stale positions; owns all repositioning.
+    // Measure after layout so code gutters follow content, wrapping and font changes.
     private _observeLineNumberResize(wrapper: HTMLElement) {
         if (this._lineNumberResizeObserver != null || typeof ResizeObserver === 'undefined')
             return;
@@ -248,7 +232,7 @@ class CodeBlockContent extends Content {
 
         const textContent = this.domNode!.textContent!;
         const { start, end } = this.getCursor()!;
-        const { needRender, text } = this.autoPair(
+        const { text } = this.autoPair(
             event,
             textContent,
             start,
@@ -261,19 +245,12 @@ class CodeBlockContent extends Content {
 
         this._updatePreviewIfHave(text);
 
-        if (needRender) {
-            this.setCursor(start!.offset, end!.offset, true);
-        }
-        else {
-            // TODO: throttle render
-            this.setCursor(start!.offset, end!.offset, true);
-        }
+        this.setCursor(start!.offset, end!.offset, true);
     }
 
     override enterHandler(event: KeyboardEvent): void {
         event.preventDefault();
 
-        // Shift + Enter to jump out of code block.
         if (event.shiftKey) {
             let cursorBlock;
             const nextContentBlock = this.nextContentInContext();
@@ -289,7 +266,7 @@ class CodeBlockContent extends Content {
                     this.muya,
                     newNodeState,
                 );
-                this.scrollPage?.append(newNode, 'user');
+                this.scrollPage?.append(newNode, ChangeSource.User);
                 cursorBlock = newNode.firstChild;
             }
             const offset = adjustOffset(0, cursorBlock, event);
@@ -317,23 +294,6 @@ class CodeBlockContent extends Content {
             offset += tabSize;
 
         this.setCursor(offset, offset, true);
-    }
-
-    // Content.arrowHandler measures the caret to tell whether it is on the
-    // block's first or last line, and a caret on an empty line has no rect to
-    // measure, so it left the block. A newline on the caret's side settles it.
-    override arrowHandler(event: Event): void {
-        if (isKeyboardEvent(event)) {
-            const { start, end } = this.getCursor()!;
-            if (
-                (event.key === EVENT_KEYS.ArrowUp && this.text.slice(0, start.offset).includes('\n'))
-                || (event.key === EVENT_KEYS.ArrowDown && this.text.slice(end.offset).includes('\n'))
-            ) {
-                return;
-            }
-        }
-
-        super.arrowHandler(event);
     }
 
     override tabHandler(event: KeyboardEvent): void {
@@ -413,8 +373,6 @@ class CodeBlockContent extends Content {
 
     override backspaceHandler(event: KeyboardEvent): void {
         const { start, end } = this.getCursor()!;
-        // If the cursor is in the first position of the code block text,
-        // when backspace is pressed, this time the code block should be converted to a normal paragraph
         if (start.offset === end.offset && start.offset === 0) {
             event.preventDefault();
             const { text, muya } = this;
@@ -428,9 +386,12 @@ class CodeBlockContent extends Content {
 
             return cursorBlock.setCursor(0, 0, true);
         }
-        // The following code should fix a certain bug:
-        // when there is one newline(\n) character before cursor.
-        // pressing the backspace key should work properly.(compatibility with Firefox)
+
+        // Ctrl/Alt/Cmd+Backspace deletes a word or line: leave it to the browser (#5239).
+        if (event.ctrlKey || event.altKey || event.metaKey)
+            return;
+
+        // Firefox needs manual deletion at a newline boundary.
         if (
             start.offset === end.offset
             && this.text[start.offset - 1] === '\n'
@@ -441,14 +402,9 @@ class CodeBlockContent extends Content {
             this._updatePreviewIfHave(this.text);
             return this.setCursor(--start.offset, --end.offset, true);
         }
-        // The following code is aimed at ensuring compatibility with Firefox.
-        // If the preceding character is the end of a token or the second preceding
-        // character is the end of a token, the cursor may become dislocated when
-        // the backspace key is pressed in Firefox. Therefore, we need to manually
-        // simulate the backspace key in order to set the cursor position correctly.
+        // Firefox can misplace the caret at highlighted token boundaries; delete and restore it manually.
         if (start.offset === end.offset) {
             const { _lang: lang, text } = this;
-            // transform alias to original language
             const fullLengthLang = transformAliasToOrigin([lang])[0];
             if (fullLengthLang && /\S/.test(text) && loadedLanguages.has(fullLengthLang)) {
                 const tokens = prism.tokenize(text, prism.languages[fullLengthLang]);
@@ -472,7 +428,6 @@ class CodeBlockContent extends Content {
                         }
                     }
                     code += token.content;
-                    // string and Token both has length property...
                     offset -= token.length;
                 });
 
@@ -491,7 +446,6 @@ class CodeBlockContent extends Content {
             return;
 
         const { anchor, focus } = this.getCursor()!;
-        // TODO: @JOCS remove use this.selection directly
         const { anchor: oldAnchor, focus: oldFocus } = this.selection;
 
         if (

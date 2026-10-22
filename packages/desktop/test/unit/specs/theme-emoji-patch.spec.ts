@@ -20,7 +20,7 @@ const EMOJI_FONT = 'Noto Color Emoji'
 
 const loadTheme = async(isLinux: boolean) => {
   vi.resetModules()
-  vi.doMock('@/util', () => ({ isLinux, isOsx: false, isWindows: false }))
+  vi.doMock('@/util', () => ({ isLinux, isMac: false, isWindows: false }))
   return await import('@/util/theme')
 }
 
@@ -72,7 +72,6 @@ describe('theme.ts emoji-picker Linux font patch', () => {
     addStyles({ theme: 'light', ...commonOptions })
 
     expect(commonStyleHtml()).toContain(EMOJI_SELECTOR)
-    // The theme sheet itself carries the theme CSS, not the emoji patch.
     const themeHtml = (document.querySelector('#ag-theme') as HTMLStyleElement | null)?.innerHTML
     expect(themeHtml).not.toContain('.mu-emoji-picker')
   })

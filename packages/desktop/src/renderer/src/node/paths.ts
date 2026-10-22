@@ -10,9 +10,6 @@ const ripgrepBinaryPath: string = env.MARKTEXT_RIPGREP_PATH || exposedPaths.ripg
 class RendererPaths extends EnvPaths {
   private readonly _ripgrepBinaryPath: string
 
-  /**
-   * @param userDataPath The user data path.
-   */
   constructor(userDataPath: string) {
     if (!userDataPath) {
       throw new Error('No user data path is given.')

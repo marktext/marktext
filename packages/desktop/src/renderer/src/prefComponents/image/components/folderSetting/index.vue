@@ -73,7 +73,6 @@ const { t } = useI18n()
 
 const preferenceStore = usePreferencesStore()
 
-// computed
 const {
   imageFolderPath,
   imagePreferRelativeDirectory,
@@ -95,7 +94,6 @@ const relativeDirectoryNamePlaceholder = computed<string>(
   () => preferenceStore.imageRelativeDirectoryName || 'assets'
 )
 
-// methods
 const openImageFolder = (): void => {
   window.electron.shell.openPath(imageFolderPath.value)
 }

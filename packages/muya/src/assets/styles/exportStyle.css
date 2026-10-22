@@ -1,3 +1,19 @@
+@font-face {
+    font-weight: 400;
+    font-family: 'Noto Music';
+    font-style: normal;
+    src: url('./fonts/NotoMusic-Regular.woff2') format('woff2');
+    unicode-range: U+2669-266F, U+1D000-1D24F;
+}
+
+@font-face {
+    font-weight: 400;
+    font-family: 'Noto Sans Math';
+    font-style: normal;
+    src: url('./fonts/NotoSansMath-Regular.woff2') format('woff2');
+    unicode-range: U+23B4-23E1;
+}
+
 .markdown-body {
     box-sizing: border-box;
     min-width: 200px;
@@ -5,7 +21,46 @@
     margin: 0 auto;
     padding: 45px;
 
-    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    font-family:
+        'Noto Music',
+        'Noto Sans Math',
+        -apple-system,
+        'Segoe UI',
+        Helvetica,
+        Arial,
+        sans-serif,
+        'Apple Color Emoji',
+        'Segoe UI Emoji';
+}
+
+.markdown-body pre,
+.markdown-body code,
+.markdown-body pre code {
+    font-family: var(
+        --mu-code-font-family,
+        'DejaVu Sans Mono',
+        'Source Code Pro',
+        'Droid Sans Mono',
+        'Consolas',
+        monospace
+    );
+}
+
+/* GitLab inline diff washes, matching GitLab's `.idiff` rendering. */
+.markdown-body .idiff.addition {
+    color: #1f1f1f;
+    text-decoration: none;
+
+    background-color: #c7f0d2;
+    border-radius: 2px;
+}
+
+.markdown-body .idiff.deletion {
+    color: #1f1f1f;
+    text-decoration: none;
+
+    background-color: #fac5cd;
+    border-radius: 2px;
 }
 
 @media not print {
@@ -109,6 +164,11 @@
     display: table;
 }
 
+.markdown-body table th,
+.markdown-body table td {
+    overflow-wrap: anywhere;
+}
+
 .markdown-body img[data-align='center'] {
     display: block;
     margin: 0 auto;
@@ -119,12 +179,52 @@
     margin: 0 0 0 auto;
 }
 
+/* GitHub drops a task item's marker (bullet or number) and pulls the checkbox
+   into the gutter, so an ordered task list shows no `1.`/`1)`. */
 .markdown-body li:has(input[type='checkbox']) {
     list-style-type: none;
 }
 
 .markdown-body li input[type='checkbox'] {
+    position: relative;
+
+    display: inline-block;
+    box-sizing: border-box;
+    width: 16px;
+    height: 16px;
     margin: 0 0 0 -1.3em;
+
+    vertical-align: -2px;
+
+    background: #fff;
+    border: 2px solid #1c1c1c;
+    border-radius: 2px;
+    opacity: 1;
+
+    appearance: none;
+    print-color-adjust: exact;
+}
+
+.markdown-body li input[type='checkbox']:checked {
+    background: #1c1c1c;
+    border-color: #1c1c1c;
+}
+
+.markdown-body li input[type='checkbox']:checked::after {
+    position: absolute;
+    top: 1px;
+    left: 2px;
+
+    box-sizing: content-box;
+    width: 7px;
+    height: 4px;
+
+    border: 2px solid #fff;
+    border-top: none;
+    border-right: none;
+    transform: rotate(-45deg);
+
+    content: '';
 }
 
 .markdown-body ol ol,
@@ -148,4 +248,16 @@
     padding: 20px 0;
 
     text-align: center;
+}
+
+.markdown-body .markdown-alert .mu-alert-icon {
+    margin-right: 8px;
+
+    vertical-align: text-bottom;
+}
+
+@media print {
+    .markdown-body .markdown-alert-title {
+        break-after: avoid;
+    }
 }

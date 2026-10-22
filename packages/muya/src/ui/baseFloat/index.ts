@@ -1,7 +1,7 @@
 import type { Placement, ReferenceElement } from '@floating-ui/dom';
 import type { Muya } from '../../index';
 import type { IBaseOptions } from '../types';
-import { autoUpdate, computePosition, flip, offset } from '@floating-ui/dom';
+import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 import { EVENT_KEYS } from '../../config';
 
 import { isHTMLElement, isKeyboardEvent, noop } from '../../utils';
@@ -150,6 +150,8 @@ abstract class BaseFloat {
     // tableChessboard → `(row, column)`). `never[]` in the contravariant
     // arg position accepts any concrete callback shape.
     show(reference: ReferenceElement, cb: (...args: never[]) => void = noop) {
+        if (this.muya.isReadOnly)
+            return;
         const { floatBox } = this;
         const { eventCenter } = this.muya;
         const { placement, offsetOptions } = this.options;
@@ -169,7 +171,7 @@ abstract class BaseFloat {
         const cleanup = autoUpdate(reference, floatBox, () => {
             computePosition(reference, floatBox, {
                 placement,
-                middleware: [offset(offsetOptions), flip()],
+                middleware: [offset(offsetOptions), flip(), shift({ padding: 8 })],
             }).then(({ x, y }) => {
                 // `computePosition` is async: a `hide()` (or a newer `show()`)
                 // can land before this resolves. Applying it then would set

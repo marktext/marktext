@@ -13,7 +13,9 @@ function parse(markdown: string): IBlock[] {
     return new MarkdownToState({
         footnote: false,
         texMathDollars: true,
-        isGitlabCompatibilityEnabled: false,
+        texMathGfm: false,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     } as never).generate(markdown) as unknown as IBlock[];

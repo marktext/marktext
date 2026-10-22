@@ -53,8 +53,7 @@ import {
 import { ref, watch, useTemplateRef, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-// Shape returned by `getAcceleratorFromKeyboardEvent`. The `@hfelix`
-// package ships untyped, so describe just the fields we consume here.
+// The accelerator package is untyped; describe only the fields consumed here.
 interface AcceleratorResult {
   accelerator: string
   isValid: boolean
@@ -129,7 +128,6 @@ const handleKeyDown = (event: KeyboardEvent): void => {
 
   const keybinding = getAcceleratorFromKeyboardEvent(event) as AcceleratorResult
   currentKeybinding = keybinding
-  // Verify whether the given key binding is valid for Electron.
   isKeybindingValid.value = keybinding.isValid && isValidElectronAccelerator(keybinding.accelerator)
   keybindingInputValue.value = keybinding.accelerator
 }

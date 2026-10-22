@@ -5,8 +5,10 @@ import type { IConstructor } from '../types';
 import type Content from './content';
 import type { ILinkedNode } from './linkedList/linkedNode';
 import type Parent from './parent';
-import { BLOCK_DOM_PROPERTY } from '../../config';
+import { BLOCK_DOM_PROPERTY, CLASS_NAMES } from '../../config';
+import { ChangeSource } from '../../types';
 import { createDomNode } from '../../utils/dom';
+import { isHiddenByFold, refreshFoldVisibility } from '../folding';
 
 class TreeNode implements ILinkedNode {
     prev: Nullable<TreeNode> = null;
@@ -74,27 +76,14 @@ class TreeNode implements ILinkedNode {
 
     constructor(public muya: Muya) {}
 
-    /**
-     * check this is a Content block?
-     * @param this
-     * @returns boolean
-     */
     isContent(this: TreeNode): this is Content {
         return 'text' in this;
     }
 
-    /**
-     * check this is a Parent block?
-     * @param this
-     * @returns boolean
-     */
     isParent(this: TreeNode): this is Parent {
         return 'children' in this;
     }
 
-    /**
-     * create domNode
-     */
     createDomNode() {
         const { tagName, classList, attributes, datasets } = this;
 
@@ -113,10 +102,17 @@ class TreeNode implements ILinkedNode {
         this.domNode = domNode;
     }
 
-    // Get previous content block in block tree.
-    previousContentInContext(): Nullable<Content> {
+    /** Pass skipFolded for caret navigation; editing defaults to the full block tree. */
+    previousContentInContext(skipFolded = false): Nullable<Content> {
         if (this.isScrollPage || !this.parent)
             return null;
+
+        if (skipFolded) {
+            let content = this.previousContentInContext();
+            while (content && isHiddenByFold(content))
+                content = content.previousContentInContext();
+            return content;
+        }
 
         const { parent } = this;
 
@@ -140,10 +136,17 @@ class TreeNode implements ILinkedNode {
         return parent.previousContentInContext();
     }
 
-    // Get next content block in block tree.
-    nextContentInContext(): Nullable<Content> {
+    /** Pass skipFolded for caret navigation; editing defaults to the full block tree. */
+    nextContentInContext(skipFolded = false): Nullable<Content> {
         if (this.isScrollPage || !this.parent)
             return null;
+
+        if (skipFolded) {
+            let content = this.nextContentInContext();
+            while (content && isHiddenByFold(content))
+                content = content.nextContentInContext();
+            return content;
+        }
 
         const { parent } = this;
 
@@ -168,31 +171,18 @@ class TreeNode implements ILinkedNode {
         return parent.nextContentInContext();
     }
 
-    /**
-     * Weather `this` is the only child of its parent.
-     */
     isOnlyChild() {
         return this.isFirstChild() && this.isLastChild();
     }
 
-    /**
-     * Weather `this` is the first child of its parent.
-     */
     isFirstChild() {
         return this.prev === null;
     }
 
-    /**
-     * Weather `this` is the last child of its parent.
-     */
     isLastChild() {
         return this.next === null;
     }
 
-    /**
-     * Weather `this` is descendant of `block`
-     * @param {*} block
-     */
     isInBlock(block: Parent) {
         let parent = this.parent;
         while (parent) {
@@ -205,10 +195,6 @@ class TreeNode implements ILinkedNode {
         return false;
     }
 
-    /**
-     * Find the closest block which blockName is `blockName`. return `null` if not found.
-     * @param {string} blockName
-     */
     closestBlock(blockName: string): Nullable<TreeNode> {
         if (this.blockName === blockName)
             return this;
@@ -244,6 +230,8 @@ class TreeNode implements ILinkedNode {
     }
 
     insertInto(parent: Parent, refBlock: Nullable<Parent> = null) {
+        if (!this.muya.canMutate)
+            return;
         if (this.parent === parent && this.next === refBlock)
             return;
 
@@ -257,16 +245,18 @@ class TreeNode implements ILinkedNode {
         parent.insertBefore(this as unknown as Parent, refBlock);
     }
 
-    /**
-     * Remove the current block in the block tree.
-     */
-    remove(_source = 'user') {
+    remove(_source: ChangeSource = ChangeSource.User) {
+        if (!this.muya.canMutate)
+            return;
         if (!this.parent)
             return;
 
-        this.parent.children.remove(this);
+        const parent = this.parent;
+        parent.children.remove(this);
         this.parent = null;
         this.domNode?.remove();
+        this.domNode?.classList.remove(CLASS_NAMES.MU_FOLDED_CONTENT);
+        refreshFoldVisibility(parent);
 
         return this;
     }

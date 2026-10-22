@@ -5,10 +5,6 @@ import { describe, expect, it } from 'vitest';
 import { lexBlock } from '../lexBlock';
 import { LinearMarked } from '../linearMarked';
 
-// lexBlock walks tokens with a local linear driver instead of
-// `Marked.walkTokens`, whose per-token result concat is O(tokens²) (#4887).
-// The drivers must keep visiting the same tokens.
-
 const NESTED = [
     '# Heading with **bold**',
     '',
@@ -78,7 +74,6 @@ describe('linear token walk', () => {
             '> # quoted heading\n\n- item\n\n  ```js\n  x\n  ```\n',
             {
                 footnote: false,
-                isGitlabCompatibilityEnabled: true,
                 frontMatter: false,
                 texMathDollars: false,
             },

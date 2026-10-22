@@ -15,17 +15,23 @@
     height: 20px;
 
     border-radius: 3px;
-    cursor: grab;
+    cursor: default;
     opacity: 0.8;
+
+    user-select: none;
 }
 
-.mu-icon-wrapper:hover {
+.mu-front-button:not(.mu-front-read-only) .mu-icon-wrapper {
+    cursor: grab;
+}
+
+.mu-front-button:not(.mu-front-read-only) .mu-icon-wrapper:hover {
     background: var(--button-bg-color-hover);
     border: var(--button-border);
     opacity: 1;
 }
 
-.mu-icon-wrapper:hover i.paragraph {
+.mu-front-button:not(.mu-front-read-only) .mu-icon-wrapper:hover i.paragraph {
     display: none;
 }
 
@@ -33,7 +39,7 @@
     display: none;
 }
 
-.mu-icon-wrapper:hover i.drag {
+.mu-front-button:not(.mu-front-read-only) .mu-icon-wrapper:hover i.drag {
     display: block;
 }
 

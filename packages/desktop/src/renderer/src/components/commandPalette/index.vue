@@ -38,13 +38,15 @@
                     if (el) commandItems[index] = el as HTMLElement
                   }
                 "
-                :class="{ active: index === selectedCommandIndex }"
+                :class="{ active: index === selectedCommandIndex, disabled: !canRun(item.id) }"
+                :aria-disabled="!canRun(item.id)"
                 @click="search(item.id)"
               >
                 <span
                   class="title"
                   :title="item.title"
-                >{{ item.description }}</span>
+                >{{ item.description
+                }}{{ !canRun(item.id) ? ` · ${t('readingMode.unavailable')}` : '' }}</span>
                 <span class="shortcut">
                   <span
                     v-for="(accelerator, idx) of item.shortcut"
@@ -64,7 +66,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick, onBeforeUpdate, computed } from 'vue'
+import { isReadingCommandAllowed } from 'common/commands/readingMode'
+import { useProjectStore } from '@/store/project'
+import { useEditorStore } from '@/store/editor'
+import { ref, onMounted, onBeforeUnmount, nextTick, onBeforeUpdate, computed, watch } from 'vue'
 import { useCommandCenterStore } from '@/store/commandCenter'
 import log from 'electron-log'
 import bus from '../../bus'
@@ -99,7 +104,7 @@ const currentCommand = ref<CommandItem | null>(null)
 const defaultPlaceholderText = computed(() => {
   try {
     return t('commandPalette.placeholder')
-  } catch (error) {
+  } catch {
     console.warn('i18n not ready, using fallback placeholder')
     return 'Search commands...'
   }
@@ -113,6 +118,8 @@ const availableCommands = ref<CommandItem[]>([])
 const searcherBusy = ref(false)
 
 const commandCenterStore = useCommandCenterStore()
+const editorStore = useEditorStore()
+const canRun = (id: string) => !editorStore.currentFile?.readOnly || isReadingCommandAllowed(id)
 
 onBeforeUpdate(() => {
   commandItems = []
@@ -134,7 +141,6 @@ const handleShow = (command?: unknown) => {
       showCommandPalette.value = true
       bus.emit('editor-blur')
       nextTick(() => {
-        // Scroll selected entry into view.
         const items = commandItems
         const selIndex = selectedCommandIndex.value
         if (items && items.length > 0 && selIndex >= 0 && items[selIndex]) {
@@ -158,7 +164,6 @@ const handleShow = (command?: unknown) => {
 }
 
 const handleDialogClose = () => {
-  // Reset all settings
   selectedCommandIndex.value = -1
   query.value = ''
   availableCommands.value = []
@@ -219,7 +224,6 @@ const handleInput = (event: KeyboardEvent) => {
     case 'ArrowDown':
     case 'ArrowLeft':
     case 'ArrowRight': {
-      // No-op
       break
     }
     case 'Enter': {
@@ -235,14 +239,12 @@ const handleInput = (event: KeyboardEvent) => {
 
 const search = (commandId: string | null = null) => {
   if (commandId) {
-    // Command selected from dropdown.
     executeCommand(commandId)
     return
   } else if (
     selectedCommandIndex.value >= 0 &&
     selectedCommandIndex.value < availableCommands.value.length
   ) {
-    // Pressed enter on selected command.
     const item = availableCommands.value[selectedCommandIndex.value]
     if (item) {
       executeCommand(item.id)
@@ -250,9 +252,12 @@ const search = (commandId: string | null = null) => {
     return
   }
 
-  // Otherwise update list
   updateCommands()
 }
+
+watch(() => useProjectStore().roots.map(root => `${root.key}:${root.status}`).join('|'), () => {
+  if (currentCommand.value?.id === 'file.quick-open') updateCommands()
+})
 
 const updateCommands = () => {
   const queryString = query.value.trim()
@@ -262,7 +267,8 @@ const updateCommands = () => {
   // Allow to handle search result by command (e.g. quick search).
   if (cmd.search) {
     searcherBusy.value = true
-    cmd.search(queryString)
+    cmd
+      .search(queryString)
       .then((result) => {
         searcherBusy.value = false
         availableCommands.value = result || []
@@ -281,18 +287,18 @@ const updateCommands = () => {
     return
   }
 
-  // Default handler
   if (!queryString) {
     availableCommands.value = cmd.subcommands ?? []
   } else {
-    availableCommands.value = (cmd.subcommands ?? []).filter(
-      (c) => (c.description ?? '').toLowerCase().includes(queryString.toLowerCase())
+    availableCommands.value = (cmd.subcommands ?? []).filter((c) =>
+      (c.description ?? '').toLowerCase().includes(queryString.toLowerCase())
     )
   }
   selectedCommandIndex.value = availableCommands.value.length ? 0 : -1
 }
 
 const executeCommand = (commandId: string) => {
+  if (!canRun(commandId) || !canRun(currentCommand.value?.id ?? '')) return
   const command = availableCommands.value.find((c) => c.id === commandId)
   if (!command) {
     log.error(`Command not found: ${commandId}`)
@@ -310,9 +316,7 @@ const executeCommand = (commandId: string) => {
 
     // Allow to load static commands without reloading command palette.
     if (execute === undefined && run === undefined && subcommands) {
-      // Load subcommands
       currentCommand.value = command
-      // NOTE: selected index is always -1 by static state loaded this way.
       selectedCommandIndex.value = -1
       query.value = ''
       updateCommands()
@@ -324,7 +328,6 @@ const executeCommand = (commandId: string) => {
 }
 
 const handleLanguageChanged = () => {
-  // If the command palette is currently open, reload commands
   if (showCommandPalette.value && currentCommand.value) {
     const cmd = currentCommand.value
     cmd.run?.().then(() => {
@@ -337,7 +340,6 @@ const handleLanguageChanged = () => {
 onMounted(() => {
   bus.on('show-command-palette', handleShow)
 
-  // Listen for language change events and reload the command list
   bus.on('language-changed', handleLanguageChanged)
 })
 
@@ -348,7 +350,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Hide scrollbar for this dialog */
 ::-webkit-scrollbar {
   display: none;
 }

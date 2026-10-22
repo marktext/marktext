@@ -1,21 +1,15 @@
 import type { IFileState } from '@shared/types/files'
+import { wordCount as getWordCount } from '@muyajs/core'
 import { getUniqueId, deepClone } from '../util'
 
-// Helper module (NOT a Pinia store): defaults and factories for the editor
-// document state objects.
 
-/**
- * Canonical document state shape used by the editor store. Re-exported as a
- * structural alias of `IFileState` from `@shared/types/files` so consumers
- * that historically imported `IDocumentState` keep compiling.
- */
 export type IDocumentState = IFileState
 
-// Re-export the cross-process shape for convenience so renderer code can
-// continue to import these from `./help`.
 export type { IFileState }
 
 const defaultFileStateWithoutId = {
+  readOnly: false,
+  isPreview: false,
   isSaved: true,
   pathname: '',
   filename: 'Untitled-1',
@@ -48,12 +42,7 @@ const defaultFileStateWithoutId = {
   notifications: []
 } satisfies Omit<IFileState, 'id'>
 
-/**
- * Default internal markdown document with editor options. Acts as the
- * template for cloning into per-tab state. Note: `id` is intentionally
- * omitted — every actual file state must allocate a unique id via
- * `getBlankFileState` / `createDocumentState`.
- */
+/** Template for per-tab state; callers assign the ID so every document receives a unique one. */
 export const defaultFileState: Omit<IFileState, 'id'> = defaultFileStateWithoutId
 
 export const getOptionsFromState = (
@@ -63,12 +52,23 @@ export const getOptionsFromState = (
   lineEnding: IFileState['lineEnding']
   adjustLineEndingOnSave: boolean
   trimTrailingNewline: number
+  isPendingCreation?: boolean
 } => {
   const { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline } = file
-  return { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline }
+  return {
+    encoding,
+    lineEnding,
+    adjustLineEndingOnSave,
+    trimTrailingNewline,
+    isPendingCreation: file.isPendingCreation
+  }
 }
 
 const documentStateKeys = [
+  'readOnly',
+  'diskMissing',
+  'diskConflict',
+  'isPendingCreation',
   'isSaved',
   'pathname',
   'filename',
@@ -94,7 +94,7 @@ export const getBlankFileState = (
 ): IFileState => {
   const fileState = deepClone(defaultFileStateWithoutId) as Omit<IFileState, 'id'>
   const defaultFilenamePrefix = defaultFileStateWithoutId.filename.split('-')[0]
-  let untitleId = Math.max(
+  const untitleId = Math.max(
     ...tabs.map((f) => {
       if (f.pathname === '') {
         return +f.filename.split('-')[1]
@@ -107,7 +107,6 @@ export const getBlankFileState = (
 
   const id = getUniqueId()
 
-  // We may pass markdown=null as a parameter.
   if (markdown == null) {
     markdown = defaultFileStateWithoutId.markdown
   }
@@ -117,8 +116,9 @@ export const getBlankFileState = (
     lineEnding,
     adjustLineEndingOnSave: lineEnding.toLowerCase() === 'crlf',
     id,
-    filename: `${defaultFilenamePrefix}-${++untitleId}`,
+    filename: `${defaultFilenamePrefix}-${untitleId + 1}`,
     markdown,
+    wordCount: getWordCount(markdown),
     // The freshly-loaded document IS its on-disk/clean baseline. The engine
     // clears its undo history on `setContent`, so the baseline undo-stack depth
     // (the synthetic save-tracking id) is 0. Seeding `lastSavedHistoryId` to 0
@@ -148,6 +148,9 @@ export const createDocumentState = (
 
   return Object.assign(docState, {
     id,
+    // Read `src`: `docState.wordCount` defaults to a zeroed object, not a
+    // sentinel, so it cannot say whether the caller supplied one.
+    wordCount: src.wordCount ?? getWordCount(docState.markdown),
     // See `getBlankFileState`: the loaded document is its own clean baseline and
     // the engine's baseline undo-stack depth (the synthetic id) is 0.
     lastSavedHistoryId: 0

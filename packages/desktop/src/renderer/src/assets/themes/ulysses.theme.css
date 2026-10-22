@@ -25,6 +25,7 @@
   --iconColor: rgba(101, 101, 101, 0.8);
   --codeBgColor: #d8d8d869;
   --codeBlockBgColor: rgba(12, 139, 186, 0.05);
+  --codeBlockColor: #656565;
   --footnoteBgColor: rgba(0, 0, 0, 0.03);
   --inputBgColor: rgba(0, 0, 0, 0.06);
   --focusColor: var(--themeColor);
@@ -55,7 +56,6 @@
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(5, 66, 89, 0.5), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #e5e5e5;
 
-  /* Markdown element colors */
   --headingColor: rgb(12, 139, 186);
   --h1Color: rgb(12, 139, 186);
   --h2Color: #1a9f7f;
@@ -86,11 +86,6 @@
   --maskColor: rgba(232, 232, 232, 0.8);
   --editorAreaWidth: 750px;
 
-  /* @muyajs/core (kebab-case) editor variables
-     Additive prep for the muyajs -> @muyajs/core editor swap. These
-     mirror the camelCase vars above; the legacy editor ignores them.
-     Do NOT remove the camelCase vars — they still drive the current
-     editor until editor.vue switches engines. */
   --theme-color: var(--themeColor);
   --highlight-color: var(--highlightColor);
   --selection-color: var(--selectionColor);
@@ -105,6 +100,7 @@
   --delete-color: var(--deleteColor);
   --icon-color: var(--iconColor);
   --code-block-bg-color: var(--codeBlockBgColor);
+  --code-block-color: var(--codeBlockColor);
   --table-border-color: var(--tableBorderColor);
   --input-bg-color: var(--inputBgColor);
   --button-font-color: var(--buttonFontColor);
@@ -143,7 +139,6 @@
   background: var(--editorBgColor) !important;
 }
 
-/* ------------------------------------ */
 
 .mu-container h1,
 .mu-container h2,
@@ -181,15 +176,15 @@ ul.mu-bullet-list > li.mu-list-item::before {
   color: var(--editor-color);
 }
 
-/*task list*/
 li.mu-task-list-item > input[type='checkbox'],
 li.mu-task-list-item > span.mu-task-list-checkbox {
   position: absolute;
   cursor: pointer;
   width: 16px;
   height: 16px;
-  top: 0.1em;
-  left: -24px;
+  /* Native inputs keep their UA font size, so em cannot track editor typography. */
+  top: calc(var(--mu-line-height, 1.6) * 0.5 * var(--mu-font-size, 16px) - 8px);
+  inset-inline-start: -24px;
   margin: 0;
   transform: rotate(-90deg);
   transform-origin: center;
@@ -198,7 +193,6 @@ li.mu-task-list-item > span.mu-task-list-checkbox {
 li.mu-task-list-item > input.mu-checkbox-checked,
 li.mu-task-list-item > span.mu-checkbox-checked {
   transform: rotate(0);
-  opacity: 0.5;
 }
 li.mu-task-list-item > input[type='checkbox']::before,
 li.mu-task-list-item > span.mu-task-list-checkbox::before {
@@ -217,8 +211,8 @@ li.mu-task-list-item > span.mu-task-list-checkbox::before {
 }
 li.mu-task-list-item > input.mu-checkbox-checked::before,
 li.mu-task-list-item > span.mu-checkbox-checked::before {
-  border: transparent;
-  background-color: var(--editor-color);
+  border-color: var(--theme-color);
+  background-color: var(--theme-color);
   box-shadow: none;
 }
 li.mu-task-list-item > input::after,
@@ -243,7 +237,6 @@ li.mu-task-list-item > span.mu-checkbox-checked::after {
   transform: rotate(-45deg) scale(1);
 }
 
-/*horizontal line*/
 .mu-thematic-break:not(.mu-active)::before {
   width: 50%;
   left: 50%;

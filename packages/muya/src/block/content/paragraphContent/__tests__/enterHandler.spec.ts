@@ -4,17 +4,6 @@ import type Content from '../../../base/content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../../muya';
 
-// ENTER-SPLIT GUARD — pressing Enter mid-paragraph splits the block in two.
-//
-// `ParagraphContent.enterHandler` routes a plain (non-shift) Enter on a
-// top-level paragraph through `_enterConvert`, which — when the text is not a
-// block-conversion trigger — falls through to `Format.enterHandler`. That base
-// handler keeps the text BEFORE the caret on the original block, moves the text
-// AFTER the caret onto a freshly inserted sibling paragraph, and drops the
-// caret at offset 0 of the new block. These characterization tests drive the
-// handler the way the keydown listener does and assert the resulting document
-// state after the json1 op flushes on the next frame.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -46,8 +35,6 @@ function bootMuya(markdown: string): Muya {
     return muya;
 }
 
-// Find the leaf `.content` block whose rendered text matches `text`, the way a
-// click resolves the active content block.
 function contentByText(muya: Muya, text: string): Content {
     let target: Content | null = null;
     const visit = (block: {
@@ -65,8 +52,6 @@ function contentByText(muya: Muya, text: string): Content {
     return target;
 }
 
-// Land the caret at `offset` of the given content block (active block + cursor),
-// then route an Enter through its handler the way the keydown listener does.
 function enterAt(muya: Muya, content: Content, offset: number): { preventDefault: ReturnType<typeof vi.fn> } {
     muya.editor.activeContentBlock = content;
     content.setCursor(offset, offset, true);
@@ -84,8 +69,6 @@ function flush(): Promise<void> {
     return new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 }
 
-// `getState()` returns a discriminated `TState` union; only some variants carry
-// `text`. The blocks asserted here are paragraphs, so narrow to read it.
 function blockText(state: ReturnType<Muya['getState']>, index: number): string {
     return (state[index] as { text: string }).text;
 }

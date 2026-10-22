@@ -1,24 +1,12 @@
-// Block-affiliation derivation for the `selection-change` payload.
-//
-// The payload carries an `affiliation` chain — the shared ancestor
-// PARAGRAPH-type blocks of the selection endpoints — plus per-endpoint `.type`
-// (the markdown block type, e.g. `span` for a content leaf) and `.functionType`
-// (`codeContent`, `cellContent`, …). The desktop store
-// (`createApplicationMenuState`) consumes those to light up the Paragraph-menu
-// check marks, the Loose/Task-list toggles, table/code-fence detection, and to
-// disable the Format menu inside code.
-
 import type Content from '../block/base/content';
+
 import type Parent from '../block/base/parent';
 import type TreeNode from '../block/base/treeNode';
 import type { Nullable } from '../types';
+import { canConvertGithubAlert } from '../block/githubAlerts';
+import { githubAlertBlockType } from '../utils/githubAlerts';
 
-/**
- * The legacy "markdown block type" vocabulary the desktop menu vocabulary is
- * keyed on (`MENU_ID_MAP` in `main/menu/actions/paragraph.ts`,
- * `PARAGRAPH_TYPES` in the renderer config). Only ancestors whose mapped type
- * is one of these belong in the affiliation chain.
- */
+// Only these legacy menu types participate in selection affiliation.
 const PARAGRAPH_TYPES: ReadonlySet<string> = new Set([
     'p',
     'h1',
@@ -36,13 +24,10 @@ const PARAGRAPH_TYPES: ReadonlySet<string> = new Set([
     'hr',
 ]);
 
-/**
- * Container `blockName` → legacy markdown block `type`. Heading blocks resolve
- * their level from `tagName` (`h1`…`h6`) so they are handled separately.
- */
 const CONTAINER_TYPE_BY_NAME: Readonly<Record<string, string>> = {
     'paragraph': 'p',
     'block-quote': 'blockquote',
+    'github-alert': 'blockquote',
     'bullet-list': 'ul',
     'task-list': 'ul',
     'order-list': 'ol',
@@ -57,10 +42,6 @@ const CONTAINER_TYPE_BY_NAME: Readonly<Record<string, string>> = {
     'thematic-break': 'hr',
 };
 
-/**
- * Leaf-content `blockName` → `functionType` (`codeContent`, `cellContent`,
- * `languageInput`, `paragraphContent`).
- */
 const FUNCTION_TYPE_BY_NAME: Readonly<Record<string, string>> = {
     'codeblock.content': 'codeContent',
     'table.cell.content': 'cellContent',
@@ -70,56 +51,30 @@ const FUNCTION_TYPE_BY_NAME: Readonly<Record<string, string>> = {
     'setextheading.content': 'paragraphContent',
 };
 
-/**
- * List-block `blockName` → list discriminator (`bullet` | `order` | `task`).
- * Keyed only on the
- * list container blocks — list-item blocks share the `list-item` block name for
- * both bullet and ordered lists, so an item's discriminator is read from the
- * parent list, never from the item itself.
- */
 const LIST_TYPE_BY_NAME: Readonly<Record<string, string>> = {
     'bullet-list': 'bullet',
     'order-list': 'order',
     'task-list': 'task',
 };
 
-/**
- * One ancestor block in the affiliation chain. `type` is the markdown
- * block type; the remaining fields carry the list-context the desktop menu
- * needs.
- */
 export interface IAffiliationEntry {
     /** Markdown block type: `p`, `h1`…`h6`, `ul`, `ol`, `li`, `pre`, `figure`, `blockquote`, `hr`. */
     type: string;
-    /** Engine block name (`bullet-list`, `code-block`, …) for callers that want the precise block. */
     blockName: string;
+    alertType?: string;
+    canGithubAlerts?: boolean;
     /** Present on list ancestors (`ul` / `ol`): `bullet` | `order` | `task`. */
     listType?: string;
-    /**
-     * Present on list-item ancestors (`li`): the parent list's discriminator
-     * (`bullet` | `order` | `task`). Read from the parent list because both
-     * bullet and ordered lists share the `list-item` block.
-     */
+    // Parent list discriminator: bullet, order or task.
     listItemType?: string;
-    /**
-     * Whether the enclosing list is rendered loose (blank-line separated). For
-     * `li` entries this reflects the parent list's `meta.loose`, since the
-     * looseness flag lives on the list, not the item.
-     */
+    // Blank-line separation belongs to the list; item entries inherit it from their parent.
     isLooseListItem?: boolean;
 }
 
-/**
- * Per-endpoint block info for one selection end. `type` is always `span` for a
- * content leaf; `functionType` distinguishes code / table-cell / language-input
- * content.
- */
 export interface IEndpointBlockInfo {
-    /** Engine block name of the content leaf, e.g. `codeblock.content`. */
     blockName: string;
     /** Content-block type — always `span` for a content leaf. */
     type: string;
-    /** `functionType`: `codeContent` | `cellContent` | `languageInput` | `paragraphContent`. */
     functionType?: string;
 }
 
@@ -144,11 +99,6 @@ function _isLoose(block: Parent | null | undefined): boolean {
     return Boolean(meta?.loose);
 }
 
-/**
- * Walk up from a list-item block to its enclosing list block (`bullet-list` /
- * `order-list` / `task-list`), which owns the list discriminator and the
- * loose/tight flag.
- */
 function _parentListOf(item: Parent): Parent | null {
     let node: Nullable<Parent> = item.parent;
     while (node) {
@@ -163,6 +113,10 @@ function _parentListOf(item: Parent): Parent | null {
 
 function _buildEntry(block: Parent, type: string): IAffiliationEntry {
     const entry: IAffiliationEntry = { type, blockName: block.blockName };
+    if (block.muya.options.githubAlerts && block.parent?.isScrollPage) {
+        entry.alertType = githubAlertBlockType(block) ?? undefined;
+        entry.canGithubAlerts = canConvertGithubAlert(block, 'github-alert NOTE');
+    }
 
     if (type === 'ul' || type === 'ol') {
         entry.listType = LIST_TYPE_BY_NAME[block.blockName];
@@ -179,11 +133,7 @@ function _buildEntry(block: Parent, type: string): IAffiliationEntry {
     return entry;
 }
 
-/**
- * Walk from a content leaf up to the outermost block, collecting the
- * paragraph-type ancestor blocks. Ordered outermost-first (top block → … →
- * leaf's container).
- */
+// Paragraph-type ancestors in outermost-first order.
 function _ancestorBlocks(leaf: Content | null): Parent[] {
     const blocks: Parent[] = [];
     let node: Nullable<Parent> = leaf?.parent;
@@ -201,21 +151,13 @@ function _ancestorBlocks(leaf: Content | null): Parent[] {
     return blocks;
 }
 
-/**
- * Walk from a content leaf up to the outermost block, collecting the
- * paragraph-type ancestors into an affiliation chain (outermost-first).
- */
 export function buildAffiliation(leaf: Content | null): IAffiliationEntry[] {
     return _ancestorBlocks(leaf).map(block =>
         _buildEntry(block, _markdownTypeOf(block)!),
     );
 }
 
-/**
- * Compute the shared-ancestor affiliation for a selection. When both endpoints
- * sit in the same block the anchor chain is returned; otherwise the chain is
- * trimmed to the ancestor block instances shared by both endpoints.
- */
+// Return only ancestors shared by both selection endpoints.
 export function buildSelectionAffiliation(
     anchorLeaf: Content | null,
     focusLeaf: Content | null,
@@ -235,10 +177,6 @@ function _intersectBlocks(anchorBlocks: Parent[], focusBlocks: Parent[]): Parent
     return anchorBlocks.filter(block => focusSet.has(block));
 }
 
-/**
- * Describe one selection endpoint's content leaf in the legacy
- * `{ type, functionType }` shape.
- */
 export function endpointBlockInfo(leaf: Content | null): IEndpointBlockInfo | null {
     if (!leaf)
         return null;

@@ -4,19 +4,6 @@ import type Content from '../../../base/content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../../muya';
 
-// DATA-LOSS GUARD — `TableCellContent.backspaceHandler` deletion safety.
-//
-// Backspace at the start of a table cell has two branches the migration audit
-// flagged as untested:
-//   1. Whole table empty AND no previous content cell → the table is replaced
-//      with an empty paragraph and the caret lands there (so the user can keep
-//      typing) rather than the keystroke being swallowed or the table left in a
-//      broken state.
-//   2. A previous cell exists → the caret jumps to the END of the previous
-//      cell; the table is NOT destructively merged and no content is lost.
-// Both branches are driven here through a real boot so the cell-resolution and
-// caret-placement run exactly as a Backspace keystroke would.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -48,7 +35,6 @@ function bootMuya(markdown: string): Muya {
     return muya;
 }
 
-// Collect the table cell content blocks in document order.
 function tableCells(muya: Muya): Content[] {
     const out: Content[] = [];
     const visit = (block: {
@@ -80,7 +66,6 @@ function flush(): Promise<void> {
 
 describe('tableCellContent backspace deletion safety', () => {
     it('replaces a wholly-empty table with an empty paragraph when there is no previous content', async () => {
-        // 2x2 table with every cell empty, nothing before it in the document.
         const muya = bootMuya('|  |  |\n| --- | --- |\n|  |  |\n');
         const cells = tableCells(muya);
         expect(cells.length).toBe(4);
@@ -91,7 +76,6 @@ describe('tableCellContent backspace deletion safety', () => {
         const state = muya.getState();
         expect(state.length).toBe(1);
         expect(state[0].name).toBe('paragraph');
-        // The replacement is a paragraph state, which carries `text`.
         expect((state[0] as { text: string }).text).toBe('');
     });
 
@@ -103,12 +87,10 @@ describe('tableCellContent backspace deletion safety', () => {
         backspaceAtStart(muya, secondCell);
 
         await flush();
-        // The table is intact — no destructive merge.
         const state = muya.getState();
         expect(state.length).toBe(1);
         expect(state[0].name).toBe('table');
 
-        // The caret moved to the END of the previous cell (`ab`, length 2).
         const previousCell = cells[0];
         const cursor = previousCell.getCursor();
         expect(cursor).not.toBeNull();

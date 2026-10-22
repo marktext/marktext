@@ -23,7 +23,7 @@ vi.hoisted(() => {
   }
 })
 
-// The notification service touches the DOM / template HTML; stub it so we can
+// The notification service renders through Element Plus; stub it so we can
 // observe `notify` without rendering a toast. SHOW_IMAGE_DELETION_URL chains a
 // `.then()` off `notify(...)`, so the stub must resolve a Promise.
 vi.mock('@/services/notification', () => ({

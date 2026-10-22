@@ -26,7 +26,6 @@ class FileEncodingCommand {
     this.subcommands = []
     this.subcommandSelectedIndex = -1
 
-    // Reference to editor state.
     this._editorState = editorState
   }
 
@@ -34,7 +33,6 @@ class FileEncodingCommand {
     this.subcommands = []
     this.subcommandSelectedIndex = -1
 
-    // Load encoding from current tab to highlight it.
     const encodingObj = this._getCurrentEncoding()
     const { encoding, isBom } = encodingObj
 
@@ -55,7 +53,6 @@ class FileEncodingCommand {
         description: isTabEncoding ? `${value} - current` : value
       }
       if (isTabEncoding) {
-        // Highlight current encoding and set it as first entry.
         this.subcommandSelectedIndex = i
         this.subcommands.unshift(item)
       } else {

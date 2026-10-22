@@ -34,8 +34,6 @@ describe('deriveKeyedToc', () => {
     const before = deriveKeyedToc(doc('old'))
     const after = deriveKeyedToc(doc('new'))
 
-    // Keys are stable across the rebuild, so collapse state keyed by them
-    // survives the switch (they would differ if keyed by `slug`).
     expect(flatKeys(after)).toEqual(flatKeys(before))
     expect(flatKeys(after)).toEqual(['a', 'b', 'c'])
   })
@@ -54,5 +52,18 @@ describe('deriveKeyedToc', () => {
     ])
     expect(keyed[0].slug).toBe('uid-42')
     expect(keyed[0].key).toBe('a')
+  })
+
+  it('carries the rendered heading HTML through for display (#3110)', () => {
+    const keyed = deriveKeyedToc([
+      {
+        label: 'Bold',
+        labelHtml: '<strong>Bold</strong>',
+        slug: 'uid-1',
+        githubSlug: 'bold',
+        children: []
+      }
+    ])
+    expect(keyed[0].labelHtml).toBe('<strong>Bold</strong>')
   })
 })

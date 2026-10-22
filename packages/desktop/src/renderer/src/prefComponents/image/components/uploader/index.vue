@@ -14,6 +14,7 @@
       <cur-select
         :value="currentUploader"
         :options="uploaderOptions"
+        :aria-label="t('preferences.image.uploader.title')"
         :on-change="(value) => setCurrentUploader(value)"
       />
       <div
@@ -24,33 +25,40 @@
           <div class="detection-header">
             <h6>{{ t('preferences.image.uploader.picgoDetection') }}</h6>
             <div class="detection-controls">
-              <button
+              <icon-tooltip
                 v-if="showStandaloneRefreshButton"
-                class="standalone-refresh-button"
-                :disabled="isDetecting"
-                :title="t('preferences.image.uploader.retestPicgo')"
-                @click="manualDetection"
+                :content="t('preferences.image.uploader.retestPicgo')"
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
+                <button
+                  type="button"
+                  class="standalone-refresh-button"
+                  :disabled="isDetecting"
+                  :aria-label="t('preferences.image.uploader.retestPicgo')"
+                  @click="manualDetection"
                 >
-                  <polyline points="23 4 23 10 17 10" />
-                  <polyline points="1 20 1 14 7 14" />
-                  <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                </svg>
-              </button>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="23 4 23 10 17 10" />
+                    <polyline points="1 20 1 14 7 14" />
+                    <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                  </svg>
+                </button>
+              </icon-tooltip>
               <div class="detection-status-indicator">
-                <!-- Loading animation and status indicator -->
                 <div class="detection-animation-container">
-                  <!-- Initial button (becomes animation after 0.5 seconds) -->
+                  <!-- The initial button has no action, so keep it out of the tab order and accessibility tree. -->
                   <button
                     v-if="showInitialButton"
+                    type="button"
                     class="initial-button"
+                    aria-hidden="true"
+                    tabindex="-1"
                   >
                     <svg
                       width="14"
@@ -68,42 +76,52 @@
                       <path d="m9 12 2 2 4-4" />
                     </svg>
                   </button>
-                  <!-- Loading animation -->
                   <div
                     v-if="showLoadingAnimation"
                     class="loading-dot"
                     :class="{ animate: animationActive }"
                   />
-                  <!-- Status indicator button (icon removed) -->
-                  <button
+                  <icon-tooltip
                     v-if="showStatusIndicator"
-                    class="status-indicator"
-                    :class="getStatusIndicatorClass()"
-                    @click="manualDetection"
+                    :content="t('preferences.image.uploader.retestPicgo')"
                   >
-                    <!-- All SVG icons removed -->
-                  </button>
-                  <button
-                    v-if="showRefreshButton"
-                    class="refresh-button"
-                    :disabled="isDetecting"
-                    @click="manualDetection"
-                  >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
+                    <button
+                      type="button"
+                      class="status-indicator"
+                      :class="getStatusIndicatorClass()"
+                      :aria-label="t('preferences.image.uploader.retestPicgo')"
+                      @click="manualDetection"
                     >
-                      <polyline points="23 4 23 10 17 10" />
-                      <polyline points="1 20 1 14 7 14" />
-                      <path
-                        d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
-                      />
-                    </svg>
-                  </button>
+                      <!-- Intentionally icon-free. -->
+                    </button>
+                  </icon-tooltip>
+                  <icon-tooltip
+                    v-if="showRefreshButton"
+                    :content="t('preferences.image.uploader.retestPicgo')"
+                  >
+                    <button
+                      type="button"
+                      class="refresh-button"
+                      :disabled="isDetecting"
+                      :aria-label="t('preferences.image.uploader.retestPicgo')"
+                      @click="manualDetection"
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <polyline points="23 4 23 10 17 10" />
+                        <polyline points="1 20 1 14 7 14" />
+                        <path
+                          d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                        />
+                      </svg>
+                    </button>
+                  </icon-tooltip>
                 </div>
               </div>
             </div>
@@ -265,14 +283,13 @@ import CurSelect from '@/prefComponents/common/select/index.vue'
 import notice from '@/services/notification'
 import { storeToRefs } from 'pinia'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import type { PrefSelectOption } from '@/prefComponents/common/types'
 
 const { t } = useI18n()
 
-// store
 const preferenceStore = usePreferencesStore()
 
-// data
 const uploaderOptions: PrefSelectOption<string>[] = Object.keys(getServices()).map((name) => {
   const services = getServices()
   const { name: label } = services[name as UploaderServiceId]
@@ -283,26 +300,24 @@ const uploaderOptions: PrefSelectOption<string>[] = Object.keys(getServices()).m
 })
 const cliScript = ref<string>('')
 const picgoExists = ref<boolean>(false)
-const picgoDetectionFailed = ref<boolean>(false) // Whether detection failed
-const picgoDetectionStatus = ref<string>('') // Detection status text
-const picgoDebugInfo = ref<string>('') // Debug information
-const isDetecting = ref<boolean>(false) // Whether detection is in progress
+const picgoDetectionFailed = ref<boolean>(false)
+const picgoDetectionStatus = ref<string>('')
+const picgoDebugInfo = ref<string>('')
+const isDetecting = ref<boolean>(false)
 const lastDetectionTime = ref<string | null>(null)
-const lastSuccessTime = ref<string | null>(null) // Last successful detection time
-const detectionTimer = ref<ReturnType<typeof setTimeout> | null>(null) // Detection interval constant moved into scheduleNextDetection function
-const consecutiveFailures = ref<number>(0) // Number of consecutive failures
-const isPageVisible = ref<boolean>(true) // Whether the page is visible
-// Animation and button control state
-const showLoadingAnimation = ref<boolean>(false) // Whether to show the loading animation
-const showRefreshButton = ref<boolean>(false) // Whether to show the refresh button
-const showInitialButton = ref<boolean>(false) // Whether to show the initial button (becomes animation after 0.5 seconds)
-const showStatusIndicator = ref<boolean>(false) // Whether to show the status indicator
-const animationActive = ref<boolean>(false) // Whether the animation is active
-const animationTimer = ref<ReturnType<typeof setInterval> | null>(null) // Animation timer
-const buttonTimer = ref<ReturnType<typeof setTimeout> | null>(null) // Button display timer
-const initialButtonTimer = ref<ReturnType<typeof setTimeout> | null>(null) // Initial button timer
-const showStandaloneRefreshButton = ref<boolean>(true) // Whether to show the standalone refresh button
-// computed
+const lastSuccessTime = ref<string | null>(null)
+const detectionTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+const consecutiveFailures = ref<number>(0)
+const isPageVisible = ref<boolean>(true)
+const showLoadingAnimation = ref<boolean>(false)
+const showRefreshButton = ref<boolean>(false)
+const showInitialButton = ref<boolean>(false)
+const showStatusIndicator = ref<boolean>(false)
+const animationActive = ref<boolean>(false)
+const animationTimer = ref<ReturnType<typeof setInterval> | null>(null)
+const buttonTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+const initialButtonTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+const showStandaloneRefreshButton = ref<boolean>(true)
 const {
   currentUploader,
   cliScript: prefCliScript
@@ -328,13 +343,11 @@ watch(
 )
 const cliScriptDisable = computed(() => !cliScript.value || !cliScriptExecutable.value)
 
-// Listen for uploader switch; immediately start detection when switching to picgo
 watch(currentUploader, (newValue, oldValue) => {
   if (newValue === 'picgo') {
     startRealtimeDetection()
   } else if (oldValue === 'picgo') {
     stopRealtimeDetection()
-    // Reset UI state
     showInitialButton.value = false
     showLoadingAnimation.value = false
     showRefreshButton.value = false
@@ -343,23 +356,17 @@ watch(currentUploader, (newValue, oldValue) => {
   }
 })
 
-// Get dynamic detection interval
-// getDetectionInterval function removed; logic merged into scheduleNextDetection
 
-// Start realtime detection
 const startRealtimeDetection = () => {
-  // Ensure detection is only started for the picgo uploader
   if (currentUploader.value !== 'picgo') {
     return
   }
 
-  // Clear existing timer
   if (detectionTimer.value) {
-    clearTimeout(detectionTimer.value) // Use clearTimeout
+    clearTimeout(detectionTimer.value)
     detectionTimer.value = null
   }
 
-  // Check if a previous detection result exists; if so, show the status indicator first
   if (picgoDetectionStatus.value && (picgoExists.value || picgoDetectionFailed.value)) {
     showStatusIndicator.value = true
     showInitialButton.value = false
@@ -367,15 +374,13 @@ const startRealtimeDetection = () => {
     showRefreshButton.value = false
     animationActive.value = false
 
-    // Start the new detection flow after 1 second
     detectionTimer.value = setTimeout(() => {
       startLoadingAnimation()
 
-      // Execute detection after 3 seconds
       detectionTimer.value = setTimeout(() => {
         testPicgo()
           .then(() => {
-            scheduleNextDetection() // Begin normal scheduling after the first detection completes
+            scheduleNextDetection()
           })
           .catch((error) => {
             console.error('Initial PicGo detection failed:', error)
@@ -384,14 +389,12 @@ const startRealtimeDetection = () => {
       }, 3000)
     }, 1000)
   } else {
-    // No previous detection result: immediately start the loading animation and timer
     startLoadingAnimation()
 
-    // Execute the first detection after 3 seconds
     detectionTimer.value = setTimeout(() => {
       testPicgo()
         .then(() => {
-          scheduleNextDetection() // Begin normal scheduling after the first detection completes
+          scheduleNextDetection()
         })
         .catch((error) => {
           console.error('Initial PicGo detection failed:', error)
@@ -400,18 +403,15 @@ const startRealtimeDetection = () => {
     }, 3000)
   }
 
-  // Set up dynamic interval detection
   const scheduleNextDetection = () => {
     if (detectionTimer.value) {
       clearTimeout(detectionTimer.value)
     }
 
-    // Adjust detection interval based on consecutive failures and page visibility
     const baseInterval = 30000 // 30-second base interval
     const maxInterval = 300000 // Maximum 5-minute interval
     let interval = Math.min(baseInterval * Math.pow(2, consecutiveFailures.value), maxInterval)
 
-    // If the page is not visible, use a longer detection interval
     if (!isPageVisible.value) {
       interval = Math.max(interval * 2, 60000) // Check at least once per minute when page is hidden
     }
@@ -420,53 +420,44 @@ const startRealtimeDetection = () => {
       if (!isDetecting.value && isPageVisible.value) {
         testPicgo()
           .then(() => {
-            scheduleNextDetection() // Recursively schedule the next detection
+            scheduleNextDetection()
           })
           .catch((error) => {
             console.error('PicGo detection error:', error)
             scheduleNextDetection()
           })
       } else {
-        scheduleNextDetection() // If detecting or page not visible, schedule directly
+        scheduleNextDetection()
       }
     }, interval)
   }
 }
 
-// Stop realtime detection
 const stopRealtimeDetection = () => {
   if (detectionTimer.value) {
-    clearTimeout(detectionTimer.value) // Use clearTimeout instead of clearInterval because we use setTimeout
+    clearTimeout(detectionTimer.value)
     detectionTimer.value = null
   }
 }
 
-// lifecycle
-// Page visibility change handler
 const handleVisibilityChange = () => {
   isPageVisible.value = !document.hidden
 
   if (isPageVisible.value) {
-    // When the page becomes visible, restart detection only if picgo is selected
     if (currentUploader.value === 'picgo') {
       startRealtimeDetection()
     }
   } else {
-    // When the page is hidden, stop detection to save resources
     stopRealtimeDetection()
   }
 }
 
-// Component activation handler (for in-app page switches)
 const handleComponentActivated = () => {
   isPageVisible.value = true
 
-  // Only start detection if picgo is currently selected
   if (currentUploader.value === 'picgo') {
-    // Ensure previous state is cleaned up to avoid duplicate detection flows
     stopRealtimeDetection()
     stopAnimationAndButton()
-    // Force a new detection flow to ensure the UI state is displayed correctly
     setTimeout(() => {
       if (currentUploader.value === 'picgo' && isPageVisible.value) {
         startRealtimeDetection()
@@ -475,7 +466,6 @@ const handleComponentActivated = () => {
   }
 }
 
-// Component deactivation handler
 const handleComponentDeactivated = () => {
   isPageVisible.value = false
   stopRealtimeDetection()
@@ -485,12 +475,9 @@ onMounted(() => {
   nextTick(() => {
     cliScript.value = prefCliScript.value
 
-    // Core detection startup logic — ensure it starts on onMounted
     if (currentUploader.value === 'picgo') {
-      // Ensure UI state is clean
       stopRealtimeDetection()
       stopAnimationAndButton()
-      // Start detection immediately
       setTimeout(() => {
         if (currentUploader.value === 'picgo') {
           startRealtimeDetection()
@@ -498,7 +485,6 @@ onMounted(() => {
       }, 200) // Slightly longer delay to ensure state is fully initialized
     }
 
-    // Extra safety mechanism: check again whether detection needs to start
     nextTick(() => {
       setTimeout(() => {
         if (
@@ -513,15 +499,12 @@ onMounted(() => {
     })
   })
 
-  // Listen for page visibility changes
   document.addEventListener('visibilitychange', handleVisibilityChange)
 })
 
-// Component activated (for in-app page switches)
 onActivated(() => {
   handleComponentActivated()
 
-  // Extra safety mechanism: ensure the detection state is displayed correctly
   setTimeout(() => {
     if (
       currentUploader.value === 'picgo' &&
@@ -535,23 +518,18 @@ onActivated(() => {
   }, 300)
 })
 
-// Component deactivated
 onDeactivated(() => {
   handleComponentDeactivated()
 })
 
-// Clean up timers when component is unmounted
 onUnmounted(() => {
   stopRealtimeDetection()
 
-  // Stop animation and clean up timers
   stopAnimationAndButton()
 
-  // Remove page visibility listener
   document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 
-// methods
 const getServiceNameById = (id: string): string => {
   const services = getServices()
   if (Object.prototype.hasOwnProperty.call(services, id)) {
@@ -581,19 +559,15 @@ const setCurrentUploader = (value: string | number | boolean): void => {
   preferenceStore.SET_USER_DATA({ type, value })
 }
 
-// Manually trigger detection (retained for debugging)
 const manualDetection = async (): Promise<void> => {
   if (isDetecting.value) return
 
-  // Hide the standalone refresh button for 0.5 seconds
   showStandaloneRefreshButton.value = false
 
-  // Re-show the button and start detection after 0.5 seconds
   setTimeout(() => {
     showStandaloneRefreshButton.value = true
 
     isDetecting.value = true
-    // Start loading animation
     startLoadingAnimation()
 
     testPicgo().finally(() => {
@@ -621,7 +595,6 @@ const getLastSuccessTime = (): string => {
     : t('preferences.image.uploader.neverSuccessful')
 }
 
-// Get status indicator CSS class
 const getStatusIndicatorClass = (): string => {
   if (picgoDetectionFailed.value) {
     return 'status-error'
@@ -632,9 +605,7 @@ const getStatusIndicatorClass = (): string => {
   }
 }
 
-// Start loading animation
 const startLoadingAnimation = () => {
-  // Clear previous timers
   if (animationTimer.value) {
     clearInterval(animationTimer.value)
   }
@@ -645,14 +616,12 @@ const startLoadingAnimation = () => {
     clearTimeout(initialButtonTimer.value)
   }
 
-  // Reset all state, then immediately show the loading animation instead of the initial button
   showStatusIndicator.value = false
   showInitialButton.value = false
   showRefreshButton.value = false
   animationActive.value = false
   showLoadingAnimation.value = true
 
-  // Immediately start the animation timer without delay
   animationTimer.value = setInterval(() => {
     animationActive.value = !animationActive.value
   }, 1000)
@@ -668,7 +637,6 @@ const startLoadingAnimation = () => {
   }, 6000)
 }
 
-// Stop animation and hide buttons
 const stopAnimationAndButton = () => {
   showInitialButton.value = false
   showLoadingAnimation.value = false
@@ -676,7 +644,6 @@ const stopAnimationAndButton = () => {
   showStatusIndicator.value = true
   animationActive.value = false
 
-  // Clear all timers
   if (animationTimer.value) {
     clearInterval(animationTimer.value)
     animationTimer.value = null
@@ -697,7 +664,6 @@ const testPicgo = async (): Promise<void> => {
   const debugMessages: string[] = []
   debugMessages.push(`Detection time: ${new Date().toLocaleString()}`)
 
-  // Add environment information
   debugMessages.push(`Platform: ${window.process?.platform || 'unknown'}`)
   debugMessages.push('Process type: renderer')
 
@@ -735,7 +701,6 @@ const testPicgo = async (): Promise<void> => {
   try {
     debugMessages.push('Detecting PicGo command...')
 
-    // First test some basic commands
     const nodeExists = await window.commandExists.exists('node')
     const npmExists = await window.commandExists.exists('npm')
     debugMessages.push(`Node.js detection: ${nodeExists ? '✓' : '✗'}`)
@@ -750,9 +715,8 @@ const testPicgo = async (): Promise<void> => {
       debugMessages.push('✓ PicGo command detected successfully')
       picgoDetectionFailed.value = false
       picgoDetectionStatus.value = t('preferences.image.uploader.picgoInstalled')
-      // Record the successful detection time
       lastSuccessTime.value = new Date().toISOString()
-      consecutiveFailures.value = 0 // Reset failure count
+      consecutiveFailures.value = 0
     } else {
       debugMessages.push('✗ PicGo command not found')
       debugMessages.push('Possible causes:')
@@ -773,12 +737,11 @@ const testPicgo = async (): Promise<void> => {
     picgoExists.value = false
     picgoDetectionFailed.value = true
     picgoDetectionStatus.value = t('preferences.image.uploader.picgoDetectionFailed')
-    consecutiveFailures.value++ // Increment failure count
+    consecutiveFailures.value++
   }
 
   picgoDebugInfo.value = debugMessages.join('\n')
 
-  // Stop animation after detection completes
   stopAnimationAndButton()
 }
 

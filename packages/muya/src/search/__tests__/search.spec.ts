@@ -4,15 +4,6 @@ import type Content from '../../block/base/content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../muya';
 
-// Coverage for the Search module (src/search/index.ts) — the find/replace
-// engine the desktop "Find in document" / "Find and replace" surfaces drive.
-// The module lives at muya.editor.searchModule and exposes search(value, opts),
-// find('previous'|'next'), and replace(value, {isSingle, isRegexp}). Each match
-// renders a highlight span into the live DOM: the active match gets
-// `span.mu-highlight`, every other match gets `span.mu-selection`
-// (Renderer.getHighlightClassName). block.update() patches the inline DOM
-// synchronously, so the spans are queryable right after the call.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -67,11 +58,9 @@ describe('search.search()', () => {
 
         expect(search.matches.length).toBe(2);
         expect(search.index).toBe(0);
-        // First match active, second selected.
         expect(search.matches[0].start).toBe(0);
         expect(search.matches[1].start).toBe(13);
 
-        // Active match -> span.mu-highlight, the remaining match -> span.mu-selection.
         expect(highlightCount(muya)).toBe(1);
         expect(selectionCount(muya)).toBe(search.matches.length - 1);
         expect(selectionCount(muya)).toBe(1);
@@ -93,6 +82,38 @@ describe('search.search()', () => {
     });
 });
 
+describe('search.search() — regexp \\n matches on line breaks', () => {
+    it('bands every soft line break and keeps the lines split', () => {
+        const muya = bootMuya('line one\nline two\nline three\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('\\n', { isRegexp: true });
+
+        expect(search.matches.length).toBe(2);
+        expect(highlightCount(muya)).toBe(1);
+        expect(selectionCount(muya)).toBe(1);
+
+        const breaks = muya.domNode.querySelectorAll('span.mu-soft-line-break');
+        expect(breaks.length).toBe(2);
+        expect(Array.from(breaks).every(el => el.textContent === '\n')).toBe(true);
+        expect((muya.domNode.textContent ?? '').split('\n').length).toBe(3);
+    });
+
+    it('bands every hard line break', () => {
+        const muya = bootMuya('line one  \nline two  \nline three\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('\\n', { isRegexp: true });
+
+        expect(search.matches.length).toBe(2);
+        expect(highlightCount(muya)).toBe(1);
+        expect(selectionCount(muya)).toBe(1);
+        expect(muya.domNode.querySelectorAll('span.mu-hard-line-break').length).toBe(2);
+    });
+});
+
 describe('search.search() — selectHighlight restores the editor cursor', () => {
     it('places the cursor on the last active match when closing the search bar (empty value + selectHighlight)', () => {
         const muya = bootMuya('apple banana apple cherry\n');
@@ -100,13 +121,9 @@ describe('search.search() — selectHighlight restores the editor cursor', () =>
 
         const search = muya.editor.searchModule;
         search.search('apple');
-        // Move the active match to the second "apple" (offset 13-18).
         search.find('next');
         expect(search.index).toBe(1);
 
-        // Closing the search bar empties the search with selectHighlight, which
-        // must drop the editor cursor back onto the last active match so the
-        // user can keep typing where the highlight was.
         search.search('', { selectHighlight: true });
 
         expect(highlightCount(muya)).toBe(0);
@@ -130,7 +147,6 @@ describe('search.find() — cursor navigation across matches', () => {
         expect(highlightCount(muya)).toBe(1);
         expect(selectionCount(muya)).toBe(2);
 
-        // next three times wraps forward: 1, 2, 0
         search.find('next');
         expect(search.index).toBe(1);
         search.find('next');
@@ -138,11 +154,9 @@ describe('search.find() — cursor navigation across matches', () => {
         search.find('next');
         expect(search.index).toBe(0);
 
-        // The single active highlight follows the index.
         expect(highlightCount(muya)).toBe(1);
         expect(selectionCount(muya)).toBe(2);
 
-        // previous from index 0 wraps backward to the last match (2).
         search.find('previous');
         expect(search.index).toBe(2);
         expect(highlightCount(muya)).toBe(1);
@@ -157,7 +171,6 @@ describe('search.replace() — replace all across multiple blocks', () => {
 
         const search = muya.editor.searchModule;
         search.search('foo');
-        // Two in the paragraph, one in the heading, one in the list item.
         expect(search.matches.length).toBe(4);
 
         search.replace('BAR', { isSingle: false, isRegexp: false });
@@ -170,14 +183,10 @@ describe('search.replace() — replace all across multiple blocks', () => {
         });
 
         const md = muya.getMarkdown();
-        // Paragraph with two occurrences plus trailing text survives intact.
         expect(md).toContain('x BAR x BAR end');
-        // Heading block.
         expect(md).toContain('# BAR here');
-        // List item block.
         expect(md).toContain('- BAR');
 
-        // A fresh search for the old needle finds nothing.
         search.search('foo');
         expect(search.matches.length).toBe(0);
     });

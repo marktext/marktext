@@ -1,5 +1,5 @@
-// Buffered editor state (persisted across window close/reopen).
 
+import type { BufferedRoot } from './project'
 import type { IFileState } from './files'
 
 export interface BufferedEditorState {
@@ -9,6 +9,8 @@ export interface BufferedEditorState {
 }
 
 export interface BufferedProjectState {
+  roots?: BufferedRoot[]
+  rootDirectory?: string
   [key: string]: unknown
 }
 

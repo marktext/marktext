@@ -5,14 +5,6 @@ import type { IImageSelectionData } from '../types';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
 
-// Coverage for the Selection facade (Task 3 of the selection-module refactor):
-//   - `type` reports the active SelectionType ('text' | 'table' | 'image').
-//   - `activate(type)` enforces mutual exclusivity and emits a
-//     `selection-change` payload carrying the new `kind` discriminator.
-//   - `clear()` returns to the text selection.
-//   - a plain text `setSelection` keeps `type === 'text'`, emits `kind: 'text'`,
-//     and preserves the legacy Caret/Range/None `type` field on the payload.
-
 const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;

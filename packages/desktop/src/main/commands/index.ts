@@ -60,8 +60,6 @@ class CommandManagerClass {
   }
 }
 
-// Mirror the JS module shape: `CommandManager` is a singleton instance at
-// the value level AND a type alias at the type level.
 export type CommandManager = CommandManagerClass
 const commandManagerInstance = new CommandManagerClass()
 export { commandManagerInstance as CommandManager }

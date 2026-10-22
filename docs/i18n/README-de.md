@@ -116,10 +116,6 @@ MarkText ist ein Open-Source-Markdown-Editor, der von seiner Community unterstü
 <td width="182"><a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150"></a></td>
 <td align="left"><a href="https://serpapi.com/?utm_source=marktext">Extrahieren Sie Daten von Google und anderen Suchmaschinen über unsere schnelle, einfache und vollständige API.</a></td>
 </tr>
-<tr>
-<td width="182"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx"><img src="../assets/sponsors/stardesk.png" width="150"></a></td>
-<td align="left"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx">Verlassen Sie Ihren Schreibtisch, ohne Ihren Workflow zu unterbrechen. StarDesk ist ein kostenloser Remote-Desktop, mit dem Sie von überall auf Ihren Entwicklungs-PC zugreifen. Verbinden Sie sich per iOS, Android oder Web mit Ihrem eigenen Rechner, um Markdown zu bearbeiten, Terminalbefehle auszuführen, Dokumente zu prüfen oder dort weiterzumachen, wo Sie aufgehört haben.</a></td>
-</tr>
 </table>
 
 ## Screenshot
@@ -133,7 +129,7 @@ MarkText ist ein Open-Source-Markdown-Editor, der von seiner Community unterstü
 - Markdown-Erweiterungen wie mathematische Ausdrücke (KaTeX), Front Matter und Emojis.
 - Unterstützung für Absatz- und Inline-Stil-Kurzbefehle zur Verbesserung der Schreibeffizienz.
 - Ausgabe von **HTML**- und **PDF**-Dateien.
-- Verschiedene [Themes](../end-user/THEMES.md): **Cadmium Light**, **Material Dark** usw.
+- Verschiedene [Themes](https://marktext.me/docs/themes): **Cadmium Light**, **Material Dark** usw.
 - Verschiedene Bearbeitungsmodi: **Quellcode-Modus**, **Schreibmaschinen-Modus**, **Fokus-Modus**.
 - Bilder direkt aus der Zwischenablage einfügen.
 
@@ -145,7 +141,7 @@ MarkText ist ein Open-Source-Markdown-Editor, der von seiner Community unterstü
 | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
 
-Möchtest du die neuen Funktionen der neuesten Version sehen? Bitte sieh dir das [CHANGELOG](../CHANGELOG.md) an.
+Möchtest du die neuen Funktionen der neuesten Version sehen? Bitte sieh dir das [CHANGELOG](https://marktext.me/docs/changelog) an.
 
 #### macOS
 
@@ -173,7 +169,7 @@ winget install marktext
 
 #### Linux
 
-Bitte folge den [Linux-Installationsanweisungen](../end-user/LINUX.md).
+Bitte folge den [Linux-Installationsanweisungen](https://marktext.me/docs/installation).
 
 #### Andere
 
@@ -181,10 +177,10 @@ Alle Binärdateien für Linux, macOS und Windows können von der [Release-Seite]
 
 ## Entwicklung
 
-Wenn du MarkText selbst erstellen möchtest, sieh dir bitte unsere [Build-Anleitung](../dev/BUILD.md) an.
+Wenn du MarkText selbst erstellen möchtest, sieh dir bitte unsere [Build-Anleitung](https://marktext.me/docs/dev/build) an.
 
-- [Benutzerdokumentation](../README.md)
-- [Entwicklerdokumentation](../dev/README.md)
+- [Benutzerdokumentation](https://marktext.me/docs/introduction)
+- [Entwicklerdokumentation](https://marktext.me/docs/dev/overview)
 
 Bei Fragen zu MarkText kannst du gerne ein Issue erstellen. Bitte verwende dabei das Standardformat. Natürlich ist auch ein direkter PR sehr willkommen.
 

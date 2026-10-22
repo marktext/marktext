@@ -16,7 +16,9 @@ function makeState(blocks: TState[]): JSONState {
     const muya = {
         options: {
             footnote: false,
-            isGitlabCompatibilityEnabled: false,
+            texMathGfm: false,
+            texMathSingleBackslash: false,
+            texMathDoubleBackslash: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
             texMathDollars: false,
@@ -35,21 +37,17 @@ describe('setContent drops the previous document pending op batch (#2938)', () =
     it('a deferred op from the old doc does not corrupt the new content after a tab switch', async () => {
         const state = makeState([{ name: 'paragraph', text: 'A' }]);
 
-        // Pending edit against doc A (insert a block at index 1), not yet flushed.
         state.insertOperation([1], { name: 'paragraph', text: 'STALE' });
 
-        // Switch to doc B within the same frame.
         state.setContent([
             { name: 'paragraph', text: 'B1' },
             { name: 'paragraph', text: 'B2' },
         ]);
 
-        // Let the (cancelled) rAF window elapse.
         await nextFrame();
         await nextFrame();
 
         const texts = (state.getState() as Array<{ text: string }>).map(b => b.text);
-        // The stale insert must NOT have been applied to doc B.
         expect(texts).toEqual(['B1', 'B2']);
     });
 
@@ -59,7 +57,6 @@ describe('setContent drops the previous document pending op batch (#2938)', () =
         state.setContent([{ name: 'paragraph', text: 'B' }]);
         await nextFrame();
 
-        // A fresh op against doc B applies cleanly (not frozen by a stuck _isGoing).
         state.insertOperation([1], { name: 'paragraph', text: 'C' });
         await nextFrame();
         await nextFrame();

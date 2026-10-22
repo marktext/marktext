@@ -13,13 +13,11 @@ import Accessor from './app/accessor'
 import App from './app'
 import { t } from './i18n'
 import { registerSandboxIpcHandlers } from './ipc'
+import { setPlantumlServerSource } from './ipc/diagram'
 
-// Set version strings into global and process.versions
 process.env.MARKTEXT_VERSION = MARKTEXT_VERSION
 process.env.MARKTEXT_VERSION_STRING = MARKTEXT_VERSION_STRING
 
-// -----------------------------------------------
-// Exception handling and logging setup
 setupExceptionHandler()
 const args = cli()
 const appEnvironment = setupEnvironment(args as Record<string, unknown>)
@@ -41,7 +39,6 @@ const initializeLogger = (env: AppEnvironment): void => {
   log.transports.file.sync = true
   log.errorHandler.startCatching({
     onError(error: unknown) {
-      // This callback receives the full Error object with stack
       log.error('Uncaught Exception:', (error as Error)?.stack)
     }
   })
@@ -50,10 +47,9 @@ const initializeLogger = (env: AppEnvironment): void => {
 
 initializeLogger(appEnvironment)
 
-// Handles native level crashes
 crashReporter.start({
   companyName: '',
-  productName: 'marktext',
+  productName: 'MarkText',
   uploadToServer: false, // collect locally
   compress: true
 })
@@ -64,13 +60,10 @@ process.on('unhandledRejection', (reason) => {
   log.error('Main unhandledRejection:', reason)
 })
 
-// -----------------------------------------------
-// Disable GPU if requested
 if (args['--disable-gpu']) {
   app.disableHardwareAcceleration()
 }
 
-// Single instance lock (except macOS & development)
 if (!process.mas && !import.meta.env.DEV) {
   // The running instance reads the files to open from this copy of the command
   // line; see its `second-instance` handler.
@@ -81,18 +74,14 @@ if (!process.mas && !import.meta.env.DEV) {
   }
 }
 
-// Register sandbox-safe IPC handlers used by the contextBridge preload
 registerSandboxIpcHandlers()
 
-// Windows-specific AppUserModelID
 electronApp.setAppUserModelId('com.electron.marktext')
 
-// Dev shortcuts and reload suppression
 app.on('browser-window-created', (_, window) => {
   optimizer.watchWindowShortcuts(window)
 })
 
-// Instantiate and start the main App controller
 let accessor: Accessor
 try {
   accessor = new Accessor(appEnvironment)
@@ -113,10 +102,13 @@ try {
   }
   process.exit(1)
 }
+// Preferences only exist now; the fetch handler refuses everything until it
+// knows which server the user configured.
+setPlantumlServerSource(() => accessor.preferences.getItem<string>('plantumlServer') ?? '')
+
 const appController = new App(accessor, args as unknown as { _: string[] })
 appController.init()
 
-// Quit when all windows are closed (except on macOS)
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()

@@ -3,26 +3,6 @@
 import { describe, expect, it } from 'vitest';
 import { renderToStaticHTML } from '../renderToStaticHTML';
 
-// `renderToStaticHTML` is the synchronous markdown -> HTML public API used by
-// the CommonMark / GFM spec runners. It must:
-//   1. Return a string synchronously (no async; spec runner uses `it.each`).
-//   2. Sanitize via DOMPurify so XSS payloads are stripped (default;
-//      `sanitize: false` bypasses for the spec runners).
-//   3. Render mermaid / vega-lite / plantuml code blocks as inert
-//      `<pre><code class="language-*">…</code></pre>` (i.e. plain fenced
-//      code output — the same shape as before MarkdownToHtml's async
-//      `renderMermaid` / `renderDiagram` step rewrites them). The
-//      synchronous renderer never invokes those async rewriters.
-//   4. Forward the same per-render option surface as `getHighlightHtml` —
-//      see `option surface` describe block below for explicit coverage of
-//      each option (footnote, math, superSubScript,
-//      isGitlabCompatibilityEnabled, frontMatter).
-//
-// `MarkdownToHtml` (the existing class) already produces wrapped HTML, but its
-// `renderHtml()` path is async (awaits mermaid + diagram renderers) and wraps
-// the result in `<article class="markdown-body">`. Spec runners need the bare
-// inner HTML; hence a separate, sync API.
-
 describe('renderToStaticHTML', () => {
     it('renders a simple paragraph synchronously', () => {
         const html = renderToStaticHTML('Hello, world!');
@@ -63,9 +43,7 @@ describe('renderToStaticHTML', () => {
         // the mermaid source as plain text (escaped, not parsed as HTML).
         expect(html).toMatch(/class="[^"]*language-mermaid[^"]*"/);
         expect(html).toContain('graph LR');
-        // Sanity: the dangerous angle brackets in the source are escaped.
         expect(html).not.toContain('<graph');
-        // No mermaid SVG must appear (renderer not invoked).
         expect(html).not.toMatch(/<svg[^>]*aria-roledescription="flowchart/);
     });
 
@@ -109,7 +87,6 @@ describe('renderToStaticHTML', () => {
     describe('option surface', () => {
         it('honours superSubScript (on by default, off when superSubScript=false)', () => {
             const on = renderToStaticHTML('H~2~O and 2^n^');
-            // superSubScript extension emits `<sub>` and `<sup>` wrappers.
             expect(on).toMatch(/<sub>2<\/sub>/);
             expect(on).toMatch(/<sup>n<\/sup>/);
 
@@ -134,7 +111,6 @@ describe('renderToStaticHTML', () => {
             const html = renderToStaticHTML('water H~2~O and exp 2^n^ done');
             expect(html).toMatch(/<sub>2<\/sub>/);
             expect(html).toMatch(/<sup>n<\/sup>/);
-            // Both wrappers must coexist in the same <p>.
             expect(html).toMatch(/<p>[^<]*H<sub>2<\/sub>O[^<]*2<sup>n<\/sup>[^<]*<\/p>/);
         });
 
@@ -147,28 +123,35 @@ describe('renderToStaticHTML', () => {
             expect(html).toMatch(/<li>[^<]*2<sup>n<\/sup>[^<]*<\/li>/);
         });
 
-        it('honours isGitlabCompatibilityEnabled (promotes ```math fences to math blocks)', () => {
-            // GitLab-flavoured Markdown lets a fenced code block tagged
+        it('honours texMathGfm (promotes ```math fences to math blocks)', () => {
+            // GitHub and GitLab let a fenced code block tagged
             // ` ```math ` render as block math. `walkTokens` rewrites the
-            // code-block token to `multiplemath` only when both
-            // `texMathDollars: true` AND `isGitlabCompatibilityEnabled: true`.
+            // code-block token to `multiplemath` when `texMathGfm: true`.
             const src = '```math\nx^2\n```';
 
             const gitlab = renderToStaticHTML(src, {
                 texMathDollars: true,
-                isGitlabCompatibilityEnabled: true,
+                texMathGfm: true,
             });
-            // multiplemath → KaTeX wrapper.
             expect(gitlab).toMatch(/katex|<math/i);
 
             const strict = renderToStaticHTML(src, {
                 texMathDollars: true,
-                isGitlabCompatibilityEnabled: false,
+                texMathGfm: false,
             });
-            // Without GitLab compatibility, the block stays a plain code
+            // Without tex_math_gfm, the block stays a plain code
             // fence with language `math` — no KaTeX.
             expect(strict).not.toMatch(/katex|<math/i);
             expect(strict).toMatch(/<pre><code[^>]*>x\^2/);
+        });
+
+        it('honours highlightSyntax (==text== as <mark>, off by default)', () => {
+            const off = renderToStaticHTML('a ==hi== b');
+            expect(off).toContain('a ==hi== b');
+            expect(off).not.toContain('<mark>');
+
+            const on = renderToStaticHTML('a ==hi== b', { highlightSyntax: true });
+            expect(on).toContain('a <mark>hi</mark> b');
         });
 
         it('honours frontMatter option (renders YAML front matter when enabled)', () => {
@@ -182,7 +165,6 @@ describe('renderToStaticHTML', () => {
             // With frontMatter enabled, the YAML block is consumed by the
             // front-matter renderer and removed from the body output.
             expect(on).toMatch(/front-matter|frontmatter/i);
-            // The Markdown body that follows is still rendered.
             expect(on).toContain('<h1>Body</h1>');
         });
 
@@ -209,15 +191,11 @@ describe('renderToStaticHTML', () => {
             expect(on).toMatch(/<li id="fn-1">/);
             expect(on).toMatch(/<a href="#fnref-1" class="footnote-backref">/);
             expect(on).toContain('footnote body');
-            // The intermediate `<div class="footnote-block">` is hoisted into
-            // the section and must not survive in the rendered body.
             expect(on).not.toMatch(/<div class="footnote-block"/);
         });
 
         it('honours the texMathDollars option', () => {
             const html = renderToStaticHTML('$$\nx^2\n$$', { texMathDollars: true });
-            // Math block should be transformed away from a literal `$$` fence.
-            // KaTeX output contains class="katex" wrappers when math enabled.
             expect(html).toMatch(/katex|<math/i);
         });
     });

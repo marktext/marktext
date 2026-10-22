@@ -16,6 +16,7 @@ import InlineRenderer from '../inlineRenderer';
 import { Search } from '../search';
 import Selection from '../selection';
 import JSONState from '../state';
+import { ChangeSource } from '../types';
 import { hasPick, isHTMLElement } from '../utils';
 import { getBlock } from '../utils/dom';
 import logger from '../utils/logger';
@@ -33,11 +34,11 @@ const debug = logger('editor:');
 type BlockNode = {
     queryBlock?: (path: (string | number)[]) => BlockNode | undefined;
     find?: (key: number | string) => BlockNode;
-    remove?: (source: string) => void;
-    replaceWith?: (newBlock: BlockNode, source: string) => void;
-    insertBefore?: (newBlock: BlockNode, ref: BlockNode, source: string) => void;
-    append?: (newBlock: BlockNode, source: string) => void;
-    update?: (value?: unknown, source?: string) => void;
+    remove?: (source: ChangeSource) => void;
+    replaceWith?: (newBlock: BlockNode, source: ChangeSource) => void;
+    insertBefore?: (newBlock: BlockNode, ref: BlockNode, source: ChangeSource) => void;
+    append?: (newBlock: BlockNode, source: ChangeSource) => void;
+    update?: (value?: unknown, source?: ChangeSource) => void;
     blockName?: string;
     align?: string;
     _text?: string;
@@ -88,12 +89,12 @@ function restore(
                 if (subDoc === undefined) {
                     // TODO: handler typeof d === 'string'
                     if (typeof d === 'number')
-                        container?.find?.(d)?.remove?.('api');
+                        container?.find?.(d)?.remove?.(ChangeSource.Api);
                     subDoc = container;
                 }
                 else {
                     if (typeof d === 'number')
-                        container?.find?.(d)?.replaceWith?.(subDoc, 'api');
+                        container?.find?.(d)?.replaceWith?.(subDoc, ChangeSource.Api);
                     subDoc = container;
                 }
             }
@@ -155,9 +156,9 @@ function drop(root: BlockNode, descent: JSONOpList, muya: Muya): BlockNode {
             const newBlock = ScrollPage.loadBlock(insertedState.name).create(muya, insertedState) as BlockNode;
             if (cur && newBlock) {
                 if (ref)
-                    cur.insertBefore?.(newBlock, ref, 'api');
+                    cur.insertBefore?.(newBlock, ref, ChangeSource.Api);
                 else
-                    cur.append?.(newBlock, 'api');
+                    cur.append?.(newBlock, ChangeSource.Api);
             }
 
             subDoc = newBlock;
@@ -165,7 +166,7 @@ function drop(root: BlockNode, descent: JSONOpList, muya: Muya): BlockNode {
         else {
             switch (key) {
                 case 'checked': {
-                    ref?.update?.(comp.i, 'api');
+                    ref?.update?.(comp.i, ChangeSource.Api);
                     break;
                 }
 
@@ -273,7 +274,7 @@ export class Editor {
         }
     }
 
-    init() {
+    init(options: { focus?: boolean } = {}) {
         registerBlocks();
 
         const muya = this._muya;
@@ -290,13 +291,16 @@ export class Editor {
         // as a new `![](src)` block. Cleanup is likewise handled by
         // `detachAllDomEvents`.
         attachDragDropImageHandlers(muya);
-        this.focus();
+        if (options.focus !== false)
+            this.focus();
     }
 
     private _dispatchEvents() {
         const { domNode } = this._muya;
 
         const eventHandler = (event: Event) => {
+            if (this._muya.isReadOnly)
+                return;
             const selectionResult = this.selection.getSelection();
             const anchorBlock = selectionResult?.anchor.block;
             const isSelectionInSameBlock = selectionResult?.isSelectionInSameBlock;
@@ -396,8 +400,10 @@ export class Editor {
         firstLeafBlock.setCursor(0, 0, needUpdated);
     }
 
-    updateContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: string) {
+    updateContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: ChangeSource) {
         const muya = this._muya;
+        if (!muya.canMutate)
+            return;
         // ot-json1 no-op (`null`) is forwarded to dispatch — JSONState
         // short-circuits internally so listeners still see a json-change
         // event for the no-op.
@@ -482,7 +488,9 @@ export class Editor {
      * shapes the incremental pick/drop walker cannot apply without desyncing the
      * DOM from the json state.
      */
-    rebuildContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: string) {
+    rebuildContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: ChangeSource) {
+        if (!this._muya.canMutate)
+            return;
         this.jsonState.dispatch(operations, source);
 
         const state = this.jsonState.getState();

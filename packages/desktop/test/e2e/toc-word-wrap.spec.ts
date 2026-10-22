@@ -1,0 +1,123 @@
+import { expect, test } from '@playwright/test'
+import type { ElectronApplication, Page } from 'playwright'
+import { makeRoomForOutline, launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
+
+const LONG_HEADING =
+  '## A heading long enough that it cannot possibly fit on one line of the outline panel'
+
+const DOC = [
+  '# Outline',
+  '',
+  'Intro.',
+  '',
+  LONG_HEADING,
+  '',
+  '## 10. Risk handling',
+  '',
+  '### 10.1 main and `_openedFiles` disagree with the renderer tab',
+  '',
+  '### 10.2 Rapid double click opens a duplicate',
+  '',
+  'Body.',
+  ''
+].join('\n')
+
+const setWordWrap = async(page: Page, wordWrapInToc: boolean): Promise<void> => {
+  await page.evaluate((prefs) => {
+    window.electron.ipcRenderer.send('mt::set-user-preference', prefs)
+  }, { wordWrapInToc })
+  await page.waitForFunction(
+    (wrap) => !!document.querySelector(wrap ? '.side-bar-toc-wordwrap' : '.side-bar-toc-overflow'),
+    wordWrapInToc,
+    { timeout: 5000 }
+  )
+}
+
+const measureLongLabel = (page: Page) =>
+  page.evaluate(() => {
+    const labels = Array.from(
+      document.querySelectorAll('.side-bar-toc .el-tree-node__label')
+    ) as HTMLElement[]
+    const short = labels.find((l) => (l.textContent ?? '').trim() === 'Outline')
+    const long = labels.find((l) => (l.textContent ?? '').trim().startsWith('A heading long'))
+    if (!short || !long) throw new Error('the outline is missing one of the two entries')
+    return {
+      whiteSpace: getComputedStyle(long).whiteSpace,
+      lineHeight: short.getBoundingClientRect().height,
+      height: long.getBoundingClientRect().height
+    }
+  })
+
+test.describe('TOC word wrap preference', () => {
+  let app: ElectronApplication
+  let page: Page
+
+  test.beforeAll(async() => {
+    const launched = await launchWithMarkdown(DOC)
+    app = launched.app
+    page = launched.page
+    await makeRoomForOutline(app, page)
+    await waitForEditor(page)
+    const sidebarVisible = await page.evaluate(() => {
+      const el = document.querySelector('.side-bar') as HTMLElement | null
+      return !!(el && el.offsetParent !== null)
+    })
+    if (!sidebarVisible) await clickMenuById(app, 'sideBarMenuItem')
+    await page.waitForSelector('.side-bar-toc .el-tree', { state: 'visible', timeout: 15000 })
+    await page.waitForFunction(
+      () => document.querySelectorAll('.side-bar-toc .el-tree-node__label').length >= 2,
+      null,
+      { timeout: 15000 }
+    )
+  })
+
+  test.afterAll(async() => {
+    if (app) await app.close()
+  })
+
+  // Element Plus renders every label as `<el-text truncated>`, which declares
+  // `white-space: nowrap` on the label itself — an inherited `normal` from the
+  // row cannot beat that, so the preference did nothing (same shape as #5094).
+  test('wraps a long entry onto several lines when the preference is on', async() => {
+    await setWordWrap(page, true)
+    const wrapped = await measureLongLabel(page)
+    expect(wrapped.whiteSpace).toBe('normal')
+    expect(wrapped.height).toBeGreaterThan(wrapped.lineHeight * 1.5)
+  })
+
+  test('keeps it on one line when the preference is off', async() => {
+    await setWordWrap(page, false)
+    const truncated = await measureLongLabel(page)
+    expect(truncated.whiteSpace).toBe('nowrap')
+    expect(truncated.height).toBeLessThan(truncated.lineHeight * 1.5)
+  })
+
+  test('keeps inline code on one line when the preference is off', async() => {
+    await setWordWrap(page, false)
+
+    const rows = await page.evaluate(() => {
+      const labels = Array.from(
+        document.querySelectorAll<HTMLElement>('.side-bar-toc .el-tree-node__label')
+      )
+      const label = labels.find((item) => (item.textContent ?? '').trim().startsWith('10.1'))
+      const code = label?.querySelector('code')
+      const row = label?.closest<HTMLElement>('.el-tree-node__content')
+      const nextRow = row?.parentElement
+        ?.nextElementSibling
+        ?.querySelector<HTMLElement>(':scope > .el-tree-node__content')
+      if (!label || !code || !row || !nextRow) throw new Error('the outline rows are missing')
+      return {
+        labelWhiteSpace: getComputedStyle(label).whiteSpace,
+        codeWhiteSpace: getComputedStyle(code).whiteSpace,
+        labelBottom: label.getBoundingClientRect().bottom,
+        rowBottom: row.getBoundingClientRect().bottom,
+        nextRowTop: nextRow.getBoundingClientRect().top
+      }
+    })
+
+    expect(rows.labelWhiteSpace).toBe('nowrap')
+    expect(rows.codeWhiteSpace).toBe('nowrap')
+    expect(rows.labelBottom).toBeLessThanOrEqual(rows.nextRowTop)
+    expect(rows.rowBottom).toBeLessThanOrEqual(rows.nextRowTop)
+  })
+})

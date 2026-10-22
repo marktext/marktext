@@ -93,8 +93,6 @@ test.describe('List Tab/Shift-Tab nesting (items 30, 42)', () => {
   })
 
   test('Tab nests the second bullet item under the first; Shift-Tab flattens it', async() => {
-    // Seed a flat two-item bullet list via source mode (deterministic), then go
-    // back to WYSIWYG.
     await setSourceMarkdown(page, app, '- item one\n- item two\n')
     await page.waitForFunction(
       () => {
@@ -105,7 +103,6 @@ test.describe('List Tab/Shift-Tab nesting (items 30, 42)', () => {
       { timeout: 5000 }
     )
 
-    // Sanity: both items are top-level (no nested list yet).
     await expect.poll(() => listShape(page)).toEqual({ topLevelItems: 2, nestedItems: 0 })
     expect(await page.locator('.editor-component ul li ul li').count()).toBe(0)
 
@@ -115,7 +112,6 @@ test.describe('List Tab/Shift-Tab nesting (items 30, 42)', () => {
     await placeCaretInContentSpan(page, 1)
     await page.keyboard.press('Tab')
 
-    // A nested `ul li ul li` must now exist.
     await page.waitForSelector('.editor-component ul li ul li', {
       state: 'attached',
       timeout: 5000
@@ -128,8 +124,6 @@ test.describe('List Tab/Shift-Tab nesting (items 30, 42)', () => {
     const nestedMd = (await getMarkdownContent(page, app)).replace(/\n+$/, '')
     expect(nestedMd).toBe('- item one\n  - item two')
 
-    // Shift-Tab unindents item two back to the top level — the nested list is
-    // gone and both items are siblings again.
     await placeCaretInContentSpan(page, 1)
     await page.keyboard.press('Shift+Tab')
 

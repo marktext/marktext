@@ -101,7 +101,7 @@ const emptyStates: IEmptyStates = {
         name: 'math-block',
         text: '',
         meta: {
-            mathStyle: '', // '' for `$$` and 'gitlab' for ```math
+            mathStyle: '', // '' for `$$` and 'gfm' for ```math
         },
     },
     'html-block': {
@@ -113,6 +113,7 @@ const emptyStates: IEmptyStates = {
         meta: {
             type: 'fenced', // indented or fenced
             lang: '', // lang will be enpty string if block is indented block. set language will auto change into fenced code block.
+            fenceChar: '`',
         },
         text: '',
     },

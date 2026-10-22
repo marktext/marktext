@@ -53,8 +53,6 @@ function flush(): Promise<void> {
     return new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 }
 
-// Drive `$$` + Enter on the list item's paragraph content and return the
-// resulting top-level document state (the order-list).
 async function enterDollarsInList(token: string): Promise<{ listChildren: number; itemBlockNames: string[] }> {
     const muya = bootMuya('1. x\n');
     const content = muya.editor.scrollPage!.firstContentInDescendant() as unknown as Content;

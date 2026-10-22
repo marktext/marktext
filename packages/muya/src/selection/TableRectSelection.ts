@@ -112,12 +112,12 @@ class TableRectSelection {
     }
 
     private _onMouseDown = (event: Event): void => {
-        // Right-click opens the context menu; never start a drag-select then.
+        if (this._muya.isReadOnly)
+            return;
         if (!isMouseEvent(event) || event.button === 2)
             return;
 
-        // Any fresh interaction discards a previous frozen selection so a normal
-        // caret click inside a cell behaves like plain editing again.
+        // A fresh interaction exits the frozen rectangle so caret editing can resume.
         this.clear();
 
         const position = this._cellPositionFromEvent(event);
@@ -169,8 +169,6 @@ class TableRectSelection {
     private _onMouseUp = (): void => {
         this._detachDragEvents();
 
-        // Nothing to freeze when the drag never started (a plain click) or the
-        // pointer was released outside the table (focus is null).
         if (!this._isSelecting || this._focus == null)
             this.clear();
     };
@@ -216,7 +214,6 @@ class TableRectSelection {
         };
     }
 
-    /** Apply the selection class to every cell inside the anchor→focus rectangle. */
     private _renderHighlight(): void {
         this._clearHighlight();
         if (this._table == null || this._anchor == null || this._focus == null)
@@ -262,10 +259,7 @@ class TableRectSelection {
         }
     }
 
-    /**
-     * The selected rectangle as an `ITableState` sub-table, or `null` when there
-     * is no frozen selection. The clipboard serializes this to GFM markdown.
-     */
+    // Selected sub-table, or null without a frozen selection.
     getStateForCopy(): Nullable<ITableState> {
         if (!this.hasSelection)
             return null;
@@ -278,14 +272,8 @@ class TableRectSelection {
         );
     }
 
-    /**
-     * Empty every selected cell's text and re-render it, keeping the frozen
-     * selection. Returns whether any cell actually had content to clear — the
-     * caller uses that to drive the two-stage keyboard delete (first press
-     * clears, second press removes structure). Each cleared cell is re-rendered
-     * via `update()`; setting `.text` alone only patches state, so without this
-     * the non-anchor cells would keep their stale DOM.
-     */
+    // Clear text while keeping the rectangle selected. Return whether any cell changed
+    // so keyboard deletion can remove structure only on a subsequent press.
     emptySelectedCells(): boolean {
         if (!this.hasSelection)
             return false;
@@ -302,6 +290,7 @@ class TableRectSelection {
                 if (content && content.isContent() && content.text !== '') {
                     hadContent = true;
                     content.text = '';
+                    // The text setter does not refresh non-anchor cells' DOM.
                     content.update();
                 }
             }
@@ -321,7 +310,6 @@ class TableRectSelection {
             anchorContent.setCursor(0, 0, true);
     }
 
-    /** Discard the frozen selection and remove every highlight class. */
     clear(): void {
         this._clearHighlight();
         this._table = null;

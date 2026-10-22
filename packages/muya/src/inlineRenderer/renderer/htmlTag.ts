@@ -119,7 +119,8 @@ export default function htmlTag(
 ) {
     const { tag, openTag, closeTag, children } = token;
 
-    const className = children?.length
+    // `<br>` is a void tag, but its marker still hides with the cursor.
+    const className = children?.length || tag === 'br'
         ? this.getClassName(outerClass, block, token, cursor)
         : CLASS_NAMES.MU_GRAY;
     const tagClassName
@@ -139,21 +140,27 @@ export default function htmlTag(
     const anchor = renderHtmlTagChildren(this, h, cursor, block, token);
 
     switch (tag) {
-    // Handle html img.
         case 'img': {
-            // `<img>` html_tag tokens and markdown image tokens overlap on the
-            // fields `image()` actually reads (`raw`, `range`, `attrs.src/alt/
-            // title/width/height/'data-align'`), but their static shapes
-            // diverge — HTMLTagToken.attrs is `Record<string, string | null>`,
-            // ImageToken.attrs is the strict `{ src; title; alt }`. Routing
-            // html `<img>` through `image()` is a deliberate runtime contract;
-            // express the structural pun in one place.
             // eslint-disable-next-line no-restricted-syntax
             return this.image({ h, cursor, block, token: token as unknown as ImageToken, outerClass });
         }
 
         case 'br': {
-            return [h(`span.${CLASS_NAMES.MU_HTML_TAG}`, [...openContent, h(tag)])];
+            // Keep the real `<br>` outside the marker so hiding the marker keeps the line break.
+            return [
+                h(`span.${CLASS_NAMES.MU_HTML_TAG}`, [
+                    h(
+                        `span.${tagClassName}.${CLASS_NAMES.MU_OUTPUT_REMOVE}`,
+                        {
+                            attrs: {
+                                spellcheck: 'false',
+                            },
+                        },
+                        openContent,
+                    ),
+                    h(tag),
+                ]),
+            ];
         }
 
         default:

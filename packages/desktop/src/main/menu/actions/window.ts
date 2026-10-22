@@ -26,7 +26,6 @@ export const toggleFullScreen = (win: BrowserWindow | null | undefined): void =>
   }
 }
 
-// --- Commands -------------------------------------------------------------
 
 export const loadWindowCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.WINDOW_MINIMIZE, minimizeWindow)

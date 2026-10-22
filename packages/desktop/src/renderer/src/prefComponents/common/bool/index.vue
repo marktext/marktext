@@ -8,24 +8,35 @@
       style="display: flex; align-items: center"
     >
       <span>{{ description }}:</span>
-      <LinkIcon
+      <icon-tooltip
         v-if="more"
-        :size="14"
-        class="link-icon"
-        @click="handleMoreClick"
-      />
-      <el-tooltip
+        :content="t('preferences.learnMore', { name: description })"
+      >
+        <button
+          type="button"
+          class="plain-button"
+          :aria-label="t('preferences.learnMore', { name: description })"
+          @click="handleMoreClick"
+        >
+          <LinkIcon :size="14" />
+        </button>
+      </icon-tooltip>
+      <icon-tooltip
         v-else-if="detailedDescription"
         :content="detailedDescription"
-        class="item"
-        effect="dark"
         placement="top-start"
       >
-        <InfoFilled
-          width="16"
-          height="16"
-        />
-      </el-tooltip>
+        <button
+          type="button"
+          class="plain-button"
+          :aria-label="detailedDescription"
+        >
+          <InfoFilled
+            width="16"
+            height="16"
+          />
+        </button>
+      </icon-tooltip>
       <span
         v-if="notes"
         class="notes"
@@ -35,6 +46,7 @@
     </div>
     <el-switch
       v-model="status"
+      :aria-label="description"
       @change="handleSwitchChange"
     />
   </section>
@@ -43,8 +55,12 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { InfoFilled } from '@element-plus/icons-vue'
+import { useI18n } from 'vue-i18n'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import type { PrefControlBaseProps } from '../types'
+
+const { t } = useI18n()
 
 interface BoolProps extends PrefControlBaseProps {
   notes?: string

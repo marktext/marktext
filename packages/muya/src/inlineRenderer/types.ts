@@ -32,6 +32,11 @@ export interface ITokenizerFacOptions {
     superSubScript: boolean;
     footnote: boolean;
     texMathDollars: boolean;
+    texMathGfm: boolean;
+    texMathSingleBackslash: boolean;
+    texMathDoubleBackslash: boolean;
+    highlightSyntax: boolean;
+    inlineDiff?: boolean;
 }
 
 export interface ITokenizerOptions {
@@ -54,6 +59,8 @@ export type Token
         | StrongEmToken
         | CodeEmojiMathToken
         | DelToken
+        | MarkToken
+        | InlineDiffToken
         | SuperSubScriptToken
         | FootnoteIdentifierToken
         | ImageToken
@@ -126,6 +133,20 @@ export type DelToken = IBaseToken & {
     type: 'del';
     marker: string;
     children: Token[];
+    backlash: string;
+};
+
+export type MarkToken = IBaseToken & {
+    type: 'mark';
+    marker: string;
+    children: Token[];
+    backlash: string;
+};
+
+export type InlineDiffToken = IBaseToken & {
+    type: 'inline_diff';
+    marker: string;
+    content: string;
     backlash: string;
 };
 

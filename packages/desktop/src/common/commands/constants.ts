@@ -1,4 +1,5 @@
 const COMMANDS = Object.freeze({
+  VIEW_READ_ONLY_MODE: 'view.read-only-mode',
   EDIT_COPY: 'edit.copy',
   EDIT_COPY_AS_HTML: 'edit.copy-as-html',
   EDIT_COPY_AS_RICH: 'edit.copy-as-rich',
@@ -28,6 +29,7 @@ const COMMANDS = Object.freeze({
   FILE_NEW_TAB: 'file.new-tab',
   FILE_OPEN_FILE: 'file.open-file',
   FILE_OPEN_FOLDER: 'file.open-folder',
+  FILE_ADD_FOLDER: 'file.add-folder',
   FILE_PREFERENCES: 'file.preferences',
   FILE_PRINT: 'file.print',
   FILE_QUICK_OPEN: 'file.quick-open',
@@ -36,7 +38,6 @@ const COMMANDS = Object.freeze({
   FILE_SAVE: 'file.save',
   FILE_SAVE_AS: 'file.save-as',
   FILE_EXPORT_FILE_PDF: 'file.export-file.pdf',
-  // FILE_TOGGLE_AUTO_SAVE: 'file.toggle-auto-save',
 
   FORMAT_CLEAR_FORMAT: 'format.clear-format',
   FORMAT_EMPHASIS: 'format.emphasis',

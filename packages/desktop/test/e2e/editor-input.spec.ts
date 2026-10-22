@@ -54,10 +54,9 @@ test.describe('Editor input and source-mode roundtrip', () => {
 // ---------------------------------------------------------------------------
 // Coverage backfill (checklist item 24). The desktop title-bar word/character/
 // paragraph counter lives in
-// packages/desktop/src/renderer/src/components/titleBar/index.vue: the clickable
-// `.word-count > span.text-center-vertical` renders `${HASH[show].short}
-// ${wordCount[show]}` where `show` cycles word -> paragraph -> character -> all
-// on click (handleWordClick). The counter value flows from
+// packages/desktop/src/renderer/src/components/titleBar/documentStatistics.vue:
+// the trigger renders the localized metric label and value, and the popover's
+// radio rows change which metric the trigger shows. The counter value flows from
 // editor.vue json-change -> LISTEN_FOR_CONTENT_CHANGE -> store/editor.ts tab
 // wordCount -> app.vue currentFile.wordCount -> the title-bar `word-count` prop.
 // The engine wordCount algorithm itself is unit-covered in
@@ -65,13 +64,11 @@ test.describe('Editor input and source-mode roundtrip', () => {
 // desktop title-bar wiring (the value tracks edits + follows the active mode).
 // ---------------------------------------------------------------------------
 
-const WORD_COUNT_TEXT = '.word-count .text-center-vertical'
+const WORD_COUNT_TEXT = '.document-statistics-trigger'
 
-// Read the title-bar counter text, e.g. "W 12". Returns the trimmed string.
 const counterText = (page: Page): Promise<string> =>
   page.locator(WORD_COUNT_TEXT).innerText()
 
-// Parse the trailing integer off a counter label like "W 12" / "P 3".
 const counterValue = async(page: Page): Promise<number> => {
   const text = await counterText(page)
   const match = text.trim().match(/(\d+)\s*$/)
@@ -100,7 +97,9 @@ test.describe('Title-bar word counter (item 24)', () => {
   let page: Page
 
   test.beforeAll(async() => {
-    const launched = await launchWithMarkdown('# Counter\n\nOne two three.\n')
+    const launched = await launchWithMarkdown('# Counter\n\nOne two three.\n', {
+      preferences: { language: 'en' }
+    })
     app = launched.app
     page = launched.page
     await placeCaretInEditor(page)
@@ -110,10 +109,10 @@ test.describe('Title-bar word counter (item 24)', () => {
     if (app) await app.close()
   })
 
-  test('the counter is mounted and starts in word ("W") mode', async() => {
+  test('the counter is mounted and starts in word mode', async() => {
     const counter = page.locator(WORD_COUNT_TEXT)
     await expect(counter).toBeVisible({ timeout: 5000 })
-    await expect.poll(() => counterText(page)).toMatch(/^W\s/)
+    await expect.poll(() => counterText(page)).toMatch(/^Words\s+/)
   })
 
   test('typing ASCII words + CJK characters raises the word count to the engine value', async() => {
@@ -134,44 +133,39 @@ test.describe('Title-bar word counter (item 24)', () => {
     // that is now loaded (verifies the title-bar tracks the live document, and
     // that the CJK chars each counted as a word).
     const markdown = await getMarkdownContent(page, app)
-    await expect.poll(() => counterValue(page), { timeout: 5000 }).toBe(expectedCount(markdown).word)
+    await expect
+      .poll(() => counterValue(page), { timeout: 5000 })
+      .toBe(expectedCount(markdown).word)
   })
 
-  test('the counter follows the active display mode as it is cycled', async() => {
+  test('the counter follows the metric selected in the statistics panel', async() => {
     // Seed a deterministic two-paragraph document via source mode so each mode
     // reads a known value independent of earlier typing in this shared app.
     await setSourceMarkdown(page, app, 'alpha beta\n\ngamma 字数\n')
     await page.waitForTimeout(400)
 
-    // Derive the four expected values from the exact markdown that is loaded.
     const markdown = await getMarkdownContent(page, app)
     const expected = expectedCount(markdown)
 
     const counter = page.locator(WORD_COUNT_TEXT)
 
-    // Default word mode: "W" prefix.
-    await expect.poll(() => counterText(page)).toMatch(/^W\s/)
+    await expect.poll(() => counterText(page)).toMatch(/^Words\s+/)
     await expect.poll(() => counterValue(page)).toBe(expected.word)
 
-    // Click cycles word -> paragraph.
     await counter.click()
-    await expect.poll(() => counterText(page)).toMatch(/^P\s/)
+    await expect.poll(() => counterText(page)).toMatch(/^Paragraphs\s+/)
     await expect.poll(() => counterValue(page)).toBe(expected.paragraph)
 
-    // paragraph -> character.
     await counter.click()
-    await expect.poll(() => counterText(page)).toMatch(/^C\s/)
+    await expect.poll(() => counterText(page)).toMatch(/^Characters\s+/)
     await expect.poll(() => counterValue(page)).toBe(expected.character)
 
-    // character -> all (raw markdown length, with spaces).
     await counter.click()
-    await expect.poll(() => counterText(page)).toMatch(/^A\s/)
+    await expect.poll(() => counterText(page)).toMatch(/^Characters \(with spaces\)\s+/)
     await expect.poll(() => counterValue(page)).toBe(expected.all)
-
-    // all -> wraps back to word.
-    await counter.click()
-    await expect.poll(() => counterText(page)).toMatch(/^W\s/)
-    await expect.poll(() => counterValue(page)).toBe(expected.word)
+    await expect
+      .poll(() => page.evaluate(() => localStorage.getItem('document-statistics-metric')))
+      .toBe('all')
   })
 })
 
@@ -229,7 +223,6 @@ test.describe('Edit > Select All (item 169)', () => {
   })
 
   test('Select All while focus is in the search input leaves the editor selection alone', async() => {
-    // Establish a known whole-document editor selection first (escalate fully).
     await placeCaretInEditor(page)
     await expect
       .poll(async() => {
@@ -264,7 +257,6 @@ test.describe('Edit > Select All (item 169)', () => {
     })
     expect(inputSelection).toBe('beta')
 
-    // Tear down the find bar so the shared app is left clean.
     await page.keyboard.press('Escape')
     await expect(page.locator('.search-bar')).toBeHidden({ timeout: 5000 })
   })

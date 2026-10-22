@@ -17,21 +17,14 @@ export const getRecommendTitleFromMarkdownString = (markdown: string): string =>
   const headers = tokens.map((t) => {
     const matches = t.trim().match(/(#{1,6}) {1,}(.+)/)!
     return {
-      level: matches[1]!.length,
-      content: matches[2]!.trim()
+      level: matches[1].length,
+      content: matches[2].trim()
     }
   })
-  return headers.sort((a, b) => a.level - b.level)[0]!.content
+  return headers.sort((a, b) => a.level - b.level)[0].content
 }
 
-/**
- * Returns a special directory path for the requested name.
- *
- * NOTE: Do not use "userData" to get the user data path, instead use AppPaths!
- *
- * @param name The special directory name.
- * @returns The resolved special directory path.
- */
+/** Use AppPaths for userData rather than app.getPath(), which can refer to another directory. */
 export const getPath = (name: Parameters<typeof app.getPath>[0]): string => {
   if (name === 'userData') {
     throw new Error('Do not use "getPath" for user data path!')

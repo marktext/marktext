@@ -31,7 +31,7 @@ const MENU_ID_MAP: Readonly<Record<string, string>> = Object.freeze({
   taskListMenuItem: 'task',
   paragraphMenuItem: 'p',
   horizontalLineMenuItem: 'hr',
-  frontMatterMenuItem: 'frontmatter' // 'pre'
+  frontMatterMenuItem: 'frontmatter'
 })
 
 const transformEditorElement = (win: Win, type: string): void => {
@@ -104,6 +104,10 @@ export const paragraph = (win: Win): void => {
   transformEditorElement(win, 'paragraph')
 }
 
+export const githubAlert = (win: Win, type: string): void => {
+  transformEditorElement(win, `github-alert ${type}`)
+}
+
 export const quoteBlock = (win: Win): void => {
   transformEditorElement(win, 'blockquote')
 }
@@ -120,7 +124,6 @@ export const increaseHeading = (win: Win): void => {
   transformEditorElement(win, 'upgrade heading')
 }
 
-// --- Commands -------------------------------------------------------------
 
 export const loadParagraphCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.PARAGRAPH_BULLET_LIST, bulletList)
@@ -145,7 +148,6 @@ export const loadParagraphCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.PARAGRAPH_INCREASE_HEADING, increaseHeading)
 }
 
-// --- IPC events -------------------------------------------------------------
 
 // NOTE: Don't use static `getMenuItemById` here, instead request the menu by
 //       window id from `AppMenu` manager.
@@ -176,6 +178,8 @@ export interface SelectionState {
   isCodeFences?: boolean
   isCodeContent?: boolean
   hasFrontMatter?: boolean
+  alertType?: string
+  canGithubAlerts?: boolean
 }
 
 const setCheckedMenuItem = (
@@ -207,12 +211,6 @@ const setCheckedMenuItem = (
   })
 }
 
-/**
- * Update paragraph menu entires from given state.
- *
- * @param applicationMenu The application menu instance.
- * @param state The selection information.
- */
 export const updateSelectionMenus = (
   applicationMenu: Menu,
   state: SelectionState
@@ -227,16 +225,29 @@ export const updateSelectionMenus = (
     isCodeContent
   } = state
 
-  // Reset format menu.
   const formatMenuItem: MenuItem = applicationMenu.getMenuItemById('formatMenuItem')!
   formatMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = true))
 
-  // Handle menu checked.
   setCheckedMenuItem(applicationMenu, state)
+  const alerts = applicationMenu.getMenuItemById('githubAlertsMenuItem')
+  const syncAlerts = (): void => {
+    if (!alerts) return
+    alerts.enabled = state.canGithubAlerts === true
+    alerts.submenu?.items.forEach((item) => {
+      item.enabled = alerts.enabled
+      item.checked = item.label === state.alertType
+    })
+    if (state.alertType) {
+      const quote = applicationMenu.getMenuItemById('quoteBlockMenuItem')
+      if (quote) {
+        quote.checked = false
+      }
+    }
+  }
 
-  // Reset paragraph menu.
   setParagraphMenuItemStatus(applicationMenu, !isDisabled)
   if (isDisabled) {
+    syncAlerts()
     return
   }
 
@@ -257,7 +268,6 @@ export const updateSelectionMenus = (
     formatMenuItem.submenu!.items
       .filter((item: MenuItem) => item.id === 'hyperlinkMenuItem' || item.id === 'imageMenuItem')
       .forEach((item: MenuItem) => (item.enabled = false))
-    // Paragraph: enable only the items that have a defined cross-block action.
     const paragraphMenu = applicationMenu.getMenuItemById('paragraphMenuEntry')!
     paragraphMenu.submenu!.items.forEach((item: MenuItem) => {
       if (item.id) {
@@ -266,7 +276,6 @@ export const updateSelectionMenus = (
     })
   }
 
-  // Disable loose list item when not inside any list (bullet / ordered / task).
   if (!affiliation.ul && !affiliation.ol && !affiliation.task) {
     setMultipleStatus(applicationMenu, ['looseListItemMenuItem'], false)
   }
@@ -276,4 +285,5 @@ export const updateSelectionMenus = (
   if (state.hasFrontMatter) {
     setMultipleStatus(applicationMenu, ['frontMatterMenuItem'], false)
   }
+  syncAlerts()
 }

@@ -2,7 +2,12 @@ import { escapeCharacters } from '../config/escapeCharacter';
 
 export const beginRules = {
     hr: /^(\*{3,}|-{3,}|_{3,})$/,
-    code_fence: /^(`{3,})([^`]*)$/,
+    // Backtick fences may not carry a backtick in their info string, while
+    // tilde fences may carry either fence character (CommonMark §4.5) — hence
+    // the asymmetric info-string classes. `consumeBeginRules` reads the marker
+    // and content from whichever alternative matched.
+    // eslint-disable-next-line regexp/no-super-linear-backtracking
+    code_fence: /^(`{3,})([^`]*)$|^(~{3,})(.*)$/,
     header: /(^ {0,3}#{1,6}(\s+|$))/,
     reference_definition:
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/no-misleading-capturing-group
@@ -19,8 +24,6 @@ export const endRules = {
 export type BeginRules = typeof beginRules;
 
 export const commonMarkRules = {
-    strong: /^(\*\*|__)(?=\S)([\s\S]*?[^\s\\])(\\*)\1(?!(\*|_))/, // can nest
-    em: /^(\*|_)(?=\S)([\s\S]*?[^\s*\\])(\\*)\1(?!\1)/, // can nest
     // Hand-tuned CommonMark/GFM patterns. Disabling the ReDoS-class regexp/*
     // rules here on each line they fire: rewriting these patterns to please
     // the linter would risk parser regressions, and the input is the user's
@@ -76,13 +79,56 @@ export const inlineExtensionRules = {
     // `$` and so never engages for `$$`. The veto can read the closer off the
     // first unescaped `$` because a single-`$` span may not contain one.
     inline_math: /^(?!\$(?!\$)(?:[^$\\]|\\.)*(?:\s\$|\$\d))(\$\$(?!\$)|\$(?=\S))((?:(?!\1)[^\\]|\\.)+)\1(?!\1)/,
+    // GitHub's inline math, the other half of pandoc's `tex_math_gfm` (#5446).
+    // Opener and closer are mirror images rather than the same string, but both
+    // are two characters wide, so the marker arithmetic every consumer does off
+    // `marker.length` still lands on the right side of the formula.
+    inline_math_gfm: /^(\$`)((?:[^`\\]|\\.)+)`\$/,
+    // pandoc's `tex_math_single_backslash` (#5446). One rule per delimiter pair,
+    // because opener and closer are different strings and so cannot be closed by
+    // a `\1` backreference. Both are two characters wide, so the marker
+    // arithmetic every consumer does off `marker.length` still lands on the far
+    // side of the formula. `\\[^)]` is pandoc's escape rule inside a formula: a
+    // backslash consumes the character behind it, so `\\` is a literal backslash
+    // and `\\)` does not close the span. A newline may sit inside a formula —
+    // pandoc reads `\(a\nb\)` as one — so, unlike the `$…$` rule, none is excluded.
+    inline_math_single_backslash: /^(\\\()((?:[^\\]|\\[^)])+)\\\)/,
+    display_math_single_backslash: /^(\\\[)((?:[^\\]|\\[^\]])+)\\\]/,
+    // pandoc's `tex_math_double_backslash`. The closer is taken literally here,
+    // with none of the escape rule above: pandoc ends the span at the first
+    // `\\)` it sees, so `\\(a\\)b\\)` holds `a` rather than running on.
+    inline_math_double_backslash: /^(\\\\\()((?:(?!\\\\\))[\s\S])+)\\\\\)/,
+    display_math_double_backslash: /^(\\\\\[)((?:(?!\\\\\])[\s\S])+)\\\\\]/,
     // This is not the best regexp, because it not support `2^2\\^`.
     superscript: /^(\^)((?:[^^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
     subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
+    // eslint-disable-next-line regexp/no-super-linear-backtracking
+    mark: /^(={2})(?=\S)([\s\S]*?\S)(\\*)\1/,
+    // One pattern per valid GitLab inline-diff delimiter pair, so the opener
+    // and closer can only match as a pair — JS regex has no branch-reset groups
+    // to back-reference `{` to `}`. The lookahead rejects an empty or
+    // whitespace-only body, so `{++}` stays literal the way `**` does.
+    inline_diff: [
+        /^(\{\+)(?!\s*\+\})([^\n]+?)\+\}/,
+        /^(\[\+)(?!\s*\+\])([^\n]+?)\+\]/,
+        /^(\{-)(?!\s*-\})([^\n]+?)-\}/,
+        /^(\[-)(?!\s*-\])([^\n]+?)-\]/,
+    ],
     footnote_identifier: /^(\[\^)([^^[\]\s]+)(?<!\\)\]/,
 };
 
 export type InlineExtensionRules = typeof inlineExtensionRules;
+
+// The two backslash math extensions and the option each rule answers to. The
+// double-backslash rules are listed first for intent only: the two openers are
+// mutually exclusive at a given position, `\\(` carrying a backslash where `\(`
+// carries the parenthesis, so neither can shadow the other.
+export const BACKSLASH_MATH_RULES = [
+    ['inline_math_double_backslash', 'texMathDoubleBackslash'],
+    ['display_math_double_backslash', 'texMathDoubleBackslash'],
+    ['inline_math_single_backslash', 'texMathSingleBackslash'],
+    ['display_math_single_backslash', 'texMathSingleBackslash'],
+] as const;
 
 export const inlineRules = {
     ...endRules,
@@ -94,22 +140,21 @@ export const inlineRules = {
 export type InlineRules = typeof inlineRules;
 
 const EXCLUDE_KEYS = [
-    'em',
-    'strong',
     'tail_header',
     'backlash',
     'superscript',
     'subscript',
     'footnote_identifier',
+    'inline_diff',
 ] as const;
 
 type InlineRuleKeys = keyof InlineRules;
 
-type ValidateRules = {
+type EmojiValidateRules = {
     [keys in Exclude<InlineRuleKeys, typeof EXCLUDE_KEYS[number]>]: RegExp
 };
 
-export const validateRules: ValidateRules = (Object.keys(inlineRules) as InlineRuleKeys[]).reduce((acc, key) => {
+export const emojiValidateRules: EmojiValidateRules = (Object.keys(inlineRules) as InlineRuleKeys[]).reduce((acc, key) => {
     // work around with TypeScript type: https://stackoverflow.com/questions/56565528/typescript-const-assertions-how-to-use-array-prototype-includes
     if ((EXCLUDE_KEYS as ReadonlyArray<string>).includes(key)) {
         return acc;
@@ -120,7 +165,7 @@ export const validateRules: ValidateRules = (Object.keys(inlineRules) as InlineR
             [key]: inlineRules[key],
         };
     }
-}, {} as ValidateRules);
+}, {} as EmojiValidateRules);
 
 // Veto set used when validating a tentative `[text](url)` / reference link.
 // Per CommonMark §6.6 only code spans, raw HTML tags and `<...>` autolinks bind

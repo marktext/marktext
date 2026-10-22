@@ -1,8 +1,10 @@
+import { isReadingCommandAllowed } from 'common/commands/readingMode'
+import { useEditorStore } from './editor'
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import log from 'electron-log'
 import bus from '../bus'
-import { isOsx } from '@/util'
+import { isMac } from '@/util'
 import { acceleratorToTokens } from '@/util/accelerator'
 
 import staticCommands, {
@@ -33,7 +35,6 @@ export const useCommandCenterStore = defineStore('commandCenter', () => {
     rootCommand.value.subcommands = await getCommandsWithDescriptions()
     SORT_COMMANDS()
 
-    // Listen for language changes and update command descriptions.
     bus.on('language-changed', async() => {
       rootCommand.value.subcommands = await getCommandsWithDescriptions()
       SORT_COMMANDS()
@@ -54,12 +55,10 @@ export const useCommandCenterStore = defineStore('commandCenter', () => {
       }
     })
 
-    // Register commands that are created at runtime.
     bus.on('cmd::register-command', (command: unknown) => {
       REGISTER_COMMAND(command as Command)
     })
 
-    // Allow other components to execute commands with predefined values.
     bus.on('cmd::execute', (commandId: unknown) => {
       executeCommand(rootCommand.value, String(commandId))
     })
@@ -77,6 +76,7 @@ export const useCommandCenterStore = defineStore('commandCenter', () => {
 })
 
 const executeCommand = (root: Root, commandId: string): void => {
+  if (useEditorStore().currentFile?.readOnly && !isReadingCommandAllowed(commandId)) return
   const { subcommands } = root
   const command = subcommands.find((c) => c.id === commandId)
   if (!command) {
@@ -89,7 +89,7 @@ const executeCommand = (root: Root, commandId: string): void => {
 
 const normalizeAccelerator = (acc: string): string[] => {
   try {
-    return acceleratorToTokens(acc, isOsx)
+    return acceleratorToTokens(acc, isMac)
   } catch {
     return [acc]
   }

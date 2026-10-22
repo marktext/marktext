@@ -39,14 +39,13 @@ const loadComponent = (deps: Record<string, unknown>) => {
   const js = ts.transpileModule(noImports, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 }
   }).outputText
-  // eslint-disable-next-line no-new-func
   const factory = new Function(
     '__deps',
     'exports',
     'module',
     `const { _defineComponent, ref, computed, watch, onMounted, onBeforeUnmount,
       nextTick, bus, FindCaseIcon, FindWordIcon, FindRegexIcon, useEditorStore,
-      storeToRefs, useI18n, debounce, ArrowDown, ArrowUp, RefreshRight, Switch } = __deps
+      storeToRefs, useI18n, debounce, ArrowDown, ArrowUp, RefreshRight, Switch, IconTooltip } = __deps
     ${js}
     return module.exports`
   ) as (deps: Record<string, unknown>, exports: object, module: object) => {
@@ -78,6 +77,7 @@ const makeBindings = () => {
     ArrowUp: {},
     RefreshRight: {},
     Switch: {},
+    IconTooltip: {},
     useEditorStore: () => new Proxy({}, { get: () => () => {} }),
     storeToRefs: () => ({ currentFile }),
     useI18n: () => ({ t: (k: string) => k }),
@@ -103,10 +103,8 @@ describe('find-bar prefill from selection', () => {
 
   it('does not let the focus-steal selection-change clobber the prefill', async() => {
     const { ret, setSelection } = makeBindings()
-    // User selects a word in the editor.
     setSelection('fox')
     await nextTick()
-    // Find bar opens (prefills "fox") and steals focus.
     ret.listenFind()
     await nextTick()
     expect(ret.searchValue.value).toBe('fox')

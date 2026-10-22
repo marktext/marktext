@@ -1,4 +1,6 @@
 :root {
+    --mu-default-code-font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', 'Consolas', monospace;
+
     /* editor */
     --theme-color: rgb(33 181 111 / 100%);
     --highlight-color: rgb(33 181 111 / 40%);
@@ -14,6 +16,10 @@
     /* width of the centered editing column (`.mu-container` max-width) */
     --editor-area-width: 800px;
     --delete-color: #ff6969;
+
+    /* GitLab inline diff washes for `{+ … +}` / `[- … -]`. */
+    --code-new-inline-diff-background-color: #c7f0d2;
+    --code-old-inline-diff-background-color: #fac5cd;
     --icon-color: #6b737b;
     --code-block-bg-color: rgb(0 0 0 / 3%);
     --table-border-color: #e5e5e5;
@@ -46,6 +52,7 @@
     --h4-color: var(--editor-color-80);
     --h5-color: var(--editor-color-80);
     --h6-color: var(--editor-color-80);
+    --code-block-color: var(--editor-color);
     --blockquote-text-color: var(--editor-color-50);
     --blockquote-border-color: var(--editor-color-30);
     --strong-color: inherit;
@@ -136,6 +143,23 @@
         local('Open Sans Bold Italic'),
         local('OpenSans-BoldItalic'),
         url('./fonts/open-sans-v27-latin-ext_latin-700italic.woff') format('woff');
+}
+
+/* Keep notation available offline when system fonts lack its glyphs (#5327). */
+@font-face {
+    font-weight: 400;
+    font-family: 'Noto Music';
+    font-style: normal;
+    src: url('./fonts/NotoMusic-Regular.woff2') format('woff2');
+    unicode-range: U+2669-266F, U+1D000-1D24F;
+}
+
+@font-face {
+    font-weight: 400;
+    font-family: 'Noto Sans Math';
+    font-style: normal;
+    src: url('./fonts/NotoSansMath-Regular.woff2') format('woff2');
+    unicode-range: U+23B4-23E1;
 }
 
 /*
@@ -248,4 +272,91 @@ body {
     height: 3px;
 
     background: var(--highlight-color);
+}
+
+.mu-read-only {
+    caret-color: transparent;
+}
+
+.mu-read-only .mu-content {
+    cursor: text;
+}
+
+.mu-read-only .mu-link,
+.mu-read-only a[href] {
+    cursor: pointer;
+}
+
+.mu-code-copy {
+    background: transparent;
+    border: 0;
+}
+
+.mu-container .mu-copy-header-link,
+.mu-code-copy {
+    border-radius: 4px;
+
+    transition:
+        opacity 0.2s ease,
+        background-color 0.15s ease;
+}
+
+.mu-container .mu-copy-header-link:hover,
+.mu-container .mu-copy-header-link:focus-visible,
+.mu-code-copy:hover,
+.mu-code-copy:focus-visible {
+    background-color: var(--float-hover-color);
+}
+
+.mu-read-only .mu-code-copy:focus-visible {
+    visibility: visible;
+    opacity: 1;
+}
+
+.mu-code-block:hover > .mu-code-copy,
+.mu-code-block > .mu-code-copy:focus-visible {
+    opacity: 1;
+}
+
+.mu-code-copy[data-copy-feedback]::after,
+.mu-copy-header-link[data-copy-feedback]::after {
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+
+    padding: 4px 8px;
+
+    color: var(--editor-color);
+    font: 12px sans-serif;
+    white-space: nowrap;
+
+    background: var(--float-bg-color);
+    border-radius: 4px;
+    box-shadow: var(--float-shadow);
+
+    content: attr(data-copy-feedback);
+}
+
+.mu-copy-success > * {
+    visibility: hidden;
+}
+
+.mu-copy-success::before {
+    position: absolute;
+
+    width: 14px;
+    height: 14px;
+
+    background: var(--theme-color);
+
+    transform: translate(-50%, -50%);
+
+    content: '';
+    clip-path: polygon(14% 44%, 38% 68%, 86% 20%, 96% 30%, 38% 88%, 4% 54%);
+    inset: 50% auto auto 50%;
+}
+
+.mu-container .mu-copy-success {
+    visibility: visible;
+    opacity: 1;
 }

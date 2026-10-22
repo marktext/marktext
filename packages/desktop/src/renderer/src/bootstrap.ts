@@ -5,7 +5,7 @@ let exceptionLogger: (s: unknown) => void = (s) => console.error(s)
 
 const configureLogger = (): void => {
   const isDev = window.electron?.process?.env?.NODE_ENV === 'development'
-  log.transports.console.level = isDev ? 'info' : false // mirror to window console
+  log.transports.console.level = isDev ? 'info' : false
   exceptionLogger = log.error
 }
 
@@ -54,14 +54,7 @@ const parseUrlArgs = (): UrlArgs => {
   }
 }
 
-/**
- * Check if an error is a known non-fatal CodeMirror race condition.
- * These errors occur when clicking in the editor during rapid state changes
- * and don't affect functionality - the user can simply click again.
- *
- * @param error - The error to check
- * @returns True if this is a suppressible CodeMirror error
- */
+/** Ignore known CodeMirror measurement races during transient document/display updates. */
 const isCodeMirrorRaceCondition = (error: Error | null | undefined): boolean => {
   if (!error || !error.stack) return false
 
@@ -91,7 +84,6 @@ const handleRendererError = (event: ErrorEvent | PromiseRejectionEvent | Event):
 
     exceptionLogger(errorEvent.error)
 
-    // Pass exception to main process exception handler to show a error dialog.
     window.electron.ipcRenderer.send('mt::handle-renderer-error', copy)
   } else {
     console.error(event)
@@ -99,7 +91,6 @@ const handleRendererError = (event: ErrorEvent | PromiseRejectionEvent | Event):
 }
 
 const bootstrapRenderer = (): void => {
-  // Register renderer exception handler
   window.addEventListener('error', handleRendererError)
   window.addEventListener('unhandledrejection', handleRendererError)
 

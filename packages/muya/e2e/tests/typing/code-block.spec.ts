@@ -27,6 +27,41 @@ test.describe('code block', () => {
         await expect(page.locator(editor.languageInput).first()).toBeVisible();
     });
 
+    test('typing ~~~ + Enter converts paragraph to a tilde-fenced code block', async ({ page }) => {
+        await page.evaluate(() => window.muya!.setContent(''));
+        await page.locator(editor.paragraph).first().click();
+        await page.keyboard.type('~~~');
+        await page.keyboard.press('Enter');
+
+        const codeBlock = page.locator(editor.codeBlock).first();
+        await expect(codeBlock).toBeVisible();
+        await expect(codeBlock).toHaveClass(/mu-fenced-code/);
+        await expect(codeBlock).toHaveClass(/mu-tilde-fence/);
+        await expect(page.locator(editor.languageInput).first()).toBeVisible();
+        expect(await getMarkdown(page)).toContain('~~~');
+
+        // The active block draws its own fence character in the marker.
+        await page.locator(editor.codeContent).first().click();
+        const marker = await codeBlock.evaluate(
+            el => getComputedStyle(el, '::before').content,
+        );
+        expect(marker).toBe('"~~~"');
+    });
+
+    test('loads and saves a tilde fence without rewriting it to backticks', async ({ page }) => {
+        await page.evaluate(() => {
+            window.muya!.setContent('~~~js\nconst x = 1;\n~~~\n');
+        });
+        const codeBlock = page.locator(editor.codeBlock).first();
+        await expect(codeBlock).toBeVisible();
+        await expect(codeBlock).toHaveClass(/mu-tilde-fence/);
+
+        const md = await getMarkdown(page);
+        expect(md).toContain('~~~js');
+        expect(md).toContain('const x = 1;');
+        expect(md).not.toContain('```js');
+    });
+
     test('typing ```<lang> + Enter records the lang via setContent path', async ({ page }) => {
         // Note: typing through the language token after ``` is timing-sensitive
         // because the code-block language selector popup intercepts subsequent

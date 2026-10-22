@@ -4,7 +4,7 @@
     <side-bar />
     <div
       class="pref-content"
-      :class="{ frameless: titleBarStyle === 'custom' || isOsx }"
+      :class="{ frameless: titleBarStyle === 'custom' || isMac }"
     >
       <div
         v-if="!showCustomTitleBar"
@@ -23,30 +23,26 @@ import TitleBar from '@/prefComponents/common/titlebar.vue'
 import SideBar from '@/prefComponents/sideBar/index.vue'
 import { addThemeStyle } from '@/util/theme'
 import { DEFAULT_STYLE } from '@/config'
-import { isOsx } from '@/util'
+import { isMac } from '@/util'
 
-// Store
 const preferencesStore = usePreferencesStore()
 
-// Computed properties
 const { theme, titleBarStyle } = storeToRefs(preferencesStore)
 
 const showCustomTitleBar = computed<boolean>(() => {
   // Always show the custom title bar on macOS to provide a close button
-  if (isOsx) {
+  if (isMac) {
     return true
   }
   return titleBarStyle.value === 'custom'
 })
 
-// Watchers
 watch(theme, (newValue, oldValue) => {
   if (newValue !== oldValue) {
     addThemeStyle(newValue)
   }
 })
 
-// Lifecycle
 onMounted(() => {
   nextTick(() => {
     const state = window.marktext?.initialState ?? DEFAULT_STYLE
@@ -101,6 +97,8 @@ onMounted(() => {
     font-style: italic;
     font-size: 12px;
     color: var(--editorColor80);
+    /* A Windows path is one unbreakable token, so without this it widens `.pref-content`. */
+    overflow-wrap: anywhere;
   }
 
   & .pref-content {

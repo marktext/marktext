@@ -28,7 +28,9 @@ function toState(markdown: string): TState[] {
     return new MarkdownToState({
         footnote: false,
         texMathDollars: true,
-        isGitlabCompatibilityEnabled: true,
+        texMathGfm: true,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,
     }).generate(markdown);
@@ -38,15 +40,10 @@ function roundTrip(markdown: string): string {
     return new StateToMarkdown({ listIndentation: 1 }).generate(toState(markdown));
 }
 
-// `children` is only present on container states; leaf states (paragraph,
-// table.cell, …) have no `children`. Narrow on the property so we stay
-// `any`-free while still tolerating a leaf/undefined input.
 function children(state: TState | undefined): TState[] {
     return state && 'children' in state ? state.children : [];
 }
 
-// First-child text of a list item (its leading paragraph). Leaf states carry a
-// `text` field; container states do not.
 function firstText(state: TState | undefined): string | undefined {
     const first = children(state)[0];
     return first && 'text' in first ? first.text : undefined;
@@ -60,7 +57,6 @@ describe('nested mixed lists (#4341)', () => {
    - Open
    - Save
 `;
-        // First pass is the identity, and a second pass is stable.
         const once = roundTrip(markdown);
         expect(once).toBe(markdown);
         expect(roundTrip(once)).toBe(once);
@@ -93,8 +89,6 @@ describe('nested mixed lists (#4341)', () => {
 
         const nestedList = children(secondItem).find(c => c.name === 'bullet-list');
         expect(nestedList, 'expected a bullet-list nested inside the second order-list item').toBeDefined();
-        // The item is exactly [leading paragraph, nested bullet-list] — the
-        // nested list did NOT collapse into a paragraph (the #4341 failure mode).
         expect(children(secondItem).map(c => c.name)).toEqual(['paragraph', 'bullet-list']);
         expect(children(nestedList)).toHaveLength(3);
         expect(children(nestedList).map(firstText)).toEqual(['New', 'Open', 'Save']);

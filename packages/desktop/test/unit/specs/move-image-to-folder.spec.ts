@@ -48,10 +48,8 @@ describe('moveImageToFolder relative-directory persistence', () => {
   it('returns a relative path for a local path string when isRelative is set', async() => {
     const source = '/Users/someone/pictures/pic.png'
     const result = await moveImageToFolder(docPath, source, assetsDir, true, docPath)
-    // The image must be copied into the assets dir...
     expect(copyWithContentHash).toHaveBeenCalledTimes(1)
     expect(copyWithContentHash).toHaveBeenCalledWith(source, assetsDir)
-    // ...and the inserted reference must be the portable relative path.
     expect(result).toBe(path.join('assets', 'content-hash.png'))
   })
 
@@ -59,18 +57,13 @@ describe('moveImageToFolder relative-directory persistence', () => {
     const source = '/Users/someone/pictures/pic.png'
     const result = await moveImageToFolder(docPath, source, assetsDir, false, docPath)
     expect(copyWithContentHash).toHaveBeenCalledWith(source, assetsDir)
-    // With isRelative=false the reference is the absolute hashed destination
-    // the main process copied to.
     expect(result).toBe(path.join(assetsDir, 'content-hash.png'))
   })
 
   it('short-circuits without copying when the image already lives in outputDir', async() => {
-    // The resolved imagePath is already path.join(outputDir, basename), so the
-    // copy step is skipped.
     const inPlace = path.join(assetsDir, 'already.png')
     const result = await moveImageToFolder(docPath, inPlace, assetsDir, false, docPath)
     expect(copyWithContentHash).not.toHaveBeenCalled()
-    // The original absolute path is returned unchanged (isRelative=false).
     expect(result).toBe(inPlace)
   })
 
@@ -98,16 +91,12 @@ describe('moveImageToFolder relative-directory persistence', () => {
       true,
       docPath
     )
-    // No copy for a binary File — it is written, not copied.
     expect(copyWithContentHash).not.toHaveBeenCalled()
     expect(writeFile).toHaveBeenCalledTimes(1)
-    // The written destination is inside the assets dir, named by the SHA-1 of
-    // its bytes (the same dedup scheme as the string-path branch)...
     expect((writeFile.mock.calls[0] as unknown[])[0] as string).toMatch(
       /e809c5d1cea47b45e34701d23f608a9a58034dc9\.png$/
     )
     expect(((writeFile.mock.calls[0] as unknown[])[0] as string).startsWith(assetsDir)).toBe(true)
-    // ...and the inserted reference is the portable relative path.
     expect(path.isAbsolute(result)).toBe(false)
     expect(result.startsWith('assets/')).toBe(true)
     expect(result.endsWith('e809c5d1cea47b45e34701d23f608a9a58034dc9.png')).toBe(true)

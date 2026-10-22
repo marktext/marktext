@@ -1,12 +1,14 @@
 export interface KeyedTocNode {
   key: string
   label: unknown
+  labelHtml: unknown
   slug: unknown
   children: KeyedTocNode[]
 }
 
 interface TocLike {
   label?: unknown
+  labelHtml?: unknown
   slug?: unknown
   githubSlug?: unknown
   children?: TocLike[]
@@ -29,6 +31,7 @@ export function deriveKeyedToc(nodes: TocLike[]): KeyedTocNode[] {
       return {
         key: count === 0 ? base : `${base}-${count}`,
         label: node.label,
+        labelHtml: node.labelHtml,
         slug: node.slug,
         children: assign(node.children ?? [])
       }

@@ -3,6 +3,7 @@ import { delay } from '@/util'
 import FileSearcher from '@/node/fileSearcher'
 import type { EditorState } from '@/store/editor'
 import getCommandDescriptionById from './descriptions'
+import notice from '@/services/notification'
 import { t } from '../i18n'
 
 const SPECIAL_CHARS = /[\[\]\\^$.\|\?\*\+\(\)\/]{1}/g // eslint-disable-line no-useless-escape
@@ -15,12 +16,13 @@ interface QuickOpenSubcommand {
 
 interface FolderState {
   projectTree: { pathname: string } | null
+  availableRoots?: { pathname: string }[]
+  FILE_LABEL?: (pathname: string) => string
 }
 type RootState = { editor: EditorState; project: FolderState; [key: string]: unknown }
 
 type CancelFn = (() => void) | null
 
-// The quick open command
 class QuickOpenCommand {
   id: string
   description: string
@@ -32,6 +34,7 @@ class QuickOpenCommand {
   private _folderState: FolderState
   private _directorySearcher: FileSearcher
   private _cancelFn: CancelFn
+  private _sequence = 0
 
   constructor(rootState: RootState) {
     this.id = 'file.quick-open'
@@ -42,7 +45,6 @@ class QuickOpenCommand {
     this.subcommands = []
     this.subcommandSelectedIndex = -1
 
-    // Reference to folder and editor and project state.
     this._editorState = rootState.editor
     this._folderState = rootState.project
 
@@ -51,36 +53,27 @@ class QuickOpenCommand {
   }
 
   search = async(query: string): Promise<QuickOpenSubcommand[]> => {
-    // Show opened files when no query given.
-    if (!query) {
-      return this.subcommands
-    }
-
-    const { _cancelFn } = this
-    if (_cancelFn) {
-      _cancelFn()
-      this._cancelFn = null
-    }
-
+    const sequence = ++this._sequence
+    this._cancelFn?.()
+    this._cancelFn = null
+    if (!query) return this.subcommands.map(item => ({ id: item.id, ...this._getPath(item.id) }))
     const timeout = delay(300)
-    this._cancelFn = () => {
-      timeout.cancel()
-      this._cancelFn = null
-    }
-
+    this._cancelFn = () => timeout.cancel()
     await timeout
-    return this._doSearch(query)
+    if (sequence !== this._sequence) throw new Error('')
+    const result = await this._doSearch(query)
+    if (sequence !== this._sequence) throw new Error('')
+    return result
   }
 
   run = async(): Promise<void> => {
-    const { _editorState, _folderState } = this
-    if (!_folderState.projectTree && _editorState.tabs.length === 0) {
+    const { _editorState } = this
+    if (!this._roots().length && _editorState.tabs.length === 0) {
       throw new Error(null as unknown as string)
     }
 
     this.subcommands = _editorState.tabs
       .map((tab) => tab.pathname)
-      // Filter untitled tabs
       .filter((tabPath: string | null | undefined) => !!tabPath)
       .map((pathname: string) => {
         const item: QuickOpenSubcommand = { id: pathname }
@@ -101,26 +94,30 @@ class QuickOpenCommand {
   }
 
   unload = (): void => {
+    this._sequence++
+    this._cancelFn?.()
+    this._cancelFn = null
     this.subcommands = []
   }
 
-  // --- private ------------------------------------------
+  _roots = (): string[] => this._folderState.availableRoots?.map(root => root.pathname)
+    ?? (this._folderState.projectTree ? [this._folderState.projectTree.pathname] : [])
+
 
   _doSearch = (query: string): QuickOpenSubcommand[] | Promise<QuickOpenSubcommand[]> => {
     this._cancelFn = null
-    const { _editorState, _folderState } = this
-    const isRootDirOpened = !!_folderState.projectTree
+    const { _editorState } = this
+    const sequence = this._sequence
+    const rootPaths = this._roots()
+    const isRootDirOpened = !!rootPaths.length
     const tabsAvailable = _editorState.tabs.length > 0
 
-    // Only show opened files if no directory is opened.
     if (!isRootDirOpened && !tabsAvailable) {
       return []
     }
 
     const searchResult: string[] = []
-    const rootPath: string | null = isRootDirOpened ? _folderState.projectTree!.pathname : null
 
-    // Add files that are not in the current root directory but opened.
     if (tabsAvailable) {
       const re = new RegExp(
         query.replace(SPECIAL_CHARS, (p) => {
@@ -135,7 +132,7 @@ class QuickOpenCommand {
         if (
           pathname &&
           re.test(pathname) &&
-          (!rootPath || !window.fileUtils.isChildOfDirectory(rootPath, pathname))
+          !rootPaths.some(rootPath => window.fileUtils.isChildOfDirectory(rootPath, pathname))
         ) {
           searchResult.push(pathname)
         }
@@ -152,30 +149,29 @@ class QuickOpenCommand {
       })
     }
 
-    // Search root directory on disk.
     return new Promise<QuickOpenSubcommand[]>((resolve, reject) => {
       let canceled = false
       const promises: Promise<void> & { cancel?: () => void } = this._directorySearcher
-        .search([rootPath!], '', {
+        .search(rootPaths, '', {
           didMatch: (result: unknown) => {
-            if (canceled) return
-            searchResult.push(result as string)
+            if (canceled || sequence !== this._sequence) return
+            if (!searchResult.includes(result as string)) searchResult.push(result as string)
           },
           didSearchPaths: (numPathsFound: unknown) => {
             // Cancel when more than 30 files were found. User should specify the search query.
-            if (!canceled && (numPathsFound as number) > 30) {
+            if (sequence === this._sequence && !canceled && (numPathsFound as number) > 30) {
               canceled = true
+              notice.notify({ title: this.description, type: 'info', message: t('search.searchLimited', { count: 30 }) })
               if (promises.cancel) {
                 promises.cancel()
               }
             }
           },
 
-          // Only search markdown files that contain the query string.
           inclusions: this._getInclusions(query)
         })
         .then(() => {
-          this._cancelFn = null
+          if (sequence === this._sequence) this._cancelFn = null
           resolve(
             searchResult.map((pathname) => {
               const item: QuickOpenSubcommand = { id: pathname }
@@ -185,8 +181,12 @@ class QuickOpenCommand {
           )
         })
         .catch((error: unknown) => {
+          if (sequence !== this._sequence) { reject(new Error('')); return }
           this._cancelFn = null
-          reject(error)
+          if (searchResult.length) {
+            notice.notify({ title: this.description, type: 'warning', message: t('sideBar.search.partialSearch') })
+            resolve(searchResult.map(pathname => ({ id: pathname, ...this._getPath(pathname) })))
+          } else reject(error)
         })
 
       this._cancelFn = () => {
@@ -213,7 +213,7 @@ class QuickOpenCommand {
   }
 
   _getPath = (pathname: string): { title?: string; description: string } => {
-    // Files can be open without a folder; show their full path then.
+    if (this._folderState.FILE_LABEL) return { description: this._folderState.FILE_LABEL(pathname), title: pathname }
     const rootPath = this._folderState.projectTree?.pathname
     if (!rootPath || !window.fileUtils.isChildOfDirectory(rootPath, pathname)) {
       return { title: pathname, description: pathname }

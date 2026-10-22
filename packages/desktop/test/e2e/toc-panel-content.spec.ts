@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
+import { makeRoomForOutline, launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
 
 // Item 240 — TOC/outline panel CONTENT + live update.
 //
@@ -14,11 +14,6 @@ import { launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
 // editor.vue LISTEN_FOR_CONTENT_CHANGE({ toc: editor.getTOC() }) ->
 // store UPDATE_TOC -> listToTree -> toc.vue `el-tree` re-render.
 
-// Initial document with a nested heading hierarchy:
-//   # A
-//     ## B
-//       ### B1
-//     ## C
 const INITIAL_DOC = '# A\n\n## B\n\n### B1\n\n## C\n'
 
 // Read the rendered ToC tree as an ordered list of { label, depth }. The
@@ -73,10 +68,9 @@ test.describe('TOC panel content + live update', () => {
     const launched = await launchWithMarkdown(INITIAL_DOC)
     app = launched.app
     page = launched.page
+    await makeRoomForOutline(app, page)
     await waitForEditor(page)
     await ensureSidebarVisible(app, page)
-    // Switch the sidebar right-column to the ToC (el-tree).
-    await clickMenuById(app, 'tocMenuItem')
     await page.waitForSelector('.side-bar-toc .el-tree', { state: 'visible', timeout: 10000 })
     // The tree is seeded from `editor.getTOC()` on mount. Wait until every
     // initial heading has rendered a node before asserting.
@@ -98,8 +92,6 @@ test.describe('TOC panel content + live update', () => {
 
   test('el-tree nesting depth matches the heading hierarchy', async() => {
     const tree = await readTocTree(page)
-    // # A -> depth 1; ## B -> depth 2 (child of A); ### B1 -> depth 3
-    // (child of B); ## C -> depth 2 (sibling of B, child of A).
     expect(tree).toEqual([
       { label: 'A', depth: 1 },
       { label: 'B', depth: 2 },
@@ -109,7 +101,6 @@ test.describe('TOC panel content + live update', () => {
   })
 
   test('renaming a heading updates its tree label live', async() => {
-    // Place the caret at the end of the "B1" heading and append " Renamed".
     await page.evaluate(() => {
       const headings = Array.from(
         document.querySelectorAll('.mu-container h1, .mu-container h2, .mu-container h3')
@@ -137,7 +128,6 @@ test.describe('TOC panel content + live update', () => {
       .poll(() => readTocLabels(page), { timeout: 8000 })
       .toEqual(['A', 'B', 'B1 Renamed', 'C'])
 
-    // Nesting must be unchanged by the rename.
     const tree = await readTocTree(page)
     expect(tree).toEqual([
       { label: 'A', depth: 1 },
@@ -162,8 +152,6 @@ test.describe('TOC panel content + live update', () => {
     await page.keyboard.press('Enter')
     await page.keyboard.type('## D ', { delay: 20 })
 
-    // The new heading appears as a fourth top-level subtree under A
-    // (level-2 sibling of B and C).
     await expect
       .poll(() => readTocLabels(page), { timeout: 8000 })
       .toEqual(['A', 'B', 'B1 Renamed', 'C', 'D'])

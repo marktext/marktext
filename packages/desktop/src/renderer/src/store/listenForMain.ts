@@ -1,9 +1,15 @@
 import { defineStore } from 'pinia'
 import bus from '../bus'
+import { useEditorStore } from './editor'
 import { useLayoutStore } from './layout'
 
 export const useListenForMainStore = defineStore('listenForMain', () => {
   function EDITOR_EDIT_ACTION(type: string): void {
+    if (
+      useEditorStore().currentFile?.readOnly &&
+      !['copy', 'copyAsRich', 'copyAsHtml', 'selectAll', 'findInFolder'].includes(type)
+    )
+      return
     const layoutStore = useLayoutStore()
     if (type === 'findInFolder') {
       layoutStore.SET_LAYOUT({
@@ -15,8 +21,6 @@ export const useListenForMainStore = defineStore('listenForMain', () => {
   }
 
   function LISTEN_FOR_EDIT(): void {
-    // Pass `type` through as-is (no String() coercion) — matches develop's JS
-    // behavior, including when callers send unexpected non-string values.
     window.electron.ipcRenderer.on('mt::editor-edit-action', (_e, type) => {
       EDITOR_EDIT_ACTION(type as string)
     })
@@ -34,10 +38,14 @@ export const useListenForMainStore = defineStore('listenForMain', () => {
     })
   }
 
+  /** Main asked for the document to convert; reply from the editor store. */
+  function LISTEN_FOR_PANDOC_EXPORT(): void {
+    window.electron.ipcRenderer.on('mt::export-with-pandoc', (_e, target) => {
+      useEditorStore().EXPORT_PANDOC(target as string)
+    })
+  }
+
   function LISTEN_FOR_PARAGRAPH_INLINE_STYLE(): void {
-    // Pre-migration JS destructured `{ type }` and re-emitted it without a
-    // guard. Restore the same shape; bus listeners that expect a payload get
-    // the same `type` value (string at runtime per main process emitters).
     window.electron.ipcRenderer.on('mt::editor-paragraph-action', (_e, { type }) => {
       bus.emit('paragraph', type)
     })
@@ -50,6 +58,7 @@ export const useListenForMainStore = defineStore('listenForMain', () => {
     EDITOR_EDIT_ACTION,
     LISTEN_FOR_EDIT,
     LISTEN_FOR_SHOW_DIALOG,
+    LISTEN_FOR_PANDOC_EXPORT,
     LISTEN_FOR_PARAGRAPH_INLINE_STYLE
   }
 })

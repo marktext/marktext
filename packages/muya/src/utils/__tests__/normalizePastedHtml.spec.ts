@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import HtmlToMarkdown from '../../state/htmlToMarkdown';
 import { normalizePastedHTML } from '../paste';
 
@@ -19,7 +19,6 @@ afterEach(() => {
 describe('normalizePastedHTML — bare URL link normalization', () => {
     it('keeps a link whose href is not a URL even when text === href', async () => {
         const out = await normalizePastedHTML('<a href="foo">foo</a>');
-        // Non-URL href: the link must survive, not collapse into a bare span.
         expect(out).toContain('href="foo"');
     });
 
@@ -29,8 +28,6 @@ describe('normalizePastedHTML — bare URL link normalization', () => {
     });
 
     it('unlinks a bare URL link (text === href) when no page title resolves', async () => {
-        // Offline → getPageTitle returns '' immediately → fallback span path.
-        // URL_REG needs a path segment after the host, so use `/page`.
         setOnline(false);
         const out = await normalizePastedHTML(
             '<a href="http://example.com/page">http://example.com/page</a>',
@@ -49,5 +46,20 @@ describe('normalizePastedHTML — bare URL link normalization', () => {
 
         expect(out).toContain(`href="${url}"`);
         expect(markdown).toContain(`[${url}](${url})`);
+    });
+    it('resolves a host-only URL through the supplied transport', async () => {
+        const out = await normalizePastedHTML('<a href="https://example.com">https://example.com</a>', {
+            fetchLinkHtml: async () => '<title>Example Domain</title>',
+        });
+        expect(new HtmlToMarkdown({ bulletListMarker: '-' }).generate(out)).toBe('[Example Domain](https://example.com)');
+    });
+
+    it('skips title fetching for plain-text paste', async () => {
+        const fetchLinkHtml = vi.fn();
+        await normalizePastedHTML('<a href="https://example.com">https://example.com</a>', {
+            fetchLinkHtml,
+            resolveLinkTitles: false,
+        });
+        expect(fetchLinkHtml).not.toHaveBeenCalled();
     });
 });

@@ -10,7 +10,8 @@ function asRenderer(r: IFakeRenderer | { loadImageMap: Map<string, unknown>; url
     return r as unknown as Renderer;
 }
 
-vi.mock('../../../utils/image', () => ({
+vi.mock('../../../utils/image', async importActual => ({
+    ...(await importActual<typeof import('../../../utils/image')>()),
     loadImage: vi.fn(() => new Promise(() => {})), // never resolves; we only test the sync decision
 }));
 
@@ -236,5 +237,83 @@ describe('loadImageAsync — small image class on first load', () => {
         const wrapper = await runLoad({ url: 'data:image/png;base64,x', width: 400, height: 300 });
         expect(wrapper.classList.contains('mu-image-success')).toBe(true);
         expect(wrapper.classList.contains('mu-small-image')).toBe(false);
+    });
+});
+
+// Regression for #4991: an SVG carrying only a `viewBox` has no intrinsic
+// size, so Chromium resolves its used width against the containing block —
+// and `.mu-image-container` is shrink-to-fit, so that width collapses to 0 and
+// the image renders as nothing. Pinning the measured width (the CSS default
+// object size the browser fell back to) gives the container a width to shrink
+// to. Images that carry a size of their own are left alone, as are images
+// whose attributes already state one.
+describe('loadImageAsync — pins a width for images with no intrinsic size', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        document.body.innerHTML = '';
+    });
+
+    async function runLoad(
+        loadResult: { url: string; width: number; height: number },
+        attrs: Record<string, string> = {},
+    ) {
+        const { loadImage } = await import('../../../utils/image');
+        vi.mocked(loadImage).mockResolvedValueOnce(
+            loadResult as unknown as Awaited<ReturnType<typeof loadImage>>,
+        );
+
+        const r = { loadImageMap: new Map(), urlMap: new Map() };
+        const { id } = loadImageAsync.call(
+            asRenderer(r),
+            { isUnknownType: false, src: 'https://example.com/diagram.svg' },
+            attrs,
+        );
+
+        const wrapper = document.createElement('span');
+        wrapper.id = id!;
+        wrapper.classList.add('mu-inline-image', 'mu-image-loading');
+        const container = document.createElement('span');
+        container.classList.add('mu-image-container');
+        wrapper.appendChild(container);
+        document.body.appendChild(wrapper);
+
+        await new Promise<void>(resolve => setTimeout(resolve, 0));
+
+        return wrapper.querySelector('img')!;
+    }
+
+    it('pins the measured width when the browser fell back to its default object size', async () => {
+        const img = await runLoad({
+            url: 'https://example.com/diagram.svg',
+            width: 300,
+            height: 136,
+        });
+        expect(img.style.width).toBe('300px');
+    });
+
+    it('leaves an image that has an intrinsic size alone', async () => {
+        const img = await runLoad({
+            url: 'https://example.com/photo.png',
+            width: 800,
+            height: 600,
+        });
+        expect(img.style.width).toBe('');
+    });
+
+    it('does not override a width stated by the image attributes', async () => {
+        const img = await runLoad(
+            { url: 'https://example.com/diagram.svg', width: 300, height: 136 },
+            { width: '80' },
+        );
+        expect(img.style.width).toBe('');
+        expect(img.getAttribute('width')).toBe('80');
+    });
+
+    it('does not pin when the attributes state a height — the ratio then gives a width', async () => {
+        const img = await runLoad(
+            { url: 'https://example.com/diagram.svg', width: 300, height: 136 },
+            { height: '90' },
+        );
+        expect(img.style.width).toBe('');
     });
 });

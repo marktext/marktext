@@ -19,5 +19,6 @@ playwright-report/
 *.min.json
 .claude/settings.local.json
 .claude/
+.codex/
 .agents/
 .agent/

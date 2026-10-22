@@ -1,10 +1,7 @@
-/* Common CSS use by both light and dark themes */
 :root {
   --titleBarHeight: 32px;
   --editorAreaWidth: 750px;
 
-  /*editor*/
-  /*Theme color cluster*/
   --themeColor: rgba(33, 181, 111, 1);
   --themeColor90: rgba(33, 181, 111, 0.9);
   --themeColor80: rgba(33, 181, 111, 0.8);
@@ -62,7 +59,6 @@
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(13, 91, 55, 0.5), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #e5e5e5;
 
-  /* Markdown element colors */
   --headingColor: var(--editorColor80);
   --h1Color: var(--headingColor);
   --h2Color: var(--headingColor);
@@ -78,7 +74,6 @@
   --emColor: var(--editorColor);
   --listMarkerColor: var(--editorColor50);
 
-  /*marktext*/
   --sideBarColor: rgba(0, 0, 0, 0.6);
   --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: rgba(0, 0, 0, 1);
@@ -96,7 +91,6 @@
     rgba(15, 15, 15, 0.05) 0px 9px 24px;
   --maskColor: rgba(232, 232, 232, 0.8);
 
-  /* Notification colors */
   --notificationPrimaryColor: #ffffff;
   --notificationPrimaryBg: var(--themeColor);
   --notificationInfoColor: #ffffff;
@@ -126,6 +120,31 @@
 
 :focus {
   outline: none;
+}
+
+/* Unstyled button for existing clickable layouts. Icon-only buttons need an aria-label. */
+.plain-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* The `:focus` reset above leaves keyboard users without an indicator. The ring
+   uses the side bar title colour rather than `--focusColor`: the default,
+   Ayu Light and Everforest Light accents sit at about 2.4–2.8:1 against their
+   backgrounds, under the 3:1 that WCAG 1.4.11 asks of a focus indicator, while
+   the title colour clears it in every bundled theme. */
+.plain-button:focus-visible {
+  outline: 2px solid var(--sideBarTitleColor);
+  outline-offset: -2px;
+  border-radius: 3px;
 }
 
 html,
@@ -160,7 +179,6 @@ body {
   white-space: nowrap;
 }
 
-/* Overwrite Element style */
 .el-tooltip__popper {
   background: var(--floatBgColor);
   color: var(--sideBarColor);
@@ -393,7 +411,6 @@ button.button-primary:not(.custom):focus,
   margin-right: 0;
 }
 
-/* Overwrite element UI button padding */
 .el-button,
 .el-button--primary {
   padding: 7px 14px;
@@ -419,10 +436,6 @@ button.button-primary:not(.custom):focus,
   background: var(--buttonPrimaryBgColor);
   border: var(--buttonPrimaryBorder);
   box-shadow: none;
-}
-
-.image-viewer {
-  z-index: 10001;
 }
 
 .el-tabs__active-bar {

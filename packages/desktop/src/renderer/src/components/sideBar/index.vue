@@ -1,46 +1,59 @@
 <template>
   <div
     v-show="showSideBar"
-    ref="sideBar"
     class="side-bar"
-    :style="[!rightColumn ? { 'min-width': '45px' } : {}, { width: `${finalSideBarWidth}px` }]"
+    :style="{ width: `${finalSideBarWidth}px` }"
   >
-    <div class="left-column">
-      <ul>
-        <li
-          v-for="(c, index) of sideBarIcons"
-          :key="index"
-          :class="{ active: c.id === rightColumn }"
-          @click="handleLeftIconClick(c.id)"
-        >
-          <component :is="c.icon" />
-        </li>
-      </ul>
-      <ul class="bottom">
-        <li
-          v-for="(c, index) of sideBarBottomIcons"
-          :key="index"
-          @click="handleLeftBottomClick(c.id)"
-        >
-          <component :is="c.icon" />
-        </li>
-      </ul>
-    </div>
     <div
-      v-show="rightColumn"
-      class="right-column"
+      v-if="rightColumn === 'files'"
+      class="sidebar-header"
     >
+      <span class="sidebar-title">{{ t('sideBar.icons.files') }}</span>
+      <icon-tooltip :content="t('sideBar.icons.search')">
+        <button
+          ref="searchButton"
+          type="button"
+          class="plain-button search-button"
+          :aria-label="t('sideBar.icons.search')"
+          @click="openSearch"
+        >
+          <Search aria-hidden="true" />
+        </button>
+      </icon-tooltip>
+    </div>
+    <div class="sidebar-content">
       <tree
         v-if="rightColumn === 'files'"
-        :project-tree="projectTree"
-        :opened-files="openedFiles"
         :tabs="tabs"
       />
-      <side-bar-search v-else-if="rightColumn === 'search'" />
-      <toc v-else-if="rightColumn === 'toc'" />
+      <side-bar-search
+        v-else-if="rightColumn === 'search'"
+        @back="returnToFiles"
+      />
+    </div>
+    <div class="sidebar-footer">
+      <icon-tooltip :content="t('sideBar.icons.settings')">
+        <button
+          type="button"
+          class="plain-button settings-button"
+          :aria-label="t('sideBar.icons.settings')"
+          @click="projectStore.OPEN_SETTING_WINDOW()"
+        >
+          <Setting aria-hidden="true" />
+        </button>
+      </icon-tooltip>
+      <icon-tooltip :content="t('menu.file.addFolder')">
+        <button
+          type="button"
+          class="plain-button add-folder-button"
+          :aria-label="t('menu.file.addFolder')"
+          @click="projectStore.ASK_FOR_OPEN_PROJECT()"
+        >
+          <Plus aria-hidden="true" />
+        </button>
+      </icon-tooltip>
     </div>
     <div
-      v-show="rightColumn"
       ref="dragBar"
       class="drag-bar"
     />
@@ -48,38 +61,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useLayoutStore } from '@/store/layout'
 import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
 
-import { sideBarIcons, sideBarBottomIcons } from './help'
+import { Search, Setting, Plus } from '@element-plus/icons-vue'
+import { useI18n } from 'vue-i18n'
 import Tree from './tree.vue'
 import SideBarSearch from './search.vue'
-import Toc from './toc.vue'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import { storeToRefs } from 'pinia'
-import type { TabDescriptor } from './types'
 
+const { t } = useI18n()
+const searchButton = ref<HTMLButtonElement | null>(null)
 const layoutStore = useLayoutStore()
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
 
-const sideBar = ref<HTMLDivElement | null>(null)
 const dragBar = ref<HTMLDivElement | null>(null)
 
-const openedFiles = ref<TabDescriptor[]>([])
 const sideBarViewWidth = ref(280)
 
 const { rightColumn, showSideBar, sideBarWidth } = storeToRefs(layoutStore)
 
-const { projectTree } = storeToRefs(projectStore)
 const { tabs } = storeToRefs(editorStore)
+
+watch(sideBarWidth, width => {
+  sideBarViewWidth.value = Number(width)
+})
 
 const finalSideBarWidth = computed<number>(() => {
   if (!showSideBar.value) return 0
-  if (rightColumn.value === '') return 45
   return sideBarViewWidth.value < 220 ? 220 : sideBarViewWidth.value
 })
+
+let stopDragging: (() => void) | undefined
+
+onUnmounted(() => stopDragging?.())
 
 onMounted(() => {
   nextTick(() => {
@@ -94,7 +113,7 @@ onMounted(() => {
     const mouseUpHandler = (): void => {
       document.removeEventListener('mousemove', mouseMoveHandler, false)
       document.removeEventListener('mouseup', mouseUpHandler, false)
-      layoutStore.CHANGE_SIDE_BAR_WIDTH(currentSideBarWidth < 220 ? 220 : currentSideBarWidth)
+      layoutStore.SET_SIDE_BAR_WIDTH(currentSideBarWidth)
     }
 
     const mouseMoveHandler = (event: MouseEvent): void => {
@@ -111,42 +130,34 @@ onMounted(() => {
     }
 
     dragBarEl.addEventListener('mousedown', mouseDownHandler, false)
+    stopDragging = () => {
+      dragBarEl.removeEventListener('mousedown', mouseDownHandler, false)
+      document.removeEventListener('mousemove', mouseMoveHandler, false)
+      document.removeEventListener('mouseup', mouseUpHandler, false)
+    }
   })
 })
 
-const handleLeftIconClick = (name: string): void => {
-  if (rightColumn.value === name) {
-    // Capture the expanded width BEFORE collapsing: once rightColumn is '',
-    // finalSideBarWidth evaluates to the 45px icon strip and would overwrite
-    // the user's real width with the clamped 220px minimum (#2421).
-    const widthToPersist = finalSideBarWidth.value
-    layoutStore.SET_LAYOUT({ rightColumn: '' })
-    layoutStore.CHANGE_SIDE_BAR_WIDTH(widthToPersist)
-  } else {
-    const needDispatch = rightColumn.value === ''
-    layoutStore.SET_LAYOUT({ rightColumn: name })
-    sideBarViewWidth.value = +sideBarWidth.value
-    if (needDispatch) {
-      layoutStore.CHANGE_SIDE_BAR_WIDTH(finalSideBarWidth.value)
-    }
-  }
+const openSearch = (): void => {
+  layoutStore.SET_LAYOUT({ rightColumn: 'search' })
 }
 
-const handleLeftBottomClick = (name: string): void => {
-  if (name === 'settings') {
-    projectStore.OPEN_SETTING_WINDOW()
-  }
+const returnToFiles = (restoreFocus = true): void => {
+  layoutStore.SET_LAYOUT({ rightColumn: 'files' })
+  if (restoreFocus) nextTick(() => searchButton.value?.focus())
 }
 </script>
 
 <style scoped>
 .side-bar {
   display: flex;
+  flex-direction: column;
   flex-shrink: 0;
-  flex-grow: 0;
   width: 280px;
   height: 100vh;
   min-width: 220px;
+  padding-top: 32px;
+  box-sizing: border-box;
   position: relative;
   color: var(--sideBarColor);
   user-select: none;
@@ -154,62 +165,48 @@ const handleLeftBottomClick = (name: string): void => {
   border-right: 1px solid var(--itemBgColor);
 }
 
-.side-bar .left-column svg {
-  color: var(--iconColor);
-}
-
-.left-column {
-  height: 100%;
-  width: 45px;
+.sidebar-header,
+.sidebar-footer {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding-top: 28px;
-  box-sizing: border-box;
-}
-
-.left-column > ul {
-  opacity: 1;
-}
-
-.left-column ul {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-}
-
-.left-column ul > li {
-  width: 45px;
-  height: 45px;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: space-around;
   align-items: center;
-  cursor: pointer;
+  flex-shrink: 0;
+  padding: 4px 8px;
+  -webkit-app-region: no-drag;
 }
 
-.left-column ul > li > svg {
+.add-folder-button { margin-left: auto; }
+
+.sidebar-title {
+  flex: 1;
+  padding-left: 7px;
+  font-size: 13px;
+}
+
+.sidebar-header button,
+.sidebar-footer button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  color: var(--sideBarIconColor);
+}
+
+.sidebar-header button:hover,
+.sidebar-footer button:hover {
+  background: var(--sideBarItemHoverBgColor);
+}
+
+.sidebar-header svg,
+.sidebar-footer svg {
   width: 18px;
   height: 18px;
-  color: var(--sideBarIconColor);
-  opacity: 1;
-  transition: transform 0.25s ease-in-out;
 }
 
-.left-column ul > li.active > svg {
-  color: var(--themeColor);
-}
-
-.side-bar:hover .left-column ul li svg {
-  opacity: 1;
-}
-
-.right-column {
+.sidebar-content {
   flex: 1;
-  width: calc(100% - 50px);
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -221,6 +218,7 @@ const handleLeftBottomClick = (name: string): void => {
   height: 100%;
   width: 3px;
   cursor: col-resize;
+  -webkit-app-region: no-drag;
 }
 
 .drag-bar:hover {

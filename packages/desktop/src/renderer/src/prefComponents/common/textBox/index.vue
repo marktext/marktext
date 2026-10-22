@@ -8,15 +8,23 @@
       style="display: flex; align-items: center"
     >
       <span>{{ description }}:</span>
-      <LinkIcon
+      <icon-tooltip
         v-if="more"
-        :size="14"
-        class="link-icon"
-        @click="handleMoreClick"
-      />
+        :content="t('preferences.learnMore', { name: description })"
+      >
+        <button
+          type="button"
+          class="plain-button"
+          :aria-label="t('preferences.learnMore', { name: description })"
+          @click="handleMoreClick"
+        >
+          <LinkIcon :size="14" />
+        </button>
+      </icon-tooltip>
     </div>
     <el-input
       v-model="inputText"
+      :aria-label="description"
       class="input"
       :class="{ error: invalidInput }"
       :placeholder="defaultValue"
@@ -41,8 +49,12 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import type { PrefControlBaseProps } from '../types'
+
+const { t } = useI18n()
 
 interface TextBoxProps extends PrefControlBaseProps {
   notes?: string

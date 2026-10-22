@@ -1,12 +1,16 @@
 import type Content from '../block/base/content';
 import type Format from '../block/base/format';
+import type BulletList from '../block/commonMark/bulletList';
+import type OrderList from '../block/commonMark/orderList';
+import type TaskList from '../block/gfm/taskList';
 import type { TBlockPath } from '../block/types';
 import type { Muya } from '../muya';
 import type { Nullable } from '../types';
 import type Selection from './index';
-import type { IAnchorFocusInfo, INodeOffset, ISelection } from './types';
-import { BLOCK_DOM_PROPERTY } from '../config';
+import type { IAnchorFocusInfo, INodeOffset, ISelection, ISelectionEndpoints } from './types';
+import { revealBlock } from '../block/folding';
 import { isHTMLElement, isMouseEvent } from '../utils';
+import logger from '../utils/logger';
 import {
     buildSelectionAffiliation,
     endpointBlockInfo,
@@ -14,12 +18,33 @@ import {
 import { getCursorCoords } from './cursorCoords';
 import {
     compareParagraphsOrder,
-    findContentDOM,
     getLegalOffset,
     getNodeAndOffset,
-    getOffsetOfParagraph,
+    lineAtPoint,
+    resolveEndpoint,
 } from './dom';
 import { SelectionCaretType, SelectionDirection, SelectionType } from './types';
+
+const debug = logger('textselection:');
+
+// Code, table and tight-list content is newline-separated; anything else needs
+// a blank line, which is also what would re-parse a tight list as loose.
+function getTextSeparator(previous: Content, next: Content): string {
+    const ancestors = next.getAncestors();
+    let container = previous.getAncestors().find(block => ancestors.includes(block));
+    if (container?.blockName === 'list-item' || container?.blockName === 'task-list-item')
+        container = container.parent ?? undefined;
+
+    if (container?.blockName === 'code-block' || container?.blockName.startsWith('table'))
+        return '\n';
+
+    if (container && ['bullet-list', 'order-list', 'task-list'].includes(container.blockName)) {
+        const list = container as BulletList | OrderList | TaskList;
+        return list.meta.loose ? '\n\n' : '\n';
+    }
+
+    return '\n\n';
+}
 
 function computeDirection(
     anchorBlock: Content,
@@ -62,7 +87,7 @@ class TextSelection {
 
     private _selectInfo: {
         isSelect: boolean;
-        selection: { anchor: IAnchorFocusInfo; focus: IAnchorFocusInfo } | null;
+        selection: ISelectionEndpoints | null;
     } = {
         isSelect: false,
         selection: null,
@@ -143,6 +168,19 @@ class TextSelection {
         if (aBlock == null || fBlock == null)
             return;
 
+        if (this._muya.isReadOnly) {
+            const first = aBlock.domNode;
+            const last = fBlock.domNode;
+            if (!first || !last)
+                return;
+            // Reading selections must preserve folding and avoid editor selection side effects.
+            const range = this._doc.createRange();
+            range.setStart(first, 0);
+            range.setEnd(last, last.childNodes.length);
+            this._selectRange(range);
+            return;
+        }
+
         this.setSelection(
             { offset: 0, block: aBlock, path: aBlock.path },
             { offset: fBlock.text.length, block: fBlock, path: fBlock.path },
@@ -163,54 +201,68 @@ class TextSelection {
         if (!anchorNode || !focusNode)
             return null;
 
-        const anchorDomNode = findContentDOM(anchorNode);
-        const focusDomNode = findContentDOM(focusNode);
+        const anchor = resolveEndpoint(anchorNode, anchorOffset);
+        const focus = resolveEndpoint(focusNode, focusOffset);
 
-        if (!anchorDomNode || !focusDomNode)
+        if (!anchor || !focus)
             return null;
 
-        const anchorBlock = anchorDomNode[BLOCK_DOM_PROPERTY] as Content | undefined;
-        const focusBlock = focusDomNode[BLOCK_DOM_PROPERTY] as Content | undefined;
-        // An `mu-content` span cloned by the browser's native edit
-        // behavior is not linked back to a block. Bail out instead of
-        // crashing — the caller treats null the same as "no selection".
-        if (!anchorBlock || !focusBlock)
-            return null;
-
-        if (!anchorBlock.outMostBlock || !focusBlock.outMostBlock)
-            return null;
-
-        const anchorPath = anchorBlock.path;
-        const focusPath = focusBlock.path;
-
-        const aOffset = getOffsetOfParagraph(anchorNode, anchorDomNode) + anchorOffset;
-        const fOffset = getOffsetOfParagraph(focusNode, focusDomNode) + focusOffset;
-        const anchor = { offset: aOffset };
-        const focus = { offset: fOffset };
-
+        const anchorBlock = anchor.block;
+        const focusBlock = focus.block;
         const isCollapsed = anchorBlock === focusBlock && anchor.offset === focus.offset;
         const isSelectionInSameBlock = anchorBlock === focusBlock;
 
-        const direction = computeDirection(
-            anchorBlock,
-            focusBlock,
-            anchor.offset,
-            focus.offset,
-            isSelectionInSameBlock,
-        );
-        const type = computeCaretType(anchorBlock, focusBlock, isCollapsed);
-
         return {
-            anchor: { offset: anchor.offset, block: anchorBlock, path: anchorPath },
-            focus: { offset: focus.offset, block: focusBlock, path: focusPath },
+            anchor,
+            focus,
             isCollapsed,
             isSelectionInSameBlock,
-            direction,
-            type,
+            direction: computeDirection(
+                anchorBlock,
+                focusBlock,
+                anchor.offset,
+                focus.offset,
+                isSelectionInSameBlock,
+            ),
+            type: computeCaretType(anchorBlock, focusBlock, isCollapsed),
         };
     }
 
+    getSelectedText(): string {
+        const selection = this.getSelection();
+        if (!selection || selection.isCollapsed)
+            return '';
+
+        const { anchor, focus, direction } = selection;
+        // `getSelection()` resolves whichever editor the range landed in.
+        if (anchor.block.muya !== this._muya || focus.block.muya !== this._muya)
+            return '';
+
+        const [start, end] = direction === SelectionDirection.BACKWARD ? [focus, anchor] : [anchor, focus];
+        if (start.block === end.block)
+            return start.block.text.slice(start.offset, end.offset);
+
+        const parts = [start.block.text.slice(start.offset)];
+        let previous = start.block;
+        let block = previous.nextContentInContext();
+        while (block) {
+            parts.push(getTextSeparator(previous, block), block === end.block ? block.text.slice(0, end.offset) : block.text);
+            if (block === end.block)
+                return parts.join('');
+            previous = block;
+            block = block.nextContentInContext();
+        }
+
+        // `direction` is DOM order, the walk is tree order: they disagree only
+        // for a block no longer in the document.
+        debug.warn('the selection end is not reachable from its start');
+
+        return '';
+    }
+
     setSelection(anchor: IAnchorFocusInfo, focus: IAnchorFocusInfo) {
+        revealBlock(anchor.block);
+        revealBlock(focus.block);
         this.anchor = { offset: anchor.offset };
         this.anchorBlock = anchor.block;
         this.anchorPath = anchor.path;
@@ -229,8 +281,7 @@ class TextSelection {
         // Follow the caret (focus end) for forward selections so typewriter
         // scrolling tracks the cursor rather than the selection start.
         const cursorCoords = getCursorCoords(direction === SelectionDirection.FORWARD);
-        // Duck-type the Format block — a value import of Format here would
-        // create a selection -> format circular dependency.
+        // Use a type-only Format import to avoid a selection → format dependency cycle.
         const anchorBlockRef = anchorBlock as Format | null;
         const formats
             = isSelectionInSameBlock
@@ -265,14 +316,29 @@ class TextSelection {
     private _listenSelectActions() {
         const { eventCenter, domNode } = this._muya;
 
-        const handleMousedown = () => {
+        const handleMousedown = (event: Event) => {
+            if (this._muya.isReadOnly)
+                return;
             this._selectInfo = {
                 isSelect: true,
                 selection: null,
             };
+
+            if (!isMouseEvent(event) || event.button !== 0 || event.detail < 3)
+                return;
+
+            const line = lineAtPoint(this._doc, event.clientX, event.clientY);
+            if (!line)
+                return;
+
+            event.preventDefault();
+            this._selectInfo.isSelect = false;
+            line.block.setCursor(line.start, line.end);
         };
 
         const handleMouseupOrLeave = () => {
+            if (this._muya.isReadOnly)
+                return;
             const { selection } = this._selectInfo;
             if (selection?.anchor.block.outMostBlock && selection.focus.block.outMostBlock)
                 this.setSelection(selection.anchor, selection.focus);
@@ -284,6 +350,8 @@ class TextSelection {
         };
 
         const handleMousemoveOrClick = (event: Event) => {
+            if (this._muya.isReadOnly)
+                return;
             if (!isMouseEvent(event))
                 return;
 
@@ -382,9 +450,6 @@ class TextSelection {
             ? focusBlock.domNode
             : scrollPage?.queryBlock(focusPath);
 
-        // getNodeAndOffset expects a DOM Node. The fallback branch can hand
-        // back a Parent/Content block (from scrollPage.queryBlock); narrow to
-        // an actual Node here, preserving the existing not-found behavior.
         if (!(anchorParagraph instanceof Node) || !(focusParagraph instanceof Node))
             return;
         const { node: anchorNode, offset: anchorOffset } = getNodeAndOffset(

@@ -1,6 +1,12 @@
 import type { TState } from './state/types';
 
+export enum ChangeSource {
+    User = 'user',
+    Api = 'api',
+}
+
 export interface IMuyaOptions {
+    readOnly: boolean;
     fontSize: number;
     lineHeight: number;
     editorFontFamily?: string;
@@ -32,7 +38,13 @@ export interface IMuyaOptions {
     superSubScript: boolean;
     footnote: boolean;
     texMathDollars: boolean;
-    isGitlabCompatibilityEnabled: boolean;
+    texMathGfm: boolean;
+    texMathSingleBackslash: boolean;
+    texMathDoubleBackslash: boolean;
+    highlightSyntax: boolean;
+    inlineDiff: boolean;
+    multilineBlockquote: boolean;
+    githubAlerts: boolean;
     softNewlineAsSpace: boolean;
     autoMoveCheckedToEnd: boolean;
     disableHtml: boolean;
@@ -65,6 +77,14 @@ export interface IMuyaOptions {
      * When omitted, muya falls back to `navigator.clipboard.readText()`.
      */
     clipboardText?: () => Promise<string>;
+    clipboardWriteText?: (text: string) => Promise<boolean>;
+    /**
+     * Fetch HTML for pasted HTTP(S) links when the host can bypass browser
+     * CSP/CORS restrictions. Muya parses the title and falls back to the URL
+     * after 1.5 seconds or on failure. Without this hook, browser fetch is used.
+     * Return an empty string when the response is unavailable or is not HTML.
+     */
+    fetchLinkHtml?: (url: string) => Promise<string>;
     /**
      * Persist an image per the embedder's insert preference (copy into the
      * document's assets folder, upload to an image host, or keep the path) and

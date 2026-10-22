@@ -73,7 +73,6 @@ test.describe('Crash: setStart Range offset', () => {
     await page.waitForTimeout(400)
     await clearRendererErrors(app)
 
-    // Click into the code block.
     await page.evaluate(() => {
       const block = document.querySelector('.editor-component .CodeMirror, .editor-component pre.mu-active')
       if (block) (block as HTMLElement).click()
@@ -150,7 +149,6 @@ test.describe('Crash: setStart Range offset', () => {
     await placeCaretInEditor(page)
     await clearRendererErrors(app)
 
-    // Click into the first list item and press Enter several times
     await page.evaluate(() => {
       const first = document.querySelector('.editor-component ul li span.mu-paragraph-content') as HTMLElement | null
       if (!first) return

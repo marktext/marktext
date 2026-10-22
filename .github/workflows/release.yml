@@ -38,9 +38,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: linux
+          - name: linux-x64
             os: ubuntu-22.04
             platform: linux
+            arch: x64
+          - name: linux-arm64
+            os: ubuntu-22.04-arm
+            platform: linux
+            arch: arm64
           - name: windows-x64
             os: windows-latest
             platform: windows
@@ -60,7 +65,7 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@v7.0.1
 
       - name: Enable Git long paths on Windows
         if: matrix.platform == 'windows'
@@ -72,7 +77,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev rpm
 
       - name: Install Python 3.12
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: '3.12'
 
@@ -83,7 +88,7 @@ jobs:
 
       # Cache Electron binary; key on package.json so it busts when Electron version changes.
       - name: Cache Electron binary
-        uses: actions/cache@v4.3.0
+        uses: actions/cache@v6.1.0
         with:
           path: |
             ~/.cache/electron
@@ -110,7 +115,7 @@ jobs:
 
       - name: build-linux
         if: matrix.platform == 'linux'
-        run: pnpm run build:linux
+        run: pnpm run build:linux:${{ matrix.arch }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -132,7 +137,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: marktext-${{ matrix.name }}
           retention-days: 7
@@ -160,15 +165,23 @@ jobs:
       contents: write
       actions: read
     steps:
-      # upload-artifact@v4 treats `dist/` as the common-ancestor root and
-      # stores files flat inside each artifact (no `dist/` prefix). Downloading
-      # with `path: dist` + `merge-multiple` recreates `./dist/<file>` across
-      # all platforms.
+      - name: Check out Git repository
+        uses: actions/checkout@v7.0.1
+
       - name: Download all platform artifacts
-        uses: actions/download-artifact@v4.3.0
+        uses: actions/download-artifact@v8.0.2
         with:
-          path: dist
-          merge-multiple: true
+          path: artifacts
+
+      - name: Install Python 3.12
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Merge architecture-specific update metadata
+        run: |
+          python -m pip install PyYAML==6.0.3
+          python scripts/merge-release-artifacts.py artifacts dist "${GITHUB_REF_NAME#v}"
 
       - name: Generate SHA256SUMS.txt
         working-directory: dist
@@ -193,7 +206,7 @@ jobs:
             echo "## ⚠️ Note for macOS users"
             echo "Builds are unsigned (no Apple Developer ID). After dragging MarkText into Applications, clear the quarantine flag once:"
             echo '```'
-            echo 'xattr -cr /Applications/marktext.app'
+            echo 'xattr -d com.apple.quarantine /Applications/MarkText.app'
             echo '```'
             echo ""
             echo "## Verifying downloads"
@@ -203,16 +216,27 @@ jobs:
             echo '```'
           } > release_body.md
 
+      - name: Select previous stable release
+        id: release-base
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/releases?per_page=100" > releases.json
+          previous_tag=$(python scripts/select-release-base.py "${GITHUB_REF_NAME}" < releases.json)
+          echo "previous_tag=${previous_tag}" >> "$GITHUB_OUTPUT"
+          echo "Release notes range: ${previous_tag}...${GITHUB_REF_NAME}"
+
       # Immutable-release repos forbid adding assets to an already-published
       # release, and action-gh-release publishes before uploading the assets.
       # Create the release as a draft (assets allowed), then promote it to a
       # published release in the next step.
       - name: Create draft release with assets
-        uses: softprops/action-gh-release@v2.6.2
+        uses: softprops/action-gh-release@v3.0.3
         with:
           draft: true
           prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
+          previous_tag: ${{ steps.release-base.outputs.previous_tag }}
           name: ${{ github.ref_name }}
           body_path: release_body.md
           fail_on_unmatched_files: true

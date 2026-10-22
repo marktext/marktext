@@ -3,6 +3,7 @@ import type LangInputContent from '../../block/content/langInputContent';
 import type ParagraphContent from '../../block/content/paragraphContent';
 import type { Muya } from '../../index';
 import { ScrollPage } from '../../block/scrollPage';
+import { firstWordOfInfo, parseFenceLine } from '../../utils';
 import { createDiagramState, diagramTypeOfLang } from '../../utils/diagram/fence';
 import { search } from '../../utils/prism';
 
@@ -22,28 +23,45 @@ const defaultOptions = {
     showArrow: false,
 };
 
-// The language the user actually typed after the ``` fence. The selector's
-// fuzzy search may resolve a non-code language (e.g. `vega-lite`) to an
-// unrelated Prism language, so the diagram check tries this raw text before
-// the picked item.
-function typedFenceLang(text: string): string {
-    return text.match(/`{3,}\s*([\w-]+)/)?.[1] ?? '';
+// The opening fence of the paragraph the user is typing into: its character
+// and the language typed after it (empty for a bare fence or a non-fence
+// paragraph). The selector's fuzzy search may resolve a non-code language
+// (e.g. `vega-lite`) to an unrelated Prism language, so the diagram check
+// tries this raw text before the picked item.
+function typedFence(text: string): { lang: string; fenceChar: '`' | '~' } {
+    const fence = parseFenceLine(text);
+    if (!fence)
+        return { lang: '', fenceChar: '`' };
+    return { lang: firstWordOfInfo(fence.info), fenceChar: fence.fenceChar };
 }
 
 // Build the state for the block a ```lang fence becomes. A diagram language,
 // typed in full or picked from a partial query (`mer` → mermaid, #5060),
-// becomes a diagram block, mirroring markdownToState's file-load path; GitLab
+// becomes a diagram block, mirroring markdownToState's file-load path; gfm
 // math becomes a math-block; everything else a fenced code block highlighted
 // with the selector's matched language.
-function newBlockStateForLang(typedLang: string, matchedLang: string, isGitlabMath: boolean) {
-    if (isGitlabMath)
-        return { name: 'math-block', meta: { mathStyle: 'gitlab' }, text: '' };
+function newBlockStateForLang(
+    typedLang: string,
+    matchedLang: string,
+    isGfmMath: boolean,
+    fenceChar: '`' | '~',
+) {
+    if (isGfmMath)
+        return { name: 'math-block', meta: { mathStyle: 'gfm' }, text: '' };
 
     const diagramType = diagramTypeOfLang(typedLang) ?? diagramTypeOfLang(matchedLang);
     if (diagramType)
         return createDiagramState(diagramType);
 
-    return { name: 'code-block', meta: { lang: matchedLang, type: 'fenced' }, text: '' };
+    return {
+        name: 'code-block',
+        meta: {
+            lang: matchedLang,
+            type: 'fenced',
+            fenceChar,
+        },
+        text: '',
+    };
 }
 
 export class CodeBlockLanguageSelector extends BaseScrollFloat {
@@ -69,14 +87,10 @@ export class CodeBlockLanguageSelector extends BaseScrollFloat {
 
             const { text, domNode } = block;
             let lang = '';
-            if (block.blockName === 'paragraph.content') {
-                const token = text.match(/(^ {0,3}`{3,})([^` ]+)/);
-                if (token && token[2])
-                    lang = token[2];
-            }
-            else if (block.blockName === 'language-input') {
+            if (block.blockName === 'paragraph.content')
+                lang = typedFence(text).lang;
+            else if (block.blockName === 'language-input')
                 lang = text;
-            }
 
             const modes = search(lang);
             if (modes.length) {
@@ -185,9 +199,15 @@ export class CodeBlockLanguageSelector extends BaseScrollFloat {
         }
 
         if (isParagraphContent(block)) {
-            const isGitlabMath
-                = muya.options.isGitlabCompatibilityEnabled && name === 'math';
-            const state = newBlockStateForLang(typedFenceLang(block.text), name, isGitlabMath);
+            const isGfmMath
+                = muya.options.texMathGfm && name === 'math';
+            const { lang: typedLang, fenceChar } = typedFence(block.text);
+            const state = newBlockStateForLang(
+                typedLang,
+                name,
+                isGfmMath,
+                fenceChar,
+            );
 
             const newBlock = ScrollPage.loadBlock(state.name).create(
                 this.muya,

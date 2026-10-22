@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FootnoteTool } from '..';
 import { registerBlocks } from '../../../block';
 import EventCenter from '../../../event';
+import { ChangeSource } from '../../../types';
 
 // Register the block tree so `ScrollPage.loadBlock('footnote')` resolves
 // inside `_createDefinition`. Idempotent — re-registering reuses the same
@@ -194,7 +195,7 @@ describe('footnoteTool — click actions', () => {
 
         expect(appendSpy).toHaveBeenCalledTimes(1);
         const [insertedBlock, source] = appendSpy.mock.calls[0];
-        expect(source).toBe('user');
+        expect(source).toBe(ChangeSource.User);
         expect(insertedBlock?.blockName).toBe('footnote');
         expect(insertedBlock?.meta?.identifier).toBe('fresh');
     });

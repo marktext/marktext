@@ -3,7 +3,12 @@
     "counter": {
       "words": "字数",
       "characters": "字符数",
-      "paragraphs": "段落数"
+      "charactersNoSpaces": "字符数（不含空格）",
+      "charactersWithSpaces": "字符数（含空格）",
+      "paragraphs": "段落数",
+      "allCharacters": "总字符数",
+      "document": "文档",
+      "documentSelection": "文档 / 选区"
     },
     "file": {
       "file": "文件",
@@ -21,12 +26,14 @@
       "export": "导出",
       "exportHtml": "导出为 HTML",
       "exportPdf": "导出为 PDF",
+      "convertWithPandoc": "使用 Pandoc 转换",
       "import": "导入",
       "print": "打印",
       "closeTab": "关闭标签页",
       "closeWindow": "关闭窗口",
       "quit": "退出",
-      "preferences": "偏好设置"
+      "preferences": "偏好设置",
+      "addFolder": "添加文件夹…"
     },
     "edit": {
       "edit": "编辑",
@@ -66,6 +73,7 @@
       "table": "表格",
       "codeFences": "代码围栏",
       "quoteBlock": "引用块",
+      "githubAlerts": "GitHub 提示块",
       "mathBlock": "数学块",
       "htmlBlock": "HTML 块",
       "orderedList": "有序列表",
@@ -117,7 +125,7 @@
       "sourceCodeMode": "源码模式",
       "typewriterMode": "打字机模式",
       "focusMode": "专注模式",
-      "toggleTableOfContents": "切换目录",
+      "toggleTableOfContents": "显示目录",
       "reloadImages": "重新加载图片",
       "showDeveloperTools": "显示开发者工具",
       "reloadWindow": "重新加载窗口"
@@ -141,8 +149,8 @@
       "theme": "主题(&T)",
       "dark": "深色",
       "followThemDisabled": "跟随系统主题时无法选择主题",
-      "lightThemes": "— 浅色主题 —",
-      "darkThemes": "— 深色主题 —",
+      "lightThemes": "浅色主题",
+      "darkThemes": "深色主题",
       "ayuDark": "Ayu 深色",
       "ayuLight": "Ayu 浅色",
       "ayuMirage": "Ayu Mirage",
@@ -200,6 +208,7 @@
       "paste": "粘贴",
       "rename": "重命名",
       "moveToTrash": "移动到废纸篓",
+      "copyPath": "复制路径",
       "showInFolder": "在文件夹中显示"
     },
     "tabs": {
@@ -209,7 +218,8 @@
       "closeAllTabs": "关闭所有标签页",
       "rename": "重命名",
       "copyPath": "复制路径",
-      "showInFolder": "在文件夹中显示"
+      "showInFolder": "在文件夹中显示",
+      "showInSideBar": "在侧边栏中显示"
     }
   },
   "search": {
@@ -227,12 +237,16 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "返回文件",
       "searchInFolder": "在文件夹中搜索…",
       "noFolderOpen": "没有打开的文件夹",
       "noResultsFound": "未找到结果。",
       "cancel": "取消",
-      "openFolder": "打开文件夹",
-      "showMoreMatches": "显示更多匹配"
+      "openFolder": "添加文件夹…",
+      "showMoreMatches": "显示更多匹配",
+      "searchInFolders": "在已添加的文件夹中搜索",
+      "partialSearch": "部分文件夹无法搜索。",
+      "noSearchableFolders": "没有可供搜索的文件夹。"
     },
     "tree": {
       "openedFiles": "已打开的文件",
@@ -240,9 +254,22 @@
       "closeAll": "关闭全部",
       "emptyProject": "空项目",
       "createFile": "创建文件",
-      "openFolder": "打开文件夹"
+      "openFolder": "打开文件夹",
+      "noFolders": "尚未添加文件夹",
+      "removeFolder": "从侧边栏移除",
+      "retryFolder": "重试",
+      "loadingFolder": "正在加载文件夹…",
+      "unavailableFolder": "文件夹不可用",
+      "overlappingFolder": "此文件夹与已添加项存在包含关系，请先移除已有项。",
+      "folderAlreadyAdded": "该文件夹已添加。",
+      "fileOutsideFolders": "此文件不在已添加的文件夹中。",
+      "sessionSaveFailed": "无法保存会话",
+      "resizeOpenedFiles": "调整已打开文件列表的大小"
     },
     "toc": {
+      "expand": "展开目录",
+      "collapse": "收起目录",
+      "empty": "暂无标题",
       "title": "目录",
       "expandAll": "全部展开",
       "collapseAll": "全部折叠"
@@ -250,8 +277,22 @@
     "icons": {
       "files": "文件",
       "search": "搜索",
-      "toc": "目录",
       "settings": "设置"
+    }
+  },
+  "titleBar": {
+    "applicationMenu": "应用程序菜单",
+    "minimize": "最小化",
+    "maximize": "最大化",
+    "restore": "向下还原",
+    "close": "关闭",
+    "documentStatistics": {
+      "title": "文档统计",
+      "fileInformation": "文件信息",
+      "created": "创建时间",
+      "lastModified": "修改时间",
+      "unavailable": "—",
+      "open": "打开文档统计"
     }
   },
   "commandPalette": {
@@ -264,13 +305,9 @@
   },
   "exportSettings": {
     "title": "导出选项",
-    "info": {
-      "label": "信息",
-      "description": "请自定义页面外观并点击\"导出\"继续。"
-    },
     "page": {
       "label": "页面",
-      "pageTitle": "页面标题：",
+      "pageTitle": "页面标题",
       "pageSize": "页面大小：",
       "landscapeOrientation": "横向方向：",
       "pageMargin": "页面边距（毫米）：",
@@ -306,14 +343,15 @@
       "fontSize": "字体大小"
     },
     "toc": {
+      "description": "要在导出文档中显示目录，请在正文中单独一行输入 [TOC]。目录将生成在该位置。",
       "label": "目录",
       "title": "目录",
-      "includeTopHeading": "包含顶级标题",
-      "includeTopHeadingDetail": "包含顶级标题详情"
+      "includeTopHeading": "包含一级标题",
+      "includeTopHeadingDetail": "在目录中包含所有一级（H1）标题。"
     },
     "autoNumberingHeadings": "自动编号标题",
     "showFrontMatter": "显示前置元数据",
-    "export": "导出…",
+    "export": "导出",
     "options": {
       "pageSizes": {
         "a3": "A3 (297mm x 420mm)",
@@ -351,6 +389,7 @@
   },
   "preferences": {
     "title": "偏好设置",
+    "learnMore": "了解更多：{name}",
     "search": {
       "placeholder": "搜索偏好设置…",
       "categories": {
@@ -371,6 +410,7 @@
         "autoNormalizeLineEndings": "打开文件时自动规范化行尾。禁用时按原样打开文件",
         "titleBarStyle": "标题栏样式（仅限 Windows 和 Linux 系统）",
         "openFilesInNewWindow": "在新窗口中打开文件",
+        "openFilesInPreviewMode": "在预览标签页中打开侧栏文件",
         "openFolderInNewWindow": "通过菜单在新窗口中打开文件夹",
         "zoom": "缩放级别。介于 0.5 和 2.0 之间",
         "hideScrollbar": "是否隐藏滚动条",
@@ -386,7 +426,7 @@
         "wrapCodeBlocks": "在代码块内自动换行",
         "editorLineWidth": "定义编辑器区域的最大宽度。允许空字符串或 ch（字符）、px（像素）或 %（百分比）后缀",
         "codeFontSize": "代码块中的字体大小，范围是 12 ~ 18",
-        "codeFontFamily": "代码块中使用的字体系列",
+        "codeFontFamily": "代码字体：适用于行内代码和代码块。",
         "codeBlockLineNumbers": "是否显示行号",
         "sourceCodeLineNumbers": "在源码模式中显示行号",
         "trimUnnecessaryCodeBlockEmptyLines": "修剪代码块开头和结尾的空行",
@@ -411,8 +451,14 @@
         "superSubScript": "启用 Pandoc 的 Markdown 扩展上标和下标",
         "footnote": "启用 Pandoc 的 Markdown 扩展脚注",
         "texMathDollars": "启用 Pandoc 的 Markdown 扩展 tex_math_dollars",
+        "texMathGfm": "启用 Pandoc 的 Markdown 扩展 tex_math_gfm",
+        "texMathSingleBackslash": "启用 Pandoc 的 Markdown 扩展 tex_math_single_backslash",
+        "texMathDoubleBackslash": "启用 Pandoc 的 Markdown 扩展 tex_math_double_backslash",
+        "highlightSyntax": "启用非标准的 ==文本== 高亮语法",
+        "inlineDiff": "启用非标准的行内差异语法 {+ … +} / [- … -]",
+        "multilineBlockquote": "启用非标准的多行引用块语法 >>> … >>>",
+        "githubAlerts": "GitHub 提示块",
         "isHtmlEnabled": "启用 HTML 渲染",
-        "isGitlabCompatibilityEnabled": "启用 GitLab 兼容模式",
         "softNewlineAsSpace": "将软换行符视为空格",
         "sequenceTheme": "序列图主题",
         "plantumlServer": "PlantUML 服务器 URL",
@@ -428,7 +474,8 @@
         "imageRelativeDirectoryBase": "相对图片的复制位置",
         "imageRelativeDirectoryName": "相对图片文件夹名称",
         "fileSortOrder": "打开文件夹中文件的排序顺序：升序或降序",
-        "openedFilesInSidebar": "是否在侧边栏中显示已打开文件"
+        "openedFilesInSidebar": "是否在侧边栏中显示已打开文件",
+        "showPandocConvert": "显示 Pandoc 转换菜单。需要先安装 Pandoc。"
       }
     },
     "categories": {
@@ -472,10 +519,20 @@
         "selectFolder": "选择文件夹",
         "openBlankPage": "打开空白页"
       },
+      "pandoc": {
+        "title": "Pandoc 转换",
+        "description": "显示 Pandoc 转换菜单",
+        "detailedDescription": "需要先安装 Pandoc",
+        "found": "已找到：{path}",
+        "notFound": "未找到",
+        "recheck": "重新检测"
+      },
       "sidebar": {
         "title": "侧边栏",
         "wrapTextInToc": "在目录中换行文本",
         "showOpenedFiles": "显示已打开文件",
+        "autoReveal": "在侧边栏中定位当前文件",
+        "openFilesInPreviewMode": "单击侧栏文件时复用预览标签页；编辑或双击后保留该标签页",
         "excludePatterns": "排除模式",
         "excludePatternsNotes": "排除模式（注释）",
         "fileSortBy": {
@@ -506,7 +563,8 @@
           "korean": "한국어",
           "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -519,12 +577,13 @@
         "fontFamily": "字体系列",
         "maxWidth": "最大宽度",
         "maxWidthNotes": "编辑器内容的最大宽度。数字后需带单位 px、ch（字符数）或 %，例如 800px、80ch、60%。留空则使用默认宽度。",
-        "maxWidthInvalid": "请输入数字并带上单位 px、ch 或 %，例如 800px。"
+        "maxWidthInvalid": "请输入数字并带上单位 px、ch 或 %，例如 800px。",
+        "codeFontFamily": "代码字体",
+        "codeFontFamilyNotes": "适用于行内代码和代码块。"
       },
       "codeBlock": {
         "title": "代码块",
         "fontSize": "字体大小",
-        "fontFamily": "字体系列",
         "showLineNumbers": "显示行号",
         "removeEmptyLines": "删除空行"
       },
@@ -636,6 +695,13 @@
         "footnote": "脚注",
         "footnoteNotes": "脚注注释",
         "texMathDollars": "使用 $ 和 $$ 的 TeX 数学公式",
+        "texMathGfm": "GitHub 的 TeX 数学公式（$`…`$ 和 ```math）",
+        "texMathSingleBackslash": "使用单反斜杠分隔符的 TeX 数学公式",
+        "texMathDoubleBackslash": "使用双反斜杠分隔符的 TeX 数学公式",
+        "highlightSyntax": "高亮 (==文本==)",
+        "inlineDiff": "行内差异 ({+ … +})",
+        "multilineBlockquote": "多行引用块 (>>>)",
+        "githubAlerts": "启用 GitHub 提示块",
         "frontmatterType": {
           "jsonBrace": "带大括号的 JSON",
           "jsonSemicolon": "带分号的 JSON",
@@ -662,7 +728,6 @@
         "title": "杂项"
       },
       "compatibility": {
-        "enableGitlab": "启用 GitLab 兼容性",
         "enableHtml": "启用 HTML 支持",
         "softNewlineAsSpace": "将软换行符视为空格",
         "title": "兼容性"
@@ -686,6 +751,7 @@
     "theme": {
       "title": "主题",
       "followSystemTheme": "跟随系统主题",
+      "followSystemNote": "跟随系统主题时，下方主题列表不可切换。关闭后即可自由切换。",
       "modeThemes": "主题选择",
       "lightModeTheme": "浅色模式主题",
       "darkModeTheme": "深色模式主题",
@@ -767,11 +833,13 @@
       "quit": "退出",
       "toggleAutoSave": "切换自动保存",
       "importFile": "导入文件",
+      "revealInSideBar": "在侧边栏中显示",
       "exportFile": "导出文件",
       "exportFilePdf": "导出为 PDF",
       "zoom": "缩放",
       "checkUpdate": "检查更新",
-      "changeLineEnding": "更改行结束符"
+      "changeLineEnding": "更改行结束符",
+      "addFolder": "添加文件夹…"
     },
     "edit": {
       "undo": "撤销",
@@ -888,6 +956,7 @@
     "ok": "确定"
   },
   "dialog": {
+    "moveToTrash": "确定要将“{name}”移到回收站吗？",
     "cancel": "取消",
     "changesWillBeLost": "更改将丢失",
     "close": "关闭",
@@ -896,7 +965,9 @@
     "fileExists": "文件已存在：{filename}",
     "files": "文件",
     "importWarning": "导入警告",
-    "installPandoc": "安装 Pandoc",
+    "installPandoc": "未找到 Pandoc。请先安装，或将环境变量 MARKTEXT_PANDOC 设为 pandoc 可执行文件的路径后重启 MarkText。",
+    "exportWarning": "导出提示",
+    "exportWarningMore": "…另有 {count} 条",
     "keepOpen": "保持打开",
     "replace": "替换",
     "save": "保存",
@@ -936,6 +1007,7 @@
       "errorWhileSaving": "保存时发生错误：{msg}",
       "exportSuccessTitle": "导出成功",
       "exportSuccessMessage": "已成功导出“{name}”！",
+      "exportLinkedMediaMessage": "已导出“{name}”。该格式以链接方式引用图片而不内嵌，请让图片与文件放在一起，分享时带上整个文件夹。",
       "fileRemovedOnDisk": "“{name}” 已在磁盘上被删除。",
       "fileChangedOnDisk": "“{name}” 已在磁盘上发生变更。是否重新加载？"
     }
@@ -949,6 +1021,21 @@
       "title": "插入表格",
       "rows": "行",
       "columns": "列"
+    },
+    "mediaViewer": {
+      "title": "预览",
+      "close": "关闭",
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
+      "fit": "适应窗口",
+      "actualSize": "实际大小",
+      "saveTitle": "保存图表",
+      "saveSvg": "另存为 SVG",
+      "savePng": "另存为 PNG",
+      "copyImage": "复制图片",
+      "copied": "图片已复制到剪贴板",
+      "saveFailed": "无法保存图片：{error}",
+      "copyFailed": "无法复制图片：{error}"
     },
     "notifications": {
       "notificationNotFound": "未找到通知"
@@ -972,6 +1059,27 @@
       "errorSwitchingLanguage": "切换拼写检查语言时出错 {languageCode}",
       "languageMissing": "拼写检查语言缺失 {languageCode}",
       "switchError": "{languageCode} 拼写检查切换错误，{error}"
+    },
+    "tabs": {
+      "close": "关闭 {name}",
+      "preview": "{name}，预览标签页"
     }
+  },
+  "readingMode": {
+    "title": "阅读模式",
+    "edit": "编辑模式",
+    "lock": "进入阅读模式",
+    "unlock": "切换到编辑模式",
+    "defaultMode": "文件默认打开模式",
+    "defaultNote": "仅影响之后打开的现有文件；新建文档仍以编辑模式打开。",
+    "unsaved": "已进入阅读模式，未保存修改已保留，自动保存已暂停。",
+    "failed": "切换文档模式失败",
+    "closeSave": "切换到编辑模式并保存",
+    "exportSource": "请选择源文件以外的导出位置。",
+    "unavailable": "阅读模式下不可用",
+    "skipped": "已跳过存在未保存修改的只读文档。",
+    "viewImage": "查看图片",
+    "copyLink": "复制链接地址",
+    "resumed": "已切换到编辑模式，自动保存已恢复。"
   }
 }

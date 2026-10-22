@@ -158,3 +158,11 @@ run(`"${electronRebuildBin}" -f`, { cwd: desktopRoot })
 // ── 5. Generate minified locale files ───────────────────────────────────────
 console.log('Minifying locales...')
 run('pnpm tsx scripts/minify-locales.ts')
+
+// ── 6. Emit @muyajs/core typings ────────────────────────────────────────────
+// The package's `exports` map points at TS source and it ships no built
+// typings, so the desktop tsconfig resolves `@muyajs/core` to `lib/types`.
+// `pnpm typecheck` regenerates them, but an IDE opened straight after install
+// would otherwise see an unresolved import.
+console.log('Emitting muya typings...')
+run('pnpm --filter @muyajs/core build:types')

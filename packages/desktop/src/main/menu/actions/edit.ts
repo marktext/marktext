@@ -1,8 +1,9 @@
 import path from 'path'
-import { BrowserWindow, ipcMain, type Menu, type MenuItem } from 'electron'
+import { BrowserWindow, ipcMain, Menu, type MenuItem } from 'electron'
 import log from 'electron-log'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
+import { isOsx } from '../../config'
 import { searchFilesAndDir } from '../../utils/imagePathAutoComplement'
 
 type Win = BrowserWindow | null | undefined
@@ -20,10 +21,10 @@ ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
 
   const fullPath = path.isAbsolute(src) ? src : path.join(path.dirname(pathname), src)
   // Handle the case where it ends with a trailing slash (i.e. a directory) - we should list everything in the directory
-  let dir: string | null = null
-  let searchKey: string | null = null
+  let dir: string | null
+  let searchKey: string | null
   if (fullPath.endsWith(path.sep)) {
-    dir = fullPath.slice(0, -1) // It should be the entire path minus just the trailing slash
+    dir = fullPath.slice(0, -1)
     searchKey = ''
   } else {
     dir = path.dirname(fullPath)
@@ -39,13 +40,35 @@ ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
     })
 })
 
-// --- Menu actions -------------------------------------------------------------
+
+/**
+ * macOS native panels (Open/Save, "Go to Folder") are not `BrowserWindow`s, so
+ * the Edit menu's handlers are invoked without a `win` and the shortcut would
+ * otherwise be swallowed by MarkText. Forward the standard edit selector to
+ * the panel's first responder instead. This is macOS-only: Electron does not
+ * register `Menu.sendActionToFirstResponder` on Windows/Linux. When a MarkText
+ * window is focused the usual editor action runs (the editor keeps its own
+ * undo/redo history and selection semantics, so a plain `role` can't be used).
+ */
+const forwardToNativeResponder = (selector: string): void => {
+  if (isOsx) {
+    Menu.sendActionToFirstResponder(selector)
+  }
+}
 
 export const editorUndo = (win: Win): void => {
+  if (!win) {
+    forwardToNativeResponder('undo:')
+    return
+  }
   edit(win, 'undo')
 }
 
 export const editorRedo = (win: Win): void => {
+  if (!win) {
+    forwardToNativeResponder('redo:')
+    return
+  }
   edit(win, 'redo')
 }
 
@@ -62,6 +85,10 @@ export const editorPasteAsPlainText = (win: Win): void => {
 }
 
 export const editorSelectAll = (win: Win): void => {
+  if (!win) {
+    forwardToNativeResponder('selectAll:')
+    return
+  }
   edit(win, 'selectAll')
 }
 
@@ -131,7 +158,6 @@ export const lineEnding = (win: Win, lineEnding: string): void => {
   }
 }
 
-// --- Commands -------------------------------------------------------------
 
 export const loadEditCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.EDIT_COPY, nativeCopy)
@@ -154,7 +180,6 @@ export const loadEditCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.EDIT_UNDO, editorUndo)
 }
 
-// --- IPC events -------------------------------------------------------------
 
 // NOTE: Don't use static `getMenuItemById` here, instead request the menu by
 //       window id from `AppMenu` manager.

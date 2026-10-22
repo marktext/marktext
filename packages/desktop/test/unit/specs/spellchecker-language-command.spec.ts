@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 
-// The notification service renders a DOM toast from a raw HTML template; stub
-// it so we can observe `notify` without touching the DOM.
+// The notification service renders through Element Plus; stub it so we can
+// observe `notify` without touching the DOM.
 vi.mock('@/services/notification', () => ({
   default: { notify: vi.fn(), name: 'notify' }
 }))
@@ -38,7 +38,6 @@ describe('SpellcheckerLanguageCommand', () => {
       expect(command.subcommands).toHaveLength(3)
       expect(command.subcommands.map((c) => c.value)).toEqual(['en-US', 'de-DE', 'fr-FR'])
       expect(command.subcommands[1].id).toBe('spellchecker.switch-language-id-de-DE')
-      // de-DE is index 1 in the dictionary list.
       expect(command.subcommandSelectedIndex).toBe(1)
     })
 

@@ -3,13 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { isStandaloneTableHtml } from '../paste';
 
-// Track D / sub-item 3: tighten `isStandaloneTableHtml` so the regex match is
-// followed by a "exactly one root element" check (legacy
-// `pasteCtrl.checkCopyType` parses the blob into a temp container and only
-// promotes it when `childElementCount === 1`). A payload whose regex spans two
-// sibling `<table>`s (so `<table>...</table>...<table>...</table>` matches the
-// greedy `^<table ... </table>$`) is NOT a standalone table and must fall
-// through to the normal HTML path.
+// Reject sibling tables even when the greedy table regex matches the entire blob.
 
 describe('isStandaloneTableHtml — single-root guard (legacy childElementCount === 1)', () => {
     it('still accepts a genuine lone table', () => {

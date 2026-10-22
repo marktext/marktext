@@ -1,5 +1,4 @@
 :root {
-  /*editor*/
   --themeColor: rgba(77, 120, 204, 1);
   --themeColor90: rgba(77, 120, 204, 0.9);
   --themeColor80: rgba(77, 120, 204, 0.8);
@@ -27,6 +26,7 @@
   --iconColor: rgba(255, 255, 255, 0.56);
   --codeBgColor: #3a3f4b;
   --codeBlockBgColor: #3a3f4b;
+  --codeBlockColor: #abb2bf;
   --footnoteBgColor: rgba(66, 67, 68, 0.5);
   --inputBgColor: rgba(0, 0, 0, 0.1);
   --focusColor: #568af2;
@@ -57,7 +57,6 @@
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(24, 26, 31, 0.5), 0 0 0 1px #568af2;
   --tableBorderColor: #363839;
 
-  /* Markdown element colors */
   --headingColor: #e2c08d;
   --h1Color: #e06c75;
   --h2Color: #61afef;
@@ -73,7 +72,6 @@
   --emColor: #c678dd;
   --listMarkerColor: #e06c75;
 
-  /*marktext*/
   --sideBarColor: #9da5b4;
   --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: #9da5b4;
@@ -90,11 +88,6 @@
   --maskColor: rgba(0, 0, 0, 0.7);
   --editorAreaWidth: 750px;
 
-  /* @muyajs/core (kebab-case) editor variables
-     Additive prep for the muyajs -> @muyajs/core editor swap. These
-     mirror the camelCase vars above; the legacy editor ignores them.
-     Do NOT remove the camelCase vars — they still drive the current
-     editor until editor.vue switches engines. */
   --theme-color: var(--themeColor);
   --highlight-color: var(--highlightColor);
   --selection-color: var(--selectionColor);
@@ -109,6 +102,7 @@
   --delete-color: var(--deleteColor);
   --icon-color: var(--iconColor);
   --code-block-bg-color: var(--codeBlockBgColor);
+  --code-block-color: var(--codeBlockColor);
   --table-border-color: var(--tableBorderColor);
   --input-bg-color: var(--inputBgColor);
   --button-font-color: var(--buttonFontColor);
@@ -155,7 +149,6 @@
   background: #4b5362;
 }
 
-/* --- Element UI ------------------------------------------------ */
 
 .v-modal {
   background: #08090a !important;
@@ -177,14 +170,13 @@
   background: var(--buttonPrimaryBgColor);
 }
 
-/* --- Core elements --------------------------------------------- */
 
 .mu-front-menu,
 .mu-float-wrapper {
   box-shadow: 0 4px 8px 0 var(--floatShadow) !important;
 }
 
-.title-bar .frameless-titlebar-button > div > svg {
+.title-bar .frameless-titlebar-button > span > svg {
   fill: #ffffff;
 }
 .title-bar .frameless-titlebar-minimize:hover,
@@ -198,22 +190,9 @@
   background: #1b1d23 !important;
 }
 
-/* --- UI elements ----------------------------------------------- */
 
 .side-bar {
   border-right: 1px solid #181a1f !important;
-}
-.left-column ul > li > svg {
-  fill: rgba(215, 218, 224, 0.6) !important;
-}
-.left-column ul > li:hover > svg {
-  fill: #d7dae0 !important;
-}
-.left-column ul > li:hover > svg {
-  fill: #d7dae0 !important;
-}
-.left-column ul > li.active > svg {
-  fill: #4d78cc !important;
 }
 
 .open-project button.button-primary,
@@ -262,7 +241,6 @@
   fill: #4d78cc;
 }
 
-/* --- Editor ---------------------------------------------------- */
 
 blockquote::before {
   background: var(--highlightThemeColor);
@@ -285,23 +263,26 @@ li.mu-task-list-item {
   list-style-type: none;
   position: relative;
 }
-li.mu-task-list-item > input[type='checkbox'] {
+li.mu-task-list-item > input[type='checkbox'],
+li.mu-task-list-item > span.mu-task-list-checkbox {
   position: absolute;
   cursor: pointer;
   width: 16px;
   height: 16px;
-  top: 0.1em;
+  /* Native inputs keep their UA font size, so em cannot track editor typography. */
+  top: calc(var(--mu-line-height, 1.6) * 0.5 * var(--mu-font-size, 16px) - 8px);
   transform: rotate(-90deg);
   margin: 0;
-  left: -24px;
+  inset-inline-start: -24px;
   transform-origin: center;
   transition: all 0.2s ease;
 }
-li.mu-task-list-item > input.mu-checkbox-checked {
+li.mu-task-list-item > input.mu-checkbox-checked,
+li.mu-task-list-item > span.mu-checkbox-checked {
   transform: rotate(0);
-  opacity: 0.6;
 }
-li.mu-task-list-item > input[type='checkbox']::before {
+li.mu-task-list-item > input[type='checkbox']::before,
+li.mu-task-list-item > span.mu-task-list-checkbox::before {
   content: '';
   width: 16px;
   height: 16px;
@@ -315,11 +296,13 @@ li.mu-task-list-item > input[type='checkbox']::before {
   left: 0;
   transition: all 0.2s ease;
 }
-li.mu-task-list-item > input.mu-checkbox-checked::before {
-  border: transparent;
-  background-color: var(--editorColor);
+li.mu-task-list-item > input.mu-checkbox-checked::before,
+li.mu-task-list-item > span.mu-checkbox-checked::before {
+  border-color: var(--theme-color);
+  background-color: var(--theme-color);
 }
-li.mu-task-list-item > input::after {
+li.mu-task-list-item > input::after,
+li.mu-task-list-item > span.mu-task-list-checkbox::after {
   content: '';
   transform: rotate(-45deg) scale(0);
   width: 9px;
@@ -333,18 +316,11 @@ li.mu-task-list-item > input::after {
   left: 5px;
   transition: all 0.2s ease;
 }
-li.mu-task-list-item > input.mu-checkbox-checked::after {
+li.mu-task-list-item > input.mu-checkbox-checked::after,
+li.mu-task-list-item > span.mu-checkbox-checked::after {
   transform: rotate(-45deg) scale(1);
 }
 figure.mu-active.mu-math-block > div.mu-math-preview,
 figure.mu-active.mu-diagram-block > div.mu-diagram-preview {
   box-shadow: 0 3px 8px 0 var(--floatShadow) !important;
 }
-
-/* ------------------------------------ */
-
-/*
- * Prism.js theme (override light theme)
- */
-
-/* @import url("prismjs/one-dark.theme.css"); */

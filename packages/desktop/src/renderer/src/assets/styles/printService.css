@@ -1,4 +1,4 @@
-body .ag-render-container {
+body .mu-render-container {
   position: fixed;
   left: -10000px;
   right: -10000px;
@@ -13,10 +13,7 @@ body article.print-container {
   /* Set all settings like margin with @page or Electron settings. */
 
   @page {
-    /* 
-      Recent versions of chromemium will treat margins as "transparent" - but we should set it to white so it isn't so ugly.
-      This should not affect the actual printing.
-    */
+    /* Chromium renders transparent page margins; white keeps the preview readable. */
     background: white;
     margin: 15mm 20mm 15mm 20mm;
   }
@@ -25,7 +22,6 @@ body article.print-container {
     display: none !important;
   }
 
-  /* General rules for printing. */
   html,
   body {
     position: relative !important;
@@ -66,7 +62,12 @@ body article.print-container {
     margin-top: 0;
     display: inline-block;
   }
-  body article.markdown-body pre code.fenced-code-block {
+  /* A printed page cannot be scrolled, so the code text itself must wrap —
+     github-markdown-css (`pre > code`) and the prism theme (`code[class*=
+     "language-"]`) both pin it to `white-space: pre`, which would cut long
+     lines off at the page edge (#5307). Selecting any `pre code` also covers
+     the language-less fences the engine emits without a class. */
+  body article.markdown-body pre code {
     white-space: pre-wrap;
     word-break: break-word;
   }

@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import fs from 'fs'
 import path from 'path'
+import { createI18n } from 'vue-i18n'
 
 /**
  * Desktop locale validation.
@@ -35,7 +36,6 @@ const LOCALES_DIR = path.join(__dirname, '../../../static/locales')
 const loadLocale = (lang: string): Record<string, unknown> =>
   JSON.parse(fs.readFileSync(path.join(LOCALES_DIR, `${lang}.json`), 'utf8'))
 
-// Recursively collect all leaf keys as dot-separated paths
 const collectKeys = (obj: unknown, prefix = ''): string[] => {
   if (obj === null || typeof obj !== 'object') return [prefix]
   const keys: string[] = []
@@ -50,14 +50,12 @@ const collectKeys = (obj: unknown, prefix = ''): string[] => {
   return keys
 }
 
-// Extract {placeholder} variables from a string
 const extractPlaceholders = (str: string): string[] => {
   if (typeof str !== 'string') return []
   const matches = str.match(/\{[^}]+\}/g)
   return matches ? matches.sort() : []
 }
 
-// Get a nested value by dot-separated path
 const getByPath = (obj: unknown, dotPath: string): unknown => {
   let current: unknown = obj
   for (const part of dotPath.split('.')) {
@@ -67,17 +65,25 @@ const getByPath = (obj: unknown, dotPath: string): unknown => {
   return current
 }
 
-// Technical terms that must stay in English for Latin-script locales.
-// CJK locales may translate these (different convention).
+// Technical terms that must stay in English for the locales listed in
+// TERM_PRESERVING_LOCALES below. The others (ja, ko, zh-CN, zh-TW, tr)
+// translate them by convention.
+//
+// Every path here must exist in en.json — `every technical term path exists in
+// en.json` below enforces that, because a path that has gone stale is skipped
+// silently by the `typeof value === 'string'` guard and the check it belongs to
+// stops running (#5501). The quick-insert menu strings are NOT among these:
+// they live in the engine's own locales, guarded by muya's
+// localeCompleteness.spec.ts.
 const TECHNICAL_TERMS: Array<{ path: string; mustContain: string }> = [
   { path: 'menu.paragraph.frontMatter', mustContain: 'Front Matter' },
-  { path: 'quickInsert.frontMatter.title', mustContain: 'Front Matter' },
-  { path: 'quickInsert.mermaid.title', mustContain: 'Mermaid' },
-  { path: 'quickInsert.plantUMLChart.title', mustContain: 'PlantUML' },
-  { path: 'quickInsert.vegaChart.title', mustContain: 'Vega' },
+  { path: 'commands.paragraph.frontMatter', mustContain: 'Front Matter' },
+  { path: 'preferences.markdown.diagrams.plantumlServer.title', mustContain: 'PlantUML' },
 ]
 
-const LATIN_SCRIPT_LOCALES = ['de', 'es', 'fr', 'nl', 'pt']
+// Not a script property — ru is Cyrillic and still keeps the English product
+// names — so membership is per-locale convention, not per-alphabet.
+const TERM_PRESERVING_LOCALES = ['de', 'es', 'fr', 'nl', 'pt', 'ru']
 
 const getAvailableLocales = (): string[] =>
   fs.readdirSync(LOCALES_DIR)
@@ -88,6 +94,31 @@ describe('desktop locale validation', () => {
   const en = loadLocale('en')
   const enKeys = collectKeys(en).sort()
   const locales = getAvailableLocales()
+
+  describe('reading mode translations', () => {
+    for (const lang of ['en', ...locales]) {
+      it(`${lang}.json renders reading messages without English fallback or compiler errors`, () => {
+        const readingMode = loadLocale(lang).readingMode as Record<string, string>
+        const english = en.readingMode as Record<string, string>
+        const i18n = createI18n({
+          legacy: false,
+          locale: lang,
+          fallbackLocale: false,
+          messages: { [lang]: { readingMode } }
+        })
+        const errors = vi.spyOn(console, 'error').mockImplementation(() => {})
+        try {
+          for (const [key, value] of Object.entries(readingMode)) {
+            expect(i18n.global.t(`readingMode.${key}`)).toBe(value)
+            if (lang !== 'en') expect(value, `${lang} readingMode.${key}`).not.toBe(english[key])
+          }
+          expect(errors).not.toHaveBeenCalled()
+        } finally {
+          errors.mockRestore()
+        }
+      })
+    }
+  })
 
   describe('key parity with en.json', () => {
     for (const lang of locales) {
@@ -151,9 +182,20 @@ describe('desktop locale validation', () => {
     }
   })
 
-  describe('technical terms stay in English (Latin-script locales)', () => {
-    const latinLocales = locales.filter(l => LATIN_SCRIPT_LOCALES.includes(l))
-    for (const lang of latinLocales) {
+  describe('technical terms stay in English', () => {
+    it('every technical term path exists in en.json', () => {
+      const stale = TECHNICAL_TERMS.filter(({ path: keyPath }) => typeof getByPath(en, keyPath) !== 'string')
+        .map(({ path: keyPath }) => keyPath)
+
+      expect(
+        stale,
+        '\n  These TECHNICAL_TERMS paths are not in en.json, so the checks below' +
+        `\n  skip them and enforce nothing. Repoint or remove them:\n    ${stale.join('\n    ')}\n`
+      ).toEqual([])
+    })
+
+    const termLocales = locales.filter(l => TERM_PRESERVING_LOCALES.includes(l))
+    for (const lang of termLocales) {
       it(`${lang}.json keeps product names untranslated`, () => {
         const locale = loadLocale(lang)
         const violations: string[] = []
@@ -171,6 +213,34 @@ describe('desktop locale validation', () => {
         expect(
           violations.length,
           `\n  Technical terms incorrectly translated in ${lang}.json:\n\n${violations.join('\n\n')}`
+        ).toBe(0)
+      })
+    }
+  })
+
+  // vue-i18n compiles every message before displaying it, and its compiler
+  // reads `\\` as an escaped backslash and collapses it to one. A label that
+  // told two preferences apart by backslash count alone therefore rendered
+  // identically — `texMathSingleBackslash` and `texMathDoubleBackslash` shipped
+  // that way. Locale values here are plain labels, never templates that need
+  // escaping, so the safe rule is to keep backslashes out of them entirely.
+  // Unlike the checks above this one is not a comparison against en.json, so
+  // it has to cover en.json as well.
+  describe('no backslashes in translated values', () => {
+    for (const lang of ['en', ...locales]) {
+      it(`${lang}.json keeps backslashes out of its values`, () => {
+        const locale = loadLocale(lang)
+        const offenders = collectKeys(locale).filter(k => {
+          const val = getByPath(locale, k)
+          return typeof val === 'string' && val.includes('\\')
+        })
+
+        expect(
+          offenders.length,
+          `\n  Backslashes in ${lang}.json — vue-i18n collapses them, so the\n` +
+          '  rendered text will not be what you typed. Describe the syntax in\n' +
+          '  words instead:\n' +
+          offenders.map(k => `    "${k}": ${JSON.stringify(getByPath(locale, k))}`).join('\n')
         ).toBe(0)
       })
     }

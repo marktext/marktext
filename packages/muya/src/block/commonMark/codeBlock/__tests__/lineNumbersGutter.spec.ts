@@ -3,19 +3,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../../../muya';
 
-// Characterization coverage for the code-block line-numbers gutter
-// (option: codeBlockLineNumbers, marktext a028a7c2). The gutter lives in two
-// places that must stay in sync:
-//   - CodeBlock (the <pre>, class `mu-code-block`) adds the `mu-line-numbers`
-//     class purely from the option.
-//   - Code.createCopyNode() only creates the `.mu-line-numbers-rows` wrapper
-//     when the option is on AND the host is a real `code-block` (not
-//     frontmatter / math / diagram / html). CodeBlock.create then MOVES that
-//     wrapper into the <pre> so the gutter is not clipped by `.mu-code`.
-// Spans are filled lazily on CodeBlockContent.update() via syncLineNumbersSpans
-// (one span per visible row, trailing-newline row included). State and the
-// reposition pass flush on requestAnimationFrame.
-
 const bootedHosts: HTMLElement[] = [];
 
 beforeEach(() => {
@@ -61,7 +48,6 @@ describe('code-block line-numbers gutter', () => {
             expect(wrappers.length).toBe(1);
 
             const wrapper = wrappers[0] as HTMLElement;
-            // CodeBlock.create lifts the wrapper out of `.mu-code` into the <pre>.
             expect(wrapper.parentElement!.tagName).toBe('PRE');
             expect(wrapper.parentElement!.classList.contains('mu-code-block')).toBe(true);
             expect(wrapper.getAttribute('contenteditable')).toBe('false');
@@ -143,8 +129,6 @@ describe('code-block line-numbers gutter', () => {
             const mathBlock = root.querySelector<HTMLElement>('.mu-math-block');
             expect(mathBlock).not.toBeNull();
             expect(mathBlock!.classList.contains('mu-line-numbers')).toBe(false);
-            // The math container reuses Code with _withLineNumbers=false, so no
-            // gutter class and no rows wrapper anywhere in the surface.
             expect(root.querySelectorAll('.mu-line-numbers').length).toBe(0);
             expect(root.querySelectorAll('.mu-line-numbers-rows').length).toBe(0);
         });

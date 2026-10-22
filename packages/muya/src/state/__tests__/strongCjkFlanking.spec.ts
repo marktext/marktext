@@ -23,12 +23,12 @@ import { renderToStaticHTML } from '../renderToStaticHTML';
 //   so the run is not left-flanking and the `**` stays literal.
 //
 //   Legacy marktext (muyajs) shipped a custom inline tokenizer whose
-//   `canOpen/canCloseEmphasis` flanking helpers treat CJK as punctuation. We
-//   restore that, additively, in both of muya's paths:
+//   flanking helpers treat CJK as punctuation. We restore that, additively,
+//   in both of muya's paths:
 //     - Static / export path  — marked@16, via the `cjkEmStrong` tokenizer
 //       override registered in `getHighlightHtml` / `getClipboardHtml`.
 //     - Live editor path       — muya's own inline lexer, via the CJK widening
-//       in `inlineRenderer/utils.ts` (`canOpen/canCloseEmphasis`).
+//       `isBoundary` applies in `inlineRenderer/emphasis.ts`.
 //
 //   The widening is additive: it never bolds anything CommonMark accepts as
 //   non-emphasis, so the CommonMark / GFM conformance suites are unaffected.
@@ -39,7 +39,7 @@ const STATIC_OPTIONS = {
     footnote: false,
     texMathDollars: false,
     superSubScript: false,
-    isGitlabCompatibilityEnabled: false,
+    texMathGfm: false,
     frontMatter: false,
     sanitize: false,
 } as const;
@@ -55,17 +55,12 @@ const CJK_CASES = [
     '𠀀𠀁**"加粗"**𠀀𠀁',
 ];
 
-// Cases that already work — they lock in the pre-existing behavior so the fix
-// can't regress them. Each emphasised run is bounded by a CJK ideograph or
-// whitespace on the inner side, satisfying flanking without the CJK widening.
 const SANITY_CASES = [
     'before **"normal"** after',
     'before**normal**after',
     '中文**加粗**中文',
 ];
 
-// Cases that MUST NOT bold — the additive CJK widening must leave these as
-// CommonMark rejects them.
 const NEGATIVE_CASES = [
     'a * foo bar*', //   space after opening `*` — not left-flanking
     'a_foo bar_', //     intraword `_` emphasis is disallowed
@@ -110,10 +105,6 @@ describe('strong emphasis with CJK boundaries (#4307)', () => {
 
         for (const src of NEGATIVE_CASES) {
             it(`does not bold or italicise: ${src}`, () => {
-                // Assert NEITHER <strong> NOR <em>: because this PR widens the
-                // emphasis/strong flanking logic, a regression could surface as
-                // unexpected <em> output while still passing a <strong>-only
-                // check. Guard both tags so the negative cases stay meaningful.
                 expect(rendersStrong(src), src).toBe(false);
                 expect(rendersEm(src), src).toBe(false);
             });

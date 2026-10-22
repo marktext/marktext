@@ -1,6 +1,5 @@
 /// <reference types="vite/client" />
 
-// Raw markdown imports (`assetsInclude: ['**/*.md']` in electron.vite.config.ts)
 declare module '*.md' {
   const content: string
   export default content
@@ -10,7 +9,6 @@ declare module '*.md?raw' {
   export default content
 }
 
-// SVGs imported as Vue components via vite-svg-loader
 declare module '*.svg?component' {
   import type { DefineComponent } from 'vue'
   const component: DefineComponent<Record<string, never>, Record<string, never>, unknown>

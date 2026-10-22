@@ -15,11 +15,7 @@ class Footnote extends Parent {
     static create(muya: Muya, state: IFootnoteBlockState) {
         const footnote = new Footnote(muya, state);
 
-        // Render an identifier label inside the figure as a plain DOM span
-        // (not a tracked Parent). The CSS `[^` / `]:` pseudo-elements wrap
-        // the identifier so users see `[^id]:` against the block background
-        // — matching marktext's visual treatment without making the label
-        // part of `IFootnoteBlockState.children`.
+        // Identifier labels are UI attachments, not document children.
         const label = document.createElement('span');
         label.className = CLASS_NAMES.MU_FOOTNOTE_INPUT;
         label.textContent = state.meta.identifier;
@@ -28,9 +24,6 @@ class Footnote extends Parent {
         for (const child of state.children)
             footnote.append(ScrollPage.loadBlock(child.name).create(muya, child));
 
-        // Backlink arrow in the bottom-right of the figure. Clicking it
-        // scrolls back up to the first inline `<sup id="noteref-{id}">`
-        // reference.
         const backlink = document.createElement('i');
         backlink.className = CLASS_NAMES.MU_FOOTNOTE_BACKLINK;
         backlink.textContent = '↩︎';
@@ -45,10 +38,7 @@ class Footnote extends Parent {
         return footnote;
     }
 
-    // Container-block path semantics: descendants address into `children`.
-    // `Parent.getJsonPath` strips the trailing 'children' segment via
-    // `isContainerBlock`, which we override below so footnote participates in
-    // the same json1 op routing.
+    // Footnotes use container paths into children, matching Parent’s JSON path routing.
     override get path() {
         const { path: pPath } = this.parent!;
         const offset = this.parent!.offset(this);

@@ -100,7 +100,6 @@ test.describe('Format -> Image edit tool wiring', () => {
     await expect(page.locator('.mu-image-selector input.src')).toHaveCount(1)
     await expect.poll(() => toolShown(page), { timeout: 5000 }).toBe(true)
 
-    // The src input is auto-focused for quick editing (_focusSrcInput()).
     await expect.poll(() => isSrcInputFocused(page), { timeout: 5000 }).toBe(true)
 
     await expectNoRendererErrors(app)
@@ -113,7 +112,6 @@ test.describe('Format -> Image edit tool wiring', () => {
     await expect.poll(() => toolShown(page), { timeout: 5000 }).toBe(true)
     await expect.poll(() => isSrcInputFocused(page), { timeout: 5000 }).toBe(true)
 
-    // The action did not crash the renderer.
     const crashed = await app.evaluate(({ BrowserWindow }) =>
       BrowserWindow.getAllWindows()[0].webContents.isCrashed()
     )
@@ -127,7 +125,6 @@ test.describe('Format -> Image edit tool wiring', () => {
     await page.waitForSelector(srcInput, { state: 'attached', timeout: 5000 })
     await expect.poll(() => toolShown(page), { timeout: 5000 }).toBe(true)
 
-    // A freshly inserted `![]()` has no source, so the src input starts empty.
     await expect.poll(
       () =>
         page.evaluate(() => {

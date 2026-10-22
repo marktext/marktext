@@ -3,7 +3,12 @@
     "counter": {
       "words": "Mots",
       "characters": "Caractères",
-      "paragraphs": "Paragraphes"
+      "charactersNoSpaces": "Caractères (sans espaces)",
+      "charactersWithSpaces": "Caractères (avec espaces)",
+      "paragraphs": "Paragraphes",
+      "allCharacters": "Tous les caractères",
+      "document": "Document",
+      "documentSelection": "Document / Sélection"
     },
     "file": {
       "file": "Fichier",
@@ -21,12 +26,14 @@
       "export": "Exporter",
       "exportHtml": "Exporter en HTML",
       "exportPdf": "Exporter en PDF",
+      "convertWithPandoc": "Convertir avec Pandoc",
       "import": "Importer",
       "print": "Imprimer",
       "closeTab": "Fermer l'onglet",
       "closeWindow": "Fermer la fenêtre",
       "quit": "Quitter",
-      "preferences": "Préférences"
+      "preferences": "Préférences",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "Édition",
@@ -66,6 +73,7 @@
       "table": "Tableau",
       "codeFences": "Clôtures de code",
       "quoteBlock": "Bloc de citation",
+      "githubAlerts": "Alertes GitHub",
       "mathBlock": "Bloc mathématique",
       "htmlBlock": "Bloc HTML",
       "orderedList": "Liste ordonnée",
@@ -117,7 +125,7 @@
       "sourceCodeMode": "Mode code source",
       "typewriterMode": "Mode machine à écrire",
       "focusMode": "Mode focus",
-      "toggleTableOfContents": "Basculer la table des matières",
+      "toggleTableOfContents": "Afficher la table des matières",
       "reloadImages": "Recharger les images",
       "showDeveloperTools": "Afficher les outils de développement",
       "reloadWindow": "Recharger la fenêtre"
@@ -141,8 +149,8 @@
       "theme": "Thème (&T)",
       "dark": "Sombre",
       "followThemDisabled": "Sélection du thème désactivée lorsque le thème du système est suivi",
-      "lightThemes": "— Thèmes Clairs —",
-      "darkThemes": "— Thèmes Sombres —",
+      "lightThemes": "Thèmes Clairs",
+      "darkThemes": "Thèmes Sombres",
       "ayuDark": "Ayu Sombre",
       "ayuLight": "Ayu Clair",
       "ayuMirage": "Ayu Mirage",
@@ -200,6 +208,7 @@
       "paste": "Coller",
       "rename": "Renommer",
       "moveToTrash": "Déplacer vers la corbeille",
+      "copyPath": "Copier le chemin",
       "showInFolder": "Afficher dans le dossier"
     },
     "tabs": {
@@ -209,7 +218,8 @@
       "closeAllTabs": "Fermer tous les onglets",
       "rename": "Renommer",
       "copyPath": "Copier le chemin",
-      "showInFolder": "Afficher dans le dossier"
+      "showInFolder": "Afficher dans le dossier",
+      "showInSideBar": "Afficher dans la barre latérale"
     }
   },
   "search": {
@@ -227,12 +237,16 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Retour aux fichiers",
       "searchInFolder": "Rechercher dans le dossier...",
       "noFolderOpen": "Aucun dossier ouvert",
       "noResultsFound": "Aucun résultat trouvé.",
       "cancel": "Annuler",
-      "openFolder": "Ouvrir un dossier",
-      "showMoreMatches": "Afficher plus de correspondances"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "Afficher plus de correspondances",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "Fichiers ouverts",
@@ -240,9 +254,22 @@
       "closeAll": "Tout fermer",
       "emptyProject": "Projet vide",
       "createFile": "Créer un fichier",
-      "openFolder": "Ouvrir un dossier"
+      "openFolder": "Ouvrir un dossier",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session",
+      "resizeOpenedFiles": "Redimensionner la liste des fichiers ouverts"
     },
     "toc": {
+      "expand": "Développer la table des matières",
+      "collapse": "Réduire la table des matières",
+      "empty": "Aucun titre",
       "title": "Table des matières",
       "expandAll": "Tout développer",
       "collapseAll": "Tout réduire"
@@ -250,8 +277,22 @@
     "icons": {
       "files": "Fichiers",
       "search": "Rechercher",
-      "toc": "Table des matières",
       "settings": "Paramètres"
+    }
+  },
+  "titleBar": {
+    "applicationMenu": "Menu de l'application",
+    "minimize": "Réduire",
+    "maximize": "Agrandir",
+    "restore": "Restaurer",
+    "close": "Fermer",
+    "documentStatistics": {
+      "title": "Statistiques du document",
+      "fileInformation": "Informations sur le fichier",
+      "created": "Créé",
+      "lastModified": "Modifié",
+      "unavailable": "—",
+      "open": "Ouvrir les statistiques du document"
     }
   },
   "commandPalette": {
@@ -265,13 +306,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Numérotation automatique des titres",
     "title": "Options d'exportation",
-    "info": {
-      "label": "Informations",
-      "description": "Veuillez personnaliser l'apparence de la page et cliquer sur 'Exporter' pour continuer."
-    },
     "page": {
       "label": "Page",
-      "pageTitle": "Titre de la page :",
+      "pageTitle": "Titre de la page",
       "pageSize": "Taille de la page :",
       "landscapeOrientation": "Orientation paysage :",
       "pageMargin": "Marge de page (mm) :",
@@ -308,12 +345,13 @@
       "description": "Si un en-tête et/ou un pied de page est défini, le texte apparaîtra sur toutes les pages."
     },
     "toc": {
-      "includeTopHeading": "Inclure le titre de niveau supérieur",
-      "includeTopHeadingDetail": "Inclure les détails du titre de niveau supérieur",
+      "description": "Pour afficher une table des matières dans le document exporté, saisissez [TOC] sur une ligne distincte dans le corps du document. La table des matières apparaîtra à cet emplacement.",
+      "includeTopHeading": "Inclure les titres de niveau 1",
+      "includeTopHeadingDetail": "Inclure tous les titres de niveau 1 (H1) dans la table des matières.",
       "label": "Table des matières",
       "title": "Table des matières"
     },
-    "export": "Exporter...",
+    "export": "Exporter",
     "options": {
       "pageSizes": {
         "a3": "A3",
@@ -351,6 +389,7 @@
   },
   "preferences": {
     "title": "Préférences",
+    "learnMore": "En savoir plus sur {name}",
     "search": {
       "placeholder": "Rechercher dans les préférences...",
       "categories": {
@@ -371,6 +410,7 @@
         "autoNormalizeLineEndings": "Normaliser automatiquement les fins de ligne à l'ouverture des fichiers. Lorsque désactivé, les fichiers sont ouverts tels quels.",
         "titleBarStyle": "Le style de la barre de titre (systèmes Windows et Linux uniquement)",
         "openFilesInNewWindow": "Ouvrir les fichiers dans une nouvelle fenêtre",
+        "openFilesInPreviewMode": "Ouvrir les fichiers de la barre latérale dans des onglets d’aperçu",
         "openFolderInNewWindow": "Ouvrir le dossier via le menu dans une nouvelle fenêtre",
         "zoom": "Le niveau de zoom. Entre 0.5 et 2.0 inclus",
         "hideScrollbar": "Masquer les barres de défilement",
@@ -386,7 +426,7 @@
         "wrapCodeBlocks": "Retour à la ligne dans les blocs de code",
         "editorLineWidth": "Définit la largeur maximale de la zone d'édition. Une chaîne vide ou des suffixes de ch (caractères), px (pixels) ou % (pourcentage) sont autorisés",
         "codeFontSize": "Taille de police dans le bloc de code, la plage est de 12 ~ 18",
-        "codeFontFamily": "Famille de police utilisée dans le bloc de code",
+        "codeFontFamily": "Police du code. S’applique au code en ligne et aux blocs de code.",
         "codeBlockLineNumbers": "Afficher les numéros de ligne",
         "sourceCodeLineNumbers": "Afficher les numéros de ligne en mode code source",
         "trimUnnecessaryCodeBlockEmptyLines": "Supprimer les lignes vides au début et à la fin du bloc de code",
@@ -411,8 +451,14 @@
         "superSubScript": "Activer l'extension markdown de pandoc pour exposant et indice",
         "footnote": "Activer l'extension markdown de pandoc pour note de bas de page",
         "texMathDollars": "Activer l'extension markdown de pandoc tex_math_dollars",
+        "texMathGfm": "Activer l'extension markdown de pandoc tex_math_gfm",
+        "texMathSingleBackslash": "Activer l'extension markdown de pandoc tex_math_single_backslash",
+        "texMathDoubleBackslash": "Activer l'extension markdown de pandoc tex_math_double_backslash",
+        "highlightSyntax": "Activer la syntaxe de surlignage non standard ==texte==",
+        "inlineDiff": "Activer la syntaxe de diff en ligne non standard {+ … +} / [- … -]",
+        "multilineBlockquote": "Activer la syntaxe de citation multiligne non standard >>> … >>>",
+        "githubAlerts": "Alertes GitHub",
         "isHtmlEnabled": "Activer le rendu HTML",
-        "isGitlabCompatibilityEnabled": "Activer le mode de compatibilité GitLab",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "sequenceTheme": "Thème du diagramme de séquence",
         "plantumlServer": "URL du serveur PlantUML",
@@ -428,7 +474,8 @@
         "imageRelativeDirectoryBase": "Où les images relatives sont copiées",
         "imageRelativeDirectoryName": "Le nom du dossier d'image relatif",
         "fileSortOrder": "Ordre de tri des fichiers dans les dossiers ouverts : croissant ou décroissant.",
-        "openedFilesInSidebar": "Afficher ou non les fichiers ouverts dans la barre latérale."
+        "openedFilesInSidebar": "Afficher ou non les fichiers ouverts dans la barre latérale.",
+        "showPandocConvert": "Afficher le menu de conversion Pandoc. Nécessite l'installation de Pandoc."
       }
     },
     "categories": {
@@ -472,10 +519,20 @@
         "selectFolder": "Sélectionner un dossier",
         "openBlankPage": "Ouvrir une page vierge"
       },
+      "pandoc": {
+        "title": "Conversion Pandoc",
+        "description": "Afficher le menu de conversion Pandoc",
+        "detailedDescription": "Nécessite l'installation de Pandoc",
+        "found": "Trouvé : {path}",
+        "notFound": "Introuvable",
+        "recheck": "Revérifier"
+      },
       "sidebar": {
         "title": "Barre latérale",
         "wrapTextInToc": "Retour à la ligne dans la table des matières",
         "showOpenedFiles": "Afficher les fichiers ouverts",
+        "autoReveal": "Afficher le fichier actif dans la barre latérale",
+        "openFilesInPreviewMode": "Ouvrir les fichiers de la barre latérale dans des onglets d’aperçu. La modification ou le double-clic conserve l’onglet.",
         "excludePatterns": "Motifs d'exclusion",
         "excludePatternsNotes": "Notes sur les motifs d'exclusion",
         "fileSortBy": {
@@ -506,7 +563,8 @@
           "korean": "한국어",
           "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -519,12 +577,13 @@
         "fontFamily": "Famille de police",
         "maxWidth": "Largeur maximale",
         "maxWidthNotes": "Largeur maximale du contenu de l'éditeur. Saisissez un nombre suivi de px, ch (caractères) ou %, par exemple 800px, 80ch ou 60%. Laissez vide pour utiliser la largeur par défaut.",
-        "maxWidthInvalid": "Saisissez un nombre suivi de px, ch ou %, par exemple 800px."
+        "maxWidthInvalid": "Saisissez un nombre suivi de px, ch ou %, par exemple 800px.",
+        "codeFontFamily": "Police du code",
+        "codeFontFamilyNotes": "S’applique au code en ligne et aux blocs de code."
       },
       "codeBlock": {
         "title": "Bloc de code",
         "fontSize": "Taille de police",
-        "fontFamily": "Famille de police",
         "showLineNumbers": "Afficher les numéros de ligne",
         "removeEmptyLines": "Supprimer les lignes vides"
       },
@@ -636,6 +695,13 @@
         "footnote": "Note de bas de page",
         "footnoteNotes": "Notes de bas de page",
         "texMathDollars": "Maths TeX avec $ et $$",
+        "texMathGfm": "Maths TeX de GitHub ($`…`$ et ```math)",
+        "texMathSingleBackslash": "Maths TeX avec barre oblique inverse simple",
+        "texMathDoubleBackslash": "Maths TeX avec barre oblique inverse double",
+        "highlightSyntax": "Surlignage (==texte==)",
+        "inlineDiff": "Diff en ligne ({+ … +})",
+        "multilineBlockquote": "Citation multiligne (>>>)",
+        "githubAlerts": "Activer les alertes GitHub",
         "frontmatterType": {
           "jsonBrace": "Accolade JSON",
           "jsonSemicolon": "Point-virgule JSON",
@@ -662,7 +728,6 @@
         "title": "Divers"
       },
       "compatibility": {
-        "enableGitlab": "Activer la compatibilité GitLab",
         "enableHtml": "Activer le support HTML",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "title": "Compatibilité"
@@ -686,6 +751,7 @@
     "theme": {
       "title": "Thème",
       "followSystemTheme": "Suivre le thème du système",
+      "followSystemNote": "Suivre le thème du système verrouille la liste des thèmes ci-dessous. Désactivez cette option pour changer librement de thème.",
       "modeThemes": "Sélection du thème",
       "lightModeTheme": "Thème en mode clair",
       "darkModeTheme": "Thème en mode sombre",
@@ -768,10 +834,12 @@
       "quit": "Quitter",
       "toggleAutoSave": "Basculer l'enregistrement automatique",
       "importFile": "Importer un fichier",
+      "revealInSideBar": "Afficher dans la barre latérale",
       "exportFile": "Exporter un fichier",
       "exportFilePdf": "Exporter en PDF",
       "zoom": "Zoom",
-      "checkUpdate": "Vérifier les mises à jour"
+      "checkUpdate": "Vérifier les mises à jour",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "Annuler",
@@ -888,6 +956,7 @@
     "ok": "OK"
   },
   "dialog": {
+    "moveToTrash": "Voulez-vous vraiment déplacer « {name} » vers la corbeille ?",
     "cancel": "Annuler",
     "changesWillBeLost": "Les modifications seront perdues",
     "close": "Fermer",
@@ -896,7 +965,9 @@
     "fileExists": "Le fichier existe déjà : {filename}",
     "files": "Fichiers",
     "importWarning": "Avertissement d'importation",
-    "installPandoc": "Installer Pandoc",
+    "installPandoc": "Pandoc est introuvable. Installez-le, ou définissez la variable d'environnement MARKTEXT_PANDOC sur le chemin du binaire pandoc, puis redémarrez MarkText.",
+    "exportWarning": "Avertissement d'exportation",
+    "exportWarningMore": "…et {count} de plus",
     "keepOpen": "Garder ouvert",
     "replace": "Remplacer",
     "save": "Enregistrer",
@@ -936,6 +1007,7 @@
       "errorWhileSaving": "Une erreur s'est produite lors de l'enregistrement : {msg}",
       "exportSuccessTitle": "Exportation réussie",
       "exportSuccessMessage": "« {name} » a été exporté avec succès !",
+      "exportLinkedMediaMessage": "« {name} » a été exporté. Ce format lie les images au lieu de les intégrer : gardez les images à côté du fichier et partagez le dossier entier.",
       "fileRemovedOnDisk": "« {name} » a été supprimé du disque.",
       "fileChangedOnDisk": "« {name} » a été modifié sur le disque. Voulez-vous le recharger ?"
     }
@@ -955,6 +1027,21 @@
       "rows": "Lignes",
       "columns": "Colonnes"
     },
+    "mediaViewer": {
+      "title": "Aperçu",
+      "close": "Fermer",
+      "zoomIn": "Zoom avant",
+      "zoomOut": "Zoom arrière",
+      "fit": "Ajuster à la fenêtre",
+      "actualSize": "Taille réelle",
+      "saveTitle": "Enregistrer le diagramme",
+      "saveSvg": "Enregistrer en SVG",
+      "savePng": "Enregistrer en PNG",
+      "copyImage": "Copier l'image",
+      "copied": "Image copiée dans le presse-papiers",
+      "saveFailed": "Impossible d'enregistrer l'image : {error}",
+      "copyFailed": "Impossible de copier l'image : {error}"
+    },
     "notifications": {
       "notificationNotFound": "Notification introuvable"
     },
@@ -972,6 +1059,27 @@
       "languageMissing": "Langue du correcteur manquante {languageCode}",
       "switchError": "Erreur de changement du correcteur pour {languageCode}, {error}",
       "title": "Vérification orthographique"
+    },
+    "tabs": {
+      "close": "Fermer {name}",
+      "preview": "{name}, onglet d’aperçu"
     }
+  },
+  "readingMode": {
+    "title": "Mode lecture",
+    "edit": "Mode édition",
+    "lock": "Activer le mode lecture",
+    "unlock": "Passer en mode édition",
+    "defaultMode": "Mode par défaut à l’ouverture des fichiers",
+    "defaultNote": "S’applique aux fichiers existants ouverts à partir de maintenant. Les nouveaux documents restent modifiables.",
+    "unsaved": "Le mode lecture est activé. Les modifications non enregistrées sont conservées et l’enregistrement automatique est suspendu.",
+    "failed": "Impossible de changer le mode du document",
+    "closeSave": "Passer en mode édition et enregistrer",
+    "exportSource": "Choisissez une destination d’exportation différente du fichier source.",
+    "unavailable": "Indisponible en mode lecture",
+    "skipped": "Les documents en lecture seule contenant des modifications non enregistrées ont été ignorés.",
+    "viewImage": "Afficher l’image",
+    "copyLink": "Copier l’adresse du lien",
+    "resumed": "Le mode édition est activé. L’enregistrement automatique a repris."
   }
 }

@@ -4,6 +4,7 @@ import type { Muya } from '../muya';
 import type { IRenderCursor } from '../selection/types';
 import type { IParagraphState, TState } from '../state/types';
 import type { IHighlight, Labels } from './types';
+import { prepareReadingLinks } from '../editor/readOnly';
 import logger from '../utils/logger';
 import { tokenizer } from './lexer';
 import Renderer from './renderer';
@@ -61,7 +62,7 @@ class InlineRenderer {
     }
 
     patch(block: Format, cursor?: IRenderCursor, highlights: IHighlight[] = []) {
-        this._collectReferenceDefinitions();
+        this.labels = this.collectReferenceDefinitions();
         const { domNode } = block;
         if (block.isParent())
             debug.error('Patch can only handle content block');
@@ -70,19 +71,18 @@ class InlineRenderer {
         const html = this.renderer.output(
             tokens,
             block,
-            cursor && cursor.block === block ? cursor : {},
+            !this.muya.isReadOnly && cursor && cursor.block === block ? cursor : {},
         );
         domNode!.innerHTML = html;
+        if (this.muya.isReadOnly)
+            prepareReadingLinks(domNode!);
     }
 
-    private _collectReferenceDefinitions() {
-        // Every rendered content block asks for the label map, and recollecting
-        // it reads (and clones) the WHOLE document each time — O(blocks ×
-        // document) on open, which freezes large files (#4887). The map only
-        // changes when the JSON state changes, so cache it by revision.
+    // Definitions live in paragraphs across the document; rescanning for every block caused #4887.
+    collectReferenceDefinitions(): Labels {
         const { jsonState } = this.muya.editor;
         if (this._labelsRevision === jsonState.revision)
-            return;
+            return this.labels;
 
         const labels = new Map();
         const stack: Iterator<TState>[] = [jsonState.rawState[Symbol.iterator]()];
@@ -105,6 +105,7 @@ class InlineRenderer {
 
         this.labels = labels;
         this._labelsRevision = jsonState.revision;
+        return labels;
     }
 
     getLabelInfo(blockOrState: ParagraphContent | IParagraphState) {

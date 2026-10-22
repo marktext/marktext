@@ -32,7 +32,7 @@ jobs:
       matrix:
         project: [chromium]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       - name: Install Playwright browser (${{ matrix.project }})
@@ -43,7 +43,7 @@ jobs:
 
       - name: Upload report on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: muya-e2e-report-${{ matrix.project }}
           path: packages/muya/e2e/playwright-report/

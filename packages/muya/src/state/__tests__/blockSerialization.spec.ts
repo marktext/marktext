@@ -3,21 +3,19 @@ import type Parent from '../../block/base/parent';
 import type TreeNode from '../../block/base/treeNode';
 import type CodeBlock from '../../block/commonMark/codeBlock';
 import type { Nullable } from '../../types';
+import type { ICodeBlockState } from '../types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../muya';
 import { MarkdownToState } from '../markdownToState';
 import ExportMarkdown from '../stateToMarkdown';
 
-// Round-trip baseline for non-list block types served by `stateToMarkdown`.
-// Each spec runs `markdown → state → markdown` and asserts identity for
-// canonical inputs. The intent is regression coverage — these tests should
-// not change behaviour, just lock the current contract in place so a
-// future refactor of stateToMarkdown can't silently break it.
 function roundTrip(md: string): string {
     const states = new MarkdownToState({
         footnote: false,
         texMathDollars: true,
-        isGitlabCompatibilityEnabled: false,
+        texMathGfm: false,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,
     }).generate(md);
@@ -28,7 +26,9 @@ function parse(md: string) {
     return new MarkdownToState({
         footnote: false,
         texMathDollars: true,
-        isGitlabCompatibilityEnabled: false,
+        texMathGfm: false,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,
     }).generate(md);
@@ -54,8 +54,6 @@ function bootMuya(markdown: string): Muya {
     return muya;
 }
 
-// Walk up from the first content leaf to the enclosing `code-block` parent
-// (the block that owns the `lang` setter and the `meta.type` field).
 function findCodeBlock(muya: Muya): CodeBlock {
     let node: Nullable<TreeNode> = muya.editor.scrollPage!.firstContentInDescendant();
     while (node && node.blockName !== 'code-block')
@@ -132,6 +130,59 @@ line 3
 \`\`\`
 `;
         expect(roundTrip(md)).toBe(md);
+    });
+
+    it('round-trips a tilde-fenced code block with a language tag', () => {
+        const md = `~~~js
+const x = 1;
+~~~
+`;
+        expect(roundTrip(md)).toBe(md);
+    });
+
+    it('round-trips a tilde-fenced code block without a language tag', () => {
+        const md = `~~~
+plain code
+~~~
+`;
+        expect(roundTrip(md)).toBe(md);
+    });
+
+    it('keeps the tilde fence when its info string contains backticks', () => {
+        // CommonMark §4.5 Example 146: a tilde info string may contain
+        // backticks and tildes; the fence character must not be rewritten.
+        const md = `~~~aa \`\`\` ~~~
+foo
+~~~
+`;
+        expect(roundTrip(md)).toBe(md);
+    });
+
+    it('always records fenceChar for fenced blocks', () => {
+        const tilde = parse('~~~js\nx\n~~~\n')[0] as ICodeBlockState;
+        expect(tilde.meta).toEqual({ type: 'fenced', lang: 'js', fenceChar: '~' });
+
+        const backtick = parse('```js\nx\n```\n')[0] as ICodeBlockState;
+        expect(backtick.meta).toEqual({ type: 'fenced', lang: 'js', fenceChar: '`' });
+
+        const indented = parse('    x\n')[0] as ICodeBlockState;
+        expect(indented.meta.fenceChar).toBeUndefined();
+    });
+
+    it('grows the tilde fence past an interior run of the same character', () => {
+        const md = `~~~~
+~~~
+~~~~
+`;
+        expect(roundTrip(md)).toBe(md);
+    });
+
+    it('switches to a tilde fence when a backtick fence carries a backtick in its info string', () => {
+        const out = new ExportMarkdown({ listIndentation: 1 }).generate([
+            { name: 'code-block', meta: { type: 'fenced', lang: 'a`b', fenceChar: '`' }, text: 'x' },
+        ]);
+        expect(out).toContain('~~~a`b');
+        expect(out).toContain('~~~\n');
     });
 });
 
@@ -242,18 +293,14 @@ describe('markdownToState — indented code block', () => {
         expect(states.length).toBe(1);
         const state = states[0];
         expect(state.name).toBe('code-block');
-        // `meta` only exists on the code-block state; narrow before reading it.
         if (state.name !== 'code-block')
             throw new Error('expected a code-block state');
         expect(state.meta.type).toBe('indented');
-        // Indented blocks carry no info string, so the language is empty.
         expect(state.meta.lang).toBe('');
         expect(state.text).toBe('code');
     });
 
     it('round-trips an indented code block back to 4-space-indented markdown', () => {
-        // The serializer prefixes every line of a non-fenced code block with
-        // exactly four spaces (serializeCodeBlock, `type !== 'fenced'` branch).
         const md = '    code\n';
         expect(roundTrip(md)).toBe(md);
     });
@@ -273,19 +320,16 @@ describe('codeBlock — setting lang promotes an indented block to fenced', () =
 
         codeBlock.lang = 'js';
 
-        // The live block object reflects both the new type and language
-        // synchronously (the setter mutates `this.meta` directly).
         expect(codeBlock.meta.type).toBe('fenced');
         expect(codeBlock.meta.lang).toBe('js');
 
-        // The `meta.type` change is dispatched as an OT op, so it reaches the
-        // serialized JSON state after the rAF flush.
         await vi.waitFor(() => {
             const state = muya.getState()[0];
             expect(state.name).toBe('code-block');
             if (state.name !== 'code-block')
                 throw new Error('expected a code-block state');
             expect(state.meta.type).toBe('fenced');
+            expect(state.meta.fenceChar).toBe('`');
         });
     });
 
@@ -319,14 +363,11 @@ describe('codeBlock — setting lang promotes an indented block to fenced', () =
         });
 
         const md = muya.getMarkdown();
-        // No longer the indented 4-space form.
         expect(md.startsWith('    ')).toBe(false);
         // Bug: the language tag never reaches the serializer.
         expect(md).not.toContain('```js');
         expect(md).toBe('```\ncode\n```\n');
 
-        // The JSON state confirms the language was dropped while the live
-        // block still holds it.
         const state = muya.getState()[0];
         if (state.name !== 'code-block')
             throw new Error('expected a code-block state');

@@ -21,7 +21,6 @@ export const getFileIconClasses = (fileName: string): string[] => {
   const classNames =
     (dotIndex !== -1 ? getClassByName(`mock${name.slice(dotIndex)}`) : null) ??
     getClassByName(name) ??
-    // Use fallback icon when the icon is unknown.
     getClassByName('mock.md')
   return (classNames ?? '').split(/\s/)
 }

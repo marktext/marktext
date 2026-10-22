@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown, waitForEditor, enterSourceMode, clickMenuById } from './helpers'
+import { makeRoomForOutline, launchWithMarkdown, waitForEditor, enterSourceMode, clickMenuById } from './helpers'
 
 // marktext #3580: clicking a TOC entry in SOURCE CODE mode must scroll the
 // editor to that heading and place it near the TOP of the viewport. The editor
@@ -42,6 +42,7 @@ test.describe('Source Code mode: TOC click scrolls to the heading at the top', (
     const launched = await launchWithMarkdown(buildLongDoc())
     app = launched.app
     page = launched.page
+    await makeRoomForOutline(app, page)
     await waitForEditor(page)
     await enterSourceMode(page, app)
     const sbVisible = await page.evaluate(() => {
@@ -49,7 +50,6 @@ test.describe('Source Code mode: TOC click scrolls to the heading at the top', (
       return !!(el && el.offsetParent !== null)
     })
     if (!sbVisible) await clickMenuById(app, 'sideBarMenuItem')
-    await clickMenuById(app, 'tocMenuItem')
     await page.waitForSelector('.side-bar-toc .el-tree', { state: 'visible', timeout: 10000 })
     await page.waitForFunction(
       (c) => document.querySelectorAll('.side-bar-toc .el-tree-node__label').length >= c,
@@ -71,9 +71,7 @@ test.describe('Source Code mode: TOC click scrolls to the heading at the top', (
 
     await page.locator('.side-bar-toc').getByText('Heading Number 18', { exact: true }).click()
 
-    // animated scroll down
     await expect.poll(() => srcScrollTop(page), { timeout: 8000 }).toBeGreaterThan(0)
-    // heading sits near the TOP of the viewport (not the bottom)
     await expect
       .poll(() => headingLineTopInViewport(page, 'Heading Number 18'), { timeout: 8000 })
       .toBeLessThan(150)

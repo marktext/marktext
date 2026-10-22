@@ -11,7 +11,6 @@ import {
   materialDark,
   oneDark,
   ulysses,
-  // New gogh themes - Dark
   dracula,
   nord,
   catppuccinMocha,
@@ -32,7 +31,6 @@ import {
   kanagawa,
   nightfox,
   cyberdream,
-  // New gogh themes - Light
   catppuccinLatte,
   gruvboxLight,
   tokyoNightLight,
@@ -88,7 +86,6 @@ export const addThemeStyle = (theme: string): void => {
     case 'one-dark':
       themeStyleEle.innerHTML = patchTheme(oneDark())
       break
-    // New gogh themes - Dark
     case 'dracula':
       themeStyleEle.innerHTML = patchTheme(dracula())
       break
@@ -149,7 +146,6 @@ export const addThemeStyle = (theme: string): void => {
     case 'cyberdream':
       themeStyleEle.innerHTML = patchTheme(cyberdream())
       break
-    // New gogh themes - Light
     case 'catppuccin-latte':
       themeStyleEle.innerHTML = patchTheme(catppuccinLatte())
       break
@@ -181,7 +177,6 @@ export const addThemeStyle = (theme: string): void => {
     document.body.classList.add('dark')
   }
 
-  // change CodeMirror theme
   const cm = document.querySelector('.CodeMirror')
   if (cm) {
     cm.classList.remove('cm-s-default')
@@ -201,9 +196,7 @@ export const setEditorWidth = (value: string): void => {
   const EDITOR_WIDTH_STYLE_ID = 'editor-width'
   let result = ''
   if (value && /^[0-9]+(?:ch|px|%)$/.test(value)) {
-    // Add 100px for the container's horizontal padding. Set both the legacy
-    // camelCase var (source mode) and the kebab-case var the active
-    // @muyajs/core engine reads for `.mu-container` max-width (issue #4828).
+    // Include 100px horizontal padding; both editor modes consume distinct width variables.
     const width = `calc(100px + ${value})`
     result = `:root { --editorAreaWidth: ${width}; --editor-area-width: ${width}; }`
   }
@@ -255,7 +248,10 @@ export interface CustomStyleOptions {
 
 export const addCustomStyle = (options: CustomStyleOptions): void => {
   const { customCss } = options
-  if (!customCss) return
+  if (!customCss) {
+    document.querySelector('#custom-styles')?.remove()
+    return
+  }
 
   let customStyleEle = document.querySelector('#custom-styles') as HTMLStyleElement | null
   if (!customStyleEle) {

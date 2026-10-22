@@ -2,17 +2,19 @@ import type Content from '../block/base/content';
 import type TreeNode from '../block/base/treeNode';
 import type { IHighlight } from '../inlineRenderer/types';
 import type { Muya } from '../muya';
-import type { IMatch } from './types';
+import type { IMatch, IReplaceOption, ISearchOption } from './types';
+import { unfoldAllSections } from '../block/folding';
 import { DEFAULT_SEARCH_OPTIONS } from '../config';
 import { buildRegexValue, matchString } from '../utils/search';
 
 export class Search {
-    private _value: string = '';
+    private _query: string = '';
+    private _options: ISearchOption = { ...DEFAULT_SEARCH_OPTIONS };
     public matches: IMatch[] = [];
     public index: number = -1;
 
     get value() {
-        return this._value;
+        return this._query;
     }
 
     private get _scrollPage() {
@@ -24,12 +26,15 @@ export class Search {
     // Drop match state when the document is replaced (e.g. a tab switch), so
     // stale matches don't reference the previous document's blocks (#1932).
     reset() {
-        this._value = '';
+        this._query = '';
+        this._options = { ...DEFAULT_SEARCH_OPTIONS };
         this.matches = [];
         this.index = -1;
     }
 
-    private _updateMatches(isClear = false) {
+    // `blocks` limits the re-render to those blocks; omitted, every block with
+    // a match is re-rendered.
+    private _updateMatches(isClear = false, blocks?: Set<Content>) {
         const { matches, index } = this;
         let i;
         const len = matches.length;
@@ -37,6 +42,9 @@ export class Search {
 
         for (i = 0; i < len; i++) {
             const { block, start, end } = matches[i];
+            if (blocks && !blocks.has(block))
+                continue;
+
             const active = i === index;
             const highlight: IHighlight = { start, end, active };
             const highlights = matchesMap.get(block);
@@ -61,8 +69,9 @@ export class Search {
             if (block.parent?.active && !isActive)
                 block.blurHandler();
 
-            if (isActive && !isClear)
+            if (isActive && !isClear) {
                 block.focusHandler();
+            }
         }
     }
 
@@ -93,11 +102,13 @@ export class Search {
         lastBlock.text = tempText + lastBlock.text.substring(lastEnd);
     }
 
-    replace(replaceValue: string, opt = { isSingle: true, isRegexp: false }) {
+    replace(replaceValue: string, opt: IReplaceOption = { isSingle: true, isRegexp: false }) {
+        if (!this._muya.canMutate)
+            return this;
         const { isSingle, isRegexp, ...rest } = opt;
         const options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, rest);
         const { matches, index } = this;
-        const value = this._value;
+        const value = this._query;
 
         if (matches.length) {
             this._innerReplace(
@@ -115,10 +126,6 @@ export class Search {
         return this;
     }
 
-    /**
-     * Find preview or next value, and highlight it.
-     * @param {string} action : previous or next.
-     */
     find(action: 'previous' | 'next'): this {
         const { matches } = this;
         let { index } = this;
@@ -135,40 +142,40 @@ export class Search {
         if (index >= len)
             index = 0;
 
+        const changed = new Set<Content>([matches[index].block]);
+        const prev = matches[this.index];
+        if (prev)
+            changed.add(prev.block);
+
         this.index = index;
 
-        this._updateMatches(true);
-        this._updateMatches();
+        this._updateMatches(true, changed);
+        this._updateMatches(false, changed);
 
         return this;
     }
 
-    /**
-     * Search value in current document.
-     * @param {string} value
-     * @param {object} opts
-     */
-    search(value: string, opts = {}) {
+    search(query: string, opts: ISearchOption = {}) {
         const matches: IMatch[] = [];
-        const options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, opts);
-        const { highlightIndex, selectHighlight } = options;
+        this._options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, opts);
+        this._query = query;
+        const { highlightIndex, selectHighlight } = this._options;
         let index = -1;
 
-        // The currently active match, captured before it is cleared below, so a
-        // `selectHighlight` request can drop the cursor back onto it when the
-        // new search has no match of its own (e.g. closing the search bar).
+        // Closing the search bar restores the caret to the previous active match.
         const prevActiveMatch = this.matches[this.index];
 
-        // Empty last search.
+        if (query && this._scrollPage)
+            unfoldAllSections(this._scrollPage);
+
         this._updateMatches(true);
 
-        // Highlight current search.
-        if (value) {
+        if (query) {
             this._scrollPage?.depthFirstTraverse((block: TreeNode) => {
                 if (block.isContent()) {
                     const { text } = block;
                     if (text && typeof text === 'string') {
-                        const strMatches = matchString(text, value, options);
+                        const strMatches = matchString(text, query, this._options);
                         matches.push(
                             ...strMatches.map(({ index, match, subMatches }) => {
                                 return {
@@ -185,23 +192,17 @@ export class Search {
             });
         }
 
-        if (highlightIndex !== -1) {
-            // If set the highlight index, then highlight the highlighIndex
-            index = highlightIndex;
+        if (typeof highlightIndex === 'number' && highlightIndex !== -1) {
+            index = Math.min(highlightIndex, matches.length - 1);
         }
         else if (matches.length) {
-            // highlight the first word that matches.
             index = 0;
         }
 
-        Object.assign(this, { _value: value, matches, index });
+        Object.assign(this, { matches, index });
 
         this._updateMatches();
 
-        // Restore the editor cursor onto the active match. Mirrors muyajs's
-        // `render(selectHighlight)` -> `setCursor()` path: closing the search
-        // bar empties the search with `selectHighlight`, which must place the
-        // cursor where the highlight was so the user can keep typing there.
         if (selectHighlight) {
             const activeMatch = matches[index] ?? prevActiveMatch;
             if (activeMatch?.block.outMostBlock) {
@@ -209,6 +210,22 @@ export class Search {
                 block.setCursor(start, end, true);
             }
         }
+
+        return this;
+    }
+
+    /** Re-run the active query on the blocks a full re-render just rebuilt. */
+    refresh(): this {
+        const { _query: query, _options: options, index: highlightIndex } = this;
+
+        if (!query) {
+            return this;
+        }
+
+        this.reset();
+        this.search(query, { ...options, highlightIndex, selectHighlight: false });
+
+        this._muya.eventCenter.emit('search-refreshed', this);
 
         return this;
     }

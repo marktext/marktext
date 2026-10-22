@@ -16,8 +16,10 @@ export function getCursorCoords(preferEnd = false): DOMRect | null {
                         : null;
             }
 
+            // Chromium exposes both sides of a soft wrap for a collapsed
+            // range. The last rect is the new line's start (#3510).
             if (rects?.length)
-                rect = preferEnd ? rects[rects.length - 1] : rects[0];
+                rect = range.collapsed || preferEnd ? rects[rects.length - 1] : rects[0];
         }
     }
 
@@ -32,9 +34,7 @@ export function getSelectionStart(): Node | null {
 
 export function getCursorYOffset(paragraph: HTMLElement): { topOffset: number; bottomOffset: number } {
     const coords = getCursorCoords();
-    // The collapsed caret can yield no client rects (e.g. an HTML/code block
-    // boundary position), so `getCursorCoords()` returns null. Treat that as
-    // "position unknown" and let arrow navigation leave the block.
+    // A missing client rect means an unknown caret position; let navigation leave the block.
     if (coords == null)
         return { topOffset: 0, bottomOffset: 0 };
 

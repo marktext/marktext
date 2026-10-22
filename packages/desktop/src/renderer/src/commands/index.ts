@@ -1,6 +1,5 @@
-// List of all static commands that are loaded into command center.
 import bus from '../bus'
-import { delay, isOsx } from '@/util'
+import { delay, isMac } from '@/util'
 import { isUpdatable } from './utils'
 import getCommandDescriptionById from './descriptions'
 import { t } from '../i18n'
@@ -47,7 +46,6 @@ export class RootCommand {
   async run(): Promise<void> {}
   async unload(): Promise<void> {}
 
-  // Execute the command.
   async execute(): Promise<void> {
     throw new Error('Root command.')
   }
@@ -59,8 +57,12 @@ const focusEditorAndExecute = (fn: () => void): void => {
 }
 
 const commands: CommandDescriptor[] = [
-  // --------------------------------------------------------------------------
-  // File
+  {
+    id: 'view.read-only-mode',
+    execute: () => {
+      bus.emit('toggle-read-only')
+    }
+  },
 
   {
     id: 'file.new-tab',
@@ -84,6 +86,12 @@ const commands: CommandDescriptor[] = [
     id: 'file.open-folder',
     execute: async() => {
       window.electron.ipcRenderer.send('mt::cmd-open-folder')
+    }
+  },
+  {
+    id: 'file.add-folder',
+    execute: () => {
+      window.electron.ipcRenderer.send('mt::cmd-add-folder')
     }
   },
   {
@@ -144,6 +152,13 @@ const commands: CommandDescriptor[] = [
     }
   },
   {
+    id: 'file.reveal-in-sidebar',
+    execute: async() => {
+      // Without a pathname the side bar reveals the active file.
+      bus.emit('SIDEBAR::reveal-file', null)
+    }
+  },
+  {
     id: 'file.export-file',
     subcommands: [
       {
@@ -165,8 +180,6 @@ const commands: CommandDescriptor[] = [
     ]
   },
 
-  // --------------------------------------------------------------------------
-  // Edit
 
   {
     id: 'edit.undo',
@@ -205,22 +218,6 @@ const commands: CommandDescriptor[] = [
       bus.emit('find', 'find')
     }
   },
-  // TODO: Find next/previous doesn't work.
-  // {
-  //   id: 'edit.find-next',
-  //   description: 'Edit: Find Next',
-  //   execute: async () => {
-  //     await delay(150)
-  //     bus.emit('findNext', 'findNext')
-  //   }
-  // }, {
-  //   id: 'edit.find-previous',
-  //   description: 'Edit: Find Previous',
-  //   execute: async () => {
-  //     await delay(150)
-  //     bus.emit('findPrev', 'findPrev')
-  //   }
-  // },
   {
     id: 'edit.replace',
     execute: async() => {
@@ -236,8 +233,6 @@ const commands: CommandDescriptor[] = [
     }
   },
 
-  // --------------------------------------------------------------------------
-  // Paragraph
 
   {
     id: 'paragraph.heading-1',
@@ -366,8 +361,6 @@ const commands: CommandDescriptor[] = [
     }
   },
 
-  // --------------------------------------------------------------------------
-  // Format
 
   // NOTE: Focus editor to restore selection and try to apply the commmand.
 
@@ -444,8 +437,6 @@ const commands: CommandDescriptor[] = [
     }
   },
 
-  // --------------------------------------------------------------------------
-  // Window
 
   {
     id: 'window.minimize',
@@ -468,7 +459,7 @@ const commands: CommandDescriptor[] = [
 
   {
     id: 'file.zoom',
-    shortcut: [isOsx ? 'Cmd' : 'Ctrl', 'Scroll'],
+    shortcut: [isMac ? 'Cmd' : 'Ctrl', 'Scroll'],
     subcommands: [
       {
         id: 'file.zoom-0',
@@ -536,8 +527,6 @@ const commands: CommandDescriptor[] = [
     }
   },
 
-  // --------------------------------------------------------------------------
-  // Window
 
   {
     id: 'window.change-theme',
@@ -578,8 +567,6 @@ const commands: CommandDescriptor[] = [
     }
   },
 
-  // --------------------------------------------------------------------------
-  // View
 
   {
     id: 'view.source-code-mode',
@@ -631,8 +618,6 @@ const commands: CommandDescriptor[] = [
     }
   },
 
-  // --------------------------------------------------------------------------
-  // MarkText
 
   {
     id: 'file.preferences',
@@ -649,22 +634,16 @@ const commands: CommandDescriptor[] = [
   {
     id: 'docs.user-guide',
     execute: async() => {
-      window.electron.shell.openExternal(
-        'https://marktext.me/docs/basics'
-      )
+      window.electron.shell.openExternal('https://marktext.me/docs/basics')
     }
   },
   {
     id: 'docs.markdown-syntax',
     execute: async() => {
-      window.electron.shell.openExternal(
-        'https://marktext.me/docs/markdown-syntax'
-      )
+      window.electron.shell.openExternal('https://marktext.me/docs/markdown-syntax')
     }
   },
 
-  // --------------------------------------------------------------------------
-  // Misc
 
   {
     id: 'tabs.cycleForward',
@@ -680,8 +659,6 @@ const commands: CommandDescriptor[] = [
   }
 ]
 
-// --------------------------------------------------------------------------
-// etc
 
 if (isUpdatable()) {
   commands.push({
@@ -693,7 +670,7 @@ if (isUpdatable()) {
   })
 }
 
-if (isOsx) {
+if (isMac) {
   commands.push({
     id: 'edit.screenshot',
     execute: async() => {
@@ -702,19 +679,15 @@ if (isOsx) {
   })
 }
 
-// Function to get commands with updated descriptions
 export const getCommandsWithDescriptions = async(): Promise<CommandDescriptor[]> => {
-  // Update descriptions for all commands
   const updateDescriptions = (commandList: Array<CommandDescriptor | CommandSubcommand>): void => {
     for (const item of commandList) {
       const { id } = item
       const subcommands = (item as CommandDescriptor).subcommands
-      // Always update description for commands with ID, regardless of existing description
       if (id) {
         item.description = getCommandDescriptionById(id)
       }
 
-      // Special handling for theme subcommands
       if (id === 'window.change-theme' && subcommands && Array.isArray(subcommands)) {
         for (const subcommand of subcommands) {
           const { value } = subcommand
@@ -734,7 +707,6 @@ export const getCommandsWithDescriptions = async(): Promise<CommandDescriptor[]>
         }
       }
 
-      // Also update other subcommands descriptions
       if (subcommands && Array.isArray(subcommands)) {
         updateDescriptions(subcommands)
       }
@@ -745,7 +717,6 @@ export const getCommandsWithDescriptions = async(): Promise<CommandDescriptor[]>
   return commands
 }
 
-// Complete all command descriptions for initial load.
 for (const item of commands) {
   const { id, description } = item
   if (id && !description) {

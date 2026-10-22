@@ -82,13 +82,10 @@ test.describe('Tab switch restores the per-tab caret', () => {
   })
 
   test('caret returns to its original block after switching away and back', async() => {
-    // Caret after "gamma " (offset 6) in the third paragraph of tab A.
     expect(await placeCaretInParagraph(page, 2, 6)).toBe(true)
     await page.waitForTimeout(200)
-    // Sanity: the caret is where we put it before any tab switch.
     expect(await readCaret(page)).toEqual({ index: 2, offset: 6 })
 
-    // Open a second, auto-selected tab — this switches away from tab A.
     await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, 'other tab body\n')
     await page.waitForFunction(
       (sel) => document.querySelectorAll(sel).length >= 2,
@@ -97,11 +94,9 @@ test.describe('Tab switch restores the per-tab caret', () => {
     )
     await page.waitForTimeout(200)
 
-    // Switch back to tab A (index 0).
     await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 0)
     await page.waitForTimeout(300)
 
-    // The caret must be restored to the third paragraph at offset 6.
     const caret = await readCaret(page)
     expect(caret).toEqual({ index: 2, offset: 6 })
   })
@@ -148,15 +143,12 @@ test.describe('Tab switch restores the per-tab undo history', () => {
     }, index)
 
   test('undo on a returned-to tab reverts THAT tab edit and leaves the other tab intact', async() => {
-    // Build tab A's history: place caret at the end of "alpha" (offset 5) and
-    // type a run.
     await placeCaretAt(0, 5)
     await page.keyboard.type(' AEDIT', { delay: 0 })
     await expect.poll(() => paragraphText(0)).toBe('alpha AEDIT')
     // Let the trailing async `json-change` stash A's full snapshot + history.
     await page.waitForTimeout(300)
 
-    // Open tab B (auto-selected) with its own body, then build B's history.
     await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, 'beta\n')
     await page.waitForFunction(
       (sel) => document.querySelectorAll(sel).length >= 2,
@@ -165,7 +157,6 @@ test.describe('Tab switch restores the per-tab undo history', () => {
     )
     await expect.poll(() => paragraphText(0)).toBe('beta')
 
-    // Caret at the end of "beta" (offset 4), then type B's run.
     await placeCaretAt(0, 4)
     await page.keyboard.type(' BEDIT', { delay: 0 })
     await expect.poll(() => paragraphText(0)).toBe('beta BEDIT')
@@ -174,15 +165,12 @@ test.describe('Tab switch restores the per-tab undo history', () => {
     // away, or the stashed snapshot loses the final character.
     await page.waitForTimeout(300)
 
-    // Switch back to tab A (index 0). Its engine history must be restored.
     await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 0)
     await expect.poll(() => paragraphText(0)).toContain('alpha AEDIT')
 
-    // A single undo walks tab A's OWN history: it drops ' AEDIT', not ' BEDIT'.
     await sendIpcToRenderer(app, 'mt::editor-edit-action', 'undo')
     await expect.poll(() => paragraphText(0)).toBe('alpha')
 
-    // Tab B is untouched by tab A's undo — its edit survives on switch back.
     await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 1)
     await expect.poll(() => paragraphText(0)).toContain('beta BEDIT')
   })
@@ -198,7 +186,6 @@ test.describe('Tab switch restores the per-tab scroll position', () => {
   let page: Page
 
   test.beforeAll(async() => {
-    // A long document so `.editor-component` is comfortably scrollable.
     const longBody = Array.from({ length: 400 }, (_, i) => `para line ${i}`).join('\n\n') + '\n'
     const launched = await launchWithMarkdown(longBody)
     app = launched.app
@@ -217,7 +204,6 @@ test.describe('Tab switch restores the per-tab scroll position', () => {
     })
 
   test('scrollTop is restored on a returned-to tab while the other tab stays at top', async() => {
-    // Scroll tab A's container down and let the scroll listener persist it.
     await page.evaluate(() => {
       const el = document.querySelector('.editor-component') as HTMLElement | null
       if (el) el.scrollTop = 3000
@@ -226,7 +212,6 @@ test.describe('Tab switch restores the per-tab scroll position', () => {
     await expect.poll(() => scrollTop()).toBeGreaterThan(1000)
     const captured = await scrollTop()
 
-    // Open tab B (auto-selected, short body) — it starts at the top.
     await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, 'short\n')
     await page.waitForFunction(
       (sel) => document.querySelectorAll(sel).length >= 2,

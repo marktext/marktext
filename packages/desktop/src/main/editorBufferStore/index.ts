@@ -3,6 +3,8 @@ import path from 'path'
 import writeFileAtomic from 'write-file-atomic'
 import { BrowserWindow, ipcMain, type IpcMainInvokeEvent } from 'electron'
 import { TypedEmitter } from '@shared/types/typedEmitter'
+import type { ProjectRoots } from '../windows/projectRoots'
+import { readBufferedRoots } from '@shared/types/project'
 import type BaseWindow from '../windows/base'
 
 interface EditorBufferStorePaths {
@@ -39,9 +41,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
 
     const { editorBufferStorePath } = paths
     this.editorBufferStorePath = editorBufferStorePath
-    // Object of paths to buffer stores. Buffer stores are NOT held in memory
-    // for performance reasons — they are read from disk when needed and
-    // written to disk when updated.
+    // Keep buffer stores on disk rather than retaining all documents in memory.
     this.bufferStores = null
     this.serviceName = 'marktext'
     this.encryptKeys = []
@@ -74,7 +74,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
     for (const id in this.bufferStores) {
       try {
         const buffer = this.readBufferStoreFile(this.bufferStores[id].filePath)
-        const allSaved = buffer.tabs.every((file) => file.isSaved)
+        const allSaved = buffer.tabs.every((file) => file.isSaved && !file.isPendingCreation)
         if (buffer.tabs.length === 0 || allSaved) {
           try {
             fs.unlinkSync(this.bufferStores[id].filePath)
@@ -112,7 +112,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
       }
       try {
         const buffer = this.readBufferStoreFile(this.bufferStores[restoreBufferId].filePath)
-        const allSaved = buffer.tabs.every((file) => file.isSaved)
+        const allSaved = buffer.tabs.every((file) => file.isSaved && !file.isPendingCreation)
         if (buffer.tabs.length === 0 || allSaved) {
           fs.unlinkSync(this.bufferStores[restoreBufferId].filePath)
           delete this.bufferStores[restoreBufferId]
@@ -176,11 +176,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
   }
 
   writeBufferStoreFile(filePath: string, newState: unknown): void {
-    // Durable atomic write: write-file-atomic writes to a temp file, fsyncs it,
-    // then renames it over the target. The previous temp-file + rename here was
-    // namespace-atomic (crash-safe) but omitted the fsync, so a power loss could
-    // still leave this crash-recovery buffer — which holds unsaved tab content —
-    // truncated or zero-filled, the same gap the document save path had (#3786).
+    // Atomic replacement must fsync before rename to survive power loss, not only application crashes.
     writeFileAtomic.sync(filePath, JSON.stringify(newState), 'utf8')
   }
 
@@ -194,6 +190,15 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
     }
 
     const bufferStore = this.getBufferStoreInfo(restoreBufferId)
+    const rootState = (win as unknown as { projectRoots?: ProjectRoots }).projectRoots
+    if (rootState && newState && typeof newState === 'object') {
+      const snapshot = newState as { project?: unknown }
+      const buffered = readBufferedRoots(snapshot.project)
+      snapshot.project = { roots: rootState.roots.map(root => ({
+        pathname: root.pathname,
+        collapsedPaths: buffered.find(entry => entry.pathname === root.pathname)?.collapsedPaths ?? []
+      })) }
+    }
     this.writeBufferStoreFile(bufferStore.filePath, newState)
     return true
   }

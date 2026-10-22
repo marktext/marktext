@@ -15,6 +15,7 @@ import { getIcon } from './config';
 import './index.css';
 
 const LEFT_OFFSET = 100;
+const FRONT_BUTTON_GAP = 22;
 
 function defaultOptions() {
     return {
@@ -49,6 +50,7 @@ function isOrderOrBulletList(block: Parent): block is OrderList | BulletList {
 }
 
 export class ParagraphFrontButton {
+    static pluginName = 'paragraphFrontButton';
     public name: string = 'mu-front-button';
     private _resizeObserver: ResizeObserver | null = null;
     private _options: IBaseOptions;
@@ -85,6 +87,7 @@ export class ParagraphFrontButton {
         floatBox.classList.add('mu-front-button-wrapper');
         floatBox.appendChild(container);
         document.body.appendChild(floatBox);
+        this._syncReadOnly();
 
         // Since the size of the container is not fixed and changes according to the change of content,
         // the floatBox needs to set the size according to the container size
@@ -139,6 +142,8 @@ export class ParagraphFrontButton {
         }, 300);
 
         const clickHandler = () => {
+            if (this.muya.isReadOnly)
+                return;
             eventCenter.emit('muya-front-menu', {
                 reference: {
                     getBoundingClientRect: () => container.getBoundingClientRect(),
@@ -147,6 +152,11 @@ export class ParagraphFrontButton {
             });
         };
 
+        eventCenter.subscribe('read-only-changed', this._syncReadOnly);
+        eventCenter.attachDOMEvent(container, 'dragstart', (event) => {
+            if (this.muya.isReadOnly)
+                event.preventDefault();
+        });
         eventCenter.attachDOMEvent(container, 'mousedown', this._dragBarMouseDown);
         eventCenter.attachDOMEvent(container, 'mouseup', this._dragBarMouseUp);
         eventCenter.attachDOMEvent(document, 'mousemove', mousemoveHandler);
@@ -156,6 +166,8 @@ export class ParagraphFrontButton {
     private _dragBarMouseDown = (event: Event) => {
         event.preventDefault();
         event.stopPropagation();
+        if (this.muya.isReadOnly)
+            return;
         this._dragTimer = setTimeout(() => {
             this._startDrag();
             this._dragTimer = null;
@@ -169,7 +181,32 @@ export class ParagraphFrontButton {
         }
     };
 
+    private _syncReadOnly = () => {
+        this._cancelDrag();
+        this._container.classList.toggle('mu-front-read-only', this.muya.isReadOnly);
+        if (this._block)
+            this.render();
+    };
+
+    private _cancelDrag = () => {
+        this._dragBarMouseUp();
+        for (const eventId of this._dragEvents)
+            this.muya.eventCenter.detachDOMEvent(eventId);
+        this._dragEvents = [];
+        this._ghost?.remove();
+        this._ghost = null;
+        this._destroyShadow();
+        if (this._dragInfo)
+            document.body.style.cursor = 'auto';
+        this._dragInfo = null;
+        this._disableListen = false;
+    };
+
     private _mouseMove = (event: Event) => {
+        if (this.muya.isReadOnly) {
+            this._cancelDrag();
+            return;
+        }
         if (!this._dragInfo || !isMouseEvent(event))
             return;
 
@@ -216,17 +253,10 @@ export class ParagraphFrontButton {
         event.preventDefault();
         event.stopPropagation();
 
-        this._disableListen = false;
-        const { eventCenter } = this.muya;
-        this._dragEvents.forEach(eventId => eventCenter.detachDOMEvent(eventId));
-        this._dragEvents = [];
-        if (this._ghost)
-            this._ghost.remove();
-
-        this._destroyShadow();
-        document.body.style.cursor = 'auto';
-        this._dragTimer = null;
         const { block, target, position } = this._dragInfo || {};
+        this._cancelDrag();
+        if (this.muya.isReadOnly)
+            return;
 
         if (target && position && block) {
             if (
@@ -262,7 +292,7 @@ export class ParagraphFrontButton {
     private _startDrag = () => {
         const { _block: block } = this;
         // Frontmatter should not be drag.
-        if (!block || block.blockName === 'frontmatter')
+        if (this.muya.isReadOnly || !block || block.blockName === 'frontmatter')
             return;
 
         this._disableListen = true;
@@ -344,7 +374,7 @@ export class ParagraphFrontButton {
         const iconParagraph = renderIcon(i, 'paragraph');
         const iconDrag = renderIcon(dragIcon, 'drag');
 
-        const vnode = h(iconWrapperSelector, [iconParagraph, iconDrag]);
+        const vnode = h(iconWrapperSelector, this.muya.isReadOnly ? [iconParagraph] : [iconParagraph, iconDrag]);
 
         if (oldVNode)
             patch(oldVNode, vnode);
@@ -400,7 +430,7 @@ export class ParagraphFrontButton {
         const paddingTop = Number.parseFloat(styles.paddingTop);
 
         const isLooseList = isOrderOrBulletList(block) && block.meta.loose;
-        const dynamicMainAxis = isLooseList ? paddingTop * 2 : paddingTop;
+        const dynamicMainAxis = FRONT_BUTTON_GAP + (isLooseList ? paddingTop * 2 : paddingTop);
 
         // Extract offset values, handling both number and object types
         let crossAxisValue = 0;
@@ -422,6 +452,9 @@ export class ParagraphFrontButton {
                     flip(),
                 ],
             }).then(({ x, y }) => {
+                // Positioning can finish after a mode switch has hidden the handle.
+                if (!this._status || this._block !== block)
+                    return;
                 Object.assign(floatBox.style, {
                     left: `${x}px`,
                     top: `${y}px`,
@@ -438,6 +471,8 @@ export class ParagraphFrontButton {
     }
 
     destroy() {
+        this._cancelDrag();
+        this.muya.eventCenter.off('read-only-changed', this._syncReadOnly);
         if (this._container && this._resizeObserver)
             this._resizeObserver.unobserve(this._container);
 

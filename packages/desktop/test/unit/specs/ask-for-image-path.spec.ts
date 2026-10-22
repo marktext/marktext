@@ -54,7 +54,6 @@ const fakeEvent = { sender: {} } as never
 
 function getHandler() {
   // Instantiating DataCenter registers the ipcMain handler (the side effect is the point).
-  // eslint-disable-next-line no-new
   new DataCenter({ dataCenterPath: '/tmp/mt-dc', userDataPath: '/tmp/mt-ud' })
   const handler = handlers.get('mt::ask-for-image-path')
   if (!handler) throw new Error('mt::ask-for-image-path handler was not registered')

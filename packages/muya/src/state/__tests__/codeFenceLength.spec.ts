@@ -11,7 +11,9 @@ function gen(markdown: string): Parameters<ExportMarkdown['generate']>[0] {
     return new MarkdownToState({
         footnote: false,
         texMathDollars: false,
-        isGitlabCompatibilityEnabled: false,
+        texMathGfm: false,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(markdown) as unknown as Parameters<ExportMarkdown['generate']>[0];
@@ -23,17 +25,12 @@ function openingFence(md: string): string {
 
 describe('code fence length (#1841)', () => {
     it('keeps a fence long enough to wrap content that contains ```', () => {
-        // A 4-backtick fence wrapping a body that contains a 3-backtick line.
         const input = '````\n```\nfoo\n```\n````\n';
 
         const md = new ExportMarkdown().generate(gen(input));
 
-        // The opening fence must be at least 4 backticks, otherwise the inner
-        // ``` closes the block and the markdown is broken.
         expect(openingFence(md)).toMatch(/^`{4,}$/);
 
-        // Re-parsing must still yield a single code block whose body keeps the
-        // inner ``` — i.e. the round trip did not corrupt the document.
         const reparsed = gen(md) as Array<{ name: string; text?: string }>;
         const codeBlocks = reparsed.filter(b => b.name === 'code-block');
         expect(codeBlocks).toHaveLength(1);

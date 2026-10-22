@@ -1,18 +1,14 @@
-// User preferences shape. The canonical schema lives in
-// src/main/preferences/schema.json + src/main/preferences/index.js — this
-// interface is the renderer-facing mirror that lets the preferences store
-// (Commit 7) and the preferences pane (Commit 8) consume typed values.
-//
-// Kept intentionally open with `[key: string]: unknown` until the schema
-// is mechanically derived from schema.json in a follow-up.
+// Renderer-facing preference shape; the canonical schema lives in main/preferences/schema.json.
 
 export interface IUserPreferences {
+  defaultOpenMode?: 'edit' | 'read'
   autoSave?: boolean
   autoSaveDelay?: number
   titleBarStyle?: 'custom' | 'native'
   openFilesInNewWindow?: boolean
   openFolderInNewWindow?: boolean
   hideScrollbar?: boolean
+  tocVisibility?: boolean
   sidebarColumn?: number
   fileSortBy?: string
   fileSortOrder?: string
@@ -26,6 +22,9 @@ export interface IUserPreferences {
   codeFontFamily?: string
   hideQuickInsertHint?: boolean
   hideLinkPopup?: boolean
+  openedFilesInSidebar?: boolean
+  autoRevealInSidebar?: boolean
+  openFilesInPreviewMode?: boolean
   autoPairBracket?: boolean
   autoPairMarkdownSyntax?: boolean
   autoPairQuote?: boolean
@@ -44,8 +43,14 @@ export interface IUserPreferences {
   superSubScript?: boolean
   footnote?: boolean
   texMathDollars?: boolean
+  texMathGfm?: boolean
+  texMathSingleBackslash?: boolean
+  texMathDoubleBackslash?: boolean
+  highlightSyntax?: boolean
+  inlineDiff?: boolean
+  multilineBlockquote?: boolean
+  githubAlerts?: boolean
   isHtmlEnabled?: boolean
-  isGitlabCompatibilityEnabled?: boolean
   softNewlineAsSpace?: boolean
   theme?: string
   spellcheckerEnabled?: boolean
@@ -70,11 +75,12 @@ export interface IUserPreferences {
   autoNormalizeLineEndings?: boolean
   watcherUsePolling?: boolean
   treePathExcludePatterns?: string[]
+  showPandocConvert?: boolean
   [key: string]: unknown
 }
 
 export interface LayoutState {
-  rightColumn: 'files' | 'search' | 'toc'
+  rightColumn: 'files' | 'search'
   showSideBar: boolean
   showTabBar: boolean
   [key: string]: unknown

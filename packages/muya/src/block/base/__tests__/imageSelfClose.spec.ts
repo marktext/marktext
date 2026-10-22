@@ -57,7 +57,6 @@ describe('#2505 — aligned/edited images emit a self-closing <img/> (JSX-safe)'
         block.updateImage(imageInfo, 'data-align', 'center');
 
         expect(block.text).toMatch(/<img\b[^>]*\/>/);
-        // and never an unterminated open tag
         expect(block.text).not.toMatch(/<img\b[^>]*[^/]>/);
     });
 

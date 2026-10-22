@@ -22,4 +22,17 @@ describe('context menu locale coverage', () => {
       expect(lookUp).toContain('{selection}')
     }
   })
+
+  it('defines the sidebar Copy Path label for every supported desktop locale', () => {
+    for (const language of getSupportedLanguages()) {
+      const localePath = path.join(localesDir, `${language}.json`)
+      const locale = JSON.parse(fs.readFileSync(localePath, 'utf8')) as {
+        contextMenu?: { sideBar?: { copyPath?: unknown } }
+      }
+
+      const copyPath = locale.contextMenu?.sideBar?.copyPath
+      expect(copyPath, `${language} contextMenu.sideBar.copyPath`).toEqual(expect.any(String))
+      expect(copyPath).not.toBe('')
+    }
+  })
 })

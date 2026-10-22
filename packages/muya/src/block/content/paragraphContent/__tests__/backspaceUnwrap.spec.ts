@@ -4,17 +4,6 @@ import type Content from '../../../base/content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../../muya';
 
-// DATA-LOSS GUARD — backspace-at-offset-0 block surgery.
-//
-// Pressing Backspace at the very start of a paragraph either MERGES it onto the
-// previous block or UNWRAPS it out of its container (block-quote / list). The
-// migration audit flagged these cross-block paths as untested even though a
-// miscount here drops or duplicates user content. `ParagraphContent`'s four
-// branches are driven directly here (the handler reads the caret offset and the
-// active block, the way a real Backspace keystroke routes through it), with the
-// resulting document state asserted after the json1 op flushes on the next
-// frame.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -46,8 +35,6 @@ function bootMuya(markdown: string): Muya {
     return muya;
 }
 
-// Find the leaf `.content` block whose rendered text matches `text`, the way a
-// click resolves the active content block.
 function contentByText(muya: Muya, text: string): Content {
     let target: Content | null = null;
     const visit = (block: {
@@ -65,8 +52,6 @@ function contentByText(muya: Muya, text: string): Content {
     return target;
 }
 
-// Land the caret at offset 0 of the given content block (active block + cursor),
-// then route a Backspace through its handler the way the keydown listener does.
 function backspaceAtStart(muya: Muya, content: Content): void {
     muya.editor.activeContentBlock = content;
     content.setCursor(0, 0, true);
@@ -82,8 +67,6 @@ function flush(): Promise<void> {
     return new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 }
 
-// `getState()` returns a discriminated `TState` union; only some variants carry
-// `text`. The blocks asserted here are paragraphs, so narrow to read it.
 function blockText(state: ReturnType<Muya['getState']>, index: number): string {
     return (state[index] as { text: string }).text;
 }
@@ -112,8 +95,6 @@ describe('backspace at start-of-paragraph — merge with previous block', () => 
         // the merged tree, otherwise contentByText/getCursor observe the
         // pre-merge state.
         await flush();
-        // After the merge the active block is `alpha`'s content; the caret sits
-        // at offset 5 (the original `alpha` length), where the two joined.
         const merged = contentByText(muya, 'alphabeta');
         const cursor = merged.getCursor();
         expect(cursor).not.toBeNull();
@@ -168,8 +149,6 @@ describe('backspace at start-of-paragraph — unwrap block-quote / list', () => 
 
         await flush();
         const md = muya.getMarkdown();
-        // `one` lifts out to a leading paragraph; `two` and `three` stay in the
-        // list — nothing is dropped.
         expect(md).toContain('one');
         expect(md).toContain('two');
         expect(md).toContain('three');
@@ -187,8 +166,6 @@ describe('backspace at start-of-paragraph — unwrap block-quote / list', () => 
 
         await flush();
         const md = muya.getMarkdown();
-        // The whole document stays a single bullet list; `two` is absorbed into
-        // the previous item rather than dropped.
         expect(md).toContain('one');
         expect(md).toContain('two');
         expect(md).toContain('three');

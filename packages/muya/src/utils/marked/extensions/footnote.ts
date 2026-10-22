@@ -1,10 +1,6 @@
 import type { Lexer, MarkedExtension, Tokens } from 'marked';
 
-// marked's `tokenizer`/`renderer` hooks are bound to a context object that
-// exposes the active `lexer` (for nested block tokenisation) and `parser`
-// (for rendering nested tokens). Marked's public `RendererThis` /
-// `TokenizerThis` types don't surface those fields, so we declare narrow
-// structural views and narrow `this` once per hook.
+// Marked binds lexer/parser on hook contexts, but public types omit these internal members.
 interface IFootnoteTokenizerThis {
     lexer: Lexer;
 }
@@ -20,7 +16,20 @@ interface IFootnoteRendererThis {
 // footnote with identifier `foo\`. The `:[\s\S]*?` after the marker uses
 // `*` (not `+`) so a bare `[^id]:` followed only by a newline is still
 // recognised as an empty footnote.
-const BLOCK_RULE = /^\[\^([^^[\]\s]+)(?<!\\)\]:([\s\S]*?)(?=\n *\n {0,3}[^ ]|$)/;
+//
+// The body ends at a blank line, at the start of the next column-0
+// definition, or at end of input. That middle terminator is what keeps
+// definitions packed one per line — the shape pandoc and GFM both emit —
+// as siblings. Indented (4-space) definitions stay body text, matching
+// the continuation rule.
+const BLOCK_RULE = /^\[\^([^^[\]\s]+)(?<!\\)\]:([\s\S]*?)(?=\n *\n {0,3}[^ ]|\n\[\^[^^[\]\s]+(?<!\\)\]:|$)/;
+
+// Inline `[^id]` reference. Tokenising it here rather than regexing marked's
+// finished HTML is what makes `\[^id]` stay literal: marked's own escape rule
+// claims the `\[` before this tokenizer is ever offered the position. For the
+// same reason code spans and fenced code need no special handling — marked
+// never runs inline extensions over their contents.
+const INLINE_RULE = /^\[\^([^^[\]\s]+)\]/;
 
 interface IFootnoteToken {
     type: 'footnote';
@@ -29,36 +38,37 @@ interface IFootnoteToken {
     tokens: Tokens.Generic[];
 }
 
+interface IFootnoteRefToken {
+    type: 'footnoteRef';
+    raw: string;
+    identifier: string;
+}
+
 export default function footnoteExtension(): MarkedExtension {
+    // Disable both hooks inside note bodies: nested notes remain literal.
+    let inFootnoteBody = false;
+
     return {
         extensions: [
             {
                 name: 'footnote',
                 level: 'block',
                 start(src: string) {
-                    // Marked calls start() with `src.slice(1)` to look for the
-                    // earliest position the paragraph should terminate at.
-                    // Only signal a match when `[^id]:` follows an actual
-                    // newline inside that slice — never when the slice merely
-                    // begins with `[^`, because that would split paragraphs
-                    // at inline footnote references like `Lorem [^1] ipsum`.
+                    if (inFootnoteBody)
+                        return;
+                    // Marked passes src.slice(1); only a real newline before the identifier ends a paragraph.
                     const m = /\n\[\^[^^[\]\s]+(?<!\\)\]:/.exec(src);
                     return m ? m.index + 1 : undefined;
                 },
                 tokenizer(src: string): IFootnoteToken | undefined {
+                    if (inFootnoteBody)
+                        return;
                     const match = BLOCK_RULE.exec(src);
                     if (!match)
                         return;
 
                     const [raw, identifier, rest] = match;
-                    // Strip leading whitespace after the `:` marker (so both
-                    // `[^id]: text` and `[^id]:\n    text` start clean) and
-                    // de-indent the 4-space continuation indent on every
-                    // line. The first line needs an explicit `^ {4}` strip
-                    // because the per-line de-indent rule below is anchored
-                    // to a preceding `\n`; without that strip an indented-
-                    // continuation body (`[^id]:\n    text`) lexes as an
-                    // indented code block instead of a paragraph.
+                    // Strip initial whitespace and four-space continuation indentation before lexing the body.
                     const cleaned = rest
                         .replace(/^[ \t]*/, '')
                         .replace(/^\n+/, '')
@@ -76,9 +86,16 @@ export default function footnoteExtension(): MarkedExtension {
                     // parsing. Project this context once per hook.
                     // eslint-disable-next-line no-restricted-syntax
                     const { lexer } = this as unknown as IFootnoteTokenizerThis;
-                    const tokens = cleaned
-                        ? (lexer.blockTokens(cleaned, []) as Tokens.Generic[])
-                        : [];
+                    inFootnoteBody = true;
+                    let tokens: Tokens.Generic[];
+                    try {
+                        tokens = cleaned
+                            ? (lexer.blockTokens(cleaned, []) as Tokens.Generic[])
+                            : [];
+                    }
+                    finally {
+                        inFootnoteBody = false;
+                    }
 
                     return {
                         type: 'footnote',
@@ -91,10 +108,32 @@ export default function footnoteExtension(): MarkedExtension {
                     if (token.type !== 'footnote')
                         return false;
                     const t = token as IFootnoteToken;
-                    // The parser is bound to `this` at render time.
                     const { parser } = this as IFootnoteRendererThis;
                     const inner = parser ? parser.parse(t.tokens) : '';
                     return `<div class="footnote-block" data-identifier="${escapeAttr(t.identifier)}">${inner}</div>\n`;
+                },
+            },
+            {
+                name: 'footnoteRef',
+                level: 'inline',
+                start(src: string) {
+                    const i = src.indexOf('[^');
+                    return i === -1 ? undefined : i;
+                },
+                tokenizer(src: string): IFootnoteRefToken | undefined {
+                    const match = INLINE_RULE.exec(src);
+                    if (!match)
+                        return;
+
+                    return { type: 'footnoteRef', raw: match[0], identifier: match[1] };
+                },
+                renderer(token) {
+                    if (token.type !== 'footnoteRef')
+                        return false;
+                    const t = token as IFootnoteRefToken;
+
+                    // Emit a marker: transformFootnotes numbers references after seeing the whole document.
+                    return `<span class="footnote-ref" data-identifier="${escapeAttr(t.identifier)}"></span>`;
                 },
             },
         ],

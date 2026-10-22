@@ -1,6 +1,8 @@
-// utils used in selection/index.js
+import type Content from '../block/base/content';
+import type { IAnchorFocusInfo } from './types';
 import { CLASS_NAMES } from '../config';
-import { isElement } from '../utils';
+import { isElement, lineBounds } from '../utils';
+import { getBlock } from '../utils/dom';
 
 export function isContentDOM(element: HTMLElement) {
     return (
@@ -22,6 +24,113 @@ export function findContentDOM(node: Node | null | undefined) {
     } while (node);
 
     return null;
+}
+
+export function resolveEndpoint(node: Node, offset: number): IAnchorFocusInfo | null {
+    const contentDOM = findContentDOM(node);
+    if (!contentDOM)
+        return null;
+
+    const block = getBlock(contentDOM);
+    if (!block?.isContent() || !block.outMostBlock)
+        return null;
+
+    // The extra line a trailing break paints has no offset of its own — a caret
+    // inside the span would read as the end of the line above (#3203).
+    const trailingLineEnd = contentDOM.lastElementChild;
+    if (
+        trailingLineEnd
+        && trailingLineEnd.classList.contains(CLASS_NAMES.MU_LINE_END)
+        // An IME replaces the newline with its composing string; that path needs
+        // the raw offset.
+        && trailingLineEnd.textContent === '\n'
+        && trailingLineEnd.contains(node)
+    ) {
+        return { offset: block.text.length, block, path: block.path };
+    }
+
+    // A selection anchored to an element carries a child index in `offset`,
+    // not a character offset (#5239).
+    const base = getOffsetOfParagraph(node, contentDOM);
+    const within = node === contentDOM ? textLengthBeforeChild(contentDOM, offset) : offset;
+
+    return {
+        offset: base + within,
+        block,
+        path: block.path,
+    };
+}
+
+function textLengthBeforeChild(element: Node, index: number): number {
+    const children = element.childNodes;
+    const end = Math.min(index, children.length);
+    let length = 0;
+    for (let i = 0; i < end; i++) {
+        length += getTextContent(children[i], [
+            CLASS_NAMES.MU_MATH_RENDER,
+            CLASS_NAMES.MU_RUBY_RENDER,
+        ]).length;
+    }
+
+    return length;
+}
+
+function caretAt(doc: Document, x: number, y: number): { node: Node; offset: number } | null {
+    const position = doc.caretPositionFromPoint?.(x, y);
+    if (position)
+        return { node: position.offsetNode, offset: position.offset };
+
+    const range = doc.caretRangeFromPoint?.(x, y);
+
+    return range ? { node: range.startContainer, offset: range.startOffset } : null;
+}
+
+export function lineAtPoint(
+    doc: Document,
+    x: number,
+    y: number,
+): { block: Content; start: number; end: number } | null {
+    const caret = caretAt(doc, x, y);
+    const clicked = caret && resolveEndpoint(caret.node, caret.offset);
+    if (!clicked)
+        return null;
+
+    const { block, offset } = clicked;
+    const [start, end] = lineBounds(block.text, offset);
+
+    return { block, start, end };
+}
+
+/**
+ * Nearest offset on `block`'s first (`top`) or last (`bottom`) visual line at
+ * viewport x `x`; `null` when no caret can be placed there.
+ */
+export function offsetInBlockAtPoint(
+    doc: Document,
+    block: Content,
+    x: number,
+    edge: 'top' | 'bottom',
+): number | null {
+    const dom = block.domNode;
+    if (!dom?.isConnected)
+        return null;
+
+    const rect = dom.getBoundingClientRect();
+    if (rect.height === 0)
+        return null;
+
+    // One pixel inside the first/last line box keeps the probe on that line
+    // without depending on a numeric line-height (`normal` has none).
+    const y = edge === 'top' ? rect.top + 1 : rect.bottom - 1;
+    const caret = caretAt(doc, x, y);
+    if (!caret)
+        return null;
+
+    const resolved = resolveEndpoint(caret.node, caret.offset);
+    if (!resolved || resolved.block !== block)
+        return null;
+
+    return Math.min(Math.max(resolved.offset, 0), block.text.length);
 }
 
 export function compareParagraphsOrder(paragraph1: HTMLElement, paragraph2: HTMLElement) {
@@ -52,7 +161,6 @@ export function getTextContent(node: Node, blackList: string[] = []) {
         isElement(node)
         && node.classList.contains(`${CLASS_NAMES.MU_INLINE_IMAGE}`)
     ) {
-    // handle inline image
         const raw = node.getAttribute('data-raw');
         const imageContainer = node.querySelector(
             `.${CLASS_NAMES.MU_IMAGE_CONTAINER}`,

@@ -22,9 +22,9 @@
           </span>
           <span class="match-count">{{ matchCount }}</span>
         </div>
-        <!-- <div class="folder-path">
-            <span>{{ dirname }}</span>
-          </div> -->
+        <div class="source-path">
+          {{ projectStore.FILE_LABEL(searchResult.filePath) }}
+        </div>
       </div>
     </div>
     <div
@@ -39,7 +39,6 @@
           :title="searchMatch.lineText"
           @click="handleSearchResultClick(searchMatch)"
         >
-          <!-- <span class="line-number">{{ searchMatch.range[0][0] }}</span> -->
           <span>{{
             ellipsisText(searchMatch.lineText.substring(0, searchMatch.range[0][1]))
           }}</span>
@@ -63,6 +62,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
 import { storeToRefs } from 'pinia'
 import bus from '../../bus'
@@ -76,6 +76,7 @@ const props = defineProps<{
   searchResult: SearchResult
 }>()
 
+const projectStore = useProjectStore()
 const editorStore = useEditorStore()
 
 const showSearchMatches = ref(props.searchResult.matches.length <= 20)
@@ -165,6 +166,7 @@ const handleSearchResultClick = (searchMatch: SearchMatch): void => {
 </script>
 
 <style scoped>
+.source-path { font-size: 11px; opacity: 0.7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .search-result-item {
   position: relative;
   user-select: none;

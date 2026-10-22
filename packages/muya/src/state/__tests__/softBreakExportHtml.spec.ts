@@ -32,7 +32,6 @@ describe('#3676 — soft line breaks survive export as a conformant newline', ()
     });
 
     it('leaves a real hard break (two trailing spaces) as <br>', () => {
-        // Sanity: the change only touches soft breaks; hard breaks are untouched.
         const html = getHighlightHtml('line one  \nline two', OPTS);
         expect(html).toMatch(/<br\s*\/?>/);
     });
@@ -62,11 +61,10 @@ describe('softNewlineAsSpace export CSS', () => {
 
     it('keeps every non-soft-break export rule when the option is on', async () => {
         const html = await generate(true);
-        // Rules that live after the soft-break rule in exportStyle.css and must
-        // survive the override being appended.
         expect(html).toContain('.markdown-body table {');
         expect(html).toContain('.markdown-body img[data-align=\'right\'] {');
         expect(html).toContain('.markdown-body li:has(input[type=\'checkbox\']) {');
+        expect(html).toContain('.markdown-body li input[type=\'checkbox\'] {');
         expect(html).toContain('.markdown-body div.mermaid,');
     });
 

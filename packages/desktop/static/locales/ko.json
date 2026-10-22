@@ -3,7 +3,12 @@
     "counter": {
       "words": "단어 수",
       "characters": "글자 수",
-      "paragraphs": "단락 수"
+      "charactersNoSpaces": "글자 수(공백 제외)",
+      "charactersWithSpaces": "글자 수(공백 포함)",
+      "paragraphs": "단락 수",
+      "allCharacters": "전체 글자 수",
+      "document": "문서",
+      "documentSelection": "문서 / 선택 영역"
     },
     "file": {
       "file": "파일",
@@ -21,12 +26,14 @@
       "export": "내보내기",
       "exportHtml": "HTML로 내보내기",
       "exportPdf": "PDF로 내보내기",
+      "convertWithPandoc": "Pandoc으로 변환",
       "import": "가져오기",
       "print": "인쇄",
       "closeTab": "탭 닫기",
       "closeWindow": "창 닫기",
       "quit": "종료",
-      "preferences": "환경설정"
+      "preferences": "환경설정",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "편집",
@@ -66,6 +73,7 @@
       "table": "표",
       "codeFences": "코드 블록",
       "quoteBlock": "인용 블록",
+      "githubAlerts": "GitHub 알림",
       "mathBlock": "수식 블록",
       "htmlBlock": "HTML 블록",
       "orderedList": "순서 목록",
@@ -117,7 +125,7 @@
       "sourceCodeMode": "소스 코드 모드",
       "typewriterMode": "타자기 모드",
       "focusMode": "집중 모드",
-      "toggleTableOfContents": "목차 토글",
+      "toggleTableOfContents": "목차 표시",
       "reloadImages": "이미지 새로고침",
       "showDeveloperTools": "개발자 도구 보기",
       "reloadWindow": "창 새로고침"
@@ -141,8 +149,8 @@
       "theme": "&테마",
       "dark": "어둡게",
       "followThemDisabled": "시스템 테마를 따를 때는 테마 선택이 비활성화됩니다",
-      "lightThemes": "— 라이트 테마 —",
-      "darkThemes": "— 다크 테마 —",
+      "lightThemes": "라이트 테마",
+      "darkThemes": "다크 테마",
       "ayuDark": "Ayu 다크",
       "ayuLight": "Ayu 라이트",
       "ayuMirage": "Ayu Mirage",
@@ -200,6 +208,7 @@
       "paste": "붙여넣기",
       "rename": "이름 바꾸기",
       "moveToTrash": "휴지통으로 이동",
+      "copyPath": "경로 복사",
       "showInFolder": "폴더에서 보기"
     },
     "tabs": {
@@ -209,7 +218,8 @@
       "closeAllTabs": "모든 탭 닫기",
       "rename": "이름 바꾸기",
       "copyPath": "경로 복사",
-      "showInFolder": "폴더에서 보기"
+      "showInFolder": "폴더에서 보기",
+      "showInSideBar": "사이드바에서 보기"
     }
   },
   "search": {
@@ -227,12 +237,16 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "파일로 돌아가기",
       "searchInFolder": "폴더에서 검색...",
       "noFolderOpen": "열린 폴더 없음",
       "noResultsFound": "결과를 찾을 수 없습니다.",
       "cancel": "취소",
-      "openFolder": "폴더 열기",
-      "showMoreMatches": "더 많은 일치 항목 보기"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "더 많은 일치 항목 보기",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "열린 파일",
@@ -240,9 +254,22 @@
       "closeAll": "모두 닫기",
       "emptyProject": "빈 프로젝트",
       "createFile": "파일 만들기",
-      "openFolder": "폴더 열기"
+      "openFolder": "폴더 열기",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session",
+      "resizeOpenedFiles": "열린 파일 목록 크기 조절"
     },
     "toc": {
+      "expand": "목차 펼치기",
+      "collapse": "목차 접기",
+      "empty": "제목 없음",
       "title": "목차",
       "expandAll": "모두 펼치기",
       "collapseAll": "모두 접기"
@@ -250,8 +277,22 @@
     "icons": {
       "files": "파일",
       "search": "검색",
-      "toc": "목차",
       "settings": "설정"
+    }
+  },
+  "titleBar": {
+    "applicationMenu": "애플리케이션 메뉴",
+    "minimize": "최소화",
+    "maximize": "최대화",
+    "restore": "이전 크기로 복원",
+    "close": "닫기",
+    "documentStatistics": {
+      "title": "문서 통계",
+      "fileInformation": "파일 정보",
+      "created": "생성됨",
+      "lastModified": "수정됨",
+      "unavailable": "—",
+      "open": "문서 통계 열기"
     }
   },
   "commandPalette": {
@@ -265,13 +306,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "제목 자동 번호 매기기",
     "title": "내보내기 옵션",
-    "info": {
-      "label": "정보",
-      "description": "페이지 모양을 사용자 정의하고 \"내보내기\"를 클릭하여 계속하세요."
-    },
     "page": {
       "label": "페이지",
-      "pageTitle": "페이지 제목:",
+      "pageTitle": "페이지 제목",
       "pageSize": "페이지 크기:",
       "landscapeOrientation": "가로 방향:",
       "pageMargin": "페이지 여백(mm):",
@@ -308,12 +345,13 @@
       "description": "머리글 및/또는 바닥글이 정의된 경우 모든 페이지에 텍스트가 나타납니다."
     },
     "toc": {
-      "includeTopHeading": "최상위 제목 포함",
-      "includeTopHeadingDetail": "최상위 제목 세부 정보 포함",
+      "description": "내보낸 문서에 목차를 표시하려면 문서 본문에 [TOC]를 별도의 줄에 입력하세요. 해당 위치에 목차가 생성됩니다.",
+      "includeTopHeading": "1단계 제목 포함",
+      "includeTopHeadingDetail": "목차에 모든 1단계(H1) 제목을 포함합니다.",
       "label": "목차",
       "title": "목차"
     },
-    "export": "내보내기...",
+    "export": "내보내기",
     "options": {
       "pageSizes": {
         "a3": "A3",
@@ -351,6 +389,7 @@
   },
   "preferences": {
     "title": "환경설정",
+    "learnMore": "{name} 자세히 알아보기",
     "search": {
       "placeholder": "환경설정 검색...",
       "categories": {
@@ -371,6 +410,7 @@
         "autoNormalizeLineEndings": "파일을 열 때 줄 끝을 자동으로 정규화합니다. 비활성화하면 파일을 있는 그대로 엽니다.",
         "titleBarStyle": "제목 표시줄 스타일(Windows 및 Linux 시스템만)",
         "openFilesInNewWindow": "새 창에서 파일 열기",
+        "openFilesInPreviewMode": "사이드바 파일을 미리보기 탭에서 열기",
         "openFolderInNewWindow": "메뉴를 통해 새 창에서 폴더 열기",
         "zoom": "확대/축소 수준. 0.5에서 2.0 사이",
         "hideScrollbar": "스크롤바를 숨길지 여부",
@@ -386,7 +426,7 @@
         "wrapCodeBlocks": "코드 블록 내에서 텍스트 줄바꿈",
         "editorLineWidth": "편집기 영역의 최대 너비를 정의합니다. 빈 문자열 또는 ch(문자), px(픽셀), %(백분율) 접미사가 허용됩니다",
         "codeFontSize": "코드 블록의 글꼴 크기, 범위는 12~18",
-        "codeFontFamily": "코드 블록에서 사용되는 글꼴 패밀리",
+        "codeFontFamily": "코드 글꼴：인라인 코드와 코드 블록에 적용됩니다.",
         "codeBlockLineNumbers": "줄 번호를 표시할지 여부",
         "sourceCodeLineNumbers": "소스 코드 모드에서 줄 번호 표시",
         "trimUnnecessaryCodeBlockEmptyLines": "코드 블록의 시작과 끝에 있는 빈 줄 제거",
@@ -411,8 +451,14 @@
         "superSubScript": "Pandoc의 마크다운 확장 위첨자와 아래첨자 활성화",
         "footnote": "Pandoc의 마크다운 확장 각주 활성화",
         "texMathDollars": "Pandoc의 markdown 확장 tex_math_dollars 활성화",
+        "texMathGfm": "Pandoc의 markdown 확장 tex_math_gfm 활성화",
+        "texMathSingleBackslash": "Pandoc의 markdown 확장 tex_math_single_backslash 활성화",
+        "texMathDoubleBackslash": "Pandoc의 markdown 확장 tex_math_double_backslash 활성화",
+        "highlightSyntax": "비표준 ==텍스트== 강조 구문을 사용합니다",
+        "inlineDiff": "비표준 인라인 diff 구문 {+ … +} / [- … -]을 사용합니다",
+        "multilineBlockquote": "비표준 여러 줄 인용 구문 >>> … >>>을 사용합니다",
+        "githubAlerts": "GitHub 알림",
         "isHtmlEnabled": "HTML 렌더링 활성화",
-        "isGitlabCompatibilityEnabled": "GitLab 호환 모드 활성화",
         "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
         "sequenceTheme": "시퀀스 다이어그램 테마",
         "plantumlServer": "PlantUML 서버 URL",
@@ -428,7 +474,8 @@
         "imageRelativeDirectoryBase": "상대 이미지가 복사되는 위치",
         "imageRelativeDirectoryName": "상대 이미지 폴더 이름",
         "fileSortOrder": "열린 폴더의 파일 정렬 순서: 오름차순 또는 내림차순",
-        "openedFilesInSidebar": "사이드바에 열린 파일을 표시할지 여부"
+        "openedFilesInSidebar": "사이드바에 열린 파일을 표시할지 여부",
+        "showPandocConvert": "Pandoc 변환 메뉴를 표시합니다. Pandoc이 설치되어 있어야 합니다."
       }
     },
     "categories": {
@@ -472,10 +519,20 @@
         "selectFolder": "폴더 선택",
         "openBlankPage": "빈 페이지 열기"
       },
+      "pandoc": {
+        "title": "Pandoc 변환",
+        "description": "Pandoc 변환 메뉴 표시",
+        "detailedDescription": "Pandoc이 설치되어 있어야 합니다",
+        "found": "찾음: {path}",
+        "notFound": "찾을 수 없음",
+        "recheck": "다시 확인"
+      },
       "sidebar": {
         "title": "사이드바",
         "wrapTextInToc": "목차에서 텍스트 줄바꿈",
         "showOpenedFiles": "열린 파일 표시",
+        "autoReveal": "사이드바에서 활성 파일 표시",
+        "openFilesInPreviewMode": "사이드바 파일을 미리보기 탭에서 엽니다. 편집하거나 두 번 클릭하면 탭이 유지됩니다.",
         "excludePatterns": "제외 패턴",
         "excludePatternsNotes": "제외 패턴 (참고)",
         "fileSortBy": {
@@ -506,7 +563,8 @@
           "korean": "한국어",
           "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -519,12 +577,13 @@
         "fontFamily": "글꼴 패밀리",
         "maxWidth": "최대 너비",
         "maxWidthNotes": "편집기 콘텐츠의 최대 너비입니다. 숫자 뒤에 px, ch(문자 수) 또는 % 단위를 붙여 입력하세요(예: 800px, 80ch, 60%). 비워 두면 기본 너비를 사용합니다.",
-        "maxWidthInvalid": "숫자 뒤에 px, ch 또는 %를 붙여 입력하세요(예: 800px)."
+        "maxWidthInvalid": "숫자 뒤에 px, ch 또는 %를 붙여 입력하세요(예: 800px).",
+        "codeFontFamily": "코드 글꼴",
+        "codeFontFamilyNotes": "인라인 코드와 코드 블록에 적용됩니다."
       },
       "codeBlock": {
         "title": "코드 블록",
         "fontSize": "글꼴 크기",
-        "fontFamily": "글꼴 패밀리",
         "showLineNumbers": "줄 번호 보기",
         "removeEmptyLines": "빈 줄 제거"
       },
@@ -636,6 +695,13 @@
         "footnote": "각주",
         "footnoteNotes": "각주 노트",
         "texMathDollars": "$ 및 $$ TeX 수식",
+        "texMathGfm": "GitHub TeX 수식($`…`$ 및 ```math)",
+        "texMathSingleBackslash": "단일 백슬래시 TeX 수식",
+        "texMathDoubleBackslash": "이중 백슬래시 TeX 수식",
+        "highlightSyntax": "형광펜 (==텍스트==)",
+        "inlineDiff": "인라인 diff ({+ … +})",
+        "multilineBlockquote": "여러 줄 인용 (>>>)",
+        "githubAlerts": "GitHub 알림 사용",
         "frontmatterType": {
           "jsonBrace": "중괄호가 있는 JSON",
           "jsonSemicolon": "세미콜론이 있는 JSON",
@@ -662,7 +728,6 @@
         "title": "기타"
       },
       "compatibility": {
-        "enableGitlab": "GitLab 호환성 활성화",
         "enableHtml": "HTML 지원 활성화",
         "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
         "title": "호환성"
@@ -686,6 +751,7 @@
     "theme": {
       "title": "테마",
       "followSystemTheme": "시스템 테마 따르기",
+      "followSystemNote": "시스템 테마를 따르는 동안에는 아래 테마 목록을 전환할 수 없습니다. 끄면 자유롭게 전환할 수 있습니다.",
       "modeThemes": "테마 선택",
       "lightModeTheme": "라이트 모드 테마",
       "darkModeTheme": "다크 모드 테마",
@@ -768,10 +834,12 @@
       "quit": "종료",
       "toggleAutoSave": "자동 저장 토글",
       "importFile": "파일 가져오기",
+      "revealInSideBar": "사이드바에서 보기",
       "exportFile": "파일 내보내기",
       "exportFilePdf": "PDF로 내보내기",
       "zoom": "확대/축소",
-      "checkUpdate": "업데이트 확인"
+      "checkUpdate": "업데이트 확인",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "실행 취소",
@@ -888,6 +956,7 @@
     "ok": "확인"
   },
   "dialog": {
+    "moveToTrash": "\"{name}\"을(를) 휴지통으로 이동하시겠습니까?",
     "cancel": "취소",
     "changesWillBeLost": "변경 사항이 손실됩니다",
     "close": "닫기",
@@ -896,7 +965,9 @@
     "fileExists": "파일이 이미 존재합니다: {filename}",
     "files": "파일",
     "importWarning": "가져오기 경고",
-    "installPandoc": "Pandoc 설치",
+    "installPandoc": "Pandoc를 찾을 수 없습니다. 설치하거나 환경 변수 MARKTEXT_PANDOC에 pandoc 실행 파일 경로를 설정한 뒤 MarkText를 다시 시작하세요.",
+    "exportWarning": "내보내기 경고",
+    "exportWarningMore": "…외 {count}건",
     "keepOpen": "열어두기",
     "replace": "바꾸기",
     "save": "저장",
@@ -936,6 +1007,7 @@
       "errorWhileSaving": "저장 중 오류가 발생했습니다: {msg}",
       "exportSuccessTitle": "내보내기 성공",
       "exportSuccessMessage": "“{name}”을(를) 성공적으로 내보냈습니다!",
+      "exportLinkedMediaMessage": "\"{name}\" 내보내기 완료. 이 형식은 이미지를 포함하지 않고 파일 링크로 유지하므로, 이미지를 파일과 같은 위치에 두고 폴더 전체를 공유하세요.",
       "fileRemovedOnDisk": "“{name}”이(가) 디스크에서 삭제되었습니다.",
       "fileChangedOnDisk": "“{name}”이(가) 디스크에서 변경되었습니다. 다시 로드하시겠습니까?"
     }
@@ -955,6 +1027,21 @@
       "rows": "행",
       "columns": "열"
     },
+    "mediaViewer": {
+      "title": "미리 보기",
+      "close": "닫기",
+      "zoomIn": "확대",
+      "zoomOut": "축소",
+      "fit": "창에 맞추기",
+      "actualSize": "실제 크기",
+      "saveTitle": "다이어그램 저장",
+      "saveSvg": "SVG로 저장",
+      "savePng": "PNG로 저장",
+      "copyImage": "이미지 복사",
+      "copied": "이미지를 클립보드에 복사했습니다",
+      "saveFailed": "이미지를 저장하지 못했습니다: {error}",
+      "copyFailed": "이미지를 복사하지 못했습니다: {error}"
+    },
     "notifications": {
       "notificationNotFound": "알림을 찾을 수 없음"
     },
@@ -972,6 +1059,27 @@
       "languageMissing": "맞춤법 검사 언어 누락 {languageCode}",
       "switchError": "{languageCode} 맞춤법 검사 전환 오류, {error}",
       "title": "맞춤법 검사"
+    },
+    "tabs": {
+      "close": "{name} 닫기",
+      "preview": "{name}, 미리보기 탭"
     }
+  },
+  "readingMode": {
+    "title": "읽기 모드",
+    "edit": "편집 모드",
+    "lock": "읽기 모드로 전환",
+    "unlock": "편집 모드로 전환",
+    "defaultMode": "파일을 열 때 사용할 기본 모드",
+    "defaultNote": "이후에 여는 기존 파일에 적용됩니다. 새 문서는 계속 편집할 수 있습니다.",
+    "unsaved": "읽기 모드가 켜졌습니다. 저장하지 않은 변경 사항은 유지되며 자동 저장은 일시 중지됩니다.",
+    "failed": "문서 모드를 전환할 수 없습니다",
+    "closeSave": "편집 모드로 전환하고 저장",
+    "exportSource": "원본 파일과 다른 내보내기 위치를 선택하세요.",
+    "unavailable": "읽기 모드에서는 사용할 수 없습니다",
+    "skipped": "저장하지 않은 변경 사항이 있는 읽기 전용 문서는 건너뛰었습니다.",
+    "viewImage": "이미지 보기",
+    "copyLink": "링크 주소 복사",
+    "resumed": "편집 모드가 켜졌습니다. 자동 저장이 재개되었습니다."
   }
 }

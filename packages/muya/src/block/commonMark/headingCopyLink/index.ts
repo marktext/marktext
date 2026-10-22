@@ -3,29 +3,16 @@ import formatLinkIcon from '../../../assets/icons/format_link/2.png';
 import { CLASS_NAMES } from '../../../config';
 import { stableSlug } from '../../../state/getTOC';
 import { isKeyboardEvent } from '../../../utils';
+import { showCopyFeedback } from '../../../utils/copyFeedback';
 import logger from '../../../utils/logger';
 import TreeNode from '../../base/treeNode';
 
 const debug = logger('headingCopyLink:');
 
-// marktext rendered an `i.icon.ag-copy-header-link` hover affordance on every
-// heading; clicking it dispatched `heading-copy-link` { key } and the desktop
-// renderer copied the heading's GitHub slug/anchor to the clipboard. The new
-// engine has no equivalent affordance — this attachment block restores it.
-//
-// It is appended to its heading via `appendAttachment` (the same mechanism the
-// task-list checkbox uses), so it carries its own DOM node and click handler
-// without participating in document state. The emitted `key` is the heading's
-// stable slug — the SAME value `getTOC()` exposes as `ITocItem.slug` — so the
-// host can resolve it back to a TOC entry (`copyGithubSlug`).
+// Heading-link controls carry no document state. Their emitted key must match getTOC() slugs.
 class HeadingCopyLink extends TreeNode {
-    private _eventIds: string[] = [];
-
     static override blockName = 'heading-copy-link';
 
-    // `_state` is unused — the affordance carries no document state — but the
-    // `ScrollPage.loadBlock(...).create(muya, state)` contract requires the
-    // second parameter, so accept and ignore it.
     static create(muya: Muya, _state?: unknown) {
         return new HeadingCopyLink(muya);
     }
@@ -39,8 +26,6 @@ class HeadingCopyLink extends TreeNode {
         const label = muya.i18n.t('Copy anchor link to this heading');
         this.tagName = 'i';
         this.classList = ['mu-icon', CLASS_NAMES.MU_COPY_HEADER_LINK];
-        // Accessible button semantics: discoverable + focusable + operable by
-        // assistive tech and keyboard (the keydown handler below activates it).
         this.attributes = {
             'contenteditable': 'false',
             'role': 'button',
@@ -50,9 +35,7 @@ class HeadingCopyLink extends TreeNode {
         };
         this.createDomNode();
 
-        // The button carries the accessible label, so the icon image is purely
-        // decorative — an empty `alt` keeps screen readers from announcing it
-        // twice and satisfies the `image-alt` a11y rule.
+        // The button owns the accessible label; its icon must stay decorative.
         const img = document.createElement('img');
         img.classList.add('mu-icon-inner');
         img.setAttribute('src', formatLinkIcon);
@@ -63,20 +46,14 @@ class HeadingCopyLink extends TreeNode {
     }
 
     private _listen() {
-        const { domNode, muya } = this;
-        const { eventCenter } = muya;
+        const { domNode } = this;
 
         const clickHandler = (event: Event) => {
-            // The handler is bound to a `click` DOM event on the affordance, so
-            // it is inherently a pointer interaction — no mouse-specific
-            // properties are read, so no `MouseEvent` narrowing is needed.
             event.preventDefault();
             event.stopPropagation();
             this._activate();
         };
 
-        // Keyboard activation (Enter / Space) for the focusable button, so it
-        // is operable without a pointer.
         const keydownHandler = (event: Event) => {
             if (!isKeyboardEvent(event))
                 return;
@@ -87,14 +64,11 @@ class HeadingCopyLink extends TreeNode {
             this._activate();
         };
 
-        this._eventIds.push(
-            eventCenter.attachDOMEvent(domNode!, 'click', clickHandler),
-            eventCenter.attachDOMEvent(domNode!, 'keydown', keydownHandler),
-        );
+        // The control owns these listeners so deleting its heading leaves no EventCenter references.
+        domNode!.addEventListener('click', clickHandler);
+        domNode!.addEventListener('keydown', keydownHandler);
     }
 
-    // Emit `heading-copy-link` with the heading's stable slug. At activation
-    // time the attachment's parent is the heading block.
     private _activate() {
         const heading = this.parent;
         if (!heading)
@@ -102,19 +76,13 @@ class HeadingCopyLink extends TreeNode {
 
         this.muya.eventCenter.emit('heading-copy-link', {
             key: stableSlug(heading),
+            onCopied: (ok: boolean) => showCopyFeedback(
+                this.domNode!,
+                ok,
+                this.muya.i18n.t('Copy anchor link to this heading'),
+                this.muya.i18n,
+            ),
         });
-    }
-
-    private _detachDOMEvents() {
-        for (const id of this._eventIds)
-            this.muya.eventCenter.detachDOMEvent(id);
-    }
-
-    override remove(_source: string) {
-        super.remove();
-        this._detachDOMEvents();
-
-        return this;
     }
 
     getState() {

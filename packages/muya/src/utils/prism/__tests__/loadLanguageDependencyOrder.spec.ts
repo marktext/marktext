@@ -37,12 +37,10 @@ describe('loadLanguage — dependency load order (flaky c++ fix)', () => {
 
         await expect(loadLanguage('c++')).resolves.toBeDefined();
 
-        // `cpp` requires `c`; the fix guarantees `c` is registered first.
         expect(addOrder).toContain('c');
         expect(addOrder).toContain('cpp');
         expect(addOrder.indexOf('c')).toBeLessThan(addOrder.indexOf('cpp'));
 
-        // And the resulting grammar is the valid extend-of-c, not `undefined`.
         expect(prism.languages.cpp).toBeTruthy();
         expect(() => prism.tokenize('int main(){}', prism.languages.cpp)).not.toThrow();
     });

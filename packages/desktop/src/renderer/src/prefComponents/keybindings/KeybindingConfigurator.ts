@@ -1,6 +1,6 @@
 import { isEqualAccelerator } from 'common/keybinding'
 import getCommandDescriptionById from '@/commands/descriptions'
-import { isOsx } from '@/util'
+import { isMac } from '@/util'
 
 const SHORTCUT_TYPE_DEFAULT = 0
 const SHORTCUT_TYPE_USER = 1
@@ -27,9 +27,6 @@ export default class KeybindingConfigurator {
   keybindingList: UiKeybinding[]
   isDirty: boolean
 
-  /**
-   * ctor
-   */
   constructor(defaultKeybindings: Map<string, string>, userKeybindings: Map<string, string>) {
     this.defaultKeybindings = defaultKeybindings
     this.keybindingList = this._buildUiKeybindingList(defaultKeybindings, userKeybindings)
@@ -42,8 +39,7 @@ export default class KeybindingConfigurator {
   ): UiKeybinding[] {
     const uiKeybindings: UiKeybinding[] = []
     for (const [id] of defaultKeybindings) {
-      if (!isOsx && id.startsWith('mt.')) {
-        // Skip MarkText menu that is only available on macOS.
+      if (!isMac && id.startsWith('mt.')) {
         continue
       }
       uiKeybindings.push(this._toUiKeybinding(id, defaultKeybindings, userKeybindings))
@@ -76,11 +72,8 @@ export default class KeybindingConfigurator {
     return this.keybindingList
   }
 
-  // Rebuild the keybinding list to update descriptions on language switch
   rebuildKeybindingList(): UiKeybinding[] {
-    // Save the current user settings
     const userKeybindings = this._getUserKeybindingMap()
-    // Rebuild the list
     this.keybindingList = this._buildUiKeybindingList(this.defaultKeybindings, userKeybindings)
     return this.keybindingList
   }

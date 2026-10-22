@@ -3,7 +3,12 @@
     "counter": {
       "words": "Woorden",
       "characters": "Tekens",
-      "paragraphs": "Alinea's"
+      "charactersNoSpaces": "Tekens (zonder spaties)",
+      "charactersWithSpaces": "Tekens (met spaties)",
+      "paragraphs": "Alinea's",
+      "allCharacters": "Alle tekens",
+      "document": "Document",
+      "documentSelection": "Document / Selectie"
     },
     "file": {
       "file": "Bestand",
@@ -21,12 +26,14 @@
       "export": "Exporteren",
       "exportHtml": "Exporteren als HTML",
       "exportPdf": "Exporteren als PDF",
+      "convertWithPandoc": "Converteren met Pandoc",
       "import": "Importeren",
       "print": "Afdrukken",
       "closeTab": "Tabblad sluiten",
       "closeWindow": "Venster sluiten",
       "quit": "Afsluiten",
-      "preferences": "Voorkeuren"
+      "preferences": "Voorkeuren",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "Bewerken",
@@ -66,6 +73,7 @@
       "table": "Tabel",
       "codeFences": "Codeblok",
       "quoteBlock": "Citaatblok",
+      "githubAlerts": "GitHub-meldingen",
       "mathBlock": "Wiskundeblok",
       "htmlBlock": "HTML-blok",
       "orderedList": "Genummerde lijst",
@@ -117,7 +125,7 @@
       "sourceCodeMode": "Broncodeweergave",
       "typewriterMode": "Typemachinestand",
       "focusMode": "Focusstand",
-      "toggleTableOfContents": "Inhoudsopgave in-/uitschakelen",
+      "toggleTableOfContents": "Inhoudsopgave tonen",
       "reloadImages": "Afbeeldingen herladen",
       "showDeveloperTools": "Ontwikkelaarshulpmiddelen tonen",
       "reloadWindow": "Venster herladen"
@@ -141,8 +149,8 @@
       "theme": "&Thema",
       "dark": "Donker",
       "followThemDisabled": "Themaselectie uitgeschakeld bij het volgen van systeemthema",
-      "lightThemes": "— Lichte thema's —",
-      "darkThemes": "— Donkere thema's —",
+      "lightThemes": "Lichte thema's",
+      "darkThemes": "Donkere thema's",
       "ayuDark": "Ayu Dark",
       "ayuLight": "Ayu Light",
       "ayuMirage": "Ayu Mirage",
@@ -200,6 +208,7 @@
       "paste": "Plakken",
       "rename": "Hernoemen",
       "moveToTrash": "Naar prullenbak",
+      "copyPath": "Pad kopiëren",
       "showInFolder": "Tonen in map"
     },
     "tabs": {
@@ -209,7 +218,8 @@
       "closeAllTabs": "Alle tabbladen sluiten",
       "rename": "Hernoemen",
       "copyPath": "Pad kopiëren",
-      "showInFolder": "Tonen in map"
+      "showInFolder": "Tonen in map",
+      "showInSideBar": "Tonen in zijbalk"
     }
   },
   "search": {
@@ -227,12 +237,16 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Terug naar bestanden",
       "searchInFolder": "Zoeken in map...",
       "noFolderOpen": "Geen map geopend",
       "noResultsFound": "Geen resultaten gevonden.",
       "cancel": "Annuleren",
-      "openFolder": "Map openen",
-      "showMoreMatches": "Meer resultaten tonen"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "Meer resultaten tonen",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "Geopende bestanden",
@@ -240,9 +254,22 @@
       "closeAll": "Alles sluiten",
       "emptyProject": "Leeg project",
       "createFile": "Bestand aanmaken",
-      "openFolder": "Map openen"
+      "openFolder": "Map openen",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session",
+      "resizeOpenedFiles": "Lijst met geopende bestanden aanpassen"
     },
     "toc": {
+      "expand": "Inhoudsopgave uitklappen",
+      "collapse": "Inhoudsopgave inklappen",
+      "empty": "Geen koppen",
       "title": "Inhoudsopgave",
       "expandAll": "Alles uitklappen",
       "collapseAll": "Alles inklappen"
@@ -250,8 +277,22 @@
     "icons": {
       "files": "Bestanden",
       "search": "Zoeken",
-      "toc": "Inhoudsopgave",
       "settings": "Instellingen"
+    }
+  },
+  "titleBar": {
+    "applicationMenu": "Toepassingsmenu",
+    "minimize": "Minimaliseren",
+    "maximize": "Maximaliseren",
+    "restore": "Vorig formaat",
+    "close": "Sluiten",
+    "documentStatistics": {
+      "title": "Documentstatistieken",
+      "fileInformation": "Bestandsinformatie",
+      "created": "Aangemaakt",
+      "lastModified": "Gewijzigd",
+      "unavailable": "—",
+      "open": "Documentstatistieken openen"
     }
   },
   "commandPalette": {
@@ -265,13 +306,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Automatisch nummeren van koppen",
     "title": "Exportopties",
-    "info": {
-      "label": "Info",
-      "description": "Pas de pagina-opmaak aan en klik op \"exporteren\" om door te gaan."
-    },
     "page": {
       "label": "Pagina",
-      "pageTitle": "Paginatitel:",
+      "pageTitle": "Paginatitel",
       "pageSize": "Paginaformaat:",
       "landscapeOrientation": "Liggende oriëntatie:",
       "pageMargin": "Paginamarge in mm:",
@@ -308,12 +345,13 @@
       "description": "De tekst verschijnt op alle pagina's als kop- en/of voettekst is gedefinieerd."
     },
     "toc": {
-      "includeTopHeading": "Bovenste kop opnemen",
-      "includeTopHeadingDetail": "Bovenste kop detail opnemen",
+      "description": "Typ [TOC] op een aparte regel in de hoofdtekst om een inhoudsopgave in het geëxporteerde document te tonen. De inhoudsopgave verschijnt op die positie.",
+      "includeTopHeading": "Koppen van niveau 1 opnemen",
+      "includeTopHeadingDetail": "Alle koppen van niveau 1 (H1) opnemen in de inhoudsopgave.",
       "label": "Inhoudsopgave",
       "title": "Inhoudsopgave"
     },
-    "export": "Exporteren...",
+    "export": "Exporteren",
     "options": {
       "pageSizes": {
         "a3": "A3 (297mm x 420mm)",
@@ -351,6 +389,7 @@
   },
   "preferences": {
     "title": "Voorkeuren",
+    "learnMore": "Meer informatie over {name}",
     "search": {
       "placeholder": "Voorkeuren zoeken...",
       "categories": {
@@ -370,6 +409,7 @@
         "autoSaveDelay": "De tijd in ms na een wijziging voordat het bestand wordt opgeslagen",
         "titleBarStyle": "De titelbalkstijl (alleen Windows en Linux)",
         "openFilesInNewWindow": "Bestanden openen in een nieuw venster",
+        "openFilesInPreviewMode": "Bestanden in de zijbalk openen in voorbeeldtabbladen",
         "openFolderInNewWindow": "Map openen via menu in een nieuw venster",
         "zoom": "Het zoomniveau. Tussen 0,5 en 2,0",
         "hideScrollbar": "Schuifbalken verbergen",
@@ -385,7 +425,7 @@
         "wrapCodeBlocks": "Tekst terugloop in codeblokken",
         "editorLineWidth": "Maximale breedte van het editorgebied",
         "codeFontSize": "Lettergrootte in codeblokken (12-18)",
-        "codeFontFamily": "Lettertype voor codeblokken",
+        "codeFontFamily": "Lettertype voor code. Van toepassing op inlinecode en codeblokken.",
         "codeBlockLineNumbers": "Regelnummers tonen",
         "sourceCodeLineNumbers": "Regelnummers tonen in broncodeweergave",
         "trimUnnecessaryCodeBlockEmptyLines": "Lege regels aan begin en einde van codeblokken verwijderen",
@@ -410,8 +450,14 @@
         "superSubScript": "Pandoc superscript en subscript inschakelen",
         "footnote": "Pandoc voetnoten inschakelen",
         "texMathDollars": "Pandocs markdown-extensie tex_math_dollars inschakelen",
+        "texMathGfm": "Pandocs markdown-extensie tex_math_gfm inschakelen",
+        "texMathSingleBackslash": "Pandocs markdown-extensie tex_math_single_backslash inschakelen",
+        "texMathDoubleBackslash": "Pandocs markdown-extensie tex_math_double_backslash inschakelen",
+        "highlightSyntax": "De niet-standaard ==tekst==-markeringssyntaxis inschakelen",
+        "inlineDiff": "De niet-standaard inline-diff-syntaxis {+ … +} / [- … -] inschakelen",
+        "multilineBlockquote": "De niet-standaard meerregelige citaatsyntaxis >>> … >>> inschakelen",
+        "githubAlerts": "GitHub-meldingen",
         "isHtmlEnabled": "HTML-weergave inschakelen",
-        "isGitlabCompatibilityEnabled": "GitLab-compatibiliteitsmodus inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "sequenceTheme": "Sequentiediagram thema",
         "plantumlServer": "PlantUML server-URL",
@@ -428,7 +474,8 @@
         "imageRelativeDirectoryName": "Naam van de relatieve afbeeldingsmap",
         "autoNormalizeLineEndings": "Regeleindes automatisch normaliseren bij het openen van bestanden. Indien uitgeschakeld worden bestanden ongewijzigd geopend.",
         "fileSortOrder": "Sorteervolgorde voor bestanden in geopende mappen: oplopend of aflopend.",
-        "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk."
+        "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk.",
+        "showPandocConvert": "Het Pandoc-conversiemenu tonen. Vereist een installatie van Pandoc."
       }
     },
     "categories": {
@@ -472,10 +519,20 @@
         "selectFolder": "Map selecteren",
         "openBlankPage": "Lege pagina openen"
       },
+      "pandoc": {
+        "title": "Pandoc-conversie",
+        "description": "Het Pandoc-conversiemenu tonen",
+        "detailedDescription": "Vereist een installatie van Pandoc",
+        "found": "Gevonden: {path}",
+        "notFound": "Niet gevonden",
+        "recheck": "Opnieuw controleren"
+      },
       "sidebar": {
         "title": "Zijbalk",
         "wrapTextInToc": "Tekstterugloop in inhoudsopgave",
         "showOpenedFiles": "Geopende bestanden tonen",
+        "autoReveal": "Actief bestand tonen in de zijbalk",
+        "openFilesInPreviewMode": "Bestanden in de zijbalk openen in voorbeeldtabbladen. Bewerken of dubbelklikken houdt het tabblad open.",
         "excludePatterns": "Uitsluitpatronen",
         "excludePatternsNotes": "Uitsluitpatronen (opmerkingen)",
         "fileSortBy": {
@@ -506,7 +563,8 @@
           "korean": "한국어",
           "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -519,12 +577,13 @@
         "fontFamily": "Lettertypefamilie",
         "maxWidth": "Maximale breedte",
         "maxWidthNotes": "Maximale breedte van editorinhoud. Voer een getal in gevolgd door px, ch (tekens) of %, bijvoorbeeld 800px, 80ch of 60%. Laat leeg om de standaardbreedte te gebruiken.",
-        "maxWidthInvalid": "Voer een getal in gevolgd door px, ch of %, bijvoorbeeld 800px."
+        "maxWidthInvalid": "Voer een getal in gevolgd door px, ch of %, bijvoorbeeld 800px.",
+        "codeFontFamily": "Lettertype voor code",
+        "codeFontFamilyNotes": "Van toepassing op inlinecode en codeblokken."
       },
       "codeBlock": {
         "title": "Codeblok",
         "fontSize": "Lettergrootte",
-        "fontFamily": "Lettertypefamilie",
         "showLineNumbers": "Regelnummers tonen",
         "removeEmptyLines": "Lege regels verwijderen"
       },
@@ -636,6 +695,13 @@
         "footnote": "Voetnoot",
         "footnoteNotes": "Voetnoten",
         "texMathDollars": "TeX-wiskunde met $ en $$",
+        "texMathGfm": "GitHub TeX-wiskunde ($`…`$ en ```math)",
+        "texMathSingleBackslash": "TeX-wiskunde met enkele backslash",
+        "texMathDoubleBackslash": "TeX-wiskunde met dubbele backslash",
+        "highlightSyntax": "Markeren (==tekst==)",
+        "inlineDiff": "Inline diff ({+ … +})",
+        "multilineBlockquote": "Meerregelig citaat (>>>)",
+        "githubAlerts": "GitHub-meldingen inschakelen",
         "frontmatterType": {
           "jsonBrace": "JSON met accolades",
           "jsonSemicolon": "JSON met puntkomma",
@@ -662,7 +728,6 @@
         "title": "Diversen"
       },
       "compatibility": {
-        "enableGitlab": "GitLab-compatibiliteit inschakelen",
         "enableHtml": "HTML-ondersteuning inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "title": "Compatibiliteit"
@@ -686,6 +751,7 @@
     "theme": {
       "title": "Thema",
       "followSystemTheme": "Systeemthema volgen",
+      "followSystemNote": "Het systeemthema volgen vergrendelt de themalijst hieronder. Schakel dit uit om vrij van thema te wisselen.",
       "modeThemes": "Themaselectie",
       "lightModeTheme": "Thema lichte modus",
       "darkModeTheme": "Thema donkere modus",
@@ -768,10 +834,12 @@
       "quit": "Afsluiten",
       "toggleAutoSave": "Automatisch opslaan in-/uitschakelen",
       "importFile": "Bestand importeren",
+      "revealInSideBar": "Tonen in zijbalk",
       "exportFile": "Bestand exporteren",
       "exportFilePdf": "Exporteren als PDF",
       "zoom": "Zoom",
-      "checkUpdate": "Controleer op updates"
+      "checkUpdate": "Controleer op updates",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "Ongedaan maken",
@@ -888,6 +956,7 @@
     "ok": "OK"
   },
   "dialog": {
+    "moveToTrash": "Weet je zeker dat je \"{name}\" naar de prullenbak wilt verplaatsen?",
     "cancel": "Annuleren",
     "changesWillBeLost": "Wijzigingen gaan verloren",
     "close": "Sluiten",
@@ -896,7 +965,9 @@
     "fileExists": "Bestand bestaat al: {filename}",
     "files": "Bestanden",
     "importWarning": "Importwaarschuwing",
-    "installPandoc": "Pandoc installeren",
+    "installPandoc": "Pandoc is niet gevonden. Installeer het, of stel de omgevingsvariabele MARKTEXT_PANDOC in op het pad naar het pandoc-programma en herstart MarkText.",
+    "exportWarning": "Exportwaarschuwing",
+    "exportWarningMore": "…en nog {count}",
     "keepOpen": "Open houden",
     "replace": "Vervangen",
     "save": "Opslaan",
@@ -936,6 +1007,7 @@
       "errorWhileSaving": "Er is een fout opgetreden bij het opslaan: {msg}",
       "exportSuccessTitle": "Succesvol geëxporteerd",
       "exportSuccessMessage": "\"{name}\" is succesvol geëxporteerd!",
+      "exportLinkedMediaMessage": "\"{name}\" is geëxporteerd. Deze indeling verwijst naar afbeeldingen in plaats van ze in te sluiten — houd de afbeeldingen bij het bestand en deel de hele map.",
       "fileRemovedOnDisk": "\"{name}\" is verwijderd van schijf.",
       "fileChangedOnDisk": "\"{name}\" is gewijzigd op schijf. Wil je het opnieuw laden?"
     }
@@ -955,6 +1027,21 @@
       "rows": "Rijen",
       "columns": "Kolommen"
     },
+    "mediaViewer": {
+      "title": "Voorbeeld",
+      "close": "Sluiten",
+      "zoomIn": "Inzoomen",
+      "zoomOut": "Uitzoomen",
+      "fit": "Passend maken",
+      "actualSize": "Werkelijke grootte",
+      "saveTitle": "Diagram opslaan",
+      "saveSvg": "Opslaan als SVG",
+      "savePng": "Opslaan als PNG",
+      "copyImage": "Afbeelding kopiëren",
+      "copied": "Afbeelding naar het klembord gekopieerd",
+      "saveFailed": "Kan de afbeelding niet opslaan: {error}",
+      "copyFailed": "Kan de afbeelding niet kopiëren: {error}"
+    },
     "notifications": {
       "notificationNotFound": "Melding niet gevonden"
     },
@@ -972,6 +1059,27 @@
       "languageMissing": "Spellingcontroletaal ontbreekt {languageCode}",
       "switchError": "Spellingcontrole wisselfout voor {languageCode}, {error}",
       "title": "Spellingcontrole"
+    },
+    "tabs": {
+      "close": "{name} sluiten",
+      "preview": "{name}, voorbeeldtabblad"
     }
+  },
+  "readingMode": {
+    "title": "Leesmodus",
+    "edit": "Bewerkingsmodus",
+    "lock": "Leesmodus inschakelen",
+    "unlock": "Overschakelen naar bewerkingsmodus",
+    "defaultMode": "Standaardmodus bij het openen van bestanden",
+    "defaultNote": "Geldt voor bestaande bestanden die vanaf nu worden geopend. Nieuwe documenten blijven bewerkbaar.",
+    "unsaved": "De leesmodus is ingeschakeld. Niet-opgeslagen wijzigingen blijven behouden en automatisch opslaan is gepauzeerd.",
+    "failed": "De documentmodus kon niet worden gewijzigd",
+    "closeSave": "Overschakelen naar bewerkingsmodus en opslaan",
+    "exportSource": "Kies een andere exportbestemming dan het bronbestand.",
+    "unavailable": "Niet beschikbaar in leesmodus",
+    "skipped": "Alleen-lezen documenten met niet-opgeslagen wijzigingen zijn overgeslagen.",
+    "viewImage": "Afbeelding bekijken",
+    "copyLink": "Linkadres kopiëren",
+    "resumed": "De bewerkingsmodus is ingeschakeld. Automatisch opslaan is hervat."
   }
 }

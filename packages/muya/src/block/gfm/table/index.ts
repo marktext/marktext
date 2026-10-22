@@ -30,10 +30,6 @@ class Table extends Parent {
         return table;
     }
 
-    // static createWithRowAndColumn(muya, row, column) {
-    //   // TODO
-    // }
-
     static createWithHeader(muya: Muya, header: string[]) {
         const state: ITableState = {
             name: 'table',
@@ -188,16 +184,9 @@ class Table extends Parent {
         if (row == null)
             return;
 
-        // Capture a surviving neighbour
-        // BEFORE the detach so the caller can place the caret on a cell that
-        // is still attached to the DOM. Prefer the next row, fall back to the
-        // previous; if no rows remain after this delete, capture a content
-        // block OUTSIDE the table so the caret never lands inside the
-        // about-to-be-detached table itself.
+        // Capture an attached neighbouring row before detaching the deleted one.
         const survivor = (row.next as TableRow | null) ?? (row.prev as TableRow | null);
-        // Always grab the outside-of-table fallback as well, in case the
-        // whole table is going away. `nextContentInContext` / `prev` walk
-        // out of the table by design.
+        // Also capture a caret fallback outside the table in case the final row is removed.
         const outsideContent
             = this.nextContentInContext() ?? this.previousContentInContext();
 
@@ -220,19 +209,13 @@ class Table extends Parent {
 
         const table = this.firstChild as TableInner;
         if (this.columnCount === 1) {
-            // Same outside-of-table fallback as removeRow when the whole
-            // table is removed — never leave the caret inside a detached
-            // subtree.
             const outsideContent
                 = this.nextContentInContext() ?? this.previousContentInContext();
             this.remove();
             return outsideContent ?? null;
         }
 
-        // Capture the first row's surviving neighbour cell before mutation so
-        // the caller can setCursor on a still-attached cell after the column
-        // detach. Applied per column since the new architecture removes one
-        // cell per row in a loop.
+        // Capture a surviving cell before column deletion detaches its neighbour.
         const firstRow = table.firstChild as TableRow;
         const targetCellInFirstRow = firstRow.find(offset) as TableBodyCell | null;
         const neighbourCell
@@ -261,7 +244,6 @@ class Table extends Parent {
             if (cell) {
                 const { align: oldValue } = cell;
                 cell.align = oldValue === value ? 'none' : value;
-                // dispatch change to modify json state
                 const diffs = diff(oldValue, cell.align);
                 const { path } = cell;
                 path.push('meta', 'align');
@@ -271,11 +253,7 @@ class Table extends Parent {
         });
     }
 
-    /**
-     * Resolve a body cell by its (row, column) offsets, both zero-based. Returns
-     * `null` when either index is out of range. Used by the cross-cell selection
-     * controller to walk the rectangle between an anchor and focus cell.
-     */
+    // Zero-based row/column lookup; return null outside the table.
     cellAt(row: number, column: number): Nullable<TableBodyCell> {
         const rowBlock = (this.firstChild as TableInner).find(row) as TableRow | undefined;
         if (rowBlock == null)

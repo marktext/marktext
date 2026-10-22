@@ -5,15 +5,30 @@ import diff from 'fast-diff';
 import { diffToTextOp, firstWordOfInfo } from '../../../utils';
 import { operateClassName } from '../../../utils/dom';
 import logger from '../../../utils/logger';
-import { loadLanguage } from '../../../utils/prism';
+import { loadedLanguages, loadLanguage, transformAliasToOrigin } from '../../../utils/prism';
 import Parent from '../../base/parent';
 import { ScrollPage } from '../../scrollPage';
 
 const debug = logger('codeblock:');
 
+// Must match CodeBlockContent.update() so grammar-change detection agrees with rendering.
+function renderedGrammarFor(infoString: string): string {
+    const language = firstWordOfInfo(infoString);
+    if (!language)
+        return '';
+    const resolved = transformAliasToOrigin([language])[0];
+
+    return resolved && loadedLanguages.has(resolved) ? resolved : '';
+}
+
 class CodeBlock extends Parent {
     public meta: ICodeBlockState['meta'];
     static override blockName = 'code-block';
+
+    // The grammar the content was last rendered with, so a language change that
+    // does not change the rendering skips the rebuild. Undefined until the
+    // first render, which therefore always happens.
+    private _renderedGrammar: string | undefined;
 
     static create(muya: Muya, state: ICodeBlockState) {
         const codeBlock = new CodeBlock(muya, state);
@@ -27,17 +42,15 @@ class CodeBlock extends Parent {
 
         codeBlock.append(langInput);
         codeBlock.append(code);
+        const copyButton = (code as { copyButton?: HTMLButtonElement | null }).copyButton;
+        if (copyButton)
+            codeBlock.domNode!.appendChild(copyButton);
 
-        // Move the line-numbers gutter from .mu-code into the pre so that
-        // .mu-code's overflow (hidden/auto) does not clip the left-side gutter.
-        // The pre already has position:relative and padding-left:2.5em for this.
+        // Keep the gutter outside the code element’s clipping overflow.
         const lnWrapper = (code as { lineNumbersWrapper?: HTMLElement | null }).lineNumbersWrapper;
         if (lnWrapper) {
             codeBlock.domNode!.appendChild(lnWrapper);
-            // The gutter fills from CodeBlockContent.update(), a no-op until the
-            // tree is wired. The language-load callback below re-runs it, but
-            // language-less / unknown-language / indented blocks never load one —
-            // seed them here so first render fills the gutter regardless of language.
+            // Seed gutters after attachment: unknown or absent languages never trigger a language-load render.
             requestAnimationFrame(() => {
                 codeBlock.lastContentInDescendant()?.update();
             });
@@ -45,7 +58,7 @@ class CodeBlock extends Parent {
 
         if (lang) {
             requestAnimationFrame(() => {
-                codeBlock.lang = lang;
+                codeBlock._renderLanguage();
             });
         }
 
@@ -57,39 +70,55 @@ class CodeBlock extends Parent {
     }
 
     set lang(value) {
+        if (!this.muya.canMutate)
+            return;
         this.meta.lang = value;
 
         if (this.meta.type !== 'fenced') {
             this.meta.type = 'fenced';
-            // dispatch change to modify json state
             const diffs = diff('indented', 'fenced');
             const { path } = this;
             path.push('meta', 'type');
 
             this.jsonState.editOperation(path, diffToTextOp(diffs));
 
+            // An indented block has no fence yet, so the promoted block
+            // defaults to a backtick fence and the json state gains the key.
+            this.meta.fenceChar = '`';
+            this.jsonState.insertValueOperation([...this.path, 'meta', 'fenceChar'], '`');
+
             operateClassName(this.domNode!, 'remove', 'mu-indented-code');
             operateClassName(this.domNode!, 'add', 'mu-fenced-code');
         }
 
-        // `value` is the full info string; load Prism for its first word only.
-        const language = firstWordOfInfo(value);
-        !!language
-        && loadLanguage(language)
-            .then((infoList) => {
-                if (!Array.isArray(infoList))
-                    return;
-                // There are three status `loaded`, `noexist` and `cached`.
-                // if the status is `loaded`, indicated that it's a new loaded language
-                const needRender = infoList.some(
-                    ({ status }) => status === 'loaded' || status === 'cached',
-                );
-                if (needRender)
-                    this.lastContentInDescendant()?.update();
-            })
+        this._renderLanguage();
+    }
+
+    private _renderLanguage() {
+        // Rerender only when the displayed grammar changes, including to plain text (#5515).
+        // Load status cannot detect this; every unknown language prefix should not rebuild the DOM.
+        const rerenderIfGrammarChanged = () => {
+            const grammar = renderedGrammarFor(this.meta.lang ?? '');
+            if (grammar === this._renderedGrammar)
+                return;
+
+            this._renderedGrammar = grammar;
+            this.lastContentInDescendant()?.update();
+        };
+
+        // The full info string may include attributes; Prism uses only its first word.
+        const language = firstWordOfInfo(this.meta.lang ?? '');
+        if (!language) {
+            rerenderIfGrammarChanged();
+
+            return;
+        }
+
+        loadLanguage(language)
+            .then(rerenderIfGrammarChanged)
             .catch((err) => {
-                // if no parameter provided, will cause error.
                 debug.warn(err);
+                rerenderIfGrammarChanged();
             });
     }
 
@@ -105,6 +134,8 @@ class CodeBlock extends Parent {
         this.tagName = 'pre';
         this.meta = meta;
         this.classList = ['mu-code-block', `mu-${meta.type}-code`];
+        if (meta.fenceChar === '~')
+            this.classList.push('mu-tilde-fence');
         if (muya.options.codeBlockLineNumbers)
             this.classList.push('mu-line-numbers');
         this.createDomNode();

@@ -1,9 +1,7 @@
-// Module shims for third-party libraries that ship no type declarations.
-// Each entry is `any`-typed; refine as we discover the real shape.
+// Shims for third-party libraries without declarations; refine opaque types as needed.
 
 declare module 'dom-autoscroller'
 declare module 'flowchart.js'
-declare module 'joplin-turndown-plugin-gfm'
 declare module 'snapsvg-cjs'
 declare module '@hfelix/electron-localshortcut'
 declare module 'iso-639-1'
@@ -30,9 +28,6 @@ declare module 'codemirror/addon/*'
 declare module 'electron-window-state'
 declare module 'plist'
 declare module 'webfontloader'
-declare module 'minimatch' {
-  export function minimatch(target: string, pattern: string, options?: unknown): boolean
-}
 
 declare module '@marktext/file-icons' {
   interface FileIcon {

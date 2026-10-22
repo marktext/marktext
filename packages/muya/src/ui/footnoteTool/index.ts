@@ -7,6 +7,7 @@ import type { Muya } from '../../muya';
 import type { IFootnoteBlockState } from '../../state/types';
 import type { IBaseOptions } from '../types';
 import { ScrollPage } from '../../block/scrollPage';
+import { ChangeSource } from '../../types';
 import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
 
@@ -138,7 +139,7 @@ export class FootnoteTool extends BaseFloat {
         const newBlock = ScrollPage.loadBlock('footnote').create(this.muya, state) as Parent;
         // 'user' source dispatches the corresponding ot-json1 insert through
         // jsonState, so history + collaborative transport see the change.
-        scrollPage.append(newBlock, 'user');
+        scrollPage.append(newBlock, ChangeSource.User);
         const content = newBlock.firstContentInDescendant() as Content | null;
         content?.setCursor(0, 0, true);
     }

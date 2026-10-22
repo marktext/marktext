@@ -30,6 +30,8 @@ class ImageSelection {
     };
 
     private _handleClick = (event: Event): void => {
+        if (this._muya.isReadOnly)
+            return;
         const { target } = event;
         if (!isHTMLElement(target))
             return;
@@ -40,6 +42,8 @@ class ImageSelection {
     };
 
     private _handleKeydown = (event: Event): void => {
+        if (this._muya.isReadOnly)
+            return;
         if (!isKeyboardEvent(event))
             return;
 
@@ -83,6 +87,12 @@ class ImageSelection {
         }
     }
 
+    private _imageWrappers(contentDom: HTMLElement): HTMLElement[] {
+        return Array.from(
+            contentDom.querySelectorAll<HTMLElement>(`.${CLASS_NAMES.MU_INLINE_IMAGE}`),
+        );
+    }
+
     private _handleClickInlineImage(event: Event, imageWrapper: HTMLElement) {
         event.preventDefault();
         event.stopPropagation();
@@ -108,12 +118,7 @@ class ImageSelection {
         }
 
         if (isHTMLElement(target) && target.tagName === 'IMG') {
-            // A linked image (e.g. `[![alt](src)](href)`) renders its image
-            // wrapper inside a link element. On modifier-click the link handler
-            // (linkMouseEvents) opens the URL; don't also emit the image preview,
-            // which would pop a viewer over the navigation (#3835). Reuse
-            // linkMouseEvents' selector so every link variant is covered (plain,
-            // reference, autolink, raw-HTML anchor), not just `mu-link`.
+            // Modifier-clicking a linked image opens its link; suppress the competing preview (#3835).
             if (
                 event instanceof MouseEvent
                 && (event.metaKey || event.ctrlKey)
@@ -130,37 +135,34 @@ class ImageSelection {
                 }
             }
 
-            const rect = imageWrapper
-                .querySelector(`.${CLASS_NAMES.MU_IMAGE_CONTAINER}`)
-                ?.getBoundingClientRect();
-            const reference = {
-                getBoundingClientRect: () => rect,
-                width: imageWrapper.offsetWidth,
-                height: imageWrapper.offsetHeight,
-            };
+            // Image nodes are replaced on blur and IDs may repeat; preserve the image index instead.
+            const imageIndex = this._imageWrappers(contentDom).indexOf(imageWrapper);
+
+            // Selection blurs and re-renders the paragraph. Reacquire the live image afterward
+            // to avoid stale toolbar bounds and zero-sized resize handles (#5391).
+            this._selection.selectImage(Object.assign({}, imageInfo, { block: contentBlock }));
+
+            const liveWrapper = this._imageWrappers(contentDom)[imageIndex] ?? imageWrapper;
+            const imageContainer = liveWrapper.querySelector(
+                `.${CLASS_NAMES.MU_IMAGE_CONTAINER}`,
+            );
+            const rect = imageContainer?.getBoundingClientRect();
 
             eventCenter.emit('muya-image-toolbar', {
                 block: contentBlock,
-                reference,
+                reference: {
+                    getBoundingClientRect: () => rect,
+                    width: liveWrapper.offsetWidth,
+                    height: liveWrapper.offsetHeight,
+                },
                 imageInfo,
             });
-
-            // Resolve the image container from the clicked wrapper directly.
-            // Images that share the same src (and paragraph offset) render with
-            // duplicate DOM ids, so a `document.querySelector('#id ...')` lookup
-            // would resolve to the first occurrence and place the resize bar on
-            // the wrong image.
-            const imageContainer = imageWrapper.querySelector(
-                `.${CLASS_NAMES.MU_IMAGE_CONTAINER}`,
-            );
 
             eventCenter.emit('muya-transformer', {
                 block: contentBlock,
                 reference: imageContainer,
                 imageInfo,
             });
-
-            this._selection.selectImage(Object.assign({}, imageInfo, { block: contentBlock }));
 
             return;
         }

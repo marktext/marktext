@@ -3,7 +3,12 @@
     "counter": {
       "words": "Words",
       "characters": "Characters",
-      "paragraphs": "Paragraphs"
+      "charactersNoSpaces": "Characters (no spaces)",
+      "charactersWithSpaces": "Characters (with spaces)",
+      "paragraphs": "Paragraphs",
+      "allCharacters": "All characters",
+      "document": "Document",
+      "documentSelection": "Document / Selection"
     },
     "file": {
       "file": "File",
@@ -21,12 +26,14 @@
       "export": "Export",
       "exportHtml": "Export as HTML",
       "exportPdf": "Export as PDF",
+      "convertWithPandoc": "Convert with Pandoc",
       "import": "Import",
       "print": "Print",
       "closeTab": "Close Tab",
       "closeWindow": "Close Window",
       "quit": "Quit",
-      "preferences": "Preferences"
+      "preferences": "Preferences",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "edit": "Edit",
@@ -66,6 +73,7 @@
       "table": "Table",
       "codeFences": "Code Fences",
       "quoteBlock": "Quote Block",
+      "githubAlerts": "GitHub Alerts",
       "mathBlock": "Math Block",
       "htmlBlock": "HTML Block",
       "orderedList": "Ordered List",
@@ -117,7 +125,7 @@
       "sourceCodeMode": "Source Code Mode",
       "typewriterMode": "Typewriter Mode",
       "focusMode": "Focus Mode",
-      "toggleTableOfContents": "Toggle Table of Contents",
+      "toggleTableOfContents": "Show Table of Contents",
       "reloadImages": "Reload Images",
       "showDeveloperTools": "Show Developer Tools",
       "reloadWindow": "Reload Window"
@@ -141,8 +149,8 @@
       "theme": "&Theme",
       "dark": "Dark",
       "followThemDisabled": "Theme selection disabled when following system theme",
-      "lightThemes": "— Light Themes —",
-      "darkThemes": "— Dark Themes —",
+      "lightThemes": "Light Themes",
+      "darkThemes": "Dark Themes",
       "ayuDark": "Ayu Dark",
       "ayuLight": "Ayu Light",
       "ayuMirage": "Ayu Mirage",
@@ -200,6 +208,7 @@
       "paste": "Paste",
       "rename": "Rename",
       "moveToTrash": "Move To Trash",
+      "copyPath": "Copy Path",
       "showInFolder": "Show In Folder"
     },
     "tabs": {
@@ -209,7 +218,8 @@
       "closeAllTabs": "Close all tabs",
       "rename": "Rename",
       "copyPath": "Copy path",
-      "showInFolder": "Show in folder"
+      "showInFolder": "Show in folder",
+      "showInSideBar": "Show in Side Bar"
     }
   },
   "search": {
@@ -227,22 +237,39 @@
   },
   "sideBar": {
     "search": {
+      "backToFiles": "Back to files",
       "searchInFolder": "Search in folder...",
       "noFolderOpen": "No folder open",
       "noResultsFound": "No results found.",
       "cancel": "Cancel",
-      "openFolder": "Open Folder",
-      "showMoreMatches": "Show more matches"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "Show more matches",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "Opened files",
+      "resizeOpenedFiles": "Resize opened files list",
       "saveAll": "Save All",
       "closeAll": "Close All",
       "emptyProject": "Empty project",
       "createFile": "Create File",
-      "openFolder": "Open Folder"
+      "openFolder": "Open Folder",
+      "noFolders": "No folders added",
+      "removeFolder": "Remove from Sidebar",
+      "retryFolder": "Retry",
+      "loadingFolder": "Loading folder…",
+      "unavailableFolder": "Folder unavailable",
+      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
+      "folderAlreadyAdded": "This folder has already been added.",
+      "fileOutsideFolders": "This file is not in an added folder.",
+      "sessionSaveFailed": "Unable to save session"
     },
     "toc": {
+      "expand": "Expand table of contents",
+      "collapse": "Collapse table of contents",
+      "empty": "No headings",
       "title": "Table Of Contents",
       "expandAll": "Expand all",
       "collapseAll": "Collapse all"
@@ -250,8 +277,22 @@
     "icons": {
       "files": "Files",
       "search": "Search",
-      "toc": "Table of Contents",
       "settings": "Settings"
+    }
+  },
+  "titleBar": {
+    "applicationMenu": "Application Menu",
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "restore": "Restore",
+    "close": "Close",
+    "documentStatistics": {
+      "title": "Document statistics",
+      "fileInformation": "File information",
+      "created": "Created",
+      "lastModified": "Modified",
+      "unavailable": "—",
+      "open": "Open document statistics"
     }
   },
   "commandPalette": {
@@ -265,13 +306,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Auto numbering headings",
     "title": "Export Options",
-    "info": {
-      "label": "Info",
-      "description": "Please customize the page appearance and click on \"export\" to continue."
-    },
     "page": {
       "label": "Page",
-      "pageTitle": "The page title:",
+      "pageTitle": "The page title",
       "pageSize": "Page size:",
       "landscapeOrientation": "Landscape orientation:",
       "pageMargin": "Page margin in mm:",
@@ -308,12 +345,13 @@
       "description": "The text appear on all pages if header and/or footer is defined."
     },
     "toc": {
-      "includeTopHeading": "Include top heading",
-      "includeTopHeadingDetail": "Include top heading detail",
+      "description": "To show a table of contents in the exported document, enter [TOC] on its own line in the document body. The table of contents will appear at that position.",
+      "includeTopHeading": "Include level-1 headings",
+      "includeTopHeadingDetail": "Include all level-1 (H1) headings in the table of contents.",
       "label": "Table of Contents",
       "title": "Table of Contents"
     },
-    "export": "Export...",
+    "export": "Export",
     "options": {
       "pageSizes": {
         "a3": "A3 (297mm x 420mm)",
@@ -351,6 +389,7 @@
   },
   "preferences": {
     "title": "Preferences",
+    "learnMore": "Learn more about {name}",
     "search": {
       "placeholder": "Search preferences...",
       "categories": {
@@ -370,6 +409,7 @@
         "autoSaveDelay": "The time in ms after a change that the file is saved",
         "titleBarStyle": "The title bar style (Windows and Linux system only)",
         "openFilesInNewWindow": "Open files in a new window",
+        "openFilesInPreviewMode": "Open sidebar files in preview tabs",
         "openFolderInNewWindow": "Open folder via menu in a new window",
         "zoom": "The zoom level. Between 0.5 and 2.0 inclusive",
         "hideScrollbar": "Whether to hide scrollbars",
@@ -385,7 +425,7 @@
         "wrapCodeBlocks": "Wrap text inside code blocks",
         "editorLineWidth": "Defines the maximum editor area width. An empty string or suffixes of ch (characters), px (pixels) or % (percentage) are allowed",
         "codeFontSize": "Font size in code Block, the range is 12 ~ 18",
-        "codeFontFamily": "Font family used in code block",
+        "codeFontFamily": "Code font family. Applies to inline code and code blocks.",
         "codeBlockLineNumbers": "Whether to show the line numbers",
         "sourceCodeLineNumbers": "Show line numbers in source code mode",
         "trimUnnecessaryCodeBlockEmptyLines": "Trim the beginning and ending empty lines in code block",
@@ -410,8 +450,14 @@
         "superSubScript": "Enable pandoc's markdown extension superscript and subscript",
         "footnote": "Enable pandoc's markdown extension footnote",
         "texMathDollars": "Enable pandoc's markdown extension tex_math_dollars",
+        "texMathGfm": "Enable pandoc's markdown extension tex_math_gfm",
+        "texMathSingleBackslash": "Enable pandoc's markdown extension tex_math_single_backslash",
+        "texMathDoubleBackslash": "Enable pandoc's markdown extension tex_math_double_backslash",
+        "highlightSyntax": "Enable the non-standard ==text== highlight syntax",
+        "inlineDiff": "Enable the non-standard {+ … +} / [- … -] inline diff syntax",
+        "multilineBlockquote": "Enable the non-standard >>> … >>> multiline blockquote syntax",
+        "githubAlerts": "GitHub Alerts",
         "isHtmlEnabled": "Enable HTML rendering",
-        "isGitlabCompatibilityEnabled": "Enable GitLab compatibility mode",
         "softNewlineAsSpace": "Treat soft newlines as spaces",
         "sequenceTheme": "Sequence diagram theme",
         "plantumlServer": "PlantUML server URL",
@@ -428,7 +474,8 @@
         "imageRelativeDirectoryName": "The relative image folder name",
         "autoNormalizeLineEndings": "Automatically normalize line endings when opening files. When disabled, files are opened as-is.",
         "fileSortOrder": "Sort order for files in opened folders: ascending or descending.",
-        "openedFilesInSidebar": "Whether to show opened files in the sidebar."
+        "openedFilesInSidebar": "Whether to show opened files in the sidebar.",
+        "showPandocConvert": "Show the Pandoc conversion menu. Requires Pandoc to be installed."
       }
     },
     "categories": {
@@ -472,10 +519,20 @@
         "selectFolder": "Select Folder",
         "openBlankPage": "Open blank page"
       },
+      "pandoc": {
+        "title": "Pandoc Conversion",
+        "description": "Show the Pandoc conversion menu",
+        "detailedDescription": "Requires Pandoc to be installed",
+        "found": "Found: {path}",
+        "notFound": "Not found",
+        "recheck": "Re-check"
+      },
       "sidebar": {
         "title": "Sidebar",
         "wrapTextInToc": "Wrap text in table of contents",
         "showOpenedFiles": "Show opened files",
+        "autoReveal": "Reveal the active file in the sidebar",
+        "openFilesInPreviewMode": "Open sidebar files in preview tabs. Editing or double-clicking keeps the tab open.",
         "excludePatterns": "Exclude patterns",
         "excludePatternsNotes": "Exclude patterns (Notes)",
         "fileSortBy": {
@@ -506,7 +563,8 @@
           "korean": "한국어",
           "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -519,12 +577,13 @@
         "fontFamily": "Font family",
         "maxWidth": "Max width",
         "maxWidthNotes": "Maximum width of editor content. Enter a number followed by px, ch (characters) or %, e.g. 800px, 80ch or 60%. Leave empty to use the default width.",
-        "maxWidthInvalid": "Enter a number followed by px, ch or %, e.g. 800px."
+        "maxWidthInvalid": "Enter a number followed by px, ch or %, e.g. 800px.",
+        "codeFontFamily": "Code font family",
+        "codeFontFamilyNotes": "Applies to inline code and code blocks."
       },
       "codeBlock": {
         "title": "Code Block",
         "fontSize": "Font size",
-        "fontFamily": "Font family",
         "showLineNumbers": "Show line numbers",
         "removeEmptyLines": "Remove empty lines"
       },
@@ -636,6 +695,13 @@
         "footnote": "Footnote",
         "footnoteNotes": "Footnote notes",
         "texMathDollars": "TeX math with $ and $$",
+        "texMathGfm": "GitHub TeX math ($`…`$ and ```math)",
+        "texMathSingleBackslash": "TeX math with single-backslash delimiters",
+        "texMathDoubleBackslash": "TeX math with double-backslash delimiters",
+        "highlightSyntax": "Highlight (==text==)",
+        "inlineDiff": "Inline diff ({+ … +})",
+        "multilineBlockquote": "Multiline blockquote (>>>)",
+        "githubAlerts": "Enable GitHub Alerts",
         "frontmatterType": {
           "jsonBrace": "JSON with Braces",
           "jsonSemicolon": "JSON with Semicolon",
@@ -662,7 +728,6 @@
         "title": "Miscellaneous"
       },
       "compatibility": {
-        "enableGitlab": "Enable GitLab compatibility",
         "enableHtml": "Enable HTML support",
         "softNewlineAsSpace": "Treat soft newlines as spaces",
         "title": "Compatibility"
@@ -686,6 +751,7 @@
     "theme": {
       "title": "Theme",
       "followSystemTheme": "Follow System Theme",
+      "followSystemNote": "Following the system locks the theme list below. Turn this off to switch themes freely.",
       "modeThemes": "Theme Selection",
       "lightModeTheme": "Light mode theme",
       "darkModeTheme": "Dark mode theme",
@@ -768,10 +834,12 @@
       "quit": "Quit",
       "toggleAutoSave": "Toggle Auto Save",
       "importFile": "Import File",
+      "revealInSideBar": "Show in Side Bar",
       "exportFile": "Export File",
       "exportFilePdf": "Export as PDF",
       "zoom": "Zoom",
-      "checkUpdate": "Check for Updates"
+      "checkUpdate": "Check for Updates",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "Undo",
@@ -888,6 +956,7 @@
     "ok": "OK"
   },
   "dialog": {
+    "moveToTrash": "Are you sure you want to move \"{name}\" to trash?",
     "cancel": "Cancel",
     "changesWillBeLost": "Changes will be lost",
     "close": "Close",
@@ -896,7 +965,9 @@
     "fileExists": "File exists {filename}",
     "files": "Files",
     "importWarning": "Import warning",
-    "installPandoc": "Install Pandoc",
+    "installPandoc": "Pandoc was not found. Install it, or set the MARKTEXT_PANDOC environment variable to the pandoc binary and restart MarkText.",
+    "exportWarning": "Export warning",
+    "exportWarningMore": "…and {count} more",
     "keepOpen": "Keep open",
     "replace": "Replace",
     "save": "Save",
@@ -936,6 +1007,7 @@
       "errorWhileSaving": "There was an error while saving: {msg}",
       "exportSuccessTitle": "Exported successfully",
       "exportSuccessMessage": "Exported \"{name}\" successfully!",
+      "exportLinkedMediaMessage": "Exported \"{name}\". This format links images instead of embedding them, so keep the pictures next to the file and share the whole folder.",
       "fileRemovedOnDisk": "\"{name}\" has been removed on disk.",
       "fileChangedOnDisk": "\"{name}\" has been changed on disk. Do you want to reload it?"
     }
@@ -955,6 +1027,21 @@
       "rows": "Rows",
       "columns": "Columns"
     },
+    "mediaViewer": {
+      "title": "Preview",
+      "close": "Close",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "fit": "Fit to window",
+      "actualSize": "Actual size",
+      "saveTitle": "Save diagram",
+      "saveSvg": "Save as SVG",
+      "savePng": "Save as PNG",
+      "copyImage": "Copy image",
+      "copied": "Image copied to the clipboard",
+      "saveFailed": "Could not save the image: {error}",
+      "copyFailed": "Could not copy the image: {error}"
+    },
     "notifications": {
       "notificationNotFound": "Notification not found"
     },
@@ -972,6 +1059,27 @@
       "languageMissing": "Spellcheck language missing {languageCode}",
       "switchError": "Spellcheck switch error for {languageCode}, {error}",
       "title": "Spellcheck"
+    },
+    "tabs": {
+      "close": "Close {name}",
+      "preview": "{name}, preview tab"
     }
+  },
+  "readingMode": {
+    "title": "Reading Mode",
+    "edit": "Edit Mode",
+    "lock": "Enter Reading Mode",
+    "unlock": "Switch to Edit Mode",
+    "defaultMode": "Default mode for opened files",
+    "defaultNote": "Applies to existing files opened from now on. New documents remain editable.",
+    "unsaved": "Reading Mode is on. Unsaved changes are retained and auto-save is paused.",
+    "failed": "Could not switch document mode",
+    "closeSave": "Switch to Edit Mode and Save",
+    "exportSource": "Choose an export destination other than the source file.",
+    "unavailable": "Unavailable in Reading Mode",
+    "skipped": "Read-only documents with unsaved changes were skipped.",
+    "viewImage": "View Image",
+    "copyLink": "Copy Link Address",
+    "resumed": "Edit Mode is on. Auto-save has resumed."
   }
 }

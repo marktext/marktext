@@ -1,4 +1,3 @@
-// Key bindings for Linux.
 
 // NOTE: Avoid `Ctrl+Alt` and `Alt` shortcuts on Linux because Ubuntu based OSs have reserved system shortcuts (see GH#2370).
 //       Binding shortcuts to these modifiers will result in odd behavior on Ubuntu.
@@ -8,11 +7,9 @@
 //       can be produced with ^ or ` on any keyboard. --> ^, `, ", ~, ...
 
 const keybindings: Map<string, string> = new Map([
-  // MarkText menu on macOS only
   ['mt.hide', ''],
   ['mt.hide-others', ''],
 
-  // File menu
   ['file.new-window', 'Ctrl+N'],
   ['file.new-tab', 'Ctrl+T'],
   ['file.open-file', 'Ctrl+O'],
@@ -27,10 +24,8 @@ const keybindings: Map<string, string> = new Map([
   ['file.close-window', 'Ctrl+Shift+W'],
   ['file.quit', 'Ctrl+Q'],
 
-  // File > Export submenu
   ['file.export-file.pdf', 'Ctrl+Alt+E'],
 
-  // Edit menu
   ['edit.undo', 'Ctrl+Z'],
   ['edit.redo', 'Ctrl+Shift+Z'],
   ['edit.cut', 'Ctrl+X'],
@@ -50,7 +45,6 @@ const keybindings: Map<string, string> = new Map([
   ['edit.find-in-folder', 'Ctrl+Shift+F'],
   ['edit.screenshot', ''], // macOS only
 
-  // Paragraph menu
   ['paragraph.heading-1', 'Ctrl+Alt+1'],
   ['paragraph.heading-2', 'Ctrl+Alt+2'],
   ['paragraph.heading-3', 'Ctrl+Alt+3'],
@@ -72,7 +66,6 @@ const keybindings: Map<string, string> = new Map([
   ['paragraph.horizontal-line', 'Ctrl+_'], // Ctrl+Shift+-
   ['paragraph.front-matter', 'Ctrl+Shift+Y'],
 
-  // Format menu
   ['format.strong', 'Ctrl+B'],
   ['format.emphasis', 'Ctrl+I'],
   ['format.underline', 'Ctrl+U'],
@@ -86,7 +79,6 @@ const keybindings: Map<string, string> = new Map([
   ['format.image', 'Ctrl+Shift+I'],
   ['format.clear-format', 'Ctrl+Shift+R'],
 
-  // Window menu
   ['window.minimize', 'Ctrl+M'],
   ['window.toggle-always-on-top', ''],
   ['window.zoomIn', ''],
@@ -94,7 +86,7 @@ const keybindings: Map<string, string> = new Map([
   ['window.zoomOut', ''],
   ['window.toggle-full-screen', 'F11'],
 
-  // View menu
+  ['view.read-only-mode', 'Ctrl+Alt+R'],
   ['view.command-palette', 'Ctrl+Shift+P'],
   ['view.source-code-mode', 'Ctrl+E'],
   ['view.typewriter-mode', 'Ctrl+Shift+G'],
@@ -106,7 +98,6 @@ const keybindings: Map<string, string> = new Map([
   ['view.dev-reload', 'Ctrl+F5'],
   ['view.reload-images', 'F5'],
 
-  // ======== Not included in application menu ========================
   ['tabs.cycleForward', 'Ctrl+Tab'],
   ['tabs.cycleBackward', 'Ctrl+Shift+Tab'],
   ['tabs.switchToLeft', 'Ctrl+PageUp'],

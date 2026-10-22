@@ -1,28 +1,40 @@
 {
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "eslint.format.enable": true,
   "[javascript][typescript][vue]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "cSpell.words": [
+    "atxheading",
     "commonmark",
     "contenteditable",
+    "eslintcache",
     "execall",
     "frontmatter",
     "Häusler",
     "hfelix",
     "Jocs",
     "katex",
+    "latimes",
     "laynezh",
     "marktext",
     "mathblock",
     "muya",
+    "noembed",
+    "pandoc",
+    "pinia",
+    "ranluo",
+    "retarget",
     "Setext",
+    "setextheading",
     "snabbdom",
     "snapsvg",
+    "STANDAR",
+    "thematicbreak",
     "Tkaixiang",
     "TOGGLEABLE",
+    "trae",
     "webfontloader"
   ]
 }

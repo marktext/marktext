@@ -1,5 +1,4 @@
 :root {
-  /*editor - Catppuccin Latte theme*/
   --themeColor: #1e66f5;
   --themeColor90: rgba(30, 102, 245, 0.9);
   --themeColor80: rgba(30, 102, 245, 0.8);
@@ -26,6 +25,7 @@
   --iconColor: rgba(76, 79, 105, 0.56);
   --codeBgColor: #e6e9ef;
   --codeBlockBgColor: #e6e9ef;
+  --codeBlockColor: #4c4f69;
   --footnoteBgColor: rgba(230, 233, 239, 0.5);
   --inputBgColor: #dce0e8;
 
@@ -56,7 +56,6 @@
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #ccd0da;
 
-  /* Markdown element colors */
   --headingColor: #4c4f69;
   --h1Color: #d20f39;
   --h2Color: #fe640b;
@@ -72,7 +71,6 @@
   --emColor: #ea76cb;
   --listMarkerColor: #7287fd;
 
-  /*marktext*/
   --sideBarColor: rgba(76, 79, 105, 0.7);
   --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: rgba(76, 79, 105, 0.9);
@@ -89,11 +87,6 @@
   --maskColor: rgba(0, 0, 0, 0.3);
   --editorAreaWidth: 750px;
 
-  /* @muyajs/core (kebab-case) editor variables
-     Additive prep for the muyajs -> @muyajs/core editor swap. These
-     mirror the camelCase vars above; the legacy editor ignores them.
-     Do NOT remove the camelCase vars — they still drive the current
-     editor until editor.vue switches engines. */
   --theme-color: var(--themeColor);
   --highlight-color: var(--highlightColor);
   --selection-color: var(--selectionColor);
@@ -108,6 +101,7 @@
   --delete-color: var(--deleteColor);
   --icon-color: var(--iconColor);
   --code-block-bg-color: var(--codeBlockBgColor);
+  --code-block-color: var(--codeBlockColor);
   --table-border-color: var(--tableBorderColor);
   --input-bg-color: var(--inputBgColor);
   --button-font-color: var(--buttonFontColor);
@@ -146,7 +140,7 @@
   box-shadow: 0 4px 8px 0 var(--floatShadow) !important;
 }
 
-.title-bar .frameless-titlebar-button > div > svg {
+.title-bar .frameless-titlebar-button > span > svg {
   fill: #4c4f69;
 }
 .title-bar .frameless-titlebar-minimize:hover,
@@ -195,7 +189,6 @@
   box-shadow: none !important;
 }
 
-/* ------------------------------------ */
 
 :not(pre) > code[class*='language-'],
 pre:not(.CodeMirror-line),

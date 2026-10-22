@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { getSupportedLanguages } from '../../src/common/i18n'
 import { launchWithMarkdown, sendIpcToRenderer, waitForMenuReady } from './helpers'
 
 // Checklist item 278 — switching the UI language must re-translate the Vue
@@ -14,13 +17,58 @@ import { launchWithMarkdown, sendIpcToRenderer, waitForMenuReady } from './helpe
 
 const SEARCH_INPUT = '.search-wrapper input.search, input.search'
 
-// Open the command palette and wait for its search input to be visible.
+for (const language of getSupportedLanguages()) {
+  test(`reading mode uses ${language} in the native menu, popover and tab lock`, async() => {
+    const locale = JSON.parse(readFileSync(join(__dirname, '../../static/locales', `${language}.json`), 'utf8'))
+    const { app, page } = await launchWithMarkdown('```js\nconst value = 1\n```\n', {
+      preferences: { language, defaultOpenMode: 'read' }
+    })
+    try {
+      await expect(page.locator('.mu-read-only')).toBeVisible()
+      await expect.poll(() => app.evaluate(({ Menu }) =>
+        Menu.getApplicationMenu()?.getMenuItemById('readOnlyModeMenuItem')?.label
+      )).toBe(locale.readingMode.title)
+      await expect(page.locator('.tabs-container .reading-lock')).toHaveAttribute('aria-label', locale.readingMode.title)
+      await page.locator('.document-statistics-trigger').hover()
+      const panel = page.locator('.document-statistics-popover')
+      await expect(panel).toBeVisible()
+      await expect(panel.locator('.document-statistics__reading-mode')).toContainText(locale.readingMode.title)
+      await expect(panel.getByRole('switch', { name: locale.readingMode.title, exact: true })).toBeChecked()
+      expect(await panel.locator('.document-statistics__reading-mode').evaluate(el =>
+        el.scrollWidth <= el.clientWidth + 1
+      )).toBe(true)
+      await expect(panel.locator('.document-statistics__file-info .document-statistics__file-row')).toHaveCount(2)
+      for (const row of await panel.locator('.document-statistics__file-info .document-statistics__file-row').all()) {
+        const layout = await row.evaluate(el => {
+          const label = el.querySelector('.document-statistics__file-label')
+          const value = el.querySelector('.document-statistics__file-value')
+          if (!label || !value) return null
+          const labelRect = label.getBoundingClientRect()
+          const valueRect = value.getBoundingClientRect()
+          return {
+            stacked: valueRect.top >= labelRect.bottom,
+            labelFits: label.scrollWidth <= label.clientWidth + 1,
+            valueFits: value.scrollWidth <= value.clientWidth + 1
+          }
+        })
+        expect(layout).toEqual({
+          stacked: true,
+          labelFits: true,
+          valueFits: true
+        })
+      }
+      await page.keyboard.press('Escape')
+    } finally {
+      await app.evaluate(({ app }) => app.exit(0)).catch(() => {})
+    }
+  })
+}
+
 const openPalette = async(app: ElectronApplication, page: Page): Promise<void> => {
   await sendIpcToRenderer(app, 'mt::show-command-palette')
   await expect(page.locator(SEARCH_INPUT).first()).toBeVisible({ timeout: 5000 })
 }
 
-// Close the palette (Escape) and wait until no visible search input remains.
 const closePalette = async(page: Page): Promise<void> => {
   await page.keyboard.press('Escape')
   await page.waitForFunction(
@@ -48,7 +96,7 @@ test.describe('i18n shell — language switch re-translates the Vue shell', () =
   let page: Page
 
   test.beforeAll(async() => {
-    const launched = await launchWithMarkdown('# x\n')
+    const launched = await launchWithMarkdown('# x\n', { preferences: { language: 'en' } })
     app = launched.app
     page = launched.page
     await waitForMenuReady(app)
@@ -59,13 +107,10 @@ test.describe('i18n shell — language switch re-translates the Vue shell', () =
   })
 
   test('command palette placeholder re-translates en -> zh-CN', async() => {
-    // 1) Read the English shell label.
     await openPalette(app, page)
     const enPlaceholder = await readPlaceholder(page)
     expect(enPlaceholder).toBeTruthy()
-    // The English string from static/locales/en.json.
     expect(enPlaceholder).toBe('Type a command to execute')
-    // Never the raw i18n key leaking through.
     expect(enPlaceholder).not.toMatch(/commandPalette\./)
     await closePalette(page)
 
@@ -90,13 +135,11 @@ test.describe('i18n shell — language switch re-translates the Vue shell', () =
       )
       .toBe('输入要执行的命令')
 
-    // 3) Re-read once more and assert the post-switch invariants.
     await openPalette(app, page)
     const zhPlaceholder = await readPlaceholder(page)
     await closePalette(page)
     expect(zhPlaceholder).toBeTruthy()
     expect(zhPlaceholder).not.toBe(enPlaceholder)
-    // The Chinese label must not be the raw dotted key either.
     expect(zhPlaceholder).not.toMatch(/commandPalette\./)
   })
 })

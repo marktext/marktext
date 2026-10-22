@@ -64,17 +64,19 @@
           width="90"
         >
           <template #default="scope">
-            <el-button
-              type="text"
-              size="small"
-              :title="t('preferences.spellchecker.customDictionary.delete')"
-              @click="handleDeleteClick(scope.row)"
-            >
-              <Delete
-                width="16"
-                height="16"
-              />
-            </el-button>
+            <icon-tooltip :content="t('preferences.spellchecker.customDictionary.delete')">
+              <el-button
+                type="text"
+                size="small"
+                :aria-label="t('preferences.spellchecker.customDictionary.delete')"
+                @click="handleDeleteClick(scope.row)"
+              >
+                <Delete
+                  width="16"
+                  height="16"
+                />
+              </el-button>
+            </icon-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -91,7 +93,8 @@ import { storeToRefs } from 'pinia'
 import Compound from '../common/compound/index.vue'
 import CurSelect from '../common/select/index.vue'
 import Bool from '../common/bool/index.vue'
-import { isOsx as checkIsOsx } from '@/util'
+import IconTooltip from '@/components/iconTooltip/index.vue'
+import { isMac as checkIsOsx } from '@/util'
 import { SpellChecker } from '@/spellchecker'
 import { getLanguageName } from '@/spellchecker/languageMap'
 import notice from '@/services/notification'
@@ -157,9 +160,7 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
 }
 
-// No-op handler for the disabled "auto-detect language" toggle. The control
-// is permanently disabled, so the callback is never invoked, but the typed
-// bool component requires `onChange` to be present.
+// The disabled control still requires an onChange callback.
 const noop = (): void => {}
 
 const handleDeleteClick = (selectedItem: CustomDictionaryWord): void => {
@@ -265,10 +266,6 @@ const handleDeleteClick = (selectedItem: CustomDictionaryWord): void => {
 .pref-spellchecker li.el-select-dropdown__item {
   color: var(--editorColor);
   height: 30px;
-}
-.pref-spellchecker li.el-select-dropdown__item.hover,
-li.el-select-dropdown__item:hover {
-  background: var(--floatHoverColor);
 }
 .pref-spellchecker div.el-select-dropdown {
   background: var(--floatBgColor);

@@ -73,9 +73,7 @@ describe('AppMenu.updateKeybindings rebuilds menus after a keybinding change (#3
 
     appMenu.updateKeybindings()
 
-    // The editor menu is rebuilt from the current keybindings...
     expect(configureMenu).toHaveBeenCalled()
-    // ...and pushed to the OS as the active application menu.
     expect(setApplicationMenu).toHaveBeenCalledTimes(1)
   })
 

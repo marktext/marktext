@@ -24,7 +24,6 @@
     "node_modules",
     "out",
     "dist",
-    "../muyajs/**/*",
     "src/renderer/src/assets/symbolIcon/index.js",
     "**/*.min.json"
   ]

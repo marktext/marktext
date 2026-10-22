@@ -7,6 +7,7 @@ import { fromEvent } from 'rxjs';
 import copyIcon from '../../../assets/icons/copy/2.png';
 import { CopyType } from '../../../clipboard/types';
 import { LINE_NUMBERS_ROWS_CLASS, lineNumbersWrapperHTML } from '../../../utils/codeBlockLineNumbers';
+import { showCopyFeedback } from '../../../utils/copyFeedback';
 import logger from '../../../utils/logger';
 import { h, toHTML } from '../../../utils/snabbdom';
 import Parent from '../../base/parent';
@@ -15,7 +16,7 @@ import { ScrollPage } from '../../scrollPage';
 const debug = logger('code:');
 
 function renderCopyButton(i18n: I18n) {
-    const selector = 'a.mu-code-copy';
+    const selector = 'button.mu-code-copy';
     const iconVnode = h(
         'i.icon',
         h(
@@ -34,8 +35,10 @@ function renderCopyButton(i18n: I18n) {
         selector,
         {
             attrs: {
-                title: i18n.t('Copy content'),
-                contenteditable: 'false',
+                'type': 'button',
+                'aria-label': i18n.t('Copy content'),
+                'title': i18n.t('Copy content'),
+                'contenteditable': 'false',
             },
         },
         iconVnode,
@@ -44,13 +47,12 @@ function renderCopyButton(i18n: I18n) {
 
 class Code extends Parent {
     public override parent: Nullable<CodeBlock> = null;
-    // Line numbers only apply to real code blocks (`code-block`). Frontmatter,
-    // math, diagram, and html containers all reuse `Code` but must not show
-    // a gutter — so we gate creation on the state name, not just the option.
+    // Code is reused by frontmatter, math and diagrams; only actual code blocks get line numbers.
     private readonly _withLineNumbers: boolean;
     // Cached reference to the gutter wrapper so CodeBlockContent.update() does
     // not pay a querySelector on every keystroke.
     public lineNumbersWrapper: HTMLElement | null = null;
+    public copyButton: HTMLButtonElement | null = null;
 
     static override blockName = 'code';
 
@@ -58,6 +60,9 @@ class Code extends Parent {
         const code = new Code(muya, state.name === 'code-block');
 
         code.append(ScrollPage.loadBlock('codeblock.content').create(muya, state));
+        const copyButton = code.copyButton;
+        if (copyButton)
+            copyButton.hidden = state.name !== 'code-block' || !state.text;
 
         return code;
     }
@@ -84,11 +89,6 @@ class Code extends Parent {
         return {} as TState;
     }
 
-    // Create the copy button at the top-right; when codeBlockLineNumbers is on
-    // AND this Code is hosted inside a real code-block (not frontmatter / math /
-    // diagram / html), also create an empty line-numbers wrapper and cache
-    // its element so CodeBlockContent.update() can sync rows without a
-    // querySelector per keystroke.
     private _createCopyNode() {
         const { i18n, options } = this.muya;
         const withLineNumbers = options.codeBlockLineNumbers && this._withLineNumbers;
@@ -96,6 +96,7 @@ class Code extends Parent {
         if (withLineNumbers)
             html += lineNumbersWrapperHTML();
         this.domNode!.innerHTML = html;
+        this.copyButton = this.domNode!.querySelector<HTMLButtonElement>('.mu-code-copy');
         this.lineNumbersWrapper = withLineNumbers
             ? this.domNode!.querySelector<HTMLElement>(`.${LINE_NUMBERS_ROWS_CLASS}`)
             : null;
@@ -107,7 +108,6 @@ class Code extends Parent {
         if (this.domNode == null)
             return;
 
-        // Copy code content to clipboard.
         const clickHandler = (event: Event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -119,17 +119,29 @@ class Code extends Parent {
                 return;
             }
 
-            editor.clipboard.copy(CopyType.COPY_CODE_CONTENT, codeContent.text);
+            if (!codeContent.text)
+                return;
+            const button = this.copyButton;
+            if (!button)
+                return;
+            const writer = this.muya.options.clipboardWriteText;
+            if (!writer) {
+                editor.clipboard.copy(CopyType.COPY_CODE_CONTENT, codeContent.text);
+                return;
+            }
+            void writer(codeContent.text).catch(() => false).then((ok) => {
+                showCopyFeedback(button, ok, this.muya.i18n.t('Copy content'), this.muya.i18n);
+            });
         };
 
         const mousedownHandler = (event: Event) => {
             event.preventDefault();
         };
 
-        const clickObservable = fromEvent(this.domNode.firstElementChild!, 'click');
+        const clickObservable = fromEvent(this.copyButton!, 'click');
         clickObservable.subscribe(clickHandler);
 
-        const mousedownObservable = fromEvent(this.domNode.firstElementChild!, 'mousedown');
+        const mousedownObservable = fromEvent(this.copyButton!, 'mousedown');
         mousedownObservable.subscribe(mousedownHandler);
     }
 }

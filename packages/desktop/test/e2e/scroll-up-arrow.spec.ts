@@ -33,12 +33,10 @@ test.describe('Arrow-up scrolls the document (#3329)', () => {
   }
 
   test('moving the caret up brings the view back up', async() => {
-    // Caret to the bottom — the #628 handler scrolls the view down.
     await pressMany('ArrowDown', 80)
     const bottom = await scrollTop()
     expect(bottom).toBeGreaterThan(200)
 
-    // Caret back up — the view must follow it upward.
     await pressMany('ArrowUp', 80)
     const top = await scrollTop()
     expect(top).toBeLessThan(bottom - 200)

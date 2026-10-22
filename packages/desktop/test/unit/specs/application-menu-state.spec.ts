@@ -70,8 +70,6 @@ describe('createApplicationMenuState via SELECTION_CHANGE', () => {
         { type: 'p', blockName: 'paragraph' }
       ]
     }) as unknown as { affiliation: Record<string, boolean>; isTaskList: boolean }
-    // Both nested list levels are checked; the deeply nested ol is no longer
-    // dropped by the depth-3 scan.
     expect(state.affiliation.ol).toBe(true)
     expect(state.affiliation.ul).toBe(true)
     expect(state.isTaskList).toBe(false)

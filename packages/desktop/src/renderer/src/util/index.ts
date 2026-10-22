@@ -79,7 +79,6 @@ export const adjustCursor = (
   getLine?: GetLineFn,
   lineCount = 0
 ): Cursor => {
-  // Need to adjust the cursor when cursor is on a blank or unavailable line.
   if (typeof line !== 'string' || !/\S/.test(line)) {
     const nearestCursor = getNearestAvailableCursor(cursor, getLine, lineCount)
     const nearestLine = typeof getLine === 'function' ? getLine(nearestCursor.line) : ''
@@ -101,22 +100,18 @@ export const adjustCursor = (
   }
 
   const newCursor: Cursor = { line: cursor.line, ch: cursor.ch }
-  // It's need to adjust the cursor when cursor is at begin or end in table row.
   if (/\|[^|]+\|.+\|\s*$/.test(line)) {
     if (/\|\s*:?-+:?\s*\|[:-\s|]+\|\s*$/.test(line)) {
-      // cursor in `| --- | :---: |` :the second line of table
       if (typeof nextline === 'string' && /\S/.test(nextline)) {
-        newCursor.line += 1 // reset the cursor to the next line
+        newCursor.line += 1
         newCursor.ch = nextline.indexOf('|') + 1
       }
     } else {
-      // cursor is not at the second line to table
       if (cursor.ch <= line.indexOf('|')) newCursor.ch = line.indexOf('|') + 1
       if (cursor.ch >= line.lastIndexOf('|')) newCursor.ch = line.lastIndexOf('|') - 1
     }
   }
 
-  // Need to adjust the cursor when cursor in the first or last line of code/math block.
   if (/```[\S]*/.test(line) || /^\$\$$/.test(line)) {
     if (typeof nextline === 'string' && /\S/.test(nextline)) {
       newCursor.line += 1
@@ -127,7 +122,6 @@ export const adjustCursor = (
     }
   }
 
-  // Need to adjust the cursor when cursor at the begin of the list
   if (/[*+-]\s.+/.test(line) && newCursor.ch <= 1) {
     newCursor.ch = 2
   }
@@ -145,7 +139,6 @@ export const animatedScrollTo = function(
   const change = to - start
   const animationStart = +new Date()
 
-  // Prevent animation on small steps or duration is 0
   if (Math.abs(change) <= 6 || duration === 0) {
     element.scrollTop = to
     return
@@ -183,21 +176,11 @@ export const getUniqueId = (): string => {
 
 export const hasKeys = (obj: object): boolean => Object.keys(obj).length > 0
 
-/**
- * Shallow clone the given object.
- *
- * @param obj Object to clone
- * @param inheritFromObject Whether the clone should inherit from `Object`
- */
+/** Clone own properties; inheritFromObject=false creates a null-prototype result. */
 export const cloneObject = <T extends object>(obj: T, inheritFromObject = true): T => {
   return Object.assign(inheritFromObject ? {} : Object.create(null), obj)
 }
 
-/**
- * Deep clone the given object.
- *
- * @param obj Object to clone
- */
 export const deepClone = <T>(obj: T): T => {
   return JSON.parse(JSON.stringify(obj))
 }
@@ -208,6 +191,6 @@ const platform =
     window.electron.process &&
     window.electron.process.platform) ||
   ''
-export const isOsx = platform === 'darwin'
+export const isMac = platform === 'darwin'
 export const isWindows = platform === 'win32'
 export const isLinux = platform === 'linux'

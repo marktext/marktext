@@ -5,16 +5,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../muya';
 import { InlineFormatToolbar } from '../../../ui/inlineFormatToolbar';
 
-// Coverage for the PUBLIC `Format.format()` toggle-OFF and `clear` paths over a
-// real engine boot. `formatCursor.spec.ts` pins the apply-side `_addFormat`
-// text rewriter at the function level, but the migration audit flagged that
-// removing an existing inline format (toggle-off) and the `clear`-all path had
-// NO direct coverage — both are the text surgery that, if it miscounts offsets,
-// silently corrupts user content. These tests drive `format()` on a booted
-// block whose run already carries the format, with the caret resting INSIDE the
-// run (the way Ctrl+B-to-un-bold works), and assert the markers are stripped
-// while the run's text survives.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -40,10 +30,10 @@ afterEach(() => {
         delete (window as Partial<Window>).MUYA_VERSION;
 });
 
-function bootMuya(markdown: string): Muya {
+function bootMuya(markdown: string, options: Record<string, unknown> = {}): Muya {
     const host = document.createElement('div');
     document.body.appendChild(host);
-    const muya = new Muya(host, { markdown } as ConstructorParameters<typeof Muya>[1]);
+    const muya = new Muya(host, { markdown, ...options } as ConstructorParameters<typeof Muya>[1]);
     muya.init();
     bootedHosts.push(muya.domNode);
     return muya;
@@ -134,7 +124,6 @@ describe('format.format() toggle-off with the caret inside the formatted run', (
     });
 
     it('u (html_tag): `<u>word</u>` removes the underline tags', () => {
-        // `format('u')` matches the html_tag token whose tag === 'u'.
         const content = caretInFirstBlock(bootMuya('<u>word</u>\n'), 2);
         content.format('u');
         expect(content.text).toBe('word');
@@ -146,8 +135,25 @@ describe('format.format() toggle-off with the caret inside the formatted run', (
         expect(content.text).toBe('word');
     });
 
+    it('mark (== syntax): `==word==` removes the highlight markers', () => {
+        const content = caretInFirstBlock(
+            bootMuya('==word==\n', { highlightSyntax: true }),
+            2,
+        );
+        content.format('mark');
+        expect(content.text).toBe('word');
+    });
+
+    it('mark (== syntax): unwrapping keeps the trailing backslash run', () => {
+        const content = caretInFirstBlock(
+            bootMuya('==a\\\\==\n', { highlightSyntax: true }),
+            2,
+        );
+        content.format('mark');
+        expect(content.text).toBe('a\\\\');
+    });
+
     it('sup (html_tag): `<sup>word</sup>` removes the superscript tags', () => {
-        // `format('sup')` matches the html_tag token whose tag === 'sup'.
         const content = caretInFirstBlock(bootMuya('<sup>word</sup>\n'), 2);
         content.format('sup');
         expect(content.text).toBe('word');
@@ -199,6 +205,16 @@ describe('format.format() apply-ON over a non-collapsed selection', () => {
         });
     });
 
+    it('applying bold elsewhere keeps a highlight\'s trailing backslash run', () => {
+        const content = selectInFirstBlock(
+            bootMuya('==a\\\\== b\n', { highlightSyntax: true }),
+            8,
+            9,
+        );
+        content.format('strong');
+        expect(content.text).toBe('==a\\\\== **b**');
+    });
+
     it('em: selecting `abc` and applying wraps it in `*…*`', async () => {
         const muya = bootMuya('abc\n');
         selectInFirstBlock(muya, 0, 3).format('em');
@@ -224,7 +240,6 @@ describe('format.format() apply-ON over a non-collapsed selection', () => {
     });
 
     it('sup (html_tag): selecting `abc` and applying wraps it in `<sup>…</sup>`', async () => {
-        // `format('sup')` wraps the selection with FORMAT_TAG_MAP.sup open/close.
         const muya = bootMuya('abc\n');
         selectInFirstBlock(muya, 0, 3).format('sup');
         await vi.waitFor(() => {
@@ -359,7 +374,6 @@ describe('format picker collapses after link creation', () => {
         internals.status = true;
         const hideSpy = vi.spyOn(internals, 'hide');
 
-        // A non-collapsed range so `format('link')` actually wraps `abc`.
         (content as unknown as { getCursor: () => unknown }).getCursor = () => ({
             start: { offset: 0 },
             end: { offset: 3 },
@@ -373,9 +387,7 @@ describe('format picker collapses after link creation', () => {
 
         internals._selectItem(makeFakeEvent(), { type: 'link', icon: '' });
 
-        // The real `format('link')` rewrote the run into a markdown link.
         expect(content.text).toBe('[abc]()');
-        // ...and the picker collapsed (link/image branch → `this.hide()`).
         expect(hideSpy).toHaveBeenCalledTimes(1);
 
         toolbar.destroy();
@@ -407,7 +419,6 @@ describe('format picker collapses after link creation', () => {
         internals._selectItem(makeFakeEvent(), { type: 'strong', icon: '' });
 
         expect(content.text).toBe('**abc**');
-        // Non-link/image formats keep the picker up (re-render branch).
         expect(hideSpy).not.toHaveBeenCalled();
 
         toolbar.destroy();

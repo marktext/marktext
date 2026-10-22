@@ -12,9 +12,7 @@ function isMathToken(token: Token | IMathToken): token is IMathToken {
 
 function walkTokens(options: ILexOption) {
     return (token: Token | Heading) => {
-        const { texMathDollars, isGitlabCompatibilityEnabled } = options;
-        // marked mixes atx and setext headers, which we distinguish by headingStyle,
-        // and markers are unique to setext heading
+        const { texMathGfm } = options;
         if (isHeadingToken(token)) {
             const matches = /\n {0,3}(=+|-+)/.exec(token.raw);
             token.headingStyle = matches ? 'setext' : 'atx';
@@ -22,23 +20,18 @@ function walkTokens(options: ILexOption) {
         }
 
         if (token.type === 'code') {
-            // Only strip the language tag for indented code blocks — those are
-            // never fenced and can't carry a language. For fenced blocks we
-            // tag them once; subsequent visits are no-ops, so this stays
-            // idempotent even if walkTokens accidentally runs multiple times.
+            // Indented blocks cannot carry a language; mark fenced blocks only once across repeated walks.
             if (token.codeBlockStyle === 'indented')
                 token.lang = '';
             else if (!token.codeBlockStyle && typeof token.lang === 'string')
                 token.codeBlockStyle = 'fenced';
         }
 
-        if (isMathToken(token) && texMathDollars && isGitlabCompatibilityEnabled) {
-            // Transform the marked code-block token in place into the
-            // multiplemath token shape that downstream consumers expect.
-            // After the assignment the old `lang`/`codeBlockStyle` fields no
-            // longer belong on the value, so strip them via a structural view.
+        // ```` ```math ```` is the display half of `tex_math_gfm`, so it rides
+        // that extension alone — the dollar syntax has no say in it (#5446).
+        if (isMathToken(token) && texMathGfm) {
             token.type = 'multiplemath';
-            token.mathStyle = 'gitlab';
+            token.mathStyle = 'gfm';
             token.displayMode = true;
             const codeFields = token as IMathToken & Partial<{ lang: unknown; codeBlockStyle: unknown }>;
             delete codeFields.lang;

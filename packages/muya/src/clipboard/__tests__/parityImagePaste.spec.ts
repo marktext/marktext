@@ -2,27 +2,6 @@ import type Content from '../../block/base/content';
 import type { Muya } from '../../muya';
 import { describe, expect, it, vi } from 'vitest';
 
-// PARITY SCOREBOARD — gaps PG5 (file PG05) + PG6 (file PG06).
-//
-// PG6: legacy `packages/muyajs` routed a pasted image FILE through
-// `imageAction(imagePath, id)` so the user's `imageInsertAction` preference
-// (copy-to-assets / upload / keep-path) applied. `@muyajs/core`'s path-paste
-// branch calls `insertImagePath(anchorBlock, imagePath)`, which writes
-// `![](rawPath)` verbatim and NEVER invokes `options.imageAction` — so a
-// pasted image file is linked from its original on-disk location and the
-// document is non-portable.
-//
-// PG5: legacy `packages/muyajs` `pasteImage()` had a binary/bitmap branch:
-// when no clipboard file path resolved, it read the in-memory image File via
-// `clipboardData.items[i].getAsFile()` + `FileReader.readAsDataURL` and
-// persisted it via `imageAction(file, id)`. `@muyajs/core`'s `pasteHandler`
-// has no `getAsFile`/`FileReader`/`clipboardData.files` path at all, so a
-// bitmap-only clipboard (screenshot, browser "Copy Image") inserts nothing.
-//
-// Both assert the DESIRED behaviour. The engine now routes pasted images
-// (resolved file paths and in-memory bitmaps) through `options.imageAction`
-// (PG05/PG06), so they pass.
-
 // The clipboard module pulls in CodeBlockContent → utils/prism which touches
 // `window` at import time. Stub the prism shim so the test can run under Node
 // (same stub as clipboardFilePath.spec / copyHandler.spec).
@@ -63,7 +42,7 @@ function makeAnchorBlock(initialText = '', cursor = 0) {
 }
 
 function makeClipboard(options: Record<string, unknown>, anchorBlock: Content) {
-    const clipboard = new Clipboard({ options } as unknown as Muya);
+    const clipboard = new Clipboard({ canMutate: true, isBlockInDocument: () => true, options } as unknown as Muya);
     Object.defineProperty(clipboard, 'selection', {
         get: () => ({
             getSelection: () => ({

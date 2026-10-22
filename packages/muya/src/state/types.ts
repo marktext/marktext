@@ -1,3 +1,5 @@
+import type { GithubAlertType } from '../utils/githubAlerts';
+
 export interface IParagraphState {
     name: 'paragraph';
     text: string;
@@ -29,11 +31,11 @@ export interface ICodeBlockState {
     name: 'code-block';
     meta: {
         type: string; // "indented" | "fenced";
-        // The full fenced info string, verbatim (e.g. `js`, `js title="x"`, or a
-        // Pandoc/RMarkdown `{…}` block). The language for highlighting is its
-        // first word — derive via `firstWordOfInfo()`, never assume a single word.
+        // Full fence info string; derive the highlighting language with firstWordOfInfo().
         lang: string;
         fenceLength?: number;
+        // Absent for indented blocks. Older fenced states may omit it; readers default to backticks.
+        fenceChar?: '`' | '~';
     };
     text: string;
 }
@@ -58,6 +60,20 @@ export interface ILinkReferenceDefinitionState {
 
 export interface IBlockQuoteState {
     name: 'block-quote';
+    meta?: {
+        style?: 'fenced';
+    };
+    children: TState[];
+}
+
+export interface IGithubAlertState {
+    name: 'github-alert';
+    meta: {
+        type: GithubAlertType;
+        // Preserve non-canonical marker spelling on round-trip.
+        marker?: string;
+        blankLineAfterMarker?: boolean;
+    };
     children: TState[];
 }
 
@@ -111,6 +127,7 @@ export interface ITableState {
 
 export interface ITaskListItemMeta {
     checked: boolean;
+    orderMarker?: string; // e.g. "1.", "007.", "10)"
 }
 
 export interface ITaskListItemState {
@@ -119,9 +136,21 @@ export interface ITaskListItemState {
     children: TState[];
 }
 
-export interface ITaskListMeta {
+/** A task list is unordered (`marker`) or ordered (`start`/`delimiter`). */
+export type ITaskListMeta = ITaskListMetaUnordered | ITaskListMetaOrdered;
+
+export interface ITaskListMetaUnordered {
+    ordered?: false;
     marker: string; // "-" | "+" | "*";
     loose: boolean;
+}
+
+export interface ITaskListMetaOrdered {
+    ordered: true;
+    start: number;
+    delimiter: string; // "." | ")";
+    loose: boolean;
+    sourceMarkers?: string[]; // Original item markers for no-edit source round-trips.
 }
 
 export interface ITaskListState {
@@ -131,7 +160,7 @@ export interface ITaskListState {
 }
 
 export interface IMathMeta {
-    mathStyle: string; // "" | "gitlab";
+    mathStyle: string; // "" | "gfm";
 }
 
 export interface IMathBlockState {
@@ -187,6 +216,7 @@ export type TLeafState
 
 export type TContainerState
     = | IBlockQuoteState
+        | IGithubAlertState
         | IOrderListState
         | IBulletListState
         | ITableState
@@ -200,9 +230,6 @@ export type TState = TLeafState | TContainerState;
 
 export type CodeContentState = ICodeBlockState | IHtmlBlockState | IDiagramState | IMathBlockState | IFrontmatterState;
 
-// Discriminated-union type guards. `TState` is keyed by `name`, so consumers can
-// narrow without `as I<X>State` casts. Use `isStateOfName(state, 'atx-heading')`
-// for ad-hoc narrowing or the per-name shorthands.
 export function isStateOfName<N extends TState['name']>(
     state: TState,
     name: N,
@@ -223,6 +250,7 @@ export const isDiagramState = (s: TState): s is IDiagramState => s.name === 'dia
 export const isTableCellState = (s: TState): s is ITableCellState => s.name === 'table.cell';
 
 export const isBlockQuoteState = (s: TState): s is IBlockQuoteState => s.name === 'block-quote';
+export const isGithubAlertState = (s: TState): s is IGithubAlertState => s.name === 'github-alert';
 export const isOrderListState = (s: TState): s is IOrderListState => s.name === 'order-list';
 export const isBulletListState = (s: TState): s is IBulletListState => s.name === 'bullet-list';
 export const isTableState = (s: TState): s is ITableState => s.name === 'table';

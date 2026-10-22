@@ -1,25 +1,22 @@
-// Renderer-side global declarations: build-time defines (electron-vite
-// `define` block in electron.vite.config.ts), the contextBridge surface
-// exposed by src/preload/index.ts, and a handful of legacy globals that
-// survived the sandbox migration.
+// Renderer build-time globals, preload bridge types and legacy window globals.
 
 import type {
   IpcInvokeChannels,
   IpcSendChannels,
   IpcSyncChannels,
   IpcMainEventChannels,
-  BootInfo
+  BootInfo,
+  PlantumlFetchResult,
+  SaveDialogRequest
 } from '@shared/types/ipc'
 import type { MenuTemplate, MenuPopupPosition } from '@shared/types/menu'
 import type { SerializedStat } from '@shared/types/files'
 
 declare global {
-  // ---- Build-time defines (electron-vite `define`) ----
   const MARKTEXT_VERSION: string
   const MARKTEXT_VERSION_STRING: string
   const __static: string
 
-  // ---- contextBridge surface ----
 
   interface ElectronIpcRenderer {
     send<K extends keyof IpcSendChannels>(channel: K, ...args: IpcSendChannels[K]): void
@@ -49,9 +46,14 @@ declare global {
   }
 
   interface ElectronClipboardAPI {
-    writeText(text: string): void
+    writeText(text: string): Promise<boolean>
     readText(): Promise<string>
     guessFilePath(): Promise<string | null>
+    writeImage(png: Uint8Array): Promise<boolean>
+  }
+
+  interface ElectronDialogAPI {
+    showSave(request: SaveDialogRequest): Promise<string | null>
   }
 
   interface ElectronWebFrameAPI {
@@ -81,6 +83,7 @@ declare global {
     ipcRenderer: ElectronIpcRenderer
     shell: ElectronShellAPI
     clipboard: ElectronClipboardAPI
+    fetchLinkHtml(url: string): Promise<string>
     webFrame: ElectronWebFrameAPI
     webUtils: ElectronWebUtilsAPI
     process: {
@@ -94,6 +97,15 @@ declare global {
     paths: Partial<BootInfo['paths']>
     isUpdatable: boolean
     windowControl: ElectronWindowControlAPI
+    dialog: ElectronDialogAPI
+  }
+
+  interface DiagramAPI {
+    fetchPlantuml(
+      server: string,
+      encoded: string,
+      format: 'svg' | 'png'
+    ): Promise<PlantumlFetchResult>
   }
 
   interface FileUtilsAPI {
@@ -185,6 +197,7 @@ declare global {
     ripgrep: RipgrepAPI
     uploader: UploaderAPI
     fonts: FontsAPI
+    diagram: DiagramAPI
     process: ProcessShim
     rgPath: string
     // Set by the legacy editor store at runtime; consumed by muya internals.

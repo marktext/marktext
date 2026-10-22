@@ -5,6 +5,7 @@ import type Cell from '../../gfm/table/cell';
 import type Row from '../../gfm/table/row';
 import type TableInner from '../../gfm/table/table';
 import { EVENT_KEYS, isOsx } from '../../../config';
+import { ChangeSource } from '../../../types';
 import { isKeyboardEvent } from '../../../utils';
 import Format from '../../base/format';
 import { ScrollPage } from '../../scrollPage';
@@ -112,7 +113,7 @@ class TableCellContent extends Format {
                     this.muya,
                     state,
                 );
-                this.scrollPage?.append(newParagraphBlock, 'user');
+                this.scrollPage?.append(newParagraphBlock, ChangeSource.User);
                 cursorBlock = newParagraphBlock.firstContentInDescendant();
             }
         }
@@ -189,7 +190,7 @@ class TableCellContent extends Format {
                         this.muya,
                         state,
                     );
-                    this.scrollPage?.append(newParagraphBlock, 'user');
+                    this.scrollPage?.append(newParagraphBlock, ChangeSource.User);
                     cursorBlock = newParagraphBlock.firstContentInDescendant();
                 }
 
@@ -237,11 +238,7 @@ class TableCellContent extends Format {
         event.preventDefault();
         event.stopPropagation();
 
-        // Shift+Tab back-navigates inside the table (header row's first cell
-        // stays put when there is no previous content).
-        // Read shiftKey directly — pointer Tab is not a thing, so callers
-        // always pass a KeyboardEvent in practice. The structural check just
-        // keeps unit tests that pass a partial event object passing.
+        // Shift+Tab navigates backward; the first header cell stays put without a previous block.
         const isShiftTab = 'shiftKey' in event && event.shiftKey === true;
         const cursorBlock = isShiftTab
             ? this.previousContentInContext()
@@ -251,11 +248,7 @@ class TableCellContent extends Format {
             cursorBlock.setCursor(0, 0, true);
     }
 
-    // The following code is used to fix a bug in Safari,
-    // entering Chinese in an empty table cell will cause
-    // the table to be messed up, so we insert a zero-width
-    // character before entering the Chinese, and remove the
-    // zero-width character after entering the Chinese.
+    // Safari IME corrupts empty cells without a temporary zero-width composition anchor.
     override composeHandler(event: Event) {
         super.composeHandler(event);
         if (event.type === 'compositionstart' && this.text === '') {

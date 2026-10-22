@@ -1,7 +1,6 @@
 import * as contextMenu from './actions'
 import { t } from '../../i18n'
 
-// NOTE: This are mutable fields that may change at runtime.
 
 export const SEPARATOR = {
   type: 'separator'
@@ -64,6 +63,14 @@ export const getDELETE = () => ({
   }
 })
 
+export const getCopyPath = () => ({
+  label: t('contextMenu.sideBar.copyPath'),
+  id: 'copyPathMenuItem',
+  click(_menuItem: unknown, _browserWindow: unknown) {
+    contextMenu.copyPath()
+  }
+})
+
 export const getShowInFolder = () => ({
   label: t('contextMenu.sideBar.showInFolder'),
   id: 'showInFolderMenuItem',
@@ -80,4 +87,5 @@ export const CUT = getCUT()
 export const PASTE = getPASTE()
 export const RENAME = getRENAME()
 export const DELETE = getDELETE()
+export const COPY_PATH = getCopyPath()
 export const SHOW_IN_FOLDER = getShowInFolder()

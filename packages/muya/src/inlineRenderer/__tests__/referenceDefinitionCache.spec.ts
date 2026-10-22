@@ -11,7 +11,6 @@ function makeRenderer(blocks: TState[]) {
     const muya = {
         options: {
             footnote: false,
-            isGitlabCompatibilityEnabled: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
             texMathDollars: false,
@@ -26,12 +25,6 @@ function makeRenderer(blocks: TState[]) {
     return { jsonState, renderer };
 }
 
-function collect(renderer: InlineRenderer) {
-    // Exercise the cache directly so token rendering does not obscure state reads.
-    // @ts-expect-error -- intentional coverage of the private collection boundary.
-    renderer._collectReferenceDefinitions();
-}
-
 afterEach(() => vi.restoreAllMocks());
 
 describe('reference definition collection cache', () => {
@@ -42,8 +35,9 @@ describe('reference definition collection cache', () => {
         ]);
         const getState = vi.spyOn(jsonState, 'rawState', 'get');
 
-        collect(renderer);
-        collect(renderer);
+        const labels = renderer.collectReferenceDefinitions();
+        expect(renderer.collectReferenceDefinitions()).toBe(labels);
+        expect(labels.get('ref')?.href).toBe('https://first.example');
 
         expect(getState).toHaveBeenCalledTimes(1);
         expect(renderer.labels.get('ref')?.href).toBe('https://first.example');
@@ -55,15 +49,15 @@ describe('reference definition collection cache', () => {
         ]);
         const initialRevision = jsonState.revision;
 
-        collect(renderer);
+        renderer.collectReferenceDefinitions();
         jsonState.setContent([
             { name: 'paragraph', text: '[ref]: https://second.example' },
         ]);
         expect(jsonState.revision).toBe(initialRevision + 1);
 
         const getState = vi.spyOn(jsonState, 'rawState', 'get');
-        collect(renderer);
-        collect(renderer);
+        renderer.collectReferenceDefinitions();
+        renderer.collectReferenceDefinitions();
         expect(getState).toHaveBeenCalledTimes(1);
         expect(renderer.labels.get('ref')?.href).toBe('https://second.example');
 
@@ -77,8 +71,8 @@ describe('reference definition collection cache', () => {
         expect(jsonState.revision).toBe(initialRevision + 2);
 
         getState.mockClear();
-        collect(renderer);
-        collect(renderer);
+        renderer.collectReferenceDefinitions();
+        renderer.collectReferenceDefinitions();
         expect(getState).toHaveBeenCalledTimes(1);
         expect(renderer.labels.get('ref')?.href).toBe('https://third.example');
     });
@@ -88,7 +82,7 @@ describe('reference definition collection cache', () => {
             state = { name: 'block-quote', children: [state] };
         const { jsonState, renderer } = makeRenderer([state]);
         const getState = vi.spyOn(jsonState, 'getState');
-        collect(renderer);
+        renderer.collectReferenceDefinitions();
         expect(renderer.labels.get('ref')?.href).toBe('https://deep.example');
         expect(getState).not.toHaveBeenCalled();
     });
@@ -98,19 +92,19 @@ describe('reference definition collection cache', () => {
             { name: 'block-quote', children: [{ name: 'paragraph', text: '[ref]: https://nested.example' }] },
             { name: 'paragraph', text: '[ref]: https://last.example' },
         ]);
-        collect(renderer);
+        renderer.collectReferenceDefinitions();
         expect(renderer.labels.get('ref')?.href).toBe('https://last.example');
         const revision = jsonState.revision;
         const scan = vi.spyOn(jsonState, 'rawState', 'get');
         jsonState.dispatch(null);
-        collect(renderer);
+        renderer.collectReferenceDefinitions();
         expect(scan).not.toHaveBeenCalled();
         expect(jsonState.revision).toBe(revision);
         jsonState.dispatch(json1.removeOp([1]));
-        collect(renderer);
+        renderer.collectReferenceDefinitions();
         expect(renderer.labels.get('ref')?.href).toBe('https://nested.example');
         jsonState.dispatch(json1.removeOp([0]));
-        collect(renderer);
+        renderer.collectReferenceDefinitions();
         expect(renderer.labels.size).toBe(0);
     });
 });

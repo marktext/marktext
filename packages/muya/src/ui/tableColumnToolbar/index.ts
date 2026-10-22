@@ -51,6 +51,23 @@ export class TableColumnToolbar extends BaseFloat {
 
             const { x, y } = event;
             const eles = [...document.elementsFromPoint(x, y)];
+
+            // Never show (or keep) the column tools while the inline format
+            // picker is up — check before the hover guard below, which would
+            // otherwise keep them alive behind the picker.
+            const { ui } = this.muya;
+            for (const { name, status } of ui.shownFloat) {
+                if (name === 'mu-format-picker' && status)
+                    return this.hide();
+            }
+
+            // The toolbar overhangs narrow columns, so (x, y + OFFSET) can
+            // land on a neighbour while the pointer is on the toolbar. Keep
+            // the current anchor until the pointer leaves it (#5574).
+            const topmost = document.elementFromPoint(x, y);
+            if (this.status && topmost && this.floatBox?.contains(topmost))
+                return;
+
             const bellowEles = [...document.elementsFromPoint(x, y + OFFSET)];
             const hasTableCell = (eles: Element[]) => {
                 return eles.some(
@@ -61,12 +78,6 @@ export class TableColumnToolbar extends BaseFloat {
             };
 
             if (!hasTableCell(eles) && hasTableCell(bellowEles)) {
-                // No need to show table column tools when format tool bar is shown. or the table column tools will show on the top of format toolbar.
-                const { ui } = this.muya;
-                for (const { name, status } of ui.shownFloat) {
-                    if (name === 'mu-format-picker' && status)
-                        return this.hide();
-                }
                 const tableCellEle = bellowEles.find(
                     ele =>
                         ele[BLOCK_DOM_PROPERTY]

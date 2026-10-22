@@ -27,9 +27,12 @@ import htmlRuby from './htmlRuby';
 import htmlTag from './htmlTag';
 import image from './image';
 import inlineCode from './inlineCode';
+import inlineDiff from './inlineDiff';
 import inlineMath from './inlineMath';
+import lineBreakHighlights from './lineBreakHighlights';
 import link from './link';
 import loadImageAsync from './loadImageAsync';
+import mark from './mark';
 import multipleMath from './multipleMath';
 import referenceDefinition from './referenceDefinition';
 import referenceImage from './referenceImage';
@@ -51,6 +54,7 @@ const inlineSyntaxRenderer = {
     tailHeader,
     hardLineBreak,
     softLineBreak,
+    lineBreakHighlights,
     codeFence,
     inlineMath,
     autoLink,
@@ -60,8 +64,10 @@ const inlineSyntaxRenderer = {
     delEmStrongFac,
     emoji,
     inlineCode,
+    inlineDiff,
     text,
     del,
+    mark,
     em,
     strong,
     htmlEscape,
@@ -128,6 +134,8 @@ class Renderer {
         token: Token,
         cursor: IRenderCursor,
     ) {
+        if (this.muya.isReadOnly)
+            return CLASS_NAMES.MU_HIDE;
         return (
             outerClass
             || (this._checkConflicted(block, token, cursor)

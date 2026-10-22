@@ -1,23 +1,20 @@
-import { EXPORT_DOMPURIFY_CONFIG } from '../config';
-import { sanitize } from '../utils';
 import { getHighlightHtml } from '../utils/marked';
+import { sanitizeExportHtml } from '../utils/sanitizeExportHtml';
 import { transformFootnotes } from './transformFootnotes';
 
 export interface IRenderToStaticHTMLOptions {
     footnote?: boolean;
     texMathDollars?: boolean;
-    isGitlabCompatibilityEnabled?: boolean;
+    texMathGfm?: boolean;
+    texMathSingleBackslash?: boolean;
+    texMathDoubleBackslash?: boolean;
     superSubScript?: boolean;
     frontMatter?: boolean;
-    /**
-     * Skip DOMPurify sanitization. **Unsafe with untrusted input** — drops
-     * the XSS guarantees of the default export path. Only intended for
-     * CommonMark / GFM spec compliance runners, which need to compare
-     * against the parser's raw output (the spec includes "raw HTML
-     * allowance" examples that DOMPurify would otherwise rewrite).
-     *
-     * @default true
-     */
+    highlightSyntax?: boolean;
+    inlineDiff?: boolean;
+    multilineBlockquote?: boolean;
+    githubAlerts?: boolean;
+    // Disabling sanitization permits untrusted HTML; intended only for spec conformance runners.
     sanitize?: boolean;
 }
 
@@ -52,21 +49,23 @@ export function renderToStaticHTML(
     let html = getHighlightHtml(markdown, {
         footnote,
         texMathDollars: options.texMathDollars ?? true,
-        isGitlabCompatibilityEnabled: options.isGitlabCompatibilityEnabled ?? true,
+        texMathGfm: options.texMathGfm ?? false,
+        texMathSingleBackslash: options.texMathSingleBackslash ?? false,
+        texMathDoubleBackslash: options.texMathDoubleBackslash ?? false,
         superSubScript: options.superSubScript ?? true,
         frontMatter: options.frontMatter ?? false,
+        highlightSyntax: options.highlightSyntax ?? false,
+        inlineDiff: options.inlineDiff ?? false,
+        multilineBlockquote: options.multilineBlockquote ?? false,
+        githubAlerts: options.githubAlerts ?? false,
     });
 
-    // Post-process footnotes into the standard GFM / pandoc shape (inline
-    // numbered <sup> + bottom <section class="footnotes"> with backrefs).
-    // Must run before DOMPurify so the `data-identifier` marker emitted by
-    // the marked footnote extension is still readable; the default config
-    // strips `data-*` attributes.
+    // Transform footnotes before DOMPurify strips their data-identifier markers.
     if (footnote)
         html = transformFootnotes(html);
 
     if (options.sanitize === false)
         return html;
 
-    return sanitize(html, EXPORT_DOMPURIFY_CONFIG, false) as string;
+    return sanitizeExportHtml(html);
 }

@@ -4,15 +4,19 @@
     <section class="keybindings">
       <div class="text">
         {{ t('preferences.keybindings.description') }}
-        <a
-          class="link"
-          :title="t('preferences.keybindings.online')"
-          :aria-label="t('preferences.keybindings.online')"
-          @click="openKeybindingDocs"
-        ><LinkIcon
-          :size="14"
-          class="link-icon"
-        /></a>.
+        <icon-tooltip :content="t('preferences.keybindings.online')">
+          <button
+            type="button"
+            class="plain-button link"
+            :aria-label="t('preferences.keybindings.online')"
+            @click="openKeybindingDocs"
+          >
+            <LinkIcon
+              :size="14"
+              class="link-icon"
+            />
+          </button>
+        </icon-tooltip>.
       </div>
       <el-table
         :data="keybindingList"
@@ -33,39 +37,45 @@
           min-width="90"
         >
           <template #default="scope">
-            <el-button
-              type="text"
-              size="small"
-              :title="t('preferences.keybindings.table.edit')"
-              @click="handleEditClick(scope.$index, scope.row)"
-            >
-              <Edit
-                width="14"
-                height="14"
-              />
-            </el-button>
-            <el-button
-              type="text"
-              size="small"
-              :title="t('preferences.keybindings.table.reset')"
-              @click="handleResetClick(scope.$index, scope.row)"
-            >
-              <RefreshRight
-                width="14"
-                height="14"
-              />
-            </el-button>
-            <el-button
-              type="text"
-              size="small"
-              :title="t('preferences.keybindings.table.unbind')"
-              @click="handleUnbindClick(scope.$index, scope.row)"
-            >
-              <Delete
-                width="14"
-                height="14"
-              />
-            </el-button>
+            <icon-tooltip :content="t('preferences.keybindings.table.edit')">
+              <el-button
+                type="text"
+                size="small"
+                :aria-label="t('preferences.keybindings.table.edit')"
+                @click="handleEditClick(scope.$index, scope.row)"
+              >
+                <Edit
+                  width="14"
+                  height="14"
+                />
+              </el-button>
+            </icon-tooltip>
+            <icon-tooltip :content="t('preferences.keybindings.table.reset')">
+              <el-button
+                type="text"
+                size="small"
+                :aria-label="t('preferences.keybindings.table.reset')"
+                @click="handleResetClick(scope.$index, scope.row)"
+              >
+                <RefreshRight
+                  width="14"
+                  height="14"
+                />
+              </el-button>
+            </icon-tooltip>
+            <icon-tooltip :content="t('preferences.keybindings.table.unbind')">
+              <el-button
+                type="text"
+                size="small"
+                :aria-label="t('preferences.keybindings.table.unbind')"
+                @click="handleUnbindClick(scope.$index, scope.row)"
+              >
+                <Delete
+                  width="14"
+                  height="14"
+                />
+              </el-button>
+            </icon-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -118,6 +128,7 @@ import type { UiKeybinding } from './KeybindingConfigurator'
 import notice from '@/services/notification'
 import { Edit, RefreshRight, Delete } from '@element-plus/icons-vue'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import { useI18n } from 'vue-i18n'
 
 const { t, locale } = useI18n()
@@ -127,14 +138,12 @@ const keybindingConfigurator = ref<KeybindingConfigurator | null>(null)
 const selectedShortcutId = ref<string | null>(null)
 const keybindingList = ref<UiKeybinding[]>([])
 
-// Function to rebuild the keybinding list
 const rebuildKeybindingList = (): void => {
   if (keybindingConfigurator.value) {
     keybindingList.value = keybindingConfigurator.value.rebuildKeybindingList()
   }
 }
 
-// Listen for language changes to rebuild the keybinding list
 watch(locale, () => {
   rebuildKeybindingList()
 })
@@ -284,8 +293,12 @@ const dumpKeyboardInformation = (): void => {
 .el-table__expanded-cell {
   background: var(--editorBgColor);
 }
+/* 24px is the minimum target size in WCAG 2.5.8; the rows put three of these
+   buttons 4px apart, too close for the spacing exception. */
 .el-table button {
-  padding: 2px 2px;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 5px;
   margin: 4px 0px;
   color: var(--themeColor);
   background: none;

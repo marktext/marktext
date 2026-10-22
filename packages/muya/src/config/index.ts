@@ -62,6 +62,8 @@ export const FORMAT_TYPES = [
     'strong',
     'em',
     'del',
+    'mark',
+    'inline_diff',
     'inline_code',
     'link',
     'image',
@@ -107,6 +109,9 @@ export const CLASS_NAMES = genUpper2LowerKeyHash([
     'MU_CONTAINER_ICON',
     'MU_COPY_HEADER_LINK',
     'MU_COPY_REMOVE',
+    'MU_FOLD_TOGGLE',
+    'MU_FOLDED',
+    'MU_FOLDED_CONTENT',
     'MU_DISABLE_HTML_RENDER',
     'MU_EMOJI_MARKED_TEXT',
     'MU_EMOJI_MARKER',
@@ -310,6 +315,7 @@ export const BACK_HASH: Record<string, string> = {
 };
 
 export const MUYA_DEFAULT_OPTIONS = {
+    readOnly: false,
     fontSize: 16,
     lineHeight: 1.6,
     focusMode: false,
@@ -349,7 +355,22 @@ export const MUYA_DEFAULT_OPTIONS = {
     footnote: false,
     // pandoc's `tex_math_dollars`: `$…$` and `$$…$$`.
     texMathDollars: true,
-    isGitlabCompatibilityEnabled: true,
+    // pandoc's `tex_math_gfm`: GitHub's `` $`…`$ `` and ```` ```math ````.
+    // Off by default, as in pandoc, where only tex_math_dollars ships enabled.
+    texMathGfm: false,
+    // pandoc's `tex_math_single_backslash`: `\(…\)` inline and `\[…\]` display.
+    // Off by default, as in pandoc, where it is a non-default extension: turning
+    // it on precludes escaping `(` and `[`, so `- \[TODO\]` reads as a formula.
+    texMathSingleBackslash: false,
+    // pandoc's `tex_math_double_backslash`: `\\(…\\)` inline and `\\[…\\]`
+    // display. Off by default, as in pandoc. Combinable with the single-backslash
+    // extension: the two openers cannot collide, `\\(` carrying a backslash where
+    // `\(` carries the parenthesis.
+    texMathDoubleBackslash: false,
+    highlightSyntax: false,
+    inlineDiff: false,
+    multilineBlockquote: false,
+    githubAlerts: false,
     // Render soft line breaks as spaces instead of visual newlines.
     softNewlineAsSpace: false,
     // Move checked task list item to the end of task list.

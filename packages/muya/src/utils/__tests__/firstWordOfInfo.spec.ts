@@ -10,6 +10,11 @@ describe('firstWordOfInfo', () => {
         expect(firstWordOfInfo('js title="app.js"')).toBe('js');
     });
 
+    it('skips leading whitespace before the first word', () => {
+        expect(firstWordOfInfo(' js')).toBe('js');
+        expect(firstWordOfInfo('\tjs title="app.js"')).toBe('js');
+    });
+
     it('returns the first token for a Pandoc-style attribute block', () => {
         expect(firstWordOfInfo('{example, listing1-name}')).toBe('{example,');
     });

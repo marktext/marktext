@@ -1,5 +1,5 @@
 appId: com.github.marktext.marktext
-productName: marktext
+productName: MarkText
 directories:
   buildResources: build
   output: ../../dist
@@ -10,9 +10,6 @@ files:
   - '!electron.vite.config.{js,ts,mjs,cjs}'
   - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
-  # ================================
-  # Do not bundle these files
-  # ================================
   - '!node_modules/dragula/resources'
   - '!node_modules/**/*.js.map'
   - '!node_modules/**/*.cjs.map'
@@ -22,24 +19,21 @@ files:
   - '!node_modules/@vscode/ripgrep/lib/download.js'
   - '!node_modules/@vscode/ripgrep/lib/postinstall.js'
   - '!node_modules/ced/vendor'
-  # Large source files
   - '!node_modules/mermaid/dist/mermaid.js'
   - '!node_modules/mermaid/dist/mermaid.min.js'
   - '!node_modules/mermaid/dist/mermaid.esm.min.mjs'
   - '!node_modules/katex/dist/katex.min.js'
   - '!node_modules/katex/dist/katex.mjs'
-  # Don't bundle Linux build files
   - '!node_modules/ced/build/Release/compact_enc_det.a'
   - '!node_modules/**/{*.vcxproj,*.vcxproj.filters}'
   - '!node_modules/**/build/Release/{*.lib,*.exp,*.ilk,*.pdb,*.iobj,*.ipdb}'
   - '!node_modules/**/build/Release/obj'
-  # Do not bundle development related files
   - '!eslint.config.js'
   - '!jsconfig.json'
   - '!docs/*'
 extraResources:
   - from: build/icons
-    to: icons # ends up at resources/icons/
+    to: icons
     filter:
       - '*.ico'
   - from: static
@@ -65,11 +59,22 @@ electronLanguages: # Keep Chromium/AppKit locales for the UI languages MarkText 
   - pt-PT
   - pt_BR
   - pt_PT
+  - ru
   - tr
   - zh-CN
   - zh-TW
   - zh_CN
   - zh_TW
+
+electronFuses:
+  # Node's CLI parser inside Electron rejects `--debug` (DEP0062, exit 9) before
+  # MarkText can read it (#5409). With this fuse off the packaged app ignores
+  # Node's inspector flags, so `--debug` reaches MarkText.
+  enableNodeCliInspectArguments: false
+  # Flipping a fuse rewrites the Electron Framework binary, invalidating the
+  # ad-hoc signature its linker wrote. Unsigned macOS arm64 builds are then
+  # killed on launch (Code Signature Invalid), so re-sign ad-hoc after flipping.
+  resetAdHocDarwinSignature: true
 
 asarUnpack:
   - resources/**
@@ -187,3 +192,32 @@ linux:
     - ext: 'mdtext'
       name: 'Markdown'
       description: 'Markdown document'
+# Setting `depends` replaces electron-builder's default list, so the defaults are
+# repeated here. The last two entries are added: Electron links libasound.so.2
+# and libgbm.so.1, and without them a minimal system installs the package but
+# the app cannot start. Newer GTK pulls in libgbm, Ubuntu 22.04's does not.
+deb:
+  depends:
+    - 'libgtk-3-0'
+    - 'libnotify4'
+    - 'libnss3'
+    - 'libxss1'
+    - 'libxtst6'
+    - 'xdg-utils'
+    - 'libatspi2.0-0'
+    - 'libuuid1'
+    - 'libsecret-1-0'
+    - 'libasound2t64 | libasound2'
+    - 'libgbm1'
+rpm:
+  depends:
+    - 'gtk3'
+    - 'libnotify'
+    - 'nss'
+    - 'libXScrnSaver'
+    - '(libXtst or libXtst6)'
+    - 'xdg-utils'
+    - 'at-spi2-core'
+    - '(libuuid or libuuid1)'
+    - '(alsa-lib or libasound2)'
+    - '(mesa-libgbm or libgbm1)'

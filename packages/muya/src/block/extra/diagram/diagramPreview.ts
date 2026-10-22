@@ -1,121 +1,20 @@
 import type { Muya } from '../../../muya';
 import type { IDiagramState, TState } from '../../../state/types';
+import type { IPreviewDiagramPayload } from '../../../ui/previewToolBar';
 import { fromEvent } from 'rxjs';
 import { CLASS_NAMES, PREVIEW_DOMPURIFY_CONFIG } from '../../../config';
 import { sanitize } from '../../../utils';
-import loadRenderer from '../../../utils/diagram';
+import { finalizeRenderedDiagram, renderDiagram } from '../../../utils/diagram/render';
 import logger from '../../../utils/logger';
 import Parent from '../../base/parent';
 
 const debug = logger('diagramPreview:');
 
-// Give a fixed-size `<svg>` (one with `width`/`height` px attributes but no
-// `viewBox`) a viewBox derived from those dimensions, so `max-width: 100%`
-// scales it down to fit instead of clipping it. Returns true once applied.
-function addViewBox(target: HTMLElement): boolean {
-    const svg = target.querySelector('svg');
-    if (!svg || svg.getAttribute('viewBox'))
-        return !!svg;
-    const width = Number.parseFloat(svg.getAttribute('width') ?? '');
-    const height = Number.parseFloat(svg.getAttribute('height') ?? '');
-    if (width > 0 && height > 0) {
-        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-        return true;
-    }
-    return false;
-}
-
-// `drawSVG` (js-sequence-diagrams / flowchart.js) renders the `<svg>`
-// asynchronously — it's drawn from a theme callback after its font loads — so
-// the element and its `width`/`height` attributes aren't there synchronously.
-// Try once, then observe `target` until the sized `<svg>` appears.
-function ensureViewBox(target: HTMLElement): void {
-    if (addViewBox(target))
-        return;
-    const observer = new MutationObserver(() => {
-        if (addViewBox(target))
-            observer.disconnect();
-    });
-    observer.observe(target, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['width', 'height'],
-    });
-    // Safety net so the observer can't leak if the svg never renders.
-    setTimeout(() => observer.disconnect(), 5000);
-}
-
-interface IRenderOptions {
-    type: string;
-    code: string;
-    target: HTMLElement;
-    vegaTheme: string;
-    mermaidTheme: string;
-    plantumlServer: string;
-    sequenceTheme: 'hand' | 'simple';
-}
-
-async function renderDiagram({
-    type,
-    code,
-    target,
-    vegaTheme,
-    mermaidTheme,
-    plantumlServer,
-    sequenceTheme,
-}: IRenderOptions) {
-    const render = await loadRenderer(type);
-    const options = {};
-    if (type === 'vega-lite') {
-        Object.assign(options, {
-            actions: false,
-            tooltip: false,
-            renderer: 'svg',
-            theme: vegaTheme,
-            ast: true,
-        });
-    }
-    else if (type === 'sequence') {
-        Object.assign(options, { theme: sequenceTheme });
-    }
-
-    if (type === 'plantuml') {
-        const diagram = render.parse(code, plantumlServer);
-        target.innerHTML = '';
-        diagram.insertImgElement(target);
-    }
-    else if (type === 'vega-lite') {
-        await render(target, JSON.parse(code), options);
-    }
-    else if (type === 'flowchart' || type === 'sequence') {
-        const diagram = render.parse(code);
-        target.innerHTML = '';
-        diagram.drawSVG(target, options);
-        // js-sequence-diagrams / flowchart.js emit an <svg> with a fixed pixel
-        // width/height but NO viewBox, so the `max-width: 100%` style can only
-        // clip a wide diagram, not scale it. Derive a viewBox from those pixel
-        // dimensions (once the async draw completes) so it scales to fit.
-        ensureViewBox(target);
-    }
-    else if (type === 'mermaid') {
-        render.initialize({
-            startOnLoad: false,
-            securityLevel: 'strict',
-            theme: mermaidTheme,
-        });
-        await render.parse(code);
-        target.innerHTML = sanitize(code, PREVIEW_DOMPURIFY_CONFIG, true) as string;
-        target.removeAttribute('data-processed');
-        await render.run({
-            nodes: [target],
-        });
-    }
-}
-
 class DiagramPreview extends Parent {
     private _code: string;
     private _type: string;
+    private _rendered = false;
+    private _cancelFinalize: (() => void) | null = null;
     static override blockName = 'diagram-preview';
 
     static create(muya: Muya, state: IDiagramState) {
@@ -158,6 +57,18 @@ class DiagramPreview extends Parent {
         event.preventDefault();
         event.stopPropagation();
 
+        if (this.muya.isReadOnly) {
+            if (this._rendered) {
+                this.muya.eventCenter.emit('preview-diagram', {
+                    type: this._type,
+                    code: this._code,
+                    preview: this.domNode!,
+                    label: this.domNode!.getAttribute('aria-label'),
+                } satisfies IPreviewDiagramPayload);
+            }
+            return;
+        }
+
         if (this.parent == null)
             return;
 
@@ -167,8 +78,16 @@ class DiagramPreview extends Parent {
 
     async update(code = this._code) {
         const { i18n } = this.muya;
+        this._rendered = false;
         if (this._code !== code)
             this._code = code;
+
+        // A previous render may still be waiting for its `<svg>`; it must not
+        // describe whatever this one puts in its place.
+        this._cancelFinalize?.();
+        this._cancelFinalize = null;
+        this.domNode!.removeAttribute('role');
+        this.domNode!.removeAttribute('aria-label');
 
         if (code) {
             this.domNode!.innerHTML = i18n.t('Loading...');
@@ -185,6 +104,8 @@ class DiagramPreview extends Parent {
                     plantumlServer,
                     sequenceTheme,
                 });
+                this._rendered = true;
+                this._cancelFinalize = finalizeRenderedDiagram(this.domNode!, i18n.t('Diagram'));
             }
             catch (error) {
                 const detail

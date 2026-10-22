@@ -12,6 +12,7 @@ import type Preference from '../preferences'
 import { WindowType } from '../windows/base'
 import type { WindowTypeValue } from '../windows/base'
 import type EditorWindow from '../windows/editor'
+import type { ProjectRootWatch } from '@shared/types/project'
 
 class WindowActivityList {
   // Oldest             Newest
@@ -36,7 +37,6 @@ class WindowActivityList {
 
   setNewest(id: number | null): void {
     if (id == null) return
-    // I think we do not need a linked list for only a few windows.
     const { _buf } = this
     const index = _buf.indexOf(id)
     if (index !== -1) {
@@ -58,11 +58,7 @@ class WindowActivityList {
   }
 }
 
-/**
- * Event payload map for `WindowManager`. The `activeWindowChanged` event is
- * dispatched whenever the focused (or otherwise active) window switches; the
- * payload is the new active window id (or `null` when no windows remain).
- */
+/** Active-window changes carry the new window ID, or null when none is active. */
 export interface WindowManagerEvents {
   activeWindowChanged: [windowId: number | null]
 }
@@ -90,11 +86,6 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
   public editorBufferStore: EditorBufferStoreLike
   private _watcher: Watcher
 
-  /**
-   * @param appMenu The application menu instance.
-   * @param preferences The preference instance.
-   * @param editorBufferStore The editor buffer store.
-   */
   constructor(
     appMenu: AppMenuLike,
     preferences: Preference,
@@ -115,9 +106,6 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     this._listenForIpcMain()
   }
 
-  /**
-   * Add the given window to the window list.
-   */
   add(window: BaseWindow): void {
     const windowId = window.id as number
     this._windows.set(windowId, window)
@@ -139,17 +127,11 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     })
   }
 
-  /**
-   * Return the application window by id.
-   */
   get(windowId: number | null): BaseWindow | undefined {
     if (windowId == null) return undefined
     return this._windows.get(windowId)
   }
 
-  /**
-   * Return the BrowserWindow by id.
-   */
   getBrowserWindow(windowId: number): IBrowserWindow | undefined {
     const window = this.get(windowId)
     if (window) {
@@ -158,11 +140,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     return undefined
   }
 
-  /**
-   * Remove the given window by id.
-   *
-   * NOTE: All window "window-focus" events listeners are removed!
-   */
+  /** Also remove every window-focus listener registered for this window. */
   remove(windowId: number): BaseWindow | undefined {
     const { _windows } = this
     const window = this.get(windowId)
@@ -190,24 +168,15 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     }
   }
 
-  /**
-   * Returns the active window or undefined if no window is registered.
-   */
   getActiveWindow(): BaseWindow | undefined {
     if (this._activeWindowId == null) return undefined
     return this._windows.get(this._activeWindowId)
   }
 
-  /**
-   * Returns the active window id or null if no window is registered.
-   */
   getActiveWindowId(): number | null {
     return this._activeWindowId
   }
 
-  /**
-   * Returns the (last) active editor window or undefined if no editor is registered.
-   */
   getActiveEditor(): BaseWindow | undefined {
     let win = this.getActiveWindow()
     if (win && win.type !== WindowType.EDITOR) {
@@ -221,17 +190,11 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     return win
   }
 
-  /**
-   * Returns the (last) active editor window id or null if no editor is registered.
-   */
   getActiveEditorId(): number | null {
     const win = this.getActiveEditor()
     return win ? (win.id as number) : null
   }
 
-  /**
-   * Returns the windows of the given {type}.
-   */
   getWindowsByType(type: WindowTypeValue): { id: number; win: BaseWindow }[] {
     const upper = type.toUpperCase() as keyof typeof WindowType
     if (!WindowType[upper]) {
@@ -250,19 +213,15 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     return result
   }
 
-  /**
-   * Find the best window to open the files in.
-   */
   findBestWindowToOpenIn(fileList: string[]): { windowId: number | null; fileList: string[] }[] {
     if (!fileList || !Array.isArray(fileList) || !fileList.length) return []
     const { windows } = this
-    const lastActiveEditorId = this.getActiveEditorId() // editor id or null
+    const lastActiveEditorId = this.getActiveEditorId()
 
     if (this.windowCount <= 1) {
       return [{ windowId: lastActiveEditorId, fileList }]
     }
 
-    // Array of scores, same order like fileList.
     let filePathScores: { id: number | null; score: number }[] | null = null
     for (const window of windows.values()) {
       if (window.type === WindowType.EDITOR) {
@@ -272,7 +231,6 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
         } else {
           const len = filePathScores.length
           for (let i = 0; i < len; ++i) {
-            // Update score only if the file is not already opened.
             if (filePathScores[i].score !== -1 && filePathScores[i].score < scores[i].score) {
               filePathScores[i] = scores[i]
             }
@@ -284,13 +242,12 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     const buf: { windowId: number | null; fileList: string[] }[] = []
     const len = filePathScores!.length
     for (let i = 0; i < len; ++i) {
-      let { id: windowId, score } = filePathScores![i]
+      const { id, score } = filePathScores![i]
+      let windowId = id
 
       if (score === -1) {
-        // Skip files that already opened.
         continue
       } else if (score === 0) {
-        // There is no best window to open the file(s) in.
         windowId = lastActiveEditorId
       }
 
@@ -312,15 +269,12 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     return this._windows.size
   }
 
-  // --- helper ---------------------------------
 
   closeWatcher(): void {
     this._watcher.close()
   }
 
-  /**
-   * Closes the browser window and associated application window without asking to save documents.
-   */
+  /** Close without prompting to save documents. */
   forceClose(browserWindow: IBrowserWindow | null | undefined): boolean {
     if (!browserWindow) {
       return false
@@ -329,14 +283,11 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     const { id: windowId } = browserWindow
     const { _appMenu, _windows } = this
 
-    // Free watchers used by this window
     this._watcher.unwatchByWindowId(windowId)
 
-    // Application clearup and remove listeners
     _appMenu.removeWindowMenu(windowId)
     const window = this.remove(windowId)
 
-    // Destroy window wrapper and browser window
     if (window) {
       window.destroy()
     } else {
@@ -344,16 +295,12 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
       browserWindow.destroy()
     }
 
-    // Quit application on macOS if not windows are opened.
     if (_windows.size === 0) {
       app.quit()
     }
     return true
   }
 
-  /**
-   * Closes the application window and associated browser window without asking to save documents.
-   */
   forceCloseById(windowId: number): boolean {
     const browserWindow = this.getBrowserWindow(windowId)
     if (browserWindow) {
@@ -362,7 +309,6 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     return false
   }
 
-  // --- private --------------------------------
 
   private _listenForIpcMain(): void {
     // HACK: Don't use this event! Please see #1034 and #1035
@@ -377,10 +323,8 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
       editor.addToOpenedFiles(filePath)
     })
 
-    // Force close a BrowserWindow
     ipcMain.on('mt::close-window', (e) => {
       const win = BrowserWindow.fromWebContents(e.sender)
-      // Before closing, update the buffer store if needed
       this.editorBufferStore.handleClose(
         (win as unknown as { restoreBufferId?: string })?.restoreBufferId,
         this.getWindowsByType('editor')
@@ -397,6 +341,13 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
         return
       }
       editor.openTab(filePath, options, true)
+    })
+
+    ipcMain.on('mt::cancel-pending-preview', (e, requestId: number) => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      if (!win) return
+      const editor = this.get(win.id) as EditorWindow | undefined
+      editor?.cancelPendingPreview(requestId)
     })
 
     ipcMain.on('mt::window-tab-closed', (e, pathname: string) => {
@@ -416,7 +367,26 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
       this._appMenu.updateAlwaysOnTopMenu(win.id, flag)
     })
 
-    // --- local events ---------------
+
+    ipcMain.handle('mt::project-remove-root', (event, key: string) => {
+      const win = BrowserWindow.fromWebContents(event.sender)
+      const editor = win && this.get(win.id) as EditorWindow | undefined
+      return editor?.projectRoots?.remove(key) ?? false
+    })
+    ipcMain.handle('mt::project-retry-root', (event, key: string) => {
+      const win = BrowserWindow.fromWebContents(event.sender)
+      const editor = win && this.get(win.id) as EditorWindow | undefined
+      return editor?.projectRoots?.retry(key) ?? false
+    })
+    ipcMain.on('mt::project-renderer-ready', event => {
+      const win = BrowserWindow.fromWebContents(event.sender)
+      const editor = win && this.get(win.id) as EditorWindow | undefined
+      editor?.projectRoots?.startRestored()
+    })
+    onInternalChannel('app-add-directory-by-id', (windowId: number, pathname: string) => {
+      const editor = this.get(windowId) as EditorWindow | undefined
+      editor?.addFolder(pathname)
+    })
 
     onInternalChannel('watcher-unwatch-all-by-id', (windowId: number) => {
       this._watcher.unwatchByWindowId(windowId)
@@ -424,8 +394,8 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     onInternalChannel('watcher-watch-file', (win: IBrowserWindow, filePath: string) => {
       this._watcher.watch(win, filePath, 'file')
     })
-    onInternalChannel('watcher-watch-directory', (win: IBrowserWindow, pathname: string) => {
-      this._watcher.watch(win, pathname, 'dir')
+    onInternalChannel('watcher-watch-directory', (win: IBrowserWindow, pathname: string, context?: ProjectRootWatch) => {
+      this._watcher.watch(win, pathname, 'dir', context)
     })
     onInternalChannel('watcher-unwatch-file', (win: IBrowserWindow, filePath: string) => {
       this._watcher.unwatch(win, filePath, 'file')

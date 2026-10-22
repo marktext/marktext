@@ -1,12 +1,6 @@
-/** Minimal CodeMirror surface `scrollSourceEditorToLine` needs. */
-interface ISourceEditor {
-  setCursor: (
-    pos: { line: number, ch: number },
-    ch?: number | null,
-    options?: { scroll?: boolean }
-  ) => void
-  heightAtLine: (line: number, mode: 'local' | 'page' | 'div') => number
-}
+import type CodeMirror from 'codemirror'
+
+type ISourceEditor = Pick<CodeMirror.Editor, 'setCursor' | 'heightAtLine'>
 
 /**
  * Scroll the Source Code editor so `line` sits at the TOP of the viewport,
@@ -27,7 +21,8 @@ export function scrollSourceEditorToLine(
   line: number,
   scrollContainer: HTMLElement | null | undefined
 ): void {
-  editor.setCursor({ line, ch: 0 }, null, { scroll: false })
+  // `ch` is a positional filler: CodeMirror ignores it when `pos` is an object.
+  editor.setCursor({ line, ch: 0 }, undefined, { scroll: false })
 
   if (!scrollContainer) return
   const top = editor.heightAtLine(line, 'local')
@@ -43,16 +38,17 @@ export function scrollSourceEditorToLine(
  * document heading order muya builds the TOC from) to a CodeMirror line.
  */
 export function findMarkdownHeadingLine(markdown: string, headingIndex: number): number {
-  if (headingIndex < 0) return -1
+  return getMarkdownHeadingLines(markdown)[headingIndex] ?? -1
+}
 
+export function getMarkdownHeadingLines(markdown: string): number[] {
+  const result: number[] = []
   const lines = markdown.split('\n')
   let fence: string | null = null
-  let count = 0
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
 
-    // Toggle fenced-code-block state on ``` / ~~~ markers.
     const fenceMatch = line.match(/^ {0,3}(`{3,}|~{3,})/)
     if (fenceMatch) {
       const marker = fenceMatch[1][0]
@@ -62,22 +58,17 @@ export function findMarkdownHeadingLine(markdown: string, headingIndex: number):
     }
     if (fence !== null) continue
 
-    // ATX heading.
     if (/^ {0,3}#{1,6}(?:\s|$)/.test(line)) {
-      if (count === headingIndex) return i
-      count++
+      result.push(i)
       continue
     }
 
-    // Setext heading: a non-blank line immediately followed by an `===`/`---`
-    // underline.
     const next = lines[i + 1]
     if (line.trim() !== '' && next !== undefined && /^ {0,3}(?:=+|-+)\s*$/.test(next)) {
-      if (count === headingIndex) return i
-      count++
+      result.push(i)
       i++ // consume the underline line
     }
   }
 
-  return -1
+  return result
 }

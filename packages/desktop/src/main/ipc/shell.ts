@@ -1,4 +1,4 @@
-import { ipcMain, shell, clipboard } from 'electron'
+import { ipcMain, shell, clipboard, nativeImage } from 'electron'
 import log from 'electron-log'
 import * as plist from 'plist'
 
@@ -31,13 +31,26 @@ export const registerShellHandlers = (): void => {
     }
   })
 
-  ipcMain.on('mt::clipboard::write-text', (_e, text: string) => {
+  ipcMain.handle('mt::clipboard::write-text', (_e, text: string) => {
     try {
       clipboard.writeText(text)
-    } catch (err) {
-      log.error('clipboard.writeText failed:', err)
+      return true
+    } catch {
+      return false
     }
   })
+  ipcMain.handle('mt::clipboard::write-image', (_e, png: Uint8Array) => {
+    try {
+      const image = nativeImage.createFromBuffer(Buffer.from(png))
+      if (image.isEmpty()) return false
+      clipboard.writeImage(image)
+      return true
+    } catch (err) {
+      log.error('clipboard.writeImage failed:', err)
+      return false
+    }
+  })
+
   ipcMain.handle('mt::clipboard::read-text', () => {
     try {
       return clipboard.readText()
@@ -62,7 +75,12 @@ export const registerShellHandlers = (): void => {
         // UTF-16LE instead, then take the first non-empty entry.
         const buffer = clipboard.readBuffer('FileNameW')
         if (buffer.length > 0) {
-          return buffer.toString('utf16le').split('\u0000').find(p => p.length > 0) ?? ''
+          return (
+            buffer
+              .toString('utf16le')
+              .split('\u0000')
+              .find((p) => p.length > 0) ?? ''
+          )
         }
         return ''
       }

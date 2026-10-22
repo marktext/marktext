@@ -9,8 +9,6 @@ interface ICreateDomOptions {
     datasets: IDatasets;
 }
 
-// Typed querySelector. Defaults to HTMLElement which is what almost every
-// callsite wants; pass an explicit type parameter for anything more specific.
 export function query<T extends Element = HTMLElement>(
     selector: string,
     parent: ParentNode = document,
@@ -18,8 +16,6 @@ export function query<T extends Element = HTMLElement>(
     return parent.querySelector<T>(selector);
 }
 
-// Typed querySelectorAll, returning a plain array (most callers want to
-// .map / .filter, not the live NodeList).
 export function queryAll<T extends Element = HTMLElement>(
     selector: string,
     parent: ParentNode = document,
@@ -27,11 +23,7 @@ export function queryAll<T extends Element = HTMLElement>(
     return Array.from(parent.querySelectorAll<T>(selector));
 }
 
-// Walk up from `node` (inclusive) to the nearest scrollable ancestor. The
-// editor's scroll container is not fixed across embeddings — in the desktop
-// app `muya.domNode` itself scrolls (`overflow:auto`), while other hosts may
-// scroll an ancestor. Float tools must listen on whichever element actually
-// scrolls, since scroll events do not bubble. Falls back to `node`.
+// Embedders may scroll the editor itself or an ancestor; fall back to document scrolling.
 export function findScrollContainer(node: HTMLElement): HTMLElement {
     let el: HTMLElement | null = node;
     while (el && el !== document.body && el !== document.documentElement) {
@@ -45,10 +37,7 @@ export function findScrollContainer(node: HTMLElement): HTMLElement {
     return node;
 }
 
-// Read the Muya block stamped onto a DOM element. `BLOCK_DOM_PROPERTY` is a
-// string property attached by `TreeNode.attachDOMNode`; centralising the
-// cast here means callsites never need to reach into `element[KEY]` with
-// `as` themselves.
+// Read the block reference stamped on rendered DOM elements.
 export function getBlock(el: Element | null | undefined): Parent | Content | undefined {
     if (!el)
         return undefined;
@@ -76,9 +65,6 @@ export function createDomNode(tagName: string, { classList = [], attributes = {}
     return domNode;
 }
 
-/**
- * [description `add` or `remove` className of element
- */
 export function operateClassName(element: HTMLElement, ctrl: 'add' | 'remove', className: string) {
     const existed = element.classList.contains(className);
 
@@ -92,7 +78,6 @@ export function insertBefore(newNode: HTMLElement, originNode: HTMLElement) {
         parentNode.insertBefore(newNode, originNode);
 }
 
-// DOM operations
 export function insertAfter(newNode: HTMLElement, originNode: HTMLElement) {
     const parentNode = originNode.parentNode;
 

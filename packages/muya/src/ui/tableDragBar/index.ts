@@ -245,7 +245,7 @@ export class TableDragBar extends BaseFloat {
         if (this._mouseTimer) {
             clearTimeout(this._mouseTimer);
             this._mouseTimer = null;
-            if (barType === 'right') {
+            if (barType && this._block) {
                 eventCenter.emit('muya-table-bar', {
                     reference: {
                         getBoundingClientRect: () => container!.getBoundingClientRect(),

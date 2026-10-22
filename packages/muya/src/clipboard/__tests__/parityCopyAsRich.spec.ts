@@ -4,23 +4,6 @@ import type { Muya } from '../../muya';
 import { describe, expect, it, vi } from 'vitest';
 import { CopyType } from '../types';
 
-// PARITY SCOREBOARD — gap PG9 (file PG-COPYRICH).
-//
-// Legacy `packages/muyajs` "Copy as Rich Text" put the rendered HTML into
-// `text/html` (so pasting into Word / email yields formatted rich text) plus
-// the markdown source into `text/plain`.
-//
-// `@muyajs/core` exposes no `copyAsRich` path. The desktop renderer maps
-// `copyAsRich` → `copyAsHtml`, whose `copyHandler` branch does
-// `setData('text/html', '')` + `setData('text/plain', html)` — pasting yields
-// the raw HTML markup as literal text, NOT rich text. The engine's `normal`
-// copyType already does the rich thing (`text/html = html`,
-// `text/plain = text`) but is not exposed as a method/copyType.
-//
-// These tests assert the DESIRED `copyAsRich` behaviour. The engine now adds
-// the `copyAsRich` copyType in `copyHandler` plus the `copyAsRich()` method on
-// `Clipboard`/`Muya` (PG-COPYRICH), so they pass.
-
 // The clipboard module pulls in CodeBlockContent → utils/prism which touches
 // `window` at import time. Stub the prism shim so the test can run under Node.
 vi.mock('../../utils/prism/index', () => ({
@@ -60,8 +43,6 @@ describe('parity PG9: copyAsRich writes rendered HTML as rich text', () => {
 
             clipboard.copyHandler(event);
 
-            // Desired: rich-text contract — html in the html slot (so a
-            // rich-text target renders it), source in the plain slot.
             expect(setData).toHaveBeenCalledWith('text/html', html);
             expect(setData).toHaveBeenCalledWith('text/plain', text);
         },

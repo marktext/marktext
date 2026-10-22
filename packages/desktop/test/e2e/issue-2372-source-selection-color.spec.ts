@@ -30,7 +30,6 @@ test.describe('#2372 source-mode selection colour', () => {
   })
 
   test('selection background is the visible editor selection colour, not near-background', async() => {
-    // Select all via the real CodeMirror instance so it renders .CodeMirror-selected.
     await page.evaluate(() => {
       const cm = (document.querySelector('.source-code .CodeMirror') as Element & { CodeMirror?: { focus: () => void; execCommand: (c: string) => void } }).CodeMirror
       cm!.focus()
@@ -50,9 +49,6 @@ test.describe('#2372 source-mode selection colour', () => {
       return { selBg: getComputedStyle(sel).backgroundColor, selectionColor }
     })
 
-    // Source-mode selection now matches the editor's --selection-color
-    // (consistent with WYSIWYG mode), and is no longer the near-invisible
-    // railscasts colour rgb(39, 41, 53) (#272935).
     expect(selBg).toBe(selectionColor)
     expect(selBg).not.toBe('rgb(39, 41, 53)')
   })

@@ -1,8 +1,5 @@
-import { isOsx } from '@/util'
+import { isMac } from '@/util'
 
-/**
- * High level spell checker API based on Chromium built-in spell checker.
- */
 export class SpellChecker {
   enabled: boolean
   currentSpellcheckerLanguage: string
@@ -17,9 +14,6 @@ export class SpellChecker {
     this.isProviderAvailable = true
   }
 
-  /**
-   * Whether the spell checker is available and enabled.
-   */
   get isEnabled(): boolean {
     return this.isProviderAvailable && this.enabled
   }
@@ -31,7 +25,7 @@ export class SpellChecker {
     try {
       this.enabled = true
       this.isProviderAvailable = true
-      if (isOsx) {
+      if (isMac) {
         // No language string needed on macOS.
         await window.electron.ipcRenderer.invoke('mt::spellchecker-set-enabled', true)
         return true
@@ -43,18 +37,12 @@ export class SpellChecker {
     }
   }
 
-  /**
-   * Disables the native spell checker.
-   */
   deactivateSpellchecker(): void {
     this.enabled = false
     this.isProviderAvailable = false
     window.electron.ipcRenderer.invoke('mt::spellchecker-set-enabled', false)
   }
 
-  /**
-   * Return the current language.
-   */
   get lang(): string {
     if (this.isEnabled) {
       return this.currentSpellcheckerLanguage
@@ -72,7 +60,7 @@ export class SpellChecker {
    * NOTE: This function can throw an exception.
    */
   async switchLanguage(lang: string): Promise<boolean> {
-    if (isOsx) {
+    if (isMac) {
       // NB: macOS uses the OS spell checker and detects language automatically.
       return true
     } else if (!lang) {
@@ -85,11 +73,8 @@ export class SpellChecker {
     return false
   }
 
-  /**
-   * Returns a list of available dictionaries.
-   */
   static async getAvailableDictionaries(): Promise<string[]> {
-    if (isOsx) {
+    if (isMac) {
       // NB: macOS uses the OS spell checker and detects language automatically.
       return []
     }
