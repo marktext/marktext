@@ -8,11 +8,11 @@ Please see [here](IMAGE_UPLOADER_CONFIGRATION.md) for more information.
 
 ### Move to designated local folder
 
-All images are automatically copied into the specified local directory that may be relative.
+With `imageInsertAction=folder`, inserted local image files and binary images are copied into the configured directory. Remote URLs are kept as URLs. The destination can be relative for saved documents.
 
 **Prefer relative assets folder:**
 
-When this option is enabled, all images are copied relative to the opened file. Choose `imageRelativeDirectoryBase=file` to anchor the directory next to the document or `folder` to anchor it at its project root. You can specify the path via the _relative image folder name_ text box and include variables like `${filename}` to add the file name to the relative directory. The local resource directory is used if the file is not saved.
+Enable this option to use a relative destination for local copies associated with a saved document. Choose `imageRelativeDirectoryBase=file` to anchor the directory next to the document or `folder` to anchor it at its project root. You can specify the path via the _relative image folder name_ text box and include variables like `${filename}` to add the file name to the relative directory. For unsaved documents, copies use the configured global image folder instead. If the folder base is selected but no matching project root contains the file, MarkText falls back to the document directory. `${filename}` expands to the document name without its extension.
 
 Note: The assets directory name must be a valid path name and MarkText need write access to the directory.
 
@@ -26,11 +26,11 @@ Examples for relative paths:
 
 ### Keep original location
 
-MarkText only saves images from clipboard into the specified local directory.
+Existing path strings are kept unchanged. Binary images, including pasted clipboard images, are written to the configured image folder; a saved document can use its configured relative image folder.
 
 ## Media viewer
 
-Open an image preview to inspect it in the media viewer. Rendered diagrams also have a **View** action in their hover toolbar. Use the mouse wheel or the zoom buttons to zoom, and drag to pan.
+In the WYSIWYG editor, Command-click an image on macOS or Ctrl-click it on Linux/Windows to open the media viewer. The image preview action also opens this viewer. Rendered diagrams also have a **View** action in their hover toolbar. Use the mouse wheel or the zoom buttons to zoom, and drag to pan.
 
 The viewer supports <kbd>+</kbd>/<kbd>-</kbd> for zoom, <kbd>0</kbd> to fit, <kbd>1</kbd> for actual size, arrow keys to pan, and <kbd>Esc</kbd> to close. Diagram controls offer PNG export and, when available, SVG export, plus copying as a PNG. Available actions depend on the content being viewed.
 

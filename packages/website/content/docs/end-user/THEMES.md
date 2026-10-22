@@ -9,7 +9,7 @@ The names below match the labels shown in the **Theme** menu. The underlying id 
 | Theme                 | Description                                    |
 | --------------------- | ---------------------------------------------- |
 | **Ayu Light**         | Warm, comfortable light theme with soft colors |
-| **Cadmium Light**     | Clean, minimal light theme (default)           |
+| **Cadmium Light**     | Clean, minimal light theme                     |
 | **Catppuccin Latte**  | Soothing pastel theme with warm tones          |
 | **Everforest Light**  | Nature-inspired green-tinted light theme       |
 | **Graphite Light**    | Cool gray-toned light theme                    |
@@ -53,7 +53,7 @@ You can switch themes in several ways:
 
 1. **Menu**: Go to `Theme` menu and select your preferred theme
 2. **Preferences**: Open `Preferences` → `Theme` tab to preview and select themes
-3. **Follow System**: Enable "Follow System Theme" to automatically switch between light and dark themes based on your system settings
+3. **Follow System**: "Follow System Theme" is enabled on first launch. It switches between the configured light and dark themes with the system. Disable it to select a fixed theme.
 
 ## Theme Screenshots
 
@@ -83,18 +83,18 @@ You can switch themes in several ways:
 
 ## Custom Themes
 
-Custom theme support is planned for a future release. In the meantime, you can use the "Custom CSS" option in Preferences → Theme to override theme styles.
+Use **Custom CSS** in Preferences → Theme to override the active theme's styles. The Theme menu and preferences expose the built-in themes listed above; they do not provide a custom-theme import control.
 
 ## Theme Credits
 
 Many of these themes are inspired by popular color schemes from the developer community:
 
-- [Catppuccin](https://github.com/catppuccin/catppuccin) - MIT License
-- [Dracula](https://github.com/dracula/dracula-theme) - MIT License
-- [Everforest](https://github.com/sainnhe/everforest) - MIT License
-- [Gruvbox](https://github.com/morhetz/gruvbox) - MIT License
-- [Nord](https://github.com/nordtheme/nord) - MIT License
-- [Rosé Pine](https://github.com/rose-pine/rose-pine-theme) - MIT License
-- [Solarized](https://github.com/altercation/solarized) - MIT License
-- [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme) - MIT License
-- [Gogh Themes](https://github.com/Gogh-Co/Gogh) - MIT License (color palette reference)
+- [Catppuccin](https://github.com/catppuccin/catppuccin)
+- [Dracula](https://github.com/dracula/dracula-theme)
+- [Everforest](https://github.com/sainnhe/everforest)
+- [Gruvbox](https://github.com/morhetz/gruvbox)
+- [Nord](https://github.com/nordtheme/nord)
+- [Rosé Pine](https://github.com/rose-pine/rose-pine-theme)
+- [Solarized](https://github.com/altercation/solarized)
+- [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme)
+- [Gogh Themes](https://github.com/Gogh-Co/Gogh) (color palette reference)

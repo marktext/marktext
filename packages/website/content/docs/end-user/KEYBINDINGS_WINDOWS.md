@@ -94,6 +94,7 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 | `window.minimize`             | <kbd>Ctrl</kbd>+<kbd>M</kbd> | Minimize the window       |
 | `window.toggle-always-on-top` | -                            | Toggle always on top mode |
 | `window.zoomIn`               | -                            | Zoom in                   |
+| `window.resetZoom`            | -                            | Reset zoom                |
 | `window.zoomOut`              | -                            | Zoom out                  |
 | `window.toggle-full-screen`   | <kbd>F11</kbd>               | Toggle fullscreen mode    |
 

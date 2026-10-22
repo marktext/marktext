@@ -1,6 +1,6 @@
 # Markdown Syntax
 
-Markdown is a easy-to-use markup language for writing and this document contains all supported markdown features.
+This guide introduces Markdown syntax supported by MarkText and the optional extensions controlled by Preferences → Markdown.
 
 ## Table of contents
 
@@ -292,18 +292,18 @@ Note that placement of achors is arbitrary, you can put them anywhere you want, 
 Images have a similar syntax to links but include a preceding exclamation point.
 
 ```markdown
-![MarkText](https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png)
+![MarkText](https://raw.githubusercontent.com/marktext/marktext/develop/packages/desktop/static/icon.png)
 ```
 
-![MarkText](https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png)
+![MarkText](https://raw.githubusercontent.com/marktext/marktext/develop/packages/desktop/static/icon.png)
 
 or
 
 ```markdown
-![Alt text](hhttps://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png 'MarkText logo')
+![Alt text](https://raw.githubusercontent.com/marktext/marktext/develop/packages/desktop/static/icon.png 'MarkText logo')
 ```
 
-![Alt text](https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png 'MarkText logo')
+![Alt text](https://raw.githubusercontent.com/marktext/marktext/develop/packages/desktop/static/icon.png 'MarkText logo')
 
 Like links, Images also have a footnote style syntax
 
@@ -315,10 +315,10 @@ Like links, Images also have a footnote style syntax
 
 With a reference later in the document defining the URL location:
 
-[id]: https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png 'MarkText logo'
+[id]: https://raw.githubusercontent.com/marktext/marktext/develop/packages/desktop/static/icon.png 'MarkText logo'
 
 ```markdown
-[id]: https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png 'MarkText logo'
+[id]: https://raw.githubusercontent.com/marktext/marktext/develop/packages/desktop/static/icon.png 'MarkText logo'
 ```
 
 <br>
@@ -521,7 +521,7 @@ Tables are created by adding pipes as dividers between each cell, and by adding 
 
 - pipes do not need to be vertically aligned.
 - pipes on the left and right sides of the table are sometimes optional
-- three or more dashes must be used for each cell in the separator row
+- use three or more dashes in each separator cell for readability
 
 Example:
 
@@ -705,7 +705,7 @@ To paste, please press <kbd>CmdOrCtrl</kbd>+<kbd>V</kbd>
 
 ## Emojis
 
-Github-Flavored Markdown (GFM) supports also Emojis. :heart_eyes: :smile: :joy:
+MarkText supports emoji shortcodes and an emoji picker. :heart_eyes: :smile: :joy:
 
 To add an emojis, just surround the emoji name with colons, like this:
 
@@ -744,7 +744,7 @@ TOML front matter blocks are identified by an opening and closing `+++` line.
 
 ```markdown
 +++
-title = "YAML front matter example"
+title = "TOML front matter example"
 key = "value"
 +++
 
@@ -757,7 +757,7 @@ JSON front matter blocks are identified by an opening and closing `;;;` line or 
 
 ```markdown
 {
-"title": YAML front matter example
+"title": "JSON front matter example",
 "key": {
 "subkey1": "value 1",
 "subkey2": "value 2"
@@ -814,7 +814,7 @@ Extensions**:
 | `texMathSingleBackslash` | `\(…\)`   | `\[…\]`   |
 | `texMathDoubleBackslash` | `\\(…\\)` | `\\[…\\]` |
 
-Both are **off by default**, as they are in Pandoc. Turning the first one on
+Both are **off by default** in MarkText. Turning the first one on
 costs you the ability to escape `(` and `[`, so a line such as `- \[TODO\]`
 starts reading as a formula rather than as literal brackets — which is why you
 have to ask for it.
@@ -827,7 +827,7 @@ alone.
 
 ## Diagrams
 
-MarkText support class, flow chart, gantt and sequence diagrams powered by flowchart.js, mermaid and Vega-Lite. [Code](#code) blocks with special language identifiers are used for diagrams.
+MarkText recognizes the diagram fence languages `mermaid`, `plantuml`, `vega-lite`, `flowchart` and `sequence`. Mermaid supports diagram types such as flowcharts, Gantt charts, sequence diagrams and class diagrams. [Code](#code) blocks with special language identifiers are used for diagrams.
 
 Hover a rendered diagram to get its toolbar. The magnifier opens the diagram
 full-screen, scaled to fit the window so a large one arrives readable. From
@@ -838,9 +838,7 @@ controls and `Esc` closes it.
 
 From that view a diagram can also be saved as SVG, saved as PNG, or copied to
 the clipboard as an image — handy for pasting a diagram into a chat or a slide
-without exporting the whole document. A saved file carries the editor's
-background and draws its labels as plain text, so it reads the same wherever it
-is opened rather than only in a browser.
+without exporting the whole document. For locally rendered diagrams, PNG export uses the editor's background. The exporter inlines diagram styles and re-renders Mermaid labels without HTML labels; PlantUML SVG/PNG data is fetched from the configured server.
 
 For example, this:
 
@@ -937,7 +935,7 @@ Future task               :         des3, after des2, 5d
 Future task2               :         des4, after des3, 5d
 ```
 
-## Class diagram (experimental)
+## Class diagram
 
 ```mermaid
 classDiagram
@@ -975,17 +973,17 @@ Alice <-- Bob: Another authentication Response
 
 ## Raw HTML
 
-Any text between `<` and `>` that looks like an HTML tag will be parsed as a raw HTML tag and rendered to HTML without escaping.
+In the editor, `isHtmlEnabled` in Markdown preferences controls HTML rendering. Exported HTML is sanitized as well, so unsafe markup is not passed through unchanged.
 
 Example:
 
 ```markdown
-**Visit <a href="https://github.com">Jon Schlinkert's GitHub Profile</a>.**
+**Visit <a href="https://github.com">GitHub</a>.**
 ```
 
 Renders to:
 
-**Visit <a href="https://github.com">Jon Schlinkert's GitHub Profile</a>.**
+**Visit <a href="https://github.com">GitHub</a>.**
 
 ## Escaping with backslashes
 

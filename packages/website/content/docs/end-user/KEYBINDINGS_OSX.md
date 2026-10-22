@@ -104,6 +104,7 @@ Modifier keys use their full macOS names and appear in this order: Control, Opti
 | `window.minimize`             | <kbd>Command</kbd>+<kbd>M</kbd>                    | Minimize the window       |
 | `window.toggle-always-on-top` | -                                                  | Toggle always on top mode |
 | `window.zoomIn`               | -                                                  | Zoom in                   |
+| `window.resetZoom`            | -                                                  | Reset zoom                |
 | `window.zoomOut`              | -                                                  | Zoom out                  |
 | `window.toggle-full-screen`   | <kbd>Control</kbd>+<kbd>Command</kbd>+<kbd>F</kbd> | Toggle fullscreen mode    |
 

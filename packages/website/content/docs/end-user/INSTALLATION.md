@@ -23,13 +23,7 @@ The current application requires macOS 12 (Monterey) or later; see [supported pl
 | `marktext-mac-x64-<version>.dmg`    | Intel Macs.                       |
 | `marktext-mac-<arch>-<version>.zip` | Plain zip alternative to the DMG. |
 
-Open the DMG and drag MarkText into your **Applications** folder. Builds are not currently notarized, so the first launch may prompt the system Gatekeeper — right-click the app and choose **Open** to accept it once.
-
-You can also install via Homebrew Cask:
-
-```sh
-brew install --cask mark-text
-```
+Open the DMG and drag MarkText into your **Applications** folder. The packaging configuration sets `mac.notarize: false`, so macOS may block the first launch. If macOS blocks the app, review the system's security prompt before proceeding.
 
 ## Linux
 
@@ -37,13 +31,11 @@ MarkText ships x64 packages in five Linux formats. Since 0.23.0, arm64 packages 
 
 | Artifact                            | When to choose                                                                                              |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `marktext-linux-<version>.AppImage` | Recommended. Runs on most distros without root. `chmod +x` and double-click (or run directly).              |
+| `marktext-linux-<version>.AppImage` | Standalone executable. Requires compatible system libraries. `chmod +x` and double-click (or run directly). |
 | `marktext-linux-<version>.deb`      | Debian, Ubuntu, Linux Mint, Pop!_OS, … (`sudo apt install ./marktext-linux-<version>.deb`).                 |
 | `marktext-linux-<version>.rpm`      | Fedora, RHEL, openSUSE, … (`sudo rpm -i marktext-linux-<version>.rpm`).                                     |
-| `marktext-linux-<version>.snap`     | Ubuntu / any snap-enabled distro (`sudo snap install marktext-linux-<version>.snap --dangerous --classic`). |
+| `marktext-linux-<version>.snap`     | Ubuntu / any snap-enabled distro (`sudo snap install marktext-linux-<version>.snap --dangerous`).           |
 | `marktext-linux-<version>.tar.gz`   | Portable tarball. Extract and run the included `marktext` binary.                                           |
-
-Arch Linux users can install MarkText from the AUR (`marktext-bin`).
 
 > [!NOTE]
 > See [Linux notes](LINUX.md) for distro-specific tips (sandbox flags, font configuration, file-association quirks).
@@ -53,9 +45,11 @@ Arch Linux users can install MarkText from the AUR (`marktext-bin`).
 All artifacts are listed with their SHA-256 in `SHA256SUMS.txt`. Verify with:
 
 ```sh
-# Example on macOS / Linux
+# Linux with GNU coreutils
 sha256sum -c SHA256SUMS.txt --ignore-missing
 ```
+
+On macOS, use `shasum -a 256 <downloaded-file>` and compare its output with the matching entry in `SHA256SUMS.txt`.
 
 ## Build from source
 
@@ -72,7 +66,7 @@ This example packages Linux x64. On another host or architecture, choose the mat
 
 ## Updating
 
-Use the application's **Check for Update** action to look for an update. If one is available, MarkText asks whether to download and install it. Downloading starts after confirmation; once it finishes, the application quits to install the update. Save your work before accepting.
+Use the application's **Check for Updates** action to look for an update. If one is available, MarkText asks whether to download and install it. Downloading starts after confirmation; once it finishes, the application quits to install the update. Save your work before accepting.
 
 You can also download a newer package from the releases page and install or extract it using the instructions above.
 

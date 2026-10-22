@@ -14,12 +14,12 @@ You can select text with your mouse cursor, double click on a word or use the ke
 
 The format overlay is a pop-up that automatically appears when you're selecting text. You can easily transform text and inline markdown, and remove formatting.
 
-![](../assets/marktext-format-popup.png)
-
 - Bold
 - Italics
 - Underline
 - Strikethrough
+- Highlight (when enabled in Markdown preferences)
+- Text and background colors
 - Inline code
 - Inline math formulas
 - Create link
@@ -34,17 +34,15 @@ Do you want to delete headings, lists or tables? Just select the area and press 
 
 ## Brackets and quotes autocompletion
 
-You can configure MarkText to autocomplete markdown syntax, brackets and quotes. By default `()`, `[]`, `{}`, `**`, `__`, `$$`, `""` and `''` are completed when the first character is typed.
+You can configure MarkText to autocomplete markdown syntax, brackets and quotes. These options are enabled by default. Pair insertion depends on the cursor context, such as surrounding characters and whether the cursor is inside code or math.
 
 ## Links
 
 Links are displayed by default as normal text, but if you click on a link it is shown as a markdown link with title and URL, as shown below:
 
-![](../assets/marktext-link-preview.png)
-
 ## Formatting
 
-MarkText will automatically format your markdown document according CommonMark and GitHub Flavored Markdown specification. Some settings, such as list indentation, can be controlled via preferences.
+MarkText parses and exports Markdown using Muya, with CommonMark/GFM syntax and optional extensions controlled by preferences. Some settings, such as list indentation, can be controlled via preferences.
 
 ## Editing features
 
@@ -52,47 +50,31 @@ MarkText will automatically format your markdown document according CommonMark a
 
 When you start a new line, just type / to access a pop-up with all available markdown features. At this point, you can choose an entry and the line is transformed into the selected attribute.
 
-![](../assets/marktext-quick-insert.png)
-
 #### Line transformer
 
-You can transform a line into another type by clicking on the highlighted icon in the image below and select `Turn Into`. Furthermore, you can duplicate the selected line, create a paragraph above the selected line or delete the line.
-
-![](../assets/marktext-line-transformer.png)
+You can transform a line into another type by clicking on the highlighted icon in the image below and select `Turn Into`. Furthermore, you can duplicate the selected line, create a paragraph after the selected block or delete the line.
 
 #### Table tools
 
-It's sometimes hard to write and manage tables in markdown. In MarkText you can press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> to get a table dialog and create a table with variable row and column count. Both row and column count can be changed via the table tools (first icon above the table) later if necessary. You can use all inline styles in a table cell and align the text via table tools at the top of the table.
+It's sometimes hard to write and manage tables in markdown. In MarkText you can press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> to get a table dialog and create a table with variable row and column count. Both row and column count can be changed via the table tools (first icon above the table) later if necessary. You can apply inline formatting in a table cell and align the text via table tools at the top of the table.
 
 **Insert and delete rows and columns:**
 
 You can insert or delete a new row or column by clicking on an existing cell and clicking on the menu on the right side for rows or bottom for columns.
 
-![](../assets/marktext-table_drag_drop.png)
-
 **Move table cells:**
 
 You can simply move a row or column by clicking on the cell menu (like above) and dragging it by holding your left mouse button like this:
 
-![](../assets/marktext-table-gif.gif)
-
 #### Image tools
 
-![](../assets/marktext-image-viewer.png)
-
-MarkText provides an image viewer and a pop-up to select and label images. You can resize any image using your mouse cursor; changes are applied in realtime. By clicking on an image or writing `![]()` a pop-up automatically appears that allows you to select an image from disk, or paste a path or URL. Images can be automatically uploaded to cloud, or moved to a relative or absolute path on your local disk. Even pasting images that are not located on disk is supported and these images are stored in the background. In addition, you can control the image alignment whether inline, left, centered or right.
-
-![](../assets/marktext-image-popup.png)
+MarkText provides an image viewer and a pop-up to select and label images. You can resize images using the image handles; changes are applied in realtime. By clicking on an image or writing `![]()` a pop-up automatically appears that allows you to select an image from disk, or paste a path or URL. Images can be automatically uploaded to cloud, or copied into a configured local folder. Even pasting images that are not located on disk is supported and these images are stored in the background. In addition, you can control the image alignment whether inline, left, centered or right.
 
 #### Emoji picker
 
 Instantly add emojis to your markdown document without long searches. While typing, the application automatically refreshes the list of available emojis.
 
-![](../assets/marktext-emoji-picker.png)
-
 #### Focus mode
-
-![](../assets/marktext-focus-mode.png)
 
 The focus mode will help you to focus on the currently line only by fading out other lines. To activate the focus mode, simply press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>.
 
@@ -102,11 +84,11 @@ In typewriter mode, the cursor is always keep in the middle of the editor.
 
 ## File encoding
 
-MarkText tries to automatically detect the encoding and byte-order mark (BOM) of a file upon opening it. The default encoding is UTF-8 that should support all needed characters but can be changed in settings. You can disable automatic encoding detection; however, the application will then assume that all files are UTF-8 encoded. The currently used encoding can be shown and changed via command palette.
+MarkText tries to automatically detect the encoding and byte-order mark (BOM) of a file upon opening it. New documents use the configured default encoding (UTF-8 by default). Opening an existing file first checks for UTF-8/UTF-16 byte-order marks. If automatic guessing is disabled, files without a recognized BOM are decoded as UTF-8; with guessing enabled, valid UTF-8 is preferred before trying the legacy-encoding detector. The currently used encoding can be shown and changed via command palette.
 
 ## Line endings
 
-MarkText automatically analyzes each file and detects the used line ending and can be changed via command palette too.
+MarkText detects LF and CRLF line endings when loading files and uses LF internally. Change the selected save line ending through the command palette.
 
 ## Find and replace
 
