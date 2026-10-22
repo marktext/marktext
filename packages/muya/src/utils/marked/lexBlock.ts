@@ -1,12 +1,12 @@
 import type { Token } from 'marked';
 import type { IFrontmatterToken, ILexOption, TLexedToken } from './types';
+import { Marked } from 'marked';
 import compatibleTaskList from './compatibleTaskList';
 import footnoteExtension from './extensions/footnote';
 import githubAlertsExtension, { normalizeGithubAlertTokens } from './extensions/githubAlerts';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
 import multilineBlockquoteExtension from './extensions/multilineBlockquote';
 import fm from './frontMatter';
-import { LinearMarked } from './linearMarked';
 import { DEFAULT_OPTIONS } from './options';
 import walkTokens from './walkTokens';
 
@@ -19,7 +19,7 @@ export function lexBlock(
     let tokens: (Token | IFrontmatterToken)[] = [];
 
     // Per-call Marked instances prevent enabled extensions leaking into later calls.
-    const m = new LinearMarked();
+    const m = new Marked();
 
     if (texMathDollars) {
         m.use(

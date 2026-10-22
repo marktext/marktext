@@ -1,4 +1,5 @@
 import type { ILexOption } from './types';
+import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import Prism from 'prismjs';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
@@ -11,7 +12,6 @@ import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBa
 import multilineBlockquoteExtension from './extensions/multilineBlockquote';
 import superSubScriptExtension from './extensions/superSubscript';
 import fm, { frontMatterRender } from './frontMatter';
-import { LinearMarked } from './linearMarked';
 import { DEFAULT_OPTIONS } from './options';
 import walkTokens from './walkTokens';
 
@@ -44,7 +44,7 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
         = options;
 
     // Use a fresh Marked instance; repeated use() chains walkTokens and corrupts repeated renders.
-    const marked = new LinearMarked(markedHighlight({ highlight }));
+    const marked = new Marked(markedHighlight({ highlight }));
 
     marked.use({
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),

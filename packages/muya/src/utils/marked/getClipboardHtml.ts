@@ -1,4 +1,5 @@
 import type { ILexOption } from './types';
+import { Marked } from 'marked';
 import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
 import { sanitize } from '../index';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
@@ -10,7 +11,6 @@ import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBa
 import multilineBlockquoteExtension from './extensions/multilineBlockquote';
 import superSubScriptExtension from './extensions/superSubscript';
 import fm, { frontMatterRender } from './frontMatter';
-import { LinearMarked } from './linearMarked';
 import { DEFAULT_OPTIONS } from './options';
 import walkTokens from './walkTokens';
 
@@ -21,7 +21,7 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     let html = '';
 
     // Use a fresh Marked instance; global use() chains hooks and leaks options across renders.
-    const marked = new LinearMarked();
+    const marked = new Marked();
 
     marked.use({
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),
