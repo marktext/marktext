@@ -2,6 +2,7 @@ import type { ILexOption } from './types';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import Prism from 'prismjs';
+import compactNestedLists from './compactNestedLists';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import emojiExtension from './extensions/emoji';
 import footnoteExtension from './extensions/footnote';
@@ -38,7 +39,7 @@ function highlight(code: string, lang: string) {
     return Prism.highlight(code, grammar, lang);
 }
 
-export function getHighlightHtml(src: string, options: ILexOption = {}) {
+export function getHighlightHtml(src: string, options: ILexOption & { compactNestedLists?: boolean } = {}) {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
     const { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote }
         = options;
@@ -48,6 +49,10 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
     // cause walkTokens to fire N times after N invocations and corrupt token
     // state (e.g. wiping `lang` on subsequent runs).
     const marked = new Marked(markedHighlight({ highlight }));
+
+    // Export's pre-wrap stylesheet exposes marked's list-wrapper newlines (#5767).
+    if (options.compactNestedLists)
+        marked.use(compactNestedLists());
 
     marked.use({
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),

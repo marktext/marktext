@@ -49,3 +49,17 @@ test('tight nested lists export without blank lines between items (#5767)', asyn
         await context.close();
     }
 });
+
+test('raw HTML lists retain authored spaces in exports', async ({ page, browser }) => {
+    const markdown = '<ul><li><span>A</span><ul style="display:inline"><li style="display:inline">B</li></ul> <span>C</span></li></ul>';
+    const html = await page.evaluate(async md => new window.MarkdownToHtml!(md).generate(), markdown);
+    const context = await browser.newContext({ offline: true });
+    try {
+        const exported = await context.newPage();
+        await exported.setContent(html);
+        expect(await exported.locator('.markdown-body').innerText()).toBe('AB C');
+    }
+    finally {
+        await context.close();
+    }
+});

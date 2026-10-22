@@ -33,8 +33,40 @@ describe('#5767 — nested lists export without formatting whitespace', () => {
         expect(html).toContain('<li>line A\nline B<ul><li>nested</li></ul></li>');
     });
 
+    it('keeps soft line breaks within nested items', async () => {
+        const html = await render('- parent\n  - line A\n    line B\n  - next\n');
+        expect(html).toContain('<ul><li>line A\nline B</li><li>next</li></ul>');
+    });
+
     it('leaves top-level lists untouched', async () => {
         const html = await render('- one\n- two\n');
         expect(html).toContain('<ul>\n<li>one</li>\n<li>two</li>\n</ul>');
+    });
+
+    it('preserves authored whitespace around raw HTML nested lists', async () => {
+        const raw = '<ul><li><span>A</span><ul style="display:inline"> <li style="display:inline">B</li> </ul> <span>C</span></li></ul>';
+        expect(await render(raw)).toContain(raw);
+    });
+
+    it('preserves raw HTML nested inside a Markdown list item', async () => {
+        const raw = '<ul><li>A<ul><li>B</li></ul> <span>C</span></li></ul>';
+        expect(await render(`- parent\n\n  ${raw}\n`)).toContain(raw);
+    });
+
+    it('preserves paragraphs in loose nested lists', async () => {
+        const html = await render('- parent\n  - first\n\n    second\n  - third\n');
+        expect(html).toContain('<li><p>first</p>\n<p>second</p>\n</li>');
+        expect(html).toContain('<li><p>third</p>\n</li>');
+    });
+
+    it('preserves hard breaks and code whitespace in nested items', async () => {
+        const html = await render('- parent\n  - line A  \n    line B `a  b`\n');
+        expect(html).toContain('<li>line A<br>line B <code>a  b</code></li>');
+    });
+
+    it('preserves ordered list starts and task checkboxes', async () => {
+        const html = await render('- parent\n  3. third\n  4. fourth\n\n- [ ] task\n  - [x] nested\n');
+        expect(html).toContain('<ol start="3"><li>third</li><li>fourth</li></ol>');
+        expect(html).toContain('<input checked="" disabled="" type="checkbox"> nested');
     });
 });
