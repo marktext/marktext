@@ -8,13 +8,17 @@
 - Orange: sidebar
 - Red: editor with tabs and per-tab notification at the bottom
 
+The editor window contains a title bar, an optional sidebar, optional tabs and the document editor. A separate outline panel navigates the active document's headings. Layout visibility is coordinated by `packages/desktop/src/renderer/src/store/layout.ts`.
+
 ### Titlebar
 
-The titlebar is located at the top of the window and shows the current opened file path and the menu on Linux and Windows. On macOS we're using client-side decorations (CSD) that look similar to the picture above. On Linux and Windows there are two type of titlebar: a custom CSD that you can see in the image above and the native one.
+The title bar shows document information and the statistics counter. Linux and Windows expose the application menu and window controls in the custom title bar; the `titleBarStyle` preference also offers native window decorations. macOS uses the hidden-inset title-bar configuration in `packages/desktop/src/main/config.ts`.
 
 ### Sidebar
 
-The sidebar is an optional feature of MarkText that contains three panels and has a variable width. The first panel is a tree view of the opened root directory; it also hosts a collapsible _Opened Files_ subsection (toggle via the `openedFilesInSidebar` preference). The latter two panels are a folder searcher (find in files) that is powered by ripgrep and a table of contents of the currently opened document.
+The optional, resizable sidebar contains the filesystem explorer and a find-in-files search powered by ripgrep. The explorer includes a collapsible _Opened Files_ section (`openedFilesInSidebar`). In the 0.24.0 development version, it supports multiple folder roots, search across available roots, and a draggable divider below Opened Files.
+
+The document outline is a separate responsive panel, available since 0.23.0. It lists the active document's headings and can remain expanded or float in a compact window. The title-bar statistics popover shows document and selection counts, file timestamps and a per-tab Reading Mode switch.
 
 ### Editor
 

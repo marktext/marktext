@@ -80,6 +80,7 @@ export const DOC_TABS: DocTab[] = [
         pages: [
           { slug: ['dev', 'overview'], title: 'Developer overview', file: 'dev/README.md', hint: 'Where to start contributing' },
           { slug: ['dev', 'build'], title: 'Build instructions', file: 'dev/BUILD.md', hint: 'Build MarkText from source' },
+          { slug: ['dev', 'website'], title: 'Website development', file: 'dev/WEBSITE.md', hint: 'Edit, validate & preview the documentation site' },
           { slug: ['dev', 'linux-dev'], title: 'Linux dev environment', file: 'dev/LINUX_DEV.md', hint: 'Distro-specific tooling notes' },
           { slug: ['dev', 'debugging'], title: 'Debugging', file: 'dev/DEBUGGING.md', hint: 'Attach to main / renderer' }
         ]
@@ -88,7 +89,7 @@ export const DOC_TABS: DocTab[] = [
         label: 'Architecture & code',
         pages: [
           { slug: ['dev', 'architecture'], title: 'Architecture', file: 'dev/ARCHITECTURE.md', hint: 'Process model & module layering' },
-          { slug: ['dev', 'interface'], title: 'Interface', file: 'dev/INTERFACE.md', hint: 'Muya & renderer public interfaces' },
+          { slug: ['dev', 'interface'], title: 'Interface', file: 'dev/INTERFACE.md', hint: 'Window layout, sidebar & editor views' },
           { slug: ['dev', 'ipc'], title: 'IPC', file: 'dev/IPC.md', hint: 'Typed mt:: channel catalog' },
           { slug: ['dev', 'typescript'], title: 'TypeScript', file: 'dev/TYPESCRIPT.md', hint: 'TS conventions & strict mode' },
           { slug: ['dev', 'performance'], title: 'Performance', file: 'dev/PERFORMANCE.md', hint: 'Measurement workflow' }
