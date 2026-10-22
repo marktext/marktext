@@ -195,7 +195,6 @@ export class MarkdownToHtml {
     async renderHtml() {
         const footnote = this._muya?.options?.footnote ?? false;
         let html = getHighlightHtml(this.markdown, {
-            compactNestedLists: true,
             superSubScript: this._muya?.options?.superSubScript ?? true,
             footnote,
             texMathGfm: this._muya?.options?.texMathGfm ?? false,

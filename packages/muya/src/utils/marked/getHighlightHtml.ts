@@ -39,7 +39,7 @@ function highlight(code: string, lang: string) {
     return Prism.highlight(code, grammar, lang);
 }
 
-export function getHighlightHtml(src: string, options: ILexOption & { compactNestedLists?: boolean } = {}) {
+export function getHighlightHtml(src: string, options: ILexOption = {}) {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
     const { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote }
         = options;
@@ -51,8 +51,7 @@ export function getHighlightHtml(src: string, options: ILexOption & { compactNes
     const marked = new Marked(markedHighlight({ highlight }));
 
     // Export's pre-wrap stylesheet exposes marked's list-wrapper newlines (#5767).
-    if (options.compactNestedLists)
-        marked.use(compactNestedLists());
+    marked.use(compactNestedLists());
 
     marked.use({
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),
