@@ -10,9 +10,9 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import matter from 'gray-matter'
-import GithubSlugger from 'github-slugger'
 import { ALL_PAGES } from '../src/lib/docs-nav'
-import type { IndexedHeading, IndexedPage } from '../src/lib/docs-search'
+import type { IndexedPage } from '../src/lib/docs-search'
+import { renderMarkdown } from '../src/lib/markdown'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CONTENT_ROOT = path.join(ROOT, 'content', 'docs')
@@ -24,7 +24,6 @@ const HTML_TAG_RE = /<[^>]+>/g
 const IMG_RE = /!\[[^\]]*\]\([^)]*\)/g
 const LINK_RE = /\[([^\]]+)\]\([^)]+\)/g
 const URL_RE = /https?:\/\/\S+/g
-const HEADING_RE = /^(#{1,6})\s+(.+?)\s*$/gm
 const WS_RE = /\s+/g
 
 function stripToText(md: string): string {
@@ -41,21 +40,6 @@ function stripToText(md: string): string {
     .trim()
 }
 
-function extractHeadings(md: string): IndexedHeading[] {
-  const slugger = new GithubSlugger()
-  const out: IndexedHeading[] = []
-  let m: RegExpExecArray | null
-  HEADING_RE.lastIndex = 0
-  while ((m = HEADING_RE.exec(md))) {
-    const depth = m[1].length
-    if (depth < 2 || depth > 3) continue
-    const text = m[2].replace(/[`*_]/g, '').trim()
-    if (!text) continue
-    out.push({ id: slugger.slug(text), text, depth: depth as 2 | 3 })
-  }
-  return out
-}
-
 async function buildIndex(): Promise<IndexedPage[]> {
   const results = await Promise.all(
     ALL_PAGES.map(async (page): Promise<IndexedPage | null> => {
@@ -69,6 +53,7 @@ async function buildIndex(): Promise<IndexedPage[]> {
       }
       const { content } = matter(raw)
       const body = stripToText(content)
+      const { toc: headings } = await renderMarkdown(content, page.file)
       return {
         slug: page.slug.join('/'),
         href: '/docs/' + page.slug.join('/'),
@@ -77,7 +62,7 @@ async function buildIndex(): Promise<IndexedPage[]> {
         tabLabel: page.tabLabel,
         group: page.group,
         hint: page.hint,
-        headings: extractHeadings(content),
+        headings,
         body: body.length > 3000 ? body.slice(0, 3000) : body
       }
     })
@@ -98,7 +83,9 @@ async function main() {
   await fs.mkdir(path.dirname(OUT_PATH), { recursive: true })
   await fs.writeFile(OUT_PATH, JSON.stringify(pages))
   const sizeKb = ((await fs.stat(OUT_PATH)).size / 1024).toFixed(1)
-  console.log(`[docs-index] wrote ${pages.length} pages → ${path.relative(ROOT, OUT_PATH)} (${sizeKb} KB)`)
+  console.log(
+    `[docs-index] wrote ${pages.length} pages → ${path.relative(ROOT, OUT_PATH)} (${sizeKb} KB)`
+  )
 }
 
 main().catch((err) => {
