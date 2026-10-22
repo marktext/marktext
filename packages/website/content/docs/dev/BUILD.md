@@ -1,99 +1,103 @@
 # Build Instructions
 
-**Please see [this issue](https://github.com/jacobwhall/marktext/issues/2) for updates on our efforts to modernize this process!**
+MarkText is built from the pnpm workspace at the repository root. Compiling the application and packaging installers are separate steps.
 
-Clone the repository:
+## Prerequisites
 
-```
-git clone https://github.com/marktext/marktext.git
-```
+- Node.js `>=20.19.0` and pnpm `>=10`. Use the pnpm version pinned by `packageManager` in the root `package.json`.
+- Python 3 and a C++ toolchain for native dependencies. Release CI selects Python 3.12.
+- Build on the target operating system: Linux, macOS or Windows. The release workflow builds x64 and arm64 on native runners.
 
-## Container Setup
+### Linux
 
-The easiest way to build Marktext on Linux is from inside a container.
-Here are the steps for doing so:
+On Debian-based distributions:
+
 ```sh
-# cd to marktext repository
+sudo apt-get install libx11-dev libxkbfile-dev libsecret-1-dev libfontconfig-dev rpm
+```
 
-# run container (you can use docker instead of podman if you like)
-podman run -it -v ./:/mnt:Z node:22-bookworm /bin/bash
-# you should now be interacting with the container
+On Red Hat-based distributions:
 
-# add bookworm-backports for Python 3.12 and install build dependencies
-echo "deb http://deb.debian.org/debian bookworm-backports main" >> /etc/apt/sources.list
-apt update
-apt-get install -y -t bookworm-backports python3.12
-apt-get install -y libx11-dev libxkbfile-dev libsecret-1-dev libfontconfig-dev rpm
+```sh
+sudo dnf install libX11-devel libxkbfile-devel libsecret-devel fontconfig-devel
+```
 
-cd /mnt
-corepack enable
+On Arch Linux:
+
+```sh
+sudo pacman -S libx11 libxkbfile libsecret fontconfig
+```
+
+See [Linux development](LINUX_DEV.md) for additional tooling and troubleshooting. Running the application also requires Electron's desktop libraries; the Debian and RPM packages declare their runtime dependencies in `packages/desktop/electron-builder.yml`.
+
+### Windows
+
+Install Build Tools for Visual Studio 2022 with the C++ toolchain and a Windows SDK. The repository's `.npmrc` sets `msvs_version=2022` and `clang=0` for native dependency builds.
+
+### macOS
+
+Install Xcode Command Line Tools. The CI build sets `CXXFLAGS` to `-std=gnu++20 -stdlib=libc++` when rebuilding native modules.
+
+## Install and compile
+
+```sh
+git clone https://github.com/marktext/marktext.git
+cd marktext
 pnpm install
-pnpm run build
-
-exit
-# container should now be terminated
-
-# build artifacts can be found in the dist/ directory (electron-builder output);
-# the intermediate electron-vite bundles live in out/
+pnpm run build:unpack
+pnpm -C packages/desktop exec electron-vite preview --skipBuild
 ```
 
-Below are the complete build instructions, which may help you troubleshoot the above or attempt to build for other platforms.
+Installation runs `scripts/postinstall.ts`, including native dependency setup, patching, Muya type generation and locale minification. `build:unpack` minifies locales and compiles the main, preload and renderer bundles. Despite its name, it does not run electron-builder or create an unpacked distribution directory. The explicit `preview --skipBuild` command launches the existing bundles. The root `start` script runs `electron-vite preview` without `--skipBuild`, so it rebuilds before launching.
 
-### Prerequisites
+Compiled bundles are written to `packages/desktop/out/`. The shorter `pnpm run build` only runs electron-vite; run locale minification separately if using it for a production preview.
 
-Before you can get started developing, you need set up your build environment:
+## Package installers
 
-- Node.js `>=20.19.0` and pnpm `>=10`
-- Python `>=3.12` for node-gyp
-- C++ compiler and development tools
-- Build is supported on Linux, macOS and Windows
+Run the command for your host platform:
 
-**Additional development dependencies on Linux:**
+| Command                      | Output                                        |
+| ---------------------------- | --------------------------------------------- |
+| `pnpm run build:win:x64`     | Windows x64 NSIS installer and zip            |
+| `pnpm run build:win:arm64`   | Windows arm64 NSIS installer and zip          |
+| `pnpm run build:mac:x64`     | Intel macOS DMG and zip                       |
+| `pnpm run build:mac:arm64`   | Apple Silicon macOS DMG and zip               |
+| `pnpm run build:linux:x64`   | Linux x64 AppImage, snap, deb, rpm and tar.gz |
+| `pnpm run build:linux:arm64` | Linux arm64 AppImage, deb, rpm and tar.gz     |
 
-- libX11 (with headers)
-- libxkbfile (with headers)
-- libsecret (with headers)
-- libfontconfig (with headers)
-- rpm (if building on Debian)
+Each packaging script minifies locales, rebuilds native modules, compiles the app and runs electron-builder with publishing disabled. Installers land in the repository-root `dist/`, configured by `directories.output: ../../dist` in `packages/desktop/electron-builder.yml`.
 
-On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev libsecret-1-dev libfontconfig-dev rpm`
+The shorter commands remain available: `build:win` selects x64; `build:mac` and `build:linux` use their electron-builder configuration without an explicit architecture argument. Use the architecture-specific scripts to match CI.
 
-On Red Hat-based Linux: `sudo dnf install libX11-devel libxkbfile-devel libsecret-devel fontconfig-devel`
+## Development and checks
 
-On Arch Linux: `sudo pacman -S libx11 libxkbfile libsecret fontconfig`
+Run all commands below from the repository root:
 
-**Additional development dependencies on Windows:**
+| Command                   | Purpose                                                  |
+| ------------------------- | -------------------------------------------------------- |
+| `pnpm run dev`            | Launch Electron with renderer hot reload                 |
+| `pnpm run lint`           | Check desktop/shared tooling code style                  |
+| `pnpm run typecheck`      | Build Muya declarations and check desktop TypeScript/Vue |
+| `pnpm run test:unit`      | Run desktop unit tests                                   |
+| `pnpm run test:e2e`       | Run desktop Playwright tests                             |
+| `pnpm run rebuild-native` | Rebuild native modules after changing Electron           |
 
-- Windows 10 SDK (only needed before Windows 10)
-- Visual Studio 2022 (Build Tools for Visual Studio 2022). You also need the spectre-mitigated MSVC libs — see [developer README §1.3](README.md#13-windows-specific-pre-requisites) for the exact components to install.
+The renderer hot-reloads through Vite. Reload the window with `Ctrl+R` if necessary; this also reruns preload. Restart `pnpm run dev` after main-process changes.
 
-### Let's build
+Package-specific test paths are relative to that package:
 
-1. Go to `marktext` folder
-2. Install dependencies: `pnpm install`
-3. Build MarkText binaries and packages: `pnpm run build`
-4. MarkText binary is located under `dist` folder (electron-builder output)
-
-Copy the build app to applications folder, or if on Windows run the executable installer.
-
-### Important scripts
-
-```
-$ pnpm run <script>
+```sh
+pnpm -C packages/desktop exec vitest run test/unit/specs/markdown-basic.spec.ts
+pnpm -C packages/desktop exec playwright test test/e2e/launch.spec.ts
 ```
 
-| Script  | Description                                      |
-| ------- | ------------------------------------------------ |
-| `build` | Build MarkText binaries and packages for your OS |
-| `dev`   | Build and run MarkText in developer mode         |
-| `lint`  | Lint code style                                  |
-| `test`  | Run unit tests                                   |
+Muya has its own checks:
 
-For more scripts please see `package.json`.
+```sh
+pnpm --filter @muyajs/core lint
+pnpm --filter @muyajs/core lint:types
+pnpm --filter @muyajs/core test
+pnpm --filter @muyajs/core test:spec
+```
 
->[!TIP]
->To improve efficiency during development:
-> 1. Use `pnpm run dev` for development mode. This will automatically reload the window when source code is modified.
-> 2. Use `Ctrl+R` to manually reload the application in development mode if needed.
-> 
-> This approach bypasses unnecessary rebuilds and optimizes the developer workflow. However, for CI or release builds, a full rebuild may still be necessary.
+For the documentation site, see [Website development](WEBSITE.md).

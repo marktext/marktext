@@ -68,7 +68,7 @@
         "html-tags": "^5.1.0",
         "joplin-turndown-plugin-gfm": "^1.0.12",
         "katex": "^0.19.0",
-        "marked": "^18.1.0",
+        "marked": "^18.1.1",
         "marked-highlight": "^2.2.4",
         "mermaid": "^12.1.0",
         "ot-json1": "^1.0.2",

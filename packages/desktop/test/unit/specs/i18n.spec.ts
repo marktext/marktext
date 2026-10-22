@@ -17,6 +17,7 @@ describe('common/i18n matchSupportedLanguage', () => {
     expect(matchSupportedLanguage('zh-CN')).toBe('zh-CN')
     expect(matchSupportedLanguage('en')).toBe('en')
     expect(matchSupportedLanguage('zh-TW')).toBe('zh-TW')
+    expect(matchSupportedLanguage('it')).toBe('it')
     expect(matchSupportedLanguage('ru')).toBe('ru')
   })
 
@@ -29,6 +30,8 @@ describe('common/i18n matchSupportedLanguage', () => {
     expect(matchSupportedLanguage('en-GB')).toBe('en')
     expect(matchSupportedLanguage('ja-JP')).toBe('ja')
     expect(matchSupportedLanguage('de-AT')).toBe('de')
+    expect(matchSupportedLanguage('it-IT')).toBe('it')
+    expect(matchSupportedLanguage('it-CH')).toBe('it')
     expect(matchSupportedLanguage('ru-RU')).toBe('ru')
   })
 
@@ -44,7 +47,6 @@ describe('common/i18n matchSupportedLanguage', () => {
 
   it('returns null for languages without a supported translation', () => {
     expect(matchSupportedLanguage('pl-PL')).toBeNull()
-    expect(matchSupportedLanguage('it')).toBeNull()
     expect(matchSupportedLanguage('xx-YY')).toBeNull()
   })
 })

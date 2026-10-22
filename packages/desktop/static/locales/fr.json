@@ -242,8 +242,11 @@
       "noFolderOpen": "Aucun dossier ouvert",
       "noResultsFound": "Aucun résultat trouvé.",
       "cancel": "Annuler",
-      "openFolder": "Ouvrir un dossier",
-      "showMoreMatches": "Afficher plus de correspondances"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "Afficher plus de correspondances",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "Fichiers ouverts",
@@ -260,7 +263,8 @@
       "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
       "folderAlreadyAdded": "This folder has already been added.",
       "fileOutsideFolders": "This file is not in an added folder.",
-      "sessionSaveFailed": "Unable to save session"
+      "sessionSaveFailed": "Unable to save session",
+      "resizeOpenedFiles": "Redimensionner la liste des fichiers ouverts"
     },
     "toc": {
       "expand": "Développer la table des matières",
@@ -561,7 +565,8 @@
           "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe",
-          "russian": "Русский"
+          "russian": "Русский",
+          "italian": "Italiano"
         }
       }
     },
@@ -836,7 +841,8 @@
       "exportFile": "Exporter un fichier",
       "exportFilePdf": "Exporter en PDF",
       "zoom": "Zoom",
-      "checkUpdate": "Vérifier les mises à jour"
+      "checkUpdate": "Vérifier les mises à jour",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "Annuler",

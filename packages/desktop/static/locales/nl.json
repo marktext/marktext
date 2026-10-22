@@ -242,8 +242,11 @@
       "noFolderOpen": "Geen map geopend",
       "noResultsFound": "Geen resultaten gevonden.",
       "cancel": "Annuleren",
-      "openFolder": "Map openen",
-      "showMoreMatches": "Meer resultaten tonen"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "Meer resultaten tonen",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "Geopende bestanden",
@@ -260,7 +263,8 @@
       "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
       "folderAlreadyAdded": "This folder has already been added.",
       "fileOutsideFolders": "This file is not in an added folder.",
-      "sessionSaveFailed": "Unable to save session"
+      "sessionSaveFailed": "Unable to save session",
+      "resizeOpenedFiles": "Lijst met geopende bestanden aanpassen"
     },
     "toc": {
       "expand": "Inhoudsopgave uitklappen",
@@ -561,7 +565,8 @@
           "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe",
-          "russian": "Русский"
+          "russian": "Русский",
+          "italian": "Italiano"
         }
       }
     },
@@ -836,7 +841,8 @@
       "exportFile": "Bestand exporteren",
       "exportFilePdf": "Exporteren als PDF",
       "zoom": "Zoom",
-      "checkUpdate": "Controleer op updates"
+      "checkUpdate": "Controleer op updates",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "Ongedaan maken",

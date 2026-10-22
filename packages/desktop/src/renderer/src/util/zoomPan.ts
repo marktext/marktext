@@ -57,6 +57,21 @@ export function toTransform(state: ZoomState): string {
   return `translate(${state.x}px, ${state.y}px) scale(${state.scale})`
 }
 
+/** ln(scale) per pixel of wheel delta; a 100px mouse notch is ≈1.105×. */
+export const WHEEL_ZOOM_PER_PIXEL = 0.001
+/** Gain for a macOS pinch, which arrives as ctrl+wheel with far smaller deltas. */
+export const PINCH_ZOOM_BOOST = 3
+
+/**
+ * Exponential factors compose by distance, as in d3-zoom. Clamp the final scale
+ * in zoomAt rather than individual deltas so event coalescing loses no distance.
+ */
+export function wheelZoomFactor(event: WheelEvent): number {
+  const perPixel = WHEEL_ZOOM_PER_PIXEL * (event.ctrlKey ? PINCH_ZOOM_BOOST : 1)
+
+  return Math.exp(-event.deltaY * perPixel)
+}
+
 export interface ZoomPanOptions {
   onChange?: (state: ZoomState) => void
   /**
@@ -93,7 +108,7 @@ export class ZoomPanController {
     this._onWheel = (event) => {
       event.preventDefault()
       const [cx, cy] = this._centre()
-      const factor = event.deltaY < 0 ? 1.1 : 1 / 1.1
+      const factor = wheelZoomFactor(event)
       this._apply(zoomAt(this._state, factor, event.clientX, event.clientY, cx, cy))
     }
     this._onMouseDown = (event) => {

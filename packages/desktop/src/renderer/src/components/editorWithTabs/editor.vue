@@ -133,6 +133,7 @@ import {
 } from '@/util/tocNavigation'
 import { findActiveHeadingSlug, type HeadingPosition } from '@/util/findActiveHeading'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
+import { isDarkThemeId } from 'common/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import {
   registerDocumentView,
@@ -501,8 +502,7 @@ watch(tabSize, (value, oldValue) => {
 
 watch(theme, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
-    // Agreement：Any black series theme needs to contain dark `word`.
-    if (/dark/i.test(value)) {
+    if (isDarkThemeId(value)) {
       editor.value.setOptions(
         {
           mermaidTheme: 'dark',
@@ -1760,7 +1760,7 @@ onMounted(() => {
     getPathForFile: (file: File) => window.electron.webUtils.getPathForFile(file)
   }
 
-  if (/dark/i.test(theme.value)) {
+  if (isDarkThemeId(theme.value)) {
     Object.assign(options, {
       mermaidTheme: 'dark',
       vegaTheme: 'dark'

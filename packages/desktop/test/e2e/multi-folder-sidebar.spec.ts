@@ -6,10 +6,11 @@ import { _electron, type ElectronApplication, type Page } from 'playwright'
 import {
   expectNoRendererErrors,
   getElectronPath,
-  launchElectron
+  launchElectron,
+  sendIpcToRenderer
 } from './helpers'
 
-test('multi-folder sidebar completes add, remove and restore (#2222)', async() => {
+test('multi-folder sidebar completes add, search, remove and restore (#2222)', async() => {
   test.setTimeout(90000)
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'mt-multi-folder-'))
   const directories = ['work/notes', 'personal/notes', 'third'].map((name) =>
@@ -61,9 +62,30 @@ test('multi-folder sidebar completes add, remove and restore (#2222)', async() =
     await plus.click()
     await expect(roots()).toHaveCount(2)
     await choose(directories[2])
-    await plus.click()
+    await sendIpcToRenderer(app, 'mt::show-command-palette')
+    const commandInput = page.locator('input.search:visible').first()
+    await commandInput.pressSequentially('Add Folder')
+    const command = page.locator('.commands li').filter({ hasText: 'Add Folder' })
+    await expect(command).toHaveCount(1)
+    await command.click()
     await expect(roots()).toHaveCount(3)
     await expect(page.locator('.root-status')).toHaveCount(0)
+
+    await sendIpcToRenderer(app, 'mt::execute-command-by-id', 'file.quick-open')
+    const quickInput = page.locator('input.search:visible').first()
+    await expect(quickInput).toHaveAttribute('placeholder', 'Search file to open')
+    await expect(quickInput).toHaveValue('')
+    await quickInput.pressSequentially('common')
+    await expect(page.locator('.commands li:visible')).toHaveCount(3)
+    await quickInput.press('Escape')
+
+    await page.locator('.side-bar .search-button').click()
+    const search = page.locator('.side-bar-search .search-input')
+    await search.fill('needle2222')
+    await search.press('Enter')
+    await expect(page.locator('.search-result-item')).toHaveCount(3)
+    await expect(page.locator('.source-path').first()).toContainText('common.md')
+    await page.locator('.back-button').click()
 
     const secondFile = page
       .locator('.project-tree')

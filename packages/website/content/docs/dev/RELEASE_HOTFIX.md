@@ -1,14 +1,20 @@
-# Prepare a hotfix
+# Prepare a Hotfix
 
-- Create a hotfix branch: `git checkout -b hotfix-vX.Y.Z`
-- Make changes to the code and/or `cherry-pick` changes from another branch and commit changes.
-- Test the hotfix and binaries.
-- [Release](RELEASE.md) a new MarkText version.
+Start from the published tag that needs the fix, rather than from a development branch that may include unreleased features.
 
-**How to cherry pick?**
+```sh
+git fetch origin --tags
+git switch -c hotfix/vX.Y.Z vX.Y.P
+```
 
-You can pick commits from another branch and apply the commit to the current one.
+Replace `vX.Y.P` with the affected release tag and `vX.Y.Z` with the intended patch version.
 
-- `git checkout hotfix-vX.Y.Z`
-- `git cherry-pick <full commit hash>`
-- Please resolve all conflicts and `git commit` the changes if needed.
+Apply the fix directly or cherry-pick the relevant commit:
+
+```sh
+git cherry-pick <commit>
+```
+
+Resolve any conflicts and run the relevant checks and platform builds. Follow [Releasing MarkText](RELEASE.md) to update both application package versions, record release highlights, commit, tag and verify the published artifacts. The tag triggers public publication once the release workflow succeeds.
+
+Bring applicable fixes back to `develop` through a PR so later releases retain them.

@@ -2,6 +2,7 @@ import type { ILexOption } from './types';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import Prism from 'prismjs';
+import compactNestedLists from './compactNestedLists';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import emojiExtension from './extensions/emoji';
 import fancyListsHtmlExtension from './extensions/fancyListsHtml';
@@ -46,6 +47,9 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
 
     // Use a fresh Marked instance; repeated use() chains walkTokens and corrupts repeated renders.
     const marked = new Marked(markedHighlight({ highlight }));
+
+    // Export's pre-wrap stylesheet exposes marked's list-wrapper newlines (#5767).
+    marked.use(compactNestedLists());
 
     marked.use({
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),

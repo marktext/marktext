@@ -242,8 +242,11 @@
       "noFolderOpen": "没有打开的文件夹",
       "noResultsFound": "未找到结果。",
       "cancel": "取消",
-      "openFolder": "打开文件夹",
-      "showMoreMatches": "显示更多匹配"
+      "openFolder": "添加文件夹…",
+      "showMoreMatches": "显示更多匹配",
+      "searchInFolders": "在已添加的文件夹中搜索",
+      "partialSearch": "部分文件夹无法搜索。",
+      "noSearchableFolders": "没有可供搜索的文件夹。"
     },
     "tree": {
       "openedFiles": "已打开的文件",
@@ -260,7 +263,8 @@
       "overlappingFolder": "此文件夹与已添加项存在包含关系，请先移除已有项。",
       "folderAlreadyAdded": "该文件夹已添加。",
       "fileOutsideFolders": "此文件不在已添加的文件夹中。",
-      "sessionSaveFailed": "无法保存会话"
+      "sessionSaveFailed": "无法保存会话",
+      "resizeOpenedFiles": "调整已打开文件列表的大小"
     },
     "toc": {
       "expand": "展开目录",
@@ -561,7 +565,8 @@
           "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe",
-          "russian": "Русский"
+          "russian": "Русский",
+          "italian": "Italiano"
         }
       }
     },
@@ -836,7 +841,8 @@
       "exportFilePdf": "导出为 PDF",
       "zoom": "缩放",
       "checkUpdate": "检查更新",
-      "changeLineEnding": "更改行结束符"
+      "changeLineEnding": "更改行结束符",
+      "addFolder": "添加文件夹…"
     },
     "edit": {
       "undo": "撤销",

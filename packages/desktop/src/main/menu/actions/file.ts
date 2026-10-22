@@ -947,6 +947,7 @@ export const loadFileCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.FILE_NEW_TAB, newBlankTab)
   commandManager.add(COMMANDS.FILE_OPEN_FILE, openFile)
   commandManager.add(COMMANDS.FILE_OPEN_FOLDER, openFolder)
+  commandManager.add(COMMANDS.FILE_ADD_FOLDER, addFolder)
   commandManager.add(COMMANDS.FILE_PREFERENCES, userSetting)
   commandManager.add(COMMANDS.FILE_PRINT, printDocument)
   commandManager.add(COMMANDS.FILE_QUIT, app.quit)

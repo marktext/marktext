@@ -242,8 +242,11 @@
       "noFolderOpen": "フォルダーが開かれていません",
       "noResultsFound": "一致するものがありません。",
       "cancel": "キャンセル",
-      "openFolder": "フォルダーを開く",
-      "showMoreMatches": "さらに一致するものを表示"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "さらに一致するものを表示",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "開いているファイル",
@@ -260,7 +263,8 @@
       "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
       "folderAlreadyAdded": "This folder has already been added.",
       "fileOutsideFolders": "This file is not in an added folder.",
-      "sessionSaveFailed": "Unable to save session"
+      "sessionSaveFailed": "Unable to save session",
+      "resizeOpenedFiles": "開いているファイル一覧のサイズを変更"
     },
     "toc": {
       "expand": "目次を展開",
@@ -561,7 +565,8 @@
           "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe",
-          "russian": "Русский"
+          "russian": "Русский",
+          "italian": "Italiano"
         }
       }
     },
@@ -836,7 +841,8 @@
       "exportFile": "ファイルのエクスポート",
       "exportFilePdf": "PDF としてエクスポート",
       "zoom": "ズーム",
-      "checkUpdate": "更新の確認"
+      "checkUpdate": "更新の確認",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "元に戻す",

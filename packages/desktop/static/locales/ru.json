@@ -242,8 +242,11 @@
       "noFolderOpen": "Папка не открыта",
       "noResultsFound": "Ничего не найдено.",
       "cancel": "Отмена",
-      "openFolder": "Открыть папку",
-      "showMoreMatches": "Показать ещё"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "Показать ещё",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "Открытые файлы",
@@ -260,7 +263,8 @@
       "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
       "folderAlreadyAdded": "This folder has already been added.",
       "fileOutsideFolders": "This file is not in an added folder.",
-      "sessionSaveFailed": "Unable to save session"
+      "sessionSaveFailed": "Unable to save session",
+      "resizeOpenedFiles": "Изменить размер списка открытых файлов"
     },
     "toc": {
       "expand": "Развернуть оглавление",
@@ -561,7 +565,8 @@
           "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe",
-          "russian": "Русский"
+          "russian": "Русский",
+          "italian": "Italiano"
         }
       }
     },
@@ -836,7 +841,8 @@
       "exportFile": "Экспортировать файл",
       "exportFilePdf": "Экспорт в PDF",
       "zoom": "Масштаб",
-      "checkUpdate": "Проверить обновления"
+      "checkUpdate": "Проверить обновления",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "Отменить",

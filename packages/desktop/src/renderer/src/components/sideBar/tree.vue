@@ -1,5 +1,8 @@
 <template>
-  <div class="tree-view">
+  <div
+    ref="treeView"
+    class="tree-view"
+  >
     <div
       v-if="openedFilesInSidebar"
       class="opened-files"
@@ -52,7 +55,9 @@
       </div>
       <div
         v-show="showOpenedFiles"
+        ref="openedFilesList"
         class="opened-files-list"
+        :style="{ maxHeight: `${openedFilesMaxHeight}px` }"
       >
         <transition-group name="list">
           <opened-file
@@ -62,6 +67,24 @@
           />
         </transition-group>
       </div>
+      <div
+        v-if="showOpenedFiles && tabCount > MIN_VISIBLE_ROWS"
+        ref="resizeHandle"
+        class="opened-files-resize"
+        role="separator"
+        aria-orientation="horizontal"
+        :aria-label="t('sideBar.tree.resizeOpenedFiles')"
+        :aria-valuenow="openedFilesMaxHeight"
+        :aria-valuemin="minimumHeight"
+        :aria-valuemax="maximumHeight"
+        tabindex="0"
+        @pointerdown="startResize"
+        @pointermove="handleResizeMove"
+        @pointerup="handleResizeEnd"
+        @pointercancel="handleResizeEnd"
+        @lostpointercapture="handleResizeEnd"
+        @keydown="handleResizeKeydown"
+      />
     </div>
 
     <div
@@ -194,6 +217,7 @@ import { usePreferencesStore } from '@/store/preferences'
 import Folder from './treeFolder.vue'
 import File from './treeFile.vue'
 import OpenedFile from './treeOpenedTab.vue'
+import { MIN_VISIBLE_ROWS, useOpenedFilesResize } from './useOpenedFilesResize'
 import IconTooltip from '@/components/iconTooltip/index.vue'
 import bus from '../../bus'
 import { showRootContextMenu } from '../../contextMenu/sideBar'
@@ -216,7 +240,7 @@ import type { TabDescriptor } from './types'
 
 const { t } = useI18n()
 
-defineProps<{ tabs?: TabDescriptor[] }>()
+const props = defineProps<{ tabs?: TabDescriptor[] }>()
 
 const depth = 0
 // Switching views remounts the tree; persist section expansion across those
@@ -224,6 +248,7 @@ const depth = 0
 const SHOW_OPENED_FILES_KEY = 'side-bar-show-opened-files'
 const readSectionExpanded = (key: string): boolean => localStorage.getItem(key) !== 'false'
 const showOpenedFiles = ref(readSectionExpanded(SHOW_OPENED_FILES_KEY))
+
 const input = ref<HTMLInputElement | null>(null)
 const treeWrapper = ref<HTMLDivElement | null>(null)
 
@@ -248,6 +273,24 @@ const createCacheDirname = computed<string | undefined>(() => {
   const cache = createCache.value as { dirname?: string }
   return cache.dirname
 })
+
+const tabCount = computed(() => props.tabs?.length ?? 0)
+
+const {
+  treeView,
+  openedFilesList,
+  resizeHandle,
+  openedFilesMaxHeight,
+  minimumHeight,
+  maximumHeight,
+  startResize,
+  handleResizeMove,
+  handleResizeEnd,
+  handleResizeKeydown
+} = useOpenedFilesResize(tabCount, computed(() =>
+  openedFilesInSidebar.value && showOpenedFiles.value &&
+  layoutStore.showSideBar && layoutStore.rightColumn === 'files'
+))
 
 const saveAll = (isClose: boolean): void => {
   editorStore.ASK_FOR_SAVE_ALL(isClose)
@@ -561,6 +604,7 @@ onUnmounted(() => {
   color: var(--highlightThemeColor);
 }
 .opened-files {
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
 }
@@ -568,13 +612,30 @@ onUnmounted(() => {
   cursor: pointer;
 }
 .opened-files .opened-files-list {
-  max-height: 112px;
   overflow: auto;
   flex: 1;
 }
 
 .opened-files .opened-files-list::-webkit-scrollbar:vertical {
   width: 8px;
+}
+
+.opened-files-resize {
+  height: 4px;
+  flex-shrink: 0;
+  cursor: row-resize;
+  touch-action: none;
+  user-select: none;
+}
+
+.opened-files-resize:hover,
+.opened-files-resize:focus-visible {
+  background: var(--iconColor);
+}
+
+.opened-files-resize:focus-visible {
+  outline: 1px solid var(--focusColor);
+  outline-offset: -1px;
 }
 
 .project-trees {

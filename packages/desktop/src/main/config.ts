@@ -5,6 +5,9 @@ export const isOsx: boolean = process.platform === 'darwin'
 export const isWindows: boolean = process.platform === 'win32'
 export const isLinux: boolean = process.platform === 'linux'
 
+// The dev server must load document-local file:// images from an HTTP origin.
+const webSecurity = !import.meta.env.DEV
+
 export const editorWinOptions: Readonly<BrowserWindowConstructorOptions> = Object.freeze({
   minWidth: 550,
   minHeight: 350,
@@ -16,7 +19,7 @@ export const editorWinOptions: Readonly<BrowserWindowConstructorOptions> = Objec
     // enable it always and set the HTML spelling attribute to false.
     spellcheck: true,
     nodeIntegration: false,
-    webSecurity: false,
+    webSecurity,
     preload: path.join(__dirname, '../preload/index.js')
   },
   useContentSize: true,
@@ -37,7 +40,7 @@ export const preferencesWinOptions: Readonly<BrowserWindowConstructorOptions> = 
     // Always true to access native spellchecker.
     spellcheck: true,
     nodeIntegration: false,
-    webSecurity: false,
+    webSecurity,
     preload: path.join(__dirname, '../preload/index.js')
   },
   fullscreenable: false,

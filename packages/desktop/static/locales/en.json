@@ -242,11 +242,15 @@
       "noFolderOpen": "No folder open",
       "noResultsFound": "No results found.",
       "cancel": "Cancel",
-      "openFolder": "Open Folder",
-      "showMoreMatches": "Show more matches"
+      "openFolder": "Add Folder…",
+      "showMoreMatches": "Show more matches",
+      "searchInFolders": "Search in added folders",
+      "partialSearch": "Some folders could not be searched.",
+      "noSearchableFolders": "No available folders to search."
     },
     "tree": {
       "openedFiles": "Opened files",
+      "resizeOpenedFiles": "Resize opened files list",
       "saveAll": "Save All",
       "closeAll": "Close All",
       "emptyProject": "Empty project",
@@ -561,7 +565,8 @@
           "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe",
-          "russian": "Русский"
+          "russian": "Русский",
+          "italian": "Italiano"
         }
       }
     },
@@ -836,7 +841,8 @@
       "exportFile": "Export File",
       "exportFilePdf": "Export as PDF",
       "zoom": "Zoom",
-      "checkUpdate": "Check for Updates"
+      "checkUpdate": "Check for Updates",
+      "addFolder": "Add Folder…"
     },
     "edit": {
       "undo": "Undo",

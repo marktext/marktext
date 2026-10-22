@@ -3,8 +3,11 @@ import {
   IDENTITY,
   MAX_SCALE,
   MIN_SCALE,
+  PINCH_ZOOM_BOOST,
+  ZoomPanController,
   fitScale,
   pan,
+  wheelZoomFactor,
   zoomAt,
   type ZoomState
 } from '@/util/zoomPan'
@@ -71,6 +74,89 @@ describe('zoomAt', () => {
     const before: ZoomState = { scale: MAX_SCALE, x: 30, y: -40 }
     expect(zoomAt(before, 2, 120, 90, 0, 0)).toEqual(before)
   })
+})
+
+describe('wheelZoomFactor', () => {
+  const wheel = (deltaY: number, init?: WheelEventInit): WheelEvent =>
+    new WheelEvent('wheel', { deltaY, ...init })
+
+  it.each([false, true])(
+    'preserves large distances across event splits (ctrlKey=%s)',
+    (ctrlKey) => {
+      for (const deltaY of [-600, 600]) {
+        expect(wheelZoomFactor(wheel(deltaY / 3, { ctrlKey })) ** 3).toBeCloseTo(
+          wheelZoomFactor(wheel(deltaY, { ctrlKey })),
+          12
+        )
+      }
+    }
+  )
+
+  it('takes a 100px mouse notch to about 10.5%', () => {
+    expect(wheelZoomFactor(wheel(-100))).toBeCloseTo(1.105, 3)
+  })
+
+  it('undoes itself when the same distance is scrolled back', () => {
+    expect(wheelZoomFactor(wheel(-100)) * wheelZoomFactor(wheel(100))).toBeCloseTo(1, 12)
+  })
+
+  it('leaves the scale alone when nothing is scrolled vertically', () => {
+    expect(wheelZoomFactor(wheel(0))).toBe(1)
+  })
+
+  it('limits the final scale for extreme wheel deltas', () => {
+    expect(zoomAt(IDENTITY, wheelZoomFactor(wheel(-1e6)), 550, 380, 400, 300)).toEqual({
+      scale: MAX_SCALE,
+      x: -2250,
+      y: -1200
+    })
+    expect(zoomAt(IDENTITY, wheelZoomFactor(wheel(1e6)), 550, 380, 400, 300)).toEqual({
+      scale: MIN_SCALE,
+      x: 135,
+      y: 72
+    })
+  })
+
+  it('gives a ctrl+wheel pinch the coarser gain', () => {
+    const pinch = Math.log(wheelZoomFactor(wheel(-10, { ctrlKey: true })))
+    const scroll = Math.log(wheelZoomFactor(wheel(-10)))
+
+    expect(pinch).toBeCloseTo(scroll * PINCH_ZOOM_BOOST, 12)
+  })
+})
+
+describe('ZoomPanController wheel gestures', () => {
+  it.each([false, true])(
+    'restores scale and position after differently split reverse input (ctrlKey=%s)',
+    (ctrlKey) => {
+      const viewport = document.createElement('div')
+      const content = document.createElement('div')
+      viewport.getBoundingClientRect = () => new DOMRect(0, 0, 800, 600)
+      const controller = new ZoomPanController(viewport, content)
+
+      try {
+        for (const deltaY of [-600, 200, 200, 200]) {
+          const event = new WheelEvent('wheel', {
+            deltaY,
+            ctrlKey,
+            clientX: 550,
+            clientY: 380,
+            cancelable: true
+          })
+          viewport.dispatchEvent(event)
+          expect(event.defaultPrevented).toBe(true)
+        }
+
+        expect(controller.scale).toBeCloseTo(1, 12)
+        const translation = content.style.transform.match(/translate\(([^p]+)px, ([^p]+)px\)/)
+        expect(translation).not.toBeNull()
+        expect(Number(translation?.[1])).toBeCloseTo(0, 10)
+        expect(Number(translation?.[2])).toBeCloseTo(0, 10)
+      } finally {
+        controller.destroy()
+      }
+    }
+  )
 })
 
 describe('fitScale', () => {

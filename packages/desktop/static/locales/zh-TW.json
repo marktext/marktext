@@ -242,8 +242,11 @@
       "noFolderOpen": "沒有開啟的資料夾",
       "noResultsFound": "找不到結果。",
       "cancel": "取消",
-      "openFolder": "開啟資料夾",
-      "showMoreMatches": "顯示更多符合項目"
+      "openFolder": "加入資料夾…",
+      "showMoreMatches": "顯示更多符合項目",
+      "searchInFolders": "在已加入的資料夾中搜尋",
+      "partialSearch": "部分資料夾無法搜尋。",
+      "noSearchableFolders": "沒有可供搜尋的資料夾。"
     },
     "tree": {
       "openedFiles": "已開啟的檔案",
@@ -260,7 +263,8 @@
       "overlappingFolder": "此資料夾與已加入項目有包含關係，請先移除原有項目。",
       "folderAlreadyAdded": "此資料夾已加入。",
       "fileOutsideFolders": "此檔案不在已加入的資料夾中。",
-      "sessionSaveFailed": "無法儲存工作階段"
+      "sessionSaveFailed": "無法儲存工作階段",
+      "resizeOpenedFiles": "調整已開啟檔案清單的大小"
     },
     "toc": {
       "expand": "展開目錄",
@@ -561,7 +565,8 @@
           "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe",
-          "russian": "Русский"
+          "russian": "Русский",
+          "italian": "Italiano"
         }
       }
     },
@@ -836,7 +841,8 @@
       "exportFile": "匯出檔案",
       "exportFilePdf": "匯出為 PDF",
       "zoom": "縮放",
-      "checkUpdate": "檢查更新"
+      "checkUpdate": "檢查更新",
+      "addFolder": "加入資料夾…"
     },
     "edit": {
       "undo": "復原",
