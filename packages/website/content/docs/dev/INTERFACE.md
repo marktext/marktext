@@ -2,15 +2,11 @@
 
 ## Main interface
 
-![](../assets/marktext-interface.png)
-
-- Green: titlebar
-- Orange: sidebar
-- Red: editor with tabs and per-tab notification at the bottom
+The editor window contains a title bar, an optional sidebar, optional tabs and the document editor. A separate outline panel navigates the active document's headings. Layout visibility is coordinated by `packages/desktop/src/renderer/src/store/layout.ts`.
 
 ### Titlebar
 
-The titlebar is located at the top of the window and shows the current opened file path and the menu on Linux and Windows. On macOS we're using client-side decorations (CSD) that look similar to the picture above. On Linux and Windows there are two type of titlebar: a custom CSD that you can see in the image above and the native one.
+The title bar shows document information and the statistics counter. Linux and Windows expose the application menu and window controls in the custom title bar; the `titleBarStyle` preference also offers native window decorations. macOS uses the hidden-inset title-bar configuration in `packages/desktop/src/main/config.ts`.
 
 ### Sidebar
 

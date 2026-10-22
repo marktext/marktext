@@ -25,7 +25,7 @@ pnpm --filter marktext-website docs:index
 
 Keep links relative to the source Markdown file. Registered `.md` links are mapped to their `/docs/` routes; image paths are served from `public/docs/`. When adding a page, register it in `docs-nav.ts` and link it from a relevant overview. Preserve existing slugs when changing page titles.
 
-Document the behavior in code. Label development-only features with the target version, and keep historical release notes intact. Check commands against the relevant package scripts and preferences against `packages/desktop/src/main/preferences/schema.json`.
+Document the behavior in code. Label development-only features with the target version, and keep historical release notes intact. Check commands against the relevant package scripts and preference validation against `packages/desktop/src/main/preferences/schema.json`. For user-visible initial values, also check `packages/desktop/static/preference.json` and initialization in `src/main/preferences/index.ts` and `src/main/app/index.ts` under `packages/desktop/`.
 
 ## Validate and build
 

@@ -1,49 +1,41 @@
 # Performance Testing
 
-- We mainly rely on Chrome's `Performance` tab to analyse and record the performance of MarkText
+Profile the main process and renderer separately. Preload runs inside a renderer process; it is an execution context rather than a third operating-system process.
 
-- Electron is split into 3 processes: `main`, `preload` and `renderer`. We will be focusing on `main` and `renderer` since these are the heaviest
+Run commands from the repository root and record the commit, operating system, architecture and document size alongside your measurements.
 
-Before profiling, run `pnpm run build:unpack` from the repository root. The preview commands below use `packages/desktop/out/` and do not rebuild it. See [Debugging](DEBUGGING.md) for attaching to development builds and the inspector limitation in packaged installers.
+## Main process
 
-## 1. Testing `main` process
+The root scripts build and launch the application with a main-process inspector:
 
-```
+```sh
 pnpm run perf:inspect-brk
 ```
 
-- This launches a **production build** of Marktext that has a break-point **before** the first line of Javascript is ran
+This forwards `--inspect-brk=5858` to Electron. Open `chrome://inspect`, configure `localhost:5858`, attach to the main process and start recording before resuming execution. Use `pnpm run perf:inspect` to launch without the initial pause.
 
-- A debugger at port `5858` is also attached
+Both scripts run `electron-vite preview`, which rebuilds by default in electron-vite 5. To reuse a specific build:
 
-## 1.1 Navigate to Chrome Inspect
-
-- Go to `chrome://inspect`
-
-- Press `Configure`, and add `localhost:5858`
-
-- Press "Inspect" on the entry that appears below (might take a while)
-
-## 1.2 Record Performance
-
-- When Developers Tools first launches, you will notice the breakpoint that is set
-
-- Simply go to `Performance`, press `Record`, and wait for MarkText to launch fully, then Stop the recording
-
-## 1.3 Alternative: `inspect`
-
-- If you do not need the breakpoint to test start-up performance, simply run:
-
-```
-pnpm run perf:inspect
+```sh
+pnpm run build:unpack
+pnpm -C packages/desktop exec electron-vite preview --skipBuild -- --inspect-brk=5858
 ```
 
-# 2. Testing `renderer`
+## Renderer
 
+For development profiling with an explicit renderer debugging port:
+
+```sh
+pnpm -C packages/desktop exec electron-vite --remoteDebuggingPort 8315
 ```
-pnpm run start
+
+Attach to the renderer through `chrome://inspect` at `localhost:8315`, then use the Performance panel to record an interaction or reload. Development tools are also available from the View menu in debug mode.
+
+For an unpackaged production bundle, build first and forward the debug arguments explicitly:
+
+```sh
+pnpm run build:unpack
+pnpm -C packages/desktop exec electron-vite preview --skipBuild -- --remote-debugging-port=8315 --debug
 ```
 
-- This previews the most recent `pnpm run build` output via `electron-vite preview`, so it behaves like a production launch. It does **not** rebuild — re-run `pnpm run build:unpack` first if your sources changed.
-
-- Open renderer developer tools and use `Reload and Record` in the Performance panel to benchmark startup rendering. For an explicit remote debugging port, use the command in [Debugging](DEBUGGING.md#main-and-renderer-debugging).
+`--debug` enables MarkText's debug menu in this production preview. See [Debugging](DEBUGGING.md) for packaged installer restrictions and VS Code attachment.

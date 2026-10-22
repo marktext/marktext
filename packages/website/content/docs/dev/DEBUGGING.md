@@ -20,10 +20,10 @@ Compile first, then preview the existing output:
 
 ```sh
 pnpm run build:unpack
-pnpm run perf:inspect
+pnpm -C packages/desktop exec electron-vite preview --skipBuild -- --inspect=5858
 ```
 
-`perf:inspect` runs electron-vite preview with the main-process inspector on port `5858`; `perf:inspect-brk` pauses before execution. Neither command rebuilds the application. See [Performance testing](PERFORMANCE.md).
+The command above launches the existing bundles and forwards `--inspect=5858` to Electron. Use `--inspect-brk=5858` to pause before execution. The root `perf:inspect` and `perf:inspect-brk` scripts omit `--skipBuild`, so they rebuild before launch. See [Performance testing](PERFORMANCE.md).
 
 Installer builds set `electronFuses.enableNodeCliInspectArguments: false` in `packages/desktop/electron-builder.yml`. The packaged executable therefore does not offer the same Node inspector workflow through `--inspect` or `--inspect-brk`. Use the unpackaged build above to investigate main-process code.
 

@@ -9,9 +9,7 @@ preload bridge exposed in `src/preload/index.ts` as `window.electron.*`
 and a few sibling globals (`window.fileUtils`, `window.path`,
 `window.uploader`, etc.).
 
-Channel names are typed by the contract in `src/shared/types/ipc.ts` —
-wrong channel, wrong arg arity, or wrong return shape all fail at
-`pnpm typecheck`. See [TYPESCRIPT.md](TYPESCRIPT.md#ipc-contract) for the
+Renderer calls use the contract in `src/shared/types/ipc.ts` for channel names, argument tuples and result types. Main-process implementations must separately satisfy those declared result shapes; Electron's handler registrations do not enforce the maps automatically. See [TYPESCRIPT.md](TYPESCRIPT.md#ipc-contract) for the
 TypeScript-side details.
 
 ## Channel naming
@@ -60,7 +58,7 @@ const off = window.electron.ipcRenderer.on('mt::screenshot-captured', () => {
 off()
 ```
 
-`once()` and `removeAllListeners()` follow the same shape. For
+`once(channel, listener)` also returns an unsubscribe function. `removeAllListeners(channel)` removes subscriptions for that channel and returns nothing. For
 filesystem and path helpers, prefer the typed convenience APIs already
 exposed via `window.fileUtils.*`, `window.path.*`, `window.uploader.*`,
 etc. — they wrap the underlying `mt::fs::*` / `mt::uploader::*` channels
@@ -87,11 +85,11 @@ window.webContents.send('mt::open-new-tab', tabPayload, options, selected)
 A few capabilities are main-only, and the renderer reaches them through a
 narrow channel rather than a general one:
 
-| Channel                       | Purpose                            | Note                                                                                                                                                                                                                                                                                                                                                          |
-| ----------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mt::dialog::show-save`       | Ask the user where to write a file | Only `title`, `defaultPath` and `filters` cross the bridge; the write itself goes through `mt::fs::write-file`.                                                                                                                                                                                                                                               |
-| `mt::clipboard::write-image`  | Put a PNG on the system clipboard  | `clipboard` can otherwise carry only text.                                                                                                                                                                                                                                                                                                                    |
-| `mt::diagram::fetch-plantuml` | Retrieve a PlantUML render         | The renderer's CSP allows no outbound connection, and a cross-origin image taints the canvas. It sends the server and the encoded diagram separately and **main composes the URL**, from the `plantumlServer` preference rather than from what was sent — a free-form URL is never accepted, redirects are refused, and the response is capped as it arrives. |
+| Channel                       | Purpose                            | Note                                                                                                                                                                                                                                                                                                                                                                                                |
+| ----------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mt::dialog::show-save`       | Ask the user where to write a file | Only `title`, `defaultPath` and `filters` cross the bridge; the write itself goes through `mt::fs::write-file`.                                                                                                                                                                                                                                                                                     |
+| `mt::clipboard::write-image`  | Put a PNG on the system clipboard  | Uses Electron's main-process clipboard API; the bridge also exposes separate text helpers.                                                                                                                                                                                                                                                                                                          |
+| `mt::diagram::fetch-plantuml` | Retrieve a PlantUML render         | The renderer CSP restricts connections to its own origin. The main-process handler fetches external PlantUML image data for export. It sends the server and the encoded diagram separately and **main composes the URL**, from the `plantumlServer` preference rather than from what was sent — a free-form URL is never accepted, redirects are refused, and the response is capped as it arrives. |
 
 ## Adding a new channel
 
@@ -104,5 +102,4 @@ narrow channel rather than a general one:
    if it deserves a dedicated facade, expose a method on one of the
    typed bridges in `src/preload/index.ts`.
 
-After step 1, `pnpm typecheck` flags every existing call site that
-doesn't match the new shape — use that as your migration checklist.
+Run `pnpm typecheck` after changing the contract, and review the main handler's serialization and result type as well as renderer call sites.

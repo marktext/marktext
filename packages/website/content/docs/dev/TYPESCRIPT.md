@@ -1,48 +1,24 @@
 # TypeScript
 
-Paths in this guide are relative to `packages/desktop/` unless stated otherwise. The workspace root holds shared tooling; Muya and the website have separate TypeScript configurations.
-
-MarkText is a TypeScript project. Every file under `src/`, the build
-scripts under the repository-root `scripts/`, the test specs under `test/`, the build config
-(`electron.vite.config.ts`), and the test configs (`vitest.config.ts`,
-`playwright.config.ts`) are TS.
-
-So is the editor engine: `@muyajs/core` (`packages/muya`). The legacy
-JavaScript engine it replaced is no longer reachable from here — its
-`muya/*` alias and the `src/types/muya.d.ts` ambient bridge were removed
-once nothing imported them (#4257).
+The desktop application uses strict TypeScript with Vue single-file components. Paths beginning with `src/` in this guide are relative to `packages/desktop/`. Muya and the website have separate TypeScript configurations.
 
 ## tsconfig layout
 
-The desktop uses one project with no `composite`/`references`:
+The desktop's `tsconfig.json` extends `tsconfig.base.json` without project references. It includes desktop TypeScript/Vue files, tests, and the electron-vite, Vitest and Playwright configuration files. Root installation and maintenance scripts live in the repository-root `scripts/` directory.
 
-```
-tsconfig.base.json     # shared compiler options (strict, paths, libs)
-tsconfig.json          # extends base, adds lib/types/jsx + include/exclude
-```
+Relevant settings in `tsconfig.base.json`:
 
-Why a single project: nothing under `src/` needs declaration emission
-(the bundler is electron-vite), and the renderer, preload and main
-processes share enough types that splitting them into project
-references would mostly add ceremony. A single `--noEmit` project keeps
-the wiring minimal without giving up strict mode.
+- `strict: true`
+- `noUncheckedIndexedAccess: false`
+- `exactOptionalPropertyTypes: false`
+- `allowJs: false` and `checkJs: false`
+- `noEmit: true`
 
-Relevant settings (`tsconfig.base.json`):
-
-- `strict: true` (every strict flag on)
-- `noUncheckedIndexedAccess: false` — too disruptive given existing
-  index-access patterns (tabs, listToc)
-- `exactOptionalPropertyTypes: false` — kept off to keep the buffered-state
-  restore path (which carries optional fields through JSON serialization)
-  tolerant of `undefined` ≡ "key not present"
-- `allowJs: false, checkJs: false` — every directory under `src/` is `.ts`
-- `noEmit: true` — vue-tsc only type-checks; electron-vite handles the
-  actual bundling
+`vue-tsc` checks types; electron-vite bundles the application. `allowJs: false` excludes JavaScript from this TypeScript program; it does not mean that every repository asset is TypeScript.
 
 ## Path aliases
 
-Defined in both `tsconfig.base.json` and `electron.vite.config.ts` (the
-two must stay in sync):
+The desktop build configuration defines these aliases:
 
 | Alias       | Maps to              |
 | ----------- | -------------------- |
@@ -50,119 +26,71 @@ two must stay in sync):
 | `common/*`  | `src/common/*`       |
 | `@shared/*` | `src/shared/*`       |
 
-`vitest.config.ts` carries the same aliases plus `main_renderer` →
-`src/main` for the few unit specs that reach into main-process code.
+`main_renderer/*` maps to `src/main/*` in the TypeScript and Vitest configurations. The renderer build also maps the bare `path` import to `src/renderer/src/node/platformPath.ts`.
 
-`tsconfig.base.json` carries one more entry that is a type-resolution
-redirect rather than a module alias: `@muyajs/core` →
-`../muya/lib/types/index.d.ts`. The package's `exports` map points `.` at
-its TypeScript source, so without the redirect vue-tsc would pull the whole
-muya tree into the desktop's program under the desktop's compiler options.
-`pnpm typecheck` and `postinstall` both run `pnpm --filter @muyajs/core
-build:types` to produce that directory (it is ignored build output).
-electron-vite and Vitest are unaffected — they resolve the runtime module
-through the `exports` map.
+TypeScript redirects `@muyajs/core` and `@muyajs/core/*` to generated declarations under `../muya/lib/types/`. Without that redirect, the package's source `exports` would bring Muya into the desktop TypeScript program. `pnpm typecheck` and the root postinstall script generate those declarations with `pnpm --filter @muyajs/core build:types`.
+
+Runtime builds and Vitest resolve Muya through its package `exports` map. Keep TypeScript, electron-vite and Vitest resolution consistent when changing aliases.
 
 ## Where types live
 
-- **`src/shared/types/`** — cross-process types (IPC contract, file/tab
-  shapes, preferences, menu, bus, TypedEmitter helper). Pure type
-  artefacts, no runtime. Importable from any process via `@shared/types/*`.
-- **`src/types/`** — ambient declarations (`global.d.ts`, `renderer.d.ts`,
-  `shims.d.ts`). `.d.ts` only; no runtime.
-- **Co-located** — domain types specific to one feature live next to the
-  code (e.g. `src/main/ipc/ripgrep.ts` defines its own `SearchOptions`).
+- `src/shared/types/`: shared document, IPC, preference, menu and event types, plus the `TypedEmitter` helper. Import these through `@shared/types/*`.
+- `src/types/`: ambient declarations, including the renderer's global bridge types.
+- Feature modules: types specific to a single feature can be defined next to its implementation.
 
 ## IPC contract
 
-The single source of truth is `src/shared/types/ipc.ts`. Four channel maps:
+`src/shared/types/ipc.ts` defines four channel maps:
 
-- `IpcInvokeChannels` — renderer → main, returns Promise<T>
-- `IpcSendChannels` — renderer → main, fire-and-forget
-- `IpcSyncChannels` — synchronous renderer → main
-- `IpcMainEventChannels` — main → renderer push events
+| Map                    | Direction and behavior                                  |
+| ---------------------- | ------------------------------------------------------- |
+| `IpcInvokeChannels`    | Renderer to main; argument tuple and Promise result     |
+| `IpcSendChannels`      | Renderer to main; fire-and-forget argument tuple        |
+| `IpcSyncChannels`      | Renderer to main; synchronous argument tuple and result |
+| `IpcMainEventChannels` | Main to renderer; event argument tuple                  |
 
-The preload bridge (`src/preload/index.ts`) consumes these as generics:
+The preload wrapper exposes typed renderer calls:
 
 ```ts
-const ipcWrapper = {
-  // … one entry per channel group
-  send: <K extends keyof IpcSendChannels>(channel: K, ...args: IpcSendChannels[K]) =>
-    ipcRenderer.send(channel, ...args),
-  invoke: <K extends keyof IpcInvokeChannels>(
-    channel: K,
-    ...args: IpcInvokeChannels[K]['args']
-  ): Promise<IpcInvokeChannels[K]['ret']> => ipcRenderer.invoke(channel, ...args)
-}
+const stat = await window.electron.ipcRenderer.invoke('mt::fs::stat', fullPath)
 ```
 
-Every renderer-side `window.electron.ipcRenderer.invoke('mt::fs::stat', p)`
-call is type-checked: wrong channel name, wrong arg arity, wrong arg
-types, all surface at compile time.
+Channel names, call arguments and the caller's result type follow the contract. Electron's main-process `ipcMain.handle` and `webContents.send` calls are not automatically checked against these maps. Handler implementations must also return the declared serializable shape; adding explicit shared return types helps check that boundary.
 
-To add a new channel:
-
-1. Add an entry to the appropriate interface in `src/shared/types/ipc.ts`.
-2. Wire the handler in `src/main/ipc/*.ts` via `ipcMain.handle`/`ipcMain.on`.
-3. Use it from the renderer via `window.electron.ipcRenderer.{invoke,send,…}`.
+See [IPC](IPC.md) for bridge subscriptions and the steps to add a channel.
 
 ## TypedEmitter
 
-Main-process classes that historically extended `node:events#EventEmitter`
-now extend `TypedEmitter<EventMap>` from `@shared/types/typedEmitter`.
-Event names + listener-argument tuples are typed:
+Main-process window classes use `TypedEmitter` from `@shared/types/typedEmitter`. For example, `src/main/windows/base.ts` defines these `BaseWindowEvents` entries:
 
 ```ts
 interface BaseWindowEvents {
   'window-ready': []
+  'window-focus': []
   'window-blur': []
-  'will-close': [id: number, opts: { keepInBackground: boolean }]
+  'window-close': []
+  'window-closed': []
 }
-
-class BaseWindow extends TypedEmitter<BaseWindowEvents> { ... }
 ```
 
-Wrong event names or mismatched listener arities fail at compile time.
+The event map checks event names and listener arguments on the typed emitter.
 
 ## Pinia stores
 
-All 9 active Pinia stores (`src/renderer/src/store/`) are typed. Seven are
-Setup Stores (`defineStore('id', () => { ... return { ...refs, ...computeds,
-...actions } })`); `editor.ts` and `preferences.ts` remain Options Stores
-because Pinia's Options-Store typing is fully inferrable from a typed
-`state: () => State` factory, and converting their ~80 cross-store call
-sites buys no expressiveness over a typed Options Store.
+Stores live in `src/renderer/src/store/`. `editor.ts` and `preferences.ts` use Options Stores; the other store definitions use Setup Stores. The editor store represents the absence of an active file as `null`, so consumers must narrow `currentFile` before accessing its document fields.
 
-The editor store's `currentFile` sentinel is now `IFileState | null`
-instead of the legacy empty-object placeholder, and consumers do explicit
-null narrowing where they previously checked `!currentFile.id`.
+## Strict-mode conventions
 
-## Strict-mode landmines
+Initialize class fields before use, narrow caught errors from `unknown`, and use library types where available. TypeScript can infer callback parameters from typed collections; add annotations where inference lacks enough context.
 
-- **`strictPropertyInitialization`** — class fields must be initialized
-  in the constructor or marked with `!:` (definite-assignment assertion).
-  Prefer initialization; reach for `!:` only where the runtime guarantees
-  the field is set before any access.
-- **`useUnknownInCatchVariables`** — `catch (err)` gives `err: unknown`.
-  Narrow before using: `err instanceof Error ? err.message : String(err)`.
-- **`noImplicitAny`** — every callback parameter needs a type. For
-  iterators (`tabs.find(t => ...)`), TS infers from the element type.
-- **Event handler unions** — Electron's `BrowserWindow.on` is heavily
-  overloaded; passing a union of event names (`'maximize'|'unmaximize'|...`)
-  can require a cast through `any`.
-
-## Linting types
-
-`@typescript-eslint/no-explicit-any` is an error in desktop TypeScript and Vue files. Narrow unknown values or use library types; keep any necessary suppression local and explain the missing type information. CodeMirror mode APIs are an example where the upstream declarations do not cover every runtime capability.
+`@typescript-eslint/no-explicit-any` is an error in desktop TypeScript and Vue files. Keep necessary suppressions local and explain which missing type information requires them.
 
 ## Type-checking
 
-```bash
-pnpm typecheck            # vue-tsc --noEmit -p tsconfig.json
-pnpm typecheck:watch      # incremental
-pnpm check                # lint + typecheck
+```sh
+pnpm typecheck
+pnpm typecheck:watch
+pnpm check
 ```
 
-`vue-tsc` is the TS compiler with Vue SFC awareness. Plain `tsc` won't
-type-check `.vue` files. CI runs `pnpm typecheck` as part of the lint
-job (see `.github/workflows/lint.yml`).
+`typecheck` generates Muya declarations and runs `vue-tsc --noEmit -p tsconfig.json`. `check` runs root lint followed by that type check. Desktop lint CI runs both lint and type checking in `.github/workflows/lint.yml`.

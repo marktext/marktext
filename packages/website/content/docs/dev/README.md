@@ -8,10 +8,9 @@ Run the commands below from the repository root. Desktop scripts proxy to `packa
 
 ### 1.1 Pre-Requisites
 
-- Python (`>= 3.12`)
+- Python 3 for native dependency builds; release CI selects Python 3.12
 
-- Node.js (`>=20.19.0`) — the PR build CI uses Node 22.21.1, the release CI uses Node 24.14.1; any version meeting the minimum should work
-  - Using versions significantly newer than the Electron-bundled Node may cause issues compiling native add-ons
+- Node.js (`>=20.19.0`) — the PR build CI uses Node 22.21.1, the release CI uses Node 24.14.1
 
 - pnpm `>=10`; use the version pinned in the root `package.json` (`packageManager`).
 
@@ -21,9 +20,7 @@ Run the commands below from the repository root. Desktop scripts proxy to `packa
 
 ### 1.3 Windows Specific Pre-requisites
 
-- You will need [Build Tools for Visual Studio 2022](https://visualstudio.microsoft.com/downloads/) (Scroll all the way to the bottom)
-  - Additionally, you need **spectre-mitigated MSVC**, go to "Individual Components" and select "MSVC ... - VS2022 C++ Spectre-Mitigated Libs"
-  - Many native libraries do not support ClangCL well yet, hence we force it to use MSVC in our `.npmrc` (pnpm respects this file)
+Install Visual Studio 2022 C++ build tools and a Windows SDK. The root `.npmrc` sets `msvs_version=2022` and `clang=0` for native dependency builds.
 
 ### 1.4 Clone and Install
 
@@ -50,7 +47,7 @@ pnpm run dev
 #### 1.6.1 Some Points to Note:
 
 - Restart `pnpm run dev` after changing the main process. A window reload (`Ctrl+R`) reruns preload; restart development if a preload change is not reflected.
-- Although the `renderer` process is hot-loaded, loss of states can often lead to **weird errors**. I recommend doing a full reload if this happens
+- The renderer hot-reloads through Vite. Reload the window if it retains stale state.
 - Compile targets:
   - `main` and `preload` still compile to `CommonJS`
   - `renderer` is `ESModules` only (take note when using any legacy `CommonJS` libraries)
@@ -70,7 +67,7 @@ $ pnpm run build:linux
 
 ### 1.8 Compile and test
 
-`pnpm run build:unpack` compiles without packaging. `pnpm run start` previews the existing build in `packages/desktop/out/`. Platform packaging commands above write installers to the repository-root `dist/`.
+`pnpm run build:unpack` compiles without packaging. `pnpm run start` runs `electron-vite preview`, which rebuilds before launching. To launch existing bundles without rebuilding, use `pnpm -C packages/desktop exec electron-vite preview --skipBuild`. Platform packaging commands above write installers to the repository-root `dist/`.
 
 Run `pnpm run lint`, `pnpm run typecheck` and `pnpm run test:unit` for desktop changes. See [Build instructions](BUILD.md#development-and-checks) for single-spec commands, E2E tests and Muya checks.
 

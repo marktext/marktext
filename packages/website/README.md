@@ -29,11 +29,7 @@ pnpm --filter marktext-website start
 
 ## Cloudflare runtime validation
 
-Next.js is pinned to 15.5.27 because 16.4.0 loads `server/preview-props.json`
-at startup, which OpenNext 1.20.10 does not inline into its Worker bundle.
-The resulting `Unexpected loadManifest` exception returns HTTP 500 even when
-the build and deployment succeed. Revisit this pin when the adapter supports
-that manifest.
+The Next.js version is pinned in `package.json`. The deployed site uses the OpenNext Cloudflare adapter; validate the Worker as well as the Next.js build before deploying.
 
 From the repository root, validate the built Worker before deploying:
 

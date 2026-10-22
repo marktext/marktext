@@ -5,7 +5,7 @@ MarkText is built from the pnpm workspace at the repository root. Compiling the 
 ## Prerequisites
 
 - Node.js `>=20.19.0` and pnpm `>=10`. Use the pnpm version pinned by `packageManager` in the root `package.json`.
-- Python `>=3.12` and a C++ toolchain for native dependencies.
+- Python 3 and a C++ toolchain for native dependencies. Release CI selects Python 3.12.
 - Build on the target operating system: Linux, macOS or Windows. The release workflow builds x64 and arm64 on native runners.
 
 ### Linux
@@ -32,7 +32,7 @@ See [Linux development](LINUX_DEV.md) for additional tooling and troubleshooting
 
 ### Windows
 
-Install Build Tools for Visual Studio 2022 with the C++ toolchain, Windows SDK and the **MSVC VS2022 C++ Spectre-Mitigated Libs** component. The repository's `.npmrc` selects MSVC for native dependencies.
+Install Build Tools for Visual Studio 2022 with the C++ toolchain and a Windows SDK. The repository's `.npmrc` sets `msvs_version=2022` and `clang=0` for native dependency builds.
 
 ### macOS
 
@@ -45,10 +45,10 @@ git clone https://github.com/marktext/marktext.git
 cd marktext
 pnpm install
 pnpm run build:unpack
-pnpm run start
+pnpm -C packages/desktop exec electron-vite preview --skipBuild
 ```
 
-Installation runs `scripts/postinstall.ts`, including native dependency setup, patching, Muya type generation and locale minification. `build:unpack` minifies locales and compiles the main, preload and renderer bundles. Despite its name, it does not run electron-builder or create an unpacked distribution directory. `start` previews the existing bundles without rebuilding them.
+Installation runs `scripts/postinstall.ts`, including native dependency setup, patching, Muya type generation and locale minification. `build:unpack` minifies locales and compiles the main, preload and renderer bundles. Despite its name, it does not run electron-builder or create an unpacked distribution directory. The explicit `preview --skipBuild` command launches the existing bundles. The root `start` script runs `electron-vite preview` without `--skipBuild`, so it rebuilds before launching.
 
 Compiled bundles are written to `packages/desktop/out/`. The shorter `pnpm run build` only runs electron-vite; run locale minification separately if using it for a production preview.
 
