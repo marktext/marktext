@@ -88,7 +88,7 @@ MarkText key bindings for macOS. Please see [general key bindings](KEYBINDINGS.m
 | `format.superscript`  | -                                                | Change the selected text to underline           |
 | `format.subscript`    | -                                                | Change the selected text to underline           |
 | `format.highlight`    | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> | Highlight the selected text by <mark>tag</mark> |
-| `format.inline-code`  | <kbd>Command</kbd>+<kbd>`</kbd>                  | Change the selected text to inline code         |
+| `format.inline-code`  | <kbd>Control</kbd>+<kbd>Command</kbd>+<kbd>C</kbd>                  | Change the selected text to inline code         |
 | `format.inline-math`  | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd> | Change the selected text to inline math         |
 | `format.strike`       | <kbd>Command</kbd>+<kbd>D</kbd>                  | Strike through the selected text                |
 | `format.hyperlink`    | <kbd>Command</kbd>+<kbd>L</kbd>                  | Insert a hyperlink                              |
