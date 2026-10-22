@@ -22,35 +22,38 @@ export class LinearMarked extends Marked {
                 results.push(result);
             }
 
-            // Resolve children AFTER the callback, which may augment the token.
-            const children: Token[][] = [];
-            switch (token.type) {
-                case 'table': {
-                    for (const cell of token.header)
-                        children.push(cell.tokens);
-                    for (const row of token.rows) {
-                        for (const cell of row)
-                            children.push(cell.tokens);
-                    }
-                    break;
-                }
-                case 'list':
-                    children.push(token.items);
-                    break;
-                default: {
-                    const keys = this.defaults.extensions?.childTokens?.[token.type];
-                    if (keys) {
-                        for (const key of keys)
-                            children.push((token as Tokens.Generic)[key].flat(Infinity));
-                    }
-                    else if ('tokens' in token && token.tokens) {
-                        children.push(token.tokens);
-                    }
-                }
-            }
-            for (let i = children.length - 1; i >= 0; i--)
-                stack.push(children[i][Symbol.iterator]());
+            stack.push(this._walkChildren(token));
         }
         return results;
+    }
+
+    // Earlier subtree callbacks may replace later sibling arrays, so read each only when reached.
+    private* _walkChildren(token: Token): Generator<Token> {
+        switch (token.type) {
+            case 'table':
+                for (const cell of token.header)
+                    yield* cell.tokens;
+                for (const row of token.rows) {
+                    for (const cell of row)
+                        yield* cell.tokens;
+                }
+                break;
+            case 'list':
+                yield* token.items;
+                break;
+            default: {
+                const keys = this.defaults.extensions?.childTokens?.[token.type];
+                if (keys) {
+                    // Marked uses forEach: appended keys are ignored and deleted keys are skipped.
+                    for (let i = 0, length = keys.length; i < length; i++) {
+                        if (i in keys)
+                            yield* (token as Tokens.Generic)[keys[i]].flat(Infinity);
+                    }
+                }
+                else if ('tokens' in token && token.tokens) {
+                    yield* token.tokens;
+                }
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-import type { Token } from 'marked';
+import type { Token, Tokens } from 'marked';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import { describe, expect, it } from 'vitest';
@@ -44,6 +44,78 @@ describe('linear token walk', () => {
         expect(actual.seen.map(token => token.type)).toContain('list_item');
         expect(actual.seen.at(-1)?.raw).toBe('extra');
     });
+
+    it.each(['replace-header', 'append-header', 'replace-rows', 'replace-cell', 'append-row'])(
+        'observes table mutations during earlier cell callbacks: %s',
+        (mutation) => {
+            function visit(marked: Marked) {
+                const tokens = marked.lexer('| first | second |\n| --- | --- |\n| third | fourth |\n');
+                const table = tokens[0] as Tokens.Table;
+                const text = (value: string): Tokens.Text => ({ type: 'text', raw: value, text: value });
+                const cell = (value: string): Tokens.TableCell => ({ text: value, tokens: [text(value)], header: false, align: null });
+                const seen: string[] = [];
+                marked.walkTokens(tokens, (token) => {
+                    if (token.type !== 'text')
+                        return;
+                    seen.push(token.text);
+                    if (token.text === 'first') {
+                        if (mutation === 'replace-header')
+                            table.header[1].tokens = [text('changed')];
+                        else if (mutation === 'append-header')
+                            table.header.push(cell('added'));
+                        else if (mutation === 'replace-rows')
+                            table.rows = [[cell('changed')]];
+                    }
+                    if (token.text === 'third') {
+                        if (mutation === 'replace-cell')
+                            table.rows[0][1].tokens = [text('changed')];
+                        else if (mutation === 'append-row')
+                            table.rows.push([cell('added')]);
+                    }
+                });
+                return seen;
+            }
+            const expected = visit(new Marked());
+            expect(expected).toContain(mutation.startsWith('append') ? 'added' : 'changed');
+            expect(visit(new LinearMarked())).toEqual(expected);
+        },
+    );
+
+    it.each(['replace-field', 'append-key', 'delete-key'])(
+        'matches extension childTokens mutation timing: %s',
+        (mutation) => {
+            function visit(marked: Marked) {
+                const keys = ['first', 'second'];
+                marked.use({ extensions: [{ name: 'custom', level: 'block', childTokens: keys, tokenizer: () => undefined }] });
+                const text = (value: string): Tokens.Text => ({ type: 'text', raw: value, text: value });
+                const token: Tokens.Generic = {
+                    type: 'custom',
+                    raw: '',
+                    first: [[text('first')]],
+                    second: [[text('second')]],
+                    extra: [text('extra')],
+                };
+                const seen: string[] = [];
+                marked.walkTokens([token], (child) => {
+                    if (child.type !== 'text')
+                        return;
+                    seen.push(child.text);
+                    if (child.text === 'first') {
+                        if (mutation === 'replace-field')
+                            token.second = [[text('changed')]];
+                        else if (mutation === 'append-key')
+                            keys.push('extra');
+                        else
+                            delete keys[1];
+                    }
+                });
+                return seen;
+            }
+            const expected = visit(new Marked());
+            expect(expected).toEqual(mutation === 'replace-field' ? ['first', 'changed'] : mutation === 'append-key' ? ['first', 'second'] : ['first']);
+            expect(visit(new LinearMarked())).toEqual(expected);
+        },
+    );
 
     it('walks deep children iteratively and observes children added by callbacks', () => {
         let token: Token = { type: 'text', raw: 'leaf', text: 'leaf' };
