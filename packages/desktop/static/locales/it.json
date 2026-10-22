@@ -32,7 +32,8 @@
       "closeTab": "Chiudi scheda",
       "closeWindow": "Chiudi finestra",
       "quit": "Esci",
-      "preferences": "Preferenze"
+      "preferences": "Preferenze",
+      "addFolder": "Aggiungi cartella…"
     },
     "edit": {
       "edit": "Modifica",
@@ -242,7 +243,10 @@
       "noResultsFound": "Nessun risultato trovato",
       "cancel": "Annulla",
       "openFolder": "Apri cartella",
-      "showMoreMatches": "Mostra più corrispondenze"
+      "showMoreMatches": "Mostra più corrispondenze",
+      "noSearchableFolders": "Nessuna cartella disponibile per la ricerca.",
+      "partialSearch": "Non è stato possibile cercare in alcune cartelle.",
+      "searchInFolders": "Cerca nelle cartelle aggiunte"
     },
     "tree": {
       "openedFiles": "File aperti",
@@ -250,7 +254,17 @@
       "closeAll": "Chiudi tutti",
       "emptyProject": "Progetto vuoto",
       "createFile": "Crea file",
-      "openFolder": "Apri cartella"
+      "openFolder": "Apri cartella",
+      "fileOutsideFolders": "Questo file non si trova in una cartella aggiunta.",
+      "folderAlreadyAdded": "Questa cartella è già stata aggiunta.",
+      "loadingFolder": "Caricamento della cartella…",
+      "noFolders": "Nessuna cartella aggiunta",
+      "overlappingFolder": "Questa cartella si sovrappone a una cartella esistente. Rimuovi prima la cartella esistente.",
+      "removeFolder": "Rimuovi dalla barra laterale",
+      "resizeOpenedFiles": "Ridimensiona l'elenco dei file aperti",
+      "retryFolder": "Riprova",
+      "sessionSaveFailed": "Impossibile salvare la sessione",
+      "unavailableFolder": "Cartella non disponibile"
     },
     "toc": {
       "expand": "Espandi sommario",
@@ -460,7 +474,8 @@
         "autoNormalizeLineEndings": "Normalizzazione automatica dei fine riga all'apertura dei file. Disabilitando questa opzione, i file vengono aperti così come sono.",
         "fileSortOrder": "Ordinamento ascendente o discendente dei file nelle cartelle aperte",
         "openedFilesInSidebar": "Mostra i file aperti nella barra laterale (Sì/No)",
-        "showPandocConvert": "Mostra il menu di conversione Pandoc. Richiede che Pandoc sia stato installato."
+        "showPandocConvert": "Mostra il menu di conversione Pandoc. Richiede che Pandoc sia stato installato.",
+        "openFilesInPreviewMode": "Apri i file della barra laterale in schede di anteprima"
       }
     },
     "categories": {
@@ -531,7 +546,8 @@
           "zToA": "Z → A",
           "oldestFirst": "Prima il meno recente",
           "newestFirst": "Prima il più recente"
-        }
+        },
+        "openFilesInPreviewMode": "Apri i file della barra laterale in schede di anteprima. La modifica o un doppio clic mantiene aperta la scheda."
       },
       "misc": {
         "title": "Varie",
@@ -823,7 +839,8 @@
       "exportFile": "Esporta file",
       "exportFilePdf": "Esporta come PDF",
       "zoom": "Zoom",
-      "checkUpdate": "Controllo degli aggiornamenti"
+      "checkUpdate": "Controllo degli aggiornamenti",
+      "addFolder": "Aggiungi cartella…"
     },
     "edit": {
       "undo": "Annulla",
@@ -1045,7 +1062,8 @@
       "title": "Correzione ortografica"
     },
     "tabs": {
-      "close": "Chiudi {name}"
+      "close": "Chiudi {name}",
+      "preview": "{name}, scheda di anteprima"
     }
   },
   "readingMode": {
