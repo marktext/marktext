@@ -74,7 +74,9 @@ test('release editor and preferences enforce web security', async() => {
       expect(prefs.insecureContent).toBe(false)
     }
   } finally {
-    await preferences.evaluate(() => window.electron.windowControl.close())
+    await app.evaluate(({ BrowserWindow }, url) => {
+      BrowserWindow.getAllWindows().find(win => win.webContents.getURL() === url)?.close()
+    }, preferences.url())
   }
 })
 
