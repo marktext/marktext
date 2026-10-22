@@ -28,6 +28,8 @@ The format overlay is a pop-up that automatically appears when you're selecting 
 
 Further overlays are available for emojis, links, images and tables.
 
+![](../assets/marktext-format-popup.png)
+
 ## Deleting
 
 Do you want to delete headings, lists or tables? Just select the area and press backspace.
@@ -40,6 +42,8 @@ You can configure MarkText to autocomplete markdown syntax, brackets and quotes.
 
 Links are displayed by default as normal text, but if you click on a link it is shown as a markdown link with title and URL, as shown below:
 
+![](../assets/marktext-link-preview.png)
+
 ## Formatting
 
 MarkText parses and exports Markdown using Muya, with CommonMark/GFM syntax and optional extensions controlled by preferences. Some settings, such as list indentation, can be controlled via preferences.
@@ -50,9 +54,13 @@ MarkText parses and exports Markdown using Muya, with CommonMark/GFM syntax and 
 
 When you start a new line, just type / to access a pop-up with all available markdown features. At this point, you can choose an entry and the line is transformed into the selected attribute.
 
+![](../assets/marktext-quick-insert.png)
+
 #### Line transformer
 
 You can transform a line into another type by clicking on the highlighted icon in the image below and select `Turn Into`. Furthermore, you can duplicate the selected line, create a paragraph after the selected block or delete the line.
+
+![](../assets/marktext-line-transformer.png)
 
 #### Table tools
 
@@ -66,17 +74,29 @@ You can insert or delete a new row or column by clicking on an existing cell and
 
 You can simply move a row or column by clicking on the cell menu (like above) and dragging it by holding your left mouse button like this:
 
+![](../assets/marktext-table_drag_drop.png)
+
+![](../assets/marktext-table-gif.gif)
+
 #### Image tools
 
 MarkText provides an image viewer and a pop-up to select and label images. You can resize images using the image handles; changes are applied in realtime. By clicking on an image or writing `![]()` a pop-up automatically appears that allows you to select an image from disk, or paste a path or URL. Images can be automatically uploaded to cloud, or copied into a configured local folder. Even pasting images that are not located on disk is supported and these images are stored in the background. In addition, you can control the image alignment whether inline, left, centered or right.
+
+![](../assets/marktext-image-viewer.png)
+
+![](../assets/marktext-image-popup.png)
 
 #### Emoji picker
 
 Instantly add emojis to your markdown document without long searches. While typing, the application automatically refreshes the list of available emojis.
 
+![](../assets/marktext-emoji-picker.png)
+
 #### Focus mode
 
 The focus mode will help you to focus on the currently line only by fading out other lines. To activate the focus mode, simply press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>.
+
+![](../assets/marktext-focus-mode.png)
 
 #### Typewriter mode
 

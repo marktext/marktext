@@ -4,6 +4,8 @@
 
 MarkText is a realtime preview editor for markdown with various markdown extensions. You can simply write and edit text and MarkText hides all unnecessary syntax elements. You can see [key bindings](KEYBINDINGS.md) or command palette (<kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) for all available commands or start a new line and type `/` to get an overlay with available text elements. MarkText provides a minimal and simple interface and in the next sections you can learn more about the interface and features.
 
+![](../assets/marktext-default.png)
+
 ### Interface
 
 #### Toggle sidebar
@@ -19,6 +21,8 @@ MarkText can be used as a single editor but opens all files in a separate tab. T
 **Want to use tabs without showing them?**
 
 You can hide tabs and use key bindings such as <kbd>Ctrl</kbd>+<kbd>Tab</kbd> to cycle through tabs or the sidebar _opened files_ panel.
+
+![](../assets/marktext-interface-1.png)
 
 #### Switch between editor modes
 
@@ -47,6 +51,8 @@ After some modifications you can save your file via <kbd>CmdOrCtrl</kbd>+<kbd>S<
 ### Open a directory
 
 MarkText also has support to open a directory via <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> through the File menu. After opening a directory, the sidebar tree shows supported files and directories, subject to watcher exclusions. The tree view allows you to open further files, browse and modify files or directories inside the opened root directory. Opened files appear in a separate section above the folder tree. You can also use quick open (<kbd>CmdOrCtrl</kbd>+<kbd>P</kbd>) to quickly open a file from the opened root directory or editor and navigate via arrow keys or select a file via mouse. Use the sidebar search control to find text in files.
+
+![](../assets/marktext-interface-2.png)
 
 ### Preview tabs
 

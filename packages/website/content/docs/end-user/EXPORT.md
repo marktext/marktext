@@ -24,6 +24,10 @@ MarkText allows you to select a page theme before exporting. You can learn more 
 
 You can include a header and/or footer in the exported document if you choose PDF or printing and also adjust the header/footer style. You can select between no, a single or a three cell header in export options. The header is repeated through the export page layout; the footer is fixed at the bottom. Footer cells are constrained to one line. The settings do not expose a page-number field. An example can be seen below.
 
+![](../assets/marktext-export-header.png)
+
+![](../assets/marktext-export-pdf.png)
+
 ## Markdown extensions and media
 
 The HTML/PDF renderer reads the document's math, footnote, superscript/subscript, highlight, inline-diff, multiline-blockquote and GitHub Alerts options. For example, enable GitHub Alerts in Preferences → Markdown to render alert blocks with their associated styling (since 0.22.0). Folded headings still export their full section contents.
