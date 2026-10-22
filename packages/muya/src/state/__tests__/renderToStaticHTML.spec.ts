@@ -27,6 +27,16 @@ describe('renderToStaticHTML', () => {
         expect(ordered).toContain('<li>two</li>');
     });
 
+    it('omits nested-list formatting newlines by default while preserving soft breaks', () => {
+        const html = renderToStaticHTML('- parent\n  - line A\n    line B\n  - next\n');
+        expect(html).toContain('<li>parent<ul><li>line A\nline B</li><li>next</li></ul></li>');
+    });
+
+    it('preserves authored whitespace in raw HTML nested lists by default', () => {
+        const raw = '<ul><li>A<ul><li>B</li></ul> <span>C</span></li></ul>';
+        expect(renderToStaticHTML(raw)).toContain(raw);
+    });
+
     it('renders fenced code blocks with language class', () => {
         const html = renderToStaticHTML('```js\nconsole.log(1);\n```');
         expect(html).toContain('<pre>');
