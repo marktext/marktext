@@ -2,6 +2,12 @@
 
 ## Main interface
 
+![](../assets/marktext-interface.png)
+
+- Green: titlebar
+- Orange: sidebar
+- Red: editor with tabs and per-tab notification at the bottom
+
 The editor window contains a title bar, an optional sidebar, optional tabs and the document editor. A separate outline panel navigates the active document's headings. Layout visibility is coordinated by `packages/desktop/src/renderer/src/store/layout.ts`.
 
 ### Titlebar
