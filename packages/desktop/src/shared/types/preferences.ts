@@ -52,6 +52,8 @@ export interface IUserPreferences {
   githubAlerts?: boolean
   isHtmlEnabled?: boolean
   softNewlineAsSpace?: boolean
+  mermaidLightTheme?: string
+  mermaidDarkTheme?: string
   theme?: string
   spellcheckerEnabled?: boolean
   spellcheckerNoUnderline?: boolean

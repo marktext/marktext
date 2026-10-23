@@ -65,6 +65,8 @@
   "isHtmlEnabled": true,
   "softNewlineAsSpace": false,
   "sequenceTheme": "hand",
+  "mermaidLightTheme": "default",
+  "mermaidDarkTheme": "dark",
   "plantumlServer": "https://www.plantuml.com/plantuml",
 
   "theme": "light",
