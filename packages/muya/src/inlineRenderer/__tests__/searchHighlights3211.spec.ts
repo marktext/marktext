@@ -75,12 +75,16 @@ describe('search highlights in large paragraphs (#3211)', () => {
     });
 
     it.each([
+        [],
         [{ start: 0, end: 35, active: true }, { start: 35, end: 36, active: false }],
         [{ start: 3, end: 3, active: true }, { start: 10, end: 10, active: false }],
         [{ start: 0, end: 6, active: false }, { start: 6, end: 10, active: true }],
         [{ start: 0, end: 12, active: false }, { start: 8, end: 20, active: true }],
         [{ start: 8, end: 20, active: false }, { start: 0, end: 12, active: true }],
         [{ start: 0, end: 30, active: true }, { start: 2, end: 5, active: false }],
+        [{ start: 8, end: 10, active: false }, { start: 0, end: 20, active: true }],
+        [{ start: 0, end: 10, active: false }, { start: 4, end: 10, active: true }],
+        [{ start: 40, end: 45, active: true }],
     ] satisfies IHighlight[][])('keeps intersections correct for nested tokens and arbitrary ranges: %j', (...highlights) => {
         const tokens = allTokens(tokenizer('**one *two* three** and `code`\nnext', { highlights }));
 
@@ -88,5 +92,27 @@ describe('search highlights in large paragraphs (#3211)', () => {
             const expected = highlights.map(light => union(token.range, light)).filter(Boolean);
             expect(token.highlights ?? []).toEqual(expected);
         }
+    });
+
+    it('keeps block-relative coordinates for both syntax markers and nested text', () => {
+        const highlight = Object.freeze({ start: 0, end: 7, active: true });
+        const highlights = [highlight];
+        Object.freeze(highlights);
+
+        const [token] = tokenizer('**one**', { highlights });
+        expect(token.type).toBe('strong');
+        expect(token.highlights).toEqual([{ start: 0, end: 7, active: true }]);
+        if (!('children' in token) || !token.children)
+            throw new Error('Expected nested text');
+        expect(token.children[0].highlights).toEqual([{ start: 2, end: 5, active: true }]);
+        expect(highlights).toEqual([{ start: 0, end: 7, active: true }]);
+    });
+
+    it('leaves unmatched tokens without highlight annotations', () => {
+        const tokens = allTokens(tokenizer('**one**', {
+            highlights: [{ start: 10, end: 15, active: true }],
+        }));
+
+        expect(tokens.every(token => !Object.hasOwn(token, 'highlights'))).toBe(true);
     });
 });
