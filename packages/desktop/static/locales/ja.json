@@ -461,6 +461,8 @@
         "isHtmlEnabled": "HTML レンダリングを有効にする",
         "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
         "sequenceTheme": "シーケンス図のテーマ",
+        "mermaidLightTheme": "MarkText のライトテーマ用 Mermaid テーマ",
+        "mermaidDarkTheme": "MarkText のダークテーマ用 Mermaid テーマ",
         "plantumlServer": "PlantUML サーバーの URL",
         "theme": "MarkText で使用するテーマの選択",
         "followSystemTheme": "システムのテーマに従う",
@@ -715,6 +717,12 @@
           "title": "シーケンステーマ",
           "handDrawn": "手描き",
           "simple": "シンプル"
+        },
+        "mermaidLightTheme": {
+          "title": "MarkText のライトテーマ用 Mermaid テーマ"
+        },
+        "mermaidDarkTheme": {
+          "title": "MarkText のダークテーマ用 Mermaid テーマ"
         },
         "plantumlServer": {
           "title": "PlantUML サーバーの URL"

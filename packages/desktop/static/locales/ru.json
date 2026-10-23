@@ -460,6 +460,8 @@
         "isHtmlEnabled": "Включить рендеринг HTML",
         "softNewlineAsSpace": "Считать мягкие переносы строк пробелами",
         "sequenceTheme": "Тема диаграмм последовательностей",
+        "mermaidLightTheme": "Тема Mermaid для светлых тем MarkText",
+        "mermaidDarkTheme": "Тема Mermaid для тёмных тем MarkText",
         "plantumlServer": "URL сервера PlantUML",
         "theme": "Выберите тему, используемую в MarkText",
         "followSystemTheme": "Следовать системной теме",
@@ -715,6 +717,12 @@
           "title": "Тема последовательностей",
           "handDrawn": "Нарисованная от руки",
           "simple": "Простая"
+        },
+        "mermaidLightTheme": {
+          "title": "Тема Mermaid для светлых тем MarkText"
+        },
+        "mermaidDarkTheme": {
+          "title": "Тема Mermaid для тёмных тем MarkText"
         },
         "plantumlServer": {
           "title": "URL сервера PlantUML"

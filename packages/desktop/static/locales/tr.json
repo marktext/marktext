@@ -460,6 +460,8 @@
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "sequenceTheme": "Dizi diyagramı teması",
+        "mermaidLightTheme": "MarkText açık temaları için Mermaid teması",
+        "mermaidDarkTheme": "MarkText koyu temaları için Mermaid teması",
         "theme": "MarkText'te kullanılan temayı seçin",
         "followSystemTheme": "Sistem Temasını Takip Et",
         "lightModeTheme": "Sistem açık moddayken kullanılacak tema",
@@ -715,6 +717,12 @@
           "title": "Dizi Teması",
           "handDrawn": "El Çizimi",
           "simple": "Basit"
+        },
+        "mermaidLightTheme": {
+          "title": "MarkText açık temaları için Mermaid teması"
+        },
+        "mermaidDarkTheme": {
+          "title": "MarkText koyu temaları için Mermaid teması"
         },
         "plantumlServer": {
           "title": "PlantUML Sunucu URL'si"

@@ -460,6 +460,8 @@
         "isHtmlEnabled": "Enable HTML rendering",
         "softNewlineAsSpace": "Treat soft newlines as spaces",
         "sequenceTheme": "Sequence diagram theme",
+        "mermaidLightTheme": "Mermaid theme for light MarkText themes",
+        "mermaidDarkTheme": "Mermaid theme for dark MarkText themes",
         "plantumlServer": "PlantUML server URL",
         "theme": "Select the theme used in MarkText",
         "followSystemTheme": "Follow System Theme",
@@ -715,6 +717,12 @@
           "title": "Sequence Theme",
           "handDrawn": "Hand Drawn",
           "simple": "Simple"
+        },
+        "mermaidLightTheme": {
+          "title": "Mermaid theme for light MarkText themes"
+        },
+        "mermaidDarkTheme": {
+          "title": "Mermaid theme for dark MarkText themes"
         },
         "plantumlServer": {
           "title": "PlantUML Server URL"

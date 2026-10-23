@@ -461,6 +461,8 @@
         "isHtmlEnabled": "啟用 HTML 轉譯",
         "softNewlineAsSpace": "將軟換行視為空格",
         "sequenceTheme": "序列圖主題",
+        "mermaidLightTheme": "MarkText 使用淺色主題時的 Mermaid 主題",
+        "mermaidDarkTheme": "MarkText 使用深色主題時的 Mermaid 主題",
         "plantumlServer": "PlantUML 伺服器 URL",
         "theme": "選擇 MarkText 中使用的主題",
         "followSystemTheme": "跟隨系統主題",
@@ -715,6 +717,12 @@
           "title": "序列主題",
           "handDrawn": "手繪",
           "simple": "簡單"
+        },
+        "mermaidLightTheme": {
+          "title": "MarkText 使用淺色主題時的 Mermaid 主題"
+        },
+        "mermaidDarkTheme": {
+          "title": "MarkText 使用深色主題時的 Mermaid 主題"
         },
         "plantumlServer": {
           "title": "PlantUML 伺服器 URL"

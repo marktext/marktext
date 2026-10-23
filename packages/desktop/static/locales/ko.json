@@ -461,6 +461,8 @@
         "isHtmlEnabled": "HTML 렌더링 활성화",
         "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
         "sequenceTheme": "시퀀스 다이어그램 테마",
+        "mermaidLightTheme": "MarkText 라이트 테마용 Mermaid 테마",
+        "mermaidDarkTheme": "MarkText 다크 테마용 Mermaid 테마",
         "plantumlServer": "PlantUML 서버 URL",
         "theme": "MarkText에서 사용할 테마 선택",
         "followSystemTheme": "시스템 테마 따르기",
@@ -715,6 +717,12 @@
           "title": "시퀀스 테마",
           "handDrawn": "손으로 그린",
           "simple": "간단"
+        },
+        "mermaidLightTheme": {
+          "title": "MarkText 라이트 테마용 Mermaid 테마"
+        },
+        "mermaidDarkTheme": {
+          "title": "MarkText 다크 테마용 Mermaid 테마"
         },
         "plantumlServer": {
           "title": "PlantUML 서버 URL"

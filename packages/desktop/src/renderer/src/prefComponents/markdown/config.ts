@@ -94,3 +94,20 @@ export const getSequenceThemeOptions = (): PrefSelectOption<string>[] => [
     value: 'simple'
   }
 ]
+
+const MERMAID_THEMES = [
+  'default',
+  'forest',
+  'neutral',
+  'base',
+  'dark',
+  'neo',
+  'neo-dark',
+  'redux',
+  'redux-dark',
+  'redux-color',
+  'redux-dark-color'
+]
+
+export const getMermaidThemeOptions = (): PrefSelectOption<string>[] =>
+  MERMAID_THEMES.map((theme) => ({ label: theme, value: theme }))

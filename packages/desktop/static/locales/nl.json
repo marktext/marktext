@@ -460,6 +460,8 @@
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "sequenceTheme": "Sequentiediagram thema",
+        "mermaidLightTheme": "Mermaid-thema voor lichte MarkText-thema's",
+        "mermaidDarkTheme": "Mermaid-thema voor donkere MarkText-thema's",
         "plantumlServer": "PlantUML server-URL",
         "theme": "Selecteer het thema voor MarkText",
         "followSystemTheme": "Systeemthema volgen",
@@ -715,6 +717,12 @@
           "title": "Sequentiethema",
           "handDrawn": "Handgetekend",
           "simple": "Eenvoudig"
+        },
+        "mermaidLightTheme": {
+          "title": "Mermaid-thema voor lichte MarkText-thema's"
+        },
+        "mermaidDarkTheme": {
+          "title": "Mermaid-thema voor donkere MarkText-thema's"
         },
         "plantumlServer": {
           "title": "PlantUML server"
