@@ -1,3 +1,4 @@
+import type { TBlockSeparation } from './blockBoundary';
 import type {
     IAtxHeadingState,
     IBlockQuoteState,
@@ -24,37 +25,11 @@ import { githubAlertMarker } from '../utils/githubAlerts';
 
 import logger from '../utils/logger';
 import stringWidth from '../utils/stringWidth';
+import { BlockBoundaryResolver } from './blockBoundary';
 import { isAnyListState } from './types';
 
 const debug = logger('export markdown: ');
 const SETEXT_SAFE_BULLET_MARKER = '*';
-
-// Blocks whose last line ends them, so the next block starts on its own with no
-// blank line in between.
-const TIGHT_ITEM_HARD_BOUNDARY_BEFORE = new Set<TState['name']>([
-    'atx-heading',
-    'setext-heading',
-    'code-block',
-    'math-block',
-    'diagram',
-]);
-
-// Blocks that CommonMark lets interrupt a paragraph, so they may follow one
-// inside a tight item without a blank line: an ATX heading, a block quote and a
-// diagram (a fenced block). A second paragraph, a setext underline, an indented
-// code block and a footnote definition would be absorbed by the paragraph
-// instead. Two kinds are decided outside this set: a dash-only thematic break
-// would read as a setext underline, and an HTML block is left conservative
-// because the state does not record which of the seven HTML block types it came
-// from — type 7 cannot interrupt a paragraph, types 1-6 can.
-//
-// Nested lists do not appear here: they are serialized on their own path, which
-// already writes them directly below the item's first block.
-const TIGHT_ITEM_INTERRUPTS_PARAGRAPH = new Set<TState['name']>([
-    'atx-heading',
-    'block-quote',
-    'diagram',
-]);
 
 function escapeText(str: string) {
     return str.replace(/(?<!\\)\|/g, '\\|');
@@ -65,6 +40,8 @@ export interface IExportMarkdownOptions {
 }
 
 export default class ExportMarkdown {
+    private _blockBoundary = new BlockBoundaryResolver();
+
     // Open list metadata stack; innermost settings control nested item serialization.
     private _listType: (
         | IBulletListState['meta']
@@ -101,6 +78,7 @@ export default class ExportMarkdown {
     }
 
     generate(states: TState[]) {
+        this._blockBoundary.reset();
         return this._convertStatesToMarkdown(states);
     }
 
@@ -115,7 +93,8 @@ export default class ExportMarkdown {
         let lastListBullet = '';
         let previousState: TState | undefined;
 
-        for (const state of states) {
+        for (const originalState of states) {
+            let state = originalState;
             if (
                 state.name !== 'order-list'
                 && state.name !== 'bullet-list'
@@ -149,7 +128,9 @@ export default class ExportMarkdown {
                 this._serializeListItemBlock(state, result, indent, listIndent);
             }
             else {
-                this._serializeSimpleBlock(state, result, indent, isTightItem, previousState);
+                const prepared = this._prepareBlockBoundary(state, previousState, isTightItem);
+                state = prepared.state;
+                this._serializeSimpleBlock(state, result, indent, prepared.separation);
             }
 
             previousState = state;
@@ -158,14 +139,27 @@ export default class ExportMarkdown {
         return result.join('');
     }
 
+    private _prepareBlockBoundary(state: TState, previous: TState | undefined, tightListItem: boolean) {
+        let separation: TBlockSeparation = previous
+            ? this._blockBoundary.resolve(previous, state, { tightListItem })
+            : 'adjacent';
+        if (separation === 'rewrite-required' && state.name === 'code-block') {
+            // Blank lines remain part of indented code. Fence the next
+            // block on output to keep two code blocks without mutating state.
+            state = { ...state, meta: { ...state.meta, type: 'fenced' } };
+            separation = tightListItem ? 'adjacent' : 'blank-line';
+        }
+        return { state, separation };
+    }
+
     private _serializeSimpleBlock(
         state: TState,
         result: string[],
         indent: string,
-        isTightItem: boolean,
-        previousState: TState | undefined,
+        separation: TBlockSeparation,
     ) {
-        const separate = () => this._separateBlock(result, indent, isTightItem, previousState, state);
+        if (state.name !== 'frontmatter' && separation !== 'adjacent')
+            this._insertLineBreak(result, indent);
 
         switch (state.name) {
             case 'frontmatter':
@@ -175,42 +169,34 @@ export default class ExportMarkdown {
             case 'paragraph':
 
             case 'thematic-break':
-                separate();
                 result.push(this._serializeTextParagraph(state, indent));
                 break;
 
             case 'atx-heading':
-                separate();
                 result.push(this._serializeAtxHeading(state, indent));
                 break;
 
             case 'setext-heading':
-                separate();
                 result.push(this._serializeSetextHeading(state, indent));
                 break;
 
             case 'code-block':
-                separate();
                 result.push(this._serializeCodeBlock(state, indent));
                 break;
 
             case 'html-block':
-                separate();
                 result.push(this._serializeHtmlBlock(state, indent));
                 break;
 
             case 'math-block':
-                separate();
                 result.push(this._serializeMathBlock(state, indent));
                 break;
 
             case 'diagram':
-                separate();
                 result.push(this._serializeDiagramBlock(state, indent));
                 break;
 
             case 'github-alert': {
-                separate();
                 const prefix = `${indent}> `;
                 const body = this._convertStatesToMarkdown(state.children, prefix);
                 result.push(`${prefix}${githubAlertMarker(state.meta)}\n${state.meta.blankLineAfterMarker && body.trim() ? `${prefix}\n` : ''}${body}`);
@@ -218,17 +204,14 @@ export default class ExportMarkdown {
             }
 
             case 'block-quote':
-                separate();
                 result.push(this._serializeBlockquote(state, indent));
                 break;
 
             case 'table':
-                separate();
                 result.push(this._serializeTable(state, indent));
                 break;
 
             case 'footnote':
-                separate();
                 result.push(this._serializeFootnote(state, indent));
                 break;
 
@@ -329,60 +312,6 @@ export default class ExportMarkdown {
         // unless a pair of them genuinely needs a separator.
         result.push(this._serializeListItem(state, indent + listIndent, !loose));
         this._isLooseParentList = true;
-    }
-
-    /**
-     * Separate two sibling blocks. Outside a list item this is always a blank
-     * line; inside a *tight* item a blank line between two of its direct
-     * children makes the list parse back as loose, so the separator is written
-     * only for the pairs that would otherwise merge into one block.
-     */
-    private _separateBlock(
-        result: unknown[],
-        indent: string,
-        isTightItem: boolean,
-        previousState: TState | undefined,
-        state: TState,
-    ) {
-        if (isTightItem && previousState && this._fitsWithoutBlankLine(previousState, state))
-            return;
-        this._insertLineBreak(result, indent);
-    }
-
-    /**
-     * Whether `next` still starts its own block when written directly below
-     * `previous`'s last line. Only pairs CommonMark lets follow without a blank
-     * line qualify; anything else keeps the separator, so the worst case is the
-     * pre-existing loose round-trip.
-     */
-    private _fitsWithoutBlankLine(previous: TState, next: TState) {
-        // A github-alert is only recognised when its marker line opens a
-        // blank-line-delimited block, so it always takes the separator.
-        if (next.name === 'github-alert')
-            return false;
-
-        if (TIGHT_ITEM_HARD_BOUNDARY_BEFORE.has(previous.name)) {
-            // Two indented code blocks separated by nothing are one code block.
-            return !(
-                previous.name === 'code-block'
-                && next.name === 'code-block'
-                && (previous as ICodeBlockState).meta.type === 'indented'
-                && (next as ICodeBlockState).meta.type === 'indented'
-            );
-        }
-
-        if (previous.name === 'paragraph') {
-            // A fenced block interrupts a paragraph; an indented one does not.
-            if (next.name === 'code-block')
-                return (next as ICodeBlockState).meta.type === 'fenced';
-            // A run of dashes would be read as a setext underline for the
-            // paragraph; asterisks and underscores cannot be.
-            if (next.name === 'thematic-break')
-                return !/^ {0,3}-+[ \t]*$/.test((next as IThematicBreakState).text);
-            return TIGHT_ITEM_INTERRUPTS_PARAGRAPH.has(next.name);
-        }
-
-        return false;
     }
 
     private _insertLineBreak(result: unknown[], indent: string) {
