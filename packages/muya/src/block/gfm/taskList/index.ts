@@ -3,13 +3,13 @@ import type { ITaskListMeta, ITaskListState } from '../../../state/types';
 import type TaskListItem from '../taskListItem';
 import { CLASS_NAMES } from '../../../config';
 import { mixins } from '../../../utils';
-import Parent from '../../base/parent';
+import ListBlock from '../../base/list';
 import IContainerQueryBlock from '../../mixins/containerQueryBlock';
 import { ScrollPage } from '../../scrollPage';
 
 @mixins(IContainerQueryBlock)
-class TaskList extends Parent {
-    public meta: ITaskListMeta;
+class TaskList extends ListBlock {
+    public override meta: ITaskListMeta;
 
     static override blockName = 'task-list';
 
@@ -45,10 +45,8 @@ class TaskList extends Parent {
             this.datasets = { marker: meta.marker };
         }
         this.classList = [CLASS_NAMES.MU_TASK_LIST];
-        if (!meta.loose)
-            this.classList.push('mu-tight-list');
-
         this.createDomNode();
+        this.setLoose(meta.loose);
     }
 
     // Ordered task lists preserve item order even when checked.

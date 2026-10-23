@@ -8,6 +8,7 @@ import { deepClone } from '../utils';
 import logger from '../utils/logger';
 import { createChangePayload } from './changePayload';
 import { getTOC } from './getTOC';
+import { listLoosenessOperations } from './listLooseness';
 
 import { MarkdownToState } from './markdownToState';
 import StateToMarkdown from './stateToMarkdown';
@@ -59,11 +60,19 @@ class JSONState {
 
     private _apply(op: JSONOp) {
         if (op === null)
-            return;
+            return { operation: op, listPaths: [] };
         // Inserted values can also belong to mutable blocks or API callers.
         // Copy the operation, not the document, to own all newly added data.
-        this._state = asState(json1.type.apply(asDoc(this._state), deepClone(op)));
-        this._revision += 1;
+        const next = asState(json1.type.apply(asDoc(this._state), deepClone(op)));
+        const normalized = listLoosenessOperations(this._state, next, op, this._muya.options);
+        const operation = json1.type.compose(op, normalized.operation);
+        if (operation !== null) {
+            this._state = normalized.operation
+                ? asState(json1.type.apply(asDoc(next), normalized.operation))
+                : next;
+            this._revision += 1;
+        }
+        return { operation, listPaths: normalized.paths };
     }
 
     setContent(content: TState[] | string) {
@@ -189,12 +198,13 @@ class JSONState {
 
     dispatch(op: JSONOp, source: ChangeSource = ChangeSource.User) {
         const prevDoc = this._state;
-        this._apply(op);
-        debug.log(JSON.stringify(op));
+        const { operation } = this._apply(op);
+        debug.log(JSON.stringify(operation));
         this._muya.eventCenter.emit(
             'json-change',
-            createChangePayload(op, source, prevDoc, this._state),
+            createChangePayload(operation, source, prevDoc, this._state),
         );
+        return operation;
     }
 
     /**
@@ -265,10 +275,15 @@ class JSONState {
             return;
 
         const prevDoc = this._state;
-        this._apply(op);
+        const { operation, listPaths } = this._apply(op);
+        // The live tree already contains queued user edits. Sync derived
+        // metadata before notifying listeners, within the same history entry.
+        this._muya.editor?.syncListLooseness?.(listPaths);
+        if (operation === null)
+            return;
         this._muya.eventCenter.emit(
             'json-change',
-            createChangePayload(op, ChangeSource.User, prevDoc, this._state),
+            createChangePayload(operation, ChangeSource.User, prevDoc, this._state),
         );
     }
 }

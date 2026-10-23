@@ -1,4 +1,4 @@
-import type { JSONOp, JSONOpComponent, JSONOpList } from 'ot-json1';
+import type { JSONOp, JSONOpComponent, JSONOpList, Path } from 'ot-json1';
 import type Content from '../block/base/content';
 import type Format from '../block/base/format';
 import type { Muya } from '../muya';
@@ -8,6 +8,7 @@ import type { Nullable } from '../types';
 import * as otText from 'ot-text-unicode';
 import { fromEvent, merge } from 'rxjs';
 import { registerBlocks } from '../block';
+import ListBlock from '../block/base/list';
 import { ScrollPage } from '../block/scrollPage';
 import Clipboard from '../clipboard';
 import { CLASS_NAMES, isFirefox } from '../config';
@@ -39,6 +40,7 @@ type BlockNode = {
     insertBefore?: (newBlock: BlockNode, ref: BlockNode, source: ChangeSource) => void;
     append?: (newBlock: BlockNode, source: ChangeSource) => void;
     update?: (value?: unknown, source?: ChangeSource) => void;
+    setLoose?: (loose: boolean) => void;
     blockName?: string;
     align?: string;
     _text?: string;
@@ -167,6 +169,12 @@ function drop(root: BlockNode, descent: JSONOpList, muya: Muya): BlockNode {
             switch (key) {
                 case 'checked': {
                     ref?.update?.(comp.i, ChangeSource.Api);
+                    break;
+                }
+
+                case 'loose': {
+                    if (typeof comp.i === 'boolean')
+                        cur?.setLoose?.(comp.i);
                     break;
                 }
 
@@ -407,7 +415,7 @@ export class Editor {
         // ot-json1 no-op (`null`) is forwarded to dispatch — JSONState
         // short-circuits internally so listeners still see a json-change
         // event for the no-op.
-        this.jsonState.dispatch(operations, source);
+        operations = this.jsonState.dispatch(operations, source);
 
         // Codes bellow are copy from `ot-json1.apply` and modified.
         if (operations === null)
@@ -427,6 +435,14 @@ export class Editor {
             debug.error(`updateContents incremental apply failed; rebuilding from state: ${String(error)}`);
             this.scrollPage!.updateState(this.jsonState.getState());
             this._restoreSelection(selection, true);
+        }
+    }
+
+    syncListLooseness(paths: Path[]) {
+        for (const path of paths) {
+            const block = this.scrollPage?.queryBlock([...path]);
+            if (block instanceof ListBlock)
+                block.setLoose(true);
         }
     }
 

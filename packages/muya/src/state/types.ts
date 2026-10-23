@@ -264,6 +264,10 @@ export function isAnyListState(s: TState): s is IOrderListState | IBulletListSta
     return s.name === 'order-list' || s.name === 'bullet-list' || s.name === 'task-list';
 }
 
+export function markdownListMarker(list: IOrderListState | IBulletListState | ITaskListState): string {
+    return 'delimiter' in list.meta ? `ordered:${list.meta.delimiter}` : `bullet:${list.meta.marker}`;
+}
+
 export interface ITurnoverOptions {
     headingStyle: 'atx' | 'setext'; // setext or atx
     hr: '---';

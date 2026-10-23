@@ -32,7 +32,7 @@ import {
     locateSentinelOffsets,
     resolveSentinelCursor,
 } from './selection/offsetCursor';
-import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState } from './state/types';
+import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState, markdownListMarker } from './state/types';
 import { ChangeSource } from './types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
@@ -1501,13 +1501,31 @@ export class Muya {
         // A loose/tight toggle rebuilds blocks without changing their paths.
         const snapshot = this._snapshotSelection();
 
-        const newState = deepClone(state);
-        newState.meta.loose = !newState.meta.loose;
-        const newBlock = ScrollPage.loadBlock(newState.name).create(this, newState);
-        block.replaceWith(newBlock);
+        const marker = markdownListMarker(state);
+        const lists = [block];
+        for (const direction of ['prev', 'next'] as const) {
+            let adjacent = block[direction];
+            while (adjacent) {
+                const adjacentState = adjacent.getState();
+                if (!isAnyListState(adjacentState) || markdownListMarker(adjacentState) !== marker)
+                    break;
+                lists.push(adjacent);
+                adjacent = adjacent[direction];
+            }
+        }
+        let first: Parent | undefined;
+        for (const list of lists) {
+            const newState = list.getState();
+            if (!isAnyListState(newState))
+                continue;
+            newState.meta.loose = !state.meta.loose;
+            const newBlock = ScrollPage.loadBlock(newState.name).create(this, newState);
+            list.replaceWith(newBlock);
+            first ??= newBlock;
+        }
 
         if (!this._restoreSelection(snapshot))
-            newBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+            first?.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     /** Capture paths and offsets so the selection survives a block-tree rebuild. */
