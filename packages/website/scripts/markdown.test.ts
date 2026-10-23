@@ -23,8 +23,8 @@ test('preserves the highlight example while removing unsafe attributes', async (
 
 test('prepares all documented diagrams and keeps copyable source', async () => {
   const { html } = await renderMarkdown(await readDoc('end-user/MARKDOWN_SYNTAX.md'), 'end-user/MARKDOWN_SYNTAX.md')
-  assert.equal((html.match(/class="diagram-preview"/g) ?? []).length, 8)
-  assert.equal((html.match(/<summary>Diagram source<\/summary>/g) ?? []).length, 8)
+  assert.equal((html.match(/class="diagram-preview"/g) ?? []).length, 9)
+  assert.equal((html.match(/<summary>Diagram source<\/summary>/g) ?? []).length, 9)
   for (const language of ['mermaid', 'vega-lite', 'flowchart', 'sequence', 'plantuml']) {
     assert.ok(html.includes(`data-diagram-language="${language}"`))
   }
