@@ -14,6 +14,8 @@ function allTokens(tokens: Token[]): Token[] {
 }
 
 describe('search highlights in large paragraphs (#3211)', () => {
+    // Shared CI runners need headroom for the deliberately large DOM fixture;
+    // the separate range-access budget detects performance regressions without timing noise.
     it('renders, navigates, replaces and clears matches in a 1500-line document', async () => {
         const previousVersion = window.MUYA_VERSION;
         window.MUYA_VERSION = 'test';
@@ -46,7 +48,7 @@ describe('search highlights in large paragraphs (#3211)', () => {
             else
                 window.MUYA_VERSION = previousVersion;
         }
-    });
+    }, 15000);
 
     it('does not scan every match for every token in a 1500-line paragraph', () => {
         const line = '**needle** and `code`\n';
