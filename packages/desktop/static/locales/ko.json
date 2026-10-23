@@ -927,6 +927,8 @@
       "toggleTypewriterMode": "타자기 모드 토글",
       "toggleFocusMode": "집중 모드 토글",
       "toggleSidebar": "사이드바 토글",
+      "outlineCollapseAll": "목차: 모두 접기",
+      "outlineExpandAll": "목차: 모두 펼치기",
       "toggleToc": "목차 토글",
       "toggleTabbar": "탭바 토글",
       "toggleDevTools": "개발자 도구 토글",

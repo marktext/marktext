@@ -927,6 +927,8 @@
       "toggleTypewriterMode": "Basculer le mode machine à écrire",
       "toggleFocusMode": "Basculer le mode focus",
       "toggleSidebar": "Basculer la barre latérale",
+      "outlineCollapseAll": "Table des matières: Tout réduire",
+      "outlineExpandAll": "Table des matières: Tout développer",
       "toggleToc": "Basculer la table des matières",
       "toggleTabbar": "Basculer la barre d'onglets",
       "toggleDevTools": "Basculer les outils de développement",

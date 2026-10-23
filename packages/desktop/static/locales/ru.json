@@ -927,6 +927,8 @@
       "toggleTypewriterMode": "Режим печатной машинки",
       "toggleFocusMode": "Режим фокусировки",
       "toggleSidebar": "Переключить боковую панель",
+      "outlineCollapseAll": "Оглавление: Свернуть всё",
+      "outlineExpandAll": "Оглавление: Развернуть всё",
       "toggleToc": "Переключить оглавление",
       "toggleTabbar": "Переключить панель вкладок",
       "toggleDevTools": "Переключить инструменты разработчика",

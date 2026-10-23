@@ -927,6 +927,8 @@
       "toggleTypewriterMode": "タイプライターモードの切り替え",
       "toggleFocusMode": "フォーカスモードの切り替え",
       "toggleSidebar": "サイドバーの切り替え",
+      "outlineCollapseAll": "目次：すべて折りたたむ",
+      "outlineExpandAll": "目次：すべて展開",
       "toggleToc": "目次の切り替え",
       "toggleTabbar": "タブバーの切り替え",
       "toggleDevTools": "開発者ツールの切り替え",

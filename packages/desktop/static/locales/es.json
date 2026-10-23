@@ -927,6 +927,8 @@
       "toggleTypewriterMode": "Alternar Modo Máquina de Escribir",
       "toggleFocusMode": "Alternar Modo Enfoque",
       "toggleSidebar": "Alternar Barra Lateral",
+      "outlineCollapseAll": "Tabla de Contenidos: Contraer todo",
+      "outlineExpandAll": "Tabla de Contenidos: Expandir todo",
       "toggleToc": "Alternar Tabla de Contenidos",
       "toggleTabbar": "Alternar Barra de Pestañas",
       "toggleDevTools": "Alternar Herramientas de Desarrollador",
