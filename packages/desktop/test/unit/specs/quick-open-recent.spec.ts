@@ -95,7 +95,7 @@ describe('QuickOpenRecentCommand', () => {
     await command.executeSubcommand(FOLDER)
 
     expect(send).toHaveBeenNthCalledWith(1, 'mt::open-file-by-window-id', 7, FILE)
-    expect(send).toHaveBeenNthCalledWith(2, 'app-open-directory-by-id', 7, FOLDER)
+    expect(send).toHaveBeenNthCalledWith(2, 'mt::open-directory-by-window-id', 7, FOLDER)
   })
 
   it('removes an entry from the list and from the recent documents', async() => {

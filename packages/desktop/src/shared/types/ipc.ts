@@ -144,6 +144,7 @@ export interface IpcSendChannels {
   'mt::menu::popup-application': [position?: MenuPopupPosition]
   'mt::open-file': [filePath: string, options?: SidebarOpenOptions]
   'mt::open-file-by-window-id': [windowId: number, filePath: string, options?: unknown]
+  'mt::open-directory-by-window-id': [windowId: number, dirPath: string]
   'mt::open-keybindings-config': []
   'mt::open-setting-window': []
   'mt::rename': [

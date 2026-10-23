@@ -704,6 +704,10 @@ class App {
       }
     })
 
+    ipcMain.on('mt::open-directory-by-window-id', (_e, windowId: number, dirPath: string) => {
+      ipcMain.emit('app-open-directory-by-id', windowId, dirPath)
+    })
+
     ipcMain.on('mt::select-default-directory-to-open', async(e) => {
       const { preferences } = this._accessor
       const { defaultDirectoryToOpen } = preferences.getAll()

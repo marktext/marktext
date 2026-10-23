@@ -73,7 +73,7 @@ class QuickOpenRecentCommand {
     const item = this.subcommands.find((entry) => entry.id === id)
 
     if (item?.isDirectory) {
-      window.electron.ipcRenderer.send('app-open-directory-by-id', windowId, id)
+      window.electron.ipcRenderer.send('mt::open-directory-by-window-id', windowId, id)
     } else {
       window.electron.ipcRenderer.send('mt::open-file-by-window-id', windowId, id)
     }
