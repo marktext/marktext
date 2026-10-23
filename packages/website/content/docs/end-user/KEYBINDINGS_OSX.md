@@ -90,7 +90,7 @@ Modifier keys use their full macOS names and appear in this order: Control, Opti
 | `format.superscript`  | -                                                | Set the selected text as superscript            |
 | `format.subscript`    | -                                                | Set the selected text as subscript              |
 | `format.highlight`    | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>H</kbd> | Highlight the selected text by <mark>tag</mark> |
-| `format.inline-code`  | <kbd>Command</kbd>+<kbd>`</kbd>                  | Change the selected text to inline code         |
+| `format.inline-code`  | <kbd>Control</kbd>+<kbd>Command</kbd>+<kbd>C</kbd>                  | Change the selected text to inline code         |
 | `format.inline-math`  | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>M</kbd> | Change the selected text to inline math         |
 | `format.strike`       | <kbd>Command</kbd>+<kbd>D</kbd>                  | Strike through the selected text                |
 | `format.hyperlink`    | <kbd>Command</kbd>+<kbd>L</kbd>                  | Insert a hyperlink                              |

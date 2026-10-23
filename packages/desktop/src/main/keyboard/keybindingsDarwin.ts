@@ -68,7 +68,8 @@ const keybindings: Map<string, string> = new Map([
   ['format.superscript', ''],
   ['format.subscript', ''],
   ['format.highlight', 'Shift+Command+H'],
-  ['format.inline-code', 'Command+`'],
+  // Leave Command+` available for macOS window cycling (#3085).
+  ['format.inline-code', 'Control+Command+C'],
   ['format.inline-math', 'Shift+Command+M'],
   ['format.strike', 'Command+D'],
   ['format.hyperlink', 'Command+L'],
