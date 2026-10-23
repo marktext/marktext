@@ -24,7 +24,8 @@ import { storeToRefs } from 'pinia'
 import type CodeMirror from 'codemirror'
 import codeMirror, { setCursorAtFirstLine, setTextDirection } from '../../codeMirror'
 import { wordCount as getWordCount } from '@muyajs/core'
-import { adjustCursor } from '../../util'
+import { adjustCursor, isWindows } from '../../util'
+import { getSourceExtraKeys } from '../../codeMirror/keybindings'
 import bus from '../../bus'
 import { oneDarkThemes, railscastsThemes } from '@/config'
 
@@ -415,6 +416,7 @@ onMounted(() => {
     autofocus: true,
     lineWrapping: true,
     styleActiveLine: true,
+    extraKeys: getSourceExtraKeys(isWindows),
     direction: textDirection,
     viewportMargin: Infinity
   }

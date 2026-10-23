@@ -2,6 +2,8 @@ ew.source-code-m# Key Bindings for Windows
 
 MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS.md) for information how to use custom key bindings.
 
+Redo uses <kbd>Ctrl</kbd>+<kbd>Y</kbd>. The previous default, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>, is no longer a default shortcut in either editing mode. Explicit custom key bindings are preserved.
+
 ## Available menu key bindings
 
 #### File menu
@@ -28,7 +30,7 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 | Id                        | Default                                       | Description                                     |
 | :------------------------ | --------------------------------------------- | ----------------------------------------------- |
 | `edit.undo`               | <kbd>Ctrl</kbd>+<kbd>Z</kbd>                  | Undo last operation                             |
-| `edit.redo`               | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> | Redo last operation                             |
+| `edit.redo`               | <kbd>Ctrl</kbd>+<kbd>Y</kbd>                  | Redo last operation                             |
 | `edit.cut`                | <kbd>Ctrl</kbd>+<kbd>X</kbd>                  | Cut selected text                               |
 | `edit.copy`               | <kbd>Ctrl</kbd>+<kbd>C</kbd>                  | Copy selected text                              |
 | `edit.paste`              | <kbd>Ctrl</kbd>+<kbd>V</kbd>                  | Paste text                                      |
