@@ -116,6 +116,13 @@ test('floating toolbar stays inside the card and supports keyboard activation', 
   const card = await page.locator('.outline-body').boundingBox()
   const bounds = await button.boundingBox()
   expect(card && bounds && bounds.x >= card.x && bounds.x + bounds.width <= card.x + card.width).toBe(true)
+  await expect.poll(async() => {
+    const card = await page.locator('.outline-body').boundingBox()
+    const button = await page.locator('.outline-bulk-toggle').boundingBox()
+    const firstRow = await page.locator('.side-bar-toc .el-tree-node__content').first().boundingBox()
+    if (!card || !button || !firstRow) return null
+    return [Math.round(button.y - card.y), Math.round(firstRow.y - button.y - button.height)]
+  }).toEqual([8, 8])
   await page.keyboard.press('Enter')
   await expect.poll(() => visibleLabels(page)).toEqual(ROOT_LABELS)
   await expect(outline).toHaveClass(/is-visible/)

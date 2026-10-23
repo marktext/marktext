@@ -272,6 +272,12 @@ onBeforeUnmount(() => {
   transform: translateX(0);
   pointer-events: auto;
 }
+.is-floating .outline-body {
+  top: 16px;
+}
+.is-floating .outline-bulk-anchor {
+  top: 8px;
+}
 .is-floating.is-visible .outline-body {
   box-shadow: 3px 4px 16px rgb(0 0 0 / 10%);
 }
