@@ -137,6 +137,7 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 
 #### Misc
 
-| Id                | Default                      | Description            |
-| ----------------- | ---------------------------- | ---------------------- |
-| `file.quick-open` | <kbd>Ctrl</kbd>+<kbd>P</kbd> | Open quick open dialog |
+| Id                       | Default                      | Description                   |
+| ------------------------ | ---------------------------- | ----------------------------- |
+| `file.quick-open`        | <kbd>Ctrl</kbd>+<kbd>P</kbd> | Open quick open dialog        |
+| `file.quick-open-recent` | -                            | Open recent files and folders |

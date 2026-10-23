@@ -50,7 +50,7 @@ After some modifications you can save your file via <kbd>CmdOrCtrl</kbd>+<kbd>S<
 
 ### Open a directory
 
-MarkText also has support to open a directory via <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> through the File menu. After opening a directory, the sidebar tree shows supported files and directories, subject to watcher exclusions. The tree view allows you to open further files, browse and modify files or directories inside the opened root directory. Opened files appear in a separate section above the folder tree. You can also use quick open (<kbd>CmdOrCtrl</kbd>+<kbd>P</kbd>) to quickly open a file from the opened root directory or editor and navigate via arrow keys or select a file via mouse. Use the sidebar search control to find text in files.
+MarkText also has support to open a directory via <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> through the File menu. After opening a directory, the sidebar tree shows supported files and directories, subject to watcher exclusions. The tree view allows you to open further files, browse and modify files or directories inside the opened root directory. Opened files appear in a separate section above the folder tree. You can also use quick open (<kbd>CmdOrCtrl</kbd>+<kbd>P</kbd>) to quickly open a file from the opened root directory or editor and navigate via arrow keys or select a file via mouse. Quick open lists recently opened files first, followed by matching files from the opened folder. The File → Open Recent → Search Recent… menu opens a dedicated picker for recently opened files and folders (macOS: <kbd>Control</kbd>+<kbd>R</kbd>). Use the sidebar search control to find text in files.
 
 ![](../assets/marktext-interface-2.png)
 
