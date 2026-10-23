@@ -39,4 +39,6 @@ export type { IExportRenderOptions } from './utils/diagram/render';
 export type { IImageInfo } from './utils/image';
 export { getImageInfo } from './utils/image';
 export { escapeHTML, sanitize, unescapeHTML, wordCount } from './utils/index';
+export { default as logger } from './utils/logger';
+export type { TLogLevel, TLogSink } from './utils/logger';
 export { generateGithubSlug } from './utils/slug';
