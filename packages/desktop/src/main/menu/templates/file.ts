@@ -79,6 +79,10 @@ export default function(
 
   recentlyUsedSubmenu.push(
     {
+      type: 'separator',
+      visible: recentlyUsedFiles.length > 0
+    },
+    {
       label: t('menu.file.openRecentMore'),
       accelerator: keybindings.getAccelerator('file.quick-open-recent') ?? undefined,
       click(_menuItem, browserWindow) {

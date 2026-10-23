@@ -45,6 +45,7 @@ describe('File menu recent documents', () => {
 
     expect(children.map((item) => item.label ?? item.type)).toEqual([
       '/notes/a.md',
+      'separator',
       translations['menu.file.openRecentMore'],
       'separator',
       translations['menu.file.clearRecentlyUsed']
