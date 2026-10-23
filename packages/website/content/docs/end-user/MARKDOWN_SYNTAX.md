@@ -982,7 +982,8 @@ D-->>A: Dashed open arrow
 Mermaid diagrams follow the MarkText theme: light themes use Mermaid's `default`
 theme, dark themes use `dark`. A single diagram can pick another theme with a
 frontmatter block at the start of its fence. The themes bundled with Mermaid are
-`default`, `forest`, `dark`, `neutral` and `base`.
+`default`, `forest`, `neutral`, `base`, `dark`, `neo`, `neo-dark`, `redux`,
+`redux-dark`, `redux-color` and `redux-dark-color`.
 
 ```mermaid
 ---
