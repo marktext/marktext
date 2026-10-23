@@ -31,6 +31,12 @@ export const isDarkThemeId = (theme: unknown): theme is string => {
   )
 }
 
+export const resolveMermaidTheme = (
+  theme: unknown,
+  lightTheme: string,
+  darkTheme: string
+): string => (isDarkThemeId(theme) ? darkTheme : lightTheme)
+
 // Keep window backgrounds aligned with renderer theme variables to avoid startup flashes.
 const themeBackgroundColors: ReadonlyMap<string, string> = new Map([
   ['ayu-dark', '#0a0e14'],
