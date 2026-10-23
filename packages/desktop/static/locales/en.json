@@ -927,6 +927,8 @@
       "toggleTypewriterMode": "Toggle Typewriter Mode",
       "toggleFocusMode": "Toggle Focus Mode",
       "toggleSidebar": "Toggle Sidebar",
+      "outlineCollapseAll": "Outline: Collapse All",
+      "outlineExpandAll": "Outline: Expand All",
       "toggleToc": "Toggle Table of Contents",
       "toggleTabbar": "Toggle Tab Bar",
       "toggleDevTools": "Toggle Developer Tools",

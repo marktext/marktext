@@ -52,7 +52,33 @@
       @mouseenter="enter"
       @mouseleave="leave"
     >
-      <toc :visible="visible" />
+      <icon-tooltip :content="bulkLabel">
+        <span class="outline-bulk-anchor">
+          <button
+            class="plain-button outline-bulk-toggle"
+            type="button"
+            :aria-label="bulkLabel"
+            :disabled="!tocRef?.canToggleAll"
+            @mousedown.prevent
+            @click="tocRef?.toggleAll()"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              aria-hidden="true"
+            >
+              <path d="M8 4h12v12M4 8h12v12H4z" />
+              <path :d="tocRef?.allCollapsed ? 'M7 14h6m-3-3v6' : 'M7 14h6'" />
+            </svg>
+          </button>
+        </span>
+      </icon-tooltip>
+      <toc
+        ref="tocRef"
+        :visible="visible"
+      />
     </div>
   </aside>
 </template>
@@ -66,6 +92,7 @@ import { useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
 import Toc from '../sideBar/toc.vue'
 import IconTooltip from '@/components/iconTooltip/index.vue'
+import bus from '@/bus'
 
 const { t } = useI18n()
 const layoutStore = useLayoutStore()
@@ -75,6 +102,10 @@ const preferencesStore = usePreferencesStore()
 const hasHeadings = computed(() => editorStore.listToc.length > 0)
 const outlineRef = ref<HTMLElement | null>(null)
 const toggleRef = ref<HTMLButtonElement | null>(null)
+const tocRef = ref<InstanceType<typeof Toc> | null>(null)
+const bulkLabel = computed(() => t(tocRef.value?.allCollapsed
+  ? 'sideBar.toc.expandAll'
+  : 'sideBar.toc.collapseAll'))
 const compact = ref(true)
 const hovering = ref(false)
 const docked = computed(() => showToc.value && !compact.value)
@@ -115,6 +146,13 @@ const toggle = (): void => {
   }
 }
 
+const setAllExpanded = (expanded: unknown): void => {
+  if (typeof expanded !== 'boolean' || !tocRef.value?.canToggleAll) return
+  if (!showToc.value) layoutStore.TOGGLE_LAYOUT_ENTRY('showToc')
+  enter()
+  tocRef.value.setAllExpanded(expanded)
+}
+
 const updateDocking = (): void => {
   const container = outlineRef.value?.parentElement
   if (!container) return
@@ -131,6 +169,7 @@ const updateDocking = (): void => {
 }
 watch([hasHeadings, () => editorStore.currentFile?.id, () => preferencesStore.sourceCode], () => nextTick(updateDocking), { flush: 'post' })
 onMounted(() => {
+  bus.on('outline:set-all-expanded', setAllExpanded)
   const container = outlineRef.value?.parentElement
   if (!container) return
   observer = new ResizeObserver(updateDocking)
@@ -138,6 +177,7 @@ onMounted(() => {
   nextTick(updateDocking)
 })
 onBeforeUnmount(() => {
+  bus.off('outline:set-all-expanded', setAllExpanded)
   observer?.disconnect()
   clearTimeout(closeTimer)
 })
@@ -180,12 +220,44 @@ onBeforeUnmount(() => {
   width: 20px;
   height: 20px;
 }
+.outline-bulk-anchor {
+  position: absolute;
+  top: 0;
+  right: 8px;
+  opacity: 0;
+}
+.document-outline:hover .outline-bulk-anchor,
+.document-outline:focus-within .outline-bulk-anchor {
+  opacity: 1;
+}
+.outline-bulk-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+  color: var(--sideBarIconColor);
+}
+.outline-bulk-toggle:hover:not(:disabled) {
+  background: var(--sideBarItemHoverBgColor);
+}
+.outline-bulk-toggle:disabled {
+  opacity: 0.4;
+}
+.outline-bulk-toggle:focus-visible {
+  outline: 1px solid var(--focusColor);
+}
+.outline-bulk-toggle svg {
+  width: 20px;
+  height: 20px;
+}
 .outline-body {
   position: absolute;
-  inset: 64px auto 16px 0;
+  inset: 24px auto 16px 0;
   box-sizing: border-box;
   width: 220px;
-  padding: 0 8px 12px;
+  padding: 40px 8px 12px;
   background: var(--editorBgColor);
   border-radius: 8px;
   opacity: 0;

@@ -89,6 +89,9 @@ export const loadViewCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.VIEW_TOGGLE_SIDEBAR, toggleSidebar)
   commandManager.add(COMMANDS.VIEW_TOGGLE_TABBAR, toggleTabBar)
   commandManager.add(COMMANDS.VIEW_TOGGLE_TOC, showTableOfContents)
+  for (const id of [COMMANDS.VIEW_OUTLINE_COLLAPSE_ALL, COMMANDS.VIEW_OUTLINE_EXPAND_ALL]) {
+    commandManager.add(id, (win: Win) => win?.webContents.send('mt::execute-command-by-id', id))
+  }
   commandManager.add(COMMANDS.VIEW_TYPEWRITER_MODE, toggleTypewriterMode)
 
   commandManager.add(COMMANDS.VIEW_DEV_RELOAD, debugReloadWindow)

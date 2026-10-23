@@ -593,6 +593,14 @@ const commands: CommandDescriptor[] = [
     }
   },
   {
+    id: 'view.outline-collapse-all',
+    execute: () => bus.emit('outline:set-all-expanded', false)
+  },
+  {
+    id: 'view.outline-expand-all',
+    execute: () => bus.emit('outline:set-all-expanded', true)
+  },
+  {
     id: 'view.toggle-tabbar',
     execute: async() => {
       bus.emit('view:toggle-layout-entry', 'showTabBar')

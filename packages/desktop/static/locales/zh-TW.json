@@ -927,6 +927,8 @@
       "toggleTypewriterMode": "切換打字機模式",
       "toggleFocusMode": "切換專注模式",
       "toggleSidebar": "切換側邊欄",
+      "outlineCollapseAll": "大綱：全部摺疊",
+      "outlineExpandAll": "大綱：全部展開",
       "toggleToc": "切換目錄",
       "toggleTabbar": "切換標籤欄",
       "toggleDevTools": "切換開發者工具",

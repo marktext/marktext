@@ -128,6 +128,29 @@ const onExpand = (data: { key?: string }): void => {
   currentFile.value.tocCollapsedKeys = [...next]
 }
 
+const branchKeys = computed(() => {
+  const keys: string[] = []
+  const visit = (nodes: KeyedTocNode[]): void => {
+    for (const node of nodes) {
+      if (node.children.length) keys.push(node.key)
+      visit(node.children)
+    }
+  }
+  visit(keyedToc.value)
+  return keys
+})
+const canToggleAll = computed(() => branchKeys.value.length > 0)
+const allCollapsed = computed(() => keyedToc.value.every(node =>
+  !node.children.length || collapsedKeys.value.has(node.key)
+))
+const setAllExpanded = (expanded: boolean): void => {
+  if (!currentFile.value || !canToggleAll.value) return
+  currentFile.value.tocCollapsedKeys = expanded ? [] : [...branchKeys.value]
+}
+const toggleAll = (): void => setAllExpanded(allCollapsed.value)
+
+defineExpose({ canToggleAll, allCollapsed, setAllExpanded, toggleAll })
+
 // Hidden descendants keep their own state, without expanding their ancestors.
 const expandedKeys = computed<string[]>(() => {
   const keys: string[] = []
