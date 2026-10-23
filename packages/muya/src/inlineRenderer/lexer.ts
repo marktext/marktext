@@ -8,11 +8,12 @@ import type {
     Token,
 } from './types';
 import escapeCharactersMap from '../config/escapeCharacter';
-import { escapeHTML, isLengthEven, union } from '../utils';
+import { escapeHTML, isLengthEven } from '../utils';
 import { validEmoji } from '../utils/emoji';
 import { scanEmphasisSpans } from './emphasis';
 import { parseSrcAndTitle } from './linkDestination';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
+import { applySearchHighlights } from './searchHighlights';
 import {
     getAttributes,
     lowerPriority,
@@ -887,25 +888,7 @@ export function tokenizer(src: string, {
         options,
     );
 
-    const postTokenizer = (tokens: Token[]) => {
-        for (const token of tokens) {
-            for (const light of highlights) {
-                const highlight = union(token.range, light);
-                if (highlight) {
-                    if (token.highlights && Array.isArray(token.highlights))
-                        token.highlights.push(highlight);
-                    else
-                        token.highlights = [highlight];
-                }
-            }
-
-            if ('children' in token && token.children && Array.isArray(token.children))
-                postTokenizer(token.children);
-        }
-    };
-
-    if (highlights.length)
-        postTokenizer(tokens);
+    applySearchHighlights(tokens, highlights);
 
     return tokens;
 }
