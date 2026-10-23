@@ -887,9 +887,29 @@ export function tokenizer(src: string, {
         options,
     );
 
+    // Search produces ordered ranges. Binary lookup avoids O(tokens * matches)
+    // highlighting in large paragraphs (#3211); arbitrary caller ranges keep their order.
+    const ordered = highlights.every((light, i) => i === 0
+        || (highlights[i - 1].start <= light.start && highlights[i - 1].end <= light.end));
+
     const postTokenizer = (tokens: Token[]) => {
         for (const token of tokens) {
-            for (const light of highlights) {
+            let first = 0;
+            if (ordered) {
+                let end = highlights.length;
+                while (first < end) {
+                    const middle = Math.floor((first + end) / 2);
+                    if (highlights[middle].end <= token.range.start)
+                        first = middle + 1;
+                    else
+                        end = middle;
+                }
+            }
+
+            for (let i = first; i < highlights.length; i++) {
+                const light = highlights[i];
+                if (ordered && light.start >= token.range.end)
+                    break;
                 const highlight = union(token.range, light);
                 if (highlight) {
                     if (token.highlights && Array.isArray(token.highlights))
