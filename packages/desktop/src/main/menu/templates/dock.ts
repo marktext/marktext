@@ -1,4 +1,4 @@
-import { app, Menu, type BrowserWindow } from 'electron'
+import { Menu, type BrowserWindow } from 'electron'
 import * as actions from '../actions/file'
 
 const dockMenu = Menu.buildFromTemplate([
@@ -15,7 +15,7 @@ const dockMenu = Menu.buildFromTemplate([
   {
     label: 'Clear Recent',
     click() {
-      app.clearRecentDocuments()
+      actions.clearRecentlyUsed()
     }
   }
 ])

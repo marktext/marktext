@@ -595,6 +595,7 @@ ipcMain.on('mt::rename', async(e, { id, pathname, newPathname }: RenamePayload) 
       }
 
       ipcMain.emit('window-change-file-path', win.id, newPathname, pathname)
+      ipcMain.emit('menu-add-recently-used', newPathname)
       e.sender.send('mt::set-pathname', {
         id,
         pathname: newPathname,
@@ -642,6 +643,7 @@ ipcMain.on(
         }
 
         ipcMain.emit('window-change-file-path', win.id, filePath, pathname)
+        ipcMain.emit('menu-add-recently-used', filePath)
         e.sender.send('mt::set-pathname', {
           id,
           pathname: filePath,
