@@ -17,6 +17,7 @@
       "openFile": "Abrir Archivo...",
       "openFolder": "Abrir Carpeta...",
       "openRecent": "Abrir Reciente",
+      "openRecentMore": "Buscar en recientes...",
       "clearRecentlyUsed": "Limpiar Recientes",
       "save": "Guardar",
       "saveAs": "Guardar Como...",
@@ -300,8 +301,14 @@
     "placeholders": {
       "selectOption": "Seleccionar opción",
       "searchFileToOpen": "Buscar archivo para abrir",
-      "selectLanguage": "Seleccionar idioma"
-    }
+      "selectLanguage": "Seleccionar idioma",
+      "searchRecentFilesAndFolders": "Buscar archivos y carpetas recientes"
+    },
+    "recentlyOpened": "abiertos recientemente",
+    "fileResults": "resultados de archivos",
+    "folders": "carpetas",
+    "files": "archivos",
+    "removeFromRecent": "Quitar de abiertos recientemente"
   },
   "exportSettings": {
     "autoNumberingHeadings": "Numeración automática de encabezados",
@@ -825,6 +832,7 @@
       "moveFile": "Mover Archivo",
       "renameFile": "Renombrar Archivo",
       "quickOpen": "Apertura Rápida",
+      "quickOpenRecent": "Apertura rápida de recientes",
       "changeEncoding": "Cambiar Codificación",
       "changeLineEnding": "Cambiar Final de Línea",
       "trailingNewline": "Nueva Línea Final",

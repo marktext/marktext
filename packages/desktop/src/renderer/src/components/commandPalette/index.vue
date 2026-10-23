@@ -30,33 +30,56 @@
               v-if="availableCommands.length"
               class="commands"
             >
-              <li
+              <template
                 v-for="(item, index) of availableCommands"
                 :key="index"
-                :ref="
-                  (el) => {
-                    if (el) commandItems[index] = el as HTMLElement
-                  }
-                "
-                :class="{ active: index === selectedCommandIndex, disabled: !canRun(item.id) }"
-                :aria-disabled="!canRun(item.id)"
-                @click="search(item.id)"
               >
-                <span
-                  class="title"
-                  :title="item.title"
-                >{{ item.description
-                }}{{ !canRun(item.id) ? ` · ${t('readingMode.unavailable')}` : '' }}</span>
-                <span class="shortcut">
+                <li
+                  v-if="showGroupHeader(index)"
+                  class="group-header"
+                  role="presentation"
+                >
+                  {{ item.group }}
+                </li>
+                <li
+                  :ref="
+                    (el) => {
+                      if (el) commandItems[index] = el as HTMLElement
+                    }
+                  "
+                  class="command-item"
+                  :class="{ active: index === selectedCommandIndex, disabled: !canRun(item.id) }"
+                  :aria-disabled="!canRun(item.id)"
+                  @click="search(item.id)"
+                >
                   <span
-                    v-for="(accelerator, idx) of item.shortcut"
-                    :key="idx"
-                    class="shortcut"
-                  >
-                    <kbd>{{ accelerator }}</kbd>
+                    class="title"
+                    :title="item.title"
+                  >{{ item.description
+                  }}{{ !canRun(item.id) ? ` · ${t('readingMode.unavailable')}` : '' }}<span
+                    v-if="item.detail"
+                    class="detail"
+                  >{{ item.detail }}</span></span>
+                  <span class="right">
+                    <button
+                      v-if="item.removable"
+                      class="remove"
+                      type="button"
+                      :title="t('commandPalette.removeFromRecent')"
+                      @click.stop="removeCommand(item)"
+                    >×</button>
+                    <span class="shortcut">
+                      <span
+                        v-for="(accelerator, idx) of item.shortcut"
+                        :key="idx"
+                        class="shortcut"
+                      >
+                        <kbd>{{ accelerator }}</kbd>
+                      </span>
+                    </span>
                   </span>
-                </span>
-              </li>
+                </li>
+              </template>
             </ul>
           </transition>
         </div>
@@ -83,6 +106,9 @@ interface CommandItem {
   id: string
   description?: string
   title?: string
+  detail?: string
+  group?: string
+  removable?: boolean
   shortcut?: string[]
   execute?: () => void
   run?: () => Promise<void>
@@ -91,6 +117,7 @@ interface CommandItem {
   subcommands?: CommandItem[]
   subcommandSelectedIndex?: number
   executeSubcommand?: (commandId: string, value?: unknown) => void
+  removeItem?: (commandId: string) => void
   placeholder?: string
   value?: unknown
   [key: string]: unknown
@@ -120,6 +147,23 @@ const searcherBusy = ref(false)
 const commandCenterStore = useCommandCenterStore()
 const editorStore = useEditorStore()
 const canRun = (id: string) => !editorStore.currentFile?.readOnly || isReadingCommandAllowed(id)
+
+const showGroupHeader = (index: number): boolean => {
+  const item = availableCommands.value[index]
+  if (!item?.group) return false
+  return index === 0 || availableCommands.value[index - 1]?.group !== item.group
+}
+
+const removeCommand = (item: CommandItem) => {
+  const cmd = currentCommand.value
+  if (!cmd?.removeItem) return
+  cmd.removeItem(item.id)
+  availableCommands.value = availableCommands.value.filter((command) => command.id !== item.id)
+  selectedCommandIndex.value = Math.min(
+    selectedCommandIndex.value,
+    availableCommands.value.length - 1
+  )
+}
 
 onBeforeUpdate(() => {
   commandItems = []
@@ -435,10 +479,44 @@ ul.commands li:hover {
 ul.commands li.active {
   background: var(--floatHoverColor);
 }
+ul.commands li.group-header {
+  height: 24px;
+  padding-top: 4px;
+  font-size: 12px;
+  line-height: 24px;
+  opacity: 0.6;
+  cursor: default;
+}
+ul.commands li.group-header:hover {
+  background: transparent;
+}
 ul.commands li span {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+}
+ul.commands li span.detail {
+  margin-left: 8px;
+  font-size: 12px;
+  opacity: 0.6;
+}
+ul.commands li span.right {
+  display: flex;
+  align-items: center;
+}
+ul.commands li button.remove {
+  padding: 0 6px;
+  font-size: 16px;
+  line-height: 1;
+  color: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+}
+ul.commands li:hover button.remove,
+ul.commands li.active button.remove {
+  opacity: 0.7;
 }
 ul.commands li span.shortcut {
   font-size: 12px;

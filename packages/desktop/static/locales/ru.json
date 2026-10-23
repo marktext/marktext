@@ -17,6 +17,7 @@
       "openFile": "Открыть файл...",
       "openFolder": "Открыть папку...",
       "openRecent": "Недавние",
+      "openRecentMore": "Поиск в недавних...",
       "clearRecentlyUsed": "Очистить недавние",
       "save": "Сохранить",
       "saveAs": "Сохранить как...",
@@ -300,8 +301,14 @@
     "placeholders": {
       "selectOption": "Выберите вариант",
       "searchFileToOpen": "Поиск файла для открытия",
-      "selectLanguage": "Выберите язык"
-    }
+      "selectLanguage": "Выберите язык",
+      "searchRecentFilesAndFolders": "Поиск недавних файлов и папок"
+    },
+    "recentlyOpened": "недавние",
+    "fileResults": "результаты по файлам",
+    "folders": "папки",
+    "files": "файлы",
+    "removeFromRecent": "Удалить из недавних"
   },
   "exportSettings": {
     "autoNumberingHeadings": "Автонумерация заголовков",
@@ -825,6 +832,7 @@
       "moveFile": "Переместить файл",
       "renameFile": "Переименовать файл",
       "quickOpen": "Быстрое открытие",
+      "quickOpenRecent": "Быстрое открытие недавних",
       "changeEncoding": "Изменить кодировку",
       "changeLineEnding": "Изменить конец строки",
       "trailingNewline": "Завершающий перевод строки",

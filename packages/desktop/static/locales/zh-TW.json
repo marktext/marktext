@@ -17,6 +17,7 @@
       "openFile": "開啟檔案…",
       "openFolder": "開啟資料夾…",
       "openRecent": "開啟最近使用",
+      "openRecentMore": "搜尋最近使用...",
       "clearRecentlyUsed": "清除最近使用",
       "save": "儲存",
       "saveAs": "另存為…",
@@ -300,8 +301,14 @@
     "placeholders": {
       "selectOption": "選擇選項",
       "searchFileToOpen": "搜尋要開啟的檔案",
-      "selectLanguage": "選擇語言"
-    }
+      "selectLanguage": "選擇語言",
+      "searchRecentFilesAndFolders": "搜尋最近開啟的檔案與資料夾"
+    },
+    "recentlyOpened": "最近開啟",
+    "fileResults": "檔案結果",
+    "folders": "資料夾",
+    "files": "檔案",
+    "removeFromRecent": "從最近使用中移除"
   },
   "exportSettings": {
     "autoNumberingHeadings": "自動編號標題",
@@ -825,6 +832,7 @@
       "moveFile": "移動檔案",
       "renameFile": "重新命名檔案",
       "quickOpen": "快速開啟",
+      "quickOpenRecent": "快速開啟最近使用",
       "changeEncoding": "變更編碼",
       "changeLineEnding": "變更行結束符",
       "trailingNewline": "結尾換行",

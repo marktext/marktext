@@ -109,7 +109,8 @@ const keybindings: Map<string, string> = new Map([
   ['tabs.switchToEighth', 'Ctrl+8'],
   ['tabs.switchToNinth', 'Ctrl+9'],
   ['tabs.switchToTenth', 'Ctrl+0'],
-  ['file.quick-open', 'Command+P']
+  ['file.quick-open', 'Command+P'],
+  ['file.quick-open-recent', 'Control+R']
 ])
 
 export default keybindings

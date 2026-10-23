@@ -17,6 +17,7 @@
       "openFile": "打开文件…",
       "openFolder": "打开文件夹…",
       "openRecent": "打开最近",
+      "openRecentMore": "搜索最近使用...",
       "clearRecentlyUsed": "清除最近使用",
       "save": "保存",
       "saveAs": "另存为…",
@@ -300,8 +301,14 @@
     "placeholders": {
       "selectOption": "选择一个选项",
       "searchFileToOpen": "搜索要打开的文件",
-      "selectLanguage": "选择要切换的语言"
-    }
+      "selectLanguage": "选择要切换的语言",
+      "searchRecentFilesAndFolders": "搜索最近打开的文件和文件夹"
+    },
+    "recentlyOpened": "最近打开",
+    "fileResults": "文件结果",
+    "folders": "文件夹",
+    "files": "文件",
+    "removeFromRecent": "从最近使用中移除"
   },
   "exportSettings": {
     "title": "导出选项",
@@ -825,6 +832,7 @@
       "moveFile": "移动文件",
       "renameFile": "重命名文件",
       "quickOpen": "快速打开",
+      "quickOpenRecent": "快速打开最近使用",
       "changeEncoding": "更改编码",
       "trailingNewline": "尾随换行",
       "print": "打印",

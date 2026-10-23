@@ -17,6 +17,7 @@
       "openFile": "Dosya Aç...",
       "openFolder": "Klasör Aç...",
       "openRecent": "Son Kullanılanları Aç",
+      "openRecentMore": "Son kullanılanlarda ara...",
       "clearRecentlyUsed": "Son Kullanılanları Temizle",
       "save": "Kaydet",
       "saveAs": "Farklı Kaydet...",
@@ -300,8 +301,14 @@
     "placeholders": {
       "selectOption": "Bir seçenek seçin",
       "searchFileToOpen": "Açılacak dosyayı arayın",
-      "selectLanguage": "Geçilecek dili seçin"
-    }
+      "selectLanguage": "Geçilecek dili seçin",
+      "searchRecentFilesAndFolders": "Son kullanılan dosya ve klasörlerde ara"
+    },
+    "recentlyOpened": "son kullanılanlar",
+    "fileResults": "dosya sonuçları",
+    "folders": "klasörler",
+    "files": "dosyalar",
+    "removeFromRecent": "Son kullanılanlardan kaldır"
   },
   "exportSettings": {
     "autoNumberingHeadings": "Başlıkları otomatik numaralandır",
@@ -825,6 +832,7 @@
       "moveFile": "Dosyayı Taşı",
       "renameFile": "Dosyayı Yeniden Adlandır",
       "quickOpen": "Hızlı Aç",
+      "quickOpenRecent": "Son kullanılanları hızlı aç",
       "changeEncoding": "Kodlamayı Değiştir",
       "changeLineEnding": "Satır Sonunu Değiştir",
       "trailingNewline": "Sondaki Yeni Satır",
