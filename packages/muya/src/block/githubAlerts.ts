@@ -43,8 +43,11 @@ function replacementStates(source: TState, children: TState[], label: string): T
 export function convertGithubAlert(block: Parent, label: string, text?: string): boolean {
     if (!canConvertGithubAlert(block, label))
         return false;
+    return block.muya.transact(() => convertAlert(block, label, text));
+}
+
+function convertAlert(block: Parent, label: string, text?: string): boolean {
     const { muya } = block;
-    muya.flush();
     const state = block.getState();
     const type = alertTypeFromLabel(label);
     if (type && githubAlertBlockType(block) === type)

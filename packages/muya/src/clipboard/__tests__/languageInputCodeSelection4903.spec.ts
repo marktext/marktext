@@ -101,7 +101,7 @@ describe('selection from a language line into its own code (#4903, #5148)', () =
         selectUntilCut(muya, findContent(muya, 'language-input'), 1, findContent(muya, 'codeblock.content'), 3);
 
         muya.editor.clipboard.cutHandler();
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
 
         expect(muya.getMarkdown()).toBe('jst x = 1\n\nhello world\n');
         expect(muya.editor.jsonState.getState()).toEqual(treeState(muya));
@@ -113,7 +113,7 @@ describe('selection from a language line into its own code (#4903, #5148)', () =
 
         muya.editor.clipboard.cutHandler();
 
-        expect(() => muya.editor.jsonState.flush()).not.toThrow();
+        expect(() => muya.editor.transactions.flush()).not.toThrow();
         expect(muya.getMarkdown()).toBe('intro\n\njst x = 1\n');
         expect(muya.editor.jsonState.getState()).toEqual(treeState(muya));
     });
@@ -123,7 +123,7 @@ describe('selection from a language line into its own code (#4903, #5148)', () =
         selectUntilCut(muya, findContent(muya, 'language-input'), 1, findContent(muya, 'codeblock.content'), 3);
 
         await muya.editor.clipboard.pasteHandler(pasteEvent('python'), 'python', '');
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
 
         expect(muya.getMarkdown()).toBe('jpythonst x = 1\n\nhello world\n');
         expect(muya.editor.jsonState.getState()).toEqual(treeState(muya));

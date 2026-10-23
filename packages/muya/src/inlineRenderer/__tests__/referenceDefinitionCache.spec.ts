@@ -61,7 +61,7 @@ describe('reference definition collection cache', () => {
         expect(getState).toHaveBeenCalledTimes(1);
         expect(renderer.labels.get('ref')?.href).toBe('https://second.example');
 
-        jsonState.dispatch(
+        jsonState.apply(
             json1.replaceOp(
                 [0, 'text'],
                 '[ref]: https://second.example',
@@ -96,14 +96,14 @@ describe('reference definition collection cache', () => {
         expect(renderer.labels.get('ref')?.href).toBe('https://last.example');
         const revision = jsonState.revision;
         const scan = vi.spyOn(jsonState, 'rawState', 'get');
-        jsonState.dispatch(null);
+        jsonState.apply(null);
         renderer.collectReferenceDefinitions();
         expect(scan).not.toHaveBeenCalled();
         expect(jsonState.revision).toBe(revision);
-        jsonState.dispatch(json1.removeOp([1]));
+        jsonState.apply(json1.removeOp([1]));
         renderer.collectReferenceDefinitions();
         expect(renderer.labels.get('ref')?.href).toBe('https://nested.example');
-        jsonState.dispatch(json1.removeOp([0]));
+        jsonState.apply(json1.removeOp([0]));
         renderer.collectReferenceDefinitions();
         expect(renderer.labels.size).toBe(0);
     });

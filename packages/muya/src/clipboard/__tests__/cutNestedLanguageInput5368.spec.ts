@@ -75,7 +75,7 @@ function cutFromLanguageInput(muya: Muya, languageOffset: number, end: { blockNa
 }
 
 function settledState(muya: Muya): TState[] {
-    muya.editor.jsonState.flush();
+    muya.editor.transactions.flush();
     const state = muya.editor.jsonState.getState();
     const tree: TState[] = [];
     muya.editor.scrollPage!.forEach(block => tree.push((block as Parent).getState()));

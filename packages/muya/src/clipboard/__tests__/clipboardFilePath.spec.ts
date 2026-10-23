@@ -60,7 +60,7 @@ function makeClipboard(
     options: Record<string, unknown>,
     anchorBlock: Content,
 ) {
-    const clipboard = new Clipboard({ canMutate: true, isBlockInDocument: () => true, options } as unknown as Muya);
+    const clipboard = new Clipboard({ transact: (command: () => unknown) => command(), canMutate: true, isBlockInDocument: () => true, options } as unknown as Muya);
     Object.defineProperty(clipboard, 'selection', {
         get: () => ({
             getSelection: () => ({

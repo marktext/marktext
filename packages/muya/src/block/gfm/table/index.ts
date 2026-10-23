@@ -248,7 +248,7 @@ class Table extends Parent {
                 const { path } = cell;
                 path.push('meta', 'align');
 
-                this.jsonState.editOperation(path, diffToTextOp(diffs));
+                this.transactions.editOperation(path, diffToTextOp(diffs));
             }
         });
     }

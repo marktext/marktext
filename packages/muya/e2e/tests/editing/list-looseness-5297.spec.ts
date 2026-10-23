@@ -55,3 +55,46 @@ test('typing into an empty final paragraph updates spacing in a later transactio
     await expect(list).not.toHaveClass(/mu-tight-list/);
     expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe('- a\n\n- c\n\n  b\n');
 });
+
+test('nested paragraph commands commit one complete change and undo together', async ({ page }) => {
+    const changes = await page.evaluate(() => {
+        const muya = window.muya!;
+        muya.setContent('- a\n- c\n');
+        muya.editor.scrollPage!.firstContentInDescendant()!.setCursor(1, 1, true);
+        let count = 0;
+        const listener = () => count++;
+        muya.on('json-change', listener);
+        muya.transact(() => {
+            muya.insertParagraph('after', 'b');
+            muya.transact(() => muya.insertParagraph('after', 'd'));
+        });
+        muya.off('json-change', listener);
+        return count;
+    });
+    expect(changes).toBe(1);
+    await expect(page.locator(editor.bulletList)).not.toHaveClass(/mu-tight-list/);
+    await page.evaluate(() => window.muya!.undo());
+    await expect(page.locator(editor.bulletList)).toHaveClass(/mu-tight-list/);
+    expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe('- a\n- c\n');
+});
+
+test('a failed command restores the document and leaves the caret usable', async ({ page }) => {
+    await page.evaluate(() => {
+        const muya = window.muya!;
+        muya.setContent('- a\n- c\n');
+        muya.editor.scrollPage!.firstContentInDescendant()!.setCursor(1, 1, true);
+        try {
+            muya.transact(() => {
+                muya.insertParagraph('after', 'b');
+                throw new Error('abort test command');
+            });
+        }
+        catch {}
+    });
+    await expect(page.locator(editor.bulletList)).toHaveClass(/mu-tight-list/);
+    expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe('- a\n- c\n');
+    await page.keyboard.type('x');
+    await expect(page.locator(editor.paragraphContent).first()).toHaveText('ax');
+    await page.evaluate(() => window.muya!.flush());
+    expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe('- ax\n- c\n');
+});

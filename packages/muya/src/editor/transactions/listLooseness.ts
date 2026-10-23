@@ -1,10 +1,10 @@
 import type { JSONOp, JSONOpComponent, Path } from 'ot-json1';
-import type { IMuyaOptions } from '../types';
-import type { IBulletListState, IOrderListState, ITaskListState, TState } from './types';
+import type { IBulletListState, IOrderListState, ITaskListState, TState } from '../../state/types';
+import type { IMuyaOptions } from '../../types';
 import { type as json1, replaceOp } from 'ot-json1';
-import { MarkdownToState } from './markdownToState';
-import ExportMarkdown from './stateToMarkdown';
-import { isAnyListState, markdownListMarker } from './types';
+import { MarkdownToState } from '../../state/markdownToState';
+import ExportMarkdown from '../../state/stateToMarkdown';
+import { isAnyListState, markdownListMarker } from '../../state/types';
 
 type TList = IBulletListState | IOrderListState | ITaskListState;
 
@@ -96,7 +96,6 @@ function needsLoose(list: TList, options: IMuyaOptions): boolean {
 /** Promote affected logical lists; authored loose spacing is never tightened. */
 export function listLoosenessOperations(previous: readonly TState[], root: readonly TState[], op: JSONOp, options: IMuyaOptions) {
     let operation: JSONOp = null;
-    const paths: Path[] = [];
     const visited = new Set<TState>();
     for (const location of collectCandidates(previous, root, op)) {
         const { siblings, parentPath } = location;
@@ -123,8 +122,7 @@ export function listLoosenessOperations(previous: readonly TState[], root: reado
                 return;
             const path = [...parentPath, start + offset];
             operation = json1.compose(operation, replaceOp([...path, 'meta', 'loose'], false, true));
-            paths.push(path);
         });
     }
-    return { operation, paths };
+    return operation;
 }

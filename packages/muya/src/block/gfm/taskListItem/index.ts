@@ -54,7 +54,7 @@ class TaskListItem extends Parent {
             path.pop();
             path.push('meta', 'checked');
 
-            this.jsonState.replaceOperation(path, oldCheckStatus, checked);
+            this.transactions.replaceOperation(path, oldCheckStatus, checked);
         }
     }
 

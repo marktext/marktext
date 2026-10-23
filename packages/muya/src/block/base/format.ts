@@ -1037,7 +1037,7 @@ class Format extends Content {
                     const path = list.path;
                     path.pop();
                     path.push('meta', 'start');
-                    list.jsonState.replaceOperation(
+                    list.transactions.replaceOperation(
                         path,
                         oldStart,
                         listMeta.start,

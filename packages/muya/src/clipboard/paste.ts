@@ -600,7 +600,7 @@ async function applyTextPaste(
             ),
     });
     if (!clipboard.muya.isReadOnly && clipboard.muya.isBlockInDocument(anchorBlock) && anchorBlock.getCursor())
-        applyNormalizedPaste(clipboard, anchorBlock, text, html, pasteType);
+        clipboard.muya.transact(() => applyNormalizedPaste(clipboard, anchorBlock, text, html, pasteType));
 }
 
 async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void> {

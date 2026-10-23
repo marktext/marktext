@@ -74,7 +74,7 @@ function cut(muya: Muya, anchor: Content, anchorOffset: number, focus: Content, 
 
 // The json state matches the block tree, and serializes to `markdown`.
 function expectDocument(muya: Muya, markdown: string): void {
-    muya.editor.jsonState.flush();
+    muya.editor.transactions.flush();
     const tree: TState[] = [];
     muya.editor.scrollPage!.forEach(block => tree.push((block as Parent).getState()));
     expect(muya.editor.jsonState.getState()).toEqual(tree);

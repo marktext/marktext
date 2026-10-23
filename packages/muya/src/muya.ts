@@ -281,7 +281,12 @@ export class Muya {
     // Flush queued edits synchronously; call before swapping the document out
     // (e.g. a tab switch) so a same-frame keystroke isn't lost (#2938).
     flush() {
-        this.editor.jsonState.flush();
+        this.editor.transactions.flush();
+    }
+
+    /** Group synchronous Block commands into one completed edit transaction. */
+    transact<T>(command: () => T): T {
+        return this.editor.transact(command, true);
     }
 
     getTOC(): ITocItem[] {
@@ -357,22 +362,22 @@ export class Muya {
      * @returns Whether an undo boundary was recorded.
      */
     replaceContent(content: TState[] | string, recordSelection?: Nullable<IHistorySelection>): boolean {
-        const { jsonState, history } = this.editor;
-        const { op, prevState } = jsonState.buildReplaceOp(content);
+        this.editor.transactions.assertStandalone();
+        this.flush();
+        const { jsonState } = this.editor;
+        const op = jsonState.buildReplaceOp(content);
 
-        if (op.length === 0)
+        if (op === null)
             return false;
 
         const selection = this.editor.selection.getSelection();
         const boundarySelection = recordSelection !== undefined ? recordSelection : selection;
-        // Record the lossless inverse as a standalone rebuild boundary BEFORE
-        // applying the forward op, so the recorded `prevState` matches the doc
-        // the inverse must restore. The forward apply dispatches a json-change,
-        // so suppress History's own recording of it to avoid a duplicate entry.
-        history.recordRebuild(op, prevState, boundarySelection);
-        this.runDocumentUpdate(() => history.suppressRecording(() => {
-            this.editor.rebuildContents(op, this.isReadOnly ? null : selection, ChangeSource.Api);
-        }));
+        this.runDocumentUpdate(() => {
+            this.editor.rebuildContents(op, this.isReadOnly ? null : selection, ChangeSource.Api, {
+                history: 'separate',
+                recordSelection: boundarySelection,
+            });
+        });
         this._refreshReadingPresentation();
 
         return true;
@@ -406,6 +411,7 @@ export class Muya {
 
         if (Object.keys(options).some(key => PARSE_AFFECTING_OPTIONS.has(key as keyof IMuyaOptions))) {
             const { jsonState } = this.editor;
+            this.editor.transactions.cancel();
             jsonState.setContent(jsonState.markdownToState(this.getMarkdown()));
         }
 
@@ -912,6 +918,10 @@ export class Muya {
      *   context-menu "Insert Paragraph Before/After" behaviour.
      */
     insertParagraph(location: 'before' | 'after' = 'after', text = '', outMost = false) {
+        return this.transact(() => this._insertParagraph(location, text, outMost));
+    }
+
+    private _insertParagraph(location: 'before' | 'after' = 'after', text = '', outMost = false) {
         if (!this.canMutate)
             return;
         const block = outMost
@@ -936,6 +946,10 @@ export class Muya {
      * block, or to a fresh empty paragraph when it was the only block.
      */
     deleteParagraph() {
+        return this.transact(() => this._deleteParagraph());
+    }
+
+    private _deleteParagraph() {
         if (!this.canMutate)
             return;
         const block = this._outmostBlockAtCursor();
@@ -1194,6 +1208,10 @@ export class Muya {
      * `loose-list-item`, `reset-to-paragraph`, and the diagram types.
      */
     updateParagraph(type: string) {
+        return this.transact(() => this._updateParagraph(type));
+    }
+
+    private _updateParagraph(type: string) {
         if (!this.canMutate)
             return;
         const block = this._outmostBlockAtCursor();
@@ -1617,6 +1635,7 @@ export class Muya {
     }
 
     destroy() {
+        this.editor.transactions.cancel();
         this._cancelReadingLink();
         this.eventCenter.detachAllDomEvents();
         this.eventCenter.unsubscribeAll();

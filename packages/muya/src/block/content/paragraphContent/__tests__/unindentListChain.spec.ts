@@ -74,7 +74,7 @@ function shiftTabAt(muya: Muya, text: string): KeyboardEvent {
 
 async function settle(muya: Muya): Promise<void> {
     await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
-    muya.editor.jsonState.flush();
+    muya.editor.transactions.flush();
 }
 
 describe('paragraphContent — Shift+Tab outside a nested list item is a no-op (#5342)', () => {

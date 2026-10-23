@@ -121,7 +121,7 @@ class Parent extends TreeNode {
             children.forEach((node) => {
                 const path = node._getJsonPath();
                 const state = node.getState();
-                this.jsonState.insertOperation(path, state);
+                this.transactions.insertOperation(path, state);
             });
         }
     }
@@ -198,7 +198,7 @@ class Parent extends TreeNode {
         if (source === ChangeSource.User) {
             const path = newNode._getJsonPath();
             const state = newNode.getState();
-            this.jsonState.insertOperation(path, state);
+            this.transactions.insertOperation(path, state);
         }
 
         return newNode;
@@ -215,7 +215,7 @@ class Parent extends TreeNode {
             return;
         if (source === ChangeSource.User) {
             const path = this._getJsonPath();
-            this.jsonState.removeOperation(path);
+            this.transactions.removeOperation(path);
         }
 
         super.remove(source);

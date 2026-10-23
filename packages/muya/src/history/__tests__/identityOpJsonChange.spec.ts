@@ -53,7 +53,7 @@ describe('identity (null) op via json-change — #4806', () => {
 
     it('flushing a compose-to-null batch is a no-op (locks #4815)', () => {
         const muya = bootMuya('hello\n');
-        const jsonState = muya.editor.jsonState;
+        const transactions = muya.editor.transactions;
 
         // A real op and its exact inverse compose to the identity op — the
         // op-level shape of an IME insert cancelled by a delete in one frame.
@@ -66,10 +66,9 @@ describe('identity (null) op via json-change — #4806', () => {
             changes += 1;
         });
 
-        // @ts-expect-error — drive the private deferred-flush path directly.
-        jsonState._operationCache.push(op, inverse);
-        // @ts-expect-error — the function the crash stack named.
-        expect(() => jsonState._flushOperationCache()).not.toThrow();
+        transactions.enqueue(op);
+        transactions.enqueue(inverse);
+        expect(() => transactions.flush()).not.toThrow();
 
         expect(changes).toBe(0);
         expect(muya.getMarkdown().trim()).toBe('hello');

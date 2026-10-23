@@ -6,7 +6,7 @@ import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import * as json1 from 'ot-json1';
 import { asDoc } from '../state';
-import { getPreviousDoc } from '../state/changePayload';
+import { getPreviousDoc, isHistorySuppressed } from '../state/changePayload';
 import { ChangeSource } from '../types';
 import { deepClone } from '../utils';
 
@@ -92,7 +92,6 @@ export function shouldBreakUndoGroup(
 class History {
     private _lastRecorded: number = 0;
     private _lastInputKind: Nullable<TInputKind> = null;
-    private _ignoreChange: boolean = false;
     private _selectionStack: (Nullable<IHistorySelection>)[] = [];
     private _stack: IStack = {
         undo: [],
@@ -112,7 +111,7 @@ class History {
             'json-change',
             (payload: IJSONChangePayload) => {
                 const { op, source } = payload;
-                if (this._ignoreChange)
+                if (isHistorySuppressed(payload))
                     return;
 
                 // IME edits can compose to the identity operation, leaving nothing to record (#4806).
@@ -128,9 +127,9 @@ class History {
     }
 
     private _change(source: HistoryAction, dest: HistoryAction) {
-        // A pending first edit must be undoable. Recording a pending edit may
-        // also clear redo, so flush before checking either stack or muting events.
-        this._muya.editor.jsonState.flush();
+        this._muya.editor.transactions.assertStandalone();
+        // Recording pending edits can clear redo; commit them before inspecting either stack.
+        this._muya.editor.transactions.flush();
 
         if (this._stack[source].length === 0)
             return;
@@ -148,16 +147,7 @@ class History {
         });
 
         this._lastRecorded = 0;
-        this._ignoreChange = true;
-        try {
-            if (rebuild)
-                this._muya.editor.rebuildContents(operation, selection, ChangeSource.User);
-            else
-                this._muya.editor.updateContents(operation, selection, ChangeSource.User);
-        }
-        finally {
-            this._ignoreChange = false;
-        }
+        this._muya.editor.replayContents(operation, selection, rebuild);
 
         this._getLastSelection();
     }
@@ -166,7 +156,6 @@ class History {
         this._stack = { undo: [], redo: [] };
         this._selectionStack = [];
         this._lastRecorded = 0;
-        this._ignoreChange = false;
     }
 
     getHistory(): ISerializedHistory {
@@ -267,7 +256,7 @@ class History {
         return this._selectionStack.length === 2 ? this._selectionStack[0] : null;
     }
 
-    private _record(op: JSONOpList, doc: TState[]) {
+    private _record(op: JSONOpList, doc: readonly TState[]) {
         if (op.length === 0)
             return;
 
@@ -300,7 +289,7 @@ class History {
 
     // Record a whole-document replacement as a standalone undo step and clear redo.
     // The caller must apply the forward operation separately; later edits start a new group.
-    recordRebuild(op: JSONOpList, prevDoc: TState[], selection: Nullable<IHistorySelection>) {
+    recordRebuild(op: JSONOpList, prevDoc: readonly TState[], selection: Nullable<IHistorySelection>) {
         if (op.length === 0)
             return;
 
@@ -315,18 +304,6 @@ class History {
 
         if (this._stack.undo.length > this._options.maxStack)
             this._stack.undo.shift();
-    }
-
-    // Apply an already-recorded change without adding a duplicate undo entry.
-    suppressRecording(fn: () => void) {
-        const previous = this._ignoreChange;
-        this._ignoreChange = true;
-        try {
-            fn();
-        }
-        finally {
-            this._ignoreChange = previous;
-        }
     }
 
     canRedo() {

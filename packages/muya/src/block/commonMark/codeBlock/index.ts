@@ -80,12 +80,12 @@ class CodeBlock extends Parent {
             const { path } = this;
             path.push('meta', 'type');
 
-            this.jsonState.editOperation(path, diffToTextOp(diffs));
+            this.transactions.editOperation(path, diffToTextOp(diffs));
 
             // An indented block has no fence yet, so the promoted block
             // defaults to a backtick fence and the json state gains the key.
             this.meta.fenceChar = '`';
-            this.jsonState.insertValueOperation([...this.path, 'meta', 'fenceChar'], '`');
+            this.transactions.insertValueOperation([...this.path, 'meta', 'fenceChar'], '`');
 
             operateClassName(this.domNode!, 'remove', 'mu-indented-code');
             operateClassName(this.domNode!, 'add', 'mu-fenced-code');

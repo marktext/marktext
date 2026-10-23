@@ -41,8 +41,8 @@ class TreeNode implements ILinkedNode {
         return this.static.blockName;
     }
 
-    get jsonState() {
-        return this.muya.editor.jsonState;
+    get transactions() {
+        return this.muya.editor.transactions;
     }
 
     get scrollPage() {
