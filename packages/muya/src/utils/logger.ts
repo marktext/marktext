@@ -1,16 +1,26 @@
-type TLevel = 'error' | 'warn' | 'log' | 'info';
+export type TLogLevel = 'error' | 'warn' | 'log' | 'info';
+export type TLogSink = (level: TLogLevel, ...args: unknown[]) => void;
 
-const levels: TLevel[] = ['error', 'warn', 'log', 'info'];
-let level: TLevel = 'log';
+const levels: TLogLevel[] = ['error', 'warn', 'log', 'info'];
+let level: TLogLevel = 'log';
+let sink: TLogSink | undefined;
 
-type Ilogger = Record<TLevel, (...args: string[]) => void>;
+type Ilogger = Record<TLogLevel, (...args: unknown[]) => void>;
 
-function debug(method: TLevel, ...args: unknown[]) {
-    if (
-        levels.indexOf(method) <= levels.indexOf(level)
-        // eslint-disable-next-line node/prefer-global/process
-        && process.env.NODE_ENV !== 'production'
-    ) {
+function debug(method: TLogLevel, ...args: unknown[]) {
+    if (levels.indexOf(method) > levels.indexOf(level)) {
+        return;
+    }
+
+    try {
+        sink?.(method, ...args);
+    }
+    catch {
+        // A host's logging failure must not interrupt editing or error recovery.
+    }
+
+    // eslint-disable-next-line node/prefer-global/process
+    if (process.env.NODE_ENV !== 'production') {
         // eslint-disable-next-line no-console
         console[method](...args);
     }
@@ -24,9 +34,14 @@ function namespace(ns: string): Ilogger {
     }, {} as Ilogger);
 }
 
-namespace.level = (newLevel: TLevel) => {
+namespace.level = (newLevel: TLogLevel) => {
     level = newLevel;
 };
 debug.level = namespace.level;
+
+/** The process-wide sink receives level-filtered events in every build, with the namespace first. */
+namespace.setSink = (newSink?: TLogSink) => {
+    sink = newSink;
+};
 
 export default namespace;

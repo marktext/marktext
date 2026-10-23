@@ -1,4 +1,5 @@
 import log from 'electron-log/renderer'
+import { logger as muyaLogger } from '@muyajs/core'
 import RendererPaths from './node/paths'
 
 let exceptionLogger: (s: unknown) => void = (s) => console.error(s)
@@ -7,6 +8,11 @@ const configureLogger = (): void => {
   const isDev = window.electron?.process?.env?.NODE_ENV === 'development'
   log.transports.console.level = isDev ? 'info' : false
   exceptionLogger = log.error
+  muyaLogger.setSink((level, ...args) => {
+    if (level === 'warn' || level === 'error') {
+      log[level]('[muya]', ...args)
+    }
+  })
 }
 
 interface UrlArgs {
