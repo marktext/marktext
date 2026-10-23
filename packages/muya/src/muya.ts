@@ -212,7 +212,10 @@ export class Muya {
 
     private _refreshReadingPresentation(): void {
         const { domNode, isReadOnly } = this;
-        domNode.contentEditable = String(!isReadOnly);
+        const contentEditable = String(!isReadOnly);
+        // Reassigning editability on a connected tree makes Chromium revisit every descendant (#5860).
+        if (domNode.contentEditable !== contentEditable)
+            domNode.contentEditable = contentEditable;
         domNode.classList.toggle('mu-read-only', isReadOnly);
         domNode.setAttribute('tabindex', '0');
         domNode.setAttribute('role', isReadOnly ? 'document' : 'textbox');
@@ -221,7 +224,8 @@ export class Muya {
             if (node.isParent() && isReadOnly)
                 node.active = false;
             if (node.isContent()) {
-                node.domNode?.setAttribute('contenteditable', String(!isReadOnly));
+                if (node.domNode?.getAttribute('contenteditable') !== contentEditable)
+                    node.domNode?.setAttribute('contenteditable', contentEditable);
                 if (isReadOnly)
                     node.update({});
             }

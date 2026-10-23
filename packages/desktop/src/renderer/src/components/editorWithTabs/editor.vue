@@ -1576,8 +1576,7 @@ const handleFileChange = (payload: unknown) => {
   }
 
   if (typeof scrollTop === 'number') {
-    container.style.visibility = 'hidden'
-    container.style.pointerEvents = 'none'
+    // The synchronous rebuild and rAF scroll restore finish before paint; hiding here forces a second layout (#5860).
     scrollToCords(scrollTop)
   } else {
     container.style.visibility = 'visible'
