@@ -64,6 +64,8 @@ export interface LaunchOptions {
   // Preferences seeded into the throwaway user data directory before launch.
   // Preference.init() fills in every key that is left out.
   preferences?: Record<string, unknown>
+  // Extra files written into the throwaway user data directory before launch.
+  userDataFiles?: Record<string, string>
 }
 
 export const launchElectron = async(
@@ -82,6 +84,12 @@ export const launchElectron = async(
       JSON.stringify(options.preferences, null, 2),
       'utf-8'
     )
+  }
+  if (options.userDataFiles) {
+    fs.mkdirSync(userDataDir, { recursive: true })
+    for (const [fileName, content] of Object.entries(options.userDataFiles)) {
+      fs.writeFileSync(path.join(userDataDir, fileName), content, 'utf-8')
+    }
   }
   const args = [projectRoot, '--user-data-dir', userDataDir].concat(userArgs)
   const env: Record<string, string> = {}
