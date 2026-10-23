@@ -1,9 +1,7 @@
-import fs from 'fs'
 import { applyReadingMenu } from './readingMode'
 import path from 'path'
 import { app, Menu, ipcMain, BrowserWindow } from 'electron'
 import log from 'electron-log'
-import { ensureDirSync, isDirectory2, isFile2 } from 'common/filesystem'
 import { isOsx, isWindows } from '../config'
 import { updateSidebarMenu } from '../menu/actions/edit'
 import { updateFormatMenu } from '../menu/actions/format'
@@ -15,9 +13,9 @@ import { setLanguage } from '../i18n.js'
 import type Preference from '../preferences'
 import type Keybindings from '../keyboard/shortcutHandler'
 import type { IUserPreferences } from '@shared/types/preferences'
+import { RecentDocumentsStore, type RecentDocument } from './recentDocuments'
 
 const RECENTLY_USED_DOCUMENTS_FILE_NAME = 'recently-used-documents.json'
-const MAX_RECENTLY_USED_DOCUMENTS = 12
 
 export const MenuType = {
   DEFAULT: 0,
@@ -62,7 +60,7 @@ class AppMenu {
 
   private readonly _preferences: Preference
   private readonly _keybindings: Keybindings
-  private readonly _userDataPath: string
+  private readonly _recentDocuments: RecentDocumentsStore
   public readonly RECENTS_PATH: string
   public readonly isOsxOrWindows: boolean
   public activeWindowId: number
@@ -71,9 +69,9 @@ class AppMenu {
   constructor(preferences: Preference, keybindings: Keybindings, userDataPath: string) {
     this._preferences = preferences
     this._keybindings = keybindings
-    this._userDataPath = userDataPath
 
     this.RECENTS_PATH = path.join(userDataPath, RECENTLY_USED_DOCUMENTS_FILE_NAME)
+    this._recentDocuments = new RecentDocumentsStore(this.RECENTS_PATH)
     this.isOsxOrWindows = isOsx || isWindows
     this.activeWindowId = -1
     this.windowMenus = new Map()
@@ -84,72 +82,30 @@ class AppMenu {
   }
 
   addRecentlyUsedDocument(filePath: string): void {
-    const { isOsxOrWindows, RECENTS_PATH } = this
+    if (this.isOsxOrWindows) app.addRecentDocument(filePath)
 
-    if (isOsxOrWindows) app.addRecentDocument(filePath)
-    if (isOsx) return
+    const documents = this._recentDocuments.add(filePath)
+    this.updateAppMenu(documents.map((document) => document.pathname))
+  }
 
-    const recentDocuments = this.getRecentlyUsedDocuments()
-    const index = recentDocuments.indexOf(filePath)
-    let needSave = index !== 0
-    if (index > 0) {
-      recentDocuments.splice(index, 1)
-    }
-    if (index !== 0) {
-      recentDocuments.unshift(filePath)
-    }
+  removeRecentlyUsedDocument(filePath: string): void {
+    const documents = this._recentDocuments.remove(filePath)
+    this.updateAppMenu(documents.map((document) => document.pathname))
+  }
 
-    if (recentDocuments.length > MAX_RECENTLY_USED_DOCUMENTS) {
-      needSave = true
-      recentDocuments.splice(
-        MAX_RECENTLY_USED_DOCUMENTS,
-        recentDocuments.length - MAX_RECENTLY_USED_DOCUMENTS
-      )
-    }
-
-    this.updateAppMenu(recentDocuments)
-
-    if (needSave) {
-      ensureDirSync(this._userDataPath)
-      const json = JSON.stringify(recentDocuments, null, 2)
-      fs.writeFileSync(RECENTS_PATH, json, 'utf-8')
-    }
+  getRecentDocuments(): RecentDocument[] {
+    return this._recentDocuments.read()
   }
 
   getRecentlyUsedDocuments(): string[] {
-    const { RECENTS_PATH } = this
-    if (!isFile2(RECENTS_PATH)) {
-      return []
-    }
-
-    try {
-      const recentDocuments: string[] = JSON.parse(fs.readFileSync(RECENTS_PATH, 'utf-8')).filter(
-        (f: string) => f && (isFile2(f) || isDirectory2(f))
-      )
-
-      if (recentDocuments.length > MAX_RECENTLY_USED_DOCUMENTS) {
-        recentDocuments.splice(
-          MAX_RECENTLY_USED_DOCUMENTS,
-          recentDocuments.length - MAX_RECENTLY_USED_DOCUMENTS
-        )
-      }
-      return recentDocuments
-    } catch (err) {
-      log.error('Error while read recently used documents:', err)
-      return []
-    }
+    return this.getRecentDocuments().map((document) => document.pathname)
   }
 
   clearRecentlyUsedDocuments(): void {
-    const { isOsxOrWindows, RECENTS_PATH } = this
-    if (isOsxOrWindows) app.clearRecentDocuments()
-    if (isOsx) return
+    if (this.isOsxOrWindows) app.clearRecentDocuments()
 
-    const recentDocuments: string[] = []
-    this.updateAppMenu(recentDocuments)
-    const json = JSON.stringify(recentDocuments, null, 2)
-    ensureDirSync(this._userDataPath)
-    fs.writeFileSync(RECENTS_PATH, json, 'utf-8')
+    this._recentDocuments.clear()
+    this.updateAppMenu([])
   }
 
   addDefaultMenu(windowId: number): void {
@@ -447,6 +403,10 @@ class AppMenu {
     })
     ipcMain.on('mt::add-recently-used-document', (_e, pathname: string) => {
       this.addRecentlyUsedDocument(pathname)
+    })
+    ipcMain.handle('mt::get-recently-used-documents', () => this.getRecentDocuments())
+    ipcMain.on('mt::remove-recently-used-document', (_e, pathname: string) => {
+      this.removeRecentlyUsedDocument(pathname)
     })
     ipcMain.on('mt::update-line-ending-menu', (_e, windowId: number, lineEnding: string) => {
       if (!this.has(windowId)) return

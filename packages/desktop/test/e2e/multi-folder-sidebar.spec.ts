@@ -76,7 +76,7 @@ test('multi-folder sidebar completes add, search, remove and restore (#2222)', a
     await expect(quickInput).toHaveAttribute('placeholder', 'Search file to open')
     await expect(quickInput).toHaveValue('')
     await quickInput.pressSequentially('common')
-    await expect(page.locator('.commands li:visible')).toHaveCount(3)
+    await expect(page.locator('.commands li.command-item:visible')).toHaveCount(3)
     await quickInput.press('Escape')
 
     await page.locator('.side-bar .search-button').click()

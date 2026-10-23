@@ -7,6 +7,7 @@ import { t } from '../i18n'
 export { default as FileEncodingCommand } from './fileEncoding'
 export { default as LineEndingCommand } from './lineEnding'
 export { default as QuickOpenCommand } from './quickOpen'
+export { default as QuickOpenRecentCommand } from './quickOpenRecent'
 export { default as SpellcheckerLanguageCommand } from './spellcheckerLanguage'
 export { default as TrailingNewlineCommand } from './trailingNewline'
 

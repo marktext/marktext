@@ -7,6 +7,8 @@ import type Keybindings from '../../keyboard/shortcutHandler'
 import type Preference from '../../preferences'
 import { PANDOC_EXPORT_FORMATS } from '../../utils/pandoc'
 
+const MENU_RECENT_DOCUMENTS_LIMIT = 12
+
 export default function(
   keybindings: Keybindings,
   userPreference: Preference,
@@ -58,55 +60,49 @@ export default function(
     submenu
   }
 
-  if (!isOsx) {
-    const recentlyUsedSubmenu: MenuItemConstructorOptions[] = []
-    const recentlyUsedMenu: MenuItemConstructorOptions = {
-      label: t('menu.file.openRecent'),
-      submenu: recentlyUsedSubmenu
-    }
+  const recentlyUsedSubmenu: MenuItemConstructorOptions[] = []
+  const recentlyUsedMenu: MenuItemConstructorOptions = {
+    label: t('menu.file.openRecent'),
+    submenu: recentlyUsedSubmenu
+  }
 
-    for (const item of recentlyUsedFiles) {
-      recentlyUsedSubmenu.push({
-        label: item,
-        click(menuItem, browserWindow) {
-          if (browserWindow) {
-            actions.openFileOrFolder(browserWindow as BrowserWindow, menuItem.label)
-          }
-        }
-      })
-    }
-
-    recentlyUsedSubmenu.push(
-      {
-        type: 'separator',
-        visible: recentlyUsedFiles.length > 0
-      },
-      {
-        label: t('menu.file.clearRecentlyUsed'),
-        enabled: recentlyUsedFiles.length > 0,
-        click() {
-          actions.clearRecentlyUsed()
+  for (const item of recentlyUsedFiles.slice(0, MENU_RECENT_DOCUMENTS_LIMIT)) {
+    recentlyUsedSubmenu.push({
+      label: item,
+      click(menuItem, browserWindow) {
+        if (browserWindow) {
+          actions.openFileOrFolder(browserWindow as BrowserWindow, menuItem.label)
         }
       }
-    )
-    submenu.push(recentlyUsedMenu)
-  } else {
-    submenu.push({
-      // Electron accepts these MenuItem roles. The types stub camelCase
-      // ('recentDocuments' / 'clearRecentDocuments') in recent versions; the JS
-      // original used lowercase. Cast to satisfy strict role typing while
-      // preserving the original runtime string. The labels must be explicit:
-      // roles otherwise use Electron's English defaults, bypassing the app locale.
-      role: 'recentdocuments' as unknown as MenuItemConstructorOptions['role'],
-      label: t('menu.file.openRecent'),
-      submenu: [
-        {
-          role: 'clearrecentdocuments' as unknown as MenuItemConstructorOptions['role'],
-          label: t('menu.file.clearRecentlyUsed')
-        }
-      ]
     })
   }
+
+  recentlyUsedSubmenu.push(
+    {
+      type: 'separator',
+      visible: recentlyUsedFiles.length > 0
+    },
+    {
+      label: t('menu.file.openRecentMore'),
+      accelerator: keybindings.getAccelerator('file.quick-open-recent') ?? undefined,
+      click(_menuItem, browserWindow) {
+        const win = browserWindow as BrowserWindow | undefined
+        win?.webContents.send('mt::execute-command-by-id', 'file.quick-open-recent')
+      }
+    },
+    {
+      type: 'separator',
+      visible: recentlyUsedFiles.length > 0
+    },
+    {
+      label: t('menu.file.clearRecentlyUsed'),
+      enabled: recentlyUsedFiles.length > 0,
+      click() {
+        actions.clearRecentlyUsed()
+      }
+    }
+  )
+  submenu.push(recentlyUsedMenu)
 
   submenu.push(
     {

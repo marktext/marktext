@@ -137,6 +137,7 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 
 #### Misc
 
-| Id                | Default                      | Description            |
-| ----------------- | ---------------------------- | ---------------------- |
-| `file.quick-open` | <kbd>Ctrl</kbd>+<kbd>P</kbd> | Show quick open dialog |
+| Id                       | Default                      | Description                   |
+| ------------------------ | ---------------------------- | ----------------------------- |
+| `file.quick-open`        | <kbd>Ctrl</kbd>+<kbd>P</kbd> | Show quick open dialog        |
+| `file.quick-open-recent` | -                            | Show recent files and folders |

@@ -82,20 +82,20 @@ Modifier keys use their full macOS names and appear in this order: Control, Opti
 
 #### Format menu
 
-| Id                    | Default                                          | Description                                     |
-| --------------------- | ------------------------------------------------ | ----------------------------------------------- |
-| `format.strong`       | <kbd>Command</kbd>+<kbd>B</kbd>                  | Set the font of the selected text to bold       |
-| `format.emphasis`     | <kbd>Command</kbd>+<kbd>I</kbd>                  | Set the font of the selected text to italic     |
-| `format.underline`    | <kbd>Command</kbd>+<kbd>U</kbd>                  | Change the selected text to underline           |
-| `format.superscript`  | -                                                | Set the selected text as superscript            |
-| `format.subscript`    | -                                                | Set the selected text as subscript              |
-| `format.highlight`    | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>H</kbd> | Highlight the selected text by <mark>tag</mark> |
-| `format.inline-code`  | <kbd>Control</kbd>+<kbd>Command</kbd>+<kbd>C</kbd>                  | Change the selected text to inline code         |
-| `format.inline-math`  | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>M</kbd> | Change the selected text to inline math         |
-| `format.strike`       | <kbd>Command</kbd>+<kbd>D</kbd>                  | Strike through the selected text                |
-| `format.hyperlink`    | <kbd>Command</kbd>+<kbd>L</kbd>                  | Insert a hyperlink                              |
-| `format.image`        | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>I</kbd> | Insert a image                                  |
-| `format.clear-format` | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>R</kbd> | Clear the formatting of the selected text       |
+| Id                    | Default                                            | Description                                     |
+| --------------------- | -------------------------------------------------- | ----------------------------------------------- |
+| `format.strong`       | <kbd>Command</kbd>+<kbd>B</kbd>                    | Set the font of the selected text to bold       |
+| `format.emphasis`     | <kbd>Command</kbd>+<kbd>I</kbd>                    | Set the font of the selected text to italic     |
+| `format.underline`    | <kbd>Command</kbd>+<kbd>U</kbd>                    | Change the selected text to underline           |
+| `format.superscript`  | -                                                  | Set the selected text as superscript            |
+| `format.subscript`    | -                                                  | Set the selected text as subscript              |
+| `format.highlight`    | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>H</kbd>   | Highlight the selected text by <mark>tag</mark> |
+| `format.inline-code`  | <kbd>Control</kbd>+<kbd>Command</kbd>+<kbd>C</kbd> | Change the selected text to inline code         |
+| `format.inline-math`  | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>M</kbd>   | Change the selected text to inline math         |
+| `format.strike`       | <kbd>Command</kbd>+<kbd>D</kbd>                    | Strike through the selected text                |
+| `format.hyperlink`    | <kbd>Command</kbd>+<kbd>L</kbd>                    | Insert a hyperlink                              |
+| `format.image`        | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>I</kbd>   | Insert a image                                  |
+| `format.clear-format` | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>R</kbd>   | Clear the formatting of the selected text       |
 
 #### Window menu
 
@@ -147,6 +147,7 @@ Modifier keys use their full macOS names and appear in this order: Control, Opti
 
 #### Misc
 
-| Id                | Default                         | Description            |
-| ----------------- | ------------------------------- | ---------------------- |
-| `file.quick-open` | <kbd>Command</kbd>+<kbd>P</kbd> | Open quick open dialog |
+| Id                       | Default                         | Description                   |
+| ------------------------ | ------------------------------- | ----------------------------- |
+| `file.quick-open`        | <kbd>Command</kbd>+<kbd>P</kbd> | Open quick open dialog        |
+| `file.quick-open-recent` | <kbd>Control</kbd>+<kbd>R</kbd> | Open recent files and folders |

@@ -17,6 +17,7 @@
       "openFile": "Open File...",
       "openFolder": "Open Folder...",
       "openRecent": "Open Recent",
+      "openRecentMore": "Search Recent...",
       "clearRecentlyUsed": "Clear Recently Used",
       "save": "Save",
       "saveAs": "Save As...",
@@ -300,8 +301,16 @@
     "placeholders": {
       "selectOption": "Select an option",
       "searchFileToOpen": "Search file to open",
+      "searchRecentFilesAndFolders": "Search recent files and folders",
       "selectLanguage": "Select a language to switch to"
-    }
+    },
+    "recentlyOpened": "recently opened",
+    "fileResults": "file results",
+    "folders": "folders",
+    "files": "files",
+    "removeFromRecent": "Remove from Recently Opened",
+    "noResults": "No matching results",
+    "noRecentFiles": "No recent files or folders"
   },
   "exportSettings": {
     "autoNumberingHeadings": "Auto numbering headings",
@@ -833,6 +842,7 @@
       "moveFile": "Move File",
       "renameFile": "Rename File",
       "quickOpen": "Quick Open",
+      "quickOpenRecent": "Quick Open Recent",
       "changeEncoding": "Change Encoding",
       "changeLineEnding": "Change Line Ending",
       "trailingNewline": "Trailing Newline",

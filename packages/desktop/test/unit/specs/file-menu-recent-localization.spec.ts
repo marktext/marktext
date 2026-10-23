@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 const translations = vi.hoisted(() => ({
   'menu.file.openRecent': 'Open Recent (translated)',
+  'menu.file.openRecentMore': 'Search Recent (translated)',
   'menu.file.clearRecentlyUsed': 'Clear Recently Used (translated)'
 }))
 
@@ -22,36 +23,42 @@ const preferences = {
   getAll: () => ({ autoSave: false, showPandocConvert: false })
 } as never
 
-async function buildFileSubmenu(isOsx: boolean): Promise<MenuItemConstructorOptions[]> {
+async function buildFileSubmenu(
+  isOsx: boolean,
+  recentlyUsedFiles: string[] = []
+): Promise<MenuItemConstructorOptions[]> {
   vi.resetModules()
   vi.doMock('main_renderer/config', () => ({ isOsx }))
   const mod = await import('main_renderer/menu/templates/file')
-  return mod.default(keybindings, preferences, []).submenu as MenuItemConstructorOptions[]
+  return mod.default(keybindings, preferences, recentlyUsedFiles)
+    .submenu as MenuItemConstructorOptions[]
 }
 
-describe('File menu recent documents localization', () => {
-  it('localizes the native macOS recent documents roles', async() => {
-    const submenu = await buildFileSubmenu(true)
-    const recentDocuments = submenu.find(
-      (item) => (item.role as string | undefined) === 'recentdocuments'
-    )
+const openRecentSubmenu = (submenu: MenuItemConstructorOptions[]) =>
+  submenu.find((item) => item.label === translations['menu.file.openRecent'])
+    ?.submenu as MenuItemConstructorOptions[]
 
-    expect(recentDocuments?.label).toBe(translations['menu.file.openRecent'])
-    expect(recentDocuments?.submenu).toEqual([
-      expect.objectContaining({
-        role: 'clearrecentdocuments',
-        label: translations['menu.file.clearRecentlyUsed']
-      })
+describe('File menu recent documents', () => {
+  it.each([true, false])('lists entries with search and clear actions on isOsx=%s', async(isOsx) => {
+    const submenu = await buildFileSubmenu(isOsx, ['/notes/a.md'])
+    const children = openRecentSubmenu(submenu)
+
+    expect(children.map((item) => item.label ?? item.type)).toEqual([
+      '/notes/a.md',
+      'separator',
+      translations['menu.file.openRecentMore'],
+      'separator',
+      translations['menu.file.clearRecentlyUsed']
     ])
   })
 
-  it('keeps the existing translated labels on Windows and Linux', async() => {
-    const submenu = await buildFileSubmenu(false)
-    const openRecent = submenu.find((item) => item.label === translations['menu.file.openRecent'])
-    const childLabels = (openRecent?.submenu as MenuItemConstructorOptions[]).map(
-      (item) => item.label
+  it.each([true, false])('caps the menu on isOsx=%s while the history stays searchable', async(isOsx) => {
+    const files = Array.from({ length: 20 }, (_, i) => `/notes/file-${i}.md`)
+    const submenu = await buildFileSubmenu(isOsx, files)
+    const recentEntries = openRecentSubmenu(submenu).filter((item) =>
+      item.label?.startsWith('/notes/')
     )
 
-    expect(childLabels).toContain(translations['menu.file.clearRecentlyUsed'])
+    expect(recentEntries).toHaveLength(12)
   })
 })

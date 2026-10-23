@@ -17,6 +17,7 @@
       "openFile": "ファイルを開く...",
       "openFolder": "フォルダーを開く...",
       "openRecent": "最近使ったファイル",
+      "openRecentMore": "最近使った項目を検索...",
       "clearRecentlyUsed": "最近使ったファイルをクリア",
       "save": "保存",
       "saveAs": "名前を付けて保存...",
@@ -300,8 +301,16 @@
     "placeholders": {
       "selectOption": "オプションの選択",
       "searchFileToOpen": "開くファイルの検索",
-      "selectLanguage": "言語の選択"
-    }
+      "selectLanguage": "言語の選択",
+      "searchRecentFilesAndFolders": "最近使ったファイルとフォルダーを検索"
+    },
+    "recentlyOpened": "最近使った項目",
+    "fileResults": "ファイルの検索結果",
+    "folders": "フォルダー",
+    "files": "ファイル",
+    "removeFromRecent": "最近使った項目から削除",
+    "noResults": "一致する結果はありません",
+    "noRecentFiles": "最近使ったファイルやフォルダーはありません"
   },
   "exportSettings": {
     "autoNumberingHeadings": "見出しの自動番号付け",
@@ -833,6 +842,7 @@
       "moveFile": "ファイルを移動",
       "renameFile": "ファイル名の変更",
       "quickOpen": "クイックオープン",
+      "quickOpenRecent": "最近使った項目をクイックオープン",
       "changeEncoding": "エンコーディングの変更",
       "changeLineEnding": "改行コードの変更",
       "trailingNewline": "末尾の改行",

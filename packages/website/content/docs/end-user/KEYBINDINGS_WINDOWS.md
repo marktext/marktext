@@ -139,6 +139,7 @@ Redo uses <kbd>Ctrl</kbd>+<kbd>Y</kbd>. The previous default, <kbd>Ctrl</kbd>+<k
 
 #### Misc
 
-| Id                | Default                      | Description            |
-| ----------------- | ---------------------------- | ---------------------- |
-| `file.quick-open` | <kbd>Ctrl</kbd>+<kbd>P</kbd> | Open quick open dialog |
+| Id                       | Default                      | Description                   |
+| ------------------------ | ---------------------------- | ----------------------------- |
+| `file.quick-open`        | <kbd>Ctrl</kbd>+<kbd>P</kbd> | Open quick open dialog        |
+| `file.quick-open-recent` | -                            | Open recent files and folders |

@@ -32,8 +32,13 @@ export interface SaveDialogRequest {
 export type PlantumlFetchResult =
   { ok: true; mime: string; data: Uint8Array } | { ok: false; error: string }
 
+export interface RecentDocument {
+  pathname: string
+  isDirectory: boolean
+}
 
 export interface IpcInvokeChannels {
+  'mt::get-recently-used-documents': { args: []; ret: RecentDocument[] }
   'mt::project-remove-root': { args: [key: string]; ret: boolean }
   'mt::project-retry-root': { args: [key: string]; ret: boolean }
   'mt::clipboard::write-text': { args: [text: string]; ret: boolean }
@@ -110,6 +115,7 @@ export interface IpcSendChannels {
   'broadcast-user-data-changed': [partial: unknown]
   'menu-add-recently-used': [filePath: string]
   'menu-clear-recently-used': []
+  'mt::remove-recently-used-document': [pathname: string]
   'mt::NEED_UPDATE': [payload?: unknown]
   'mt::add-recently-used-document': [filePath: string]
   'mt::app-try-quit': []
@@ -138,6 +144,7 @@ export interface IpcSendChannels {
   'mt::menu::popup-application': [position?: MenuPopupPosition]
   'mt::open-file': [filePath: string, options?: SidebarOpenOptions]
   'mt::open-file-by-window-id': [windowId: number, filePath: string, options?: unknown]
+  'mt::open-directory-by-window-id': [windowId: number, dirPath: string]
   'mt::open-keybindings-config': []
   'mt::open-setting-window': []
   'mt::rename': [
