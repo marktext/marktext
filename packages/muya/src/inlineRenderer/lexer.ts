@@ -303,24 +303,7 @@ function tryChunks(state: ILexState): boolean {
                 end: state.pos + to[0].length,
             };
             const marker = to[1];
-            if (
-                rule === 'inline_code'
-                || rule === 'emoji'
-                || rule === 'inline_math'
-                || rule === 'inline_math_gfm'
-                || rule === 'inline_diff'
-            ) {
-                state.tokens.push({
-                    type: rule === 'inline_math_gfm' ? 'inline_math' : rule,
-                    raw: to[0],
-                    range,
-                    marker,
-                    parent: state.tokens,
-                    content: to[2],
-                    backlash: to[3],
-                });
-            }
-            else {
+            if (rule === 'del' || rule === 'mark') {
                 state.tokens.push({
                     type: rule,
                     raw: to[0],
@@ -336,6 +319,17 @@ function tryChunks(state: ILexState): boolean {
                         state.labels,
                         state.options,
                     ),
+                    backlash: to[3],
+                });
+            }
+            else {
+                state.tokens.push({
+                    type: rule === 'inline_math_gfm' ? 'inline_math' : rule,
+                    raw: to[0],
+                    range,
+                    marker,
+                    parent: state.tokens,
+                    content: to[2],
                     backlash: to[3],
                 });
             }
@@ -927,6 +921,52 @@ export function generator(tokens: Token[], rebuildWrappers = false) {
     return result;
 }
 
+function leafTokenToPlainText(token: Token): string {
+    switch (token.type) {
+        case 'text':
+        case 'inline_code':
+        case 'inline_diff':
+        case 'inline_math':
+        case 'super_sub_script':
+        case 'footnote_identifier':
+            return token.content;
+
+        case 'emoji':
+            return emojiDisplayText(token);
+
+        case 'image':
+        case 'reference_image':
+            return token.alt;
+
+        case 'html_tag':
+            return token.content ?? '';
+
+        case 'backlash':
+            // `content` is empty; the escaped char is `raw` minus its leading `\`.
+            return token.raw.replace(/^\\/, '');
+
+        case 'html_escape':
+            return escapeCharactersMap[token.escapeCharacter] ?? token.raw;
+
+        case 'auto_link':
+            // `<http://x>` / `<foo@bar.com>` show verbatim between the
+            // angle brackets — `href` may carry an added `mailto:` scheme.
+            return token.raw.replace(/^<|>$/g, '');
+
+        case 'auto_link_extension':
+            return token.raw;
+
+        case 'soft_line_break':
+        case 'hard_line_break':
+            return ' ';
+
+        // Begin markers, reference definitions and an atx heading's tail `#`s
+        // carry no reader-facing text.
+        default:
+            return '';
+    }
+}
+
 // The reader-facing text of inline tokens with every marker, delimiter, URL and
 // tag dropped — `**bold**` → `bold`, `[text](url)` → `text`, `![alt](src)` →
 // `alt`. Mirrors the visible `textContent` a rendered heading yields, so a slug
@@ -938,71 +978,9 @@ export function tokensToPlainText(tokens: Token[]): string {
     let result = '';
 
     for (const token of tokens) {
-        switch (token.type) {
-            case 'text':
-            case 'inline_code':
-            case 'inline_diff':
-            case 'inline_math':
-            case 'super_sub_script':
-            case 'footnote_identifier':
-                result += token.content;
-                break;
-
-            case 'emoji':
-                result += emojiDisplayText(token);
-                break;
-
-            case 'strong':
-            case 'em':
-            case 'del':
-            case 'mark':
-            case 'link':
-            case 'reference_link':
-                result += tokensToPlainText(token.children);
-                break;
-
-            case 'image':
-            case 'reference_image':
-                result += token.alt;
-                break;
-
-            case 'html_tag':
-                if (token.children)
-                    result += tokensToPlainText(token.children);
-                else if (token.content)
-                    result += token.content;
-                break;
-
-            case 'backlash':
-                // `content` is empty; the escaped char is `raw` minus its leading `\`.
-                result += token.raw.replace(/^\\/, '');
-                break;
-
-            case 'html_escape':
-                result += escapeCharactersMap[token.escapeCharacter] ?? token.raw;
-                break;
-
-            case 'auto_link':
-                // `<http://x>` / `<foo@bar.com>` show verbatim between the
-                // angle brackets — `href` may carry an added `mailto:` scheme.
-                result += token.raw.replace(/^<|>$/g, '');
-                break;
-
-            case 'auto_link_extension':
-                result += token.raw;
-                break;
-
-            case 'soft_line_break':
-            case 'hard_line_break':
-                result += ' ';
-                break;
-
-            // header / hr / code_fence / multiple_math begin markers, the
-            // reference_definition line, and an atx heading's tail `#`s carry no
-            // reader-facing text.
-            default:
-                break;
-        }
+        result += 'children' in token && token.children
+            ? tokensToPlainText(token.children)
+            : leafTokenToPlainText(token);
     }
 
     return result;
@@ -1029,10 +1007,6 @@ export function tokensToInlineHtml(tokens: Token[]): string {
 
     for (const token of tokens) {
         switch (token.type) {
-            case 'text':
-                result += escapeHTML(token.content);
-                break;
-
             case 'strong':
             case 'em':
             case 'del':
@@ -1048,29 +1022,15 @@ export function tokensToInlineHtml(tokens: Token[]): string {
                 result += `<code>${escapeHTML(token.content)}</code>`;
                 break;
 
-            case 'emoji':
-                result += escapeHTML(emojiDisplayText(token));
-                break;
-
             case 'super_sub_script': {
                 const tag = token.marker === '^' ? 'sup' : 'sub';
                 result += `<${tag}>${escapeHTML(token.content)}</${tag}>`;
                 break;
             }
 
-            case 'inline_math':
-            case 'footnote_identifier':
-                result += escapeHTML(token.content);
-                break;
-
             case 'link':
             case 'reference_link':
                 result += tokensToInlineHtml(token.children);
-                break;
-
-            case 'image':
-            case 'reference_image':
-                result += escapeHTML(token.alt);
                 break;
 
             case 'html_tag':
@@ -1080,28 +1040,8 @@ export function tokensToInlineHtml(tokens: Token[]): string {
                     result += escapeHTML(token.content);
                 break;
 
-            case 'backlash':
-                result += escapeHTML(token.raw.replace(/^\\/, ''));
-                break;
-
-            case 'html_escape':
-                result += escapeHTML(escapeCharactersMap[token.escapeCharacter] ?? token.raw);
-                break;
-
-            case 'auto_link':
-                result += escapeHTML(token.raw.replace(/^<|>$/g, ''));
-                break;
-
-            case 'auto_link_extension':
-                result += escapeHTML(token.raw);
-                break;
-
-            case 'soft_line_break':
-            case 'hard_line_break':
-                result += ' ';
-                break;
-
             default:
+                result += escapeHTML(leafTokenToPlainText(token));
                 break;
         }
     }

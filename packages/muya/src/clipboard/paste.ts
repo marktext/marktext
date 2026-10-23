@@ -562,49 +562,16 @@ function applyNormalizedPaste(
     }
 }
 
-async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void> {
-    const target = clipboard.selection.image?.block ?? clipboard.selection.getSelection()?.anchor.block;
-    if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(target))
-        return;
-    // A selected inline image collapses the text selection, so handle the
-    // "paste an image over a selected image" replace before reading the
-    // (now absent) text selection.
-    if (clipboard.selection.image && await tryReplaceSelectedImage(clipboard, data.imageFile))
-        return;
-
-    const selection = clipboard.selection.getSelection();
-    if (!selection)
-        return;
-
-    const { isSelectionInSameBlock, anchor } = selection;
-    const anchorBlock = anchor.block;
-
-    if (!anchorBlock || anchorBlock !== target || clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(anchorBlock))
-        return;
-
-    const { imageFile, pasteType } = data;
+async function applyTextPaste(
+    clipboard: Clipboard,
+    anchorBlock: Content,
+    text: string,
+    data: IPasteData,
+): Promise<void> {
     let { html } = data;
+    const { pasteType } = data;
     // Preserve source provenance before synthetic URL/table HTML promotion.
     const hasClipboardHtml = html !== '';
-    // Normalize newlines before computing offsets or splitting lines.
-    const text = data.text.replace(/\r\n?/g, '\n');
-
-    if (isSelectionInSameBlock && !imageFile && !clipboard.selection.image
-        && tryPasteUrl(clipboard, anchorBlock, text, pasteType)) {
-        return;
-    }
-
-    if (!isSelectionInSameBlock) {
-        clipboard.cutHandler();
-
-        return applyPaste(clipboard, data);
-    }
-
-    if (await tryPasteImage(clipboard, anchorBlock, imageFile))
-        return;
-
-    if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(target))
-        return;
 
     // Firefox can supply a pasted URL without HTML.
     if (isHttpUrl(text) && !html) {
@@ -634,6 +601,50 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     });
     if (!clipboard.muya.isReadOnly && clipboard.muya.isBlockInDocument(anchorBlock) && anchorBlock.getCursor())
         applyNormalizedPaste(clipboard, anchorBlock, text, html, pasteType);
+}
+
+async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void> {
+    const target = clipboard.selection.image?.block ?? clipboard.selection.getSelection()?.anchor.block;
+    if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(target))
+        return;
+    // A selected inline image collapses the text selection, so handle the
+    // "paste an image over a selected image" replace before reading the
+    // (now absent) text selection.
+    if (clipboard.selection.image && await tryReplaceSelectedImage(clipboard, data.imageFile))
+        return;
+
+    const selection = clipboard.selection.getSelection();
+    if (!selection)
+        return;
+
+    const { isSelectionInSameBlock, anchor } = selection;
+    const anchorBlock = anchor.block;
+
+    if (!anchorBlock || anchorBlock !== target || clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(anchorBlock))
+        return;
+
+    if (!isSelectionInSameBlock) {
+        clipboard.cutHandler();
+
+        return applyPaste(clipboard, data);
+    }
+
+    const { imageFile, pasteType } = data;
+    // Normalize newlines before computing offsets or splitting lines.
+    const text = data.text.replace(/\r\n?/g, '\n');
+
+    if (!imageFile && !clipboard.selection.image
+        && tryPasteUrl(clipboard, anchorBlock, text, pasteType)) {
+        return;
+    }
+
+    if (await tryPasteImage(clipboard, anchorBlock, imageFile))
+        return;
+
+    if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(target))
+        return;
+
+    return applyTextPaste(clipboard, anchorBlock, text, data);
 }
 
 export function pasteSelection(
