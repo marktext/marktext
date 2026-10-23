@@ -308,7 +308,9 @@
     "fileResults": "ファイルの検索結果",
     "folders": "フォルダー",
     "files": "ファイル",
-    "removeFromRecent": "最近使った項目から削除"
+    "removeFromRecent": "最近使った項目から削除",
+    "noResults": "一致する結果はありません",
+    "noRecentFiles": "最近使ったファイルやフォルダーはありません"
   },
   "exportSettings": {
     "autoNumberingHeadings": "見出しの自動番号付け",

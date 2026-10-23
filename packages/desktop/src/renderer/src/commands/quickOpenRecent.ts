@@ -19,6 +19,7 @@ class QuickOpenRecentCommand {
   description: string
   placeholder: string
   shortcut: string | null
+  noResultsText: string
   subcommands: RecentSubcommand[]
   subcommandSelectedIndex: number
 
@@ -27,6 +28,7 @@ class QuickOpenRecentCommand {
     this.description = getCommandDescriptionById('file.quick-open-recent')
     this.placeholder = t('commandPalette.placeholders.searchRecentFilesAndFolders')
     this.shortcut = null
+    this.noResultsText = t('commandPalette.noRecentFiles')
 
     this.subcommands = []
     this.subcommandSelectedIndex = -1
@@ -34,6 +36,7 @@ class QuickOpenRecentCommand {
 
   run = async(): Promise<void> => {
     const documents = await this._getRecentDocuments()
+    this.noResultsText = t('commandPalette.noRecentFiles')
     const folderGroup = t('commandPalette.folders')
     const fileGroup = t('commandPalette.files')
 

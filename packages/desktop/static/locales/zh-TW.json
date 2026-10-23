@@ -308,7 +308,9 @@
     "fileResults": "檔案結果",
     "folders": "資料夾",
     "files": "檔案",
-    "removeFromRecent": "從最近使用中移除"
+    "removeFromRecent": "從最近使用中移除",
+    "noResults": "沒有符合的結果",
+    "noRecentFiles": "尚無最近開啟的檔案或資料夾"
   },
   "exportSettings": {
     "autoNumberingHeadings": "自動編號標題",

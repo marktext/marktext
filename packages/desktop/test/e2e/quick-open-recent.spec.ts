@@ -36,6 +36,7 @@ test('quick open lists recent files and the recent picker filters and removes th
 
     await recentItem.locator('button.remove').click()
     await expect(page.locator('.commands li.command-item')).toHaveCount(0)
+    await expect(page.locator('.no-results')).toHaveText('No matching results')
     await recentInput.press('Escape')
     await expectNoRendererErrors(app)
   } finally {

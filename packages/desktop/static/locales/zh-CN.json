@@ -308,7 +308,9 @@
     "fileResults": "文件结果",
     "folders": "文件夹",
     "files": "文件",
-    "removeFromRecent": "从最近使用中移除"
+    "removeFromRecent": "从最近使用中移除",
+    "noResults": "没有匹配结果",
+    "noRecentFiles": "暂无最近打开的文件或文件夹"
   },
   "exportSettings": {
     "title": "导出选项",

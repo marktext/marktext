@@ -81,6 +81,13 @@
                 </li>
               </template>
             </ul>
+            <div
+              v-else
+              class="no-results"
+              role="status"
+            >
+              {{ noResultsText }}
+            </div>
           </transition>
         </div>
       </template>
@@ -118,6 +125,7 @@ interface CommandItem {
   subcommandSelectedIndex?: number
   executeSubcommand?: (commandId: string, value?: unknown) => void
   removeItem?: (commandId: string) => void
+  noResultsText?: string
   placeholder?: string
   value?: unknown
   [key: string]: unknown
@@ -147,6 +155,12 @@ const searcherBusy = ref(false)
 const commandCenterStore = useCommandCenterStore()
 const editorStore = useEditorStore()
 const canRun = (id: string) => !editorStore.currentFile?.readOnly || isReadingCommandAllowed(id)
+
+const noResultsText = computed(() =>
+  query.value.trim()
+    ? t('commandPalette.noResults')
+    : (currentCommand.value?.noResultsText ?? t('commandPalette.noResults'))
+)
 
 const showGroupHeader = (index: number): boolean => {
   const item = availableCommands.value[index]
@@ -457,6 +471,12 @@ ul.commands {
   list-style: none;
   overflow: hidden;
   overflow-y: scroll;
+}
+.no-results {
+  padding: 14px 8px;
+  font-size: 13px;
+  text-align: center;
+  opacity: 0.6;
 }
 ul.commands li {
   position: relative;

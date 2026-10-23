@@ -32,6 +32,7 @@ class QuickOpenCommand {
   description: string
   placeholder: string
   shortcut: string | null
+  noResultsText: string
   subcommands: QuickOpenSubcommand[]
   subcommandSelectedIndex: number
   private _editorState: EditorState
@@ -47,6 +48,7 @@ class QuickOpenCommand {
     this.description = getCommandDescriptionById('file.quick-open')
     this.placeholder = t('commandPalette.placeholders.searchFileToOpen')
     this.shortcut = null
+    this.noResultsText = t('commandPalette.noRecentFiles')
 
     this.subcommands = []
     this.subcommandSelectedIndex = -1
@@ -74,6 +76,7 @@ class QuickOpenCommand {
 
   run = async(): Promise<void> => {
     const { _editorState } = this
+    this.noResultsText = t('commandPalette.noRecentFiles')
     this._recentDocuments = await this._getRecentDocuments()
     this._recentPaths = new Set(this._recentDocuments.map((document) => document.pathname))
 

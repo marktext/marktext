@@ -308,7 +308,9 @@
     "fileResults": "risultati dei file",
     "folders": "cartelle",
     "files": "file",
-    "removeFromRecent": "Rimuovi dai recenti"
+    "removeFromRecent": "Rimuovi dai recenti",
+    "noResults": "Nessun risultato corrispondente",
+    "noRecentFiles": "Nessun file o cartella recente"
   },
   "exportSettings": {
     "autoNumberingHeadings": "Numerazione automatica delle intestazioni",

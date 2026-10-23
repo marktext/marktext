@@ -308,7 +308,9 @@
     "fileResults": "resultados de arquivos",
     "folders": "pastas",
     "files": "arquivos",
-    "removeFromRecent": "Remover dos abertos recentemente"
+    "removeFromRecent": "Remover dos abertos recentemente",
+    "noResults": "Nenhum resultado correspondente",
+    "noRecentFiles": "Nenhum arquivo ou pasta recente"
   },
   "exportSettings": {
     "autoNumberingHeadings": "Numeração automática de cabeçalhos",

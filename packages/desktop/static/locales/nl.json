@@ -308,7 +308,9 @@
     "fileResults": "bestandsresultaten",
     "folders": "mappen",
     "files": "bestanden",
-    "removeFromRecent": "Verwijderen uit recent geopend"
+    "removeFromRecent": "Verwijderen uit recent geopend",
+    "noResults": "Geen overeenkomende resultaten",
+    "noRecentFiles": "Geen recente bestanden of mappen"
   },
   "exportSettings": {
     "autoNumberingHeadings": "Automatisch nummeren van koppen",

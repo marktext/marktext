@@ -308,7 +308,9 @@
     "fileResults": "Dateiergebnisse",
     "folders": "Ordner",
     "files": "Dateien",
-    "removeFromRecent": "Aus \"Zuletzt verwendet\" entfernen"
+    "removeFromRecent": "Aus \"Zuletzt verwendet\" entfernen",
+    "noResults": "Keine Treffer",
+    "noRecentFiles": "Keine zuletzt verwendeten Dateien oder Ordner"
   },
   "exportSettings": {
     "autoNumberingHeadings": "Automatische Nummerierung der Überschriften",

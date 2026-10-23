@@ -308,7 +308,9 @@
     "fileResults": "resultados de archivos",
     "folders": "carpetas",
     "files": "archivos",
-    "removeFromRecent": "Quitar de abiertos recientemente"
+    "removeFromRecent": "Quitar de abiertos recientemente",
+    "noResults": "No hay resultados coincidentes",
+    "noRecentFiles": "No hay archivos ni carpetas recientes"
   },
   "exportSettings": {
     "autoNumberingHeadings": "Numeración automática de encabezados",

@@ -308,7 +308,9 @@
     "fileResults": "résultats de fichiers",
     "folders": "dossiers",
     "files": "fichiers",
-    "removeFromRecent": "Retirer des éléments récents"
+    "removeFromRecent": "Retirer des éléments récents",
+    "noResults": "Aucun résultat correspondant",
+    "noRecentFiles": "Aucun fichier ou dossier récent"
   },
   "exportSettings": {
     "autoNumberingHeadings": "Numérotation automatique des titres",

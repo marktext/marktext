@@ -308,7 +308,9 @@
     "fileResults": "파일 결과",
     "folders": "폴더",
     "files": "파일",
-    "removeFromRecent": "최근 항목에서 제거"
+    "removeFromRecent": "최근 항목에서 제거",
+    "noResults": "일치하는 결과 없음",
+    "noRecentFiles": "최근 파일 또는 폴더 없음"
   },
   "exportSettings": {
     "autoNumberingHeadings": "제목 자동 번호 매기기",

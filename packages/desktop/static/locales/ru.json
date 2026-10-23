@@ -308,7 +308,9 @@
     "fileResults": "результаты по файлам",
     "folders": "папки",
     "files": "файлы",
-    "removeFromRecent": "Удалить из недавних"
+    "removeFromRecent": "Удалить из недавних",
+    "noResults": "Нет совпадающих результатов",
+    "noRecentFiles": "Нет недавних файлов или папок"
   },
   "exportSettings": {
     "autoNumberingHeadings": "Автонумерация заголовков",

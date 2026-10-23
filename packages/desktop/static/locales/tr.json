@@ -308,7 +308,9 @@
     "fileResults": "dosya sonuçları",
     "folders": "klasörler",
     "files": "dosyalar",
-    "removeFromRecent": "Son kullanılanlardan kaldır"
+    "removeFromRecent": "Son kullanılanlardan kaldır",
+    "noResults": "Eşleşen sonuç yok",
+    "noRecentFiles": "Son kullanılan dosya veya klasör yok"
   },
   "exportSettings": {
     "autoNumberingHeadings": "Başlıkları otomatik numaralandır",
