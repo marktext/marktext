@@ -937,6 +937,8 @@
       "toggleTypewriterMode": "Daktilo Modunu Aç/Kapat",
       "toggleFocusMode": "Odak Modunu Aç/Kapat",
       "toggleSidebar": "Kenar Çubuğunu Aç/Kapat",
+      "outlineCollapseAll": "İçindekiler: Tümünü daralt",
+      "outlineExpandAll": "İçindekiler: Tümünü genişlet",
       "toggleToc": "İçindekileri Aç/Kapat",
       "toggleTabbar": "Sekme Çubuğunu Aç/Kapat",
       "toggleDevTools": "Geliştirici Araçlarını Aç/Kapat",

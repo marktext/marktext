@@ -937,6 +937,8 @@
       "toggleTypewriterMode": "Typemachinestand in-/uitschakelen",
       "toggleFocusMode": "Focusstand in-/uitschakelen",
       "toggleSidebar": "Zijbalk in-/uitschakelen",
+      "outlineCollapseAll": "Inhoudsopgave: Alles inklappen",
+      "outlineExpandAll": "Inhoudsopgave: Alles uitklappen",
       "toggleToc": "Inhoudsopgave in-/uitschakelen",
       "toggleTabbar": "Tabbalk in-/uitschakelen",
       "toggleDevTools": "Ontwikkelaarshulpmiddelen in-/uitschakelen",

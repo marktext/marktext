@@ -937,6 +937,8 @@
       "toggleTypewriterMode": "Attiva/disattiva modalità macchina da scrivere",
       "toggleFocusMode": "Attiva/disattiva modalità focalizzata",
       "toggleSidebar": "Attiva/disattiva barra laterale",
+      "outlineCollapseAll": "Sommario: Comprimi tutto",
+      "outlineExpandAll": "Sommario: Espandi tutto",
       "toggleToc": "Attiva/disattiva sommario",
       "toggleTabbar": "Attiva/disattiva barra delle schede",
       "toggleDevTools": "Attiva/disattiva strumenti di sviluppo",

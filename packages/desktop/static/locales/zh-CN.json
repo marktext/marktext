@@ -937,6 +937,8 @@
       "toggleTypewriterMode": "切换打字机模式",
       "toggleFocusMode": "切换专注模式",
       "toggleSidebar": "切换侧边栏",
+      "outlineCollapseAll": "大纲：全部折叠",
+      "outlineExpandAll": "大纲：全部展开",
       "toggleToc": "切换目录",
       "toggleTabbar": "切换标签栏",
       "toggleDevTools": "切换开发者工具",

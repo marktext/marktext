@@ -100,6 +100,8 @@ const COMMANDS = Object.freeze({
   VIEW_TOGGLE_DEV_TOOLS: 'view.toggle-dev-tools',
   VIEW_TOGGLE_SIDEBAR: 'view.toggle-sidebar',
   VIEW_TOGGLE_TABBAR: 'view.toggle-tabbar',
+  VIEW_OUTLINE_COLLAPSE_ALL: 'view.outline-collapse-all',
+  VIEW_OUTLINE_EXPAND_ALL: 'view.outline-expand-all',
   VIEW_TOGGLE_TOC: 'view.toggle-toc',
   VIEW_TYPEWRITER_MODE: 'view.typewriter-mode',
 

@@ -119,6 +119,8 @@ const COMMAND_KEY_MAP: Record<string, string> = {
 
   'view.toggle-sidebar': 'commands.view.toggleSidebar',
   'view.toggle-tabbar': 'commands.view.toggleTabbar',
+  'view.outline-collapse-all': 'commands.view.outlineCollapseAll',
+  'view.outline-expand-all': 'commands.view.outlineExpandAll',
   'view.toggle-toc': 'commands.view.toggleToc',
 
   'view.toggle-source-code-mode': 'commands.view.toggleSourceCodeMode',

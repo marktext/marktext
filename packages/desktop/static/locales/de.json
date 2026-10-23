@@ -937,6 +937,8 @@
       "toggleTypewriterMode": "Schreibmaschinen-Modus umschalten",
       "toggleFocusMode": "Fokus-Modus umschalten",
       "toggleSidebar": "Seitenleiste umschalten",
+      "outlineCollapseAll": "Inhaltsverzeichnis: Alle einklappen",
+      "outlineExpandAll": "Inhaltsverzeichnis: Alle ausklappen",
       "toggleToc": "Inhaltsverzeichnis umschalten",
       "toggleTabbar": "Tab-Leiste umschalten",
       "toggleDevTools": "Entwicklertools umschalten",
