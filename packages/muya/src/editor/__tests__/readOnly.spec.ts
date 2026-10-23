@@ -24,6 +24,31 @@ afterEach(() => {
 });
 
 describe('reading mode', () => {
+    it('preserves editability across document loads without rewriting connected nodes', () => {
+        const muya = boot('First document');
+        const observer = new MutationObserver(() => {});
+        observer.observe(muya.domNode, { attributes: true, subtree: true, attributeFilter: ['contenteditable'] });
+        try {
+            muya.setContent('Second document\n\n| A | B |\n| --- | --- |\n| C | D |');
+            expect(observer.takeRecords()).toHaveLength(0);
+            expect(muya.domNode.contentEditable).toBe('true');
+
+            muya.setReadOnly(true);
+            expect(observer.takeRecords().length).toBeGreaterThan(0);
+            muya.setContent('Third document');
+            expect(observer.takeRecords()).toHaveLength(0);
+            expect(muya.domNode.contentEditable).toBe('false');
+            expect(muya.domNode.querySelector('.mu-content')?.getAttribute('contenteditable')).toBe('false');
+
+            muya.setReadOnly(false);
+            expect(muya.domNode.contentEditable).toBe('true');
+            expect(muya.domNode.querySelector('.mu-content')?.getAttribute('contenteditable')).toBe('true');
+        }
+        finally {
+            observer.disconnect();
+        }
+    });
+
     it.each(Object.values(locales))('refreshes reading labels and clipboard feedback in $name', async (locale) => {
         const muya = boot('```js\nconst value = 1\n```', true);
         const markdown = muya.getMarkdown();
