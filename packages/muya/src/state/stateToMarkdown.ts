@@ -1,3 +1,4 @@
+import type { TBlockSeparation } from './blockBoundary';
 import type {
     IAtxHeadingState,
     IBlockQuoteState,
@@ -24,6 +25,7 @@ import { githubAlertMarker } from '../utils/githubAlerts';
 
 import logger from '../utils/logger';
 import stringWidth from '../utils/stringWidth';
+import { BlockBoundaryResolver } from './blockBoundary';
 import { isAnyListState } from './types';
 
 const debug = logger('export markdown: ');
@@ -38,6 +40,8 @@ export interface IExportMarkdownOptions {
 }
 
 export default class ExportMarkdown {
+    private _blockBoundary = new BlockBoundaryResolver();
+
     // Open list metadata stack; innermost settings control nested item serialization.
     private _listType: (
         | IBulletListState['meta']
@@ -74,6 +78,7 @@ export default class ExportMarkdown {
     }
 
     generate(states: TState[]) {
+        this._blockBoundary.reset();
         return this._convertStatesToMarkdown(states);
     }
 
@@ -81,13 +86,15 @@ export default class ExportMarkdown {
         states: TState[],
         indent = '',
         listIndent = '',
+        isTightItem = false,
     ): string {
         const result: string[] = [];
         // helper for CommonMark 264
         let lastListBullet = '';
         let previousState: TState | undefined;
 
-        for (const state of states) {
+        for (const originalState of states) {
+            let state = originalState;
             if (
                 state.name !== 'order-list'
                 && state.name !== 'bullet-list'
@@ -121,7 +128,9 @@ export default class ExportMarkdown {
                 this._serializeListItemBlock(state, result, indent, listIndent);
             }
             else {
-                this._serializeSimpleBlock(state, result, indent);
+                const prepared = this._prepareBlockBoundary(state, previousState, isTightItem);
+                state = prepared.state;
+                this._serializeSimpleBlock(state, result, indent, prepared.separation);
             }
 
             previousState = state;
@@ -130,7 +139,28 @@ export default class ExportMarkdown {
         return result.join('');
     }
 
-    private _serializeSimpleBlock(state: TState, result: string[], indent: string) {
+    private _prepareBlockBoundary(state: TState, previous: TState | undefined, tightListItem: boolean) {
+        let separation: TBlockSeparation = previous
+            ? this._blockBoundary.resolve(previous, state, { tightListItem })
+            : 'adjacent';
+        if (separation === 'rewrite-required' && state.name === 'code-block') {
+            // Blank lines remain part of indented code. Fence the next
+            // block on output to keep two code blocks without mutating state.
+            state = { ...state, meta: { ...state.meta, type: 'fenced' } };
+            separation = tightListItem ? 'adjacent' : 'blank-line';
+        }
+        return { state, separation };
+    }
+
+    private _serializeSimpleBlock(
+        state: TState,
+        result: string[],
+        indent: string,
+        separation: TBlockSeparation,
+    ) {
+        if (state.name !== 'frontmatter' && separation !== 'adjacent')
+            this._insertLineBreak(result, indent);
+
         switch (state.name) {
             case 'frontmatter':
                 result.push(this._serializeFrontMatter(state));
@@ -139,42 +169,34 @@ export default class ExportMarkdown {
             case 'paragraph':
 
             case 'thematic-break':
-                this._insertLineBreak(result, indent);
                 result.push(this._serializeTextParagraph(state, indent));
                 break;
 
             case 'atx-heading':
-                this._insertLineBreak(result, indent);
                 result.push(this._serializeAtxHeading(state, indent));
                 break;
 
             case 'setext-heading':
-                this._insertLineBreak(result, indent);
                 result.push(this._serializeSetextHeading(state, indent));
                 break;
 
             case 'code-block':
-                this._insertLineBreak(result, indent);
                 result.push(this._serializeCodeBlock(state, indent));
                 break;
 
             case 'html-block':
-                this._insertLineBreak(result, indent);
                 result.push(this._serializeHtmlBlock(state, indent));
                 break;
 
             case 'math-block':
-                this._insertLineBreak(result, indent);
                 result.push(this._serializeMathBlock(state, indent));
                 break;
 
             case 'diagram':
-                this._insertLineBreak(result, indent);
                 result.push(this._serializeDiagramBlock(state, indent));
                 break;
 
             case 'github-alert': {
-                this._insertLineBreak(result, indent);
                 const prefix = `${indent}> `;
                 const body = this._convertStatesToMarkdown(state.children, prefix);
                 result.push(`${prefix}${githubAlertMarker(state.meta)}\n${state.meta.blankLineAfterMarker && body.trim() ? `${prefix}\n` : ''}${body}`);
@@ -182,17 +204,14 @@ export default class ExportMarkdown {
             }
 
             case 'block-quote':
-                this._insertLineBreak(result, indent);
                 result.push(this._serializeBlockquote(state, indent));
                 break;
 
             case 'table':
-                this._insertLineBreak(result, indent);
                 result.push(this._serializeTable(state, indent));
                 break;
 
             case 'footnote':
-                this._insertLineBreak(result, indent);
                 result.push(this._serializeFootnote(state, indent));
                 break;
 
@@ -289,7 +308,9 @@ export default class ExportMarkdown {
         if (loose)
             this._insertLineBreak(result, indent);
 
-        result.push(this._serializeListItem(state, indent + listIndent));
+        // An item of a tight list keeps its direct children blank-line free
+        // unless a pair of them genuinely needs a separator.
+        result.push(this._serializeListItem(state, indent + listIndent, !loose));
         this._isLooseParentList = true;
     }
 
@@ -581,6 +602,7 @@ export default class ExportMarkdown {
     private _serializeListItem(
         state: IListItemState | ITaskListItemState,
         indent: string,
+        isTightItem = false,
     ) {
         const result = [];
         const listInfo = this._listType[this._listType.length - 1];
@@ -637,7 +659,7 @@ export default class ExportMarkdown {
 
         result.push(`${indent}${itemMarker}`);
         result.push(
-            this._convertStatesToMarkdown(children, newIndent, listIndent).substring(
+            this._convertStatesToMarkdown(children, newIndent, listIndent, isTightItem).substring(
                 newIndent.length,
             ),
         );
