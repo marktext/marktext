@@ -8,6 +8,34 @@ test.beforeEach(async ({ page }) => {
     });
 });
 
+for (const type of ['NOTE', 'TIP', 'IMPORTANT', 'WARNING', 'CAUTION']) {
+    test(`hovering ${type} displays a loadable front-button icon`, async ({ page }, testInfo) => {
+        await page.evaluate(type => window.muya!.setContent(`> [!${type}]\n> Body`), type);
+        await page.locator('.mu-github-alert').hover();
+        const button = page.locator('.mu-front-button-wrapper');
+        await expect(button).toBeInViewport();
+        await expect(button).toHaveCSS('opacity', '1');
+        const icon = button.locator('i.paragraph .icon-inner');
+        const loaded = await icon.evaluate(async (element) => {
+            const background = getComputedStyle(element).backgroundImage;
+            const url = background.slice(4, -1).replace(/^"|"$/g, '');
+            const image = new Image();
+            image.src = url;
+            try {
+                await image.decode();
+                return image.naturalWidth > 0;
+            }
+            catch {
+                return false;
+            }
+        });
+        expect(loaded).toBe(true);
+        await testInfo.attach('alert-front-button', { body: await page.screenshot(), contentType: 'image/png' });
+        await button.locator('.mu-icon-wrapper').click();
+        await expect(page.locator('.mu-front-menu')).toBeInViewport();
+    });
+}
+
 test('Quick Insert creates the searched type at the caret', async ({ page }) => {
     await page.locator('.mu-paragraph-content').click();
     await page.keyboard.type('/caution');

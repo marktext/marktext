@@ -26,7 +26,7 @@ export function githubAlertIcon(type: GithubAlertType): string {
         WARNING: '<path d="m8 1.5 7 13H1zM8 6v3.5M8 11.5v.5"/>',
         CAUTION: '<path d="M5 1.5h6l3.5 3.5v6L11 14.5H5L1.5 11V5zM8 4v5M8 11v.5"/>',
     };
-    return `<svg class="mu-alert-icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${shapes[type]}</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" class="mu-alert-icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${shapes[type]}</svg>`;
 }
 
 export function githubAlertMenuIcon(type: GithubAlertType): string {
