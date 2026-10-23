@@ -331,6 +331,40 @@
     "enum": ["hand", "simple"],
     "default": "hand"
   },
+  "mermaidLightTheme": {
+    "description": "Markdown--Mermaid theme for light MarkText themes",
+    "enum": [
+      "default",
+      "forest",
+      "neutral",
+      "base",
+      "dark",
+      "neo",
+      "neo-dark",
+      "redux",
+      "redux-dark",
+      "redux-color",
+      "redux-dark-color"
+    ],
+    "default": "default"
+  },
+  "mermaidDarkTheme": {
+    "description": "Markdown--Mermaid theme for dark MarkText themes",
+    "enum": [
+      "default",
+      "forest",
+      "neutral",
+      "base",
+      "dark",
+      "neo",
+      "neo-dark",
+      "redux",
+      "redux-dark",
+      "redux-color",
+      "redux-dark-color"
+    ],
+    "default": "dark"
+  },
   "plantumlServer": {
     "description": "Markdown--PlantUML server URL for rendering diagrams",
     "type": "string",

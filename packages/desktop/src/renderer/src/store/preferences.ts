@@ -86,6 +86,8 @@ export interface PreferencesState {
   isHtmlEnabled: boolean
   softNewlineAsSpace: boolean
   sequenceTheme: SequenceTheme | string
+  mermaidLightTheme: string
+  mermaidDarkTheme: string
   plantumlServer: string
 
   theme: string
@@ -210,6 +212,8 @@ export const usePreferencesStore = defineStore('preferences', {
     isHtmlEnabled: true,
     softNewlineAsSpace: false,
     sequenceTheme: 'hand',
+    mermaidLightTheme: 'default',
+    mermaidDarkTheme: 'dark',
     plantumlServer: 'https://www.plantuml.com/plantuml',
 
     theme: 'light',

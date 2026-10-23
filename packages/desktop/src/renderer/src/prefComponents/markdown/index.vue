@@ -142,6 +142,20 @@
       </template>
       <template #children>
         <cur-select
+          :description="t('preferences.markdown.diagrams.mermaidLightTheme.title')"
+          :value="mermaidLightTheme"
+          :options="getMermaidThemeOptions()"
+          :on-change="(value) => onSelectChange('mermaidLightTheme', value)"
+          more="https://mermaid.js.org/config/theming.html"
+        />
+        <cur-select
+          :description="t('preferences.markdown.diagrams.mermaidDarkTheme.title')"
+          :value="mermaidDarkTheme"
+          :options="getMermaidThemeOptions()"
+          :on-change="(value) => onSelectChange('mermaidDarkTheme', value)"
+          more="https://mermaid.js.org/config/theming.html"
+        />
+        <cur-select
           :description="t('preferences.markdown.diagrams.sequenceTheme.title')"
           :value="sequenceTheme"
           :options="getSequenceThemeOptions()"
@@ -190,6 +204,7 @@ import {
   getPreferHeadingStyleOptions,
   getListIndentationOptions,
   getFrontmatterTypeOptions,
+  getMermaidThemeOptions,
   getSequenceThemeOptions
 } from './config'
 import { storeToRefs } from 'pinia'
@@ -217,6 +232,8 @@ const {
   githubAlerts,
   isHtmlEnabled,
   softNewlineAsSpace,
+  mermaidLightTheme,
+  mermaidDarkTheme,
   sequenceTheme,
   plantumlServer
 } = storeToRefs(preferenceStore)

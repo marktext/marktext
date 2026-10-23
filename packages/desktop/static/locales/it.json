@@ -459,6 +459,8 @@
         "isHtmlEnabled": "Abilita il rendering HTML",
         "softNewlineAsSpace": "Tratta i caratteri di fine riga 'morbidi' (soft newlines) come spazi",
         "sequenceTheme": "Tema del diagramma di sequenza",
+        "mermaidLightTheme": "Tema Mermaid per i temi chiari di MarkText",
+        "mermaidDarkTheme": "Tema Mermaid per i temi scuri di MarkText",
         "plantumlServer": "URL del server PlantUML",
         "theme": "Seleziona il tema da usare in MarkText",
         "followSystemTheme": "Segui il tema di sistema",
@@ -715,6 +717,12 @@
           "title": "Tema Sequenza",
           "handDrawn": "Disegnato a mano",
           "simple": "Semplice"
+        },
+        "mermaidLightTheme": {
+          "title": "Tema Mermaid per i temi chiari di MarkText"
+        },
+        "mermaidDarkTheme": {
+          "title": "Tema Mermaid per i temi scuri di MarkText"
         },
         "plantumlServer": {
           "title": "URL del server PlantUML"

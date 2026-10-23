@@ -133,7 +133,7 @@ import {
 } from '@/util/tocNavigation'
 import { findActiveHeadingSlug, type HeadingPosition } from '@/util/findActiveHeading'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
-import { isDarkThemeId } from 'common/theme'
+import { isDarkThemeId, resolveMermaidTheme } from 'common/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import {
   registerDocumentView,
@@ -229,6 +229,8 @@ const {
   imageRelativeDirectoryName,
   imageFolderPath,
   theme,
+  mermaidLightTheme,
+  mermaidDarkTheme,
   sequenceTheme,
   hideScrollbar,
   spellcheckerEnabled,
@@ -499,26 +501,18 @@ watch(tabSize, (value, oldValue) => {
   }
 })
 
-watch(theme, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    if (isDarkThemeId(value)) {
-      editor.value.setOptions(
-        {
-          mermaidTheme: 'dark',
-          vegaTheme: 'dark'
-        },
-        true
-      )
-    } else {
-      editor.value.setOptions(
-        {
-          mermaidTheme: 'default',
-          vegaTheme: 'latimes'
-        },
-        true
-      )
-    }
-  }
+watch([theme, mermaidLightTheme, mermaidDarkTheme], () => {
+  if (!editor.value) return
+  const dark = isDarkThemeId(theme.value)
+  const mermaidTheme = resolveMermaidTheme(
+    theme.value,
+    mermaidLightTheme.value,
+    mermaidDarkTheme.value
+  )
+  const vegaTheme = dark ? 'dark' : 'latimes'
+  const options = editor.value.options
+  if (mermaidTheme === options.mermaidTheme && vegaTheme === options.vegaTheme) return
+  editor.value.setOptions({ mermaidTheme, vegaTheme }, true)
 })
 
 watch(sequenceTheme, (value, oldValue) => {
@@ -1754,17 +1748,15 @@ onMounted(() => {
     getPathForFile: (file: File) => window.electron.webUtils.getPathForFile(file)
   }
 
-  if (isDarkThemeId(theme.value)) {
-    Object.assign(options, {
-      mermaidTheme: 'dark',
-      vegaTheme: 'dark'
-    })
-  } else {
-    Object.assign(options, {
-      mermaidTheme: 'default',
-      vegaTheme: 'latimes'
-    })
-  }
+  const darkTheme = isDarkThemeId(theme.value)
+  Object.assign(options, {
+    mermaidTheme: resolveMermaidTheme(
+      theme.value,
+      mermaidLightTheme.value,
+      mermaidDarkTheme.value
+    ),
+    vegaTheme: darkTheme ? 'dark' : 'latimes'
+  })
 
   // Keep the engine outside Vue proxies: DOM/block identity is required by rendering.
   const muya = markRaw(new Muya(ele, options))
