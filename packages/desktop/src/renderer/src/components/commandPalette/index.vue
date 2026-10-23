@@ -66,6 +66,7 @@
                       class="remove"
                       type="button"
                       :title="t('commandPalette.removeFromRecent')"
+                      @mousedown.prevent
                       @click.stop="removeCommand(item)"
                     >×</button>
                     <span class="shortcut">
@@ -177,6 +178,7 @@ const removeCommand = (item: CommandItem) => {
     selectedCommandIndex.value,
     availableCommands.value.length - 1
   )
+  nextTick(() => searchInput.value?.focus())
 }
 
 onBeforeUpdate(() => {
