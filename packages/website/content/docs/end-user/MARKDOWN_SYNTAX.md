@@ -977,6 +977,32 @@ C->>D: Open arrow
 D-->>A: Dashed open arrow
 ```
 
+#### Mermaid themes
+
+Mermaid diagrams follow the MarkText theme: light themes use Mermaid's `default`
+theme, dark themes use `dark`. A single diagram can pick another theme with a
+frontmatter block at the start of its fence. The themes bundled with Mermaid are
+`default`, `forest`, `dark`, `neutral` and `base`.
+
+```mermaid
+---
+config:
+  theme: forest
+---
+flowchart LR
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Success]
+    B -->|No| D[Retry]
+```
+
+The block only affects that diagram; diagrams without one keep following the
+MarkText theme. The equivalent directive form, `%%{init: {"theme": "forest"}}%%`,
+also works, and `themeVariables` in the same `config` object tunes individual
+colors — see [Mermaid's theming documentation](https://mermaid.js.org/config/theming.html).
+
+`dark` is designed for dark backgrounds, so on a light MarkText theme its pale
+text is hard to read.
+
 #### Mermaid flowchart
 
 ```mermaid
