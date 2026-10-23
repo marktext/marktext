@@ -5,10 +5,12 @@
   >
     <el-tree
       v-if="keyedToc.length"
+      :key="currentFile?.id"
       ref="tocTreeRef"
       :data="keyedToc"
       node-key="key"
       :default-expanded-keys="expandedKeys"
+      :auto-expand-parent="false"
       highlight-current
       :props="defaultProps"
       :expand-on-click-node="false"
@@ -101,47 +103,73 @@ const labelHtmlOf = (data: TocNodeData): string => {
   return html ? sanitize(html, TOC_DOMPURIFY_CONFIG) : escapeHtml(plainLabel(data))
 }
 
-const { toc } = storeToRefs(editorStore)
+const { toc, currentFile } = storeToRefs(editorStore)
 const { wordWrapInToc } = storeToRefs(preferencesStore)
 
 // Stable per-node key so el-tree preserves the user's expand/collapse state
 // across content edits (#3028) and tab switches (#3791). See deriveKeyedToc.
 const keyedToc = computed<KeyedTocNode[]>(() => deriveKeyedToc(toc.value))
 
-// Track which headings the user collapsed, by stable key (#3028). Headings are
-// expanded by default; a collapse is remembered here.
-const collapsedKeys = ref<Set<string>>(new Set())
-const collapsedByFile = new Map<string, Set<string>>()
-watch(() => editorStore.currentFile?.id, (id, previousId) => {
+const collapsedKeys = computed(() => new Set(currentFile.value?.tocCollapsedKeys ?? []))
+let restoringTree = false
+watch(() => currentFile.value?.id, () => {
   preserveOutlinePosition = false
-  if (previousId) collapsedByFile.set(previousId, collapsedKeys.value)
-  collapsedKeys.value = id ? collapsedByFile.get(id) ?? new Set() : new Set()
 })
 
 const onCollapse = (data: { key?: string }): void => {
-  if (data.key) collapsedKeys.value = new Set(collapsedKeys.value).add(data.key)
+  if (restoringTree || !currentFile.value || !data.key) return
+  currentFile.value.tocCollapsedKeys = [...new Set(collapsedKeys.value).add(data.key)]
 }
 
 const onExpand = (data: { key?: string }): void => {
-  if (!data.key) return
+  if (restoringTree || !currentFile.value || !data.key) return
   const next = new Set(collapsedKeys.value)
   next.delete(data.key)
-  collapsedKeys.value = next
+  currentFile.value.tocCollapsedKeys = [...next]
 }
 
-// Exclude collapsed nodes and their descendants so tree rebuilds preserve collapse state.
+// Hidden descendants keep their own state, without expanding their ancestors.
 const expandedKeys = computed<string[]>(() => {
   const keys: string[] = []
-  const walk = (nodes: KeyedTocNode[], hiddenByAncestor: boolean): void => {
+  const walk = (nodes: KeyedTocNode[]): void => {
     for (const node of nodes) {
-      const collapsed = hiddenByAncestor || collapsedKeys.value.has(node.key)
-      if (!collapsed) keys.push(node.key)
-      walk(node.children, collapsed)
+      if (!collapsedKeys.value.has(node.key)) keys.push(node.key)
+      walk(node.children)
     }
   }
-  walk(keyedToc.value, false)
+  walk(keyedToc.value)
   return keys
 })
+
+watch([() => currentFile.value?.id, keyedToc, collapsedKeys], async() => {
+  const tabId = currentFile.value?.id
+  const nodes = keyedToc.value
+  await nextTick()
+  if (tabId !== currentFile.value?.id || nodes !== keyedToc.value) return
+  const tree = tocTreeRef.value
+  if (!tree) return
+
+  // default-expanded-keys only expands nodes; a rebuilt tree also needs collapses.
+  const restore = (items: KeyedTocNode[]): void => {
+    for (const item of items) {
+      const node = tree.getNode(item.key)
+      if (node) {
+        const expanded = !collapsedKeys.value.has(item.key)
+        if (node.expanded !== expanded) {
+          if (expanded) node.expand(undefined, false)
+          else node.collapse()
+        }
+      }
+      restore(item.children)
+    }
+  }
+  restoringTree = true
+  try {
+    restore(nodes)
+  } finally {
+    restoringTree = false
+  }
+}, { flush: 'post', immediate: true })
 
 // The store names the caret's heading by engine slug; el-tree keys its nodes by
 // githubSlug. Both sit on the same node, so one resolves to the other.

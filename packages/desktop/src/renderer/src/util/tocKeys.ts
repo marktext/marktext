@@ -19,6 +19,7 @@ interface TocLike {
 // deduplicated in document order so duplicate headings stay distinct. This is
 // stable across content edits (#3028) AND across a document reload / tab switch
 // (#3791) — unlike the per-render object id `slug`, which every switch rebuilds.
+// Tuple encoding keeps repeated `a` distinct from a literal `a-1` heading.
 // `slug` is still carried for the click-to-scroll anchor payload.
 export function deriveKeyedToc(nodes: TocLike[]): KeyedTocNode[] {
   const seen = new Map<string, number>()
@@ -29,7 +30,7 @@ export function deriveKeyedToc(nodes: TocLike[]): KeyedTocNode[] {
       const count = seen.get(base) ?? 0
       seen.set(base, count + 1)
       return {
-        key: count === 0 ? base : `${base}-${count}`,
+        key: JSON.stringify([base, count]),
         label: node.label,
         labelHtml: node.labelHtml,
         slug: node.slug,

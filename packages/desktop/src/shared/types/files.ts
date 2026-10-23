@@ -85,6 +85,8 @@ export interface IFileState {
   wordCount: FileWordCount
   searchMatches: FileSearchMatches
   scrollTop: number
+  // View state for this open tab; deliberately excluded from buffered persistence.
+  tocCollapsedKeys?: string[]
   muyaIndexCursor: unknown
   notifications: FileNotification[]
   lastSavedHistoryId?: number
