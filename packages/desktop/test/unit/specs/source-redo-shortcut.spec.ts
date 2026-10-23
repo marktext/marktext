@@ -38,12 +38,15 @@ const press = (editor: CodeMirror.Editor, keyCode: number, shiftKey = false) => 
 }
 
 describe('source mode redo shortcuts (#2183)', () => {
-  it('suppresses Ctrl+Shift+Z on Windows while Ctrl+Y redoes exactly once', () => {
+  it('leaves Windows redo to the application command instead of native key bindings', () => {
     const editor = createEditor(true)
     press(editor, 90, true)
     expect(editor.getValue()).toBe('before')
     expect(editor.historySize().redo).toBe(1)
     press(editor, 89)
+    expect(editor.getValue()).toBe('before')
+    expect(editor.historySize().redo).toBe(1)
+    editor.execCommand('redo')
     expect(editor.getValue()).toBe('after')
     expect(editor.historySize().redo).toBe(0)
   })

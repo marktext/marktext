@@ -1,8 +1,8 @@
-ew.source-code-m# Key Bindings for Windows
+# Key Bindings for Windows
 
 MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS.md) for information how to use custom key bindings.
 
-Redo uses <kbd>Ctrl</kbd>+<kbd>Y</kbd>. The previous default, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>, is no longer a default shortcut in either editing mode. Explicit custom key bindings are preserved.
+Redo uses <kbd>Ctrl</kbd>+<kbd>Y</kbd>. The previous default, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>, is no longer a default application shortcut. Explicit custom key bindings are preserved.
 
 ## Available menu key bindings
 

@@ -53,8 +53,28 @@ describe('Windows redo shortcut (#2183)', () => {
   })
 
   it.each(['Ctrl+Shift+Z', ''])('preserves an explicit user binding of %j', (accelerator) => {
-    const { bindings } = makeKeybindings({ 'edit.redo': accelerator })
+    const { bindings, execute } = makeKeybindings({ 'edit.redo': accelerator })
+    const win = {} as Parameters<Keybindings['registerEditorKeyHandlers']>[0]
+    bindings.registerEditorKeyHandlers(win)
     expect(bindings.getAccelerator('edit.redo')).toBe(accelerator || null)
+    expect(register.mock.calls.some(([, registered]) => registered === 'Ctrl+Y')).toBe(false)
+    if (accelerator) {
+      const registration = register.mock.calls.find(([, registered]) => registered === accelerator)
+      if (!registration) throw new Error('Custom redo shortcut was not registered')
+      registration[2]()
+      expect(execute).toHaveBeenCalledExactlyOnceWith('edit.redo', win)
+    }
+  })
+
+  it('lets another user command take over Ctrl+Y', () => {
+    const { bindings, execute } = makeKeybindings({ 'format.inline-code': 'Ctrl+Y' })
+    const win = {} as Parameters<Keybindings['registerEditorKeyHandlers']>[0]
+    bindings.registerEditorKeyHandlers(win)
+    expect(bindings.getAccelerator('edit.redo')).toBeNull()
+    const registrations = register.mock.calls.filter(([, accelerator]) => accelerator === 'Ctrl+Y')
+    expect(registrations).toHaveLength(1)
+    registrations[0][2]()
+    expect(execute).toHaveBeenCalledExactlyOnceWith('format.inline-code', win)
   })
 
   it('keeps Ctrl+Y distinct from other Windows commands and preserves other platforms', () => {
