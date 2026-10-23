@@ -15,7 +15,18 @@ describe('deriveKeyedToc', () => {
       { label: 'Intro', slug: 'uid-1', githubSlug: 'intro', children: [] },
       { label: 'Intro', slug: 'uid-2', githubSlug: 'intro', children: [] }
     ])
-    expect(keyed.map((n) => n.key)).toEqual(['intro', 'intro-1'])
+    expect(keyed.map((n) => n.key)).toEqual(['["intro",0]', '["intro",1]'])
+  })
+
+  it('keeps repeated headings distinct from headings with numeric suffixes', () => {
+    const keyed = deriveKeyedToc([
+      { githubSlug: 'a' },
+      { githubSlug: 'a', children: [{ githubSlug: 'a-1' }] },
+      { githubSlug: 'a-1' },
+      { githubSlug: '["a",0]' }
+    ])
+    const keys = flatKeys(keyed)
+    expect(new Set(keys).size).toBe(keys.length)
   })
 
   it('produces identical keys when the same document is rebuilt with fresh slugs (tab switch)', () => {
@@ -35,7 +46,7 @@ describe('deriveKeyedToc', () => {
     const after = deriveKeyedToc(doc('new'))
 
     expect(flatKeys(after)).toEqual(flatKeys(before))
-    expect(flatKeys(after)).toEqual(['a', 'b', 'c'])
+    expect(flatKeys(after)).toEqual(['["a",0]', '["b",0]', '["c",0]'])
   })
 
   it('falls back to a stable placeholder for unsluggable headings', () => {
@@ -43,7 +54,7 @@ describe('deriveKeyedToc', () => {
       { label: '🎉', slug: 'uid-1', githubSlug: '', children: [] },
       { label: '🎊', slug: 'uid-2', githubSlug: '', children: [] }
     ])
-    expect(keyed.map((n) => n.key)).toEqual(['heading', 'heading-1'])
+    expect(keyed.map((n) => n.key)).toEqual(['["heading",0]', '["heading",1]'])
   })
 
   it('preserves slug (for the scroll-to-heading payload) while keying by githubSlug', () => {
@@ -51,7 +62,7 @@ describe('deriveKeyedToc', () => {
       { label: 'A', slug: 'uid-42', githubSlug: 'a', children: [] }
     ])
     expect(keyed[0].slug).toBe('uid-42')
-    expect(keyed[0].key).toBe('a')
+    expect(keyed[0].key).toBe('["a",0]')
   })
 
   it('carries the rendered heading HTML through for display (#3110)', () => {
