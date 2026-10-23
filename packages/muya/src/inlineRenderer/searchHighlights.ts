@@ -19,14 +19,13 @@ function firstHighlightEndingAfter(highlights: readonly IHighlight[], offset: nu
 function intersectingHighlights(
     range: ITokenRange,
     highlights: readonly IHighlight[],
-    ordered: boolean,
 ): IHighlight[] {
     const matches: IHighlight[] = [];
-    const first = ordered ? firstHighlightEndingAfter(highlights, range.start) : 0;
+    const first = firstHighlightEndingAfter(highlights, range.start);
 
     for (let i = first; i < highlights.length; i++) {
         const highlight = highlights[i];
-        if (ordered && highlight.start >= range.end)
+        if (highlight.start >= range.end)
             break;
 
         const intersection = intersectRanges(range, highlight);
@@ -39,18 +38,14 @@ function intersectingHighlights(
 
 // Annotate a fresh token tree with block-relative search ranges. Parents need
 // their own highlights for syntax markers; their children render the content.
+// Search supplies ranges with nondecreasing starts and ends.
 export function applySearchHighlights(tokens: readonly Token[], highlights: readonly IHighlight[]): void {
     if (!highlights.length)
         return;
 
-    // Starts and ends must both be nondecreasing: ends drive binary lookup,
-    // while starts allow early exit. Arbitrary ranges retain their input order.
-    const ordered = highlights.every((highlight, i) => i === 0
-        || (highlights[i - 1].start <= highlight.start && highlights[i - 1].end <= highlight.end));
-
     const visitTokens = (tokens: readonly Token[]): void => {
         for (const token of tokens) {
-            const matches = intersectingHighlights(token.range, highlights, ordered);
+            const matches = intersectingHighlights(token.range, highlights);
             if (matches.length)
                 token.highlights = matches;
 

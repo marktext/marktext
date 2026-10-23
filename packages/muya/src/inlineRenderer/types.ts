@@ -40,6 +40,7 @@ export interface ITokenizerFacOptions {
 }
 
 export interface ITokenizerOptions {
+    // Block-relative search ranges with nondecreasing starts and ends.
     highlights?: IHighlight[];
     hasBeginRules?: boolean;
     labels?: Labels;
