@@ -35,6 +35,10 @@ describe('outline text and HTML keep the same visible content', () => {
         ['https://example.com?a=1&b=2', 'https://example.com?a=1&b=2', 'https://example.com?a=1&amp;b=2'],
         ['one\ntwo  \nthree', 'one two three', 'one two three'],
         ['# heading #', 'heading', 'heading'],
+        ['title #', 'title #', 'title #'],
+        ['# title # #', 'title #', 'title #'],
+        ['## ###', '', ''],
+        ['# **title #**', 'title #', '<strong>title #</strong>'],
         ['[label]: https://example.com', '', ''],
     ])('renders %j without leaking source markers or unsafe HTML', (markdown, text, html) => {
         const tokens = tokenizer(markdown, {
@@ -47,5 +51,12 @@ describe('outline text and HTML keep the same visible content', () => {
         const container = document.createElement('div');
         container.innerHTML = html;
         expect(container.textContent).toBe(text);
+    });
+
+    it('keeps literal hashes when block-prefix parsing is disabled', () => {
+        const tokens = tokenizer('# title #', { hasBeginRules: false });
+        expect(tokens.some(token => token.type === 'tail_header')).toBe(false);
+        expect(tokensToPlainText(tokens)).toBe('# title #');
+        expect(tokensToInlineHtml(tokens)).toBe('# title #');
     });
 });

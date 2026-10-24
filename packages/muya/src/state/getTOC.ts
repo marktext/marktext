@@ -57,9 +57,7 @@ export function getTOC(muya: Muya): ITocItem[] {
             hasBeginRules: blockName === 'atx-heading',
             labels,
             options: { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff },
-        }).map(token => blockName === 'setext-heading' && token.type === 'tail_header'
-            ? { ...token, type: 'text' as const, content: token.raw }
-            : token);
+        });
 
         const content = tokensToPlainText(tokens).trim();
         const contentHtml = tokensToInlineHtml(tokens).trim();

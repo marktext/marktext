@@ -763,11 +763,14 @@ function tryHardLineBreak(state: ILexState): boolean {
 }
 
 function tryTailHeader(state: ILexState): boolean {
+    if (!state.top || state.tokens[0]?.type !== 'header')
+        return false;
+
     // For an empty ATX body, the opening token already consumed the separator.
-    const afterOpening = state.tokens.length === 1 && state.tokens[0].type === 'header' && !state.pending;
+    const afterOpening = state.tokens.length === 1 && !state.pending;
     const tailTo = state.inlineRules.tail_header.exec(state.src)
         ?? (afterOpening ? /^(#+)(\s*)$/.exec(state.src) : null);
-    if (!(tailTo && state.top))
+    if (!tailTo)
         return false;
 
     pushPending(state);
