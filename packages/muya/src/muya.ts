@@ -292,6 +292,11 @@ export class Muya {
         return this.editor.transact(command, true);
     }
 
+    /** The conversion must activate its result so selection endpoints can be mapped in the same transaction. */
+    withPreservedSelection(command: () => void): void {
+        this.transact(() => this._withPreservedOffset(command));
+    }
+
     getTOC(): ITocItem[] {
         return this.editor.jsonState.getTOC();
     }

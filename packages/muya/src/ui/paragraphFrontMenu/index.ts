@@ -78,6 +78,8 @@ export class ParagraphFrontMenu extends BaseFloat {
         };
 
         eventCenter.attachDOMEvent(container!, 'mouseleave', enterLeaveHandler);
+        // Keep the native selection available when the conversion records history.
+        eventCenter.attachDOMEvent(container!, 'mousedown', event => event.preventDefault());
     }
 
     private _renderSubMenu(subMenu: IQuickInsertMenuItem['children']) {
@@ -278,12 +280,17 @@ export class ParagraphFrontMenu extends BaseFloat {
                     = block.blockName === 'paragraph'
                         ? rawText
                         : atxHeadingBody(rawText);
-                replaceBlockByLabel({
+                const replace = () => replaceBlockByLabel({
                     block,
                     label,
                     muya,
                     text,
                 });
+                const { selection } = muya.editor;
+                if (selection.anchorBlock?.parent === block && selection.focusBlock?.parent === block)
+                    muya.withPreservedSelection(replace);
+                else
+                    muya.transact(replace);
 
                 return null;
             }
