@@ -55,6 +55,31 @@
       </div>
     </section>
 
+    <template v-if="customThemes.length">
+      <h4 class="custom-themes-title">
+        {{ t('preferences.theme.customThemes') }}
+      </h4>
+      <section class="offcial-themes">
+        <div
+          v-for="item of customThemes"
+          :key="item.id"
+          class="theme custom"
+          :class="[
+            item.type,
+            {
+              active: item.id === theme,
+              disabled: followSystemTheme
+            }
+          ]"
+          @click="!followSystemTheme && onSelectChange('theme', item.id)"
+        >
+          <div class="theme-name">
+            {{ item.name }}
+          </div>
+        </div>
+      </section>
+    </template>
+
     <div class="custom-css">
       <div class="description">
         {{ t('preferences.theme.customCss') }}
@@ -70,21 +95,24 @@
         "
       />
     </div>
-    <separator v-show="false" />
-    <section
-      v-show="false"
-      class="import-themes ag-underdevelop"
-    >
+    <separator />
+    <section class="import-themes">
       <div>
         <span>{{ t('preferences.theme.openThemesFolder') }}</span>
-        <el-button size="small">
+        <el-button
+          size="small"
+          @click="onOpenThemesFolder"
+        >
           {{ t('preferences.theme.openFolder') }}
         </el-button>
       </div>
 
       <div>
         <span>{{ t('preferences.theme.importCustomThemes') }}</span>
-        <el-button size="small">
+        <el-button
+          size="small"
+          @click="onImportTheme"
+        >
           {{ t('preferences.theme.importTheme') }}
         </el-button>
       </div>
@@ -93,7 +121,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import { usePreferencesStore } from '@/store/preferences'
 import type { PreferencesState } from '@/store/preferences'
 import { storeToRefs } from 'pinia'
@@ -101,6 +130,8 @@ import { isDarkThemeId } from 'common/theme'
 import { useI18n } from 'vue-i18n'
 import themeMd from './theme.md?raw'
 import { themes as configThemes } from './config'
+import { loadCustomThemes } from '@/util/customThemes'
+import type { CustomThemeDescriptor } from '@shared/types/theme'
 import markdownToHtml from '@/util/markdownToHtml'
 import Bool from '../common/bool/index.vue'
 import CurSelect from '../common/select/index.vue'
@@ -113,6 +144,7 @@ interface ThemePreview {
 }
 
 const themes = ref<ThemePreview[]>([])
+const customThemes = ref<CustomThemeDescriptor[]>([])
 
 const { t } = useI18n()
 const preferenceStore = usePreferencesStore()
@@ -120,18 +152,32 @@ const preferenceStore = usePreferencesStore()
 const { followSystemTheme, lightModeTheme, darkModeTheme, theme, customCss } =
   storeToRefs(preferenceStore)
 
-const themeOptions: PrefSelectOption<string>[] = configThemes.map((theme) => ({
-  label: theme.name
+const titleCaseThemeName = (name: string): string =>
+  name
     .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' '),
-  value: theme.name
-}))
+    .join(' ')
 
-const lightThemeOptions = themeOptions.filter((option) => !isDarkThemeId(option.value))
-const darkThemeOptions = themeOptions.filter((option) => isDarkThemeId(option.value))
+const themeOptions = computed<PrefSelectOption<string>[]>(() => [
+  ...configThemes.map((themeItem) => ({
+    label: titleCaseThemeName(themeItem.name),
+    value: themeItem.name
+  })),
+  ...customThemes.value.map((item) => ({ label: item.name, value: item.id }))
+])
+
+const isDarkOption = (id: string): boolean =>
+  isDarkThemeId(id) || customThemes.value.some((item) => item.id === id && item.type === 'dark')
+
+const lightThemeOptions = computed(() =>
+  themeOptions.value.filter((option) => !isDarkOption(option.value))
+)
+const darkThemeOptions = computed(() =>
+  themeOptions.value.filter((option) => isDarkOption(option.value))
+)
 
 onMounted(async () => {
+  customThemes.value = await loadCustomThemes()
   const newThemes: ThemePreview[] = []
   for (const theme of configThemes) {
     const html = await markdownToHtml(themeMd.replace(/{theme}/, theme.name))
@@ -145,6 +191,21 @@ onMounted(async () => {
 
 const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
+}
+
+const onOpenThemesFolder = (): void => {
+  window.themes.openFolder()
+}
+
+const onImportTheme = async (): Promise<void> => {
+  const result = await window.themes.importCustom()
+  if (result.status === 'imported' && result.theme) {
+    customThemes.value = await loadCustomThemes()
+    // Select and apply the newly imported theme.
+    onSelectChange('theme', result.theme.id)
+  } else if (result.status !== 'cancelled') {
+    ElMessage.error(result.message ?? t('preferences.theme.importFailed'))
+  }
 }
 </script>
 
@@ -462,6 +523,25 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
     overflow: hidden;
     text-overflow: ellipsis;
   }
+}
+
+.custom-themes-title {
+  margin: 18px 0 0;
+  font-size: 14px;
+}
+
+.offcial-themes .theme.custom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.offcial-themes .theme.custom .theme-name {
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+  word-break: break-word;
 }
 
 .custom-css {

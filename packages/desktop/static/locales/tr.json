@@ -777,7 +777,9 @@
       "importCustomThemes": "Özel temaları içe aktar",
       "importTheme": "Temayı İçe Aktar",
       "openFolder": "Klasör Aç",
-      "openThemesFolder": "Temalar klasörünü aç"
+      "openThemesFolder": "Temalar klasörünü aç",
+      "customThemes": "Custom Themes",
+      "importFailed": "Could not import the theme."
     },
     "keybindings": {
       "title": "Kısayol Tuşları",
