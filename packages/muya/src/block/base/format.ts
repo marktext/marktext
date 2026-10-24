@@ -960,7 +960,6 @@ class Format extends Content {
     // The item becomes a task item; an ordered list keeps its numbering.
     private _convertToTaskList() {
         const { text, parent, muya, hasSelection } = this;
-        const { preferLooseListItem } = muya.options;
         const listItem = parent!.parent!;
         const list = listItem?.parent as BulletList | OrderList;
         const matches = text.match(/^\[([x ])\] {1,4}([\s\S]*)$/i);
@@ -975,16 +974,17 @@ class Format extends Content {
         }
 
         const offset = list.offset(listItem);
+        const { loose } = list.meta;
         const ordered = list.blockName === 'order-list';
         const meta: ITaskListState['meta'] = ordered
             ? {
                     ordered: true,
-                    loose: preferLooseListItem,
+                    loose,
                     start: (list.meta as IOrderListState['meta']).start + offset,
                     delimiter: (list.meta as IOrderListState['meta']).delimiter,
                 }
             : {
-                    loose: preferLooseListItem,
+                    loose,
                     marker: (list.meta as IBulletListState['meta']).marker,
                 };
         const listState: ITaskListState = {
@@ -1037,7 +1037,7 @@ class Format extends Content {
                     const path = list.path;
                     path.pop();
                     path.push('meta', 'start');
-                    list.jsonState.replaceOperation(
+                    list.transactions.replaceOperation(
                         path,
                         oldStart,
                         listMeta.start,
@@ -1056,7 +1056,7 @@ class Format extends Content {
                     ? {
                             name: 'order-list',
                             meta: {
-                                loose: preferLooseListItem,
+                                loose,
                                 start: (list.meta as IOrderListState['meta']).start + offset + 1,
                                 delimiter: (list.meta as IOrderListState['meta']).delimiter,
                             },
@@ -1065,7 +1065,7 @@ class Format extends Content {
                     : {
                             name: 'bullet-list',
                             meta: {
-                                loose: preferLooseListItem,
+                                loose,
                                 marker: (list.meta as IBulletListState['meta']).marker,
                             },
                             children: [],

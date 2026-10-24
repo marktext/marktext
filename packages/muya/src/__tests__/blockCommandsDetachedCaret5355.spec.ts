@@ -4,11 +4,9 @@ import type Content from '../block/base/content';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../muya';
 
-// Undoing the first edit after `setContent` restores no caret (its undo entry
-// has no selection), and `setContent` without autoFocus rebuilds the tree
-// under the caret. Both leave the caret caches on a block that is no longer in
-// the document; commands anchored to that block must do nothing rather than
-// throw on its missing parent (#5355).
+// Legacy history can omit the undo caret; setContent without autoFocus also
+// leaves cached blocks detached. Commands must reject either stale target
+// without mutating the current document (#5355).
 
 const bootedMuyas: Muya[] = [];
 
@@ -51,7 +49,10 @@ const DETACHING_SETUPS: [string, () => { muya: Muya; markdown: string }][] = [
         const muya = bootMuya('Hello\n\nWorld\n');
         placeCaretAtEnd(muya, 'Hello');
         muya.insertParagraph('after', 'abc');
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
+        const history = muya.getHistory();
+        history.stack.undo[0].selection = null;
+        muya.setHistory(history);
         expect(undoEntrySelections(muya)).toEqual([null]);
         muya.undo();
         return { muya, markdown: 'Hello\n\nWorld\n' };
@@ -78,7 +79,7 @@ describe('block commands while the caret caches point at a detached block (#5355
                 expect(muya.editor.activeContentBlock?.outMostBlock).toBeNull();
 
                 expect(() => run(muya)).not.toThrow();
-                muya.editor.jsonState.flush();
+                muya.editor.transactions.flush();
                 expect(muya.getMarkdown()).toBe(markdown);
             });
         }

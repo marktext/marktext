@@ -402,7 +402,7 @@ class Content extends TreeNode {
         if (oldText !== text) {
             const diffs = diff(oldText, text);
 
-            this.jsonState.editOperation(path, diffToTextOp(diffs));
+            this.transactions.editOperation(path, diffToTextOp(diffs));
         }
     }
 

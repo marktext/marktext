@@ -64,7 +64,7 @@ describe('setextHeadingContent.backspaceHandler (#5035)', () => {
         const event = pressBackspace(heading);
 
         expect(event.defaultPrevented).toBe(true);
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
         expect(muya.getMarkdown()).toBe('- one\n- two\n\nHeading\n');
         expect(muya.editor.scrollPage!.lastChild?.blockName).toBe('paragraph');
     });

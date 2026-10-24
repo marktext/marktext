@@ -222,7 +222,7 @@ describe('format.backspaceHandler — edits that change the block type (#5388)',
         const event = pressBackspace(content);
 
         expect(event.defaultPrevented).toBe(true);
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
         expect(muya.getMarkdown()).toBe('#Heading\n');
         expect(muya.editor.scrollPage!.firstChild?.blockName).toBe('paragraph');
         expect(muya.editor.scrollPage!.firstContentInDescendant()!.getCursor()!.start.offset).toBe(1);
@@ -239,7 +239,7 @@ describe('format.backspaceHandler — edits that change the block type (#5388)',
 
         pressBackspace(heading);
 
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
         expect(muya.getMarkdown()).toBe('\n');
         expect(muya.editor.scrollPage!.firstChild?.blockName).toBe('paragraph');
     });
@@ -249,7 +249,7 @@ describe('format.backspaceHandler — edits that change the block type (#5388)',
         const content = caretInFirstBlock(muya, 1);
         pressBackspace(content);
 
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
         expect(muya.getMarkdown()).toBe('# Heading\n');
         expect(muya.getState()).toEqual([
             { name: 'atx-heading', meta: { level: 1 }, text: '# Heading' },

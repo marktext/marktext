@@ -38,7 +38,7 @@ test('undo that fails to rebuild a block re-syncs from state and never empties t
         const sp = (window.muya as any).editor.scrollPage;
         sp.firstChild.firstContentInDescendant().setCursor(0, 0, true);
         window.muya!.resetToParagraph(sp.firstChild);
-        (window.muya as any).editor.jsonState.flush();
+        (window.muya as any).flush();
     });
     expect((await liveTree(page)).md).not.toContain('- ');
 
@@ -57,7 +57,7 @@ test('undo that fails to rebuild a block re-syncs from state and never empties t
         };
         try {
             window.muya!.undo();
-            (window.muya as any).editor.jsonState.flush();
+            (window.muya as any).flush();
         }
         finally {
             SP.loadBlock = real;

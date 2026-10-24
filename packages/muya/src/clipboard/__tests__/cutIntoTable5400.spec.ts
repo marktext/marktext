@@ -86,7 +86,7 @@ function cut(muya: Muya, anchor: Content, anchorOffset: number, focus: Content, 
 }
 
 function expectNoDrift(muya: Muya): void {
-    muya.editor.jsonState.flush();
+    muya.editor.transactions.flush();
     const tree: TState[] = [];
     muya.editor.scrollPage!.forEach(block => tree.push((block as Parent).getState()));
     expect(muya.editor.jsonState.getState()).toEqual(tree);

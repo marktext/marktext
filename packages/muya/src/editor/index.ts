@@ -5,6 +5,7 @@ import type { Muya } from '../muya';
 import type { IHistorySelection } from '../selection/types';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
+import type { ICompletedTransaction, ITransactionOptions } from './transactions';
 import * as otText from 'ot-text-unicode';
 import { fromEvent, merge } from 'rxjs';
 import { registerBlocks } from '../block';
@@ -16,12 +17,14 @@ import InlineRenderer from '../inlineRenderer';
 import { Search } from '../search';
 import Selection from '../selection';
 import JSONState from '../state';
+import { createChangePayload } from '../state/changePayload';
 import { ChangeSource } from '../types';
-import { hasPick, isHTMLElement } from '../utils';
+import { deepClone, hasPick, isHTMLElement } from '../utils';
 import { getBlock } from '../utils/dom';
 import logger from '../utils/logger';
 import { attachDragDropImageHandlers } from './dragDropImage';
 import { attachLinkMouseHandlers } from './linkMouseEvents';
+import { EditTransactions } from './transactions';
 
 const debug = logger('editor:');
 
@@ -39,6 +42,8 @@ type BlockNode = {
     insertBefore?: (newBlock: BlockNode, ref: BlockNode, source: ChangeSource) => void;
     append?: (newBlock: BlockNode, source: ChangeSource) => void;
     update?: (value?: unknown, source?: ChangeSource) => void;
+    setLoose?: (loose: boolean) => void;
+    setChecked?: (checked: boolean) => void;
     blockName?: string;
     align?: string;
     _text?: string;
@@ -166,7 +171,14 @@ function drop(root: BlockNode, descent: JSONOpList, muya: Muya): BlockNode {
         else {
             switch (key) {
                 case 'checked': {
-                    ref?.update?.(comp.i, ChangeSource.Api);
+                    if (typeof comp.i === 'boolean')
+                        cur?.setChecked?.(comp.i);
+                    break;
+                }
+
+                case 'loose': {
+                    if (typeof comp.i === 'boolean')
+                        cur?.setLoose?.(comp.i);
                     break;
                 }
 
@@ -238,6 +250,7 @@ function drop(root: BlockNode, descent: JSONOpList, muya: Muya): BlockNode {
 
 export class Editor {
     jsonState: JSONState;
+    transactions: EditTransactions;
     inlineRenderer: InlineRenderer;
     selection: Selection;
     searchModule: Search;
@@ -251,6 +264,18 @@ export class Editor {
         const state = _muya.options.json || _muya.options.markdown || '';
 
         this.jsonState = new JSONState(_muya, state);
+        this.transactions = new EditTransactions(
+            this.jsonState,
+            () => _muya.options,
+            transaction => this._commitTransaction(transaction),
+            () => _muya.runDocumentUpdate(() => this.scrollPage?.updateState(this.jsonState.getState())),
+            (operation, options, preview) => this._updateBlocks(
+                operation,
+                options.view ?? 'incremental',
+                options.selection ?? null,
+                () => deepClone(preview) as TState[],
+            ),
+        );
         this.inlineRenderer = new InlineRenderer(_muya);
         this.selection = new Selection(_muya);
         this.searchModule = new Search(_muya);
@@ -355,7 +380,7 @@ export class Editor {
             fromEvent(domNode, 'keyup'),
             fromEvent(domNode, 'compositionend'),
             fromEvent(domNode, 'compositionstart'),
-        ).subscribe(eventHandler);
+        ).subscribe(event => this.transact(() => eventHandler(event)));
     }
 
     focus() {
@@ -400,32 +425,81 @@ export class Editor {
         firstLeafBlock.setCursor(0, 0, needUpdated);
     }
 
-    updateContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: ChangeSource) {
-        const muya = this._muya;
-        if (!muya.canMutate)
-            return;
-        // ot-json1 no-op (`null`) is forwarded to dispatch — JSONState
-        // short-circuits internally so listeners still see a json-change
-        // event for the no-op.
-        this.jsonState.dispatch(operations, source);
-
-        // Codes bellow are copy from `ot-json1.apply` and modified.
-        if (operations === null)
-            return;
-
+    transact<T>(command: () => T, isolated = false): T {
+        const selection = this.selection.getSelection();
         try {
-            const snapshot = pick(this.scrollPage as BlockNode, operations);
+            return this.transactions.run(command, isolated, selection);
+        }
+        catch (error) {
+            this._restoreSelection(selection, true);
+            throw error;
+        }
+    }
 
-            drop(snapshot, operations, muya);
+    updateContents(operation: JSONOp, selection: Nullable<IHistorySelection>, source: ChangeSource) {
+        if (!this._muya.canMutate)
+            return;
+        return this.transactions.apply(operation, { selection, source });
+    }
 
+    replayContents(operation: JSONOp, selection: Nullable<IHistorySelection>, rebuild = false) {
+        if (!this._muya.canMutate)
+            return;
+        return this.transactions.apply(operation, {
+            selection,
+            history: 'ignore',
+            replay: true,
+            view: rebuild ? 'rebuild' : 'incremental',
+        });
+    }
+
+    private _commitTransaction(transaction: ICompletedTransaction) {
+        const { operation, blockOperation, view, selection, source, history, recordSelection } = transaction;
+        const before = this.jsonState.rawState;
+        if (history === 'separate' && operation !== null)
+            this.history.recordRebuild(operation, before, recordSelection !== undefined ? recordSelection : selection);
+
+        const commit = () => {
+            this.jsonState.apply(operation);
+            this._updateBlocks(blockOperation, view, selection, () => this.jsonState.getState());
+            debug.log(JSON.stringify(operation));
+            this._muya.eventCenter.emit(
+                'json-change',
+                createChangePayload(operation, source, before, this.jsonState.rawState, history === 'merge' || history === 'isolated'),
+            );
+        };
+        if (history === 'isolated') {
+            this.history.cutoff(recordSelection ?? undefined);
+            try {
+                commit();
+            }
+            finally {
+                this.history.cutoff();
+            }
+        }
+        else {
+            commit();
+        }
+    }
+
+    private _updateBlocks(operation: JSONOp, view: ICompletedTransaction['view'], selection: Nullable<IHistorySelection>, recover: () => TState[]) {
+        if (view === 'rebuild') {
+            this.scrollPage!.updateState(recover());
+            this._restoreSelection(selection, true);
+            return;
+        }
+        if (operation === null)
+            return;
+        try {
+            const snapshot = pick(this.scrollPage as BlockNode, operation);
+            drop(snapshot, operation, this._muya);
             this._restoreSelection(selection);
         }
         catch (error) {
-            // The incremental walk left the live tree half-applied (pick removed
-            // blocks drop never re-inserted). The json state is authoritative and
-            // already up to date — rebuild from it instead of leaving an empty doc.
+            // A completed snapshot also recovers a provisional Block update;
+            // neither path may publish a half-applied tree.
             debug.error(`updateContents incremental apply failed; rebuilding from state: ${String(error)}`);
-            this.scrollPage!.updateState(this.jsonState.getState());
+            this.scrollPage!.updateState(recover());
             this._restoreSelection(selection, true);
         }
     }
@@ -488,20 +562,15 @@ export class Editor {
      * shapes the incremental pick/drop walker cannot apply without desyncing the
      * DOM from the json state.
      */
-    rebuildContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: ChangeSource) {
+    rebuildContents(operation: JSONOp, selection: Nullable<IHistorySelection>, source: ChangeSource, options: ITransactionOptions = {}) {
         if (!this._muya.canMutate)
             return;
-        this.jsonState.dispatch(operations, source);
-
-        const state = this.jsonState.getState();
-        this.scrollPage!.updateState(state);
-
-        // The tree was rebuilt wholesale, so the selection's cached block
-        // references are stale — resolve the caret from paths instead.
-        this._restoreSelection(selection, true);
+        return this.transactions.apply(operation, { ...options, selection, source, view: 'rebuild' });
     }
 
     setContent(content: TState[] | string, autoFocus = false) {
+        this.transactions.assertStandalone();
+        this.transactions.cancel();
         this.jsonState.setContent(content);
         const state = this.jsonState.getState();
 

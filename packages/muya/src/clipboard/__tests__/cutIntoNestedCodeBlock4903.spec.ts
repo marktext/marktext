@@ -105,7 +105,7 @@ describe('cross-block cut into a nested code, math or html block (#4903, #5148)'
 
         muya.editor.clipboard.cutHandler();
 
-        expect(() => muya.editor.jsonState.flush()).not.toThrow();
+        expect(() => muya.editor.transactions.flush()).not.toThrow();
         expect(muya.editor.jsonState.getState()).toEqual(treeState(muya));
         expect(muya.getMarkdown()).toBe(expected);
     });

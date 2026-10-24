@@ -1,11 +1,13 @@
 // @vitest-environment happy-dom
 
+import type { JSONOp } from 'ot-json1';
 import type { IJSONChangePayload } from '../changePayload';
 import type { IOrderListState, TState } from '../types';
 import * as json1 from 'ot-json1';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import JSONState, { asDoc } from '..';
 import { Muya } from '../../muya';
+import { ChangeSource } from '../../types';
 import * as utils from '../../utils';
 
 const instances: Muya[] = [];
@@ -34,7 +36,13 @@ function boot() {
     muya.init();
     const payloads: IJSONChangePayload[] = [];
     muya.on('json-change', (...args: unknown[]) => payloads.push(args[0] as IJSONChangePayload));
-    return { muya, state: muya.editor.jsonState, payloads };
+    return {
+        muya,
+        state: muya.editor.jsonState,
+        transactions: muya.editor.transactions,
+        payloads,
+        dispatch: (op: JSONOp, view: 'incremental' | 'rebuild' = 'rebuild') => muya.editor.transactions.apply(op, { view, source: ChangeSource.Api }),
+    };
 }
 
 function orderList(): IOrderListState {
@@ -47,9 +55,9 @@ function orderList(): IOrderListState {
 
 describe('json-change snapshot compatibility', () => {
     it('keeps both snapshots pinned and memoized after later edits and replacement', () => {
-        const { muya, state, payloads } = boot();
-        state.dispatch(json1.replaceOp([0, 'text'], 'hello', 'first'));
-        state.dispatch(json1.replaceOp([0, 'text'], 'first', 'second'));
+        const { muya, payloads, dispatch } = boot();
+        dispatch(json1.replaceOp([0, 'text'], 'hello', 'first'));
+        dispatch(json1.replaceOp([0, 'text'], 'first', 'second'));
         muya.setContent('replacement');
         expect(payloads[0].prevDoc[0]).toEqual({ name: 'paragraph', text: 'hello' });
         expect(payloads[0].doc[0]).toEqual({ name: 'paragraph', text: 'first' });
@@ -60,21 +68,21 @@ describe('json-change snapshot compatibility', () => {
     });
 
     it('isolates edits to publicly returned snapshots, including shared untouched subtrees', () => {
-        const { state, payloads } = boot();
-        state.dispatch(json1.replaceOp([0, 'text'], 'hello', 'first'));
+        const { state, payloads, dispatch } = boot();
+        dispatch(json1.replaceOp([0, 'text'], 'hello', 'first'));
         const before = state.getState();
         payloads[0].prevDoc[1] = { name: 'paragraph', text: 'changed' };
         (payloads[0].doc[1] as { text: string }).text = 'changed too';
         expect(state.getState()).toEqual(before);
-        state.dispatch(json1.replaceOp([0, 'text'], 'first', 'second'));
+        dispatch(json1.replaceOp([0, 'text'], 'first', 'second'));
         expect(payloads[1].prevDoc).toEqual(before);
     });
 
     it('does not clone a document for History or unused snapshot fields', () => {
-        const { muya, state, payloads } = boot();
+        const { muya, state, payloads, dispatch } = boot();
         const before = state.rawState;
         const clone = vi.spyOn(utils, 'deepClone');
-        state.dispatch(json1.editOp([0, 'text'], 'text-unicode', [5, '!']));
+        dispatch(json1.editOp([0, 'text'], 'text-unicode', [5, '!']), 'incremental');
         const after = state.rawState;
         expect(muya.getHistory().stack.undo).toHaveLength(1);
         expect(clone.mock.calls.some(([value]) => value === before || value === after)).toBe(false);
@@ -87,11 +95,11 @@ describe('json-change snapshot compatibility', () => {
     });
 
     it('owns JSON input and inserted values so callers and blocks cannot rewrite snapshots', () => {
-        const { state, payloads } = boot();
+        const { state, payloads, dispatch } = boot();
         const input = [orderList()];
         state.setContent(input);
         const inserted = orderList();
-        state.dispatch(json1.insertOp([1], asDoc(inserted)));
+        dispatch(json1.insertOp([1], asDoc(inserted)));
         input[0].meta.sourceMarkers![0] = '99.';
         inserted.meta.sourceMarkers![0] = '88.';
         expect((state.getState()[0] as IOrderListState).meta.sourceMarkers).toEqual(['1.']);
@@ -103,42 +111,42 @@ describe('json-change snapshot compatibility', () => {
     });
 
     it('keeps outer and nested dispatch snapshots separate', () => {
-        const { muya, state, payloads } = boot();
+        const { muya, payloads, dispatch } = boot();
         let nested = false;
         muya.on('json-change', () => {
             if (!nested) {
                 nested = true;
-                state.dispatch(json1.replaceOp([0, 'text'], 'first', 'second'));
+                dispatch(json1.replaceOp([0, 'text'], 'first', 'second'));
             }
         });
-        state.dispatch(json1.replaceOp([0, 'text'], 'hello', 'first'));
+        dispatch(json1.replaceOp([0, 'text'], 'hello', 'first'));
         expect(payloads[0].doc[0]).toEqual({ name: 'paragraph', text: 'first' });
         expect(payloads[1].prevDoc[0]).toEqual({ name: 'paragraph', text: 'first' });
         expect(payloads[1].doc[0]).toEqual({ name: 'paragraph', text: 'second' });
     });
 
     it('skips a cancelled batch without cloning, emitting, or advancing revision', () => {
-        const { state, payloads } = boot();
+        const { state, payloads, dispatch, transactions } = boot();
         const revision = state.revision;
-        state.insertOperation([2], { name: 'paragraph', text: 'cancelled' });
-        state.removeOperation([2]);
+        transactions.insertOperation([2], { name: 'paragraph', text: 'cancelled' });
+        transactions.removeOperation([2]);
         const clone = vi.spyOn(utils, 'deepClone');
-        state.flush();
+        transactions.flush();
         expect(payloads).toHaveLength(0);
         expect(state.revision).toBe(revision);
         expect(clone).not.toHaveBeenCalled();
-        state.dispatch(null);
+        dispatch(null);
         expect(payloads).toHaveLength(1);
         expect(payloads[0].op).toBeNull();
         expect(state.revision).toBe(revision);
     });
 
     it('keeps a new edit queued by a flush listener for the following batch', () => {
-        const { muya, state, payloads } = boot();
-        muya.once('json-change', () => state.editOperation([0, 'text'], [6, '?']));
-        state.editOperation([0, 'text'], [5, '!']);
-        state.flush();
-        state.flush();
+        const { muya, payloads, transactions } = boot();
+        muya.once('json-change', () => transactions.editOperation([0, 'text'], [6, '?']));
+        transactions.editOperation([0, 'text'], [5, '!']);
+        transactions.flush();
+        transactions.flush();
         expect(payloads).toHaveLength(2);
         expect(payloads[0].doc[0]).toEqual({ name: 'paragraph', text: 'hello!' });
         expect(payloads[1].doc[0]).toEqual({ name: 'paragraph', text: 'hello!?' });

@@ -70,7 +70,7 @@ function outdent(muya: Muya, text: string): void {
         shiftKey: true,
     } as unknown as KeyboardEvent;
     content.tabHandler(event);
-    muya.editor.jsonState.flush();
+    muya.editor.transactions.flush();
 }
 
 const LIST_ITEM_KIND: Record<string, string> = {

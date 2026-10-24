@@ -5,6 +5,7 @@ import type { TState } from '../../state/types';
 import * as json1 from 'ot-json1';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import InlineRenderer from '..';
+import { EditTransactions } from '../../editor/transactions';
 import JSONState from '../../state';
 
 function makeRenderer(blocks: TState[]) {
@@ -19,7 +20,8 @@ function makeRenderer(blocks: TState[]) {
         eventCenter: { emit: () => {} },
     } as unknown as Muya;
     const jsonState = new JSONState(muya, blocks);
-    Object.assign(muya, { editor: { jsonState } });
+    const transactions = new EditTransactions(jsonState, () => muya.options, () => {}, () => {}, () => {});
+    Object.assign(muya, { editor: { jsonState, transactions } });
     const renderer = new InlineRenderer(muya);
 
     return { jsonState, renderer };
@@ -28,18 +30,18 @@ function makeRenderer(blocks: TState[]) {
 afterEach(() => vi.restoreAllMocks());
 
 describe('reference definition collection cache', () => {
-    it('scans document state once per revision', () => {
-        const { jsonState, renderer } = makeRenderer([
+    it('scans each immutable document snapshot once', () => {
+        const { renderer } = makeRenderer([
             { name: 'paragraph', text: '[ref]: https://first.example' },
             { name: 'paragraph', text: '[label][ref]' },
         ]);
-        const getState = vi.spyOn(jsonState, 'rawState', 'get');
+        const scan = vi.spyOn(renderer, 'getLabelInfo');
 
         const labels = renderer.collectReferenceDefinitions();
         expect(renderer.collectReferenceDefinitions()).toBe(labels);
         expect(labels.get('ref')?.href).toBe('https://first.example');
 
-        expect(getState).toHaveBeenCalledTimes(1);
+        expect(scan).toHaveBeenCalledTimes(2);
         expect(renderer.labels.get('ref')?.href).toBe('https://first.example');
     });
 
@@ -55,13 +57,13 @@ describe('reference definition collection cache', () => {
         ]);
         expect(jsonState.revision).toBe(initialRevision + 1);
 
-        const getState = vi.spyOn(jsonState, 'rawState', 'get');
+        const scan = vi.spyOn(renderer, 'getLabelInfo');
         renderer.collectReferenceDefinitions();
         renderer.collectReferenceDefinitions();
-        expect(getState).toHaveBeenCalledTimes(1);
+        expect(scan).toHaveBeenCalledTimes(1);
         expect(renderer.labels.get('ref')?.href).toBe('https://second.example');
 
-        jsonState.dispatch(
+        jsonState.apply(
             json1.replaceOp(
                 [0, 'text'],
                 '[ref]: https://second.example',
@@ -70,10 +72,10 @@ describe('reference definition collection cache', () => {
         );
         expect(jsonState.revision).toBe(initialRevision + 2);
 
-        getState.mockClear();
+        scan.mockClear();
         renderer.collectReferenceDefinitions();
         renderer.collectReferenceDefinitions();
-        expect(getState).toHaveBeenCalledTimes(1);
+        expect(scan).toHaveBeenCalledTimes(1);
         expect(renderer.labels.get('ref')?.href).toBe('https://third.example');
     });
     it('scans deeply nested definitions without cloning or recursing', () => {
@@ -95,15 +97,15 @@ describe('reference definition collection cache', () => {
         renderer.collectReferenceDefinitions();
         expect(renderer.labels.get('ref')?.href).toBe('https://last.example');
         const revision = jsonState.revision;
-        const scan = vi.spyOn(jsonState, 'rawState', 'get');
-        jsonState.dispatch(null);
+        const scan = vi.spyOn(renderer, 'getLabelInfo');
+        jsonState.apply(null);
         renderer.collectReferenceDefinitions();
         expect(scan).not.toHaveBeenCalled();
         expect(jsonState.revision).toBe(revision);
-        jsonState.dispatch(json1.removeOp([1]));
+        jsonState.apply(json1.removeOp([1]));
         renderer.collectReferenceDefinitions();
         expect(renderer.labels.get('ref')?.href).toBe('https://nested.example');
-        jsonState.dispatch(json1.removeOp([0]));
+        jsonState.apply(json1.removeOp([0]));
         renderer.collectReferenceDefinitions();
         expect(renderer.labels.size).toBe(0);
     });

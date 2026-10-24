@@ -70,7 +70,7 @@ function indent(muya: Muya, text: string): void {
         shiftKey: false,
     } as unknown as KeyboardEvent;
     content.tabHandler(event);
-    muya.editor.jsonState.flush();
+    muya.editor.transactions.flush();
 }
 
 const LIST_ITEM_KIND: Record<string, string> = {
@@ -225,7 +225,7 @@ describe('paragraphContent — Tab keeps working where the kinds already match (
         const before = muya.getMarkdown();
         indent(muya, 'c');
         muya.undo();
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
 
         expect(muya.getMarkdown()).toBe(before);
     });

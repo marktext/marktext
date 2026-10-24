@@ -41,7 +41,7 @@ describe('updateContents keeps the live tree in sync with jsonState when block c
 
         // Unwrap the list -> two paragraphs, recorded as one undo entry.
         muya.resetToParagraph(list as never);
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
         expect(muya.getMarkdown()).not.toContain('- ');
 
         // Simulate a block whose construction throws while the undo's `drop`

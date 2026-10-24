@@ -61,14 +61,14 @@ function openGridFromSlashLine(muya: Muya): { trigger: Parent; pick: TPick } {
     const hello = contentWithText(muya, 'Hello');
     hello.setCursor(hello.text.length, hello.text.length, true);
     muya.insertParagraph('after', '/');
-    muya.editor.jsonState.flush();
+    muya.editor.transactions.flush();
     const trigger = contentWithText(muya, '/').parent!;
     return { trigger, pick: openGrid(muya, trigger) };
 }
 
 function pickAndFlush(muya: Muya, pick: TPick) {
     pick(1, 1);
-    muya.editor.jsonState.flush();
+    muya.editor.transactions.flush();
 }
 
 // Everything a pick could move: what muya believes the caret is, and where the
@@ -94,7 +94,7 @@ describe('table grid pick (#5355)', () => {
         const hello = contentWithText(muya, 'Hello');
         hello.setCursor(5, 5, true);
         muya.insertParagraph('after');
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
         const trigger = contentWithText(muya, '').parent!;
         const world = contentWithText(muya, 'World');
         world.setCursor(5, 5, true);
@@ -106,9 +106,9 @@ describe('table grid pick (#5355)', () => {
 
     it('changes nothing, caret included, once undo removed the line that opened the grid', () => {
         const muya = bootMuya('Hello\n\nWorld\n');
-        const { pick } = openGridFromSlashLine(muya);
+        const { trigger, pick } = openGridFromSlashLine(muya);
         muya.undo();
-        expect(muya.editor.activeContentBlock?.outMostBlock).toBeNull();
+        expect(trigger.parent).toBeNull();
         const before = caretOf(muya);
 
         expect(() => pickAndFlush(muya, pick)).not.toThrow();
@@ -120,8 +120,8 @@ describe('table grid pick (#5355)', () => {
     it('leaves the caret alone when the pick is ignored and the caret is elsewhere in the document', () => {
         const muya = bootMuya('Hello\n\nWorld\n');
         const { pick } = openGridFromSlashLine(muya);
-        contentWithText(muya, 'World').setCursor(2, 2, true);
         muya.undo();
+        contentWithText(muya, 'World').setCursor(2, 2, true);
         const before = caretOf(muya);
 
         pickAndFlush(muya, pick);
@@ -171,7 +171,7 @@ describe('table grid pick (#5355)', () => {
         const muya = bootMuya('Hello\n\nWorld\n');
         const { trigger, pick } = openGridFromSlashLine(muya);
         trigger.firstContentInDescendant()!.text = 'Important';
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
 
         pickAndFlush(muya, pick);
 
@@ -182,7 +182,7 @@ describe('table grid pick (#5355)', () => {
         const muya = bootMuya('Hello\n\nWorld\n');
         const { trigger, pick } = openGridFromSlashLine(muya);
         trigger.firstContentInDescendant()!.text = '';
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
 
         pickAndFlush(muya, pick);
 
@@ -206,10 +206,10 @@ describe('table grid pick (#5355)', () => {
         world.setCursor(5, 5, true);
         const removed = contentWithText(muya, 'Hello').parent!;
         removed.remove();
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
 
         expect(() => muya.createTable({ rows: 2, columns: 2 }, { replace: true, block: removed })).not.toThrow();
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
 
         expect(muya.getMarkdown()).toBe('World\n');
     });

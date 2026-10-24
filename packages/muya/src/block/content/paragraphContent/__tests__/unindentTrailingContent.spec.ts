@@ -103,7 +103,7 @@ describe('paragraphContent — Shift+Tab INDENT with trailing content (#4899)', 
 
         shiftTabAt(muya, b, 1);
         await flush();
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
 
         const state = muya.getState();
         assertListsHoldOnlyItems(state);
@@ -120,7 +120,7 @@ describe('paragraphContent — Shift+Tab INDENT with trailing content (#4899)', 
 
         shiftTabAt(muya, b, 1);
         await flush();
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
 
         const state = muya.getState();
         assertListsHoldOnlyItems(state);

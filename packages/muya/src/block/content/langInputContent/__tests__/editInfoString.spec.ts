@@ -37,7 +37,7 @@ describe('language input edits the whole info string (#4770 follow-up)', () => {
         selection.addRange(range);
 
         li.inputHandler();
-        muya.editor.jsonState.flush();
+        muya.editor.transactions.flush();
         expect(muya.getMarkdown().split('\n')[0]).toBe('```js title="app.js"');
     });
 });

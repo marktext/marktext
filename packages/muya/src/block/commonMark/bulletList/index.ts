@@ -1,15 +1,16 @@
 import type { Muya } from '../../../muya';
 import type { IBulletListState } from '../../../state/types';
+import type Parent from '../../base/parent';
 import type ListItem from '../listItem';
 import { CLASS_NAMES } from '../../../config';
 import { mixins } from '../../../utils';
 import { LinkedList } from '../../base/linkedList/linkedList';
-import Parent from '../../base/parent';
+import ListBlock from '../../base/list';
 import IContainerQueryBlock from '../../mixins/containerQueryBlock';
 import { ScrollPage } from '../../scrollPage';
 
 @mixins(IContainerQueryBlock)
-class BulletList extends Parent {
+class BulletList extends ListBlock {
     public override children: LinkedList<Parent> = new LinkedList();
 
     static override blockName = 'bullet-list';
@@ -33,7 +34,7 @@ class BulletList extends Parent {
         return [...pPath, offset, 'children'];
     }
 
-    public meta: IBulletListState['meta'];
+    public override meta: IBulletListState['meta'];
 
     constructor(muya: Muya, { meta }: IBulletListState) {
         super(muya);
@@ -43,10 +44,8 @@ class BulletList extends Parent {
             marker: meta.marker,
         };
         this.classList = [CLASS_NAMES.MU_BULLET_LIST];
-        if (!meta.loose)
-            this.classList.push('mu-tight-list');
-
         this.createDomNode();
+        this.setLoose(meta.loose);
     }
 
     override getState(): IBulletListState {

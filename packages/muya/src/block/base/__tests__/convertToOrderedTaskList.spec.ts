@@ -98,18 +98,18 @@ describe('ordered numbering when an item becomes a task (#1691)', () => {
 
     it('numbers the tail after the first item', () => {
         expect(typeIntoItem('1. a\n2. b\n3. c\n', 0, '[ ] a')).toBe(
-            '1. [ ] a\n\n2. b\n3. c\n',
+            '1. [ ] a\n2. b\n3. c\n',
         );
     });
 
     it('numbers the tail after a middle item', () => {
         expect(typeIntoItem('1. a\n2. b\n3. c\n', 1, '[ ] b')).toBe(
-            '1. a\n\n2. [ ] b\n\n3. c\n',
+            '1. a\n2. [ ] b\n3. c\n',
         );
     });
 
     it('numbers the tail after a first item of an offset list', () => {
-        expect(typeIntoItem('5. a\n6. b\n', 0, '[x] a')).toBe('5. [x] a\n\n6. b\n');
+        expect(typeIntoItem('5. a\n6. b\n', 0, '[x] a')).toBe('5. [x] a\n6. b\n');
     });
 
     it('shows the rebased number in the live DOM', () => {

@@ -68,7 +68,7 @@ function treeState(muya: Muya): TState[] {
 }
 
 function settle(muya: Muya): TState[] {
-    expect(() => muya.editor.jsonState.flush()).not.toThrow();
+    expect(() => muya.editor.transactions.flush()).not.toThrow();
     const state = muya.editor.jsonState.getState();
     expect(state).toEqual(treeState(muya));
     return state;

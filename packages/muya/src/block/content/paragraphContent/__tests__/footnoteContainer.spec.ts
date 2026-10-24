@@ -90,7 +90,7 @@ function shapeOf(nodes: IShapeNode[]): string {
 // Apply the queued edits now; a malformed op throws here instead of in a frame
 // callback the test cannot observe.
 function flushState(muya: Muya): string {
-    muya.editor.jsonState.flush();
+    muya.editor.transactions.flush();
 
     return shapeOf(muya.getState() as IShapeNode[]);
 }
