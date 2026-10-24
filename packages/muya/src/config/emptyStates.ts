@@ -132,7 +132,7 @@ const emptyStates: IEmptyStates = {
         meta: {
             start: 1, // 0 ~ 999999999
             loose: true, // true or false, true is loose list and false is tight.
-            delimiter: '.', // . or )
+            delimiter: '.', // . or ) or ()
         },
         children: [
             // List Item

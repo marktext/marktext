@@ -22,6 +22,7 @@ import { ChangeSource } from '../../../types';
 import { firstWordOfInfo, isKeyboardEvent, isLengthEven, parseFenceLine } from '../../../utils';
 import { createDiagramState, diagramTypeOfLang } from '../../../utils/diagram/fence';
 import { matchGithubAlertMarker } from '../../../utils/githubAlerts';
+import { outlineLevel } from '../../../utils/listMarker';
 import logger from '../../../utils/logger';
 import Format from '../../base/format';
 import BlockQuote from '../../commonMark/blockQuote';
@@ -32,10 +33,22 @@ import { ScrollPage } from '../../scrollPage';
 
 type TListBlock = BulletList | OrderList | TaskList;
 
-// Markdown continues a list only while items keep the same bullet or ordered
-// delimiter.
-function listMarker(list: TListBlock): string {
-    return 'delimiter' in list.meta ? list.meta.delimiter : list.meta.marker;
+// Markdown continues a list only while items keep the same bullet, or the
+// same ordered style and delimiter.
+function listMarker(meta: TListBlock['meta']): string {
+    return 'delimiter' in meta ? `${meta.style ?? 'decimal'} ${meta.delimiter}` : meta.marker;
+}
+
+// The outermost list holding `list`, and how many lists below it `list` sits.
+function listDepth(list: Parent): { root: TListBlock; depth: number } {
+    let root = list;
+    let depth = 0;
+    while (isListItemBlock(root.parent) && isListBlock(root.parent.parent)) {
+        root = root.parent.parent;
+        depth++;
+    }
+
+    return { root: root as TListBlock, depth };
 }
 
 // Unordered lists return undefined; ordered task lists also require rebasing when split.
@@ -817,9 +830,11 @@ class ParagraphContent extends Format {
             const newListItem = this._insertOutdentedListItem(listItem, listParent, listAsList);
 
             // Only remaining sibling items belong in the nested list.
+            const ownSublist = newListItem.lastChild as Parent;
             if (
                 listItem.next
-                && newListItem.lastChild!.blockName !== list.blockName
+                && (ownSublist.blockName !== list.blockName
+                    || listMarker((ownSublist as TListBlock).meta) !== listMarker(listAsList.meta))
             ) {
                 const state = {
                     name: list.blockName,
@@ -916,7 +931,7 @@ class ParagraphContent extends Format {
             !tailList
             && following?.blockName === nestedList.blockName
             && orderedListStart(nestedList) === undefined
-            && listMarker(following) === listMarker(nestedList)
+            && listMarker(following.meta) === listMarker(nestedList.meta)
         ) {
             const newListItem = listItem.clone() as Parent;
             following.insertBefore(newListItem, following.firstChild as Parent);
@@ -926,7 +941,7 @@ class ParagraphContent extends Format {
 
         // With the same marker the new list is still part of the outer
         // markdown list, so it shares that list's looseness.
-        const loose = listMarker(outerList) === listMarker(nestedList)
+        const loose = listMarker(outerList.meta) === listMarker(nestedList.meta)
             ? outerList.meta.loose
             : nestedList.meta.loose;
         const nestedStart = orderedListStart(nestedList);
@@ -945,14 +960,30 @@ class ParagraphContent extends Format {
         return newList.firstChild as Parent;
     }
 
-    // A sublist of the other item kind that shares the marker is still the same
-    // markdown list, so a new list placed after it must share its looseness to
-    // reopen unchanged.
+    // With fancy lists on, a new sublist numbers from one, as a nested pandoc
+    // list must. Under an upper-roman root list (an outline) it takes the
+    // outline marker for its depth; elsewhere it keeps the parent list's
+    // marker. A sublist of the
+    // other item kind that shares the marker is still the same markdown list,
+    // so a new list placed after it must share its looseness to reopen
+    // unchanged.
     private _indentedListMeta(list: TListBlock, previousChild: Nullable<Parent>) {
         const meta = { ...list.meta };
+        if ('start' in meta && this.muya.options.fancyLists) {
+            meta.start = 1;
+            const { root, depth } = listDepth(list);
+            if ('style' in root.meta && root.meta.style === 'upper-roman') {
+                const { style, delimiter } = outlineLevel(depth + 1);
+                meta.delimiter = delimiter;
+                if (style === 'decimal')
+                    delete meta.style;
+                else
+                    meta.style = style;
+            }
+        }
         if (isListBlock(previousChild)) {
             const sublist = previousChild as TListBlock;
-            if (listMarker(sublist) === listMarker(list))
+            if (listMarker(sublist.meta) === listMarker(meta))
                 meta.loose = sublist.meta.loose;
         }
 

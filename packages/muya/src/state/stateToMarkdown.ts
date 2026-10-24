@@ -22,6 +22,7 @@ import type {
 /* eslint-disable no-fallthrough */
 import { deepClone } from '../utils';
 import { githubAlertMarker } from '../utils/githubAlerts';
+import { continuesList, formatListMarker, minSpacesAfterMarker, parseListMarker } from '../utils/listMarker';
 
 import logger from '../utils/logger';
 import stringWidth from '../utils/stringWidth';
@@ -31,31 +32,45 @@ import { isAnyListState } from './types';
 const debug = logger('export markdown: ');
 const SETEXT_SAFE_BULLET_MARKER = '*';
 
+type TListMeta = IBulletListState['meta'] | IOrderListState['meta'] | ITaskListState['meta'];
+
+// Whether the list with `meta`, written right after the list with `previous`,
+// reads back as more items of it.
+function readsOn(previous: TListMeta, meta: TListMeta): boolean {
+    if ('delimiter' in previous && 'delimiter' in meta) {
+        return continuesList(
+            { style: previous.style ?? 'decimal', delimiter: previous.delimiter },
+            { style: meta.style ?? 'decimal', delimiter: meta.delimiter },
+        );
+    }
+
+    return 'marker' in previous && 'marker' in meta && previous.marker === meta.marker;
+}
+
 function escapeText(str: string) {
     return str.replace(/(?<!\\)\|/g, '\\|');
 }
 
 export interface IExportMarkdownOptions {
-    listIndentation: number | string;
+    listIndentation?: number | string;
+    fancyLists?: boolean;
 }
 
 export default class ExportMarkdown {
     private _blockBoundary = new BlockBoundaryResolver();
 
     // Open list metadata stack; innermost settings control nested item serialization.
-    private _listType: (
-        | IBulletListState['meta']
-        | IOrderListState['meta']
-        | ITaskListState['meta']
-    )[];
+    private _listType: TListMeta[];
 
     private _isLooseParentList: boolean;
     private _listIndentation: string;
     private _listIndentationCount: number;
+    private _fancyLists: boolean;
 
     constructor(
         {
             listIndentation,
+            fancyLists = false,
         }: IExportMarkdownOptions = {
             listIndentation: 1,
         },
@@ -63,6 +78,7 @@ export default class ExportMarkdown {
         this._listType = []; // 'ul' or 'ol'
         // helper to translate the first tight item in a nested list
         this._isLooseParentList = true;
+        this._fancyLists = fancyLists;
 
         this._listIndentation = 'number';
         if (listIndentation === 'dfm') {
@@ -90,7 +106,7 @@ export default class ExportMarkdown {
     ): string {
         const result: string[] = [];
         // helper for CommonMark 264
-        let lastListBullet = '';
+        let previousList: TListMeta | undefined;
         let previousState: TState | undefined;
 
         for (const originalState of states) {
@@ -100,7 +116,7 @@ export default class ExportMarkdown {
                 && state.name !== 'bullet-list'
                 && state.name !== 'task-list'
             ) {
-                lastListBullet = '';
+                previousList = undefined;
             }
 
             if (isAnyListState(state)) {
@@ -114,14 +130,15 @@ export default class ExportMarkdown {
                     && isAnyListState(previousState)
                     && !previousState.meta.loose
                     && !state.meta.loose;
-                lastListBullet = this._serializeListBlock(
+                previousList = this._serializeListBlock(
                     state,
                     result,
                     indent,
                     listIndent,
-                    lastListBullet,
+                    previousList,
                     markerOverride,
                     followsTightList,
+                    this._fancyLists && previousState?.name === state.name,
                 );
             }
             else if (state.name === 'list-item' || state.name === 'task-list-item') {
@@ -230,10 +247,11 @@ export default class ExportMarkdown {
         result: string[],
         indent: string,
         listIndent: string,
-        lastListBullet: string,
+        previousList: TListMeta | undefined,
         markerOverride?: string,
         followsTightList = false,
-    ): string {
+        followsSameKindList = false,
+    ): TListMeta {
         let insertNewLine = this._isLooseParentList;
         this._isLooseParentList = true;
         const meta = deepClone(state.meta);
@@ -242,18 +260,25 @@ export default class ExportMarkdown {
         if (state.name !== 'bullet-list' && 'sourceMarkers' in meta && !this._shouldPreserveOrderMarkers(state))
             delete meta.sourceMarkers;
 
-        // Changing a bullet or ordered delimiter starts a separate Markdown list.
-        const bulletMarkerOrDelimiter
-            = 'delimiter' in meta ? meta.delimiter : meta.marker;
+        // A list that does not read on from the previous one needs no blank line before it.
+        const sameList = previousList !== undefined && readsOn(previousList, meta);
 
-        if (lastListBullet && lastListBullet !== bulletMarkerOrDelimiter)
+        if (previousList && !sameList)
             insertNewLine = false;
 
         // Adjacent tight lists with the same marker are one markdown list (the
         // parser splits it where items switch between plain and task), so a
         // blank line would only make that list loose on the next parse.
-        if (lastListBullet === bulletMarkerOrDelimiter && followsTightList)
+        if (sameList && followsTightList)
             insertNewLine = false;
+
+        // Two ordered lists would read back as one list, so end the first
+        // with an HTML comment (pandoc's "Ending a list").
+        if (sameList && followsSameKindList && 'delimiter' in meta) {
+            this._insertLineBreak(result, indent);
+            result.push(`${indent}<!-- -->\n`);
+            insertNewLine = true;
+        }
 
         if (insertNewLine)
             this._insertLineBreak(result, indent);
@@ -262,7 +287,7 @@ export default class ExportMarkdown {
         result.push(this._serializeList(state, indent, listIndent));
         this._listType.pop();
 
-        return bulletMarkerOrDelimiter;
+        return meta;
     }
 
     // Source markers only hold while the list keeps the items it was parsed
@@ -607,7 +632,6 @@ export default class ExportMarkdown {
         const result = [];
         const listInfo = this._listType[this._listType.length - 1];
         const marker = 'marker' in listInfo ? listInfo.marker : undefined;
-        const delimiter = 'delimiter' in listInfo ? listInfo.delimiter : undefined;
         const isUnorderedList = !!marker;
         const { children, name } = state;
         let itemMarker;
@@ -616,19 +640,16 @@ export default class ExportMarkdown {
             itemMarker = marker ? `${marker} ` : '- ';
         }
         else if ('start' in listInfo) {
+            const style = listInfo.style ?? 'decimal';
             const preservedMarker = listInfo.sourceMarkers?.shift();
-            if (preservedMarker) {
-                itemMarker = `${preservedMarker} `;
-            }
-            else {
-                // NOTE: GitHub and Bitbucket limit the list count to 99 but this is nowhere defined.
-                //  We limit the number to 99 for Daring Fireball Markdown to prevent indentation issues.
-                let n = listInfo.start;
-                if ((this._listIndentation === 'dfm' && n > 99) || n > 999999999)
-                    n = 1;
-
-                itemMarker = `${n}${delimiter || '.'} `;
-            }
+            // NOTE: GitHub and Bitbucket limit the list count to 99 but this is nowhere defined.
+            //  We limit the number to 99 for Daring Fireball Markdown to prevent indentation issues.
+            let n = listInfo.start;
+            if (style === 'decimal' && ((this._listIndentation === 'dfm' && n > 99) || n > 999999999))
+                n = 1;
+            const orderMarker = (preservedMarker && parseListMarker(preservedMarker, style))
+                || { value: n, style, delimiter: listInfo.delimiter };
+            itemMarker = `${preservedMarker || formatListMarker(orderMarker)}${' '.repeat(minSpacesAfterMarker(orderMarker))}`;
             listInfo.start++;
         }
         else {

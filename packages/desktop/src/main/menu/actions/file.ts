@@ -197,7 +197,8 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
     texMathDollars,
     texMathGfm,
     texMathSingleBackslash,
-    texMathDoubleBackslash
+    texMathDoubleBackslash,
+    fancyLists
   } = payload
   // The save dialog and pandoc's link resolution both need the document's folder.
   const sourceDir = pathname ? path.dirname(pathname) : undefined
@@ -222,7 +223,8 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
         texMathDollars: texMathDollars === true,
         texMathGfm: texMathGfm === true,
         texMathSingleBackslash: texMathSingleBackslash === true,
-        texMathDoubleBackslash: texMathDoubleBackslash === true
+        texMathDoubleBackslash: texMathDoubleBackslash === true,
+        fancyLists: fancyLists === true
       },
       await getReaderExtensions()
     )

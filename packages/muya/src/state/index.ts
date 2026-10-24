@@ -148,6 +148,7 @@ class JSONState {
     getMarkdownFromState(state: TState[]): string {
         const mdGenerator = new StateToMarkdown({
             listIndentation: this._muya.options.listIndentation,
+            fancyLists: this._muya.options.fancyLists,
         });
 
         return mdGenerator.generate(state);

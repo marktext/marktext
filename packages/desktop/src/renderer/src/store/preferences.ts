@@ -79,6 +79,7 @@ export interface PreferencesState {
   texMathGfm: boolean
   texMathSingleBackslash: boolean
   texMathDoubleBackslash: boolean
+  fancyLists: boolean
   highlightSyntax: boolean
   inlineDiff: boolean
   multilineBlockquote: boolean
@@ -205,6 +206,7 @@ export const usePreferencesStore = defineStore('preferences', {
     texMathGfm: false,
     texMathSingleBackslash: false,
     texMathDoubleBackslash: false,
+    fancyLists: false,
     highlightSyntax: false,
     inlineDiff: false,
     multilineBlockquote: false,

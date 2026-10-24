@@ -14,6 +14,7 @@ export interface IRenderToStaticHTMLOptions {
     inlineDiff?: boolean;
     multilineBlockquote?: boolean;
     githubAlerts?: boolean;
+    fancyLists?: boolean;
     // Disabling sanitization permits untrusted HTML; intended only for spec conformance runners.
     sanitize?: boolean;
 }
@@ -58,6 +59,7 @@ export function renderToStaticHTML(
         inlineDiff: options.inlineDiff ?? false,
         multilineBlockquote: options.multilineBlockquote ?? false,
         githubAlerts: options.githubAlerts ?? false,
+        fancyLists: options.fancyLists ?? false,
     });
 
     // Transform footnotes before DOMPurify strips their data-identifier markers.

@@ -371,6 +371,8 @@ export const MUYA_DEFAULT_OPTIONS = {
     inlineDiff: false,
     multilineBlockquote: false,
     githubAlerts: false,
+    // pandoc's `fancy_lists`: `a.`, `IV.`, `(1)` and `b)` ordered list markers.
+    fancyLists: false,
     // Render soft line breaks as spaces instead of visual newlines.
     softNewlineAsSpace: false,
     // Move checked task list item to the end of task list.
