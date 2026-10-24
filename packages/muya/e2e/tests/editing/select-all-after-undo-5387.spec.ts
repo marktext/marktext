@@ -32,7 +32,11 @@ for (const markdown of ['a\n', 'a\n\nc\n']) {
         const errors = collectPageErrors(page);
         await undoNewParagraphAfterFirstLine(page, markdown);
 
-        await page.evaluate(() => window.muya!.selectAll());
+        await page.evaluate(() => {
+            // Undo now restores a valid caret; preserve the block → document escalation.
+            window.muya!.selectAll();
+            window.muya!.selectAll();
+        });
         await page.keyboard.type('X');
 
         await expect.poll(() => getMarkdown(page)).toBe('X\n');
@@ -44,7 +48,11 @@ test('Backspace after Select All after undoing a new paragraph deletes the docum
     const errors = collectPageErrors(page);
     await undoNewParagraphAfterFirstLine(page, 'a\n');
 
-    await page.evaluate(() => window.muya!.selectAll());
+    await page.evaluate(() => {
+            // Undo now restores a valid caret; preserve the block → document escalation.
+            window.muya!.selectAll();
+            window.muya!.selectAll();
+        });
     await page.keyboard.press('Backspace');
 
     await expect.poll(() => getMarkdown(page)).toBe('\n');

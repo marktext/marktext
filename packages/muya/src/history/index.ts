@@ -6,7 +6,7 @@ import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import * as json1 from 'ot-json1';
 import { asDoc } from '../state';
-import { getPreviousDoc, isHistorySuppressed } from '../state/changePayload';
+import { getPreviousDoc, getRecordSelection, isHistorySuppressed } from '../state/changePayload';
 import { ChangeSource } from '../types';
 import { deepClone } from '../utils';
 
@@ -52,7 +52,6 @@ export interface ISerializedHistory {
         redo: ISerializableOperation[];
     };
     lastRecorded: number;
-    selectionStack: (Nullable<ISerializableSelection>)[];
 }
 
 enum HistoryAction {
@@ -92,7 +91,8 @@ export function shouldBreakUndoGroup(
 class History {
     private _lastRecorded: number = 0;
     private _lastInputKind: Nullable<TInputKind> = null;
-    private _selectionStack: (Nullable<IHistorySelection>)[] = [];
+    private _nextSelection: Nullable<IHistorySelection> | undefined;
+    private _lastSelection: Nullable<IHistorySelection> = null;
     private _stack: IStack = {
         undo: [],
         redo: [],
@@ -119,7 +119,7 @@ class History {
                     return;
 
                 if (!this._options.userOnly || source === ChangeSource.User)
-                    this._record(op, getPreviousDoc(payload));
+                    this._record(op, getPreviousDoc(payload), getRecordSelection(payload));
                 else
                     this._transform(op);
             },
@@ -142,19 +142,20 @@ class History {
 
         this._stack[dest].push({
             operation: inverseOperation as JSONOpList,
-            selection: this._selection.getSelection(),
+            selection: this._selection.getSelectionState(),
             rebuild,
         });
 
         this._lastRecorded = 0;
         this._muya.editor.replayContents(operation, selection, rebuild);
 
-        this._getLastSelection();
+        this._lastSelection = this._selection.getSelectionState();
     }
 
     clear() {
         this._stack = { undo: [], redo: [] };
-        this._selectionStack = [];
+        this._nextSelection = undefined;
+        this._lastSelection = null;
         this._lastRecorded = 0;
     }
 
@@ -165,9 +166,6 @@ class History {
                 redo: this._stack.redo.map(op => this._toSerializableOperation(op)),
             },
             lastRecorded: this._lastRecorded,
-            selectionStack: this._selectionStack.map(sel =>
-                this._toSerializableSelection(sel),
-            ),
         };
     }
 
@@ -177,9 +175,8 @@ class History {
             redo: history.stack.redo.map(op => this._fromSerializableOperation(op)),
         };
         this._lastRecorded = history.lastRecorded ?? 0;
-        this._selectionStack = (history.selectionStack ?? []).map(sel =>
-            this._fromSerializableSelection(sel),
-        );
+        this._nextSelection = undefined;
+        this._lastSelection = null;
     }
 
     private _toSerializableOperation(op: IOperation): ISerializableOperation {
@@ -235,7 +232,7 @@ class History {
     cutoff(selection?: IHistorySelection) {
         this._lastRecorded = 0;
         if (selection)
-            this._selectionStack = [selection];
+            this._nextSelection = this._toSerializableSelection(selection);
     }
 
     markInputBoundary(inputType: string, data: Nullable<string>): void {
@@ -247,20 +244,15 @@ class History {
         this._lastInputKind = kind;
     }
 
-    private _getLastSelection() {
-        this._selectionStack.push(this._selection.getSelection());
-
-        if (this._selectionStack.length > 2)
-            this._selectionStack.shift();
-
-        return this._selectionStack.length === 2 ? this._selectionStack[0] : null;
-    }
-
-    private _record(op: JSONOpList, doc: readonly TState[]) {
+    private _record(op: JSONOpList, doc: readonly TState[], before: Nullable<IHistorySelection>) {
         if (op.length === 0)
             return;
 
-        let selection = this._getLastSelection();
+        let selection = this._nextSelection !== undefined ? this._nextSelection : before;
+        this._nextSelection = undefined;
+        if (JSON.stringify(this._toSerializableSelection(selection)) !== JSON.stringify(this._toSerializableSelection(this._lastSelection)))
+            this._lastRecorded = 0;
+        this._lastSelection = this._selection.getSelectionState();
         this._stack.redo = [];
         let undoOperation = json1.type.invertWithDoc(op, asDoc(doc));
 

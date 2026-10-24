@@ -4,6 +4,24 @@ import { slowType } from '../helpers/keyboard';
 import { editor, toolbar } from '../helpers/selectors';
 
 test.describe('undo / redo', () => {
+    test('first undo restores the pre-input caret after loading (#5258)', async ({ page }) => {
+        await page.evaluate(() => window.muya!.setContent('first\n\nsecond\n'));
+        const para = page.locator(editor.paragraph).nth(1);
+        await para.click();
+        await page.keyboard.press('End');
+        await page.keyboard.press('ArrowLeft');
+        await page.keyboard.type('X');
+        await expect(para).toContainText('seconXd');
+        const offset = await page.evaluate(() => {
+            window.muya!.flush();
+            window.muya!.undo();
+            return window.muya!.getSelection()?.anchor.offset;
+        });
+        expect(offset).toBe(5);
+        await page.keyboard.type('Y');
+        await expect(para).toContainText('seconYd');
+    });
+
     test('button #undo reverts the latest typed text', async ({ page }) => {
         await page.evaluate(() => window.muya!.setContent('start'));
         const para = page.locator(editor.paragraph).first();

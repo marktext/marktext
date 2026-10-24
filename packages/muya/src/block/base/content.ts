@@ -392,6 +392,8 @@ class Content extends TreeNode {
         if (!this.muya.canMutate)
             return;
         const oldText = this._text;
+        if (oldText !== text)
+            this.transactions.captureSelection();
         this._text = text;
         const { path } = this;
         if (this.blockName === 'language-input') {

@@ -1,6 +1,6 @@
 import type TableBodyCell from '../block/gfm/table/cell';
 import type { Muya } from '../muya';
-import type { IAnchorFocusInfo, IImageSelectionData, ISelection } from './types';
+import type { IAnchorFocusInfo, IHistorySelection, IImageSelectionData, ISelection } from './types';
 import {
     getCursorCoords,
     getCursorYOffset,
@@ -120,6 +120,19 @@ class Selection {
 
     getSelection(): ISelection | null {
         return this._text.getSelection();
+    }
+
+    getSelectionState(): IHistorySelection | null {
+        const selection = this.getSelection();
+        if (!selection)
+            return null;
+
+        const { anchor, focus, ...info } = selection;
+        return {
+            ...info,
+            anchor: { offset: anchor.offset, path: [...anchor.path] },
+            focus: { offset: focus.offset, path: [...focus.path] },
+        };
     }
 
     /**

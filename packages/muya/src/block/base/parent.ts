@@ -108,6 +108,9 @@ class Parent extends TreeNode {
             args.pop();
         const children = args as Parent[];
 
+        if (source === ChangeSource.User)
+            this.transactions.captureSelection();
+
         children.forEach((node) => {
             node.parent = this;
             const { domNode } = node;
@@ -186,6 +189,8 @@ class Parent extends TreeNode {
     ) {
         if (!this.muya.canMutate)
             return;
+        if (source === ChangeSource.User)
+            this.transactions.captureSelection();
         newNode.parent = this;
         this.children.insertBefore(newNode, refNode);
         this.domNode!.insertBefore(

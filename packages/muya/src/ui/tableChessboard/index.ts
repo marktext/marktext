@@ -43,6 +43,10 @@ class TablePicker extends BaseFloat {
     override listen() {
         const { eventCenter } = this.muya;
         super.listen();
+        eventCenter.attachDOMEvent(this.container!, 'mousedown', (event) => {
+            if (event.target instanceof Element && event.target.closest('.mu-table-picker-cell'))
+                event.preventDefault();
+        });
         eventCenter.subscribe('muya-table-picker', (data, reference, cb) => {
             if (!this.status) {
                 this._showPicker(data, reference, cb);
