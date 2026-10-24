@@ -5,7 +5,8 @@ import type { TState } from '../../state/types';
 import type { IMuyaOptions, Nullable } from '../../types';
 import type { TDiff } from '../../utils';
 import * as json1 from 'ot-json1';
-import { asDoc } from '../../state';
+import { referenceDefinitionsChanged } from '../../inlineRenderer/referenceDefinitions';
+import { asDoc, asState } from '../../state';
 import { ChangeSource } from '../../types';
 import { deepClone } from '../../utils';
 import { listLoosenessOperations } from './listLooseness';
@@ -39,6 +40,8 @@ export class EditTransactions {
     private _pending: JSONOp = null;
     private _pendingSource: ChangeSource | undefined;
     private _candidate: readonly TState[] | null = null;
+    private _referenceRevision = 0;
+    private _pendingReferencesChanged = false;
     private _pendingHistory: 'merge' | 'isolated' = 'merge';
     private _recordSelection: Nullable<IHistorySelection> = null;
     private _rafId: number | null = null;
@@ -59,6 +62,11 @@ export class EditTransactions {
         if (this._pending === null)
             return this._state.rawState;
         return this._candidate ??= this._state.preview(this._pending);
+    }
+
+    /** Invalidates provisional definition reads, including when a scope is discarded. */
+    get referenceRevision() {
+        return this._referenceRevision;
     }
 
     /** Synchronous Block commands form one commit, including nested commands. */
@@ -102,8 +110,16 @@ export class EditTransactions {
     enqueue(operation: JSONOp, source = ChangeSource.User) {
         if (operation === null)
             return;
-        this._pending = json1.type.compose(this._pending, deepClone(operation));
-        this._candidate = null;
+        const before = this.candidateState;
+        const ownedOperation = deepClone(operation);
+        const after = asState(json1.type.apply(asDoc(before), ownedOperation));
+        const pending = json1.type.compose(this._pending, ownedOperation);
+        if (referenceDefinitionsChanged(before, after, ownedOperation)) {
+            this._referenceRevision++;
+            this._pendingReferencesChanged = true;
+        }
+        this._pending = pending;
+        this._candidate = after;
         if (source === ChangeSource.User || this._pendingSource === undefined)
             this._pendingSource = source;
         if (this._depth || this._rafId !== null)
@@ -137,10 +153,8 @@ export class EditTransactions {
     /** Operations inside a scope join it; standalone operations flush earlier edits first. */
     apply(operation: JSONOp, options: ITransactionOptions = {}) {
         if (this._depth > 0 && !options.replay && (options.history ?? 'merge') === 'merge') {
-            const next = this._state.preview(json1.type.compose(this._pending, operation));
             this.enqueue(operation, options.source);
-            this._candidate = next;
-            this._applyPending(deepClone(operation), options, next);
+            this._applyPending(deepClone(operation), options, this.candidateState);
             return;
         }
         this.assertStandalone();
@@ -179,6 +193,9 @@ export class EditTransactions {
         this._pending = null;
         this._pendingSource = undefined;
         this._candidate = null;
+        if (this._pendingReferencesChanged)
+            this._referenceRevision++;
+        this._pendingReferencesChanged = false;
         this._pendingHistory = 'merge';
         this._recordSelection = null;
     }
