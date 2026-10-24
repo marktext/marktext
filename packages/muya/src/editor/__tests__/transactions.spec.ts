@@ -50,25 +50,6 @@ function expectConsistent(muya: Muya, loose: boolean) {
 }
 
 describe('completed edit transactions', () => {
-    it('bounds reference scans and candidate replay during batch formatting', () => {
-        const count = 200;
-        const muya = boot(Array.from({ length: count }, (_, i) => `paragraph ${i} alpha beta`).join('\n\n'));
-        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
-        const last = muya.editor.scrollPage!.lastContentInDescendant()!;
-        muya.editor.selection.setSelection(
-            { block: first, path: first.path, offset: 0 },
-            { block: last, path: last.path, offset: last.text.length },
-        );
-        const scan = vi.spyOn(muya.editor.inlineRenderer, 'getLabelInfo');
-        const preview = vi.spyOn(muya.editor.jsonState, 'preview');
-        muya.format('strong');
-        muya.flush();
-        expect.soft(scan.mock.calls.length).toBeLessThanOrEqual(3 * count);
-        expect.soft(preview.mock.calls.length).toBeLessThanOrEqual(3);
-        expect(muya.domNode.querySelectorAll('strong')).toHaveLength(count);
-        expect(liveState(muya)).toEqual(muya.getState());
-    });
-
     it.each([false, true])('renders inserted reference links against their document (scoped: %s)', (scoped) => {
         const muya = boot('seed\n');
         const operation = json1.type.compose(

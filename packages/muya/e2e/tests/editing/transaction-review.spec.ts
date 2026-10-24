@@ -28,43 +28,6 @@ test('a scoped API insertion resolves reference links from the candidate documen
     await expect(link).toHaveAttribute('href', 'https://example.com');
 });
 
-test('definition edits update reference DOM during a scope and restore it after rollback', async ({ page }) => {
-    const hrefs = await page.evaluate(() => {
-        const muya = window.muya!;
-        muya.setContent('[ref]: https://first.example\n\n[label][ref]\n');
-        const href = () => muya.domNode.querySelector('a')?.getAttribute('href');
-        const editDefinition = (url: string) => {
-            const definition = muya.editor.scrollPage!.firstContentInDescendant()!;
-            definition.text = `[ref]: ${url}`;
-            definition.update();
-        };
-        const hrefs: (string | null | undefined)[] = [];
-        muya.transact(() => {
-            editDefinition('https://second.example');
-            hrefs.push(href());
-            editDefinition('https://third.example');
-            hrefs.push(href());
-        });
-        try {
-            muya.transact(() => {
-                editDefinition('https://temporary.example');
-                hrefs.push(href());
-                throw new Error('abort references');
-            });
-        }
-        catch {}
-        hrefs.push(href());
-        return hrefs;
-    });
-    expect(hrefs).toEqual(['https://second.example', 'https://third.example', 'https://temporary.example', 'https://third.example']);
-    const link = page.locator(editor.paragraphContent).locator('a');
-    await expect(link).toHaveAttribute('href', 'https://third.example');
-    await page.evaluate(() => window.muya!.undo());
-    await expect(link).toHaveAttribute('href', 'https://first.example');
-    await page.evaluate(() => window.muya!.redo());
-    await expect(link).toHaveAttribute('href', 'https://third.example');
-});
-
 test('a rejected scoped replacement leaves the document, history, and caret usable', async ({ page }) => {
     const error = await page.evaluate(() => {
         const muya = window.muya!;

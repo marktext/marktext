@@ -50,17 +50,11 @@ enabled read-only mode. Recovery restores document content, keeps the current
 read-only setting, and does not permit further user edits while locked.
 
 Derived renderers read `transactions.candidateState`, an immutable snapshot of
-committed state plus queued operations. Each new operation advances the candidate
-incrementally before provisional projection, rather than replaying the growing
-batch for every render. Public JSONState reads still describe the committed
-document.
-
-Reference definitions are cached by committed revision and a provisional
-definition revision. Within a batch, ordinary text and metadata edits retain the
-index; edits to definition paragraphs and structural changes invalidate it.
-Discarding a batch that changed definitions also invalidates provisional reads.
-Committed revision remains a conservative fallback for direct state replacement
-and replay. Candidate root identity alone does not invalidate the index.
+committed state plus queued operations. The snapshot is cached until the next
+operation and is available before provisional projection. Reference definitions
+are cached by snapshot identity so multiple provisional edits and rollback cannot
+reuse definitions from another document. Public JSONState reads still describe
+the committed document.
 
 Undo and redo use replay mode and suppress new history recording. Replay and
 history recording are independent options: a future collaboration transport can
