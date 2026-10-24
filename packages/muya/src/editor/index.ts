@@ -268,7 +268,7 @@ export class Editor {
             this.jsonState,
             () => _muya.options,
             transaction => this._commitTransaction(transaction),
-            () => this.scrollPage?.updateState(this.jsonState.getState()),
+            () => _muya.runDocumentUpdate(() => this.scrollPage?.updateState(this.jsonState.getState())),
             (operation, options, preview) => this._updateBlocks(
                 operation,
                 options.view ?? 'incremental',

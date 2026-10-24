@@ -137,6 +137,86 @@ describe('completed edit transactions', () => {
         expect(liveState(muya)).toEqual(before);
     });
 
+    it.each(['options', 'locale'])('flushes pending edits before a %s rebuild and keeps subsequent edits consistent', (refresh) => {
+        const muya = boot('seed\n');
+        const content = muya.editor.scrollPage!.firstContentInDescendant()!;
+        content.text = 'changed';
+        content.update();
+        if (refresh === 'options')
+            muya.setOptions({ codeBlockLineNumbers: true }, true);
+        else
+            muya.locale({ name: 'review-test', resource: {} });
+        muya.flush();
+        expect(muya.getMarkdown()).toBe('changed\n');
+        expect(liveState(muya)).toEqual(muya.getState());
+        expect(muya.domNode.querySelector('.mu-paragraph-content')!.textContent).toBe('changed');
+        expect(muya.getHistory().stack.undo).toHaveLength(1);
+
+        muya.editor.history.cutoff();
+        const rebuilt = muya.editor.scrollPage!.firstContentInDescendant()!;
+        rebuilt.text += '!';
+        rebuilt.update();
+        muya.flush();
+        expect(muya.getMarkdown()).toBe('changed!\n');
+        expect(liveState(muya)).toEqual(muya.getState());
+        expect(muya.domNode.querySelector('.mu-paragraph-content')!.textContent).toBe('changed!');
+        muya.undo();
+        expect(muya.getMarkdown()).toBe('changed\n');
+        muya.undo();
+        expect(muya.getMarkdown()).toBe('seed\n');
+    });
+
+    it.each(['options', 'locale'])('rejects a scoped %s rebuild before changing configuration', (refresh) => {
+        const muya = boot('seed\n');
+        const before = muya.getState();
+        const options = { ...muya.options };
+        const language = muya.i18n.lang;
+        const change = vi.fn();
+        muya.on('json-change', change);
+        expect(() => muya.transact(() => {
+            const content = muya.editor.scrollPage!.firstContentInDescendant()!;
+            content.text = 'changed';
+            content.update();
+            if (refresh === 'options')
+                muya.setOptions({ codeBlockLineNumbers: !options.codeBlockLineNumbers }, true);
+            else
+                muya.locale({ name: 'review-test', resource: {} });
+        })).toThrow('cannot run inside an edit transaction');
+        expect(muya.options).toEqual(options);
+        expect(muya.i18n.lang).toBe(language);
+        expect(muya.getState()).toEqual(before);
+        expect(liveState(muya)).toEqual(before);
+        expect(muya.domNode.querySelector('.mu-paragraph-content')!.textContent).toBe('seed');
+        expect(muya.getHistory().stack.undo).toHaveLength(0);
+        expect(change).not.toHaveBeenCalled();
+    });
+
+    it('rolls back a locked document without enabling user edits or publishing a change', () => {
+        const muya = boot('seed\n');
+        const before = muya.getState();
+        const revision = muya.editor.jsonState.revision;
+        const change = vi.fn();
+        muya.on('json-change', change);
+        expect(() => muya.transact(() => {
+            const content = muya.editor.scrollPage!.firstContentInDescendant()!;
+            content.text = 'changed';
+            content.update();
+            muya.setReadOnly(true);
+            throw new Error('abort locked command');
+        })).toThrow('abort locked command');
+        expect(muya.getState()).toEqual(before);
+        expect(liveState(muya)).toEqual(before);
+        expect(muya.domNode.querySelector('.mu-paragraph-content')!.textContent).toBe('seed');
+        expect(muya.isReadOnly).toBe(true);
+        expect(muya.canMutate).toBe(false);
+        expect(muya.editor.jsonState.revision).toBe(revision);
+        expect(muya.getHistory().stack.undo).toHaveLength(0);
+        expect(change).not.toHaveBeenCalled();
+        muya.editor.scrollPage!.firstContentInDescendant()!.text = 'blocked';
+        muya.flush();
+        expect(liveState(muya)).toEqual(before);
+    });
+
     it('commits nested Block commands and API operations once, with a complete history operation', () => {
         const muya = boot();
         const before = muya.getState();

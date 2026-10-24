@@ -12,6 +12,10 @@ the outer transaction. Asynchronous work must finish before entering the scope;
 never keep a transaction open across an `await`.
 Calling `flush()` inside a scope does not split it. History navigation and
 whole-document replacement are standalone boundaries and must run outside scopes.
+Render-only whole-document rebuilds follow the same boundary: forced option
+updates and locale changes flush earlier edits, or reject an active scope before
+changing configuration. Pure appearance updates that do not rebuild remain valid
+inside scopes.
 Explicit commands isolate their undo step from preceding and following typing;
 DOM typing events retain word/time grouping. Nested commands share the outer
 transaction's original selection and undo boundary.
@@ -41,6 +45,9 @@ All three enter the same commit path. The state and Block tree agree before
 effects. Whole-document undo boundaries also record that completed operation.
 An incremental projection failure rebuilds from the candidate/committed snapshot
 before publishing, using the same recovery path for provisional and final edits.
+Rollback has internal document-update authority even when the failed command
+enabled read-only mode. Recovery restores document content, keeps the current
+read-only setting, and does not permit further user edits while locked.
 
 Derived renderers read `transactions.candidateState`, an immutable snapshot of
 committed state plus queued operations. The snapshot is cached until the next

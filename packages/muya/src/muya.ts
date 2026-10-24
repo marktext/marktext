@@ -253,6 +253,8 @@ export class Muya {
     }
 
     locale(object: ILocale) {
+        if (this.editor.scrollPage)
+            this._prepareDocumentRebuild();
         this.i18n.locale(object);
         if (this.editor.scrollPage)
             this._forceRender();
@@ -385,10 +387,8 @@ export class Muya {
 
     setOptions(options: Partial<IMuyaOptions>, forceRender = false) {
         const reparse = forceRender && Object.keys(options).some(key => PARSE_AFFECTING_OPTIONS.has(key as keyof IMuyaOptions));
-        if (reparse) {
-            this.editor.transactions.assertStandalone();
-            this.flush();
-        }
+        if (forceRender)
+            this._prepareDocumentRebuild();
         if (typeof options.readOnly === 'boolean')
             this.setReadOnly(options.readOnly);
         Object.assign(this.options, options);
@@ -422,7 +422,13 @@ export class Muya {
         this._forceRender();
     }
 
+    private _prepareDocumentRebuild() {
+        this.editor.transactions.assertStandalone();
+        this.flush();
+    }
+
     private _forceRender() {
+        this._prepareDocumentRebuild();
         this.runDocumentUpdate(() => this._renderDocument());
         this._refreshReadingPresentation();
     }
