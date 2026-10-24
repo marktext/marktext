@@ -29,6 +29,11 @@ function isState(value: unknown): value is TState {
 }
 
 function changesLayout(previous: readonly TState[], root: readonly TState[], path: Path): boolean {
+    if (path[path.length - 2] === 'meta' && path[path.length - 1] === 'checked') {
+        const owner = atPath(root, path.slice(0, -2));
+        if (isState(owner) && owner.name === 'task-list-item')
+            return false;
+    }
     if (path[path.length - 1] !== 'text')
         return true;
     const owner = atPath(root, path.slice(0, -1));

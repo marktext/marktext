@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import type Format from '../block/base/format';
 import type Parent from '../block/base/parent';
+import type TaskListCheckbox from '../block/gfm/taskListCheckbox';
 import type { IBulletListState, IOrderListState, ITaskListState } from '../state/types';
 import * as json1 from 'ot-json1';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -8,6 +9,7 @@ import { Muya } from '../muya';
 import { SelectionCaretType, SelectionDirection } from '../selection/types';
 import { asDoc } from '../state';
 import { MarkdownToState } from '../state/markdownToState';
+import ExportMarkdown from '../state/stateToMarkdown';
 import { ChangeSource } from '../types';
 
 type TList = IBulletListState | IOrderListState | ITaskListState;
@@ -50,6 +52,25 @@ function parentAt(muya: Muya, path: (string | number)[]): Parent {
 }
 
 describe('list looseness across editing and history', () => {
+    it('does not export or reparse a nested task list when a checkbox is toggled', () => {
+        const muya = boot('- [ ] a\n  - nested\n- [ ] b\n');
+        const parse = vi.spyOn(MarkdownToState.prototype, 'generate');
+        const serialize = vi.spyOn(ExportMarkdown.prototype, 'generate');
+        const checkbox = parentAt(muya, [0, 'children', 1]).attachments.head as TaskListCheckbox;
+        checkbox.update(true, ChangeSource.User);
+        muya.flush();
+        expect((muya.getState()[0] as ITaskListState).children[1].meta.checked).toBe(true);
+        expect(parse).not.toHaveBeenCalled();
+        expect(serialize).not.toHaveBeenCalled();
+        expectLoose(muya, false);
+        muya.undo();
+        expect((muya.getState()[0] as ITaskListState).children[1].meta.checked).toBe(false);
+        expect(parentAt(muya, [0, 'children', 1]).getState()).toEqual((muya.getState()[0] as ITaskListState).children[1]);
+        expect((checkbox.domNode as HTMLInputElement).checked).toBe(false);
+        muya.redo();
+        expect((checkbox.domNode as HTMLInputElement).checked).toBe(true);
+    });
+
     it.each([
         '- a\n- c\n',
         '1. a\n2. c\n',

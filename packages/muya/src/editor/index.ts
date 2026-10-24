@@ -43,6 +43,7 @@ type BlockNode = {
     append?: (newBlock: BlockNode, source: ChangeSource) => void;
     update?: (value?: unknown, source?: ChangeSource) => void;
     setLoose?: (loose: boolean) => void;
+    setChecked?: (checked: boolean) => void;
     blockName?: string;
     align?: string;
     _text?: string;
@@ -170,7 +171,8 @@ function drop(root: BlockNode, descent: JSONOpList, muya: Muya): BlockNode {
         else {
             switch (key) {
                 case 'checked': {
-                    ref?.update?.(comp.i, ChangeSource.Api);
+                    if (typeof comp.i === 'boolean')
+                        cur?.setChecked?.(comp.i);
                     break;
                 }
 
@@ -567,6 +569,7 @@ export class Editor {
     }
 
     setContent(content: TState[] | string, autoFocus = false) {
+        this.transactions.assertStandalone();
         this.transactions.cancel();
         this.jsonState.setContent(content);
         const state = this.jsonState.getState();

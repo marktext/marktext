@@ -16,6 +16,12 @@ Explicit commands isolate their undo step from preceding and following typing;
 DOM typing events retain word/time grouping. Nested commands share the outer
 transaction's original selection and undo boundary.
 
+An API-only scope keeps its API source. If any live Block edit or explicit User
+operation joins the scope, the complete command has User source, regardless of
+nesting or operation order. Scopes share one undo boundary, retaining any explicit
+command's isolation request. API calls with a non-merge history policy or replay
+must remain standalone.
+
 Block mutators update the live tree and enqueue their operations. Outside an
 explicit scope, the coordinator batches those mutations until the next frame.
 At completion, editing rules inspect the final candidate document and append
@@ -35,6 +41,13 @@ All three enter the same commit path. The state and Block tree agree before
 effects. Whole-document undo boundaries also record that completed operation.
 An incremental projection failure rebuilds from the candidate/committed snapshot
 before publishing, using the same recovery path for provisional and final edits.
+
+Derived renderers read `transactions.candidateState`, an immutable snapshot of
+committed state plus queued operations. The snapshot is cached until the next
+operation and is available before provisional projection. Reference definitions
+are cached by snapshot identity so multiple provisional edits and rollback cannot
+reuse definitions from another document. Public JSONState reads still describe
+the committed document.
 
 Undo and redo use replay mode and suppress new history recording. Replay and
 history recording are independent options: a future collaboration transport can

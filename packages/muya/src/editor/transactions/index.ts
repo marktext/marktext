@@ -37,6 +37,8 @@ const EDITING_RULES: TEditingRule[] = [listLoosenessOperations];
  */
 export class EditTransactions {
     private _pending: JSONOp = null;
+    private _pendingSource: ChangeSource | undefined;
+    private _candidate: readonly TState[] | null = null;
     private _pendingHistory: 'merge' | 'isolated' = 'merge';
     private _recordSelection: Nullable<IHistorySelection> = null;
     private _rafId: number | null = null;
@@ -51,6 +53,13 @@ export class EditTransactions {
         private _rollback: () => void,
         private _applyPending: (operation: JSONOp, options: ITransactionOptions, preview: readonly TState[]) => void,
     ) {}
+
+    /** Read-only document for rendering live edits before the scope commits. */
+    get candidateState(): readonly TState[] {
+        if (this._pending === null)
+            return this._state.rawState;
+        return this._candidate ??= this._state.preview(this._pending);
+    }
 
     /** Synchronous Block commands form one commit, including nested commands. */
     run<T>(command: () => T, isolated = false, selection: Nullable<IHistorySelection> = null): T {
@@ -90,8 +99,13 @@ export class EditTransactions {
         return result;
     }
 
-    enqueue(operation: JSONOp) {
+    enqueue(operation: JSONOp, source = ChangeSource.User) {
+        if (operation === null)
+            return;
         this._pending = json1.type.compose(this._pending, deepClone(operation));
+        this._candidate = null;
+        if (source === ChangeSource.User || this._pendingSource === undefined)
+            this._pendingSource = source;
         if (this._depth || this._rafId !== null)
             return;
         this._rafId = requestAnimationFrame(() => {
@@ -124,8 +138,9 @@ export class EditTransactions {
     apply(operation: JSONOp, options: ITransactionOptions = {}) {
         if (this._depth > 0 && !options.replay && (options.history ?? 'merge') === 'merge') {
             const next = this._state.preview(json1.type.compose(this._pending, operation));
+            this.enqueue(operation, options.source);
+            this._candidate = next;
             this._applyPending(deepClone(operation), options, next);
-            this.enqueue(operation);
             return;
         }
         this.assertStandalone();
@@ -139,6 +154,7 @@ export class EditTransactions {
         if (this._depth > 0)
             return;
         const operation = this._pending;
+        const source = this._pendingSource;
         const history = this._pendingHistory;
         const recordSelection = this._recordSelection;
         this.cancel();
@@ -146,7 +162,7 @@ export class EditTransactions {
             return;
         let transaction: ICompletedTransaction;
         try {
-            transaction = this._complete(operation, { history, recordSelection }, true);
+            transaction = this._complete(operation, { source, history, recordSelection }, true);
         }
         catch (error) {
             this._rollback();
@@ -161,6 +177,8 @@ export class EditTransactions {
             cancelAnimationFrame(this._rafId);
         this._rafId = null;
         this._pending = null;
+        this._pendingSource = undefined;
+        this._candidate = null;
         this._pendingHistory = 'merge';
         this._recordSelection = null;
     }

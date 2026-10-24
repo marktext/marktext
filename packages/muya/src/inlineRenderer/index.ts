@@ -15,7 +15,7 @@ const debug = logger('inlineRenderer:');
 class InlineRenderer {
     public labels: Labels = new Map();
     public renderer: Renderer;
-    private _labelsRevision = -1;
+    private _labelsState: readonly TState[] | null = null;
 
     constructor(public muya: Muya) {
         this.renderer = new Renderer(muya, this);
@@ -80,12 +80,12 @@ class InlineRenderer {
 
     // Definitions live in paragraphs across the document; rescanning for every block caused #4887.
     collectReferenceDefinitions(): Labels {
-        const { jsonState } = this.muya.editor;
-        if (this._labelsRevision === jsonState.revision)
+        const state = this.muya.editor.transactions.candidateState;
+        if (this._labelsState === state)
             return this.labels;
 
         const labels = new Map();
-        const stack: Iterator<TState>[] = [jsonState.rawState[Symbol.iterator]()];
+        const stack: Iterator<TState>[] = [state[Symbol.iterator]()];
         while (stack.length) {
             const next = stack[stack.length - 1].next();
             if (next.done) {
@@ -104,7 +104,7 @@ class InlineRenderer {
         }
 
         this.labels = labels;
-        this._labelsRevision = jsonState.revision;
+        this._labelsState = state;
         return labels;
     }
 

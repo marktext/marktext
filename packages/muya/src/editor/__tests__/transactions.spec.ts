@@ -4,6 +4,7 @@ import type { IJSONChangePayload } from '../../state/changePayload';
 import type { IBulletListState, TState } from '../../state/types';
 import * as json1 from 'ot-json1';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import History from '../../history';
 import { Muya } from '../../muya';
 import JSONState, { asDoc } from '../../state';
 import { MarkdownToState } from '../../state/markdownToState';
@@ -20,10 +21,10 @@ afterEach(() => {
     document.getSelection()?.removeAllRanges();
 });
 
-function boot() {
+function boot(markdown = '- a\n- c\n') {
     const host = document.createElement('div');
     document.body.appendChild(host);
-    const muya = new Muya(host, { markdown: '- a\n- c\n', preferLooseListItem: false });
+    const muya = new Muya(host, { markdown, preferLooseListItem: false });
     instances.push(muya);
     muya.init();
     muya.editor.scrollPage!.firstContentInDescendant()!.setCursor(1, 1, true);
@@ -49,6 +50,93 @@ function expectConsistent(muya: Muya, loose: boolean) {
 }
 
 describe('completed edit transactions', () => {
+    it.each([false, true])('renders inserted reference links against their document (scoped: %s)', (scoped) => {
+        const muya = boot('seed\n');
+        const operation = json1.type.compose(
+            json1.insertOp([1], asDoc({ name: 'paragraph', text: '[ref]: https://example.com' })),
+            json1.insertOp([2], asDoc({ name: 'paragraph', text: '[label][ref]' })),
+        );
+        const apply = () => muya.editor.updateContents(operation, null, ChangeSource.Api);
+        if (scoped)
+            muya.transact(apply);
+        else
+            apply();
+        expect(liveState(muya)).toEqual(muya.getState());
+        expect(muya.domNode.querySelector('a')?.getAttribute('href')).toBe('https://example.com');
+    });
+
+    it('rejects setContent inside a scope before changing the document or history', () => {
+        const muya = boot();
+        muya.insertParagraph('after', 'b');
+        const before = muya.getState();
+        const history = muya.getHistory();
+        const change = vi.fn();
+        muya.on('json-change', change);
+        expect(() => muya.transact(() => muya.setContent('replacement\n'))).toThrow('cannot run inside an edit transaction');
+        expect(muya.getState()).toEqual(before);
+        expect(liveState(muya)).toEqual(before);
+        expect(muya.getHistory()).toEqual(history);
+        expect(change).not.toHaveBeenCalled();
+    });
+
+    it('preserves API source and user-only history policy inside a scope', () => {
+        const muya = boot('seed\n');
+        const userHistory = new History(muya, { userOnly: true, maxStack: 100, delay: 1000 });
+        const changes: IJSONChangePayload[] = [];
+        muya.on('json-change', (change: IJSONChangePayload) => changes.push(change));
+        muya.transact(() => {
+            muya.editor.updateContents(json1.insertOp([1], asDoc({ name: 'paragraph', text: 'api' })), null, ChangeSource.Api);
+        });
+        expect(changes.map(change => change.source)).toEqual([ChangeSource.Api]);
+        expect(userHistory.getHistory().stack.undo).toHaveLength(0);
+    });
+
+    it.each([false, true])('treats mixed API and Block edits as a user command (API first: %s)', (apiFirst) => {
+        const muya = boot('seed\n');
+        const before = muya.getState();
+        const changes: IJSONChangePayload[] = [];
+        muya.on('json-change', (change: IJSONChangePayload) => changes.push(change));
+        const api = () => muya.editor.updateContents(json1.insertOp([1], asDoc({ name: 'paragraph', text: 'api' })), null, ChangeSource.Api);
+        const user = () => {
+            muya.editor.scrollPage!.firstContentInDescendant()!.text = 'user';
+        };
+        muya.transact(() => {
+            (apiFirst ? api : user)();
+            muya.transact(apiFirst ? user : api);
+        });
+        expect(changes.map(change => change.source)).toEqual([ChangeSource.User]);
+        expect(liveState(muya)).toEqual(muya.getState());
+        muya.undo();
+        expect(muya.getState()).toEqual(before);
+    });
+
+    it('refreshes reference definitions between provisional edits and after rollback', () => {
+        const muya = boot('[ref]: https://first.example\n\n[label][ref]\n');
+        const replace = (before: string, after: string) => {
+            muya.editor.updateContents(json1.editOp([0, 'text'], 'text-unicode', [{ d: `[ref]: ${before}` }, `[ref]: ${after}`]), null, ChangeSource.Api);
+        };
+        expect(() => muya.transact(() => {
+            replace('https://first.example', 'https://second.example');
+            expect(muya.domNode.querySelector('a')?.getAttribute('href')).toBe('https://second.example');
+            replace('https://second.example', 'https://third.example');
+            expect(muya.domNode.querySelector('a')?.getAttribute('href')).toBe('https://third.example');
+            throw new Error('abort');
+        })).toThrow('abort');
+        expect(muya.domNode.querySelector('a')?.getAttribute('href')).toBe('https://first.example');
+        expect(liveState(muya)).toEqual(muya.getState());
+        expect(muya.getHistory().stack.undo).toHaveLength(0);
+    });
+
+    it('rejects reparsing options inside a scope before changing options or state', () => {
+        const muya = boot();
+        const before = muya.getState();
+        const frontMatter = muya.options.frontMatter;
+        expect(() => muya.transact(() => muya.setOptions({ frontMatter: !frontMatter }, true))).toThrow('cannot run inside an edit transaction');
+        expect(muya.options.frontMatter).toBe(frontMatter);
+        expect(muya.getState()).toEqual(before);
+        expect(liveState(muya)).toEqual(before);
+    });
+
     it('commits nested Block commands and API operations once, with a complete history operation', () => {
         const muya = boot();
         const before = muya.getState();

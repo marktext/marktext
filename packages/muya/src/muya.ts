@@ -384,6 +384,11 @@ export class Muya {
     }
 
     setOptions(options: Partial<IMuyaOptions>, forceRender = false) {
+        const reparse = forceRender && Object.keys(options).some(key => PARSE_AFFECTING_OPTIONS.has(key as keyof IMuyaOptions));
+        if (reparse) {
+            this.editor.transactions.assertStandalone();
+            this.flush();
+        }
         if (typeof options.readOnly === 'boolean')
             this.setReadOnly(options.readOnly);
         Object.assign(this.options, options);
@@ -409,9 +414,8 @@ export class Muya {
         if (!forceRender)
             return;
 
-        if (Object.keys(options).some(key => PARSE_AFFECTING_OPTIONS.has(key as keyof IMuyaOptions))) {
+        if (reparse) {
             const { jsonState } = this.editor;
-            this.editor.transactions.cancel();
             jsonState.setContent(jsonState.markdownToState(this.getMarkdown()));
         }
 

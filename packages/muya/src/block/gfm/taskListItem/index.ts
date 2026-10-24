@@ -1,6 +1,7 @@
 import type { Muya } from '../../../muya';
 import type { ITaskListItemMeta, ITaskListItemState } from '../../../state/types';
 import type { TBlockPath } from '../../types';
+import type TaskListCheckbox from '../taskListCheckbox';
 import { CLASS_NAMES } from '../../../config';
 import { mixins } from '../../../utils';
 import { LinkedList } from '../../base/linkedList/linkedList';
@@ -49,13 +50,21 @@ class TaskListItem extends Parent {
         const oldCheckStatus = this.meta.checked;
 
         if (checked !== oldCheckStatus) {
-            this.meta.checked = checked;
+            this.setChecked(checked);
             const { path } = this;
             path.pop();
             path.push('meta', 'checked');
 
             this.transactions.replaceOperation(path, oldCheckStatus, checked);
         }
+    }
+
+    setChecked(checked: boolean) {
+        this.meta.checked = checked;
+        this.attachments.forEach((attachment) => {
+            if (attachment.blockName === 'task-list-checkbox')
+                (attachment as TaskListCheckbox).syncDom(checked);
+        });
     }
 
     constructor(muya: Muya, { meta }: ITaskListItemState) {
