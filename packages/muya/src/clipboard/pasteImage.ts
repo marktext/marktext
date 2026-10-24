@@ -3,7 +3,6 @@ import type Format from '../block/base/format';
 import type { Nullable } from '../types';
 import type Clipboard from './index';
 import { CLASS_NAMES } from '../config';
-import { SelectionType } from '../selection/types';
 import { getUniqueId } from '../utils';
 import { encodeImageSrc, getImageInfo } from '../utils/image';
 import { readFileAsDataURL, resolveClipboardImagePath } from '../utils/paste';
@@ -112,7 +111,7 @@ export async function pasteImageSrc(
         return;
 
     const anchorBlock
-        = clipboard.selection.getSelection()?.anchor.block
+        = clipboard.selection.getTextSelection()?.anchor.block
             ?? clipboard.muya.editor.activeContentBlock;
     if (!anchorBlock)
         return;
@@ -178,53 +177,12 @@ function findImageWrapper(block: Format, startOffset: number): Nullable<HTMLElem
     return wrapper;
 }
 
-// Position controls only after loading gives the image a measurable box.
-function positionImageControls(clipboard: Clipboard, block: Format, wrapper: HTMLElement): void {
-    const imageContainer = wrapper.querySelector(`.${CLASS_NAMES.MU_IMAGE_CONTAINER}`);
-    if (imageContainer == null)
-        return;
-
-    const imageInfo = getImageInfo(wrapper);
-    const rect = imageContainer.getBoundingClientRect();
-    const reference = {
-        getBoundingClientRect: () => rect,
-        width: wrapper.offsetWidth,
-        height: wrapper.offsetHeight,
-    };
-    const { eventCenter } = clipboard.muya;
-    eventCenter.emit('muya-image-toolbar', { block, reference, imageInfo });
-    eventCenter.emit('muya-transformer', { block, reference: imageContainer, imageInfo });
-}
-
-// Select immediately, but defer control positioning until the image has loaded.
-// Image loading does not emit positioning events itself.
 function reselectImageAt(clipboard: Clipboard, block: Format, startOffset: number): void {
     const wrapper = findImageWrapper(block, startOffset);
     if (wrapper == null)
         return;
-
-    clipboard.muya.editor.selection.selectImage(
-        Object.assign({}, getImageInfo(wrapper), { block }),
-    );
+    clipboard.selection.selectImage({ ...getImageInfo(wrapper), block });
     block.update();
-
-    if (typeof requestAnimationFrame !== 'function')
-        return;
-
-    let attempts = 60;
-    const positionWhenLoaded = (): void => {
-        if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(block))
-            return;
-        const current = findImageWrapper(block, startOffset);
-        if (current?.querySelector('img')) {
-            positionImageControls(clipboard, block, current);
-
-            return;
-        }
-        if (--attempts > 0)
-            requestAnimationFrame(positionWhenLoaded);
-    };
-    requestAnimationFrame(positionWhenLoaded);
 }
 
 // Apply imageAction to the replacement and leave it selected so controls follow it.
@@ -267,17 +225,16 @@ export async function tryReplaceSelectedImage(
     if (selectedImage == null)
         return false;
 
-    const original = selectedImage.block.text.slice(selectedImage.token.range.start, selectedImage.token.range.end);
+    const original = selectedImage.block.text.slice(selectedImage.imageInfo.token.range.start, selectedImage.imageInfo.token.range.end);
     const src = await resolveImageSrc(clipboard, imageFile);
     if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(selectedImage.block)
-        || selectedImage.block.text.slice(selectedImage.token.range.start, selectedImage.token.range.end) !== original) {
+        || selectedImage.block.text.slice(selectedImage.imageInfo.token.range.start, selectedImage.imageInfo.token.range.end) !== original) {
         return true;
     }
     if (src == null)
         return false;
 
-    const { block, token } = selectedImage;
-    clipboard.selection.activate(SelectionType.TEXT);
+    const { block, imageInfo: { token } } = selectedImage;
     await replaceImageAt(clipboard, block, token.range, src);
 
     return true;

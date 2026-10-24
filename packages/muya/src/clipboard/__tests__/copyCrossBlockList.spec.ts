@@ -4,7 +4,7 @@ import type Content from '../../block/base/content';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // A cross-block copy/cut whose endpoint lands partway inside a list item must
 // carry only the selected portion of that item, not the whole item. Regression:
@@ -49,13 +49,13 @@ function stubCrossSelection(
     focusBlock: Content,
     focusOffset: number,
 ) {
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: anchorOffset, block: anchorBlock, path: anchorBlock.path },
         focus: { offset: focusOffset, block: focusBlock, path: focusBlock.path },
         isCollapsed: false,
         isSelectionInSameBlock: false,
         direction: SelectionDirection.FORWARD,
-        type: SelectionCaretType.RANGE,
+
     });
 }
 

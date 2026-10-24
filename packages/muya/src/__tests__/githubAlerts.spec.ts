@@ -1,10 +1,11 @@
-// @vitest-environment happy-dom
 import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { canTurnInto, replaceBlockByLabel } from '../block/blockTransforms';
 import { convertGithubAlert } from '../block/githubAlerts';
 import { Muya } from '../muya';
+// @vitest-environment happy-dom
+import { createTextSelectionState } from '../selection/state';
 import { githubAlertBlockType } from '../utils/githubAlerts';
 
 const instances: Muya[] = [];
@@ -196,7 +197,7 @@ describe('gitHub Alert editing', () => {
             { name: 'paragraph', text: '' },
             { name, children: [{ name: 'paragraph', text: '' }] },
         ]);
-        expect(muya.editor.selection.getSelection()?.anchor.path).toEqual([1, 'text']);
+        expect(muya.editor.selection.getTextSelection()?.anchor.path).toEqual([1, 'text']);
     });
 
     it('downgrades to a quote on Backspace and preserves the body', () => {
@@ -230,10 +231,7 @@ describe('gitHub Alert editing', () => {
         const page = muya.editor.scrollPage!;
         const anchor = page.firstContentInDescendant()!;
         const focus = page.lastContentInDescendant()!;
-        muya.editor.selection.setSelection(
-            { block: anchor, path: anchor.path, offset: 0 },
-            { block: focus, path: focus.path, offset: focus.text.length },
-        );
+        muya.editor.selection.setSelection(createTextSelectionState({ block: anchor, path: anchor.path, offset: 0 }, { block: focus, path: focus.path, offset: focus.text.length }));
         muya.updateParagraph(command);
         muya.flush();
         expect(muya.domNode.querySelector('.mu-github-alert')).toBeNull();
@@ -246,10 +244,7 @@ describe('gitHub Alert editing', () => {
         const before = muya.getMarkdown();
         const anchor = muya.editor.scrollPage!.firstContentInDescendant()!;
         const focus = muya.editor.scrollPage!.lastContentInDescendant()!;
-        muya.editor.selection.setSelection(
-            { block: anchor, path: anchor.path, offset: 2 },
-            { block: focus, path: focus.path, offset: 2 },
-        );
+        muya.editor.selection.setSelection(createTextSelectionState({ block: anchor, path: anchor.path, offset: 2 }, { block: focus, path: focus.path, offset: 2 }));
         muya.editor.clipboard.cutHandler();
         muya.flush();
         expect(muya.getState()[0].name).toBe('github-alert');
@@ -280,11 +275,11 @@ describe('gitHub Alert editing', () => {
         const content = muya.editor.scrollPage!.lastContentInDescendant()!;
         content.setCursor(1, 4, true);
         muya.updateParagraph('github-alert TIP');
-        let selection = muya.editor.selection.getSelection()!;
+        let selection = muya.editor.selection.getTextSelection()!;
         expect(selection.anchor.block.text).toBe('second');
         expect([selection.anchor.offset, selection.focus.offset]).toEqual([1, 4]);
         muya.updateParagraph('paragraph');
-        selection = muya.editor.selection.getSelection()!;
+        selection = muya.editor.selection.getTextSelection()!;
         expect(selection.anchor.block.text).toBe('second');
         expect([selection.anchor.offset, selection.focus.offset]).toEqual([1, 4]);
     });
@@ -294,10 +289,7 @@ describe('gitHub Alert editing', () => {
         const page = muya.editor.scrollPage!;
         const anchor = page.firstContentInDescendant()!;
         const focus = page.lastContentInDescendant()!;
-        muya.editor.selection.setSelection(
-            { block: anchor, path: anchor.path, offset: 0 },
-            { block: focus, path: focus.path, offset: focus.text.length },
-        );
+        muya.editor.selection.setSelection(createTextSelectionState({ block: anchor, path: anchor.path, offset: 0 }, { block: focus, path: focus.path, offset: focus.text.length }));
         muya.updateParagraph('blockquote');
         muya.flush();
         expect(muya.getState()).toMatchObject([{ name: 'block-quote', children: [{ text: 'Alpha' }, { text: 'Beta' }] }]);
@@ -308,10 +300,7 @@ describe('gitHub Alert editing', () => {
         const page = muya.editor.scrollPage!;
         const anchor = page.firstContentInDescendant()!;
         const focus = page.lastContentInDescendant()!;
-        muya.editor.selection.setSelection(
-            { block: anchor, path: anchor.path, offset: 2 },
-            { block: focus, path: focus.path, offset: 2 },
-        );
+        muya.editor.selection.setSelection(createTextSelectionState({ block: anchor, path: anchor.path, offset: 2 }, { block: focus, path: focus.path, offset: 2 }));
         expect(muya.editor.clipboard.getClipboardData().text).toBe('pha\n\nBeta\n\nGa\n');
     });
     it('keeps a reference link named !NOTE as body content when converting a quote', () => {
@@ -349,7 +338,7 @@ describe('gitHub Alert editing', () => {
             { name: 'paragraph', text: 'Outside' },
         ]);
         const after = muya.getState();
-        expect(muya.editor.selection.getSelection()?.anchor.offset).toBe(0);
+        expect(muya.editor.selection.getTextSelection()?.anchor.offset).toBe(0);
         muya.undo();
         expect(muya.getState()).toEqual(before);
         muya.redo();

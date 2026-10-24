@@ -40,7 +40,7 @@ function undoNewParagraphAfter(muya: Muya, text: string): void {
     // @ts-expect-error reach into the private stack to pin the precondition.
     expect(muya.editor.history._stack.undo.map(entry => entry.selection)).toEqual([null]);
     muya.undo();
-    expect(muya.editor.selection.anchorBlock?.outMostBlock).toBeNull();
+    expect(muya.getSelection()).toBeNull();
 }
 
 describe('selectAll after undo removed the caret paragraph (#5387)', () => {

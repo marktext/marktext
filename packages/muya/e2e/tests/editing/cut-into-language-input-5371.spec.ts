@@ -32,9 +32,7 @@ test('a cut ending in a language line keeps the code block and its language inpu
         let languageInput = intro.nextContentInContext();
         while (languageInput && languageInput.blockName !== 'language-input')
             languageInput = languageInput.nextContentInContext() ?? null;
-        selection.setSelection(
-            { offset: 2, block: intro, path: intro.path },
-            { offset: 0, block: languageInput!, path: languageInput!.path },
+        selection.setSelection({ kind: 'text' as import('@muyajs/core').SelectionType.TEXT, anchor: { offset: 2, path: intro.blockName === 'language-input' ? [...intro.parent!.path, 'meta', 'lang'] : intro.path }, focus: { offset: 0, path: languageInput!.blockName === 'language-input' ? [...languageInput!.parent!.path, 'meta', 'lang'] : languageInput!.path } }
         );
     });
     await page.keyboard.press('Backspace');

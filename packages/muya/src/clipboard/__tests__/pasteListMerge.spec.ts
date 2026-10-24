@@ -4,7 +4,7 @@ import type Content from '../../block/base/content';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // muyajs `pasteCtrl` list MERGE: pasting a same-type, same-marker list into a
 // list item merges the first pasted item inline into the current item, appends
@@ -72,13 +72,13 @@ function pasteEvent(text: string) {
 
 async function paste(muya: Muya, block: Content, start: number, end: number, text: string): Promise<string> {
     const path = block.path;
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: start, block, path },
         focus: { offset: end, block, path },
         isCollapsed: start === end,
         isSelectionInSameBlock: true,
         direction: SelectionDirection.FORWARD,
-        type: SelectionCaretType.RANGE,
+
     });
     await muya.editor.clipboard.pasteHandler(pasteEvent(text), text, '');
     await new Promise(r => setTimeout(r, 40));

@@ -27,7 +27,7 @@ async function setupCaretInsideStrong(page: Page) {
 
 async function caretOffset(page: Page): Promise<number | null> {
     return page.evaluate(() => {
-        const sel = window.muya!.editor.selection.getSelection();
+        const sel = window.muya!.editor.selection.getTextSelection();
         return sel ? sel.anchor.offset : null;
     });
 }

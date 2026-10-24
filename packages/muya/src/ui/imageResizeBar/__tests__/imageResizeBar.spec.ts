@@ -1,8 +1,10 @@
-// @vitest-environment happy-dom
 import type { Muya } from '../../../muya';
+// @vitest-environment happy-dom
+import type { IImageSelectionContext } from '../../../selection/types';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ImageResizeBar } from '..';
 import EventCenter from '../../../event';
+import { SelectionType } from '../../../selection/types';
 
 const appendedNodes: ChildNode[] = [];
 const eventCenters: EventCenter[] = [];
@@ -28,6 +30,21 @@ function imageContainer(): HTMLElement {
     return container;
 }
 
+function selectImage(eventCenter: EventCenter, value: { block?: unknown; reference: HTMLElement | null; imageInfo?: unknown }) {
+    eventCenter.emit('selection-change', {
+        selection: value.reference
+            ? {
+                    kind: SelectionType.IMAGE,
+                    path: [0, 'text'],
+                    range: { start: 0, end: 1 },
+                    raw: 'x',
+                    context: { block: value.block, imageInfo: value.imageInfo, domNode: value.reference, affiliation: [], cursorCoords: null, selectionCoords: value.reference.getBoundingClientRect() } as IImageSelectionContext,
+                }
+            : null,
+        docChanged: false,
+    });
+}
+
 afterEach(() => {
     vi.useRealTimers();
     // Every bar listens on the shared document.body; drop them so one test's
@@ -40,12 +57,12 @@ afterEach(() => {
 });
 
 describe('image resize bar after its image is removed', () => {
-    it('skips the deferred render when the reference was cleared first (#5216)', () => {
+    it('removes handles when the selection is cleared (#5216)', () => {
         vi.useFakeTimers();
         const eventCenter = setup();
 
-        eventCenter.emit('muya-transformer', { block: {}, reference: imageContainer(), imageInfo: {} });
-        eventCenter.emit('muya-transformer', { reference: null });
+        selectImage(eventCenter, { block: {}, reference: imageContainer(), imageInfo: {} });
+        selectImage(eventCenter, { reference: null });
 
         expect(() => vi.runAllTimers()).not.toThrow();
         expect(document.querySelectorAll('.mu-transformer .bar')).toHaveLength(0);
@@ -55,12 +72,12 @@ describe('image resize bar after its image is removed', () => {
         vi.useFakeTimers();
         const eventCenter = setup();
 
-        eventCenter.emit('muya-transformer', { block: {}, reference: imageContainer(), imageInfo: {} });
+        selectImage(eventCenter, { block: {}, reference: imageContainer(), imageInfo: {} });
         vi.runAllTimers();
         const handle = document.querySelector<HTMLElement>('.mu-transformer .bar.right')!;
         handle.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
 
-        eventCenter.emit('muya-transformer', { reference: null });
+        selectImage(eventCenter, { reference: null });
 
         expect(eventCenter.events.some(e => e.event === 'mousemove')).toBe(false);
 
@@ -133,7 +150,7 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         const block = { updateImage: vi.fn() };
         const reference = imageContainer();
 
-        eventCenter.emit('muya-transformer', { block, reference, imageInfo: {} });
+        selectImage(eventCenter, { block, reference, imageInfo: {} });
         vi.runAllTimers();
         document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
         expect(document.querySelectorAll('.mu-transformer .bar')).toHaveLength(0);
@@ -151,7 +168,7 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         const block = { updateImage: vi.fn() };
         const reference = imageContainer();
 
-        eventCenter.emit('muya-transformer', { block, reference, imageInfo: {} });
+        selectImage(eventCenter, { block, reference, imageInfo: {} });
         vi.runAllTimers();
 
         const errors = dragFrom(contentBar());
@@ -167,7 +184,7 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         const eventCenter = setup();
         const reference = imageContainer();
 
-        eventCenter.emit('muya-transformer', { block: { updateImage: vi.fn() }, reference, imageInfo: {} });
+        selectImage(eventCenter, { block: { updateImage: vi.fn() }, reference, imageInfo: {} });
         vi.runAllTimers();
         // A right press opens the context menu, which takes the mouseup.
         contentBar().dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 2 }));
@@ -183,7 +200,7 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         const block = { updateImage: vi.fn() };
         const reference = imageContainer();
 
-        eventCenter.emit('muya-transformer', { block, reference, imageInfo: {} });
+        selectImage(eventCenter, { block, reference, imageInfo: {} });
         vi.runAllTimers();
         const handle = document.querySelector<HTMLElement>('.mu-transformer .bar.right')!;
         handle.removeAttribute('data-position');
@@ -201,7 +218,7 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         const block = { updateImage: vi.fn() };
         const imageInfo = {};
 
-        eventCenter.emit('muya-transformer', { block, reference: imageContainer(), imageInfo });
+        selectImage(eventCenter, { block, reference: imageContainer(), imageInfo });
         vi.runAllTimers();
 
         const errors = dragFrom(document.querySelector<HTMLElement>('.mu-transformer .bar.right')!, 200);
@@ -247,7 +264,7 @@ describe('image resize released outside the window (#5393)', () => {
         const imageInfo = {};
         const reference = imageContainer();
 
-        eventCenter.emit('muya-transformer', { block, reference, imageInfo });
+        selectImage(eventCenter, { block, reference, imageInfo });
         vi.runAllTimers();
 
         const errors = dragOutsideWindow(
@@ -264,7 +281,7 @@ describe('image resize released outside the window (#5393)', () => {
         vi.useFakeTimers();
         const eventCenter = setup();
 
-        eventCenter.emit('muya-transformer', { block: { updateImage: vi.fn() }, reference: imageContainer(), imageInfo: {} });
+        selectImage(eventCenter, { block: { updateImage: vi.fn() }, reference: imageContainer(), imageInfo: {} });
         vi.runAllTimers();
         dragOutsideWindow(document.querySelector<HTMLElement>('.mu-transformer .bar.right')!, 200);
 
@@ -278,7 +295,7 @@ describe('image resize invalidated by a document change (#5394)', () => {
         const eventCenter = setup();
         const block = { updateImage: vi.fn() };
         const reference = imageContainer();
-        eventCenter.emit('muya-transformer', { block, reference, imageInfo: {} });
+        selectImage(eventCenter, { block, reference, imageInfo: {} });
         vi.runAllTimers();
         document.querySelector<HTMLElement>('.mu-transformer .right')!
             .dispatchEvent(mouseEvent('mousedown', 0));
@@ -297,7 +314,7 @@ describe('image resize invalidated by a document change (#5394)', () => {
         vi.useFakeTimers();
         const eventCenter = setup();
         const reference = imageContainer();
-        eventCenter.emit('muya-transformer', { block: {}, reference, imageInfo: {} });
+        selectImage(eventCenter, { block: {}, reference, imageInfo: {} });
         reference.remove();
 
         expect(() => vi.runAllTimers()).not.toThrow();

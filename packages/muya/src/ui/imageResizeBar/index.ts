@@ -1,7 +1,8 @@
 import type Format from '../../block/base/format';
 import type { Muya } from '../../index';
-import type { ImageToken } from '../../inlineRenderer/types';
+import type { IImageInfo } from '../../utils/image';
 import { autoUpdate } from '@floating-ui/dom';
+import { SelectionType } from '../../selection/types';
 
 import { isHTMLElement, isMouseEvent } from '../../utils';
 import { findScrollContainer } from '../../utils/dom';
@@ -16,10 +17,7 @@ export class ImageResizeBar {
     static pluginName = 'transformer';
     private _reference: HTMLElement | null = null;
     private _block: Format | null = null;
-    private _imageInfo: {
-        token: ImageToken;
-        imageId: string;
-    } | null = null;
+    private _imageInfo: IImageInfo | null = null;
 
     private _movingAnchor: string | null = null;
     private _status: boolean = false;
@@ -66,20 +64,28 @@ export class ImageResizeBar {
             }
         };
 
-        eventCenter.on('muya-transformer', ({ block, reference, imageInfo }) => {
-            this.hide();
-            this._reference = reference;
-            if (reference) {
-                this._block = block;
-                this._imageInfo = imageInfo;
-                setTimeout(() => {
-                    if (this._reference === reference)
-                        this._render();
-                });
+        eventCenter.on('selection-change', ({ selection }) => {
+            if (selection?.kind !== SelectionType.IMAGE || this.muya.isReadOnly || !selection.context.domNode) {
+                this.hide();
+                return;
             }
+            const { block, imageInfo, domNode } = selection.context;
+            if (this._reference !== domNode)
+                this.hide();
+            this._reference = domNode;
+            this._block = block;
+            this._imageInfo = imageInfo;
+            setTimeout(() => {
+                if (this._reference === domNode)
+                    this._render();
+            });
         });
 
-        eventCenter.attachDOMEvent(document, 'click', this.hide.bind(this));
+        eventCenter.attachDOMEvent(document, 'click', (event) => {
+            if (event.target instanceof Node && (this._reference?.contains(event.target) || this._container.contains(event.target)))
+                return;
+            this.hide();
+        });
         eventCenter.attachDOMEvent(findScrollContainer(domNode), 'scroll', scrollHandler);
         eventCenter.attachDOMEvent(this._container, 'dragstart', event =>
             event.preventDefault());
@@ -146,6 +152,7 @@ export class ImageResizeBar {
         if (!handle || !this._container.contains(handle))
             return;
 
+        event.preventDefault();
         const { eventCenter } = this.muya;
         this._movingAnchor = handle.getAttribute('data-position');
         const image = this._reference?.querySelector('img');
@@ -168,8 +175,6 @@ export class ImageResizeBar {
             this._mouseUp,
         );
         this._resizing = true;
-        // Hide image toolbar
-        eventCenter.emit('muya-image-toolbar', { reference: null });
         this._eventId.push(mouseMoveId, mouseUpId);
     };
 

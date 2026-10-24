@@ -82,7 +82,7 @@ test.describe('blockquote and thematic break', () => {
         await page.keyboard.press('Enter');
         await expect(page.locator(editor.blockQuote).locator(editor.paragraph)).toHaveCount(2);
         await page.waitForFunction(() => {
-            const sel = window.muya!.editor.selection.getSelection();
+            const sel = window.muya!.editor.selection.getTextSelection();
             const anchor = sel?.anchor?.block;
             return anchor != null
                 && anchor.blockName === 'paragraph.content'
@@ -114,7 +114,7 @@ test.describe('blockquote and thematic break', () => {
 
         // The caret has moved into the trailing paragraph content block.
         const anchorName = await page.evaluate(
-            () => window.muya!.editor.selection.getSelection()?.anchor?.block?.blockName ?? null,
+            () => window.muya!.editor.selection.getTextSelection()?.anchor?.block?.blockName ?? null,
         );
         expect(anchorName).toBe('paragraph.content');
 

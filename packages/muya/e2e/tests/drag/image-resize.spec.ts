@@ -6,7 +6,7 @@ import { editor, floats } from '../helpers/selectors';
  * ImageResizeBar drag.
  *
  * The bar is a bespoke (non-baseFloat) plugin. On image click, the
- * selection layer emits `muya-transformer` with the image container as
+ * selection-change carries the selected image container as
  * the reference; the plugin appends two `.bar.left` / `.bar.right`
  * handles to `.mu-transformer`. Mousedown on a handle wires document
  * mousemove + mouseup; mousemove rewrites `image.width` attribute
@@ -29,7 +29,7 @@ test.describe('ImageResizeBar', () => {
         // request (the host's `__e2e.PICKED_IMAGE_URL` points at a fake
         // example.test URL — it would fail to load and Selection's
         // click handler would skip the `target.tagName === 'IMG'` branch
-        // we need to fire `muya-transformer`).
+        // we need to fire `selection-change`).
         //
         // 1×1 transparent PNG, base64.
         const dataUri = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkAAIAAAoAAv/lxKUAAAAASUVORK5CYII=';
@@ -38,7 +38,7 @@ test.describe('ImageResizeBar', () => {
         const image = page.locator(editor.image).first();
         await expect(image).toBeVisible();
 
-        // The bar listens for `muya-transformer` emitted from Selection's
+        // The bar listens for `selection-change` emitted from Selection's
         // click handler — we need a *user* click on the <img> itself, not
         // its wrapper, so that the selection layer takes the
         // `target.tagName === 'IMG'` branch. Wait for the wrapper to flip

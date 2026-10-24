@@ -14,7 +14,7 @@ test.describe('selection', () => {
         await page.locator(toolbar.selectAll).click();
         await page.locator(toolbar.selectAll).click();
         const hasMultiBlockSelection = await page.evaluate(() => {
-            const sel = window.muya!.editor.selection.getSelection();
+            const sel = window.muya!.editor.selection.getTextSelection();
             if (!sel)
                 return false;
             const { anchor, focus } = sel;

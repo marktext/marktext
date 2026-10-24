@@ -1,3 +1,5 @@
+import type { ISelectionChangePayload } from '../selection/types';
+
 // Event payloads are heterogeneous and per-event-name; the emitter does
 // `listener(...args)` with arbitrary args and the receiver destructures an
 // event-specific shape. Typed alternatives (`unknown[]` / `never[]`) force
@@ -21,3 +23,6 @@ export interface IListeners {
         once: boolean;
     }[];
 }
+
+export type TEventListener<K extends string> = K extends 'selection-change' ? (payload: ISelectionChangePayload) => void : Listener;
+export type TEventArgs<K extends string> = K extends 'selection-change' ? [payload: ISelectionChangePayload] : unknown[];

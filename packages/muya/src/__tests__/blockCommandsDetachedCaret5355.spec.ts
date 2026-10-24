@@ -76,7 +76,7 @@ describe('block commands while the caret caches point at a detached block (#5355
         for (const [commandName, run] of COMMANDS) {
             it(`${commandName} is a no-op after ${setupName}`, () => {
                 const { muya, markdown } = setup();
-                expect(muya.editor.activeContentBlock?.outMostBlock).toBeNull();
+                expect(muya.editor.activeContentBlock).toBeNull();
 
                 expect(() => run(muya)).not.toThrow();
                 muya.editor.transactions.flush();

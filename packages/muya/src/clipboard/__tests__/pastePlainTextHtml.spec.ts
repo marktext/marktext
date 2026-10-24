@@ -4,7 +4,7 @@ import type Content from '../../block/base/content';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // muyajs `pasteAsPlainText`: block-level HTML present in text/plain is inserted
 // as literal text, not rendered into a live html-block (which is what NORMAL
@@ -62,13 +62,13 @@ describe('paste as plain text — block-level HTML is literal (A8, muyajs parity
         const muya = bootMuya('foo\n', { clipboardText: () => html });
         const block = firstContent(muya);
         const path = block.path;
-        muya.editor.selection.getSelection = () => ({
+        muya.editor.selection.getTextSelection = () => ({
             anchor: { offset: 3, block, path },
             focus: { offset: 3, block, path },
             isCollapsed: true,
             isSelectionInSameBlock: true,
             direction: SelectionDirection.FORWARD,
-            type: SelectionCaretType.RANGE,
+
         });
 
         await muya.editor.clipboard.pasteAsPlainText();
@@ -85,13 +85,13 @@ describe('paste as plain text — block-level HTML is literal (A8, muyajs parity
         const muya = bootMuya('foo\n', { clipboardText: () => html });
         const block = firstContent(muya);
         const path = block.path;
-        muya.editor.selection.getSelection = () => ({
+        muya.editor.selection.getTextSelection = () => ({
             anchor: { offset: 3, block, path },
             focus: { offset: 3, block, path },
             isCollapsed: true,
             isSelectionInSameBlock: true,
             direction: SelectionDirection.FORWARD,
-            type: SelectionCaretType.RANGE,
+
         });
 
         await muya.editor.clipboard.pasteAsPlainText();

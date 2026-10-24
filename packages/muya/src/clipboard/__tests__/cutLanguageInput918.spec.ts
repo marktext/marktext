@@ -4,7 +4,7 @@ import type Content from '../../block/base/content';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // #918: a cross-block cut whose selection starts inside a code fence's
 // language-input line must collapse the start code block to a paragraph
@@ -64,13 +64,13 @@ function stubSelection(muya: Muya, a: Content, aOff: number, f: Content, fOff: n
     // re-entrant getSelection would otherwise read a null parent off it.
     const aPath = a.path;
     const fPath = f.path;
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: aOff, block: a, path: aPath },
         focus: { offset: fOff, block: f, path: fPath },
         isCollapsed: false,
         isSelectionInSameBlock: a === f,
         direction: SelectionDirection.FORWARD,
-        type: SelectionCaretType.RANGE,
+
     });
 }
 

@@ -1,10 +1,11 @@
 import type { JSONOpList } from 'ot-json1';
 import type { Muya } from '../muya';
-import type { IAnchorFocusInfo, IHistorySelection } from '../selection/types';
+import type { TSelectionState } from '../selection/types';
 import type { IJSONChangePayload } from '../state/changePayload';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import * as json1 from 'ot-json1';
+import { copySelectionState, equalSelections } from '../selection/state';
 import { asDoc } from '../state';
 import { getPreviousDoc, getRecordSelection, isHistorySuppressed } from '../state/changePayload';
 import { ChangeSource } from '../types';
@@ -18,7 +19,7 @@ interface IOptions {
 
 interface IOperation {
     operation: JSONOpList;
-    selection: Nullable<IHistorySelection>;
+    selection: Nullable<TSelectionState>;
     // Whole-document operations require a full tree rebuild; the incremental walker cannot apply them safely.
     rebuild?: boolean;
 }
@@ -28,21 +29,9 @@ interface IStack {
     redo: IOperation[];
 }
 
-// Persist paths and offsets; live block references cannot survive serialization.
-type ISerializableAnchorFocusInfo = Pick<IAnchorFocusInfo, 'offset' | 'path'>;
-
-interface ISerializableSelection {
-    anchor: ISerializableAnchorFocusInfo;
-    focus: ISerializableAnchorFocusInfo;
-    isCollapsed: IHistorySelection['isCollapsed'];
-    isSelectionInSameBlock: IHistorySelection['isSelectionInSameBlock'];
-    direction: IHistorySelection['direction'];
-    type: IHistorySelection['type'];
-}
-
 interface ISerializableOperation {
     operation: JSONOpList;
-    selection: Nullable<ISerializableSelection>;
+    selection: Nullable<TSelectionState>;
     rebuild?: boolean;
 }
 
@@ -91,8 +80,8 @@ export function shouldBreakUndoGroup(
 class History {
     private _lastRecorded: number = 0;
     private _lastInputKind: Nullable<TInputKind> = null;
-    private _nextSelection: Nullable<IHistorySelection> | undefined;
-    private _lastSelection: Nullable<IHistorySelection> = null;
+    private _nextSelection: Nullable<TSelectionState> | undefined;
+    private _lastSelection: Nullable<TSelectionState> = null;
     private _stack: IStack = {
         undo: [],
         redo: [],
@@ -195,41 +184,16 @@ class History {
         };
     }
 
-    private _toSerializableSelection(
-        selection: Nullable<IHistorySelection>,
-    ): Nullable<ISerializableSelection> {
-        if (selection == null)
-            return selection;
-
-        return {
-            anchor: { offset: selection.anchor.offset, path: deepClone(selection.anchor.path) },
-            focus: { offset: selection.focus.offset, path: deepClone(selection.focus.path) },
-            isCollapsed: selection.isCollapsed,
-            isSelectionInSameBlock: selection.isSelectionInSameBlock,
-            direction: selection.direction,
-            type: selection.type,
-        };
+    private _toSerializableSelection(selection: Nullable<TSelectionState>): TSelectionState | null {
+        return copySelectionState(selection ?? null);
     }
 
-    // Restored selections omit live blocks; editor selection restoration resolves their paths.
-    private _fromSerializableSelection(
-        selection: Nullable<ISerializableSelection>,
-    ): Nullable<IHistorySelection> {
-        if (selection == null)
-            return selection;
-
-        return {
-            anchor: { offset: selection.anchor.offset, path: deepClone(selection.anchor.path) },
-            focus: { offset: selection.focus.offset, path: deepClone(selection.focus.path) },
-            isCollapsed: selection.isCollapsed,
-            isSelectionInSameBlock: selection.isSelectionInSameBlock,
-            direction: selection.direction,
-            type: selection.type,
-        };
+    private _fromSerializableSelection(selection: Nullable<TSelectionState>): TSelectionState | null {
+        return copySelectionState(selection ?? null);
     }
 
     // An explicit selection becomes the undo destination for the next recorded edit.
-    cutoff(selection?: IHistorySelection) {
+    cutoff(selection?: TSelectionState) {
         this._lastRecorded = 0;
         if (selection)
             this._nextSelection = this._toSerializableSelection(selection);
@@ -244,13 +208,13 @@ class History {
         this._lastInputKind = kind;
     }
 
-    private _record(op: JSONOpList, doc: readonly TState[], before: Nullable<IHistorySelection>) {
+    private _record(op: JSONOpList, doc: readonly TState[], before: Nullable<TSelectionState>) {
         if (op.length === 0)
             return;
 
         let selection = this._nextSelection !== undefined ? this._nextSelection : before;
         this._nextSelection = undefined;
-        if (JSON.stringify(this._toSerializableSelection(selection)) !== JSON.stringify(this._toSerializableSelection(this._lastSelection)))
+        if (!equalSelections(selection ?? null, this._lastSelection ?? null))
             this._lastRecorded = 0;
         this._lastSelection = this._selection.getSelectionState();
         this._stack.redo = [];
@@ -281,7 +245,7 @@ class History {
 
     // Record a whole-document replacement as a standalone undo step and clear redo.
     // The caller must apply the forward operation separately; later edits start a new group.
-    recordRebuild(op: JSONOpList, prevDoc: readonly TState[], selection: Nullable<IHistorySelection>) {
+    recordRebuild(op: JSONOpList, prevDoc: readonly TState[], selection: Nullable<TSelectionState>) {
         if (op.length === 0)
             return;
 

@@ -3,9 +3,8 @@ import { expect, test } from '../fixtures/muya';
 import { loadMarkdown } from '../helpers/keyboard';
 import { editor } from '../helpers/selectors';
 
-// `muya.getSelectedText()` reads the live native range, so it only says
-// anything once the browser has produced one. These cover the interactions a
-// host counts words for; the per-container separator rules are unit-tested in
+// These cover native interactions feeding the logical selection a host counts
+// words for; the per-container separator rules are unit-tested in
 // `src/selection/__tests__/selectedText.spec.ts`.
 
 function selectedText(page: Page): Promise<string> {
@@ -66,7 +65,7 @@ test('grows with a keyboard selection and empties with the caret', async ({ page
     expect(await selectedText(page)).toBe('');
 });
 
-test('reports nothing for a selection outside the editor', async ({ page }) => {
+test('preserves its logical selection when a tool selects text outside the editor', async ({ page }) => {
     await loadMarkdown(page, 'Alpha beta gamma\n');
     await dragAcrossParagraphs(page);
     expect(await selectedText(page)).toBe('Alpha beta gamma');
@@ -82,5 +81,5 @@ test('reports nothing for a selection outside the editor', async ({ page }) => {
         selection.addRange(range);
     });
 
-    expect(await selectedText(page)).toBe('');
+    expect(await selectedText(page)).toBe('Alpha beta gamma');
 });

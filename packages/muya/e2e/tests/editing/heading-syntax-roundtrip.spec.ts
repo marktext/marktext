@@ -132,9 +132,7 @@ test('formatting across blocks excludes heading delimiters', async ({ page }) =>
         const muya = window.muya!;
         const first = muya.editor.scrollPage!.firstContentInDescendant()!;
         const last = muya.editor.scrollPage!.lastContentInDescendant()!;
-        muya.editor.selection.setSelection(
-            { block: first, path: first.path, offset: 0 },
-            { block: last, path: last.path, offset: last.text.length },
+        muya.editor.selection.setSelection({ kind: 'text' as import('@muyajs/core').SelectionType.TEXT, anchor: { offset: 0, path: first.blockName === 'language-input' ? [...first.parent!.path, 'meta', 'lang'] : first.path }, focus: { offset: last.text.length, path: last.blockName === 'language-input' ? [...last.parent!.path, 'meta', 'lang'] : last.path } }
         );
         muya.format('strong');
     });

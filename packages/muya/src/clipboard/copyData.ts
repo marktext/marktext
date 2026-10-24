@@ -2,7 +2,7 @@ import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
 import type TreeNode from '../block/base/treeNode';
 import type { Muya } from '../muya';
-import type { ISelection } from '../selection/types';
+import type { IResolvedTextSelection } from '../selection/types';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import type Clipboard from './index';
@@ -75,7 +75,7 @@ function getTableSelectionClipboardData(
 }
 
 function resolveSelectionOrder(
-    selection: ISelection,
+    selection: IResolvedTextSelection,
 ): ICopyOrder {
     const { anchor, focus } = selection;
     const anchorBlock = anchor.block;
@@ -332,7 +332,7 @@ export function getClipboardData(clipboard: Clipboard): IClipboardPayload {
     if (tableData != null)
         return tableData;
 
-    const selection = clipboard.selection.getSelection();
+    const selection = clipboard.selection.getTextSelection();
     if (selection == null)
         return { html: '', text: '' };
 
@@ -384,7 +384,7 @@ export function writeClipboardData(
 
     const selectedImage = clipboard.muya.editor?.selection?.image;
     if (selectedImage) {
-        const { raw } = selectedImage.token;
+        const { raw } = selectedImage.imageInfo.token;
         if (raw.length > 0) {
             event.clipboardData.setData('text/html', raw);
             event.clipboardData.setData('text/plain', raw);

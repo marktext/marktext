@@ -4,7 +4,7 @@ import type Content from '../../block/base/content';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // muyajs trims pasted table-cell text and normalizes CRLF to LF before folding
 // newlines into `<br/>`. A table cell takes the paste literally, so a stray
@@ -59,13 +59,13 @@ function firstCellContent(muya: Muya): Content {
 
 function stubSelection(muya: Muya, block: Content, start: number, end: number) {
     const path = block.path;
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: start, block, path },
         focus: { offset: end, block, path },
         isCollapsed: start === end,
         isSelectionInSameBlock: true,
         direction: SelectionDirection.FORWARD,
-        type: SelectionCaretType.RANGE,
+
     });
 }
 

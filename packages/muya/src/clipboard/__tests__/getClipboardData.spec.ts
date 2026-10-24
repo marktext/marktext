@@ -49,7 +49,7 @@ function makeClipboard(
     const clipboard = new Clipboard(fakeMuya());
     Object.defineProperty(clipboard, 'selection', {
         get: () => ({
-            getSelection: () => selectionOver(text, begin, end, blockName),
+            getTextSelection: () => selectionOver(text, begin, end, blockName),
             table: { hasSelection: false, getStateForCopy: () => null, clear: vi.fn() },
         }),
     });

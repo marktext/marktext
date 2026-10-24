@@ -1,7 +1,9 @@
-// @vitest-environment happy-dom
-
+import type { Token } from '../../../inlineRenderer/types';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
 import { Muya } from '../../../muya';
+// @vitest-environment happy-dom
+import { SelectionType } from '../../../selection/types';
 import { BACKGROUND_COLOR_SWATCHES, TEXT_COLOR_SWATCHES } from '../config';
 import { InlineFormatToolbar } from '../index';
 
@@ -33,12 +35,16 @@ function bootMuya(markdown: string): Muya {
 
 function emitSelectionChange(
     muya: Muya,
-    formats: Array<Record<string, unknown>>,
+    formats: Array<{ type: string; tag?: string; attrs?: Record<string, string> }>,
 ): void {
+    const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+    first.setCursor(0, Math.min(4, first.text.length), true);
+    const selection = muya.getSelection();
+    if (selection?.kind !== SelectionType.TEXT)
+        throw new Error('Expected a text selection');
     muya.eventCenter.emit('selection-change', {
-        formats,
-        isCollapsed: false,
-        isSelectionInSameBlock: true,
+        selection: { ...selection, context: { ...selection.context, formats: formats as Token[], isCollapsed: false, isSelectionInSameBlock: true } },
+        docChanged: false,
     });
 }
 

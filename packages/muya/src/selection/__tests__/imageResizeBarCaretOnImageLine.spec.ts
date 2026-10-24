@@ -55,9 +55,9 @@ describe('image click with the caret on the image\'s line (#5391)', () => {
         const container = injectImage(muya, src);
 
         const references: unknown[] = [];
-        muya.eventCenter.on('muya-transformer', (payload: { reference?: unknown }) => {
-            if (payload && payload.reference)
-                references.push(payload.reference);
+        muya.eventCenter.on('selection-change', ({ selection }) => {
+            if (selection?.kind === 'image')
+                references.push(selection.context.domNode);
         });
 
         container
@@ -84,9 +84,9 @@ describe('image click with the caret on the image\'s line (#5391)', () => {
         });
 
         const handler = vi.fn();
-        muya.eventCenter.on('muya-transformer', (payload: { reference?: unknown }) => {
-            if (payload && payload.reference)
-                handler(payload.reference);
+        muya.eventCenter.on('selection-change', ({ selection }) => {
+            if (selection?.kind === 'image')
+                handler(selection.context.domNode);
         });
 
         containers[1]!

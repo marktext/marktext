@@ -11,7 +11,7 @@ import LangInputContent from '../block/content/langInputContent';
 import TableCellContent from '../block/content/tableCell';
 import { ScrollPage } from '../block/scrollPage';
 import { CLASS_NAMES } from '../config';
-import { SelectionDirection, SelectionType } from '../selection/types';
+import { SelectionDirection } from '../selection/types';
 import { ChangeSource } from '../types';
 import { getBlock } from '../utils/dom';
 
@@ -353,7 +353,7 @@ function replaceRange(block: Content, start: number, end: number, text: string):
 }
 
 export function insertTextAtCursor(clipboard: Clipboard, text: string): void {
-    const { anchor, isCollapsed } = clipboard.selection.getSelection() ?? {};
+    const { anchor, isCollapsed } = clipboard.selection.getTextSelection() ?? {};
     if (anchor == null || !isCollapsed)
         return;
 
@@ -363,9 +363,8 @@ export function insertTextAtCursor(clipboard: Clipboard, text: string): void {
 export function cutSelection(clipboard: Clipboard): void {
     const selectedImage = clipboard.selection.image;
     if (selectedImage) {
-        const { block, ...imageInfo } = selectedImage;
+        const { block, imageInfo } = selectedImage;
         block.deleteImage(imageInfo);
-        clipboard.selection.activate(SelectionType.TEXT);
 
         return;
     }
@@ -377,7 +376,7 @@ export function cutSelection(clipboard: Clipboard): void {
         return;
     }
 
-    const selection = clipboard.selection.getSelection();
+    const selection = clipboard.selection.getTextSelection();
     if (selection == null)
         return;
 

@@ -2,6 +2,7 @@ import type Content from '../block/base/content';
 import type { Token } from '../inlineRenderer/types';
 import type Clipboard from './index';
 import { tokenizer } from '../inlineRenderer/lexer';
+import { createTextSelectionState } from '../selection/state';
 import { PasteType } from './types';
 
 function singleHttpUrl(text: string): string | null {
@@ -85,7 +86,7 @@ export function tryPasteUrl(clipboard: Clipboard, block: Content, text: string, 
     // Escaping delimiters keeps URL parentheses and backslashes out of Markdown syntax.
     const destination = url.replace(/[\\()<>]/g, '\\$&').replace(/\|/g, '%7C');
     const link = `[${label}](${destination})`;
-    clipboard.muya.editor.history.cutoff(cursor);
+    clipboard.muya.editor.history.cutoff(createTextSelectionState(cursor.anchor, cursor.focus));
     block.text = block.text.slice(0, start) + link + block.text.slice(end);
     block.setCursor(start + link.length, start + link.length, true);
     return true;

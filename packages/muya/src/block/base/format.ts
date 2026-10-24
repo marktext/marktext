@@ -28,6 +28,8 @@ import {
 import { generator, tokenizer } from '../../inlineRenderer/lexer';
 import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
+import { contentPath } from '../../selection/state';
+import { SelectionType } from '../../selection/types';
 import { isListItemState } from '../../state/types';
 import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isKeyboardEvent, isMouseEvent, lastGraphemeLength } from '../../utils';
 import { COLOR_SPAN_CLOSE_TAG, colorPropertyOf, colorSpanOpenTag, isColorStyleEmpty, parseColorStyle } from '../../utils/colorSpan';
@@ -377,6 +379,10 @@ class Format extends Content {
     }
 
     checkNeedRender(cursor: IRenderCursor = { anchor: this.selection.anchor ?? undefined, focus: this.selection.focus ?? undefined }) {
+        // Native selection updates can precede click/keyup; visible markers still
+        // need repainting after the logical caret has already left their token.
+        if (this.domNode?.querySelector('.mu-remove.mu-gray'))
+            return true;
         const { labels } = this.inlineRenderer;
         const { text } = this;
         const { start: cStart, end: cEnd, anchor, focus } = cursor;
@@ -484,7 +490,7 @@ class Format extends Content {
     }
 
     updateImage(
-        { imageId, token }: IImageInfo,
+        { token }: IImageInfo,
         attrName: string,
         attrValue: string,
     ) {
@@ -510,17 +516,12 @@ class Format extends Content {
 
         this.update();
 
-        const selector = `#${imageId.includes('_') ? imageId : `${imageId}_${token.range.start}`
-        } img`;
-        // Scope the lookup to this block: identical-src images share a DOM id,
-        // so a document-wide query would re-click the first occurrence. Within a
-        // single block the `_${range.start}` suffix is unique.
-        const image: Nullable<HTMLElement>
-            = this.domNode?.querySelector<HTMLElement>(selector)
-                ?? document.querySelector<HTMLElement>(selector);
-
-        if (image)
-            image.click();
+        this.selection.setSelection({
+            kind: SelectionType.IMAGE,
+            path: contentPath(this),
+            range: { start, end: start + imageText.length },
+            raw: imageText,
+        });
     }
 
     // Unlink keeps the visible anchor text rather than substituting the URL.
@@ -537,13 +538,8 @@ class Format extends Content {
     deleteImage({ token }: IImageInfo) {
         const oldText = this.text;
         const { start, end } = token.range;
-        const { eventCenter } = this.muya;
-
         this.text = oldText.substring(0, start) + oldText.substring(end);
         this.setCursor(start, start, true);
-
-        eventCenter.emit('muya-transformer', { reference: null });
-        eventCenter.emit('muya-image-toolbar', { reference: null });
     }
 
     override clickHandler(event: Event): void {
@@ -592,15 +588,6 @@ class Format extends Content {
                 this.update(cursor);
 
             this.setCursor(currentCursor.anchor.offset, currentCursor.focus.offset);
-
-            if (cursor.start.offset !== cursor.end.offset) {
-                const reference = getCursorReference();
-
-                this.muya.eventCenter.emit('muya-format-picker', {
-                    reference,
-                    block: this,
-                });
-            }
         });
     }
 
@@ -622,11 +609,8 @@ class Format extends Content {
         if (
             anchor.offset !== oldAnchor?.offset
             || focus.offset !== oldFocus?.offset
+            || this.checkNeedRender()
         ) {
-            // Also check the previously committed selection (no-arg default):
-            // a held arrow fires one keyup on release, so the caret can leap
-            // clear of a token in a single step and leave its markers stuck
-            // revealed. Mirrors the guard in `clickHandler`.
             const needUpdate = this.checkNeedRender({ anchor, focus }) || this.checkNeedRender();
             const cursor = { anchor, focus, block: this };
 
@@ -645,15 +629,6 @@ class Format extends Content {
         if (!editEmoji) {
             this.muya.eventCenter.emit('muya-emoji-picker', {
                 emojiText: '',
-            });
-        }
-
-        if (anchor.offset !== focus.offset) {
-            const reference = getCursorReference();
-
-            this.muya.eventCenter.emit('muya-format-picker', {
-                reference,
-                block: this,
             });
         }
     }

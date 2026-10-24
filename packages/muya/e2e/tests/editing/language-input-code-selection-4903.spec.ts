@@ -38,13 +38,11 @@ async function selectFromLanguageInputIntoCode(page: Page, languageOffset: numbe
         const { scrollPage, selection } = window.muya!.editor;
         const languageInput = scrollPage!.firstContentInDescendant()!.nextContentInContext()!;
         const code = languageInput.nextContentInContext()!;
-        selection.setSelection(
-            { offset: languageOffset, block: languageInput, path: languageInput.path },
-            { offset: codeOffset, block: code, path: code.path },
+        selection.setSelection({ kind: 'text' as import('@muyajs/core').SelectionType.TEXT, anchor: { offset: languageOffset, path: languageInput.blockName === 'language-input' ? [...languageInput.parent!.path, 'meta', 'lang'] : languageInput.path }, focus: { offset: codeOffset, path: code.blockName === 'language-input' ? [...code.parent!.path, 'meta', 'lang'] : code.path } }
         );
     }, { languageOffset, codeOffset });
     await expect.poll(() => page.evaluate(() => {
-        const selection = window.muya!.editor.selection.getSelection();
+        const selection = window.muya!.editor.selection.getTextSelection();
         return selection && `${selection.anchor.block.blockName}@${selection.anchor.offset} -> ${selection.focus.block.blockName}@${selection.focus.offset}`;
     })).toBe(`language-input@${languageOffset} -> codeblock.content@${codeOffset}`);
 }

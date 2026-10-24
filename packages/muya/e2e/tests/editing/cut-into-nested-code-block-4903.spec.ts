@@ -36,13 +36,11 @@ async function loadAndSelectIntoNestedBlock(page: Page, markdown: string, codeOf
         let code = paragraph.nextContentInContext();
         while (code && code.blockName !== 'codeblock.content')
             code = code.nextContentInContext() ?? null;
-        selection.setSelection(
-            { offset: 2, block: paragraph, path: paragraph.path },
-            { offset: codeOffset, block: code!, path: code!.path },
+        selection.setSelection({ kind: 'text' as import('@muyajs/core').SelectionType.TEXT, anchor: { offset: 2, path: paragraph.blockName === 'language-input' ? [...paragraph.parent!.path, 'meta', 'lang'] : paragraph.path }, focus: { offset: codeOffset, path: code!.blockName === 'language-input' ? [...code!.parent!.path, 'meta', 'lang'] : code!.path } }
         );
     }, codeOffset);
     await expect.poll(() => page.evaluate(() => {
-        const selection = window.muya!.editor.selection.getSelection();
+        const selection = window.muya!.editor.selection.getTextSelection();
         return selection && `${selection.anchor.block.blockName}@${selection.anchor.offset} -> ${selection.focus.block.blockName}@${selection.focus.offset}`;
     })).toBe(`paragraph.content@2 -> codeblock.content@${codeOffset}`);
 }

@@ -105,7 +105,7 @@ describe('muya.locale() refreshes rendered hints (Phase G — G8)', () => {
 
         muya.locale(zhCN);
 
-        const sel = muya.editor.selection.getSelection();
+        const sel = muya.editor.selection.getTextSelection();
         expect(sel).not.toBeNull();
         expect(sel!.anchor.offset).toBe(5);
         expect(sel!.anchor.block.text).toBe('hello world');
