@@ -112,7 +112,7 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
             state.tokens.push(token);
             state.src = state.src.substring(to[0].length);
             state.pos = state.pos + to[0].length;
-            break;
+            return;
         }
     }
     const def = beginRules.reference_definition.exec(state.src);

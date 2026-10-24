@@ -48,6 +48,51 @@ function assertTree(muya: Muya) {
 
 describe('heading source round trips', () => {
     it.each([
+        '-\n    ## title\n\n  tail\n',
+        '-\n    title\n    ===\n\n  tail\n',
+        '1.\n     ## title\n\n   tail\n',
+        '1.\n     title\n     ===\n\n   tail\n',
+    ])('keeps list continuation columns around an indented first heading: %j', (source) => {
+        const state = parser.generate(source);
+        const markdown = printer.generate(state);
+        expect(parser.generate(markdown)).toEqual(state);
+        expect(markdown).toBe(source);
+    });
+
+    it.each([
+        [' title\n', 3, 3],
+        ['  title\n', 4, 4],
+        ['   title\n', 5, 5],
+        ['  title\n', 4, 6],
+        ['  title\n', 0, 2],
+    ])('counts existing paragraph indentation only once during heading conversion: %j', (source, start, end) => {
+        const muya = boot(source);
+        muya.editor.scrollPage!.firstContentInDescendant()!.setCursor(start, end, true);
+        muya.updateParagraph('heading 2');
+        expect(muya.getMarkdown()).toBe(`## ${source}`);
+        expect(muya.editor.selection.anchor?.offset).toBe(start + 3);
+        expect(muya.editor.selection.focus?.offset).toBe(end + 3);
+        assertTree(muya);
+    });
+
+    it('preserves the raw Setext body offset when converting it to ATX', () => {
+        const muya = boot('  title\n===\n');
+        muya.editor.scrollPage!.firstContentInDescendant()!.setCursor(4, 6, true);
+        muya.updateParagraph('degrade heading');
+        expect(muya.getMarkdown()).toBe('##   title\n');
+        expect(muya.editor.selection.anchor?.offset).toBe(7);
+        expect(muya.editor.selection.focus?.offset).toBe(9);
+        assertTree(muya);
+    });
+
+    it('keeps outline HTML and the GitHub slug for definition-shaped heading text', () => {
+        const muya = boot('# [x]: https://example.com\n');
+        const heading = muya.getTOC()[0];
+        expect(heading.contentHtml).toContain('[x]: ');
+        expect(heading.githubSlug).toBe('x-httpsexamplecom');
+    });
+
+    it.each([
         '#\n',
         '# \t\n',
         '## #\n',
@@ -251,6 +296,7 @@ describe('heading source round trips', () => {
         ['# title # #\n', 'title #'],
         ['## ###\n', ''],
         ['title #\n====\n', 'title #'],
+        ['# [x]: https://example.com\n', '[x]: https://example.com'],
     ])('keeps syntax out of the outline: %j', (source, expected) => {
         const muya = boot(source);
         expect(muya.getTOC()[0].content).toBe(expected);

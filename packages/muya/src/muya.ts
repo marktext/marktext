@@ -32,7 +32,7 @@ import {
     locateSentinelOffsets,
     resolveSentinelCursor,
 } from './selection/offsetCursor';
-import { atxHeadingBody, atxHeadingBodyRange, atxHeadingPrefixLength } from './state/headings';
+import { atxHeadingBody, atxHeadingBodyRange } from './state/headings';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState, markdownListMarker } from './state/types';
 import { ChangeSource } from './types';
 import { Ui } from './ui/ui';
@@ -501,25 +501,13 @@ export class Muya {
         if (!isSelectionInSameBlock || !(anchorBlock instanceof Format))
             return;
 
-        // A heading's text includes its leading `# ` marker; never format the
-        // marker itself, only the heading content. Clamp the start past it.
-        const markerLen = this._headingMarkerLen(anchorBlock);
-        let lo = Math.min(anchor.offset, focus.offset);
-        const hi = Math.max(anchor.offset, focus.offset);
-        if (markerLen > 0) {
-            lo = Math.max(lo, markerLen);
-            if (hi <= markerLen)
-                return; // the selection lies entirely within the marker
-        }
-
-        // Restore the selection before applying the format — the menu/IPC
-        // round-trip can drop the live DOM selection.
-        selection.setSelection(
-            { offset: lo, block: anchorBlock, path: anchor.path },
-            { offset: hi, block: anchorBlock, path: focus.path },
+        this._formatLeafInRange(
+            type,
+            anchorBlock,
+            Math.min(anchor.offset, focus.offset),
+            Math.max(anchor.offset, focus.offset),
+            true,
         );
-
-        anchorBlock.format(type);
     }
 
     private _formatAcrossBlocks(type: string) {
@@ -585,23 +573,27 @@ export class Muya {
     }
 
     /**
-     * Apply `type` to one leaf over [start, end], skipping non-formattable
-     * leaves and a heading's leading `# ` marker. Returns the leaf's selection
+     * Apply `type` to one leaf over [start, end), skipping non-formattable
+     * leaves and heading delimiters. Returns the leaf's selection
      * range AFTER formatting (offsets shift past inserted markers), or null when
      * the leaf was skipped.
      */
-    private _formatLeafInRange(type: string, leaf: Content, start: number, end: number): { start: number; end: number } | null {
+    private _formatLeafInRange(type: string, leaf: Content, start: number, end: number, allowCollapsed = false): { start: number; end: number } | null {
         if (!(leaf instanceof Format))
             return null;
 
-        const from = Math.max(start, this._headingMarkerLen(leaf));
-        if (end <= from)
+        const body = this._headingBodyRange(leaf);
+        if (body && body.start === body.end)
+            return null;
+        const from = Math.max(start, body?.start ?? 0);
+        const to = Math.min(end, body?.end ?? leaf.text.length);
+        if (to < from || (to === from && (!allowCollapsed || start !== end)))
             return null;
 
         const { selection } = this.editor;
         selection.setSelection(
             { offset: from, block: leaf, path: leaf.path },
-            { offset: end, block: leaf, path: leaf.path },
+            { offset: to, block: leaf, path: leaf.path },
         );
         leaf.format(type);
 
@@ -609,15 +601,8 @@ export class Muya {
         // updates the cached selection — read the adjusted range back from it.
         return {
             start: selection.anchor?.offset ?? from,
-            end: selection.focus?.offset ?? end,
+            end: selection.focus?.offset ?? to,
         };
-    }
-
-    private _headingMarkerLen(leaf: Content): number {
-        if (leaf.parent?.blockName !== 'atx-heading')
-            return 0;
-
-        return atxHeadingPrefixLength(leaf.text);
     }
 
     private _headingBodyRange(leaf: Nullable<Content>) {
@@ -1383,13 +1368,11 @@ export class Muya {
 
         // Removing closing syntax clamps a body endpoint; it cannot shift it left.
         const targetBody = this._headingBodyRange(target);
-        if (sourceBody || targetBody) {
+        if (sourceBody) {
             const mapOffset = (offset: number) => {
                 if (anchorText === target.text)
                     return clampTo(offset, target.text.length);
-                const bodyOffset = sourceBody
-                    ? clampTo(offset - sourceBody.start, sourceBody.end - sourceBody.start)
-                    : offset;
+                const bodyOffset = clampTo(offset - sourceBody.start, sourceBody.end - sourceBody.start);
                 return clampTo(bodyOffset + (targetBody?.start ?? 0), targetBody?.end ?? target.text.length);
             };
             target.setCursor(mapOffset(anchorOffset), mapOffset(focusOffset), true);

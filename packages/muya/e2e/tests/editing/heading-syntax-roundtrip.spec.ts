@@ -113,3 +113,72 @@ test('NBSP accepted by marked imports without a second parser rejecting it', asy
     expect(await getMarkdown(page)).toBe('#\u00a0title\n');
     expect(await page.evaluate(() => window.muya!.getTOC()[0].content)).toBe('title');
 });
+
+for (const source of ['# title ###\n', '  ##   title  ###  \n']) {
+    test(`formatting a whole heading excludes its closing syntax: ${JSON.stringify(source)}`, async ({ page }) => {
+        await loadMarkdown(page, source);
+        await page.evaluate(() => {
+            const content = window.muya!.editor.scrollPage!.firstContentInDescendant()!;
+            content.setCursor(0, content.text.length, true);
+            window.muya!.format('strong');
+        });
+        await expect.poll(() => getMarkdown(page)).toBe(source.replace('title', '**title**'));
+    });
+}
+
+test('formatting across blocks excludes heading delimiters', async ({ page }) => {
+    await loadMarkdown(page, '# title ###\n\nother\n');
+    await page.evaluate(() => {
+        const muya = window.muya!;
+        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+        const last = muya.editor.scrollPage!.lastContentInDescendant()!;
+        muya.editor.selection.setSelection(
+            { block: first, path: first.path, offset: 0 },
+            { block: last, path: last.path, offset: last.text.length },
+        );
+        muya.format('strong');
+    });
+    await expect.poll(() => getMarkdown(page)).toBe('# **title** ###\n\n**other**\n');
+});
+
+for (const [source, start, end] of [
+    ['# title ###\n', 0, 2],
+    ['# title ###\n', 7, 11],
+    ['#\n', 1, 1],
+    ['## ###\n', 3, 3],
+] as const) {
+    test(`formatting syntax-only or empty heading content is a no-op: ${JSON.stringify([source, start, end])}`, async ({ page }) => {
+        await loadMarkdown(page, source);
+        await page.evaluate(([from, to]) => {
+            window.muya!.editor.scrollPage!.firstContentInDescendant()!.setCursor(from, to, true);
+            window.muya!.format('strong');
+        }, [start, end]);
+        expect(await getMarkdown(page)).toBe(source);
+    });
+}
+
+test('formatting at the heading body end keeps the closing marker separate', async ({ page }) => {
+    await loadMarkdown(page, '# title ###\n');
+    await seat(page, 7);
+    await page.evaluate(() => window.muya!.format('strong'));
+    await page.keyboard.type('X');
+    await expect.poll(() => getMarkdown(page)).toBe('# title**X** ###\n');
+});
+
+test('converting an indented paragraph keeps the real typing position', async ({ page }) => {
+    await loadMarkdown(page, '  title\n');
+    await seat(page, 4);
+    await page.evaluate(() => window.muya!.updateParagraph('heading 2'));
+    expect(await page.evaluate(() => window.muya!.getCursorOffset())).toEqual({
+        anchor: { line: 0, ch: 7 }, focus: { line: 0, ch: 7 },
+    });
+    await page.keyboard.type('X');
+    await expect.poll(() => getMarkdown(page)).toBe('##   tiXtle\n');
+});
+
+test('definition-shaped heading text remains visible in the outline', async ({ page }) => {
+    await loadMarkdown(page, '# [x]: https://example.com\n');
+    const heading = await page.evaluate(() => window.muya!.getTOC()[0]);
+    expect(heading.content).toBe('[x]: https://example.com');
+    expect(heading.githubSlug).toBe('x-httpsexamplecom');
+});
