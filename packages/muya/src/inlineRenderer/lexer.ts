@@ -112,7 +112,7 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
             state.tokens.push(token);
             state.src = state.src.substring(to[0].length);
             state.pos = state.pos + to[0].length;
-            break;
+            return;
         }
     }
     const def = beginRules.reference_definition.exec(state.src);
@@ -763,8 +763,14 @@ function tryHardLineBreak(state: ILexState): boolean {
 }
 
 function tryTailHeader(state: ILexState): boolean {
-    const tailTo = state.inlineRules.tail_header.exec(state.src);
-    if (!(tailTo && state.top))
+    if (!state.top || state.tokens[0]?.type !== 'header')
+        return false;
+
+    // For an empty ATX body, the opening token already consumed the separator.
+    const afterOpening = state.tokens.length === 1 && !state.pending;
+    const tailTo = state.inlineRules.tail_header.exec(state.src)
+        ?? (afterOpening ? /^(#+)(\s*)$/.exec(state.src) : null);
+    if (!tailTo)
         return false;
 
     pushPending(state);

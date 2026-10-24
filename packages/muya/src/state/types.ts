@@ -10,6 +10,7 @@ export interface IAtxHeadingState {
     meta: {
         level: number;
     };
+    // The complete editable line, including opening/closing markers and whitespace.
     text: string;
 }
 
@@ -17,8 +18,8 @@ export interface ISetextHeadingState {
     name: 'setext-heading';
     meta: {
         level: number;
-        underline: string; // "===" | "---";
     };
+    syntax: { underline: string }; // The complete underline line, excluding its EOL.
     text: string;
 }
 

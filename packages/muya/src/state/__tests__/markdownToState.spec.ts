@@ -168,7 +168,7 @@ describe('markdownToState — task list nesting (marktext 23435ce6)', () => {
         expect(states.length).toBe(1);
         expect(states[0].name).toBe('setext-heading');
         expect(states[0].meta!.level).toBe(1);
-        expect(states[0].meta!.underline).toBeTruthy();
+        expect(states[0]).toMatchObject({ syntax: { underline: '===========' } });
     });
 
     it('parses setext h2 (--- underline) as setext-heading with level 2', () => {

@@ -1189,22 +1189,27 @@ class Format extends Content {
         const setextLines = [];
         const postParagraphLines = [];
         let setextLineHasPushed = false;
+        let underline = setextHeading;
 
         for (const l of lines) {
-            if (/^ {0,3}(?:={3,}|-{3,})(?= +|$)/.test(l) && !setextLineHasPushed)
+            if (/^ {0,3}(?:={3,}|-{3,})(?= +|$)/.test(l) && !setextLineHasPushed) {
                 setextLineHasPushed = true;
-            else if (!setextLineHasPushed)
+                underline = l;
+            }
+            else if (!setextLineHasPushed) {
                 setextLines.push(l);
-            else
+            }
+            else {
                 postParagraphLines.push(l);
+            }
         }
 
         const newNodeState = {
             name: 'setext-heading',
             meta: {
                 level,
-                underline: setextHeading,
             },
+            syntax: { underline },
             text: setextLines.join('\n'),
         };
 
@@ -1265,6 +1270,7 @@ class Format extends Content {
             quoteParagraphState = {
                 name: 'setext-heading',
                 meta: (this.parent as SetextHeading).meta,
+                syntax: (this.parent as SetextHeading).syntax,
                 text: quoteLines.join('\n'),
             };
         }
@@ -1647,15 +1653,19 @@ class Format extends Content {
     }
 
     override enterHandler(event: KeyboardEvent): void {
+        const { text } = this;
+        const { start, end } = this.getCursor()!;
+        this.splitToParagraph(event, text.substring(0, start.offset), text.substring(end.offset));
+    }
+
+    protected splitToParagraph(event: KeyboardEvent, head: string, tail: string): void {
         event.preventDefault();
         this.muya.editor.history.markInputBoundary('insertParagraph', '\n');
-        const { text: oldText, muya, parent } = this;
-        const { start, end } = this.getCursor()!;
-        this.text = oldText.substring(0, start.offset);
-        const textOfNewNode = oldText.substring(end.offset);
+        const { muya, parent } = this;
+        this.text = head;
         const newParagraphState = {
             name: 'paragraph',
-            text: textOfNewNode,
+            text: tail,
         };
 
         const newNode = ScrollPage.loadBlock(newParagraphState.name).create(

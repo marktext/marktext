@@ -26,10 +26,14 @@ import { githubAlertMarker } from '../utils/githubAlerts';
 import logger from '../utils/logger';
 import stringWidth from '../utils/stringWidth';
 import { BlockBoundaryResolver } from './blockBoundary';
-import { isAnyListState } from './types';
+import { isAnyListState, isAtxHeadingState, isSetextHeadingState } from './types';
 
 const debug = logger('export markdown: ');
 const SETEXT_SAFE_BULLET_MARKER = '*';
+
+function startsWithIndentedHeading(state: TState): boolean {
+    return (isAtxHeadingState(state) || isSetextHeadingState(state)) && /^[ \t]/.test(state.text);
+}
 
 function escapeText(str: string) {
     return str.replace(/(?<!\\)\|/g, '\\|');
@@ -374,22 +378,16 @@ export default class ExportMarkdown {
     }
 
     private _serializeAtxHeading(state: IAtxHeadingState, indent: string) {
-        const { text } = state;
-        const match = text.match(/(#{1,6})(.*)/);
-
-        const atxHeadingText = `${match?.[1]} ${match?.[2].trim()}`;
-
-        return `${indent}${atxHeadingText}\n`;
+        return `${indent}${state.text}\n`;
     }
 
     private _serializeSetextHeading(state: ISetextHeadingState, indent: string) {
-        const { text, meta } = state;
-        const { underline } = meta;
-        const lines = text.trim().split('\n');
+        const { text, syntax } = state;
+        const lines = text.split('\n');
 
         return (
             `${lines.map(line => `${indent}${line}`).join('\n')
-            }\n${indent}${underline.trim()}\n`
+            }\n${indent}${syntax.underline}\n`
         );
     }
 
@@ -604,7 +602,6 @@ export default class ExportMarkdown {
         indent: string,
         isTightItem = false,
     ) {
-        const result = [];
         const listInfo = this._listType[this._listType.length - 1];
         const marker = 'marker' in listInfo ? listInfo.marker : undefined;
         const delimiter = 'delimiter' in listInfo ? listInfo.delimiter : undefined;
@@ -657,13 +654,11 @@ export default class ExportMarkdown {
         if (!children.length)
             return `${indent}${itemMarker}\n`;
 
-        result.push(`${indent}${itemMarker}`);
-        result.push(
-            this._convertStatesToMarkdown(children, newIndent, listIndent, isTightItem).substring(
-                newIndent.length,
-            ),
-        );
+        const content = this._convertStatesToMarkdown(children, newIndent, listIndent, isTightItem);
+        // Joining an indented heading would widen the item's continuation column.
+        if (startsWithIndentedHeading(children[0]))
+            return `${indent}${itemMarker.trimEnd()}\n${content}`;
 
-        return result.join('');
+        return `${indent}${itemMarker}${content.substring(newIndent.length)}`;
     }
 }

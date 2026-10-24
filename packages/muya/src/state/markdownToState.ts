@@ -399,19 +399,22 @@ export class MarkdownToState {
     }
 
     private _buildHeadingState(token: Extract<TBlockToken, { type: 'heading' }>): IAtxHeadingState | ISetextHeadingState {
-        const { headingStyle, depth, text, marker } = token;
+        const { headingStyle, depth } = token;
+        const raw = token.raw.replace(/\n+$/, '');
         if (headingStyle === 'atx') {
             return {
                 name: 'atx-heading',
                 meta: { level: depth },
-                text: `${'#'.repeat(+depth)} ${text}`,
+                text: raw,
             };
         }
 
+        const underlineStart = raw.lastIndexOf('\n');
         return {
             name: 'setext-heading',
-            meta: { level: depth, underline: marker },
-            text,
+            meta: { level: depth },
+            text: raw.slice(0, underlineStart),
+            syntax: { underline: raw.slice(underlineStart + 1) },
         };
     }
 

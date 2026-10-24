@@ -18,6 +18,7 @@ import { Search } from '../search';
 import Selection from '../selection';
 import JSONState from '../state';
 import { createChangePayload } from '../state/changePayload';
+import { stateAtPath } from '../state/paths';
 import { ChangeSource } from '../types';
 import { deepClone, hasPick, isHTMLElement } from '../utils';
 import { getBlock } from '../utils/dom';
@@ -44,6 +45,8 @@ type BlockNode = {
     update?: (value?: unknown, source?: ChangeSource) => void;
     setLoose?: (loose: boolean) => void;
     setChecked?: (checked: boolean) => void;
+    setSyntax?: (syntax: unknown) => void;
+    path?: (string | number)[];
     blockName?: string;
     align?: string;
     _text?: string;
@@ -114,6 +117,8 @@ function restore(
 
 // Phase 1: Pick. Returns updated subDocument.
 function pick(subDoc: BlockNode, descent: JSONOpList): BlockNode {
+    if (descent.includes('syntax'))
+        return subDoc;
     const stack: BlockNode[] = [];
 
     const descended = descend(subDoc, descent, stack);
@@ -127,7 +132,16 @@ function pick(subDoc: BlockNode, descent: JSONOpList): BlockNode {
     return restore(subDoc, descent, stack, i);
 }
 
-function drop(root: BlockNode, descent: JSONOpList, muya: Muya): BlockNode {
+function drop(root: BlockNode, descent: JSONOpList, muya: Muya, snapshot: () => TState[]): BlockNode {
+    const syntaxIndex = descent.indexOf('syntax');
+    if (syntaxIndex >= 0) {
+        const { subDoc: block } = descend(root, descent.slice(0, syntaxIndex), []);
+        const state = block?.path ? stateAtPath(snapshot(), block.path) : undefined;
+        if (!block?.setSyntax || !state || typeof state !== 'object' || !('syntax' in state))
+            throw new Error('Cannot project heading syntax onto this Block');
+        block.setSyntax(state.syntax);
+        return root;
+    }
     let subDoc = root;
     let i = 0; // For reading
     let m = 0;
@@ -221,7 +235,7 @@ function drop(root: BlockNode, descent: JSONOpList, muya: Muya): BlockNode {
         const d = descent[i];
 
         if (Array.isArray(d)) {
-            const child = drop(subDoc, d, muya);
+            const child = drop(subDoc, d, muya, snapshot);
             if (child !== subDoc && child !== undefined) {
                 mut();
                 // It maybe never go into this if statement.
@@ -491,8 +505,9 @@ export class Editor {
         if (operation === null)
             return;
         try {
+            let completed: TState[] | undefined;
             const snapshot = pick(this.scrollPage as BlockNode, operation);
-            drop(snapshot, operation, this._muya);
+            drop(snapshot, operation, this._muya, () => completed ??= recover());
             this._restoreSelection(selection);
         }
         catch (error) {

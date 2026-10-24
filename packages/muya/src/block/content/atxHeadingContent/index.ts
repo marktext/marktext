@@ -1,6 +1,7 @@
 import type { Muya } from '../../../muya';
 import type { IRenderCursor } from '../../../selection/types';
 import type AtxHeading from '../../commonMark/atxHeading';
+import { atxHeadingBody, atxHeadingPrefixLength, splitAtxHeading } from '../../../state/headings';
 import { isKeyboardEvent } from '../../../utils';
 import Format from '../../base/format';
 import { headingLevel, isFoldShortcut } from '../../commonMark/atxHeading/foldSection';
@@ -57,7 +58,7 @@ class AtxHeadingContent extends Format {
             return;
         }
 
-        if (!this.parent!.folded && this.text.trim() === '#'.repeat(level)) {
+        if (!this.parent!.folded && atxHeadingBody(this.text) === '') {
             event.preventDefault();
             event.stopPropagation();
             this.text = '';
@@ -65,16 +66,18 @@ class AtxHeadingContent extends Format {
             return;
         }
 
-        const atStart = start.offset === end.offset && start.offset <= level + 1;
+        const prefixLength = atxHeadingPrefixLength(this.text);
+        const { head, tail, suffix } = splitAtxHeading(this.text, start.offset, end.offset);
+        const atStart = start.offset === end.offset && start.offset <= prefixLength;
         if (this.parent!.folded && !atStart) {
             event.preventDefault();
             event.stopPropagation();
             this.muya.editor.history.markInputBoundary('insertParagraph', '\n');
-            const prefix = `${'#'.repeat(level)} `;
+            const prefix = this.text.slice(0, prefixLength);
             const newHeading = ScrollPage.loadBlock('atx-heading').create(this.muya, {
                 name: 'atx-heading',
                 meta: { level },
-                text: prefix + this.text.slice(end.offset),
+                text: prefix + tail + suffix,
             });
             let boundary = this.parent!.next;
             while (boundary) {
@@ -84,13 +87,13 @@ class AtxHeadingContent extends Format {
                 boundary = boundary.next;
             }
             this.parent!.parent!.insertBefore(newHeading, boundary);
-            this.text = this.text.slice(0, start.offset);
+            this.text = head + suffix;
             this.update();
             newHeading.firstContentInDescendant()!.setCursor(prefix.length, prefix.length, true);
             return;
         }
 
-        if (start.offset === end.offset && start.offset <= level + 1) {
+        if (atStart) {
             // Prevent native Enter from creating orphan spans after the new paragraph is inserted.
             event.preventDefault();
             event.stopPropagation();
@@ -108,7 +111,7 @@ class AtxHeadingContent extends Format {
             this.setCursor(start.offset, end.offset, true);
         }
         else if (isKeyboardEvent(event)) {
-            super.enterHandler(event);
+            this.splitToParagraph(event, head + suffix, tail);
         }
     }
 
@@ -123,7 +126,7 @@ class AtxHeadingContent extends Format {
         const { start, end } = this.getCursor()!;
         if (start.offset === 0 && end.offset === 0) {
             event.preventDefault();
-            this.text = this.text.replace(/^ {0,3}#{1,6} */, '');
+            this.text = atxHeadingBody(this.text);
             this.convertToParagraph();
         }
         else {

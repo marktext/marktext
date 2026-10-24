@@ -2,6 +2,7 @@ import type { Diff } from 'fast-diff';
 import type Content from '../block/base/content';
 import type { Config } from './dompurify';
 import { EVENT_KEYS } from '../config';
+import { atxHeadingPrefixLength } from '../state/headings';
 import runSanitize from './dompurify';
 
 interface IUnion {
@@ -384,9 +385,9 @@ export function adjustOffset<T extends Content>(offset: number, block: T, event:
         block.parent?.blockName === 'atx-heading'
         && event.key === EVENT_KEYS.ArrowDown
     ) {
-        const match = /^\s{0,3}#{1,6}(?:\s+|$)/.exec(block.text);
-        if (match)
-            return match[0].length;
+        const prefixLength = atxHeadingPrefixLength(block.text);
+        if (prefixLength)
+            return prefixLength;
     }
 
     return offset;

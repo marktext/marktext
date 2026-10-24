@@ -130,6 +130,16 @@ describe('paste — same-line display math (#4904)', () => {
 });
 
 describe('paste — multi-line paragraph into a heading keeps only the first line (A6)', () => {
+    it.each([
+        ['one\n\ntwo', '## titleone ###\n\ntwo rest\n'],
+        ['# one\n\ntwo', '## titleone ###\n\ntwo rest\n'],
+        ['- one\n\ntwo', '## title ###\n\n- one\n\ntwo rest\n'],
+        ['# one', '## titleone rest ###\n'],
+    ])('keeps the closing marker on the heading when pasting %j', async (pasted, expected) => {
+        const muya = bootMuya('## title rest ###\n');
+        expect(await paste(muya, contentBlocks(muya)[0], 8, 8, pasted)).toBe(expected);
+    });
+
     it('only the first soft-line lands in the heading, the rest become a paragraph', async () => {
         const muya = bootMuya('# Title\n');
         const block = contentBlocks(muya)[0]; // atx-heading content, text '# Title'

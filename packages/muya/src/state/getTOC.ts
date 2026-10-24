@@ -49,16 +49,12 @@ export function getTOC(muya: Muya): ITocItem[] {
         const head = block.children.head as Content | null;
         const text = head?.text ?? '';
 
-        const source = blockName === 'setext-heading'
-            ? text.trim()
-            : text.replace(/^\s*#{1,6}\s+/, '').trim();
-
         // One token pass feeds both serializations so the outline's shown text
         // and its slug stay in step; `githubSlug` has to match the anchor id the
         // HTML export injects from `heading.textContent`.
         const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = muya.options;
-        const tokens = tokenizer(source, {
-            hasBeginRules: false,
+        const tokens = tokenizer(text, {
+            hasBeginRules: blockName === 'atx-heading',
             labels,
             options: { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff },
         });
