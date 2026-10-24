@@ -60,18 +60,42 @@ test('Enter inside an ATX body keeps the closing marker on the heading', async (
     await expect.poll(() => getMarkdown(page)).toBe('  ##   title rest  ####  \n');
 });
 
-test('multi-block paste keeps closing hashes out of the following paragraph', async ({ page }) => {
-    await loadMarkdown(page, '##   title rest  ###  \n');
-    await seat(page, 10);
-    await page.evaluate(() => {
-        const event = new ClipboardEvent('paste', {
-            bubbles: true, cancelable: true, clipboardData: new DataTransfer(),
-        });
-        event.clipboardData!.setData('text/plain', 'one\n\ntwo');
-        window.muya!.domNode.dispatchEvent(event);
+for (const pasted of ['one\n\ntwo', '# one\n\ntwo', '- one\n\ntwo']) {
+    test(`structural paste ${JSON.stringify(pasted)} keeps closing hashes on the heading`, async ({ page }) => {
+        await loadMarkdown(page, '##   title rest  ###  \n');
+        await seat(page, 10);
+        await page.evaluate((text) => {
+            const event = new ClipboardEvent('paste', {
+                bubbles: true, cancelable: true, clipboardData: new DataTransfer(),
+            });
+            event.clipboardData!.setData('text/plain', text);
+            window.muya!.domNode.dispatchEvent(event);
+        }, pasted);
+        const expected = pasted.startsWith('-')
+            ? '##   title  ###  \n\n- one\n\ntwo rest\n'
+            : '##   titleone  ###  \n\ntwo rest\n';
+        await expect.poll(() => getMarkdown(page)).toBe(expected);
+        await page.evaluate(() => window.muya!.undo());
+        await expect.poll(() => getMarkdown(page)).toBe('##   title rest  ###  \n');
+        await page.evaluate(() => window.muya!.redo());
+        await expect.poll(() => getMarkdown(page)).toBe(expected);
     });
-    await expect.poll(() => getMarkdown(page)).toBe('##   titleone  ###  \n\ntwo rest\n');
-});
+}
+
+for (const [start, end] of [[4, 4], [4, 6]]) {
+    test(`paragraph conversion preserves body selection ${start}–${end}`, async ({ page }) => {
+        await loadMarkdown(page, '# title  ###  \n');
+        await page.evaluate(([from, to]) => {
+            window.muya!.editor.scrollPage!.firstContentInDescendant()!.setCursor(from, to, true);
+            window.muya!.updateParagraph('paragraph');
+        }, [start, end]);
+        expect(await getMarkdown(page)).toBe('title\n');
+        expect(await page.evaluate(() => window.muya!.getCursorOffset())).toEqual({
+            anchor: { line: 0, ch: start - 2 }, focus: { line: 0, ch: end - 2 },
+        });
+        expect(await page.evaluate(() => document.getSelection()?.toString())).toBe('title'.slice(start - 2, end - 2));
+    });
+}
 
 test('an empty closed ATX heading stays empty in rendering and outline', async ({ page }) => {
     await loadMarkdown(page, '## ###\n');

@@ -11,10 +11,14 @@ export function atxHeadingPrefixLength(text: string): number {
     return beginRules.header.exec(text)?.[0].length ?? 0;
 }
 
+export function atxHeadingBodyRange(text: string) {
+    const start = atxHeadingPrefixLength(text);
+    return { start, end: start + atxHeadingBody(text).length };
+}
+
 // Structural splits keep trailing heading syntax out of the new paragraph.
 export function splitAtxHeading(text: string, start: number, end: number) {
-    const bodyStart = atxHeadingPrefixLength(text);
-    const bodyEnd = bodyStart + atxHeadingBody(text).length;
+    const { start: bodyStart, end: bodyEnd } = atxHeadingBodyRange(text);
     const inBody = start >= bodyStart && end <= bodyEnd;
     return {
         head: text.slice(0, start),

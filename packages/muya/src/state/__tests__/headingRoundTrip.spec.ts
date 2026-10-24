@@ -135,6 +135,51 @@ describe('heading source round trips', () => {
         expect(muya.getMarkdown()).toBe('  ##   **title**  ###  \n');
     });
 
+    it.each([
+        ['# title ###\n', 4, 4, 2, 2],
+        ['# title  ###  \n', 4, 6, 2, 4],
+        ['# title  ###  \n', 1, 12, 0, 5],
+        ['# title  ###  \n', 6, 4, 4, 2],
+    ])('maps conversion selection through the body rather than the removed suffix: %j', (source, start, end, expectedStart, expectedEnd) => {
+        const muya = boot(source);
+        muya.editor.scrollPage!.firstContentInDescendant()!.setCursor(start, end, true);
+        muya.updateParagraph('paragraph');
+        expect(muya.editor.selection.anchor?.offset).toBe(expectedStart);
+        expect(muya.editor.selection.focus?.offset).toBe(expectedEnd);
+        expect(muya.getMarkdown()).toBe('title\n');
+        assertTree(muya);
+    });
+
+    it('preserves body selection when toggling off a closed heading', () => {
+        const muya = boot('  ##   title  ###  \n');
+        muya.editor.scrollPage!.firstContentInDescendant()!.setCursor(9, 11, true);
+        muya.updateParagraph('heading 2');
+        expect(muya.editor.selection.anchor?.offset).toBe(2);
+        expect(muya.editor.selection.focus?.offset).toBe(4);
+        expect(muya.editor.activeContentBlock?.text).toBe('title');
+        assertTree(muya);
+    });
+
+    it('maps body selection across an ATX level change with retained closing syntax', () => {
+        const muya = boot('  ##   title  ###  \n');
+        muya.editor.scrollPage!.firstContentInDescendant()!.setCursor(9, 11, true);
+        muya.updateParagraph('heading 1');
+        expect(muya.editor.selection.anchor?.offset).toBe(8);
+        expect(muya.editor.selection.focus?.offset).toBe(10);
+        expect(muya.getMarkdown()).toBe('  #   title  ###  \n');
+        assertTree(muya);
+    });
+
+    it('keeps syntax endpoints when a list conversion leaves the heading text unchanged', () => {
+        const muya = boot('- ## title ###\n');
+        muya.editor.scrollPage!.firstContentInDescendant()!.setCursor(1, 12, true);
+        muya.updateParagraph('ul-task');
+        expect(muya.editor.activeContentBlock?.text).toBe('## title ###');
+        expect(muya.editor.selection.anchor?.offset).toBe(1);
+        expect(muya.editor.selection.focus?.offset).toBe(12);
+        assertTree(muya);
+    });
+
     it.each([[6, 6], [6, 8]])('keeps raw selection endpoints during interactive ATX conversion: %j', (start, end) => {
         const muya = boot('seed\n');
         const content = muya.editor.scrollPage!.firstContentInDescendant()! as Format;

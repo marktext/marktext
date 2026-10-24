@@ -140,7 +140,7 @@ function inlineMergeText(state: TState, anchorHasText: boolean): Nullable<string
 }
 
 // Keep the anchor's trailing text after the entire paste, not after its first line.
-function pasteAfterHeading(muya: Muya, ctx: IPasteContext, remaining: TState[], tail: string): void {
+function finishPaste(muya: Muya, ctx: IPasteContext, remaining: TState[], tail: string, removeEmptyOrigin = false): void {
     const { anchorBlock } = ctx;
 
     if (remaining.length === 0) {
@@ -162,6 +162,8 @@ function pasteAfterHeading(muya: Muya, ctx: IPasteContext, remaining: TState[], 
     }
     const sewOffset = sewTail(remaining, tail);
     const last = insertStatesAfter(muya, ctx.wrapperBlock, remaining);
+    if (removeEmptyOrigin)
+        removeEmptyOriginWrapper(ctx.originWrapperBlock);
     seatCursorAtSeam(last, sewOffset);
 }
 
@@ -187,9 +189,7 @@ function pasteInlineMerge(
 
     anchorBlock.text = head + mergeText;
     anchorBlock.update();
-    const offset = sewTail(rest, tail);
-    const last = insertStatesAfter(muya, ctx.wrapperBlock, rest);
-    seatCursorAtSeam(last, offset);
+    finishPaste(muya, ctx, rest, tail);
 }
 
 function pasteNewline(
@@ -205,12 +205,7 @@ function pasteNewline(
         anchorBlock.update();
     }
 
-    const offset = sewTail(states, tail);
-    const last = insertStatesAfter(muya, ctx.wrapperBlock, states);
-    if (head.length === 0)
-        removeEmptyOriginWrapper(ctx.originWrapperBlock);
-
-    seatCursorAtSeam(last, offset);
+    finishPaste(muya, ctx, states, tail, head.length === 0);
 }
 
 function itemParaContent(list: Parent, itemIndex: number, paraIndex: number): Nullable<Content> {
@@ -381,7 +376,7 @@ function applyParsedPaste(
         { startOffset: start.offset, endOffset: end.offset },
     );
     if (remaining !== states) {
-        pasteAfterHeading(muya, ctx, remaining, tail);
+        finishPaste(muya, ctx, remaining, tail);
 
         return;
     }

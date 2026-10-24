@@ -32,7 +32,7 @@ import {
     locateSentinelOffsets,
     resolveSentinelCursor,
 } from './selection/offsetCursor';
-import { atxHeadingBody, atxHeadingPrefixLength } from './state/headings';
+import { atxHeadingBody, atxHeadingBodyRange, atxHeadingPrefixLength } from './state/headings';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState, markdownListMarker } from './state/types';
 import { ChangeSource } from './types';
 import { Ui } from './ui/ui';
@@ -613,6 +613,10 @@ export class Muya {
             return 0;
 
         return atxHeadingPrefixLength(leaf.text);
+    }
+
+    private _headingBodyRange(leaf: Nullable<Content>) {
+        return leaf?.parent?.blockName === 'atx-heading' ? atxHeadingBodyRange(leaf.text) : null;
     }
 
     /**
@@ -1347,6 +1351,7 @@ export class Muya {
         const focusOffset = selection.focus?.offset ?? anchorOffset;
         const anchorText = anchorBlock?.text;
         const focusText = focusBlock?.text;
+        const sourceBody = this._headingBodyRange(anchorBlock);
         const multiBlock = !!anchorBlock && !!focusBlock && anchorBlock !== focusBlock;
 
         fn();
@@ -1367,12 +1372,24 @@ export class Muya {
             }
         }
 
-        // Single block: the caret's content is the active block (in-place result
-        // or unwrap-restored). The text can change in place (a heading's `# `
-        // marker), so shift offsets by that front delta to track the same char.
         const target = this.editor.activeContentBlock;
         if (!target)
             return;
+
+        // Removing closing syntax clamps a body endpoint; it cannot shift it left.
+        const targetBody = this._headingBodyRange(target);
+        if (sourceBody || targetBody) {
+            const mapOffset = (offset: number) => {
+                if (anchorText === target.text)
+                    return clampTo(offset, target.text.length);
+                const bodyOffset = sourceBody
+                    ? clampTo(offset - sourceBody.start, sourceBody.end - sourceBody.start)
+                    : offset;
+                return clampTo(bodyOffset + (targetBody?.start ?? 0), targetBody?.end ?? target.text.length);
+            };
+            target.setCursor(mapOffset(anchorOffset), mapOffset(focusOffset), true);
+            return;
+        }
 
         const delta = anchorText != null && target.text !== anchorText
             ? target.text.length - anchorText.length
