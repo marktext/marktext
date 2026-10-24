@@ -26,7 +26,6 @@ import { githubAlertMarker } from '../utils/githubAlerts';
 import logger from '../utils/logger';
 import stringWidth from '../utils/stringWidth';
 import { BlockBoundaryResolver } from './blockBoundary';
-import { defaultCodeSyntax, printAtxHeading, printCodeBlock, printSetextHeading } from './syntax';
 import { isAnyListState } from './types';
 
 const debug = logger('export markdown: ');
@@ -38,7 +37,6 @@ function escapeText(str: string) {
 
 export interface IExportMarkdownOptions {
     listIndentation: number | string;
-    syntaxMode?: 'preserve' | 'canonical';
 }
 
 export default class ExportMarkdown {
@@ -54,18 +52,15 @@ export default class ExportMarkdown {
     private _isLooseParentList: boolean;
     private _listIndentation: string;
     private _listIndentationCount: number;
-    private _syntaxMode: 'preserve' | 'canonical';
 
     constructor(
         {
             listIndentation,
-            syntaxMode = 'canonical',
         }: IExportMarkdownOptions = {
             listIndentation: 1,
         },
     ) {
         this._listType = []; // 'ul' or 'ol'
-        this._syntaxMode = syntaxMode;
         // helper to translate the first tight item in a nested list
         this._isLooseParentList = true;
 
@@ -149,11 +144,9 @@ export default class ExportMarkdown {
             ? this._blockBoundary.resolve(previous, state, { tightListItem })
             : 'adjacent';
         if (separation === 'rewrite-required' && state.name === 'code-block') {
-            if (this._syntaxMode === 'preserve')
-                throw new Error('Adjacent indented code blocks require a source-form edit before export');
             // Blank lines remain part of indented code. Fence the next
             // block on output to keep two code blocks without mutating state.
-            state = { ...state, syntax: defaultCodeSyntax(state.text) };
+            state = { ...state, meta: { ...state.meta, type: 'fenced' } };
             separation = tightListItem ? 'adjacent' : 'blank-line';
         }
         return { state, separation };
@@ -381,45 +374,33 @@ export default class ExportMarkdown {
     }
 
     private _serializeAtxHeading(state: IAtxHeadingState, indent: string) {
-        if (this._syntaxMode === 'preserve')
-            return `${indent}${printAtxHeading(state)}\n`;
-        const { text } = state;
-        const match = text.match(/(#{1,6})(.*)/);
-
-        const atxHeadingText = `${match?.[1]} ${match?.[2].trim()}`;
-
-        return `${indent}${atxHeadingText}\n`;
+        return `${indent}${state.text}\n`;
     }
 
     private _serializeSetextHeading(state: ISetextHeadingState, indent: string) {
-        if (this._syntaxMode === 'preserve')
-            return `${printSetextHeading(state).split('\n').map(line => indent + line).join('\n')}\n`;
-        const { text, meta } = state;
-        const underline = (meta.level === 1 ? '=' : '-').repeat(state.syntax.underline.length);
-        const lines = text.trim().split('\n');
+        const { text, syntax } = state;
+        const lines = text.split('\n');
 
         return (
             `${lines.map(line => `${indent}${line}`).join('\n')
-            }\n${indent}${underline.trim()}\n`
+            }\n${indent}${syntax.underline}\n`
         );
     }
 
     private _serializeCodeBlock(state: ICodeBlockState, indent: string) {
-        if (this._syntaxMode === 'preserve')
-            return `${printCodeBlock(state).split('\n').map(line => indent + line).join('\n')}\n`;
         const result = [];
-        const { text, meta, syntax } = state;
+        const { text, meta } = state;
         const textList = text.split('\n');
-        const { lang } = meta;
+        const { type, lang } = meta;
 
-        if (syntax.form === 'fenced') {
+        if (type === 'fenced') {
             // A backtick fence's info string may not contain a backtick
             // (CommonMark §4.5), so fall back to a tilde fence rather than emit
             // markdown that would not read back as a code block.
             const fenceChar: '`' | '~'
-                = syntax.fenceChar === '~' || lang.includes('`') ? '~' : '`';
+                = meta.fenceChar === '~' || lang.includes('`') ? '~' : '`';
             const fence = fenceChar.repeat(
-                this._codeFenceLength(text, syntax.opening.length, fenceChar),
+                this._codeFenceLength(text, meta.fenceLength, fenceChar),
             );
             result.push(`${indent}${lang ? `${fence}${lang}\n` : `${fence}\n`}`);
             textList.forEach((text) => {

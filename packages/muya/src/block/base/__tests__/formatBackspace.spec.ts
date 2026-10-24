@@ -252,7 +252,7 @@ describe('format.backspaceHandler — edits that change the block type (#5388)',
         muya.editor.transactions.flush();
         expect(muya.getMarkdown()).toBe('# Heading\n');
         expect(muya.getState()).toEqual([
-            { name: 'atx-heading', syntax: { indent: '', afterOpening: ' ', trailing: '' }, meta: { level: 1 }, text: '# Heading' },
+            { name: 'atx-heading', meta: { level: 1 }, text: '# Heading' },
         ]);
     });
 });

@@ -243,12 +243,9 @@ function appendPartialState(
             ? block.text.substring(offset)
             : block.text.substring(0, offset);
 
-    // Blocks whose marker lives outside the text: setext heading (its
-    // `===`/`---` underline) and the code-family (code-block, html-block,
-    // math-block, frontmatter, diagram fences/wrappers). Keep the block's own
-    // type + meta and truncate only its text — the serializer rebuilds the
-    // marker from meta. A fully-selected endpoint keeps the whole block. A code
-    // fence's language line has no place in the body text, so copy it whole.
+    // Setext underlines and code-family wrappers live outside editable text.
+    // Keep their state while truncating the body. A language-input endpoint
+    // copies the whole block because its text belongs to the fence, not the body.
     if (
         /setext-heading|code-block|html-block|math-block|frontmatter|diagram/.test(outBlock!.blockName)
         && block.blockName !== 'language-input'

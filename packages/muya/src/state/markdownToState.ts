@@ -10,11 +10,10 @@ import type {
     ITaskListState,
     TState,
 } from './types';
-import { firstWordOfInfo } from '../utils';
+import { firstWordOfInfo, parseFenceLine } from '../utils';
 import { createDiagramState, diagramTypeOfLang } from '../utils/diagram/fence';
 import logger from '../utils/logger';
 import { lexBlock } from '../utils/marked';
-import { parseAtxHeading, parseCodeBlock, parseSetextHeading } from './syntax';
 
 const debug = logger('import markdown: ');
 
@@ -28,7 +27,6 @@ interface IMarkdownToStateOptions {
     frontMatter: boolean;
     multilineBlockquote?: boolean;
     githubAlerts?: boolean;
-    preserveSyntax?: boolean;
 };
 
 const DEFAULT_OPTIONS = {
@@ -325,8 +323,8 @@ export class MarkdownToState {
             }
 
             case 'html': {
-                const text = token.text.replace(/\n$/, '');
-                const isSingleImage = /^<img[^<>]+>$/.test(text.trim());
+                const text = token.text.trim();
+                const isSingleImage = /^<img[^<>]+>$/.test(text);
                 if (isSingleImage) {
                     state = {
                         name: 'paragraph' as const,
@@ -401,9 +399,23 @@ export class MarkdownToState {
     }
 
     private _buildHeadingState(token: Extract<TBlockToken, { type: 'heading' }>): IAtxHeadingState | ISetextHeadingState {
-        return token.headingStyle === 'atx'
-            ? parseAtxHeading(token.raw, token.depth)
-            : parseSetextHeading(token.raw, token.depth);
+        const { headingStyle, depth, text } = token;
+        const raw = token.raw.replace(/\n+$/, '');
+        if (headingStyle === 'atx') {
+            return {
+                name: 'atx-heading',
+                meta: { level: depth },
+                text: raw,
+            };
+        }
+
+        const underlineStart = raw.lastIndexOf('\n');
+        return {
+            name: 'setext-heading',
+            meta: { level: depth },
+            text: underlineStart < 0 ? text : raw.slice(0, underlineStart),
+            syntax: { underline: underlineStart < 0 ? (depth === 1 ? '===' : '---') : raw.slice(underlineStart + 1) },
+        };
     }
 
     private _buildTableState(token: Extract<TBlockToken, { type: 'table' }>): ITableState {
@@ -445,13 +457,22 @@ export class MarkdownToState {
         token: Extract<TBlockToken, { type: 'code' }>,
         trimUnnecessaryCodeBlockEmptyLines: boolean,
     ): TState {
-        const state = parseCodeBlock(token.raw, token.codeBlockStyle === 'indented');
-        const lang = firstWordOfInfo(state.meta.lang);
-        let value = state.text;
+        const { codeBlockStyle, text, lang: infoString = '', raw = '' } = token;
+        // marked >=17 appends a trailing newline to indented code text
+        // (fenced text has none); strip it so indented blocks round-trip.
+        const codeText = codeBlockStyle === 'indented' ? text.replace(/\n$/, '') : text;
+        // Read the opening fence itself so its character (` or ~) and
+        // run length both survive the round trip (CommonMark §4.5).
+        const fence = parseFenceLine(raw);
+        const { fenceLength, fenceChar } = fence ?? {};
+        // Preserve info-string attributes; diagram detection uses only the first word.
+        const info = (infoString || '').trim();
+        const lang = firstWordOfInfo(info);
+
+        let value = codeText;
         // Fix: #1265.
         if (
             trimUnnecessaryCodeBlockEmptyLines
-            && !this._options.preserveSyntax
             && (value.endsWith('\n') || value.startsWith('\n'))
         ) {
             value = value.replace(/\n+$/, '').replace(/^\n+/, '');
@@ -460,6 +481,18 @@ export class MarkdownToState {
         const diagramType = diagramTypeOfLang(lang);
         if (diagramType)
             return createDiagramState(diagramType, value);
-        return value === state.text ? state : { ...state, text: value };
+
+        // walkTokens adds 'fenced', which marked's declared codeBlockStyle type omits.
+        const isFenced = (codeBlockStyle as 'indented' | 'fenced' | undefined) === 'fenced';
+        return {
+            name: 'code-block' as const,
+            meta: {
+                type: isFenced ? 'fenced' : 'indented',
+                lang: info,
+                ...(isFenced && fenceLength && fenceLength > 3 ? { fenceLength } : {}),
+                ...(isFenced ? { fenceChar: fenceChar ?? '`' } : {}),
+            },
+            text: value,
+        };
     }
 }

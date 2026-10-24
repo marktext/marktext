@@ -1,9 +1,9 @@
 import type { Muya } from '../muya';
-import type { IFrontmatterMeta } from '../state/types';
+import type { IAtxHeadingState, IFrontmatterMeta } from '../state/types';
 import type Parent from './base/parent';
-import type AtxHeading from './commonMark/atxHeading';
 import emptyStates from '../config/emptyStates';
 import { getCursorReference } from '../selection';
+import { changeAtxHeadingLevel } from '../state/headings';
 import { isParagraphState } from '../state/types';
 import { deepClone } from '../utils';
 import logger from '../utils/logger';
@@ -94,14 +94,16 @@ function buildLeafBlock(label: TLeafReplacementLabel, muya: Muya, text: string) 
     return ScrollPage.loadBlock(label).create(muya, cloned);
 }
 
-function buildHeadingBlock(label: string, muya: Muya, text: string) {
+function buildHeadingBlock(label: string, muya: Muya, text: string, source?: IAtxHeadingState) {
     const headingState = deepClone(emptyStates['atx-heading']);
 
     const [blockName, level] = label.split(' ');
     headingState.meta.level = +level;
     // An ATX heading is a single line; a newline left in its text is dropped
     // with everything after it when the document is saved (#5366).
-    headingState.text = `${'#'.repeat(+level)} ${text.replace(/\n/g, ' ')}`;
+    headingState.text = source
+        ? changeAtxHeadingLevel(source.text, +level)
+        : `${'#'.repeat(+level)} ${text.replace(/\n/g, ' ')}`;
 
     return ScrollPage.loadBlock(blockName).create(muya, headingState);
 }
@@ -156,12 +158,12 @@ export function canInsertLabel(label: string, muya: Muya): boolean {
     return label !== 'math-block' || muya.options.texMathDollars;
 }
 
-export function buildReplacementBlock(label: string, muya: Muya, text: string) {
+export function buildReplacementBlock(label: string, muya: Muya, text: string, source?: IAtxHeadingState) {
     if (!canInsertLabel(label, muya))
         return null;
 
     if (label.startsWith('atx-heading '))
-        return buildHeadingBlock(label, muya, text);
+        return buildHeadingBlock(label, muya, text, source);
     if (label.startsWith('diagram '))
         return buildDiagramBlock(label, muya);
 
@@ -222,15 +224,12 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
         return;
     }
 
-    const newBlock = buildReplacementBlock(label, muya, text);
+    const source = block.blockName === 'atx-heading' && label.startsWith('atx-heading ')
+        ? block.getState()
+        : undefined;
+    const newBlock = buildReplacementBlock(label, muya, text, source?.name === 'atx-heading' ? source : undefined);
     if (!newBlock)
         return;
-
-    if (block.blockName === 'atx-heading' && newBlock.blockName === 'atx-heading') {
-        const state = block.getState();
-        if (state.name === 'atx-heading')
-            (newBlock as AtxHeading).setSyntax(state.syntax);
-    }
 
     block.replaceWith(newBlock);
     finishInsertedBlock(newBlock, muya, label);

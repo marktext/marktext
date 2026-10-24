@@ -71,7 +71,7 @@ describe('promote / demote heading on a setext heading (#5362)', () => {
         muya.updateParagraph(type);
 
         const title = `${'#'.repeat(level)} Title`;
-        expect(settledState(muya)).toEqual([{ name: 'atx-heading', syntax: { indent: '', afterOpening: ' ', trailing: '' }, meta: { level }, text: title }, after]);
+        expect(settledState(muya)).toEqual([{ name: 'atx-heading', meta: { level }, text: title }, after]);
         expect(muya.editor.selection.anchorBlock?.text).toBe(title);
         expect(muya.editor.selection.anchor?.offset).toBe(level + 3);
     });

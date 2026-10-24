@@ -9,6 +9,7 @@ import CodeBlockContent from '../block/content/codeBlockContent';
 import LangInputContent from '../block/content/langInputContent';
 import { ScrollPage } from '../block/scrollPage';
 import { tokenizer } from '../inlineRenderer/lexer';
+import { atxHeadingBody, splitAtxHeading } from '../state/headings';
 import HtmlToMarkdown from '../state/htmlToMarkdown';
 import { MarkdownToState } from '../state/markdownToState';
 import { isAnyListState, isParagraphState } from '../state/types';
@@ -130,7 +131,7 @@ function inlineMergeText(state: TState, anchorHasText: boolean): Nullable<string
         case 'paragraph':
             return state.text;
         case 'atx-heading':
-            return anchorHasText ? state.text.replace(/^ {0,3}#{1,6}\s+/, '') : null;
+            return anchorHasText ? atxHeadingBody(state.text) : null;
         case 'setext-heading':
             return anchorHasText ? state.text : null;
         default:
@@ -153,6 +154,12 @@ function pasteAfterHeading(muya: Muya, ctx: IPasteContext, remaining: TState[], 
         return;
     }
 
+    if (ctx.wrapperBlock?.blockName === 'atx-heading') {
+        const split = splitAtxHeading(ctx.content, ctx.start.offset, ctx.end.offset);
+        anchorBlock.text += split.suffix;
+        anchorBlock.update();
+        tail = split.tail;
+    }
     const sewOffset = sewTail(remaining, tail);
     const last = insertStatesAfter(muya, ctx.wrapperBlock, remaining);
     seatCursorAtSeam(last, sewOffset);

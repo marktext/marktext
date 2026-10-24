@@ -107,8 +107,7 @@ describe('list block boundaries', () => {
         (context) => {
             const code = (text: string): ICodeBlockState => ({
                 name: 'code-block',
-                meta: { lang: '' },
-                syntax: { form: 'indented', prefixes: text.split('\n').map(() => ({ raw: '    ', remainder: 0 })) },
+                meta: { type: 'indented', lang: '' },
                 text,
             });
             const children = [code('a'), code('b\n```\nc')];

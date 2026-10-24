@@ -138,7 +138,7 @@ function drop(root: BlockNode, descent: JSONOpList, muya: Muya, snapshot: () => 
         const { subDoc: block } = descend(root, descent.slice(0, syntaxIndex), []);
         const state = block?.path ? stateAtPath(snapshot(), block.path) : undefined;
         if (!block?.setSyntax || !state || typeof state !== 'object' || !('syntax' in state))
-            throw new Error('Cannot project source form onto this Block');
+            throw new Error('Cannot project heading syntax onto this Block');
         block.setSyntax(state.syntax);
         return root;
     }
@@ -219,6 +219,11 @@ function drop(root: BlockNode, descent: JSONOpList, muya: Muya, snapshot: () => 
             if (sd.parent?.meta)
                 sd.parent.meta.lang = sd.text;
             sd.update?.();
+        }
+        else if (sd.blockName === 'code-block') {
+            // Handle modify code block type.
+            if (sd.meta)
+                sd.meta.type = otText.type.apply(sd.meta.type ?? '', es) as string;
         }
         else {
             sd._text = otText.type.apply(sd.text ?? '', es) as string;

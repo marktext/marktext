@@ -1,6 +1,5 @@
 import type { Doc, JSONOp, JSONOpList } from 'ot-json1';
 import type { Muya } from '../muya';
-import type { TSyntaxState } from './syntax';
 import type { TState } from './types';
 import * as json1 from 'ot-json1';
 import { deepClone } from '../utils';
@@ -9,7 +8,7 @@ import { getTOC } from './getTOC';
 import { MarkdownToState } from './markdownToState';
 import StateToMarkdown from './stateToMarkdown';
 
-export function asDoc(state: readonly TState[] | TState | TSyntaxState['syntax']): Doc {
+export function asDoc(state: readonly TState[] | TState): Doc {
     // eslint-disable-next-line no-restricted-syntax
     return state as unknown as Doc;
 }
@@ -149,7 +148,6 @@ class JSONState {
     getMarkdownFromState(state: TState[]): string {
         const mdGenerator = new StateToMarkdown({
             listIndentation: this._muya.options.listIndentation,
-            syntaxMode: this._muya.options.preserveSyntax ? 'preserve' : 'canonical',
         });
 
         return mdGenerator.generate(state);

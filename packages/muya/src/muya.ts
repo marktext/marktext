@@ -32,7 +32,7 @@ import {
     locateSentinelOffsets,
     resolveSentinelCursor,
 } from './selection/offsetCursor';
-import { defaultCodeSyntax } from './state/syntax';
+import { atxHeadingBody, atxHeadingPrefixLength } from './state/headings';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState, markdownListMarker } from './state/types';
 import { ChangeSource } from './types';
 import { Ui } from './ui/ui';
@@ -131,7 +131,6 @@ const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
     'footnote',
     'frontMatter',
     'trimUnnecessaryCodeBlockEmptyLines',
-    'preserveSyntax',
     'multilineBlockquote',
     'githubAlerts',
 ]);
@@ -613,7 +612,7 @@ export class Muya {
         if (leaf.parent?.blockName !== 'atx-heading')
             return 0;
 
-        return /^ {0,3}#{1,6}(?:\s+|$)/.exec(leaf.text)?.[0].length ?? 0;
+        return atxHeadingPrefixLength(leaf.text);
     }
 
     /**
@@ -893,8 +892,7 @@ export class Muya {
         this._wrapSelectedBlocks(
             blocks => ({
                 name: 'code-block',
-                meta: { lang: '' },
-                syntax: defaultCodeSyntax(),
+                meta: { type: 'fenced', lang: '', fenceChar: '`' },
                 text: this.editor.jsonState
                     .getMarkdownFromState(blocks.map(b => b.getState()))
                     .replace(/\n+$/, ''),
@@ -1499,7 +1497,7 @@ export class Muya {
         const text = block.firstContentInDescendant()?.text ?? '';
 
         return block.blockName === 'atx-heading'
-            ? text.replace(/^ {0,3}#{1,6}(?:\s+|$)/, '')
+            ? atxHeadingBody(text)
             : text;
     }
 

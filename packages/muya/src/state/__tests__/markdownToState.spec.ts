@@ -5,7 +5,6 @@ import ExportMarkdown from '../stateToMarkdown';
 interface IStateLike {
     name: string;
     text?: string;
-    syntax?: { underline?: { length: number } };
     meta?: Record<string, unknown> & { checked?: boolean; identifier?: string; level?: number; underline?: string };
     children?: IStateLike[];
 }
@@ -169,7 +168,7 @@ describe('markdownToState — task list nesting (marktext 23435ce6)', () => {
         expect(states.length).toBe(1);
         expect(states[0].name).toBe('setext-heading');
         expect(states[0].meta!.level).toBe(1);
-        expect(states[0].syntax?.underline?.length).toBeGreaterThan(0);
+        expect(states[0]).toMatchObject({ syntax: { underline: '===========' } });
     });
 
     it('parses setext h2 (--- underline) as setext-heading with level 2', () => {
@@ -335,7 +334,7 @@ describe('markdownToState — trimUnnecessaryCodeBlockEmptyLines (#1265)', () =>
         const states = generate(fenced, { trimUnnecessaryCodeBlockEmptyLines: false });
         expect(states.length).toBe(1);
         expect(states[0].name).toBe('code-block');
-        expect(states[0].meta).toEqual({ lang: 'js' });
+        expect(states[0].meta).toEqual({ type: 'fenced', lang: 'js', fenceChar: '`' });
         // marked already drops one of the three blanks on each side; the
         // option being OFF leaves the remaining surrounding blanks intact.
         expect(states[0].text).toBe('\n\ncode\n\n');

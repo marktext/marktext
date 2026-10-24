@@ -3,7 +3,6 @@ import type LangInputContent from '../../block/content/langInputContent';
 import type ParagraphContent from '../../block/content/paragraphContent';
 import type { Muya } from '../../index';
 import { ScrollPage } from '../../block/scrollPage';
-import { defaultCodeSyntax } from '../../state/syntax';
 import { firstWordOfInfo, parseFenceLine } from '../../utils';
 import { createDiagramState, diagramTypeOfLang } from '../../utils/diagram/fence';
 import { search } from '../../utils/prism';
@@ -56,9 +55,10 @@ function newBlockStateForLang(
 
     return {
         name: 'code-block',
-        syntax: defaultCodeSyntax('', fenceChar),
         meta: {
             lang: matchedLang,
+            type: 'fenced',
+            fenceChar,
         },
         text: '',
     };

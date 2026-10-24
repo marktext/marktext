@@ -30,8 +30,8 @@ export class BlockBoundaryResolver {
     }
 
     resolve(previous: TState, next: TState, context: IBlockBoundaryContext): TBlockSeparation {
-        if (previous.name === 'code-block' && previous.syntax.form === 'indented'
-            && next.name === 'code-block' && next.syntax.form === 'indented') {
+        if (previous.name === 'code-block' && previous.meta.type === 'indented'
+            && next.name === 'code-block' && next.meta.type === 'indented') {
             return 'rewrite-required';
         }
 
@@ -67,7 +67,7 @@ export class BlockBoundaryResolver {
                 return true;
 
             case 'code-block':
-                return next.syntax.form === 'fenced';
+                return next.meta.type === 'fenced';
 
             case 'thematic-break':
                 // Directly below paragraph text, contiguous dashes are a

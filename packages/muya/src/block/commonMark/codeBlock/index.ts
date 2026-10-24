@@ -1,11 +1,12 @@
 import type { Muya } from '../../../muya';
 import type { ICodeBlockState } from '../../../state/types';
 import type { TBlockPath } from '../../types';
-import { defaultCodeSyntax } from '../../../state/syntax';
-import { firstWordOfInfo } from '../../../utils';
+import diff from 'fast-diff';
+import { diffToTextOp, firstWordOfInfo } from '../../../utils';
+import { operateClassName } from '../../../utils/dom';
 import logger from '../../../utils/logger';
 import { loadedLanguages, loadLanguage, transformAliasToOrigin } from '../../../utils/prism';
-import SyntaxBlock from '../../base/syntaxBlock';
+import Parent from '../../base/parent';
 import { ScrollPage } from '../../scrollPage';
 
 const debug = logger('codeblock:');
@@ -20,7 +21,7 @@ function renderedGrammarFor(infoString: string): string {
     return resolved && loadedLanguages.has(resolved) ? resolved : '';
 }
 
-class CodeBlock extends SyntaxBlock<ICodeBlockState> {
+class CodeBlock extends Parent {
     public meta: ICodeBlockState['meta'];
     static override blockName = 'code-block';
 
@@ -30,7 +31,6 @@ class CodeBlock extends SyntaxBlock<ICodeBlockState> {
     private _renderedGrammar: string | undefined;
 
     static create(muya: Muya, state: ICodeBlockState) {
-        state = { ...state, syntax: state.syntax ?? defaultCodeSyntax(state.text) };
         const codeBlock = new CodeBlock(muya, state);
         const { lang } = state.meta;
 
@@ -72,10 +72,24 @@ class CodeBlock extends SyntaxBlock<ICodeBlockState> {
     set lang(value) {
         if (!this.muya.canMutate)
             return;
-        this.firstContentInDescendant()!.text = value;
         this.meta.lang = value;
-        if (this.syntax.form === 'indented')
-            this.updateSyntax(defaultCodeSyntax(this.lastContentInDescendant()!.text));
+
+        if (this.meta.type !== 'fenced') {
+            this.meta.type = 'fenced';
+            const diffs = diff('indented', 'fenced');
+            const { path } = this;
+            path.push('meta', 'type');
+
+            this.transactions.editOperation(path, diffToTextOp(diffs));
+
+            // An indented block has no fence yet, so the promoted block
+            // defaults to a backtick fence and the json state gains the key.
+            this.meta.fenceChar = '`';
+            this.transactions.insertValueOperation([...this.path, 'meta', 'fenceChar'], '`');
+
+            operateClassName(this.domNode!, 'remove', 'mu-indented-code');
+            operateClassName(this.domNode!, 'add', 'mu-fenced-code');
+        }
 
         this._renderLanguage();
     }
@@ -115,23 +129,16 @@ class CodeBlock extends SyntaxBlock<ICodeBlockState> {
         return [...pPath, offset];
     }
 
-    constructor(muya: Muya, state: ICodeBlockState) {
-        super(muya, state);
-        const { meta, syntax } = state;
+    constructor(muya: Muya, { meta }: ICodeBlockState) {
+        super(muya);
         this.tagName = 'pre';
         this.meta = meta;
-        this.classList = ['mu-code-block', `mu-${syntax.form}-code`];
-        if (syntax.form === 'fenced' && syntax.fenceChar === '~')
+        this.classList = ['mu-code-block', `mu-${meta.type}-code`];
+        if (meta.fenceChar === '~')
             this.classList.push('mu-tilde-fence');
         if (muya.options.codeBlockLineNumbers)
             this.classList.push('mu-line-numbers');
         this.createDomNode();
-    }
-
-    protected override reflectSyntax() {
-        this.domNode?.classList.toggle('mu-fenced-code', this.syntax.form === 'fenced');
-        this.domNode?.classList.toggle('mu-indented-code', this.syntax.form === 'indented');
-        this.domNode?.classList.toggle('mu-tilde-fence', this.syntax.form === 'fenced' && this.syntax.fenceChar === '~');
     }
 
     queryBlock(path: TBlockPath) {
@@ -139,7 +146,7 @@ class CodeBlock extends SyntaxBlock<ICodeBlockState> {
             return this;
         }
         else {
-            if (path[0] === 'meta' || path[0] === 'syntax')
+            if (path[0] === 'meta' || path[0] === 'type')
                 return this;
             else if (path[0] === 'lang')
                 return this.firstContentInDescendant();
@@ -149,11 +156,13 @@ class CodeBlock extends SyntaxBlock<ICodeBlockState> {
     }
 
     override getState(): ICodeBlockState {
-        return this.withSyntax({
+        const state: ICodeBlockState = {
             name: 'code-block',
             meta: { ...this.meta },
             text: this.lastContentInDescendant()!.text,
-        });
+        };
+
+        return state;
     }
 }
 

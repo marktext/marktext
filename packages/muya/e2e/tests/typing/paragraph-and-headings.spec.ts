@@ -28,7 +28,7 @@ test.describe('paragraphs and headings', () => {
             window.muya!.setContent([{
                 name: 'setext-heading',
                 meta: { level: 1 },
-                syntax: { prefixes: [''], underline: { indent: '', length: 3, trailing: '' } },
+                syntax: { underline: '===' },
                 text: 'Setext Title',
             }] as unknown as Parameters<NonNullable<typeof window.muya>['setContent']>[0]);
         });

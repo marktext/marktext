@@ -1,5 +1,4 @@
 import type { GithubAlertType } from '../utils/githubAlerts';
-import type { IAtxHeadingSyntax, ICodeSyntax, ISetextHeadingSyntax } from './syntax';
 
 export interface IParagraphState {
     name: 'paragraph';
@@ -11,8 +10,8 @@ export interface IAtxHeadingState {
     meta: {
         level: number;
     };
+    // The complete editable line, including opening/closing markers and whitespace.
     text: string;
-    syntax: IAtxHeadingSyntax;
 }
 
 export interface ISetextHeadingState {
@@ -20,8 +19,8 @@ export interface ISetextHeadingState {
     meta: {
         level: number;
     };
+    syntax: { underline: string }; // The complete underline line, excluding its EOL.
     text: string;
-    syntax: ISetextHeadingSyntax;
 }
 
 export interface IThematicBreakState {
@@ -32,11 +31,14 @@ export interface IThematicBreakState {
 export interface ICodeBlockState {
     name: 'code-block';
     meta: {
+        type: string; // "indented" | "fenced";
         // Full fence info string; derive the highlighting language with firstWordOfInfo().
         lang: string;
+        fenceLength?: number;
+        // Absent for indented blocks. Older fenced states may omit it; readers default to backticks.
+        fenceChar?: '`' | '~';
     };
     text: string;
-    syntax: ICodeSyntax;
 }
 
 export interface IHtmlBlockState {

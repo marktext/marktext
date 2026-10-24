@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import type Format from '../block/base/format';
 import type Parent from '../block/base/parent';
 import type TaskListCheckbox from '../block/gfm/taskListCheckbox';
@@ -9,8 +10,6 @@ import { SelectionCaretType, SelectionDirection } from '../selection/types';
 import { asDoc } from '../state';
 import { MarkdownToState } from '../state/markdownToState';
 import ExportMarkdown from '../state/stateToMarkdown';
-// @vitest-environment happy-dom
-import { defaultCodeSyntax } from '../state/syntax';
 import { ChangeSource } from '../types';
 
 type TList = IBulletListState | IOrderListState | ITaskListState;
@@ -155,8 +154,7 @@ describe('list looseness across editing and history', () => {
         muya.editor.updateContents(
             json1.insertOp([0, 'children', 0, 'children', 1], asDoc({
                 name: 'code-block',
-                meta: { lang: '' },
-                syntax: defaultCodeSyntax('x'),
+                meta: { type: 'fenced', lang: '' },
                 text: 'x',
             })),
             null,

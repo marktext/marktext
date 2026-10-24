@@ -27,8 +27,8 @@ export const DEFAULT_STATE = [
         name: 'setext-heading',
         meta: {
             level: 1,
-            underline: '===', // === or ---
         },
+        syntax: { underline: '===' },
         text: 'GitHub and Extra\nInline format',
     },
     {

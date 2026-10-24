@@ -83,7 +83,6 @@ function flush(): Promise<void> {
 
 interface IStateNode {
     name: string;
-    syntax?: { form: string };
     meta?: { lang?: string; type?: string };
     children?: IStateNode[];
 }
@@ -103,7 +102,7 @@ describe('enter on ```` ```js ```` inside a block-quote — converts to a nested
         expect(children.length).toBe(1);
         expect(children[0].name).toBe('code-block');
         expect(children[0].meta!.lang).toBe('js');
-        expect(children[0].syntax!.form).toBe('fenced');
+        expect(children[0].meta!.type).toBe('fenced');
     });
 });
 

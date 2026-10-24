@@ -28,7 +28,6 @@ import {
 import { generator, tokenizer } from '../../inlineRenderer/lexer';
 import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
-import { defaultSetextSyntax, parseAtxHeading } from '../../state/syntax';
 import { isListItemState } from '../../state/types';
 import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isKeyboardEvent, isMouseEvent, lastGraphemeLength } from '../../utils';
 import { COLOR_SPAN_CLOSE_TAG, colorPropertyOf, colorSpanOpenTag, isColorStyleEmpty, parseColorStyle } from '../../utils/colorSpan';
@@ -1148,9 +1147,13 @@ class Format extends Content {
             this.parent!.parent!.insertAfter(postParagraphBlock, this.parent);
         }
 
-        const newNodeState = this.parent!.blockName === 'atx-heading'
-            ? { name: 'atx-heading', syntax: (this.parent as AtxHeading).syntax, meta: { level }, text: atxLine }
-            : parseAtxHeading(atxLine, level);
+        const newNodeState = {
+            name: 'atx-heading',
+            meta: {
+                level,
+            },
+            text: atxLine,
+        };
 
         const atxHeadingBlock = ScrollPage.loadBlock(newNodeState.name).create(
             muya,
@@ -1186,22 +1189,27 @@ class Format extends Content {
         const setextLines = [];
         const postParagraphLines = [];
         let setextLineHasPushed = false;
+        let underline = setextHeading;
 
         for (const l of lines) {
-            if (/^ {0,3}(?:={3,}|-{3,})(?= +|$)/.test(l) && !setextLineHasPushed)
+            if (/^ {0,3}(?:={3,}|-{3,})(?= +|$)/.test(l) && !setextLineHasPushed) {
                 setextLineHasPushed = true;
-            else if (!setextLineHasPushed)
+                underline = l;
+            }
+            else if (!setextLineHasPushed) {
                 setextLines.push(l);
-            else
+            }
+            else {
                 postParagraphLines.push(l);
+            }
         }
 
         const newNodeState = {
             name: 'setext-heading',
-            syntax: defaultSetextSyntax(setextLines.join('\n'), setextHeading.length),
             meta: {
                 level,
             },
+            syntax: { underline },
             text: setextLines.join('\n'),
         };
 
@@ -1261,15 +1269,14 @@ class Format extends Content {
         if (this.blockName === 'setextheading.content') {
             quoteParagraphState = {
                 name: 'setext-heading',
-                syntax: (this.parent as SetextHeading).syntax,
                 meta: (this.parent as SetextHeading).meta,
+                syntax: (this.parent as SetextHeading).syntax,
                 text: quoteLines.join('\n'),
             };
         }
         else if (this.blockName === 'atxheading.content') {
             quoteParagraphState = {
                 name: 'atx-heading',
-                syntax: (this.parent as AtxHeading).syntax,
                 meta: (this.parent as AtxHeading).meta,
                 text: quoteLines.join(' '),
             };
@@ -1333,9 +1340,9 @@ class Format extends Content {
 
         const codeState = {
             name: 'code-block',
-            syntax: { form: 'indented', prefixes: codeLines.map(() => ({ raw: '    ', remainder: 0 })) },
             meta: {
                 lang: '',
+                type: 'indented',
             },
             text: codeLines.join('\n'),
         };
@@ -1646,15 +1653,19 @@ class Format extends Content {
     }
 
     override enterHandler(event: KeyboardEvent): void {
+        const { text } = this;
+        const { start, end } = this.getCursor()!;
+        this.splitToParagraph(event, text.substring(0, start.offset), text.substring(end.offset));
+    }
+
+    protected splitToParagraph(event: KeyboardEvent, head: string, tail: string): void {
         event.preventDefault();
         this.muya.editor.history.markInputBoundary('insertParagraph', '\n');
-        const { text: oldText, muya, parent } = this;
-        const { start, end } = this.getCursor()!;
-        this.text = oldText.substring(0, start.offset);
-        const textOfNewNode = oldText.substring(end.offset);
+        const { muya, parent } = this;
+        this.text = head;
         const newParagraphState = {
             name: 'paragraph',
-            text: textOfNewNode,
+            text: tail,
         };
 
         const newNode = ScrollPage.loadBlock(newParagraphState.name).create(

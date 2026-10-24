@@ -1,5 +1,6 @@
-import type { IJSONChangePayload } from '../../state/changePayload';
+// @vitest-environment happy-dom
 
+import type { IJSONChangePayload } from '../../state/changePayload';
 import type { IBulletListState, TState } from '../../state/types';
 import * as json1 from 'ot-json1';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -7,8 +8,6 @@ import History from '../../history';
 import { Muya } from '../../muya';
 import JSONState, { asDoc } from '../../state';
 import { MarkdownToState } from '../../state/markdownToState';
-// @vitest-environment happy-dom
-import { defaultCodeSyntax } from '../../state/syntax';
 import { ChangeSource } from '../../types';
 
 const instances: Muya[] = [];
@@ -363,8 +362,7 @@ describe('completed edit transactions', () => {
         const parse = vi.spyOn(MarkdownToState.prototype, 'generate');
         muya.editor.updateContents(json1.insertOp([0, 'children', 0, 'children', 1], asDoc({
             name: 'code-block',
-            meta: { lang: '' },
-            syntax: defaultCodeSyntax('x'),
+            meta: { type: 'fenced', lang: '' },
             text: 'x',
         })), null, ChangeSource.User);
         expect(parse).toHaveBeenCalled();
@@ -399,8 +397,7 @@ describe('completed edit transactions', () => {
         const parse = vi.spyOn(MarkdownToState.prototype, 'generate');
         muya.editor.transactions.apply(json1.insertOp([0, 'children', 0, 'children', 1], asDoc({
             name: 'code-block',
-            meta: { lang: '' },
-            syntax: defaultCodeSyntax('x'),
+            meta: { type: 'fenced', lang: '' },
             text: 'x',
         })), { replay: true, source: ChangeSource.Api });
         expect(parse).not.toHaveBeenCalled();

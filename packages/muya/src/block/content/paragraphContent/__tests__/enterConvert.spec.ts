@@ -147,7 +147,7 @@ describe('enter on ```` ```js ```` — converts to a fenced code-block', () => {
         expect(state[0].name).toBe('code-block');
     });
 
-    it('records meta.lang === "js" and syntax.form === "fenced"', async () => {
+    it('records meta.lang === "js" and meta.type === "fenced"', async () => {
         const muya = bootMuya('seed\n');
         const content = contentByText(muya, 'seed');
 
@@ -157,7 +157,7 @@ describe('enter on ```` ```js ```` — converts to a fenced code-block', () => {
         const state = muya.getState();
         const meta = (state[0] as { meta: { lang: string; type: string } }).meta;
         expect(meta.lang).toBe('js');
-        expect(state[0]).toMatchObject({ syntax: { form: 'fenced' } });
+        expect(meta.type).toBe('fenced');
     });
 
     it('seeds the code-block with empty text', async () => {
@@ -331,8 +331,8 @@ describe('enter on a tilde fence — converts to a fenced code-block', () => {
         expect(state[0].name).toBe('code-block');
         const meta = (state[0] as { meta: { lang: string; type: string; fenceChar?: string } }).meta;
         expect(meta.lang).toBe('js');
-        expect(state[0]).toMatchObject({ syntax: { form: 'fenced' } });
-        expect(state[0]).toMatchObject({ syntax: { fenceChar: '~' } });
+        expect(meta.type).toBe('fenced');
+        expect(meta.fenceChar).toBe('~');
     });
 
     it('converts a bare `~~~` fence and records fenceChar === "~"', async () => {
@@ -344,7 +344,8 @@ describe('enter on a tilde fence — converts to a fenced code-block', () => {
         await flush();
         const state = muya.getState();
         expect(state[0].name).toBe('code-block');
-        expect(state[0]).toMatchObject({ syntax: { fenceChar: '~' } });
+        const meta = (state[0] as { meta: { fenceChar?: string } }).meta;
+        expect(meta.fenceChar).toBe('~');
     });
 
     it('records fenceChar === "`" on the backtick path', async () => {
@@ -354,6 +355,7 @@ describe('enter on a tilde fence — converts to a fenced code-block', () => {
         enterWithText(muya, content, '```js');
 
         await flush();
-        expect(muya.getState()[0]).toMatchObject({ syntax: { fenceChar: '`' } });
+        const meta = (muya.getState()[0] as { meta: { fenceChar?: string } }).meta;
+        expect(meta.fenceChar).toBe('`');
     });
 });

@@ -8,7 +8,6 @@ import * as json1 from 'ot-json1';
 import { asDoc } from '../../state';
 import { ChangeSource } from '../../types';
 import { deepClone } from '../../utils';
-import { blockSyntaxOperations } from './blockSyntax';
 import { listLoosenessOperations } from './listLooseness';
 
 export interface ITransactionOptions {
@@ -29,7 +28,7 @@ export interface ICompletedTransaction extends Required<Omit<ITransactionOptions
 
 type TEditingRule = (before: readonly TState[], after: readonly TState[], operation: JSONOp, options: IMuyaOptions) => JSONOp;
 
-const EDITING_RULES: TEditingRule[] = [blockSyntaxOperations, listLoosenessOperations];
+const EDITING_RULES: TEditingRule[] = [listLoosenessOperations];
 
 /**
  * Collect live Block mutations and complete editing rules before committing.

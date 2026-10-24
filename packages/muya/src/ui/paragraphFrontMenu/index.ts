@@ -14,6 +14,7 @@ import { replaceBlockByLabel } from '../../block/blockTransforms';
 import { canConvertGithubAlert, convertGithubAlert } from '../../block/githubAlerts';
 import { ScrollPage } from '../../block/scrollPage';
 import emptyStates from '../../config/emptyStates';
+import { atxHeadingBody } from '../../state/headings';
 import { isAnyListState, isAtxHeadingState } from '../../state/types';
 
 import { deepClone, isHTMLElement } from '../../utils';
@@ -276,7 +277,7 @@ export class ParagraphFrontMenu extends BaseFloat {
                 const text
                     = block.blockName === 'paragraph'
                         ? rawText
-                        : rawText.replace(/^ {0,3}#{1,6}(?:\s+|$)/, '');
+                        : atxHeadingBody(rawText);
                 replaceBlockByLabel({
                     block,
                     label,
