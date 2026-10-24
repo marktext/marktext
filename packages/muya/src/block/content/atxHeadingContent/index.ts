@@ -74,6 +74,7 @@ class AtxHeadingContent extends Format {
             const newHeading = ScrollPage.loadBlock('atx-heading').create(this.muya, {
                 name: 'atx-heading',
                 meta: { level },
+                syntax: this.parent!.syntax,
                 text: prefix + this.text.slice(end.offset),
             });
             let boundary = this.parent!.next;

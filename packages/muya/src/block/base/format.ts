@@ -28,6 +28,7 @@ import {
 import { generator, tokenizer } from '../../inlineRenderer/lexer';
 import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
+import { defaultSetextSyntax, parseAtxHeading } from '../../state/syntax';
 import { isListItemState } from '../../state/types';
 import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isKeyboardEvent, isMouseEvent, lastGraphemeLength } from '../../utils';
 import { COLOR_SPAN_CLOSE_TAG, colorPropertyOf, colorSpanOpenTag, isColorStyleEmpty, parseColorStyle } from '../../utils/colorSpan';
@@ -1147,13 +1148,9 @@ class Format extends Content {
             this.parent!.parent!.insertAfter(postParagraphBlock, this.parent);
         }
 
-        const newNodeState = {
-            name: 'atx-heading',
-            meta: {
-                level,
-            },
-            text: atxLine,
-        };
+        const newNodeState = this.parent!.blockName === 'atx-heading'
+            ? { name: 'atx-heading', syntax: (this.parent as AtxHeading).syntax, meta: { level }, text: atxLine }
+            : parseAtxHeading(atxLine, level);
 
         const atxHeadingBlock = ScrollPage.loadBlock(newNodeState.name).create(
             muya,
@@ -1201,9 +1198,9 @@ class Format extends Content {
 
         const newNodeState = {
             name: 'setext-heading',
+            syntax: defaultSetextSyntax(setextLines.join('\n'), setextHeading.length),
             meta: {
                 level,
-                underline: setextHeading,
             },
             text: setextLines.join('\n'),
         };
@@ -1264,6 +1261,7 @@ class Format extends Content {
         if (this.blockName === 'setextheading.content') {
             quoteParagraphState = {
                 name: 'setext-heading',
+                syntax: (this.parent as SetextHeading).syntax,
                 meta: (this.parent as SetextHeading).meta,
                 text: quoteLines.join('\n'),
             };
@@ -1271,6 +1269,7 @@ class Format extends Content {
         else if (this.blockName === 'atxheading.content') {
             quoteParagraphState = {
                 name: 'atx-heading',
+                syntax: (this.parent as AtxHeading).syntax,
                 meta: (this.parent as AtxHeading).meta,
                 text: quoteLines.join(' '),
             };
@@ -1334,9 +1333,9 @@ class Format extends Content {
 
         const codeState = {
             name: 'code-block',
+            syntax: { form: 'indented', prefixes: codeLines.map(() => ({ raw: '    ', remainder: 0 })) },
             meta: {
                 lang: '',
-                type: 'indented',
             },
             text: codeLines.join('\n'),
         };

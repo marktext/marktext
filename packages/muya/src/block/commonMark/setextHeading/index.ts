@@ -1,18 +1,20 @@
 import type { Muya } from '../../../muya';
 import type { ISetextHeadingState } from '../../../state/types';
 import type SetextHeadingContent from '../../content/setextHeadingContent';
+import { defaultSetextSyntax } from '../../../state/syntax';
 import { mixins } from '../../../utils';
-import Parent from '../../base/parent';
+import SyntaxBlock from '../../base/syntaxBlock';
 import LeafQueryBlock from '../../mixins/leafQueryBlock';
 import { ScrollPage } from '../../scrollPage';
 
 @mixins(LeafQueryBlock)
-class SetextHeading extends Parent {
+class SetextHeading extends SyntaxBlock<ISetextHeadingState> {
     public meta: ISetextHeadingState['meta'];
 
     static override blockName = 'setext-heading';
 
     static create(muya: Muya, state: ISetextHeadingState) {
+        state = { ...state, syntax: state.syntax ?? defaultSetextSyntax(state.text) };
         const heading = new SetextHeading(muya, state);
 
         heading.appendAttachment(
@@ -33,8 +35,9 @@ class SetextHeading extends Parent {
         return [...pPath, offset];
     }
 
-    constructor(muya: Muya, { meta }: ISetextHeadingState) {
-        super(muya);
+    constructor(muya: Muya, state: ISetextHeadingState) {
+        super(muya, state);
+        const { meta } = state;
         this.tagName = `h${meta.level}`;
         this.meta = meta;
         this.classList = ['mu-setext-heading'];
@@ -42,11 +45,11 @@ class SetextHeading extends Parent {
     }
 
     override getState(): ISetextHeadingState {
-        return {
+        return this.withSyntax({
             name: 'setext-heading',
             meta: this.meta,
             text: (this.children.head as SetextHeadingContent).text,
-        };
+        });
     }
 }
 

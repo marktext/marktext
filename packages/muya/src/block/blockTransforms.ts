@@ -1,6 +1,7 @@
 import type { Muya } from '../muya';
 import type { IFrontmatterMeta } from '../state/types';
 import type Parent from './base/parent';
+import type AtxHeading from './commonMark/atxHeading';
 import emptyStates from '../config/emptyStates';
 import { getCursorReference } from '../selection';
 import { isParagraphState } from '../state/types';
@@ -224,6 +225,12 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
     const newBlock = buildReplacementBlock(label, muya, text);
     if (!newBlock)
         return;
+
+    if (block.blockName === 'atx-heading' && newBlock.blockName === 'atx-heading') {
+        const state = block.getState();
+        if (state.name === 'atx-heading')
+            (newBlock as AtxHeading).setSyntax(state.syntax);
+    }
 
     block.replaceWith(newBlock);
     finishInsertedBlock(newBlock, muya, label);

@@ -743,7 +743,7 @@ describe('stateToMarkdown — blocks inside a tight list item', () => {
             children: [
                 listItem([
                     paragraph('a'),
-                    { name: 'code-block', meta: { type: 'indented', lang: '' }, text: 'x' },
+                    { name: 'code-block', meta: { lang: '' }, text: 'x', syntax: { form: 'indented', prefixes: [{ raw: '    ', remainder: 0 }] } },
                 ]),
                 listItem([paragraph('b')]),
             ],

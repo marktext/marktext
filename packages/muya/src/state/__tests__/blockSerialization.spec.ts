@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../muya';
 import { MarkdownToState } from '../markdownToState';
 import ExportMarkdown from '../stateToMarkdown';
+import { defaultCodeSyntax } from '../syntax';
 
 function roundTrip(md: string): string {
     const states = new MarkdownToState({
@@ -160,13 +161,15 @@ foo
 
     it('always records fenceChar for fenced blocks', () => {
         const tilde = parse('~~~js\nx\n~~~\n')[0] as ICodeBlockState;
-        expect(tilde.meta).toEqual({ type: 'fenced', lang: 'js', fenceChar: '~' });
+        expect(tilde.meta).toEqual({ lang: 'js' });
+        expect(tilde.syntax).toMatchObject({ form: 'fenced', fenceChar: '~' });
 
         const backtick = parse('```js\nx\n```\n')[0] as ICodeBlockState;
-        expect(backtick.meta).toEqual({ type: 'fenced', lang: 'js', fenceChar: '`' });
+        expect(backtick.meta).toEqual({ lang: 'js' });
+        expect(backtick.syntax).toMatchObject({ form: 'fenced', fenceChar: '`' });
 
         const indented = parse('    x\n')[0] as ICodeBlockState;
-        expect(indented.meta.fenceChar).toBeUndefined();
+        expect(indented.syntax).toMatchObject({ form: 'indented' });
     });
 
     it('grows the tilde fence past an interior run of the same character', () => {
@@ -179,7 +182,7 @@ foo
 
     it('switches to a tilde fence when a backtick fence carries a backtick in its info string', () => {
         const out = new ExportMarkdown({ listIndentation: 1 }).generate([
-            { name: 'code-block', meta: { type: 'fenced', lang: 'a`b', fenceChar: '`' }, text: 'x' },
+            { name: 'code-block', meta: { lang: 'a`b' }, text: 'x', syntax: defaultCodeSyntax('x') },
         ]);
         expect(out).toContain('~~~a`b');
         expect(out).toContain('~~~\n');
@@ -287,7 +290,7 @@ Text after numbered list.
 });
 
 describe('markdownToState — indented code block', () => {
-    it('parses a 4-space-indented block as a code-block with meta.type "indented"', () => {
+    it('parses a 4-space-indented block as a code-block with syntax.form "indented"', () => {
         const states = parse('    code\n');
 
         expect(states.length).toBe(1);
@@ -295,7 +298,7 @@ describe('markdownToState — indented code block', () => {
         expect(state.name).toBe('code-block');
         if (state.name !== 'code-block')
             throw new Error('expected a code-block state');
-        expect(state.meta.type).toBe('indented');
+        expect(state.syntax.form).toBe('indented');
         expect(state.meta.lang).toBe('');
         expect(state.text).toBe('code');
     });
@@ -312,15 +315,15 @@ describe('markdownToState — indented code block', () => {
 });
 
 describe('codeBlock — setting lang promotes an indented block to fenced', () => {
-    it('flips meta.type indented -> fenced and updates the live block lang', async () => {
+    it('flips syntax.form indented -> fenced and updates the live block lang', async () => {
         const muya = bootMuya('    code\n');
         const codeBlock = findCodeBlock(muya);
         expect(codeBlock).toBeTruthy();
-        expect(codeBlock.meta.type).toBe('indented');
+        expect(codeBlock.syntax.form).toBe('indented');
 
         codeBlock.lang = 'js';
 
-        expect(codeBlock.meta.type).toBe('fenced');
+        expect(codeBlock.syntax.form).toBe('fenced');
         expect(codeBlock.meta.lang).toBe('js');
 
         await vi.waitFor(() => {
@@ -328,8 +331,8 @@ describe('codeBlock — setting lang promotes an indented block to fenced', () =
             expect(state.name).toBe('code-block');
             if (state.name !== 'code-block')
                 throw new Error('expected a code-block state');
-            expect(state.meta.type).toBe('fenced');
-            expect(state.meta.fenceChar).toBe('`');
+            expect(state.syntax.form).toBe('fenced');
+            expect(state.syntax).toMatchObject({ fenceChar: '`' });
         });
     });
 
@@ -346,32 +349,16 @@ describe('codeBlock — setting lang promotes an indented block to fenced', () =
         expect(node.classList.contains('mu-fenced-code')).toBe(true);
     });
 
-    it('emits a fenced block from getMarkdown (CHARACTERIZATION: drops the language tag — see suspectedBugs)', async () => {
+    it('records the language when promoting an indented block', () => {
         const muya = bootMuya('    code\n');
         const codeBlock = findCodeBlock(muya);
-
         codeBlock.lang = 'js';
-
-        // The setter dispatches an OT op ONLY for `meta.type`, never for
-        // `meta.lang`. So the serialized JSON state ends up `fenced` but with
-        // an EMPTY language: getMarkdown opens a bare ``` fence and the `js`
-        // info string is lost. This pins the actual current behaviour.
-        await vi.waitFor(() => {
-            const md = muya.getMarkdown();
-            expect(md).toContain('```');
-            expect(md).toContain('code');
-        });
-
-        const md = muya.getMarkdown();
-        expect(md.startsWith('    ')).toBe(false);
-        // Bug: the language tag never reaches the serializer.
-        expect(md).not.toContain('```js');
-        expect(md).toBe('```\ncode\n```\n');
-
+        muya.flush();
+        expect(muya.getMarkdown()).toBe('```js\ncode\n```\n');
         const state = muya.getState()[0];
         if (state.name !== 'code-block')
             throw new Error('expected a code-block state');
-        expect(state.meta.lang).toBe('');
+        expect(state.meta.lang).toBe('js');
         expect(codeBlock.meta.lang).toBe('js');
     });
 });

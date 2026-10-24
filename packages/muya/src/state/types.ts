@@ -1,4 +1,5 @@
 import type { GithubAlertType } from '../utils/githubAlerts';
+import type { IAtxHeadingSyntax, ICodeSyntax, ISetextHeadingSyntax } from './syntax';
 
 export interface IParagraphState {
     name: 'paragraph';
@@ -11,15 +12,16 @@ export interface IAtxHeadingState {
         level: number;
     };
     text: string;
+    syntax: IAtxHeadingSyntax;
 }
 
 export interface ISetextHeadingState {
     name: 'setext-heading';
     meta: {
         level: number;
-        underline: string; // "===" | "---";
     };
     text: string;
+    syntax: ISetextHeadingSyntax;
 }
 
 export interface IThematicBreakState {
@@ -30,14 +32,11 @@ export interface IThematicBreakState {
 export interface ICodeBlockState {
     name: 'code-block';
     meta: {
-        type: string; // "indented" | "fenced";
         // Full fence info string; derive the highlighting language with firstWordOfInfo().
         lang: string;
-        fenceLength?: number;
-        // Absent for indented blocks. Older fenced states may omit it; readers default to backticks.
-        fenceChar?: '`' | '~';
     };
     text: string;
+    syntax: ICodeSyntax;
 }
 
 export interface IHtmlBlockState {

@@ -163,7 +163,7 @@ describe('reading mode', () => {
         block.lang = language;
         block.lang = 'js';
         expect(muya.getState()).toEqual(state);
-        expect(block.meta.type).toBe('indented');
+        expect(block.syntax.form).toBe('indented');
         expect(changed).not.toHaveBeenCalled();
     });
 

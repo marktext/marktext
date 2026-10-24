@@ -32,6 +32,7 @@ import {
     locateSentinelOffsets,
     resolveSentinelCursor,
 } from './selection/offsetCursor';
+import { defaultCodeSyntax } from './state/syntax';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState, markdownListMarker } from './state/types';
 import { ChangeSource } from './types';
 import { Ui } from './ui/ui';
@@ -130,6 +131,7 @@ const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
     'footnote',
     'frontMatter',
     'trimUnnecessaryCodeBlockEmptyLines',
+    'preserveSyntax',
     'multilineBlockquote',
     'githubAlerts',
 ]);
@@ -891,7 +893,8 @@ export class Muya {
         this._wrapSelectedBlocks(
             blocks => ({
                 name: 'code-block',
-                meta: { type: 'fenced', lang: '', fenceChar: '`' },
+                meta: { lang: '' },
+                syntax: defaultCodeSyntax(),
                 text: this.editor.jsonState
                     .getMarkdownFromState(blocks.map(b => b.getState()))
                     .replace(/\n+$/, ''),

@@ -98,7 +98,20 @@ function expectLanguageInputs(muya: Muya, languages: string[]): void {
 }
 
 const paragraph = (text: string) => ({ name: 'paragraph', text });
-const codeBlock = (lang: string, text: string) => ({ name: 'code-block', meta: { type: 'fenced', lang, fenceChar: '`' }, text });
+function codeBlock(lang: string, text: string) {
+    return {
+        name: 'code-block',
+        meta: { lang },
+        text,
+        syntax: {
+            form: 'fenced',
+            fenceChar: '`',
+            opening: { indent: '', length: 3, beforeInfo: '', afterInfo: '' },
+            closing: { indent: '', length: 3, after: '' },
+            prefixes: [{ raw: '', remainder: 0 }],
+        },
+    };
+}
 
 describe('cross-block cut ending in a code block\'s language line (#5371)', () => {
     it('trims the selected start of the language and keeps the code block', () => {

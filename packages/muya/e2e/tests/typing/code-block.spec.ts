@@ -9,6 +9,7 @@ interface IStateNode {
     name: string;
     text?: string;
     meta?: { type?: string; lang?: string };
+    syntax?: { form: string };
     children?: IStateNode[];
 }
 
@@ -167,11 +168,10 @@ test.describe('code block', () => {
         await expect(codeBlock).not.toHaveClass(/mu-fenced-code/);
         await expect(page.locator(editor.languageInput).first()).toHaveText('');
 
-        // State shape: a single code-block whose meta.type is 'indented'.
         const blocks = await getBlocks(page);
         expect(blocks).toHaveLength(1);
         expect(blocks[0].name).toBe('code-block');
-        expect(blocks[0].meta?.type).toBe('indented');
+        expect(blocks[0].syntax?.form).toBe('indented');
 
         // Round-trip: serializes back to a 4-space-prefixed line, no ``` fence.
         const md = await getMarkdown(page);

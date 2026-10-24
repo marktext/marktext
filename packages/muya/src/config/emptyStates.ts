@@ -14,6 +14,8 @@ import type {
     IThematicBreakState,
 } from '../state/types';
 
+import { defaultAtxSyntax, defaultCodeSyntax } from '../state/syntax';
+
 interface IEmptyStates {
     'paragraph': IParagraphState;
     'thematic-break': IThematicBreakState;
@@ -53,6 +55,7 @@ const emptyStates: IEmptyStates = {
             level: 1, // 1 ~ 6
         },
         text: '# ', // can not contain `\n`!
+        syntax: defaultAtxSyntax(),
     },
     'table': {
         name: 'table',
@@ -110,10 +113,9 @@ const emptyStates: IEmptyStates = {
     },
     'code-block': {
         name: 'code-block',
+        syntax: defaultCodeSyntax(),
         meta: {
-            type: 'fenced', // indented or fenced
-            lang: '', // lang will be enpty string if block is indented block. set language will auto change into fenced code block.
-            fenceChar: '`',
+            lang: '',
         },
         text: '',
     },

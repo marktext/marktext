@@ -19,6 +19,7 @@ import ExportMarkdown from '../stateToMarkdown';
 interface IMathLike {
     name: string;
     text?: string;
+    syntax?: { form: string };
     meta?: { mathStyle?: string; lang?: string; type?: string };
 }
 
@@ -122,7 +123,7 @@ describe('tex_math_gfm — consistency with legacy muyajs', () => {
     it('agree — a 4-space indented fence is an indented code block, not math (both engines)', () => {
         const [block] = parse('    ```math\nx^2\n```\n');
         expect(block.name).toBe('code-block');
-        expect(block.meta?.type).toBe('indented');
+        expect(block.syntax?.form).toBe('indented');
     });
 
     it('agree — a 4+ backtick ```math fence is promoted (both engines)', () => {

@@ -15,6 +15,7 @@ export interface IMuyaOptions {
     wrapCodeBlocks?: boolean;
     focusMode: boolean;
     trimUnnecessaryCodeBlockEmptyLines: boolean;
+    preserveSyntax?: boolean;
     preferLooseListItem: boolean;
     autoPairBracket: boolean;
     autoPairMarkdownSyntax: boolean;

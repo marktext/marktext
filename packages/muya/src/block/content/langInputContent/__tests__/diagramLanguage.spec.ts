@@ -122,7 +122,18 @@ describe('the language input does not convert', () => {
         await settle();
 
         expect(muya.getState()).toEqual([
-            { name: 'code-block', text: 'code', meta: { type: 'fenced', lang: 'python', fenceChar: '`' } },
+            {
+                name: 'code-block',
+                text: 'code',
+                meta: { lang: 'python' },
+                syntax: {
+                    form: 'fenced',
+                    fenceChar: '`',
+                    opening: { indent: '', length: 3, beforeInfo: '', afterInfo: '' },
+                    closing: { indent: '', length: 3, after: '' },
+                    prefixes: [{ raw: '', remainder: 0 }],
+                },
+            },
         ]);
     });
 

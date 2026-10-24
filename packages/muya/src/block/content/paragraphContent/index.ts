@@ -17,6 +17,7 @@ import type BulletList from '../../commonMark/bulletList';
 import type Paragraph from '../../commonMark/paragraph';
 import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
 import { tokenizer } from '../../../inlineRenderer/lexer';
+import { defaultCodeSyntax } from '../../../state/syntax';
 import { isListItemState, isTaskListItemState } from '../../../state/types';
 import { ChangeSource } from '../../../types';
 import { firstWordOfInfo, isKeyboardEvent, isLengthEven, parseFenceLine } from '../../../utils';
@@ -346,10 +347,9 @@ class ParagraphContent extends Format {
                 else {
                     const state = {
                         name: 'code-block',
+                        syntax: defaultCodeSyntax('', fenceChar),
                         meta: {
                             lang,
-                            type: 'fenced',
-                            fenceChar,
                         },
                         text: '',
                     };

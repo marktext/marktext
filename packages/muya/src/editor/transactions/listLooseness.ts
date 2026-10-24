@@ -3,6 +3,7 @@ import type { IBulletListState, IOrderListState, ITaskListState, TState } from '
 import type { IMuyaOptions } from '../../types';
 import { type as json1, replaceOp } from 'ot-json1';
 import { MarkdownToState } from '../../state/markdownToState';
+import { stateAtPath as atPath } from '../../state/paths';
 import ExportMarkdown from '../../state/stateToMarkdown';
 import { isAnyListState, markdownListMarker } from '../../state/types';
 
@@ -12,16 +13,6 @@ interface IListLocation {
     siblings: readonly TState[];
     index: number;
     parentPath: Path;
-}
-
-function atPath(root: unknown, path: Path): unknown {
-    let value = root;
-    for (const key of path) {
-        if (!value || typeof value !== 'object')
-            return undefined;
-        value = (value as Record<string | number, unknown>)[key];
-    }
-    return value;
 }
 
 function isState(value: unknown): value is TState {

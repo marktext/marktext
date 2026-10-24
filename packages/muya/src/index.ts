@@ -10,6 +10,8 @@ export type { ITocItem } from './state/getTOC';
 export { MarkdownToHtml } from './state/markdownToHtml';
 export { renderToStaticHTML } from './state/renderToStaticHTML';
 export type { IRenderToStaticHTMLOptions } from './state/renderToStaticHTML';
+export { defaultAtxSyntax, defaultCodeSyntax, defaultSetextSyntax } from './state/syntax';
+export type { IAtxHeadingSyntax, ICodeSyntax, ISetextHeadingSyntax } from './state/syntax';
 export type { TState } from './state/types';
 export { ChangeSource } from './types';
 export type { IMuyaOptions } from './types';

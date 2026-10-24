@@ -243,7 +243,7 @@ function appendPartialState(
             ? block.text.substring(offset)
             : block.text.substring(0, offset);
 
-    // Blocks whose marker lives in meta, not in the text: setext heading (its
+    // Blocks whose marker lives outside the text: setext heading (its
     // `===`/`---` underline) and the code-family (code-block, html-block,
     // math-block, frontmatter, diagram fences/wrappers). Keep the block's own
     // type + meta and truncate only its text — the serializer rebuilds the

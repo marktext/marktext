@@ -3,15 +3,16 @@ import type { IAtxHeadingState } from '../../../state/types';
 import type Content from '../../base/content';
 import type { TBlockPath } from '../../types';
 import { CLASS_NAMES } from '../../../config';
+import { defaultAtxSyntax } from '../../../state/syntax';
 import { mixins } from '../../../utils';
-import Parent from '../../base/parent';
+import SyntaxBlock from '../../base/syntaxBlock';
 import { isHiddenByFold, refreshFoldVisibility } from '../../folding';
 import LeafQueryBlock from '../../mixins/leafQueryBlock';
 import { ScrollPage } from '../../scrollPage';
 import HeadingFoldToggle from '../headingFoldToggle';
 
 @mixins(LeafQueryBlock)
-class AtxHeading extends Parent {
+class AtxHeading extends SyntaxBlock<IAtxHeadingState> {
     public meta: IAtxHeadingState['meta'];
 
     // Runtime-only UI state — fold is a visual concern and is never serialized
@@ -22,6 +23,7 @@ class AtxHeading extends Parent {
     static override blockName = 'atx-heading';
 
     static create(muya: Muya, state: IAtxHeadingState) {
+        state = { ...state, syntax: state.syntax ?? defaultAtxSyntax() };
         const heading = new AtxHeading(muya, state);
 
         heading.appendAttachment(
@@ -43,8 +45,9 @@ class AtxHeading extends Parent {
         return [...pPath, offset];
     }
 
-    constructor(muya: Muya, { meta }: IAtxHeadingState) {
-        super(muya);
+    constructor(muya: Muya, state: IAtxHeadingState) {
+        super(muya, state);
+        const { meta } = state;
         this.tagName = `h${meta.level}`;
         this.meta = meta;
         this.classList = ['mu-atx-heading'];
@@ -79,11 +82,11 @@ class AtxHeading extends Parent {
     }
 
     override getState(): IAtxHeadingState {
-        return {
+        return this.withSyntax({
             name: 'atx-heading',
             meta: this.meta,
             text: (this.children.head as Content).text,
-        };
+        });
     }
 }
 

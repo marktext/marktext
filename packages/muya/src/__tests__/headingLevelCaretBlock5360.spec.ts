@@ -70,7 +70,7 @@ function settledState(muya: Muya): TState[] {
     return state;
 }
 
-const heading = (level: number, text: string) => ({ name: 'atx-heading', meta: { level }, text: `${'#'.repeat(level)} ${text}` });
+const heading = (level: number, text: string) => ({ name: 'atx-heading', syntax: { indent: '', afterOpening: ' ', trailing: '' }, meta: { level }, text: `${'#'.repeat(level)} ${text}` });
 const paragraph = (text: string) => ({ name: 'paragraph', text });
 
 describe('promote / demote heading act on the caret\'s paragraph or heading (#5360)', () => {
