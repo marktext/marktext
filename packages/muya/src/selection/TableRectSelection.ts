@@ -3,9 +3,11 @@ import type TableBodyCell from '../block/gfm/table/cell';
 import type { Muya } from '../muya';
 import type { ITableState } from '../state/types';
 import type { Nullable } from '../types';
+import type { ITableRectSelection } from './types';
 import { CLASS_NAMES } from '../config';
 import { isMouseEvent } from '../utils';
 import { getBlock } from '../utils/dom';
+import { SelectionType } from './types';
 
 const SELECTED_CLASS = CLASS_NAMES.MU_TABLE_CELL_SELECTED;
 const BORDER_TOP_CLASS = CLASS_NAMES.MU_TABLE_CELL_BORDER_TOP;
@@ -36,7 +38,24 @@ class TableRectSelection {
     constructor(private _muya: Muya) {}
 
     get hasSelection(): boolean {
-        return this._table != null && this._anchor != null && this._focus != null;
+        return this._isSelecting && this._table != null && this._anchor != null && this._focus != null;
+    }
+
+    setSelection(selection: ITableRectSelection): void {
+        const { table, anchorCell, focusCell } = selection.context;
+        this._table = table;
+        this._anchor = { cell: anchorCell, ...selection.anchor };
+        this._focus = { cell: focusCell, ...selection.focus };
+        this._isSelecting = true;
+        this._freezeNativeSelection();
+        this._renderHighlight();
+    }
+
+    private _notify(): void {
+        const state = this.hasSelection
+            ? { kind: SelectionType.TABLE as const, tablePath: [...this._table!.path], anchor: { row: this._anchor!.row, column: this._anchor!.column }, focus: { row: this._focus!.row, column: this._focus!.column } }
+            : null;
+        this._muya.editor.selection.syncTableSelection(state);
     }
 
     isSingleCellSelected(): boolean {
@@ -112,8 +131,6 @@ class TableRectSelection {
     }
 
     private _onMouseDown = (event: Event): void => {
-        if (this._muya.isReadOnly)
-            return;
         if (!isMouseEvent(event) || event.button === 2)
             return;
 
@@ -171,13 +188,13 @@ class TableRectSelection {
 
         if (!this._isSelecting || this._focus == null)
             this.clear();
+        this._muya.editor.selection.flush();
     };
 
     private _freezeNativeSelection(): void {
         document.getSelection()?.removeAllRanges();
         this._muya.domNode.focus();
         this._muya.editor.activeContentBlock = null;
-        this._muya.ui.hideAllFloatTools();
     }
 
     private _suppressNativeRange(): void {
@@ -216,6 +233,7 @@ class TableRectSelection {
 
     private _renderHighlight(): void {
         this._clearHighlight();
+        this._notify();
         if (this._table == null || this._anchor == null || this._focus == null)
             return;
 
@@ -311,11 +329,13 @@ class TableRectSelection {
     }
 
     clear(): void {
+        this._detachDragEvents();
         this._clearHighlight();
         this._table = null;
         this._anchor = null;
         this._focus = null;
         this._isSelecting = false;
+        this._notify();
     }
 }
 

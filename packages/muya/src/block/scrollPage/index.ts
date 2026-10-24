@@ -86,8 +86,7 @@ export class ScrollPage extends Parent {
 
     updateState(state: TState[]) {
         const { muya } = this;
-        // A resize owns references into the old tree and cannot survive a rebuild (#5394).
-        muya.eventCenter.emit('muya-transformer', { reference: null });
+        muya.ui.hideAllFloatTools();
         this.empty();
         this.append(
             ...state.map((block) => {
@@ -100,7 +99,7 @@ export class ScrollPage extends Parent {
     replaceBlock(block: Parent, states: TState[]): Parent[] {
         const { muya } = this;
         return muya.transact(() => {
-            muya.eventCenter.emit('muya-transformer', { reference: null });
+            muya.ui.hideAllFloatTools();
             const replacements = states.map(state => ScrollPage.loadBlock(state.name).create(muya, state));
             for (const replacement of replacements)
                 this.insertBefore(replacement, block);

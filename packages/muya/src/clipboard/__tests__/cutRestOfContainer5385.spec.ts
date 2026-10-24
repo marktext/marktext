@@ -6,7 +6,7 @@ import type { Muya } from '../../muya';
 import type { TState } from '../../state/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // #5385: a cross-block cut that starts inside a list or quote removed the
 // blocks between the two ends and the end side, but kept the selected blocks
@@ -61,13 +61,13 @@ function findContent(muya: Muya, blockName: string, text: string): Content {
 function cut(muya: Muya, anchor: Content, anchorOffset: number, focus: Content, focusOffset: number): void {
     const anchorPath = anchor.path;
     const focusPath = focus.path;
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: anchorOffset, block: anchor, path: anchorPath },
         focus: { offset: focusOffset, block: focus, path: focusPath },
         isCollapsed: false,
         isSelectionInSameBlock: false,
         direction: SelectionDirection.FORWARD,
-        type: SelectionCaretType.RANGE,
+
     });
     muya.editor.clipboard.cutHandler();
 }

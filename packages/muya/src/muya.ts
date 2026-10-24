@@ -1,11 +1,10 @@
 import type Content from './block/base/content';
 import type Parent from './block/base/parent';
-import type { TBlockPath } from './block/types';
-import type { Listener } from './event/types';
+import type { Listener, TEventListener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { IReplaceOption, ISearchOption } from './search/types';
 import type { IIndexCursor } from './selection/offsetCursor';
-import type { IHistorySelection, IPublicCursorInput } from './selection/types';
+import type { TSelectionState } from './selection/types';
 import type { ITocItem } from './state/getTOC';
 import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TState } from './state/types';
 import type { IMuyaOptions, Nullable } from './types';
@@ -24,14 +23,15 @@ import {
 import { Editor } from './editor/index';
 import { attachReadingEvents, prepareReadingLinks } from './editor/readOnly';
 import EventCenter from './event/index';
-
 import I18n from './i18n/index';
+
 import {
     injectSentinels,
     injectStateSentinels,
     locateSentinelOffsets,
     resolveSentinelCursor,
 } from './selection/offsetCursor';
+import { createTextSelectionState } from './selection/state';
 import { atxHeadingBody, atxHeadingBodyRange } from './state/headings';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState, markdownListMarker } from './state/types';
 import { ChangeSource } from './types';
@@ -54,14 +54,6 @@ export interface IMuyaPluginConstructor {
 interface IPlugin {
     plugin: IMuyaPluginConstructor;
     options: Record<string, unknown>;
-}
-
-// Paths survive block-tree rebuilds; block references do not.
-interface ISelectionSnapshot {
-    anchor: number;
-    focus: number;
-    anchorPath: (string | number)[];
-    focusPath: (string | number)[];
 }
 
 // Maps the paragraph-menu labels the desktop sends through `updateParagraph`
@@ -261,7 +253,7 @@ export class Muya {
             this._forceRender();
     }
 
-    on(event: string, listener: Listener) {
+    on<K extends string>(event: K, listener: TEventListener<K>) {
         this.eventCenter.on(event, listener);
     }
 
@@ -269,7 +261,7 @@ export class Muya {
         this.eventCenter.off(event, listener);
     }
 
-    once(event: string, listener: Listener) {
+    once<K extends string>(event: K, listener: TEventListener<K>) {
         this.eventCenter.once(event, listener);
     }
 
@@ -369,7 +361,7 @@ export class Muya {
      *
      * @returns Whether an undo boundary was recorded.
      */
-    replaceContent(content: TState[] | string, recordSelection?: Nullable<IHistorySelection>): boolean {
+    replaceContent(content: TState[] | string, recordSelection?: Nullable<TSelectionState>): boolean {
         this.editor.transactions.assertStandalone();
         this.flush();
         const { jsonState } = this.editor;
@@ -378,7 +370,7 @@ export class Muya {
         if (op === null)
             return false;
 
-        const selection = this.editor.selection.getSelection();
+        const selection = this.editor.selection.getSelectionState();
         const boundarySelection = recordSelection !== undefined ? recordSelection : selection;
         this.runDocumentUpdate(() => {
             this.editor.rebuildContents(op, this.isReadOnly ? null : selection, ChangeSource.Api, {
@@ -440,18 +432,11 @@ export class Muya {
     }
 
     private _renderDocument() {
-        const selection = this.editor.selection.getSelection();
+        const selection = this.getSelectionState();
         this.editor.scrollPage?.updateState(this.getState());
-
+        if (!this.setSelection(selection))
+            this.setSelection(null);
         this.editor.searchModule.refresh();
-
-        if (!this.isReadOnly && selection && selection.isSelectionInSameBlock) {
-            const begin = Math.min(selection.anchor.offset, selection.focus.offset);
-            const end = Math.max(selection.anchor.offset, selection.focus.offset);
-            const cursorBlock = this.editor.scrollPage?.queryBlock(selection.anchor.path);
-            if (cursorBlock && cursorBlock.isContent())
-                cursorBlock.setCursor(begin, end, true);
-        }
     }
 
     setListIndentation(listIndentation: IMuyaOptions['listIndentation']) {
@@ -491,7 +476,7 @@ export class Muya {
             return;
         }
 
-        const sel = selection.getSelection();
+        const sel = selection.getTextSelection();
         if (!sel)
             return;
 
@@ -545,10 +530,7 @@ export class Muya {
         }
 
         if (anchorLeaf && focusLeaf) {
-            this.editor.selection.setSelection(
-                { offset: anchorOffset, block: anchorLeaf, path: anchorLeaf.path },
-                { offset: focusOffset, block: focusLeaf, path: focusLeaf.path },
-            );
+            this.editor.selection.setSelection(createTextSelectionState({ offset: anchorOffset, block: anchorLeaf, path: anchorLeaf.path }, { offset: focusOffset, block: focusLeaf, path: focusLeaf.path }));
         }
     }
 
@@ -591,10 +573,7 @@ export class Muya {
             return null;
 
         const { selection } = this.editor;
-        selection.setSelection(
-            { offset: from, block: leaf, path: leaf.path },
-            { offset: to, block: leaf, path: leaf.path },
-        );
+        selection.setSelection(createTextSelectionState({ offset: from, block: leaf, path: leaf.path }, { offset: to, block: leaf, path: leaf.path }));
         leaf.format(type);
 
         // leaf.format ends with setCursor(adjustedStart, adjustedEnd), which
@@ -627,9 +606,17 @@ export class Muya {
         return this.editor.selection.getSelection();
     }
 
+    getSelectionState() {
+        return this.editor.selection.getSelectionState();
+    }
+
+    setSelection(state: TSelectionState | null): boolean {
+        return this.editor.selection.setSelection(state);
+    }
+
     /**
-     * The source text of the current text selection: blank lines between
-     * paragraphs, single newlines inside code, tables and tight lists.
+     * Selected source text; table rectangles use tabs between cells and newlines
+     * between rows. Object-selected images and null selections return an empty string.
      */
     getSelectedText(): string {
         return this.editor.selection.getSelectedText();
@@ -741,7 +728,7 @@ export class Muya {
 
     /** Prefer cross-block endpoints when the live range collapses during a menu/IPC round-trip. */
     private _selectionEndpoints(): { anchor: Parent; focus: Parent } | null {
-        const sel = this.editor.selection.getSelection();
+        const sel = this.editor.selection.getTextSelection();
         const live = endpointPair(sel?.anchor.block?.outMostBlock, sel?.focus.block?.outMostBlock);
         const cached = endpointPair(
             this.editor.selection.anchorBlock?.outMostBlock,
@@ -767,7 +754,7 @@ export class Muya {
     /** Nested paragraphs share an outmost block but need separate inline formatting (#3462). */
     private _selectionInSameLeaf(): boolean {
         const sel = this.editor.selection;
-        const liveSel = sel.getSelection();
+        const liveSel = sel.getTextSelection();
         const liveAnchor = liveSel?.anchor.block;
         const liveFocus = liveSel?.focus.block;
         if (liveAnchor && liveFocus && liveAnchor !== liveFocus)
@@ -818,10 +805,7 @@ export class Muya {
             return;
 
         this.editor.activeContentBlock = tail;
-        this.editor.selection.setSelection(
-            { offset: 0, block: head, path: head.path },
-            { offset: tail.text.length, block: tail, path: tail.path },
-        );
+        this.editor.selection.setSelection(createTextSelectionState({ offset: 0, block: head, path: head.path }, { offset: tail.text.length, block: tail, path: tail.path }));
     }
 
     /** Replace selected outmost blocks with one container, then restore the selection via `place`. */
@@ -1063,74 +1047,6 @@ export class Muya {
         block.setCursor(start.offset + 2, start.offset + 2 + imageAlt.length, true);
     }
 
-    /** Restore a cursor against the live block tree; no-op when its target cannot be resolved. */
-    setCursor(cursor: IPublicCursorInput) {
-        const { scrollPage } = this.editor;
-        if (!scrollPage)
-            return;
-
-        const { anchor, focus, anchorPath, focusPath }
-            = this._normalizeCursorEndpoints(cursor);
-
-        if (!anchor || !focus)
-            return;
-
-        const { anchorBlock, focusBlock } = this._resolveCursorBlocks(
-            cursor,
-            scrollPage,
-            anchorPath,
-            focusPath,
-        );
-
-        if (anchorBlock == null || !anchorBlock.isContent())
-            return;
-
-        if (anchorBlock === focusBlock || focusBlock == null) {
-            const begin = Math.min(anchor.offset, focus.offset);
-            const last = Math.max(anchor.offset, focus.offset);
-            anchorBlock.setCursor(begin, last, true);
-            return;
-        }
-
-        if (!focusBlock.isContent())
-            return;
-
-        this.editor.selection.setSelection(
-            { offset: anchor.offset, block: anchorBlock, path: anchorBlock.path },
-            { offset: focus.offset, block: focusBlock, path: focusBlock.path },
-        );
-    }
-
-    // Accept both the `{ anchor, focus, anchorPath, focusPath }` and the
-    // `{ start, end, path }`/`block` shapes of IPublicCursorInput.
-    private _normalizeCursorEndpoints(cursor: IPublicCursorInput) {
-        const anchor = cursor.anchor ?? cursor.start ?? null;
-        const focus = cursor.focus ?? cursor.end ?? anchor;
-        const anchorPath = cursor.anchorPath ?? cursor.path;
-        const focusPath = cursor.focusPath ?? cursor.path ?? anchorPath;
-
-        return { anchor, focus, anchorPath, focusPath };
-    }
-
-    private _resolveCursorBlocks(
-        cursor: IPublicCursorInput,
-        scrollPage: ScrollPage,
-        anchorPath: TBlockPath | undefined,
-        focusPath: TBlockPath | undefined,
-    ) {
-        // queryBlock mutates its path argument (path.shift()) — pass copies.
-        const anchorBlock
-            = cursor.anchorBlock
-                ?? cursor.block
-                ?? (anchorPath ? scrollPage.queryBlock([...anchorPath]) : null);
-        const focusBlock
-            = cursor.focusBlock
-                ?? cursor.block
-                ?? (focusPath ? scrollPage.queryBlock([...focusPath]) : null);
-
-        return { anchorBlock, focusBlock };
-    }
-
     /**
      * Restore a source-mode line/ch cursor without changing the document or
      * undo history. Returns false when the cursor cannot be resolved.
@@ -1157,9 +1073,7 @@ export class Muya {
         if (!cursor)
             return false;
 
-        this.setCursor(cursor);
-
-        return true;
+        return this.setSelection(cursor);
     }
 
     /**
@@ -1167,14 +1081,14 @@ export class Muya {
      * document or undo history. Returns null when it cannot be located.
      */
     getCursorOffset(): IIndexCursor | null {
-        const selection = this.editor.selection.getSelection();
+        const selection = this.editor.selection.getTextSelection();
         if (!selection)
             return null;
 
         // Serialize sentinels in a cloned state because the tree has no source-line map.
         const sentinelState = injectStateSentinels(
             this.editor.jsonState.getState(),
-            selection,
+            createTextSelectionState(selection.anchor, selection.focus),
         );
         if (!sentinelState)
             return null;
@@ -1195,7 +1109,7 @@ export class Muya {
         else if (!label.startsWith('github-alert ')) {
             return false;
         }
-        const selection = this.editor.selection.getSelection();
+        const selection = this.editor.selection.getTextSelection();
         const spansContainers = selection && selection.anchor.block.outMostBlock !== selection.focus.block.outMostBlock;
         if (spansContainers && label === 'block-quote' && !githubAlertBlockType(block))
             return false;
@@ -1354,10 +1268,7 @@ export class Muya {
             const a = this._findContentByText(anchorText);
             const f = this._findContentByText(focusText);
             if (a && f) {
-                this.editor.selection.setSelection(
-                    { offset: clampTo(anchorOffset, a.text.length), block: a, path: a.path },
-                    { offset: clampTo(focusOffset, f.text.length), block: f, path: f.path },
-                );
+                this.editor.selection.setSelection(createTextSelectionState({ offset: clampTo(anchorOffset, a.text.length), block: a, path: a.path }, { offset: clampTo(focusOffset, f.text.length), block: f, path: f.path }));
                 return;
             }
         }
@@ -1533,7 +1444,7 @@ export class Muya {
             return;
 
         // A loose/tight toggle rebuilds blocks without changing their paths.
-        const snapshot = this._snapshotSelection();
+        const snapshot = this.getSelectionState();
 
         const marker = markdownListMarker(state);
         const lists = [block];
@@ -1558,55 +1469,8 @@ export class Muya {
             first ??= newBlock;
         }
 
-        if (!this._restoreSelection(snapshot))
+        if (!snapshot || !this.setSelection(snapshot))
             first?.firstContentInDescendant()?.setCursor(0, 0, true);
-    }
-
-    /** Capture paths and offsets so the selection survives a block-tree rebuild. */
-    private _snapshotSelection(): ISelectionSnapshot | null {
-        const sel = this.editor.selection;
-        const live = sel.getSelection();
-
-        // A menu/IPC round-trip can collapse the live range; retain cached cross-block endpoints.
-        const cachedCrossBlock = !!sel.anchorBlock && !!sel.focusBlock && sel.anchorBlock !== sel.focusBlock;
-        const useLive = !!live && !(cachedCrossBlock && live.isSelectionInSameBlock);
-
-        const anchor = useLive ? live!.anchor : sel.anchor;
-        const focus = useLive ? live!.focus : sel.focus;
-        const anchorPath = useLive ? live!.anchor.path : sel.anchorPath;
-        const focusPath = useLive ? live!.focus.path : sel.focusPath;
-        if (!anchor || !focus || !anchorPath?.length || !focusPath?.length)
-            return null;
-
-        return {
-            anchor: anchor.offset,
-            focus: focus.offset,
-            anchorPath: [...anchorPath],
-            focusPath: [...focusPath],
-        };
-    }
-
-    /** Return false if snapshot paths no longer resolve to content blocks. */
-    private _restoreSelection(snapshot: ISelectionSnapshot | null): boolean {
-        if (!snapshot)
-            return false;
-
-        const { scrollPage } = this.editor;
-        // `queryBlock` consumes its path array in place, so resolve against copies.
-        const anchorBlock = scrollPage?.queryBlock([...snapshot.anchorPath]);
-        const focusBlock = scrollPage?.queryBlock([...snapshot.focusPath]);
-        if (!anchorBlock || !focusBlock)
-            return false;
-        if (!anchorBlock.isContent() || !focusBlock.isContent())
-            return false;
-
-        this.editor.activeContentBlock = focusBlock;
-        this.editor.selection.setSelection(
-            { offset: snapshot.anchor, block: anchorBlock, path: [...snapshot.anchorPath] },
-            { offset: snapshot.focus, block: focusBlock, path: [...snapshot.focusPath] },
-        );
-
-        return true;
     }
 
     private _convertListType(block: Parent, label: string) {
@@ -1651,6 +1515,7 @@ export class Muya {
     }
 
     destroy() {
+        this.editor.selection.cancel();
         this.editor.transactions.cancel();
         this._cancelReadingLink();
         this.eventCenter.detachAllDomEvents();

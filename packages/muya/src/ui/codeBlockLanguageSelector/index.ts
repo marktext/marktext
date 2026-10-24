@@ -3,6 +3,7 @@ import type LangInputContent from '../../block/content/langInputContent';
 import type ParagraphContent from '../../block/content/paragraphContent';
 import type { Muya } from '../../index';
 import { ScrollPage } from '../../block/scrollPage';
+import { SelectionType } from '../../selection/types';
 import { firstWordOfInfo, parseFenceLine } from '../../utils';
 import { createDiagramState, diagramTypeOfLang } from '../../utils/diagram/fence';
 import { search } from '../../utils/prism';
@@ -106,8 +107,8 @@ export class CodeBlockLanguageSelector extends BaseScrollFloat {
         });
 
         // Self-hide when the caret leaves the picker's target block (#4654).
-        eventCenter.on('selection-change', ({ anchorBlock }) => {
-            if (this.status && anchorBlock !== this._block)
+        eventCenter.on('selection-change', ({ selection }) => {
+            if (this.status && (selection?.kind !== SelectionType.TEXT || selection.context.anchorBlock !== this._block))
                 this.hide();
         });
     }

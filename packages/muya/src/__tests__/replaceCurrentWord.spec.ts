@@ -118,7 +118,7 @@ describe('muya.replaceCurrentWordInlineUnsafe()', () => {
         const first = muya.editor.scrollPage!.firstContentInDescendant()!;
         muya.editor.activeContentBlock = first;
         // No selection set — getCursor() returns null.
-        document.getSelection()?.removeAllRanges();
+        muya.setSelection(null);
 
         expect(muya.replaceCurrentWordInlineUnsafe('teh', 'the')).toBe(false);
     });

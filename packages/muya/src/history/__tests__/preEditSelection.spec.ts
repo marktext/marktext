@@ -42,10 +42,10 @@ describe('history captures the pre-edit selection', () => {
         nativeInput(block, 'seconXd', 6);
         muya.flush();
 
-        expect(muya.getHistory().stack.undo[0].selection?.anchor.offset).toBe(5);
+        expect((muya.getHistory().stack.undo[0].selection as import('../../selection/types').ITextSelectionState).anchor.offset).toBe(5);
         muya.undo();
         expect(muya.getMarkdown()).toContain('second');
-        expect(muya.editor.selection.getSelectionState()?.anchor.offset).toBe(5);
+        expect(muya.editor.selection.getTextSelection()?.anchor.offset).toBe(5);
         nativeInput(block, 'seconYd', 6);
         muya.flush();
         expect(muya.getMarkdown()).toContain('seconYd');
@@ -71,7 +71,7 @@ describe('history captures the pre-edit selection', () => {
         muya.undo();
 
         expect(muya.getMarkdown()).toContain('second');
-        expect(muya.editor.selection.getSelectionState()?.anchor.offset).toBe(5);
+        expect(muya.editor.selection.getTextSelection()?.anchor.offset).toBe(5);
     });
 
     it('keeps the earliest caret when consecutive inputs merge', () => {
@@ -81,7 +81,7 @@ describe('history captures the pre-edit selection', () => {
         nativeInput(block, 'seconXXd', 7);
         muya.flush();
         expect(muya.getHistory().stack.undo).toHaveLength(1);
-        expect(muya.getHistory().stack.undo[0].selection?.anchor.offset).toBe(5);
+        expect((muya.getHistory().stack.undo[0].selection as import('../../selection/types').ITextSelectionState).anchor.offset).toBe(5);
         muya.undo();
         expect(muya.getMarkdown()).toContain('second');
     });
@@ -95,7 +95,7 @@ describe('history captures the pre-edit selection', () => {
         block.domNode!.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: '中文' }));
         muya.flush();
         expect(muya.getMarkdown()).toContain('secon中文d');
-        expect(muya.getHistory().stack.undo[0].selection?.anchor.offset).toBe(5);
+        expect((muya.getHistory().stack.undo[0].selection as import('../../selection/types').ITextSelectionState).anchor.offset).toBe(5);
         muya.undo();
         expect(muya.getMarkdown()).toContain('second');
     });
@@ -113,9 +113,9 @@ describe('history captures the pre-edit selection', () => {
 
         muya.undo();
         expect(muya.getMarkdown()).toContain('seconXd');
-        expect(muya.editor.selection.getSelectionState()?.anchor.offset).toBe(0);
+        expect(muya.editor.selection.getTextSelection()?.anchor.offset).toBe(0);
         muya.undo();
         expect(muya.getMarkdown()).toContain('second');
-        expect(muya.editor.selection.getSelectionState()?.anchor.offset).toBe(5);
+        expect(muya.editor.selection.getTextSelection()?.anchor.offset).toBe(5);
     });
 });

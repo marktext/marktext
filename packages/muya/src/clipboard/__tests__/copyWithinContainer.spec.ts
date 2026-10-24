@@ -4,7 +4,7 @@ import type Content from '../../block/base/content';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // Copying a multi-leaf selection that stays inside a single list or block-quote
 // must truncate both boundary items to the caret, not carry whole items / the
@@ -49,13 +49,13 @@ function stubCrossSelection(
     focusOffset: number,
     direction = SelectionDirection.FORWARD,
 ) {
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: anchorOffset, block: anchorBlock, path: anchorBlock.path },
         focus: { offset: focusOffset, block: focusBlock, path: focusBlock.path },
         isCollapsed: false,
         isSelectionInSameBlock: false,
         direction,
-        type: SelectionCaretType.RANGE,
+
     });
 }
 

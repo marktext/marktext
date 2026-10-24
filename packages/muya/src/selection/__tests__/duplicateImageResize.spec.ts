@@ -67,9 +67,9 @@ describe('duplicate same-src images: resize bar targets the clicked image', () =
         const containers = injectImages(muya, src);
 
         const handler = vi.fn();
-        muya.eventCenter.on('muya-transformer', (payload: { reference?: unknown }) => {
-            if (payload && payload.reference)
-                handler(payload.reference);
+        muya.eventCenter.on('selection-change', ({ selection }) => {
+            if (selection?.kind === 'image')
+                handler(selection.context.domNode);
         });
 
         containers[1]!

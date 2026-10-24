@@ -1,4 +1,4 @@
-import type { IEvent, IListeners, Listener } from './types';
+import type { IEvent, IListeners, Listener, TEventArgs, TEventListener } from './types';
 
 // TODO: @Jocs use the same name function in utils.
 function* uniqueIdGenerator() {
@@ -76,7 +76,7 @@ class EventCenter {
     /**
      * inner method for on and once
      */
-    subscribe(event: string, listener: Listener, once = false) {
+    subscribe<K extends string>(event: K, listener: TEventListener<K>, once = false) {
         const listeners = this.listeners[event];
         const handler = { listener, once };
         if (listeners && Array.isArray(listeners))
@@ -88,7 +88,7 @@ class EventCenter {
     /**
      * [on] on custom event
      */
-    on(event: string, listener: Listener) {
+    on<K extends string>(event: K, listener: TEventListener<K>) {
         this.subscribe(event, listener);
     }
 
@@ -109,14 +109,14 @@ class EventCenter {
     /**
      * [once] subscribe event and listen once
      */
-    once(event: string, listener: Listener) {
+    once<K extends string>(event: K, listener: TEventListener<K>) {
         this.subscribe(event, listener, true);
     }
 
     /**
      * emit custom event
      */
-    emit(event: string, ...data: unknown[]) {
+    emit<K extends string>(event: K, ...data: TEventArgs<K>) {
         const eventListener = this.listeners[event];
 
         if (eventListener && Array.isArray(eventListener)) {

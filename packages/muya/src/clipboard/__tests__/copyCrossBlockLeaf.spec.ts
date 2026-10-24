@@ -4,7 +4,7 @@ import type Content from '../../block/base/content';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // Cross-block copy with a leaf-block endpoint (heading / code-block):
 //  - an atx heading's `# ` marker rides along in the selected text and is
@@ -43,13 +43,13 @@ function bootMuya(markdown: string): Muya {
 }
 
 function stub(muya: Muya, ab: Content, ao: number, fb: Content, fo: number) {
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: ao, block: ab, path: ab.path },
         focus: { offset: fo, block: fb, path: fb.path },
         isCollapsed: false,
         isSelectionInSameBlock: false,
         direction: SelectionDirection.FORWARD,
-        type: SelectionCaretType.RANGE,
+
     });
 }
 

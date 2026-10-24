@@ -606,7 +606,7 @@ async function applyTextPaste(
 }
 
 async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void> {
-    const target = clipboard.selection.image?.block ?? clipboard.selection.getSelection()?.anchor.block;
+    const target = clipboard.selection.image?.block ?? clipboard.selection.getTextSelection()?.anchor.block;
     if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(target))
         return;
     // A selected inline image collapses the text selection, so handle the
@@ -615,7 +615,7 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     if (clipboard.selection.image && await tryReplaceSelectedImage(clipboard, data.imageFile))
         return;
 
-    const selection = clipboard.selection.getSelection();
+    const selection = clipboard.selection.getTextSelection();
     if (!selection)
         return;
 

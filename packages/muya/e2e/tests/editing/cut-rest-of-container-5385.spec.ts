@@ -23,9 +23,7 @@ async function selectFromTo(page: Page, startText: string, startOffset: number, 
         };
         const start = find(startText);
         const end = find(endText);
-        selection.setSelection(
-            { offset: startOffset, block: start, path: start.path },
-            { offset: endOffset, block: end, path: end.path },
+        selection.setSelection({ kind: 'text' as import('@muyajs/core').SelectionType.TEXT, anchor: { offset: startOffset, path: start.blockName === 'language-input' ? [...start.parent!.path, 'meta', 'lang'] : start.path }, focus: { offset: endOffset, path: end.blockName === 'language-input' ? [...end.parent!.path, 'meta', 'lang'] : end.path } }
         );
     }, { startText, startOffset, endText, endOffset });
 }

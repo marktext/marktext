@@ -109,7 +109,7 @@ class Clipboard {
                 return;
             }
 
-            const { isSelectionInSameBlock } = this.selection.getSelection() ?? {};
+            const { isSelectionInSameBlock } = this.selection.getTextSelection() ?? {};
             if (isSelectionInSameBlock)
                 return;
 
@@ -143,7 +143,7 @@ class Clipboard {
             if (replacement == null || document.getSelection()?.isCollapsed !== false)
                 return;
 
-            if (this.selection.getSelection()?.isSelectionInSameBlock !== false)
+            if (this.selection.getTextSelection()?.isSelectionInSameBlock !== false)
                 return;
 
             event.preventDefault();
@@ -211,9 +211,9 @@ class Clipboard {
 
     // Read explicitly: Chromium no longer dispatches paste for execCommand('paste').
     async pasteAsPlainText(): Promise<void> {
-        const target = this.selection.getSelection()?.anchor.block;
+        const target = this.selection.getTextSelection()?.anchor.block;
         const text = await this._readClipboardText();
-        if (this.muya.isReadOnly || !this.muya.isBlockInDocument(target) || this.selection.getSelection()?.anchor.block !== target)
+        if (this.muya.isReadOnly || !this.muya.isBlockInDocument(target) || this.selection.getTextSelection()?.anchor.block !== target)
             return;
         if (text)
             await pastePlainText(this, text);

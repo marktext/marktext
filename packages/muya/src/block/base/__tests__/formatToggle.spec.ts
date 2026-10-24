@@ -382,7 +382,6 @@ describe('format picker collapses after link creation', () => {
             isCollapsed: false,
             isSelectionInSameBlock: true,
             direction: 'forward',
-            type: 'Range',
         });
 
         internals._selectItem(makeFakeEvent(), { type: 'link', icon: '' });
@@ -413,7 +412,6 @@ describe('format picker collapses after link creation', () => {
             isCollapsed: false,
             isSelectionInSameBlock: true,
             direction: 'forward',
-            type: 'Range',
         });
 
         internals._selectItem(makeFakeEvent(), { type: 'strong', icon: '' });

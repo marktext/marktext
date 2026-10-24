@@ -6,7 +6,7 @@ import type { Muya } from '../../muya';
 import type { TState } from '../../state/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // #4903 / #5148: a selection running from a code fence's language line into
 // that same block's code (e.g. Shift+ArrowDown in the language input) is cut
@@ -72,18 +72,18 @@ function selectUntilCut(muya: Muya, anchor: Content, anchorOffset: number, focus
     const { selection, clipboard } = muya.editor;
     const anchorPath = anchor.path;
     const focusPath = focus.path;
-    selection.getSelection = () => ({
+    selection.getTextSelection = () => ({
         anchor: { offset: anchorOffset, block: anchor, path: anchorPath },
         focus: { offset: focusOffset, block: focus, path: focusPath },
         isCollapsed: false,
         isSelectionInSameBlock: false,
         direction: SelectionDirection.FORWARD,
-        type: SelectionCaretType.RANGE,
+
     });
     const cut = clipboard.cutHandler.bind(clipboard);
     clipboard.cutHandler = () => {
         cut();
-        delete (selection as Partial<typeof selection>).getSelection;
+        delete (selection as Partial<typeof selection>).getTextSelection;
     };
 }
 

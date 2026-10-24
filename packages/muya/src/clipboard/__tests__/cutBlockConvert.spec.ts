@@ -4,7 +4,7 @@ import type Content from '../../block/base/content';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // muyajs `cutHandler` runs `checkInlineUpdate` after a cut so the start block's
 // type tracks its new text: cutting away a heading's `# ` marker demotes it to a
@@ -56,13 +56,13 @@ function stubSameBlockSelection(muya: Muya, block: Content, start: number, end: 
     // detaches `block`, and a re-entrant `getSelection` would otherwise read a
     // null parent off the stale node.
     const path = block.path;
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: start, block, path },
         focus: { offset: end, block, path },
         isCollapsed: false,
         isSelectionInSameBlock: true,
         direction: SelectionDirection.FORWARD,
-        type: SelectionCaretType.RANGE,
+
     });
 }
 

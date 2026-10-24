@@ -38,20 +38,16 @@ test('#4654 selecting a language after the code block is detached does not crash
     await slowType(page, 'pyth');
     await expect(page.locator(floats.codeBlockLanguageSelector)).toBeVisible();
 
-    // Detach the code block from the document without moving the caret, so the
-    // picker stays up with a now-orphaned language-input target. (A caret move
-    // would trip the selection-change auto-hide; this isolates the selectItem
-    // guard, which is the last-resort net for any detach the auto-hide misses.)
+    // Document commits now invalidate the selection and hide the picker.
+    // Dispatching a stale action still exercises the last-resort orphan guard.
     await page.evaluate(() => {
         const langInput = window.muya!.editor.activeContentBlock;
         langInput.parent.remove();
+        window.muya!.flush();
     });
-
-    // Click the language item that is still rendered in the open picker.
-    await page
-        .locator(`${floats.codeBlockLanguageSelector} li.item[data-label="python"]`)
-        .click({ force: true });
-    await page.waitForTimeout(200);
+    await expect(page.locator(floats.codeBlockLanguageSelector)).not.toBeInViewport();
+    await page.locator(`${floats.codeBlockLanguageSelector} li.item[data-label="python"]`).dispatchEvent('click');
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())));
 
     expect(errors, `renderer pageerrors: ${errors.join(' | ')}`).toEqual([]);
 });

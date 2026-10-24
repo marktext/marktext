@@ -80,7 +80,7 @@ test.describe('math and diagrams', () => {
         // in the inline paragraph content block — not collapsed and not a
         // separate math block.
         const selection = await page.evaluate(() => {
-            const sel = window.muya!.editor.selection.getSelection();
+            const sel = window.muya!.editor.selection.getTextSelection();
             if (!sel)
                 return null;
             return {

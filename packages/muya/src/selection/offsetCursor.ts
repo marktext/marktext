@@ -1,7 +1,9 @@
 import type Content from '../block/base/content';
 import type { ScrollPage } from '../block/scrollPage';
 import type { TState } from '../state/types';
-import type { IPathCursor, ISelection } from './types';
+import type { ITextSelectionState } from './types';
+import { contentPath } from './state';
+import { SelectionType } from './types';
 
 // Zero-based source-mode line and character coordinates.
 export interface IIndexPosition {
@@ -93,7 +95,7 @@ function _findSentinel(scrollPage: ScrollPage, sentinel: string): ISentinelHit |
 
 // Return sentinel-free paths and offsets, or null when neither endpoint resolves.
 // Do not retain block references: the caller replaces the transient tree immediately.
-export function resolveSentinelCursor(scrollPage: ScrollPage): IPathCursor | null {
+export function resolveSentinelCursor(scrollPage: ScrollPage): ITextSelectionState | null {
     const anchorHit = _findSentinel(scrollPage, ANCHOR_SENTINEL);
     const focusHit = _findSentinel(scrollPage, FOCUS_SENTINEL);
 
@@ -117,10 +119,9 @@ export function resolveSentinelCursor(scrollPage: ScrollPage): IPathCursor | nul
     }
 
     return {
-        anchor: { offset: anchorOffset },
-        anchorPath: [...anchor.block.path],
-        focus: { offset: focusOffset },
-        focusPath: [...focus.block.path],
+        kind: SelectionType.TEXT,
+        anchor: { offset: anchorOffset, path: contentPath(anchor.block) },
+        focus: { offset: focusOffset, path: contentPath(focus.block) },
     };
 }
 
@@ -128,7 +129,7 @@ export function resolveSentinelCursor(scrollPage: ScrollPage): IPathCursor | nul
 // Return false when the path has no string text; callers must supply a throwaway clone.
 function _injectSentinelAtPath(
     state: TState[],
-    path: (string | number)[],
+    path: readonly (string | number)[],
     offset: number,
     sentinel: string,
 ): boolean {
@@ -161,7 +162,7 @@ function _injectSentinelAtPath(
 // Return null when neither endpoint resolves to text.
 export function injectStateSentinels(
     state: TState[],
-    selection: ISelection,
+    selection: ITextSelectionState,
 ): TState[] | null {
     const anchorPath = selection.anchor.path;
     const focusPath = selection.focus.path;
@@ -173,7 +174,7 @@ export function injectStateSentinels(
             && anchorPath.every((seg, i) => seg === focusPath[i]);
 
     const inject = (
-        path: (string | number)[],
+        path: readonly (string | number)[],
         offset: number,
         sentinel: string,
     ): boolean => _injectSentinelAtPath(state, path, offset, sentinel);

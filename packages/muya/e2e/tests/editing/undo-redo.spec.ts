@@ -15,7 +15,7 @@ test.describe('undo / redo', () => {
         const offset = await page.evaluate(() => {
             window.muya!.flush();
             window.muya!.undo();
-            return window.muya!.getSelection()?.anchor.offset;
+            return window.muya!.editor.selection.getTextSelection()?.anchor.offset;
         });
         expect(offset).toBe(5);
         await page.keyboard.type('Y');

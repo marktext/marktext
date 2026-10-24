@@ -30,7 +30,7 @@ test.describe('paste URL over selected text (#2029)', () => {
             await page.keyboard.press('ControlOrMeta+v');
             await expect.poll(() => getMarkdown(page)).toBe('foo [bar](https://home.com) foo\n');
             const cursor = await page.evaluate(() => {
-                const selection = window.muya!.editor.selection.getSelection()!;
+                const selection = window.muya!.editor.selection.getTextSelection()!;
                 return [selection.anchor.offset, selection.focus.offset];
             });
             expect(cursor).toEqual([27, 27]);

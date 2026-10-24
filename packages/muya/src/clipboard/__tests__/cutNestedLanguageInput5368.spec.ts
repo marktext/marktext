@@ -6,7 +6,7 @@ import type { Muya } from '../../muya';
 import type { TState } from '../../state/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // #5368: a cut that starts in the language line of a code block nested in a
 // list item or quote collapses that code block into a paragraph, as #918 does
@@ -63,13 +63,13 @@ function cutFromLanguageInput(muya: Muya, languageOffset: number, end: { blockNa
     const focus = findContent(muya, end.blockName, end.text);
     const anchorPath = anchor.path;
     const focusPath = focus.path;
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: languageOffset, block: anchor, path: anchorPath },
         focus: { offset: end.offset, block: focus, path: focusPath },
         isCollapsed: false,
         isSelectionInSameBlock: false,
         direction: SelectionDirection.FORWARD,
-        type: SelectionCaretType.RANGE,
+
     });
     muya.editor.clipboard.cutHandler();
 }

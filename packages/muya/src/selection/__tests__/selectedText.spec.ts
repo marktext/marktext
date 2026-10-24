@@ -1,9 +1,10 @@
-// @vitest-environment happy-dom
-
 import type Content from '../../block/base/content';
+
 import type Table from '../../block/gfm/table';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
+// @vitest-environment happy-dom
+import { createTextSelectionState } from '../state';
 
 const editors: Muya[] = [];
 let originalVersion: string | undefined;
@@ -71,7 +72,7 @@ describe('muya.getSelectedText', () => {
             const last = content(muya, 'Last');
             const start = { block: first, path: first.path, offset: 2 };
             const end = { block: last, path: last.path, offset: 3 };
-            muya.editor.selection.setSelection(backward ? end : start, backward ? start : end);
+            muya.editor.selection.setSelection(createTextSelectionState(backward ? end : start, backward ? start : end));
 
             expect(muya.getSelectedText()).toBe(expected);
         });
@@ -94,9 +95,7 @@ describe('muya.getSelectedText', () => {
         expect(muya.getSelectedText()).toBe('');
     });
 
-    // A frozen rectangular table selection drops the native range, so there is
-    // nothing to report until the Selection modules are reworked.
-    it('reports no text for a rectangular table selection', () => {
+    it('reports row-major cell text for a rectangular table selection', () => {
         const muya = boot('| a | b |\n| --- | --- |\n| c | d |\n');
         const table = content(muya, 'a').closestBlock('table') as Table;
 
@@ -104,7 +103,7 @@ describe('muya.getSelectedText', () => {
 
         expect(muya.editor.selection.type).toBe('table');
         expect(document.getSelection()!.rangeCount).toBe(0);
-        expect(muya.getSelectedText()).toBe('');
+        expect(muya.getSelectedText()).toBe('a\tb\nc\td');
     });
 
     it('uses an explicit text selection made after a frozen table selection', () => {

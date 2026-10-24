@@ -1,7 +1,8 @@
-// @vitest-environment happy-dom
 import type Parent from '../block/base/parent';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../muya';
+// @vitest-environment happy-dom
+import { createTextSelectionState } from '../selection/state';
 
 interface IStateBlock { name: string; text: string; children: IStateBlock[] }
 
@@ -27,10 +28,7 @@ function selectFirstTwoBlocks(muya: Muya) {
     const first = sp.firstContentInDescendant()!;
     const second = (sp.firstChild!.next as Parent).firstContentInDescendant()!;
     muya.editor.activeContentBlock = second;
-    muya.editor.selection.setSelection(
-        { offset: 0, block: first, path: first.path },
-        { offset: second.text.length, block: second, path: second.path },
-    );
+    muya.editor.selection.setSelection(createTextSelectionState({ offset: 0, block: first, path: first.path }, { offset: second.text.length, block: second, path: second.path }));
 }
 
 describe('cross-block paragraph wrapping', () => {

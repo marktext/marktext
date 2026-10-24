@@ -1,4 +1,4 @@
-import type { Muya } from '@muyajs/core'
+import type { Muya, TSelectionState } from '@muyajs/core'
 
 // Source-mode cursors use zero-based line/ch pairs. Both coordinates are required
 // so the engine does not silently restore the caret to column zero.
@@ -22,13 +22,13 @@ export const isIndexCursor = (cursor: unknown): cursor is IndexCursor => {
   return !!c && isIndexPosition(c.anchor) && isIndexPosition(c.focus)
 }
 
-type CursorEditor = Pick<Muya, 'setCursor' | 'setCursorByOffset'>
+type CursorEditor = Pick<Muya, 'setSelection' | 'setCursorByOffset'>
 
-// Index cursors require setCursorByOffset; path cursors require setCursor against the live block tree.
+// The source editor stores line/ch coordinates; Muya stores a selection state.
 export const applyCursor = (editor: CursorEditor, cursor: unknown): void => {
   if (isIndexCursor(cursor)) {
     editor.setCursorByOffset(cursor)
   } else if (cursor) {
-    editor.setCursor(cursor as Parameters<Muya['setCursor']>[0])
+    editor.setSelection(cursor as TSelectionState)
   }
 }

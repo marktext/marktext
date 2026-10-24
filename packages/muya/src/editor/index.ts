@@ -2,7 +2,7 @@ import type { JSONOp, JSONOpComponent, JSONOpList } from 'ot-json1';
 import type Content from '../block/base/content';
 import type Format from '../block/base/format';
 import type { Muya } from '../muya';
-import type { IHistorySelection } from '../selection/types';
+import type { TSelectionState } from '../selection/types';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import type { ICompletedTransaction, ITransactionOptions } from './transactions';
@@ -16,6 +16,7 @@ import History from '../history';
 import InlineRenderer from '../inlineRenderer';
 import { Search } from '../search';
 import Selection from '../selection';
+import { findContentDOM } from '../selection/dom';
 import JSONState from '../state';
 import { createChangePayload } from '../state/changePayload';
 import { stateAtPath } from '../state/paths';
@@ -265,6 +266,9 @@ function drop(root: BlockNode, descent: JSONOpList, muya: Muya, snapshot: () => 
 export class Editor {
     jsonState: JSONState;
     transactions: EditTransactions;
+    isUpdating = false;
+
+    get isComposing() { return this._isComposing; }
     inlineRenderer: InlineRenderer;
     selection: Selection;
     searchModule: Search;
@@ -273,7 +277,7 @@ export class Editor {
     scrollPage: Nullable<ScrollPage> = null;
 
     private _activeContentBlock: Nullable<Content> = null;
-    private _inputSelection: Nullable<IHistorySelection> | undefined;
+    private _inputSelection: Nullable<TSelectionState> | undefined;
     private _isComposing = false;
 
     constructor(private _muya: Muya) {
@@ -351,7 +355,11 @@ export class Editor {
         const eventHandler = (event: Event) => {
             if (this._muya.isReadOnly)
                 return;
-            const selectionResult = this.selection.getSelection();
+            if (!this._isContentEvent(event))
+                return;
+            if (this._handlePreviewClick(event))
+                return;
+            const selectionResult = this.selection.getTextSelection();
             const anchorBlock = selectionResult?.anchor.block;
             const isSelectionInSameBlock = selectionResult?.isSelectionInSameBlock;
             // Fix issue that language input can not get focus when it's empty(Firefox only)
@@ -420,10 +428,30 @@ export class Editor {
             finally {
                 if (event.type === 'compositionend')
                     this._isComposing = false;
-                if (consumesInput && !this._isComposing)
+                if (consumesInput && !this._isComposing) {
                     this._inputSelection = undefined;
+                    this.selection.notify();
+                }
             }
         });
+    }
+
+    private _isContentEvent(event: Event): boolean {
+        return event.target === this._muya.domNode
+            || (event.target instanceof Node && !!findContentDOM(event.target));
+    }
+
+    private _handlePreviewClick(event: Event): boolean {
+        if (event.type !== 'click' || !(event.target instanceof Element)
+            || !event.target.closest(`.${CLASS_NAMES.MU_MATH_RENDER}, .${CLASS_NAMES.MU_RUBY_RENDER}`)) {
+            return false;
+        }
+        const block = getBlock(findContentDOM(event.target));
+        if (block?.isContent()) {
+            this.activeContentBlock = block;
+            block.clickHandler(event);
+        }
+        return true;
     }
 
     focus() {
@@ -468,25 +496,30 @@ export class Editor {
         firstLeafBlock.setCursor(0, 0, needUpdated);
     }
 
-    transact<T>(command: () => T, isolated = false, recordSelection?: Nullable<IHistorySelection>): T {
+    transact<T>(command: () => T, isolated = false, recordSelection?: Nullable<TSelectionState>): T {
         this.transactions.flush();
         const selection = recordSelection !== undefined ? recordSelection : this.selection.getSelectionState();
         try {
-            return this.transactions.run(command, isolated, selection);
+            const result = this.transactions.run(command, isolated, selection);
+            this.selection.notify();
+            return result;
         }
         catch (error) {
-            this._restoreSelection(selection, true);
+            if (selection)
+                this._restoreSelection(selection);
+            else
+                this.selection.clear();
             throw error;
         }
     }
 
-    updateContents(operation: JSONOp, selection: Nullable<IHistorySelection>, source: ChangeSource) {
+    updateContents(operation: JSONOp, selection: Nullable<TSelectionState>, source: ChangeSource) {
         if (!this._muya.canMutate)
             return;
         return this.transactions.apply(operation, { selection, source });
     }
 
-    replayContents(operation: JSONOp, selection: Nullable<IHistorySelection>, rebuild = false) {
+    replayContents(operation: JSONOp, selection: Nullable<TSelectionState>, rebuild = false) {
         if (!this._muya.canMutate)
             return;
         const focused = document.activeElement;
@@ -507,38 +540,47 @@ export class Editor {
     }
 
     private _commitTransaction(transaction: ICompletedTransaction) {
-        const { operation, blockOperation, view, selection, source, history, recordSelection } = transaction;
+        const { operation, blockOperation, view, selection, source, history, recordSelection, replay } = transaction;
         const before = this.jsonState.rawState;
         if (history === 'separate' && operation !== null)
             this.history.recordRebuild(operation, before, recordSelection !== undefined ? recordSelection : selection);
 
-        const commit = () => {
-            this.jsonState.apply(operation);
-            this._updateBlocks(blockOperation, view, selection, () => this.jsonState.getState());
-            debug.log(JSON.stringify(operation));
-            this._muya.eventCenter.emit(
-                'json-change',
-                createChangePayload(operation, source, before, this.jsonState.rawState, history === 'merge' || history === 'isolated', recordSelection ?? null),
-            );
-        };
-        if (history === 'isolated') {
-            this.history.cutoff(recordSelection ?? undefined);
-            try {
+        this.isUpdating = true;
+        try {
+            const commit = () => {
+                this.jsonState.apply(operation);
+                this._updateBlocks(blockOperation, view, selection, () => this.jsonState.getState());
+                if (replay && !selection)
+                    this.selection.clear();
+                debug.log(JSON.stringify(operation));
+                this._muya.eventCenter.emit(
+                    'json-change',
+                    createChangePayload(operation, source, before, this.jsonState.rawState, history === 'merge' || history === 'isolated', recordSelection ?? null),
+                );
+            };
+            if (history === 'isolated') {
+                this.history.cutoff(recordSelection ?? undefined);
+                try {
+                    commit();
+                }
+                finally {
+                    this.history.cutoff();
+                }
+            }
+            else {
                 commit();
             }
-            finally {
-                this.history.cutoff();
-            }
         }
-        else {
-            commit();
+        finally {
+            this.isUpdating = false;
         }
+        this.selection.notify(operation !== null);
     }
 
-    private _updateBlocks(operation: JSONOp, view: ICompletedTransaction['view'], selection: Nullable<IHistorySelection>, recover: () => TState[]) {
+    private _updateBlocks(operation: JSONOp, view: ICompletedTransaction['view'], selection: Nullable<TSelectionState>, recover: () => TState[]) {
         if (view === 'rebuild') {
             this.scrollPage!.updateState(recover());
-            this._restoreSelection(selection, true);
+            this._restoreSelection(selection);
             return;
         }
         if (operation === null)
@@ -554,57 +596,15 @@ export class Editor {
             // neither path may publish a half-applied tree.
             debug.error(`updateContents incremental apply failed; rebuilding from state: ${String(error)}`);
             this.scrollPage!.updateState(recover());
-            this._restoreSelection(selection, true);
+            this._restoreSelection(selection);
         }
     }
 
-    private _restoreSelection(selection: Nullable<IHistorySelection>, treeRebuilt = false) {
+    private _restoreSelection(selection: Nullable<TSelectionState>) {
         if (!selection)
             return;
-
-        const { anchor, focus, isSelectionInSameBlock } = selection;
-        // `ScrollPage.queryBlock` consumes the path array in place (`path.shift`),
-        // so query against a copy and leave the caller's selection untouched.
-        const cursorBlock = this.scrollPage?.queryBlock([...anchor.path]);
-
-        const begin = Math.min(anchor.offset, focus.offset);
-        const end = Math.max(anchor.offset, focus.offset);
-
-        if (isSelectionInSameBlock && cursorBlock && cursorBlock.isContent()) {
-            cursorBlock.setCursor(begin, end, true);
-            return;
-        }
-
-        // When the tree was rebuilt wholesale (rebuildContents), the saved
-        // selection's cached `anchorBlock` / `focusBlock` reference DETACHED
-        // nodes from the previous tree — resolving them would set the native DOM
-        // range onto a detached node and crash the next `getSelection()` read.
-        // Re-resolve the caret from the (cloned) path against the fresh tree;
-        // fall back to focusing the first content block when the saved path no
-        // longer points at a content leaf (e.g. a paragraph became a table).
-        if (treeRebuilt) {
-            if (cursorBlock && cursorBlock.isContent())
-                cursorBlock.setCursor(begin, end, true);
-            else
-                this.focus();
-
-            return;
-        }
-
-        // Incremental (updateContents) path. Clone the paths so
-        // `queryBlock(path)` can't drain the caller's arrays — notably the
-        // selection object stored in the undo stack.
-        const anchorBlock = this.scrollPage?.queryBlock([...anchor.path]);
-        const focusBlock = this.scrollPage?.queryBlock([...focus.path]);
-        if (!anchorBlock || !anchorBlock.isContent() || !focusBlock || !focusBlock.isContent()) {
-            this.focus();
-            return;
-        }
-
-        this.selection.setSelection(
-            { offset: anchor.offset, block: anchorBlock, path: [...anchor.path] },
-            { offset: focus.offset, block: focusBlock, path: [...focus.path] },
-        );
+        if (!this.selection.setSelection(selection))
+            this.scrollPage?.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     /**
@@ -616,7 +616,7 @@ export class Editor {
      * shapes the incremental pick/drop walker cannot apply without desyncing the
      * DOM from the json state.
      */
-    rebuildContents(operation: JSONOp, selection: Nullable<IHistorySelection>, source: ChangeSource, options: ITransactionOptions = {}) {
+    rebuildContents(operation: JSONOp, selection: Nullable<TSelectionState>, source: ChangeSource, options: ITransactionOptions = {}) {
         if (!this._muya.canMutate)
             return;
         return this.transactions.apply(operation, { ...options, selection, source, view: 'rebuild' });
@@ -625,16 +625,22 @@ export class Editor {
     setContent(content: TState[] | string, autoFocus = false) {
         this.transactions.assertStandalone();
         this.transactions.cancel();
-        this._inputSelection = undefined;
-        this._isComposing = false;
-        this.jsonState.setContent(content);
-        const state = this.jsonState.getState();
-
-        this.scrollPage!.updateState(state);
-        this.history.clear();
-        this.searchModule.reset();
-
-        if (autoFocus)
-            this.focus();
+        this.selection.cancel();
+        this.isUpdating = true;
+        try {
+            this.selection.clear();
+            this._inputSelection = undefined;
+            this._isComposing = false;
+            this.jsonState.setContent(content);
+            this.scrollPage!.updateState(this.jsonState.getState());
+            this.history.clear();
+            this.searchModule.reset();
+            if (autoFocus)
+                this.focus();
+        }
+        finally {
+            this.isUpdating = false;
+        }
+        this.selection.notify(true);
     }
 }
