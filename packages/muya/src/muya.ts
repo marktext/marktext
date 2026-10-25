@@ -138,10 +138,12 @@ export class Muya {
     static plugins: IPlugin[] = [];
 
     static use(plugin: IMuyaPluginConstructor, options: Record<string, unknown> = {}) {
-        this.plugins.push({
-            plugin,
-            options,
-        });
+        // Plugins are owned by name; repeated host mounts must not create duplicate tools.
+        const index = this.plugins.findIndex(item => item.plugin.pluginName === plugin.pluginName);
+        const registration = { plugin, options };
+        if (index === -1)
+            this.plugins.push(registration);
+        else this.plugins[index] = registration;
     }
 
     public readonly version = typeof window.MUYA_VERSION === 'undefined' ? 'dev' : window.MUYA_VERSION;

@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import {
   launchWithMarkdown,
   clickMenuById,
@@ -51,9 +54,10 @@ const isSrcInputFocused = (page: Page): Promise<boolean> =>
 // toBeVisible ignores opacity, so the inline opacity is the reliable signal.
 const toolShown = (page: Page): Promise<boolean> =>
   page.evaluate(() => {
-    const tool = document.querySelector('.mu-image-selector')
-    const wrapper = tool?.closest('.mu-float-wrapper') as HTMLElement | null
-    return Number.parseFloat(wrapper?.style.opacity || '0') > 0
+    return Array.from(document.querySelectorAll('.mu-image-selector')).some((tool) => {
+      const wrapper = tool.closest<HTMLElement>('.mu-float-wrapper')
+      return Number.parseFloat(wrapper?.style.opacity || '0') > 0
+    })
   })
 
 // Reset the editor to a single empty paragraph and dismiss any open edit tool,
@@ -138,4 +142,39 @@ test.describe('Format -> Image edit tool wiring', () => {
 
     await expectNoRendererErrors(app)
   })
+})
+
+test('choosing a local image hides the selector after closing and reopening all tabs', async() => {
+  const fixture = mkdtempSync(join(tmpdir(), 'marktext-image-selector-'))
+  const imagePath = join(fixture, 'selected.svg')
+  writeFileSync(imagePath, '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="180"><rect width="300" height="180" fill="#3677c8"/></svg>')
+  const { app, page } = await launchWithMarkdown('\n', {
+    suppressErrorDialog: true,
+    preferences: { language: 'en', autoSave: false, imageInsertAction: 'path' }
+  })
+  try {
+    // Removing the final tab unmounts the editor; creating another mounts it in the same renderer.
+    for (let cycle = 0; cycle < 2; cycle++) {
+      await sendIpcToRenderer(app, 'mt::editor-close-tab')
+      await expect(page.locator('.editor-component')).toHaveCount(0)
+      await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, '')
+      await expect(page.locator('.editor-component')).toHaveCount(1)
+    }
+    await app.evaluate(({ dialog }, selected) => {
+      dialog.showOpenDialog = async() => ({ canceled: false, filePaths: [selected] })
+    }, imagePath)
+    await placeCaretInEditor(page)
+    await clickMenuById(app, 'imageMenuItem')
+    await expect.poll(() => toolShown(page)).toBe(true)
+    const selector = page.locator('.mu-image-selector').last()
+    await selector.locator('.header li').first().click()
+    await selector.locator('button.select').click()
+    await expect(page.locator('.editor-component .mu-image-container img')).toHaveAttribute('src', /selected\.svg(?:\?|$)/)
+    await expect.poll(() => toolShown(page)).toBe(false)
+    await expect(page.locator('.mu-image-selector')).toHaveCount(1)
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+    rmSync(fixture, { recursive: true, force: true })
+  }
 })
