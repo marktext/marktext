@@ -37,8 +37,11 @@ class ImageSelection {
 
     private _handleDocClick = (event: Event): void => {
         const target = event.target;
-        if (target instanceof Element && !this._muya.domNode.contains(target) && !target.closest('.mu-float-wrapper, .mu-transformer'))
-            this._selection.clearImage();
+        if (!(target instanceof Element) || this._muya.domNode.contains(target))
+            return;
+        if (target.closest('.mu-float-wrapper, .mu-transformer'))
+            return;
+        this._selection.clearImage();
     };
 
     private _handleClick = (event: Event): void => {
@@ -53,9 +56,7 @@ class ImageSelection {
     };
 
     private _handleKeydown = (event: Event): void => {
-        if (this._muya.isReadOnly)
-            return;
-        if (!isKeyboardEvent(event))
+        if (this._muya.isReadOnly || !isKeyboardEvent(event))
             return;
 
         const { key, target } = event;
@@ -69,7 +70,10 @@ class ImageSelection {
         const context = this._selection.getImageSelection()?.context;
         if (!context)
             return;
-        const selected = { ...context.imageInfo, block: context.block };
+        const selected = {
+            ...context.imageInfo,
+            block: context.block,
+        };
 
         if (!selected.block.outMostBlock) {
             this._selection.clearImage();
@@ -130,7 +134,10 @@ class ImageSelection {
 
         const contentBlock = contentDom[BLOCK_DOM_PROPERTY] as Format;
 
-        this._selection.selectImage({ ...imageInfo, block: contentBlock });
+        this._selection.selectImage({
+            ...imageInfo,
+            block: contentBlock,
+        });
         if (this._muya.isReadOnly)
             return;
 

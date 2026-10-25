@@ -6,7 +6,17 @@ export { Muya } from './muya';
 export type { IMatch, IReplaceOption, ISearchOption } from './search/types';
 export type { IIndexCursor } from './selection/offsetCursor';
 export { SelectionDirection, SelectionType } from './selection/types';
-export type { IImageSelection, IImageSelectionState, ISelectionChangePayload, ITableRectSelection, ITableRectSelectionState, ITextSelection, ITextSelectionState, TSelection, TSelectionState } from './selection/types';
+export type {
+    IImageSelection,
+    IImageSelectionState,
+    ISelectionChangePayload,
+    ITableRectSelection,
+    ITableRectSelectionState,
+    ITextSelection,
+    ITextSelectionState,
+    TSelection,
+    TSelectionState,
+} from './selection/types';
 export type { ITocItem } from './state/getTOC';
 export { MarkdownToHtml } from './state/markdownToHtml';
 export { renderToStaticHTML } from './state/renderToStaticHTML';

@@ -3,14 +3,31 @@ import type Table from '../block/gfm/table';
 import type TableBodyCell from '../block/gfm/table/cell';
 import type { Muya } from '../muya';
 import type { IImageInfo } from '../utils/image';
-import type { IImageSelection, IResolvedTextSelection, ITableRectSelection, ITableRectSelectionState, ITextSelection, TSelection, TSelectionCoords, TSelectionState } from './types';
+import type {
+    IImageSelection,
+    IResolvedTextSelection,
+    ITableRectSelection,
+    ITableRectSelectionState,
+    ITextSelection,
+    TSelection,
+    TSelectionCoords,
+    TSelectionState,
+} from './types';
 import { CLASS_NAMES } from '../config';
 import { getImageInfo } from '../utils/image';
 import { buildAffiliation, buildSelectionAffiliation, endpointBlockInfo } from './affiliation';
 import { getCursorCoords, getCursorYOffset, getSelectionStart } from './cursorCoords';
 import { getOffsetOfParagraph } from './dom';
 import ImageSelection from './ImageSelection';
-import { contentPath, copySelectionState, createTextSelectionState, isLegalOffset, isSelectionState, resolveContent, resolveEndpoint } from './state';
+import {
+    contentPath,
+    copySelectionState,
+    createTextSelectionState,
+    isLegalOffset,
+    isSelectionState,
+    resolveContent,
+    resolveEndpoint,
+} from './state';
 import TableRectSelection from './TableRectSelection';
 import TextSelection from './TextSelection';
 import { SelectionDirection, SelectionType } from './types';
@@ -49,30 +66,69 @@ class Selection {
         _muya.eventCenter.attachDOMEvent(document, 'mouseup', () => this.flush());
     }
 
-    get type(): SelectionType | null { return this._state?.kind ?? null; }
-    get table(): TableRectSelection { return this._table; }
-    get image() { return this.getImageSelection()?.context ?? null; }
-    get anchorBlock() { return this._text.anchorBlock; }
-    get focusBlock() { return this._text.focusBlock; }
-    get anchorPath() { return this._text.anchorPath; }
-    get focusPath() { return this._text.focusPath; }
-    get anchor() { return this._text.anchor; }
-    get focus() { return this._text.focus; }
-    get isSelectionInSameBlock() { return this._text.isSelectionInSameBlock; }
+    get type(): SelectionType | null {
+        return this._state?.kind ?? null;
+    }
+
+    get table(): TableRectSelection {
+        return this._table;
+    }
+
+    get image() {
+        return this.getImageSelection()?.context ?? null;
+    }
+
+    get anchorBlock() {
+        return this._text.anchorBlock;
+    }
+
+    get focusBlock() {
+        return this._text.focusBlock;
+    }
+
+    get anchorPath() {
+        return this._text.anchorPath;
+    }
+
+    get focusPath() {
+        return this._text.focusPath;
+    }
+
+    get anchor() {
+        return this._text.anchor;
+    }
+
+    get focus() {
+        return this._text.focus;
+    }
+
+    get isSelectionInSameBlock() {
+        return this._text.isSelectionInSameBlock;
+    }
 
     private _readNative(): IResolvedTextSelection | null {
         const live = this._text.getSelection();
-        return live && this._muya.isBlockInDocument(live.anchor.block) && this._muya.isBlockInDocument(live.focus.block) ? live : null;
+        if (!live)
+            return null;
+        const { anchor, focus } = live;
+        return this._muya.isBlockInDocument(anchor.block) && this._muya.isBlockInDocument(focus.block)
+            ? live
+            : null;
     }
 
     private _cacheText(live: IResolvedTextSelection) {
-        this._text.anchor = { offset: live.anchor.offset };
-        this._text.focus = { offset: live.focus.offset };
-        this._text.anchorBlock = live.anchor.block;
-        this._text.focusBlock = live.focus.block;
-        this._text.anchorPath = [...live.anchor.path];
-        this._text.focusPath = [...live.focus.path];
-        this._state = createTextSelectionState(live.anchor, live.focus);
+        const { anchor, focus } = live;
+        this._text.anchor = {
+            offset: anchor.offset,
+        };
+        this._text.focus = {
+            offset: focus.offset,
+        };
+        this._text.anchorBlock = anchor.block;
+        this._text.focusBlock = focus.block;
+        this._text.anchorPath = [...anchor.path];
+        this._text.focusPath = [...focus.path];
+        this._state = createTextSelectionState(anchor, focus);
     }
 
     getSelectionState(): TSelectionState | null {
@@ -95,12 +151,22 @@ class Selection {
         const selection = state?.kind === SelectionType.TEXT ? this._resolveText(state, false) : null;
         if (!selection)
             return null;
+        const { anchor, focus, context } = selection;
+        const { anchorBlock, focusBlock, isCollapsed, isSelectionInSameBlock, direction } = context;
         return {
-            anchor: { ...selection.anchor, path: [...selection.anchor.path], block: selection.context.anchorBlock },
-            focus: { ...selection.focus, path: [...selection.focus.path], block: selection.context.focusBlock },
-            isCollapsed: selection.context.isCollapsed,
-            isSelectionInSameBlock: selection.context.isSelectionInSameBlock,
-            direction: selection.context.direction,
+            anchor: {
+                ...anchor,
+                path: [...anchor.path],
+                block: anchorBlock,
+            },
+            focus: {
+                ...focus,
+                path: [...focus.path],
+                block: focusBlock,
+            },
+            isCollapsed,
+            isSelectionInSameBlock,
+            direction,
         };
     }
 
@@ -123,11 +189,20 @@ class Selection {
             if (selection?.kind !== SelectionType.TEXT)
                 this._text.collapse();
             if (selection?.kind === SelectionType.TEXT) {
+                const { anchor, focus } = selection;
                 const { anchorBlock, focusBlock } = selection.context;
                 this._muya.editor.activeContentBlock = anchorBlock === focusBlock ? anchorBlock : null;
                 this._text.setSelection(
-                    { ...selection.anchor, path: [...selection.anchor.path], block: anchorBlock },
-                    { ...selection.focus, path: [...selection.focus.path], block: focusBlock },
+                    {
+                        ...anchor,
+                        path: [...anchor.path],
+                        block: anchorBlock,
+                    },
+                    {
+                        ...focus,
+                        path: [...focus.path],
+                        block: focusBlock,
+                    },
                 );
             }
             else {
@@ -145,16 +220,26 @@ class Selection {
         return true;
     }
 
-    clear() { this.setSelection(null); }
+    clear() {
+        this.setSelection(null);
+    }
+
     clearImage() {
         if (this.type === SelectionType.IMAGE)
             this.clear();
     }
 
     selectImage(data: IImageInfo & { block: Format }): void {
+        const { block, token } = data;
+        const { range, raw } = token;
         // Re-clicking a selected image must reopen tools hidden by scrolling.
         this._lastPublished = '';
-        this.setSelection({ kind: SelectionType.IMAGE, path: contentPath(data.block), range: data.token.range, raw: data.token.raw });
+        this.setSelection({
+            kind: SelectionType.IMAGE,
+            path: contentPath(block),
+            range,
+            raw,
+        });
     }
 
     syncTextSelection() {
@@ -192,9 +277,14 @@ class Selection {
         this.notify(false, true);
     }
 
+    private get _canNotify(): boolean {
+        const { transactions, isUpdating, isComposing } = this._muya.editor;
+        return !this._setting && !transactions.isActive && !isUpdating && !isComposing;
+    }
+
     notify(docChanged = false, deferred = false) {
         this._docChanged ||= docChanged;
-        if (this._setting || this._muya.editor.transactions.isActive || this._muya.editor.isUpdating || this._muya.editor.isComposing)
+        if (!this._canNotify)
             return;
         if (deferred) {
             this._frame ??= requestAnimationFrame(() => {
@@ -208,7 +298,7 @@ class Selection {
     }
 
     flush() {
-        if (this._setting || this._muya.editor.transactions.isActive || this._muya.editor.isUpdating || this._muya.editor.isComposing)
+        if (!this._canNotify)
             return;
         if (this._frame !== null)
             cancelAnimationFrame(this._frame);
@@ -227,14 +317,19 @@ class Selection {
                 this._setting = false;
             }
         }
-        const formats = selection?.kind === SelectionType.TEXT ? selection.context.formats.map(token => [token.type, token.raw]) : [];
+        const formats = selection?.kind === SelectionType.TEXT
+            ? selection.context.formats.map(({ type, raw }) => [type, raw])
+            : [];
         const signature = JSON.stringify([copySelectionState(selection), formats]);
         const docChanged = this._docChanged;
         this._docChanged = false;
         if (!docChanged && signature === this._lastPublished)
             return;
         this._lastPublished = signature;
-        this._muya.eventCenter.emit('selection-change', { selection, docChanged });
+        this._muya.eventCenter.emit('selection-change', {
+            selection,
+            docChanged,
+        });
     }
 
     cancel() {
@@ -247,78 +342,119 @@ class Selection {
 
     private _resolve(state: TSelectionState): TSelection | null {
         switch (state.kind) {
-            case SelectionType.TEXT: return this._resolveText(state);
-            case SelectionType.IMAGE: return this._resolveImage(state);
-            case SelectionType.TABLE: return this._resolveTable(state);
+            case SelectionType.TEXT:
+                return this._resolveText(state);
+            case SelectionType.IMAGE:
+                return this._resolveImage(state);
+            case SelectionType.TABLE:
+                return this._resolveTable(state);
         }
     }
 
-    private _resolveText(state: Extract<TSelectionState, { kind: SelectionType.TEXT }>, includeFormats = true): ITextSelection | null {
+    private _resolveText(
+        state: Extract<TSelectionState, { kind: SelectionType.TEXT }>,
+        includeFormats = true,
+    ): ITextSelection | null {
         const anchor = resolveEndpoint(this._muya, state.anchor);
         const focus = resolveEndpoint(this._muya, state.focus);
         if (!anchor || !focus)
             return null;
-        const isSelectionInSameBlock = anchor.block === focus.block;
-        const isCollapsed = isSelectionInSameBlock && anchor.offset === focus.offset;
-        const order = isSelectionInSameBlock ? anchor.offset - focus.offset : comparePaths(anchor.path, focus.path);
-        const direction = isCollapsed ? SelectionDirection.NONE : order < 0 ? SelectionDirection.FORWARD : SelectionDirection.BACKWARD;
-        const format = anchor.block as Format;
+        const { block: anchorBlock, path: anchorPath, offset: anchorOffset } = anchor;
+        const { block: focusBlock, path: focusPath, offset: focusOffset } = focus;
+        const isSelectionInSameBlock = anchorBlock === focusBlock;
+        const isCollapsed = isSelectionInSameBlock && anchorOffset === focusOffset;
+        const order = isSelectionInSameBlock
+            ? anchorOffset - focusOffset
+            : comparePaths(anchorPath, focusPath);
+        let direction = SelectionDirection.NONE;
+        if (!isCollapsed)
+            direction = order < 0 ? SelectionDirection.FORWARD : SelectionDirection.BACKWARD;
+        const format = anchorBlock as Format;
         const native = this._readNative();
         const cursorCoords = native ? getCursorCoords(direction === SelectionDirection.FORWARD) : null;
         const range = native ? document.getSelection()?.getRangeAt(0) : null;
-        const formats = includeFormats && isSelectionInSameBlock && typeof format.getFormatsInRange === 'function' ? format.getFormatsInRange().formats : [];
+        const formats = includeFormats && isSelectionInSameBlock && typeof format.getFormatsInRange === 'function'
+            ? format.getFormatsInRange().formats
+            : [];
         return {
             ...state,
             context: {
-                anchorBlock: anchor.block,
-                focusBlock: focus.block,
-                anchorBlockInfo: endpointBlockInfo(anchor.block)!,
-                focusBlockInfo: endpointBlockInfo(focus.block)!,
+                anchorBlock,
+                focusBlock,
+                anchorBlockInfo: endpointBlockInfo(anchorBlock)!,
+                focusBlockInfo: endpointBlockInfo(focusBlock)!,
                 isCollapsed,
                 isSelectionInSameBlock,
                 direction,
                 formats,
-                affiliation: buildSelectionAffiliation(anchor.block, focus.block),
+                affiliation: buildSelectionAffiliation(anchorBlock, focusBlock),
                 cursorCoords,
                 selectionCoords: range?.getBoundingClientRect?.() ?? cursorCoords,
             },
         };
     }
 
-    private _resolveImage(state: Extract<TSelectionState, { kind: SelectionType.IMAGE }>): IImageSelection | null {
-        const block = resolveContent(this._muya, state.path) as Format | null;
-        if (!block?.domNode || block.text.slice(state.range.start, state.range.end) !== state.raw)
+    private _resolveImage(
+        state: Extract<TSelectionState, { kind: SelectionType.IMAGE }>,
+    ): IImageSelection | null {
+        const { path, range, raw } = state;
+        const block = resolveContent(this._muya, path) as Format | null;
+        if (!block?.domNode || block.text.slice(range.start, range.end) !== raw)
             return null;
         const wrappers = block.domNode.querySelectorAll<HTMLElement>(`.${CLASS_NAMES.MU_INLINE_IMAGE}`);
-        const wrapper = [...wrappers].find(node => node.dataset.raw === state.raw && getOffsetOfParagraph(node, block.domNode!) === state.range.start);
+        const wrapper = [...wrappers].find(node =>
+            node.dataset.raw === raw && getOffsetOfParagraph(node, block.domNode!) === range.start,
+        );
         if (!wrapper)
             return null;
         const imageInfo = getImageInfo(wrapper);
         const domNode = wrapper.querySelector<HTMLElement>(`.${CLASS_NAMES.MU_IMAGE_CONTAINER}`);
-        return { ...state, context: { block, imageInfo, domNode, affiliation: buildAffiliation(block), cursorCoords: null, selectionCoords: (domNode ?? wrapper).getBoundingClientRect() } };
+        return {
+            ...state,
+            context: {
+                block,
+                imageInfo,
+                domNode,
+                affiliation: buildAffiliation(block),
+                cursorCoords: null,
+                selectionCoords: (domNode ?? wrapper).getBoundingClientRect(),
+            },
+        };
     }
 
     private _resolveTable(state: ITableRectSelectionState): ITableRectSelection | null {
-        const block = this._muya.editor.scrollPage?.queryBlock([...state.tablePath]);
+        const { tablePath, anchor, focus } = state;
+        const { row: anchorRow, column: anchorColumn } = anchor;
+        const { row: focusRow, column: focusColumn } = focus;
+        const block = this._muya.editor.scrollPage?.queryBlock([...tablePath]);
         if (block?.blockName !== 'table')
             return null;
         const table = block as Table;
-        const coordinates = [state.anchor.row, state.anchor.column, state.focus.row, state.focus.column];
+        const coordinates = [anchorRow, anchorColumn, focusRow, focusColumn];
         if (!coordinates.every(Number.isInteger))
             return null;
-        const anchorCell = table.cellAt(state.anchor.row, state.anchor.column);
-        const focusCell = table.cellAt(state.focus.row, state.focus.column);
+        const anchorCell = table.cellAt(anchorRow, anchorColumn);
+        const focusCell = table.cellAt(focusRow, focusColumn);
         if (!anchorCell || !focusCell)
             return null;
-        const a = anchorCell.domNode?.getBoundingClientRect();
-        const b = focusCell.domNode?.getBoundingClientRect();
+        const anchorRect = anchorCell.domNode?.getBoundingClientRect();
+        const focusRect = focusCell.domNode?.getBoundingClientRect();
         let selectionCoords: TSelectionCoords | null = null;
-        if (a && b) {
-            const left = Math.min(a.left, b.left);
-            const top = Math.min(a.top, b.top);
-            const right = Math.max(a.right, b.right);
-            const bottom = Math.max(a.bottom, b.bottom);
-            selectionCoords = { x: left, y: top, left, top, right, bottom, width: right - left, height: bottom - top };
+        if (anchorRect && focusRect) {
+            const left = Math.min(anchorRect.left, focusRect.left);
+            const top = Math.min(anchorRect.top, focusRect.top);
+            const right = Math.max(anchorRect.right, focusRect.right);
+            const bottom = Math.max(anchorRect.bottom, focusRect.bottom);
+            selectionCoords = {
+                x: left,
+                y: top,
+                left,
+                top,
+                right,
+                bottom,
+                width: right - left,
+                height: bottom - top,
+            };
         }
         return {
             ...state,
@@ -326,7 +462,12 @@ class Selection {
                 table,
                 anchorCell,
                 focusCell,
-                range: { startRow: Math.min(state.anchor.row, state.focus.row), endRow: Math.max(state.anchor.row, state.focus.row), startColumn: Math.min(state.anchor.column, state.focus.column), endColumn: Math.max(state.anchor.column, state.focus.column) },
+                range: {
+                    startRow: Math.min(anchorRow, focusRow),
+                    endRow: Math.max(anchorRow, focusRow),
+                    startColumn: Math.min(anchorColumn, focusColumn),
+                    endColumn: Math.max(anchorColumn, focusColumn),
+                },
                 affiliation: buildSelectionAffiliation(anchorCell.firstContentInDescendant(), focusCell.firstContentInDescendant()),
                 cursorCoords: null,
                 selectionCoords,
@@ -335,28 +476,48 @@ class Selection {
     }
 
     private _isValid(selection: TSelection): boolean {
-        if (selection.kind === SelectionType.TEXT)
-            return isLegalOffset(selection.context.anchorBlock.text, selection.anchor.offset) && isLegalOffset(selection.context.focusBlock.text, selection.focus.offset);
-        if (selection.kind === SelectionType.IMAGE)
-            return selection.range.start < selection.range.end && isLegalOffset(selection.context.block.text, selection.range.start) && isLegalOffset(selection.context.block.text, selection.range.end);
+        if (selection.kind === SelectionType.TEXT) {
+            const { anchor, focus, context } = selection;
+            const { anchorBlock, focusBlock } = context;
+            return isLegalOffset(anchorBlock.text, anchor.offset)
+                && isLegalOffset(focusBlock.text, focus.offset);
+        }
+        if (selection.kind === SelectionType.IMAGE) {
+            const { range, context } = selection;
+            const { text } = context.block;
+            return range.start < range.end
+                && isLegalOffset(text, range.start)
+                && isLegalOffset(text, range.end);
+        }
         return true;
     }
 
     getSelectedText(): string {
         const selection = this.getSelection();
         if (selection?.kind === SelectionType.TEXT) {
+            const { anchor, focus, context } = selection;
+            const { anchorBlock, focusBlock } = context;
             return this._text.getSelectedText({
-                anchor: { ...selection.anchor, path: [...selection.anchor.path], block: selection.context.anchorBlock },
-                focus: { ...selection.focus, path: [...selection.focus.path], block: selection.context.focusBlock },
-                ...selection.context,
+                anchor: {
+                    ...anchor,
+                    path: [...anchor.path],
+                    block: anchorBlock,
+                },
+                focus: {
+                    ...focus,
+                    path: [...focus.path],
+                    block: focusBlock,
+                },
+                ...context,
             });
         }
         if (selection?.kind === SelectionType.TABLE) {
             const { table, range } = selection.context;
+            const { startRow, endRow, startColumn, endColumn } = range;
             const rows: string[] = [];
-            for (let row = range.startRow; row <= range.endRow; row++) {
+            for (let row = startRow; row <= endRow; row++) {
                 const cells: string[] = [];
-                for (let column = range.startColumn; column <= range.endColumn; column++)
+                for (let column = startColumn; column <= endColumn; column++)
                     cells.push(table.cellAt(row, column)?.firstContentInDescendant()?.text ?? '');
                 rows.push(cells.join('\t'));
             }
@@ -422,7 +583,13 @@ class Selection {
 
 export function getCursorReference() {
     const rect = getCursorCoords();
-    return rect ? { getBoundingClientRect: () => rect, clientWidth: rect.width, clientHeight: rect.height } : null;
+    return rect
+        ? {
+                getBoundingClientRect: () => rect,
+                clientWidth: rect.width,
+                clientHeight: rect.height,
+            }
+        : null;
 }
 
 export default Selection;

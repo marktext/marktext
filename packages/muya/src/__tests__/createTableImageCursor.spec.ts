@@ -290,8 +290,14 @@ describe('muya.setSelection()', () => {
         const first = muya.editor.scrollPage!.firstContentInDescendant()!;
         muya.setSelection({
             kind: SelectionType.TEXT,
-            anchor: { offset: 3, path: first.path },
-            focus: { offset: 3, path: first.path },
+            anchor: {
+                offset: 3,
+                path: first.path,
+            },
+            focus: {
+                offset: 3,
+                path: first.path,
+            },
         });
         await vi.waitFor(() => {
             const sel = muya.editor.selection.getTextSelection();
@@ -306,8 +312,14 @@ describe('muya.setSelection()', () => {
         const first = muya.editor.scrollPage!.firstContentInDescendant()!;
         muya.setSelection({
             kind: SelectionType.TEXT,
-            anchor: { offset: 2, path: first.path },
-            focus: { offset: 2, path: first.path },
+            anchor: {
+                offset: 2,
+                path: first.path,
+            },
+            focus: {
+                offset: 2,
+                path: first.path,
+            },
         });
         await vi.waitFor(() => {
             const sel = muya.editor.selection.getTextSelection();
@@ -323,8 +335,14 @@ describe('muya.setSelection()', () => {
         const secondContent = secondPara.firstContentInDescendant()!;
         muya.setSelection({
             kind: SelectionType.TEXT,
-            anchor: { offset: 1, path: secondContent.path },
-            focus: { offset: 1, path: secondContent.path },
+            anchor: {
+                offset: 1,
+                path: secondContent.path,
+            },
+            focus: {
+                offset: 1,
+                path: secondContent.path,
+            },
         });
         await vi.waitFor(() => {
             const sel = muya.editor.selection.getTextSelection();
@@ -337,8 +355,14 @@ describe('muya.setSelection()', () => {
         const muya = bootMuya('hello\n');
         expect(() => muya.setSelection({
             kind: SelectionType.TEXT,
-            anchor: { offset: 0, path: [99, 'text'] },
-            focus: { offset: 0, path: [99, 'text'] },
+            anchor: {
+                offset: 0,
+                path: [99, 'text'],
+            },
+            focus: {
+                offset: 0,
+                path: [99, 'text'],
+            },
         })).not.toThrow();
     });
 });

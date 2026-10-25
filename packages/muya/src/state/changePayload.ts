@@ -17,7 +17,14 @@ const previousRoots = new WeakMap<object, readonly TState[]>();
 const historySuppressed = new WeakSet<object>();
 const recordSelections = new WeakMap<object, TSelectionState | null>();
 
-export function createChangePayload(op: JSONOp, source: ChangeSource, before: readonly TState[], after: readonly TState[], recordHistory = true, recordSelection?: TSelectionState | null): IJSONChangePayload {
+export function createChangePayload(
+    op: JSONOp,
+    source: ChangeSource,
+    before: readonly TState[],
+    after: readonly TState[],
+    recordHistory = true,
+    recordSelection?: TSelectionState | null,
+): IJSONChangePayload {
     let prevDoc: TState[] | undefined;
     let doc: TState[] | undefined;
     const payload = {

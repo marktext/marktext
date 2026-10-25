@@ -48,7 +48,20 @@ describe('cross-block format', () => {
         stubFullRange(first);
         stubFullRange(second);
         muya.editor.activeContentBlock = second;
-        muya.editor.selection.setSelection(createTextSelectionState({ offset: 0, block: first, path: first.path }, { offset: second.text.length, block: second, path: second.path }));
+        muya.editor.selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: second.text.length,
+                    block: second,
+                    path: second.path,
+                },
+            ),
+        );
         muya.format('strong');
         await vi.waitFor(() => {
             const md = muya.getMarkdown();
@@ -65,7 +78,20 @@ describe('cross-block format', () => {
         stubFullRange(first);
         stubFullRange(second);
         muya.editor.activeContentBlock = second;
-        muya.editor.selection.setSelection(createTextSelectionState({ offset: 0, block: first, path: first.path }, { offset: second.text.length, block: second, path: second.path }));
+        muya.editor.selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: second.text.length,
+                    block: second,
+                    path: second.path,
+                },
+            ),
+        );
         muya.format('strong');
         await vi.waitFor(() => expect(muya.getMarkdown()).toContain('**alpha**'));
         // The span is restored across both blocks instead of collapsing onto the
@@ -88,7 +114,20 @@ describe('cross-block format', () => {
         stubFullRange(first);
         stubFullRange(second);
         muya.editor.activeContentBlock = second;
-        muya.editor.selection.setSelection(createTextSelectionState({ offset: 0, block: first, path: first.path }, { offset: second.text.length, block: second, path: second.path }));
+        muya.editor.selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: second.text.length,
+                    block: second,
+                    path: second.path,
+                },
+            ),
+        );
         muya.format('strong');
         await vi.waitFor(() => {
             const md = muya.getMarkdown();
@@ -105,7 +144,20 @@ describe('cross-block format', () => {
         stubFullRange(first);
         stubFullRange(last);
         muya.editor.activeContentBlock = last;
-        muya.editor.selection.setSelection(createTextSelectionState({ offset: 0, block: first, path: first.path }, { offset: last.text.length, block: last, path: last.path }));
+        muya.editor.selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: last.text.length,
+                    block: last,
+                    path: last.path,
+                },
+            ),
+        );
         muya.format('strong');
         await vi.waitFor(() => {
             const md = muya.getMarkdown();
@@ -146,7 +198,20 @@ describe('inline format — selection range & heading markers', () => {
         stubDynamicCursor(muya, second);
         muya.editor.activeContentBlock = second;
         // select "ha beta" .. "gamma d": first@3 -> second@7
-        muya.editor.selection.setSelection(createTextSelectionState({ offset: 3, block: first, path: first.path }, { offset: 7, block: second, path: second.path }));
+        muya.editor.selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 3,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: 7,
+                    block: second,
+                    path: second.path,
+                },
+            ),
+        );
         muya.format('strong');
         const sel = muya.editor.selection;
         expect(sel.anchorBlock!.text).toBe('alp**ha beta**');
@@ -185,7 +250,20 @@ describe('inline format — selection range & heading markers', () => {
         stubDynamicCursor(muya, first);
         stubDynamicCursor(muya, second);
         muya.editor.activeContentBlock = second;
-        muya.editor.selection.setSelection(createTextSelectionState({ offset: 0, block: first, path: first.path }, { offset: second.text.length, block: second, path: second.path }));
+        muya.editor.selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: second.text.length,
+                    block: second,
+                    path: second.path,
+                },
+            ),
+        );
         muya.format('strong');
         await vi.waitFor(() => {
             expect(first.text).toBe('# **Heading**'); // "# " kept outside the bold

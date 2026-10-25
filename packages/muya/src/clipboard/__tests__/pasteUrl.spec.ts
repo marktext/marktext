@@ -170,7 +170,10 @@ describe('paste URL over selected text (#2029)', () => {
         expect(tryPasteUrl(muya.editor.clipboard, block, 'https://home.com', PasteType.NORMAL)).toBe(false);
         vi.restoreAllMocks();
         const selection = muya.editor.selection.getTextSelection()!;
-        muya.editor.selection.getTextSelection = () => ({ ...selection, isSelectionInSameBlock: false });
+        muya.editor.selection.getTextSelection = () => ({
+            ...selection,
+            isSelectionInSameBlock: false,
+        });
         expect(tryPasteUrl(muya.editor.clipboard, block, 'https://home.com', PasteType.NORMAL)).toBe(false);
     });
 

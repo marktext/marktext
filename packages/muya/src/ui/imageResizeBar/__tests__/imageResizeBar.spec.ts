@@ -36,9 +36,19 @@ function selectImage(eventCenter: EventCenter, value: { block?: unknown; referen
             ? {
                     kind: SelectionType.IMAGE,
                     path: [0, 'text'],
-                    range: { start: 0, end: 1 },
+                    range: {
+                        start: 0,
+                        end: 1,
+                    },
                     raw: 'x',
-                    context: { block: value.block, imageInfo: value.imageInfo, domNode: value.reference, affiliation: [], cursorCoords: null, selectionCoords: value.reference.getBoundingClientRect() } as IImageSelectionContext,
+                    context: {
+                        block: value.block,
+                        imageInfo: value.imageInfo,
+                        domNode: value.reference,
+                        affiliation: [],
+                        cursorCoords: null,
+                        selectionCoords: value.reference.getBoundingClientRect(),
+                    } as IImageSelectionContext,
                 }
             : null,
         docChanged: false,
@@ -61,8 +71,14 @@ describe('image resize bar after its image is removed', () => {
         vi.useFakeTimers();
         const eventCenter = setup();
 
-        selectImage(eventCenter, { block: {}, reference: imageContainer(), imageInfo: {} });
-        selectImage(eventCenter, { reference: null });
+        selectImage(eventCenter, {
+            block: {},
+            reference: imageContainer(),
+            imageInfo: {},
+        });
+        selectImage(eventCenter, {
+            reference: null,
+        });
 
         expect(() => vi.runAllTimers()).not.toThrow();
         expect(document.querySelectorAll('.mu-transformer .bar')).toHaveLength(0);
@@ -72,12 +88,18 @@ describe('image resize bar after its image is removed', () => {
         vi.useFakeTimers();
         const eventCenter = setup();
 
-        selectImage(eventCenter, { block: {}, reference: imageContainer(), imageInfo: {} });
+        selectImage(eventCenter, {
+            block: {},
+            reference: imageContainer(),
+            imageInfo: {},
+        });
         vi.runAllTimers();
         const handle = document.querySelector<HTMLElement>('.mu-transformer .bar.right')!;
         handle.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
 
-        selectImage(eventCenter, { reference: null });
+        selectImage(eventCenter, {
+            reference: null,
+        });
 
         expect(eventCenter.events.some(e => e.event === 'mousemove')).toBe(false);
 
@@ -150,7 +172,11 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         const block = { updateImage: vi.fn() };
         const reference = imageContainer();
 
-        selectImage(eventCenter, { block, reference, imageInfo: {} });
+        selectImage(eventCenter, {
+            block,
+            reference,
+            imageInfo: {},
+        });
         vi.runAllTimers();
         document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
         expect(document.querySelectorAll('.mu-transformer .bar')).toHaveLength(0);
@@ -168,7 +194,11 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         const block = { updateImage: vi.fn() };
         const reference = imageContainer();
 
-        selectImage(eventCenter, { block, reference, imageInfo: {} });
+        selectImage(eventCenter, {
+            block,
+            reference,
+            imageInfo: {},
+        });
         vi.runAllTimers();
 
         const errors = dragFrom(contentBar());
@@ -184,7 +214,13 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         const eventCenter = setup();
         const reference = imageContainer();
 
-        selectImage(eventCenter, { block: { updateImage: vi.fn() }, reference, imageInfo: {} });
+        selectImage(eventCenter, {
+            block: {
+                updateImage: vi.fn(),
+            },
+            reference,
+            imageInfo: {},
+        });
         vi.runAllTimers();
         // A right press opens the context menu, which takes the mouseup.
         contentBar().dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 2 }));
@@ -200,7 +236,11 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         const block = { updateImage: vi.fn() };
         const reference = imageContainer();
 
-        selectImage(eventCenter, { block, reference, imageInfo: {} });
+        selectImage(eventCenter, {
+            block,
+            reference,
+            imageInfo: {},
+        });
         vi.runAllTimers();
         const handle = document.querySelector<HTMLElement>('.mu-transformer .bar.right')!;
         handle.removeAttribute('data-position');
@@ -218,7 +258,11 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         const block = { updateImage: vi.fn() };
         const imageInfo = {};
 
-        selectImage(eventCenter, { block, reference: imageContainer(), imageInfo });
+        selectImage(eventCenter, {
+            block,
+            reference: imageContainer(),
+            imageInfo,
+        });
         vi.runAllTimers();
 
         const errors = dragFrom(document.querySelector<HTMLElement>('.mu-transformer .bar.right')!, 200);
@@ -264,7 +308,11 @@ describe('image resize released outside the window (#5393)', () => {
         const imageInfo = {};
         const reference = imageContainer();
 
-        selectImage(eventCenter, { block, reference, imageInfo });
+        selectImage(eventCenter, {
+            block,
+            reference,
+            imageInfo,
+        });
         vi.runAllTimers();
 
         const errors = dragOutsideWindow(
@@ -281,7 +329,13 @@ describe('image resize released outside the window (#5393)', () => {
         vi.useFakeTimers();
         const eventCenter = setup();
 
-        selectImage(eventCenter, { block: { updateImage: vi.fn() }, reference: imageContainer(), imageInfo: {} });
+        selectImage(eventCenter, {
+            block: {
+                updateImage: vi.fn(),
+            },
+            reference: imageContainer(),
+            imageInfo: {},
+        });
         vi.runAllTimers();
         dragOutsideWindow(document.querySelector<HTMLElement>('.mu-transformer .bar.right')!, 200);
 
@@ -295,7 +349,11 @@ describe('image resize invalidated by a document change (#5394)', () => {
         const eventCenter = setup();
         const block = { updateImage: vi.fn() };
         const reference = imageContainer();
-        selectImage(eventCenter, { block, reference, imageInfo: {} });
+        selectImage(eventCenter, {
+            block,
+            reference,
+            imageInfo: {},
+        });
         vi.runAllTimers();
         document.querySelector<HTMLElement>('.mu-transformer .right')!
             .dispatchEvent(mouseEvent('mousedown', 0));
@@ -314,7 +372,11 @@ describe('image resize invalidated by a document change (#5394)', () => {
         vi.useFakeTimers();
         const eventCenter = setup();
         const reference = imageContainer();
-        selectImage(eventCenter, { block: {}, reference, imageInfo: {} });
+        selectImage(eventCenter, {
+            block: {},
+            reference,
+            imageInfo: {},
+        });
         reference.remove();
 
         expect(() => vi.runAllTimers()).not.toThrow();

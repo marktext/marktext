@@ -41,7 +41,20 @@ describe('selection facade', () => {
         const muya = bootMuya('hello world\n');
         const first = muya.editor.scrollPage!.firstContentInDescendant()!;
 
-        muya.editor.selection.setSelection(createTextSelectionState({ offset: 0, block: first, path: first.path }, { offset: 5, block: first, path: first.path }));
+        muya.editor.selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: 5,
+                    block: first,
+                    path: first.path,
+                },
+            ),
+        );
 
         expect(muya.editor.selection.type).toBe('text');
     });
@@ -52,7 +65,10 @@ describe('selection facade', () => {
         const wrapper = first.domNode!.querySelector<HTMLElement>('.mu-inline-image')!;
         const listener = vi.fn();
         muya.on('selection-change', listener);
-        muya.editor.selection.selectImage({ ...getImageInfo(wrapper), block: first });
+        muya.editor.selection.selectImage({
+            ...getImageInfo(wrapper),
+            block: first,
+        });
         expect(muya.getSelection()?.kind).toBe(SelectionType.IMAGE);
         expect(listener.mock.lastCall?.[0].selection.kind).toBe(SelectionType.IMAGE);
         expect(muya.getSelectedText()).toBe('');
@@ -86,7 +102,20 @@ describe('selection facade', () => {
             payload = p as Record<string, unknown>;
         });
 
-        muya.editor.selection.setSelection(createTextSelectionState({ offset: 0, block: first, path: first.path }, { offset: 5, block: first, path: first.path }));
+        muya.editor.selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: 5,
+                    block: first,
+                    path: first.path,
+                },
+            ),
+        );
 
         expect(payload).not.toBeNull();
         expect(payload).toHaveProperty('selection.kind', 'text');

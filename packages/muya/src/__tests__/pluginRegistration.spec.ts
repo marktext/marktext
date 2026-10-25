@@ -29,17 +29,27 @@ it('creates and destroys one tool per plugin name using the latest registration'
         }
     }
 
-    Muya.use(ImageTool, { imagePathPicker: 'old' });
+    Muya.use(ImageTool, {
+        imagePathPicker: 'old',
+    });
     class UpdatedImageTool extends ImageTool {}
     const imagePathPicker = vi.fn();
-    Muya.use(UpdatedImageTool, { imagePathPicker });
-    Muya.use(UpdatedImageTool, { imagePathPicker });
+    Muya.use(UpdatedImageTool, {
+        imagePathPicker,
+    });
+    Muya.use(UpdatedImageTool, {
+        imagePathPicker,
+    });
     const host = document.createElement('div');
     document.body.appendChild(host);
-    const muya = new Muya(host, { markdown: '\n' });
+    const muya = new Muya(host, {
+        markdown: '\n',
+    });
     try {
         muya.init();
-        expect(created).toHaveBeenCalledExactlyOnceWith({ imagePathPicker });
+        expect(created).toHaveBeenCalledExactlyOnceWith({
+            imagePathPicker,
+        });
     }
     finally {
         muya.destroy();

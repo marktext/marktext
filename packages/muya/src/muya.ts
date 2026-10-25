@@ -140,7 +140,10 @@ export class Muya {
     static use(plugin: IMuyaPluginConstructor, options: Record<string, unknown> = {}) {
         // Plugins are owned by name; repeated host mounts must not create duplicate tools.
         const index = this.plugins.findIndex(item => item.plugin.pluginName === plugin.pluginName);
-        const registration = { plugin, options };
+        const registration = {
+            plugin,
+            options,
+        };
         if (index === -1)
             this.plugins.push(registration);
         else this.plugins[index] = registration;
@@ -532,7 +535,20 @@ export class Muya {
         }
 
         if (anchorLeaf && focusLeaf) {
-            this.editor.selection.setSelection(createTextSelectionState({ offset: anchorOffset, block: anchorLeaf, path: anchorLeaf.path }, { offset: focusOffset, block: focusLeaf, path: focusLeaf.path }));
+            this.editor.selection.setSelection(
+                createTextSelectionState(
+                    {
+                        offset: anchorOffset,
+                        block: anchorLeaf,
+                        path: anchorLeaf.path,
+                    },
+                    {
+                        offset: focusOffset,
+                        block: focusLeaf,
+                        path: focusLeaf.path,
+                    },
+                ),
+            );
         }
     }
 
@@ -575,7 +591,20 @@ export class Muya {
             return null;
 
         const { selection } = this.editor;
-        selection.setSelection(createTextSelectionState({ offset: from, block: leaf, path: leaf.path }, { offset: to, block: leaf, path: leaf.path }));
+        selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: from,
+                    block: leaf,
+                    path: leaf.path,
+                },
+                {
+                    offset: to,
+                    block: leaf,
+                    path: leaf.path,
+                },
+            ),
+        );
         leaf.format(type);
 
         // leaf.format ends with setCursor(adjustedStart, adjustedEnd), which
@@ -807,7 +836,20 @@ export class Muya {
             return;
 
         this.editor.activeContentBlock = tail;
-        this.editor.selection.setSelection(createTextSelectionState({ offset: 0, block: head, path: head.path }, { offset: tail.text.length, block: tail, path: tail.path }));
+        this.editor.selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: head,
+                    path: head.path,
+                },
+                {
+                    offset: tail.text.length,
+                    block: tail,
+                    path: tail.path,
+                },
+            ),
+        );
     }
 
     /** Replace selected outmost blocks with one container, then restore the selection via `place`. */
@@ -1270,7 +1312,20 @@ export class Muya {
             const a = this._findContentByText(anchorText);
             const f = this._findContentByText(focusText);
             if (a && f) {
-                this.editor.selection.setSelection(createTextSelectionState({ offset: clampTo(anchorOffset, a.text.length), block: a, path: a.path }, { offset: clampTo(focusOffset, f.text.length), block: f, path: f.path }));
+                this.editor.selection.setSelection(
+                    createTextSelectionState(
+                        {
+                            offset: clampTo(anchorOffset, a.text.length),
+                            block: a,
+                            path: a.path,
+                        },
+                        {
+                            offset: clampTo(focusOffset, f.text.length),
+                            block: f,
+                            path: f.path,
+                        },
+                    ),
+                );
                 return;
             }
         }

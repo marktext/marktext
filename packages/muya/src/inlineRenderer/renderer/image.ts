@@ -93,8 +93,11 @@ export default function image(
     const height = token.attrs.height;
 
     if (src) {
+        const attrs = Object.fromEntries(
+            Object.entries(token.attrs).filter((entry): entry is [string, string] => entry[1] !== null),
+        );
         ({ id, isSuccess, url: resolvedUrl, width: naturalWidth, height: naturalHeight }
-            = this.loadImageAsync(imageSrc, Object.fromEntries(Object.entries(token.attrs).filter((entry): entry is [string, string] => entry[1] !== null))));
+            = this.loadImageAsync(imageSrc, attrs));
     }
 
     // What the rendered <img> actually points at. For local files this is the

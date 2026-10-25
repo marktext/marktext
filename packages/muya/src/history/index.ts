@@ -142,7 +142,10 @@ class History {
     }
 
     clear() {
-        this._stack = { undo: [], redo: [] };
+        this._stack = {
+            undo: [],
+            redo: [],
+        };
         this._nextSelection = undefined;
         this._lastSelection = null;
         this._lastRecorded = 0;
@@ -151,8 +154,8 @@ class History {
     getHistory(): ISerializedHistory {
         return {
             stack: {
-                undo: this._stack.undo.map(op => this._toSerializableOperation(op)),
-                redo: this._stack.redo.map(op => this._toSerializableOperation(op)),
+                undo: this._stack.undo.map(op => this._copyOperation(op)),
+                redo: this._stack.redo.map(op => this._copyOperation(op)),
             },
             lastRecorded: this._lastRecorded,
         };
@@ -160,43 +163,29 @@ class History {
 
     setHistory(history: ISerializedHistory) {
         this._stack = {
-            undo: history.stack.undo.map(op => this._fromSerializableOperation(op)),
-            redo: history.stack.redo.map(op => this._fromSerializableOperation(op)),
+            undo: history.stack.undo.map(op => this._copyOperation(op)),
+            redo: history.stack.redo.map(op => this._copyOperation(op)),
         };
         this._lastRecorded = history.lastRecorded ?? 0;
         this._nextSelection = undefined;
         this._lastSelection = null;
     }
 
-    private _toSerializableOperation(op: IOperation): ISerializableOperation {
-        return {
-            operation: deepClone(op.operation),
-            selection: this._toSerializableSelection(op.selection),
-            ...(op.rebuild ? { rebuild: true } : {}),
+    private _copyOperation({ operation, selection, rebuild }: IOperation): IOperation {
+        const copy: IOperation = {
+            operation: deepClone(operation),
+            selection: copySelectionState(selection ?? null),
         };
-    }
-
-    private _fromSerializableOperation(op: ISerializableOperation): IOperation {
-        return {
-            operation: deepClone(op.operation),
-            selection: this._fromSerializableSelection(op.selection),
-            ...(op.rebuild ? { rebuild: true } : {}),
-        };
-    }
-
-    private _toSerializableSelection(selection: Nullable<TSelectionState>): TSelectionState | null {
-        return copySelectionState(selection ?? null);
-    }
-
-    private _fromSerializableSelection(selection: Nullable<TSelectionState>): TSelectionState | null {
-        return copySelectionState(selection ?? null);
+        if (rebuild)
+            copy.rebuild = true;
+        return copy;
     }
 
     // An explicit selection becomes the undo destination for the next recorded edit.
     cutoff(selection?: TSelectionState) {
         this._lastRecorded = 0;
         if (selection)
-            this._nextSelection = this._toSerializableSelection(selection);
+            this._nextSelection = copySelectionState(selection);
     }
 
     markInputBoundary(inputType: string, data: Nullable<string>): void {

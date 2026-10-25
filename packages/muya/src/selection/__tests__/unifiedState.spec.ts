@@ -12,7 +12,9 @@ beforeEach(() => {
     window.MUYA_VERSION = 'test';
     const host = document.createElement('div');
     document.body.appendChild(host);
-    muya = new Muya(host, { markdown: 'hello 😀 world\n\n![alt](image.png)\n\n| a | b |\n| --- | --- |\n| c | d |\n' });
+    muya = new Muya(host, {
+        markdown: 'hello 😀 world\n\n![alt](image.png)\n\n| a | b |\n| --- | --- |\n| c | d |\n',
+    });
     muya.init();
 });
 
@@ -23,7 +25,17 @@ afterEach(() => {
 
 function text(anchor = 1, focus = 4): ITextSelectionState {
     const path = muya.editor.scrollPage!.firstContentInDescendant()!.path;
-    return { kind: SelectionType.TEXT, anchor: { path, offset: anchor }, focus: { path, offset: focus } };
+    return {
+        kind: SelectionType.TEXT,
+        anchor: {
+            path,
+            offset: anchor,
+        },
+        focus: {
+            path,
+            offset: focus,
+        },
+    };
 }
 
 function image(): TSelectionState {
@@ -31,11 +43,30 @@ function image(): TSelectionState {
     if (!parent.isParent())
         throw new Error('Expected image paragraph');
     const block = parent.firstContentInDescendant()!;
-    return { kind: SelectionType.IMAGE, path: block.path, range: { start: 0, end: block.text.length }, raw: block.text };
+    return {
+        kind: SelectionType.IMAGE,
+        path: block.path,
+        range: {
+            start: 0,
+            end: block.text.length,
+        },
+        raw: block.text,
+    };
 }
 
 function table(): TSelectionState {
-    return { kind: SelectionType.TABLE, tablePath: [2], anchor: { row: 1, column: 1 }, focus: { row: 0, column: 0 } };
+    return {
+        kind: SelectionType.TABLE,
+        tablePath: [2],
+        anchor: {
+            row: 1,
+            column: 1,
+        },
+        focus: {
+            row: 0,
+            column: 0,
+        },
+    };
 }
 
 describe('unified selection state', () => {
@@ -57,13 +88,32 @@ describe('unified selection state', () => {
 
     it('strips extra runtime fields from nested coordinates and image ranges', () => {
         const block = muya.editor.scrollPage!.firstContentInDescendant()!;
-        const rectangle = { kind: SelectionType.TABLE as const, tablePath: [2], anchor: { row: 1, column: 1, block }, focus: { row: 0, column: 0, domNode: document.body } };
+        const rectangle = {
+            kind: SelectionType.TABLE as const,
+            tablePath: [2],
+            anchor: {
+                row: 1,
+                column: 1,
+                block,
+            },
+            focus: {
+                row: 0,
+                column: 0,
+                domNode: document.body,
+            },
+        };
         expect(muya.setSelection(rectangle)).toBe(true);
         expect(muya.getSelectionState()).toEqual(table());
         const target = image();
         if (target.kind !== SelectionType.IMAGE)
             throw new Error('Expected image state');
-        const withRuntimeRange = { ...target, range: { ...target.range, block } };
+        const withRuntimeRange = {
+            ...target,
+            range: {
+                ...target.range,
+                block,
+            },
+        };
         expect(muya.setSelection(withRuntimeRange)).toBe(true);
         expect(muya.getSelectionState()).toEqual(target);
     });
@@ -71,7 +121,23 @@ describe('unified selection state', () => {
     it('rejects invalid targets atomically, including split surrogate pairs', () => {
         muya.setSelection(text());
         const initial = muya.getSelectionState();
-        const invalid = [text(-1), text(100), text(7), { ...image(), raw: 'different image' }, { kind: SelectionType.TABLE, tablePath: [2], anchor: { row: -1, column: 0 }, focus: { row: 0, column: 0 } }, { kind: 'text' }];
+        const invalid = [text(-1), text(100), text(7), {
+            ...image(),
+            raw: 'different image',
+        }, {
+            kind: SelectionType.TABLE,
+            tablePath: [2],
+            anchor: {
+                row: -1,
+                column: 0,
+            },
+            focus: {
+                row: 0,
+                column: 0,
+            },
+        }, {
+            kind: 'text',
+        }];
         for (const state of invalid) {
             expect(muya.setSelection(state as TSelectionState)).toBe(false);
             expect(muya.getSelectionState()).toEqual(initial);
@@ -100,7 +166,9 @@ describe('unified selection state', () => {
             expect(listener).not.toHaveBeenCalled();
         });
         expect(listener).toHaveBeenCalledTimes(1);
-        expect(listener.mock.lastCall?.[0]).toEqual(expect.objectContaining({ docChanged: true }));
+        expect(listener.mock.lastCall?.[0]).toEqual(expect.objectContaining({
+            docChanged: true,
+        }));
     });
 
     it('rolls back a failed transaction without publishing intermediate selections', () => {
@@ -155,8 +223,14 @@ describe('unified selection state', () => {
         muya.setContent('```js\ncode\n```\n');
         const language: ITextSelectionState = {
             kind: SelectionType.TEXT,
-            anchor: { path: [0, 'meta', 'lang'], offset: 1 },
-            focus: { path: [0, 'text'], offset: 2 },
+            anchor: {
+                path: [0, 'meta', 'lang'],
+                offset: 1,
+            },
+            focus: {
+                path: [0, 'text'],
+                offset: 2,
+            },
         };
         expect(muya.setSelection(language)).toBe(true);
         expect(muya.getSelectionState()).toEqual(language);
@@ -172,7 +246,9 @@ describe('unified selection state', () => {
         muya.setSelection(text());
         const host = document.createElement('div');
         document.body.appendChild(host);
-        const other = new Muya(host, { markdown: 'other' });
+        const other = new Muya(host, {
+            markdown: 'other',
+        });
         other.init();
         try {
             document.dispatchEvent(new Event('selectionchange'));
@@ -187,8 +263,12 @@ describe('unified selection state', () => {
     it.each([false, true])('preserves another editor native selection on load (collapsed: %s)', (collapsed) => {
         const host = document.createElement('div');
         document.body.appendChild(host);
-        const inactive = new Muya(host, { markdown: 'inactive' });
-        inactive.init({ focus: false });
+        const inactive = new Muya(host, {
+            markdown: 'inactive',
+        });
+        inactive.init({
+            focus: false,
+        });
         try {
             muya.setSelection(text(1, collapsed ? 1 : 4));
             const native = document.getSelection()!;
@@ -217,9 +297,17 @@ describe('unified selection state', () => {
         muya.on('selection-change', changed);
         muya.editor.selection.notify();
         expect(changed).not.toHaveBeenCalled();
-        muya.editor.selection.selectImage({ ...current.context.imageInfo, block: current.context.block });
+        muya.editor.selection.selectImage({
+            ...current.context.imageInfo,
+            block: current.context.block,
+        });
         expect(changed).toHaveBeenCalledTimes(1);
-        expect(changed.mock.lastCall?.[0]).toMatchObject({ selection: { kind: 'image' }, docChanged: false });
+        expect(changed.mock.lastCall?.[0]).toMatchObject({
+            selection: {
+                kind: 'image',
+            },
+            docChanged: false,
+        });
         muya.editor.selection.notify();
         expect(changed).toHaveBeenCalledTimes(1);
     });

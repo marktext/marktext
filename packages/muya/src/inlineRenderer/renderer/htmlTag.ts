@@ -141,7 +141,16 @@ export default function htmlTag(
 
     switch (tag) {
         case 'img': {
-            return this.image({ h, cursor, block, token: { ...token, tag }, outerClass });
+            return this.image({
+                h,
+                cursor,
+                block,
+                token: {
+                    ...token,
+                    tag,
+                },
+                outerClass,
+            });
         }
 
         case 'br': {

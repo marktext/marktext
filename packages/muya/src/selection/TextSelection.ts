@@ -126,8 +126,16 @@ class TextSelection {
         }
 
         this.setSelection(
-            { offset: 0, block: aBlock, path: aBlock.path },
-            { offset: fBlock.text.length, block: fBlock, path: fBlock.path },
+            {
+                offset: 0,
+                block: aBlock,
+                path: aBlock.path,
+            },
+            {
+                offset: fBlock.text.length,
+                block: fBlock,
+                path: fBlock.path,
+            },
         );
         const activeEle = this._doc.activeElement;
         if (isHTMLElement(activeEle) && activeEle.classList.contains('mu-content'))
@@ -209,10 +217,14 @@ class TextSelection {
             revealBlock(anchor.block);
             revealBlock(focus.block);
         }
-        this.anchor = { offset: anchor.offset };
+        this.anchor = {
+            offset: anchor.offset,
+        };
         this.anchorBlock = anchor.block;
         this.anchorPath = anchor.path;
-        this.focus = { offset: focus.offset };
+        this.focus = {
+            offset: focus.offset,
+        };
         this.focusBlock = focus.block;
         this.focusPath = focus.path;
         this._updateSelection();
@@ -284,13 +296,26 @@ class TextSelection {
 
             const anchorBlock = anchor.block;
             const focusBlock = focus.block;
-            const endpointAnchor = { offset: anchor.offset, block: anchorBlock, path: anchorBlock.path };
-            const endpointFocus = { offset: focus.offset, block: focusBlock, path: focusBlock.path };
+            const endpointAnchor = {
+                offset: anchor.offset,
+                block: anchorBlock,
+                path: anchorBlock.path,
+            };
+            const endpointFocus = {
+                offset: focus.offset,
+                block: focusBlock,
+                path: focusBlock.path,
+            };
 
-            if (type === 'mousemove')
-                this._selectInfo.selection = { anchor: endpointAnchor, focus: endpointFocus };
-            else
+            if (type === 'mousemove') {
+                this._selectInfo.selection = {
+                    anchor: endpointAnchor,
+                    focus: endpointFocus,
+                };
+            }
+            else {
                 this.setSelection(endpointAnchor, endpointFocus);
+            }
         };
 
         eventCenter.attachDOMEvent(domNode, 'mousedown', handleMousedown);
@@ -347,8 +372,7 @@ class TextSelection {
         if (!anchor || !focus) {
             const selection = this._doc.getSelection();
             const { domNode } = this._muya;
-            if (selection?.anchorNode && selection.focusNode
-                && domNode.contains(selection.anchorNode) && domNode.contains(selection.focusNode)) {
+            if (selection && domNode.contains(selection.anchorNode) && domNode.contains(selection.focusNode)) {
                 selection.removeAllRanges();
             }
 

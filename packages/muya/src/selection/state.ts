@@ -10,30 +10,47 @@ export function contentPath(block: Content): TBlockPath {
         : [...block.path];
 }
 
-export function createTextSelectionState(anchor: IAnchorFocusInfo, focus: IAnchorFocusInfo): ITextSelectionState {
+export function createTextSelectionState(
+    anchor: IAnchorFocusInfo,
+    focus: IAnchorFocusInfo,
+): ITextSelectionState {
+    const { block: anchorBlock, offset: anchorOffset } = anchor;
+    const { block: focusBlock, offset: focusOffset } = focus;
     return {
         kind: SelectionType.TEXT,
-        anchor: { path: contentPath(anchor.block), offset: anchor.offset },
-        focus: { path: contentPath(focus.block), offset: focus.offset },
+        anchor: {
+            path: contentPath(anchorBlock),
+            offset: anchorOffset,
+        },
+        focus: {
+            path: contentPath(focusBlock),
+            offset: focusOffset,
+        },
     };
 }
 
 export function resolveContent(muya: Muya, path: Readonly<TBlockPath>): Content | null {
     const language = path.at(-2) === 'meta' && path.at(-1) === 'lang';
     const block = muya.editor.scrollPage?.queryBlock(language ? path.slice(0, -2) : [...path]);
-    if (language) {
-        return block?.isParent() && block.blockName === 'code-block' && block.firstContentInDescendant()?.blockName === 'language-input'
-            ? block.firstContentInDescendant()
-            : null;
-    }
-    return block?.isContent() ? block : null;
+    if (!language)
+        return block?.isContent() ? block : null;
+    if (!block?.isParent() || block.blockName !== 'code-block')
+        return null;
+
+    const content = block.firstContentInDescendant();
+    return content?.blockName === 'language-input' ? content : null;
 }
 
 export function resolveEndpoint(muya: Muya, point: ISelectionEndpoint): IAnchorFocusInfo | null {
-    const block = resolveContent(muya, point.path);
+    const { path, offset } = point;
+    const block = resolveContent(muya, path);
     if (!block)
         return null;
-    return { block, path: [...point.path], offset: point.offset };
+    return {
+        block,
+        path: [...path],
+        offset,
+    };
 }
 
 export function isLegalOffset(text: string, offset: number): boolean {
@@ -48,16 +65,52 @@ export function copySelectionState(state: TSelectionState | null): TSelectionSta
     if (!state)
         return null;
     switch (state.kind) {
-        case SelectionType.TEXT:
+        case SelectionType.TEXT: {
+            const { kind, anchor, focus } = state;
+            const { path: anchorPath, offset: anchorOffset } = anchor;
+            const { path: focusPath, offset: focusOffset } = focus;
             return {
-                kind: state.kind,
-                anchor: { path: [...state.anchor.path], offset: state.anchor.offset },
-                focus: { path: [...state.focus.path], offset: state.focus.offset },
+                kind,
+                anchor: {
+                    path: [...anchorPath],
+                    offset: anchorOffset,
+                },
+                focus: {
+                    path: [...focusPath],
+                    offset: focusOffset,
+                },
             };
-        case SelectionType.IMAGE:
-            return { kind: state.kind, path: [...state.path], range: { start: state.range.start, end: state.range.end }, raw: state.raw };
-        case SelectionType.TABLE:
-            return { kind: state.kind, tablePath: [...state.tablePath], anchor: { row: state.anchor.row, column: state.anchor.column }, focus: { row: state.focus.row, column: state.focus.column } };
+        }
+        case SelectionType.IMAGE: {
+            const { kind, path, range, raw } = state;
+            const { start, end } = range;
+            return {
+                kind,
+                path: [...path],
+                range: {
+                    start,
+                    end,
+                },
+                raw,
+            };
+        }
+        case SelectionType.TABLE: {
+            const { kind, tablePath, anchor, focus } = state;
+            const { row: anchorRow, column: anchorColumn } = anchor;
+            const { row: focusRow, column: focusColumn } = focus;
+            return {
+                kind,
+                tablePath: [...tablePath],
+                anchor: {
+                    row: anchorRow,
+                    column: anchorColumn,
+                },
+                focus: {
+                    row: focusRow,
+                    column: focusColumn,
+                },
+            };
+        }
     }
 }
 
@@ -70,30 +123,37 @@ function isPath(path: unknown): path is TBlockPath {
         && path.every(part => typeof part === 'string' || (Number.isInteger(part) && part >= 0));
 }
 
-export function isSelectionState(value: unknown): value is TSelectionState {
-    if (!value || typeof value !== 'object' || !('kind' in value))
-        return false;
-    if (value.kind === SelectionType.IMAGE)
-        return isImageState(value);
-    if (!('anchor' in value) || !('focus' in value))
-        return false;
-    const points = [value.anchor, value.focus];
-    if (value.kind === SelectionType.TEXT) {
-        return points.every(point => !!point && typeof point === 'object'
-            && 'path' in point && isPath(point.path) && 'offset' in point && Number.isInteger(point.offset));
-    }
-    if (value.kind === SelectionType.TABLE) {
-        return 'tablePath' in value && isPath(value.tablePath)
-            && points.every(point => !!point && typeof point === 'object'
-                && 'row' in point && Number.isInteger(point.row)
-                && 'column' in point && Number.isInteger(point.column));
-    }
-    return false;
+function isObject(value: unknown): value is Record<string, unknown> {
+    return value !== null && typeof value === 'object';
 }
 
-function isImageState(value: object): boolean {
-    return 'path' in value && isPath(value.path) && 'raw' in value && typeof value.raw === 'string'
-        && 'range' in value && !!value.range && typeof value.range === 'object'
-        && 'start' in value.range && Number.isInteger(value.range.start)
-        && 'end' in value.range && Number.isInteger(value.range.end);
+export function isSelectionState(value: unknown): value is TSelectionState {
+    if (!isObject(value))
+        return false;
+
+    const { kind, anchor, focus } = value;
+    const points = [anchor, focus];
+    switch (kind) {
+        case SelectionType.TEXT:
+            return points.every(point => isObject(point)
+                && isPath(point.path)
+                && Number.isInteger(point.offset));
+        case SelectionType.IMAGE:
+            return isImageState(value);
+        case SelectionType.TABLE:
+            return isPath(value.tablePath)
+                && points.every(point => isObject(point)
+                    && Number.isInteger(point.row)
+                    && Number.isInteger(point.column));
+        default:
+            return false;
+    }
+}
+
+function isImageState({ path, raw, range }: Record<string, unknown>): boolean {
+    return isPath(path)
+        && typeof raw === 'string'
+        && isObject(range)
+        && Number.isInteger(range.start)
+        && Number.isInteger(range.end);
 }

@@ -145,7 +145,10 @@ test.describe('TOC panel content + live update', () => {
     expect(tree).toEqual([
       { label: 'A', depth: 1 },
       { label: 'B', depth: 2 },
-      { label: 'B1', depth: 3 },
+      {
+        label: 'B1',
+        depth: 3
+      },
       { label: 'C', depth: 2 },
       { label: 'D', depth: 2 }
     ])

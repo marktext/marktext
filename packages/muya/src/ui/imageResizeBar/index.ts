@@ -65,11 +65,12 @@ export class ImageResizeBar {
         };
 
         eventCenter.on('selection-change', ({ selection }) => {
-            if (selection?.kind !== SelectionType.IMAGE || this.muya.isReadOnly || !selection.context.domNode) {
+            const image = selection?.kind === SelectionType.IMAGE ? selection.context : null;
+            if (this.muya.isReadOnly || !image?.domNode) {
                 this.hide();
                 return;
             }
-            const { block, imageInfo, domNode } = selection.context;
+            const { block, imageInfo, domNode } = image;
             if (this._reference !== domNode)
                 this.hide();
             this._reference = domNode;

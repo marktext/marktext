@@ -38,7 +38,20 @@ function emitSelectionFor(muya: Muya, content: Content): Record<string, unknown>
     muya.on('selection-change', (p: unknown) => {
         payload = p as Record<string, unknown>;
     });
-    muya.editor.selection.setSelection(createTextSelectionState({ offset: 1, block: content, path: content.path }, { offset: 1, block: content, path: content.path }));
+    muya.editor.selection.setSelection(
+        createTextSelectionState(
+            {
+                offset: 1,
+                block: content,
+                path: content.path,
+            },
+            {
+                offset: 1,
+                block: content,
+                path: content.path,
+            },
+        ),
+    );
     if (!payload)
         throw new Error('selection-change was not emitted');
     const { selection } = payload as { selection: { context: Record<string, unknown> } };

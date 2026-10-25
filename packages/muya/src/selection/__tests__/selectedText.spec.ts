@@ -72,7 +72,9 @@ describe('muya.getSelectedText', () => {
             const last = content(muya, 'Last');
             const start = { block: first, path: first.path, offset: 2 };
             const end = { block: last, path: last.path, offset: 3 };
-            muya.editor.selection.setSelection(createTextSelectionState(backward ? end : start, backward ? start : end));
+            muya.editor.selection.setSelection(
+                createTextSelectionState(backward ? end : start, backward ? start : end),
+            );
 
             expect(muya.getSelectedText()).toBe(expected);
         });

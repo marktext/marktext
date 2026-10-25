@@ -28,7 +28,20 @@ function selectFirstTwoBlocks(muya: Muya) {
     const first = sp.firstContentInDescendant()!;
     const second = (sp.firstChild!.next as Parent).firstContentInDescendant()!;
     muya.editor.activeContentBlock = second;
-    muya.editor.selection.setSelection(createTextSelectionState({ offset: 0, block: first, path: first.path }, { offset: second.text.length, block: second, path: second.path }));
+    muya.editor.selection.setSelection(
+        createTextSelectionState(
+            {
+                offset: 0,
+                block: first,
+                path: first.path,
+            },
+            {
+                offset: second.text.length,
+                block: second,
+                path: second.path,
+            },
+        ),
+    );
 }
 
 describe('cross-block paragraph wrapping', () => {

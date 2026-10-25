@@ -42,20 +42,43 @@ class TableRectSelection {
     }
 
     setSelection(selection: ITableRectSelection): void {
+        const { anchor, focus } = selection;
         const { table, anchorCell, focusCell } = selection.context;
         this._table = table;
-        this._anchor = { cell: anchorCell, ...selection.anchor };
-        this._focus = { cell: focusCell, ...selection.focus };
+        this._anchor = {
+            cell: anchorCell,
+            ...anchor,
+        };
+        this._focus = {
+            cell: focusCell,
+            ...focus,
+        };
         this._isSelecting = true;
         this._freezeNativeSelection();
         this._renderHighlight();
     }
 
     private _notify(): void {
-        const state = this.hasSelection
-            ? { kind: SelectionType.TABLE as const, tablePath: [...this._table!.path], anchor: { row: this._anchor!.row, column: this._anchor!.column }, focus: { row: this._focus!.row, column: this._focus!.column } }
-            : null;
-        this._muya.editor.selection.syncTableSelection(state);
+        const { selection } = this._muya.editor;
+        if (!this.hasSelection) {
+            selection.syncTableSelection(null);
+            return;
+        }
+
+        const { row: anchorRow, column: anchorColumn } = this._anchor!;
+        const { row: focusRow, column: focusColumn } = this._focus!;
+        selection.syncTableSelection({
+            kind: SelectionType.TABLE,
+            tablePath: [...this._table!.path],
+            anchor: {
+                row: anchorRow,
+                column: anchorColumn,
+            },
+            focus: {
+                row: focusRow,
+                column: focusColumn,
+            },
+        });
     }
 
     isSingleCellSelected(): boolean {

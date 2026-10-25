@@ -15,12 +15,17 @@ function collectPageErrors(page: Page): string[] {
 }
 
 async function nextFrames(page: Page): Promise<void> {
-    await page.evaluate(() => new Promise<void>((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-    }));
+    await page.evaluate(
+        () =>
+            new Promise<void>(resolve => {
+                requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+            }),
+    );
 }
 
-test('a cut ending in a language line keeps the code block and its language input (#5371)', async ({ page }) => {
+test('a cut ending in a language line keeps the code block and its language input (#5371)', async ({
+    page,
+}) => {
     const errors = collectPageErrors(page);
     await loadMarkdown(page, 'intro\n\n- item\n\n  ```js\n  const a = 1\n  ```\n\n  tail\n');
     await expect(page.locator(`${editor.codeContent} .token`).first()).toBeAttached();
@@ -32,11 +37,28 @@ test('a cut ending in a language line keeps the code block and its language inpu
         let languageInput = intro.nextContentInContext();
         while (languageInput && languageInput.blockName !== 'language-input')
             languageInput = languageInput.nextContentInContext() ?? null;
-        selection.setSelection({ kind: 'text' as import('@muyajs/core').SelectionType.TEXT, anchor: { offset: 2, path: intro.blockName === 'language-input' ? [...intro.parent!.path, 'meta', 'lang'] : intro.path }, focus: { offset: 0, path: languageInput!.blockName === 'language-input' ? [...languageInput!.parent!.path, 'meta', 'lang'] : languageInput!.path } }
-        );
+        selection.setSelection({
+            kind: 'text' as import('@muyajs/core').SelectionType.TEXT,
+            anchor: {
+                offset: 2,
+                path:
+                    intro.blockName === 'language-input'
+                        ? [...intro.parent!.path, 'meta', 'lang']
+                        : intro.path,
+            },
+            focus: {
+                offset: 0,
+                path:
+                    languageInput!.blockName === 'language-input'
+                        ? [...languageInput!.parent!.path, 'meta', 'lang']
+                        : languageInput!.path,
+            },
+        });
     });
     await page.keyboard.press('Backspace');
-    await expect.poll(() => getMarkdown(page)).toBe('in\n\n- ```js\n  const a = 1\n  ```\n\n  tail\n');
+    await expect
+        .poll(() => getMarkdown(page))
+        .toBe('in\n\n- ```js\n  const a = 1\n  ```\n\n  tail\n');
     await expect(page.locator(`${editor.codeBlock} ${editor.languageInput}`)).toHaveCount(1);
 
     // The language input is still there and editable.
@@ -47,6 +69,8 @@ test('a cut ending in a language line keeps the code block and its language inpu
         languageInput!.setCursor(2, 2, true);
     });
     await page.keyboard.type('x');
-    await expect.poll(() => getMarkdown(page)).toBe('in\n\n- ```jsx\n  const a = 1\n  ```\n\n  tail\n');
+    await expect
+        .poll(() => getMarkdown(page))
+        .toBe('in\n\n- ```jsx\n  const a = 1\n  ```\n\n  tail\n');
     expect(errors).toEqual([]);
 });

@@ -21,8 +21,14 @@ describe('applyCursor', () => {
     const editor = makeEditor()
     const cursor = {
       kind: 'text',
-      anchor: { offset: 1, path: [0, 'text'] },
-      focus: { offset: 4, path: [0, 'text'] }
+      anchor: {
+        offset: 1,
+        path: [0, 'text']
+      },
+      focus: {
+        offset: 4,
+        path: [0, 'text']
+      }
     }
 
     applyCursor(editor, cursor)

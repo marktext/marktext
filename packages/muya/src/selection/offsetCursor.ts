@@ -120,8 +120,14 @@ export function resolveSentinelCursor(scrollPage: ScrollPage): ITextSelectionSta
 
     return {
         kind: SelectionType.TEXT,
-        anchor: { offset: anchorOffset, path: contentPath(anchor.block) },
-        focus: { offset: focusOffset, path: contentPath(focus.block) },
+        anchor: {
+            offset: anchorOffset,
+            path: contentPath(anchor.block),
+        },
+        focus: {
+            offset: focusOffset,
+            path: contentPath(focus.block),
+        },
     };
 }
 

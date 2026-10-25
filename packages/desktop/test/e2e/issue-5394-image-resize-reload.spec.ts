@@ -54,7 +54,11 @@ for (const scenario of ['reload-auto-save', 'reload-no-auto-save', 'undo'] as co
         await page.mouse.move(x, y)
         await page.mouse.down()
         await page.mouse.move(x - 40, y)
-        return { x, y, pressedHandle }
+        return {
+          x,
+          y,
+          pressedHandle
+        }
       }
       const { x, y, pressedHandle } = await startDrag()
       await expect(image).toHaveAttribute('width', '360')
@@ -74,7 +78,7 @@ for (const scenario of ['reload-auto-save', 'reload-no-auto-save', 'undo'] as co
       }
       const expectedText = scenario === 'undo' ? 'Some text before the image.' : 'Changed on disk.'
       await expect(page.locator('.editor-component')).toContainText(expectedText)
-      await expect.poll(() => pressedHandle.evaluate(element => element.isConnected)).toBe(false)
+      await expect.poll(() => pressedHandle.evaluate((element) => element.isConnected)).toBe(false)
       // Reload restores the valid image selection with fresh, idle handles;
       // Undo restores the selection captured before the document replacement.
       await expect(page.locator('.mu-transformer .bar')).toHaveCount(scenario === 'undo' ? 0 : 2)

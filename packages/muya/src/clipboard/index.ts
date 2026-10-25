@@ -213,7 +213,9 @@ class Clipboard {
     async pasteAsPlainText(): Promise<void> {
         const target = this.selection.getTextSelection()?.anchor.block;
         const text = await this._readClipboardText();
-        if (this.muya.isReadOnly || !this.muya.isBlockInDocument(target) || this.selection.getTextSelection()?.anchor.block !== target)
+        if (this.muya.isReadOnly || !this.muya.isBlockInDocument(target))
+            return;
+        if (this.selection.getTextSelection()?.anchor.block !== target)
             return;
         if (text)
             await pastePlainText(this, text);

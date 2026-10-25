@@ -17,7 +17,10 @@ for (const tag of ['input', 'textarea', 'select', 'contenteditable'] as const) {
         const markdown = '![selected](https://example.com/image.png)\n';
         const muya = bootMuya(markdown);
         const image = muya.domNode.querySelector<HTMLElement>('.mu-inline-image')!;
-        image.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        image.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+        }));
         const before = muya.getSelectionState();
         expect(before?.kind).toBe('image');
         const preview = vi.fn();
@@ -32,7 +35,11 @@ for (const tag of ['input', 'textarea', 'select', 'contenteditable'] as const) {
             : control;
 
         for (const key of ['ArrowLeft', 'ArrowRight', 'Backspace', 'Delete', 'Enter', ' ']) {
-            const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+            const event = new KeyboardEvent('keydown', {
+                key,
+                bubbles: true,
+                cancelable: true,
+            });
             target.dispatchEvent(event);
             expect(event.defaultPrevented, key).toBe(false);
             expect(muya.getSelectionState(), key).toEqual(before);
@@ -47,8 +54,15 @@ for (const key of ['ArrowLeft', 'ArrowRight']) {
         const raw = '![selected](https://example.com/image.png)';
         const muya = bootMuya(`${raw}\n`);
         const image = muya.domNode.querySelector<HTMLElement>('.mu-inline-image')!;
-        image.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-        const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+        image.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+        }));
+        const event = new KeyboardEvent('keydown', {
+            key,
+            bubbles: true,
+            cancelable: true,
+        });
         muya.domNode.dispatchEvent(event);
 
         expect(event.defaultPrevented).toBe(true);

@@ -43,7 +43,15 @@ function emitSelectionChange(
     if (selection?.kind !== SelectionType.TEXT)
         throw new Error('Expected a text selection');
     muya.eventCenter.emit('selection-change', {
-        selection: { ...selection, context: { ...selection.context, formats: formats as Token[], isCollapsed: false, isSelectionInSameBlock: true } },
+        selection: {
+            ...selection,
+            context: {
+                ...selection.context,
+                formats: formats as Token[],
+                isCollapsed: false,
+                isSelectionInSameBlock: true,
+            },
+        },
         docChanged: false,
     });
 }

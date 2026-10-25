@@ -181,7 +181,10 @@ function reselectImageAt(clipboard: Clipboard, block: Format, startOffset: numbe
     const wrapper = findImageWrapper(block, startOffset);
     if (wrapper == null)
         return;
-    clipboard.selection.selectImage({ ...getImageInfo(wrapper), block });
+    clipboard.selection.selectImage({
+        ...getImageInfo(wrapper),
+        block,
+    });
     block.update();
 }
 
@@ -225,16 +228,16 @@ export async function tryReplaceSelectedImage(
     if (selectedImage == null)
         return false;
 
-    const original = selectedImage.block.text.slice(selectedImage.imageInfo.token.range.start, selectedImage.imageInfo.token.range.end);
+    const { block, imageInfo: { token } } = selectedImage;
+    const original = block.text.slice(token.range.start, token.range.end);
     const src = await resolveImageSrc(clipboard, imageFile);
-    if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(selectedImage.block)
-        || selectedImage.block.text.slice(selectedImage.imageInfo.token.range.start, selectedImage.imageInfo.token.range.end) !== original) {
+    if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(block))
         return true;
-    }
+    if (block.text.slice(token.range.start, token.range.end) !== original)
+        return true;
     if (src == null)
         return false;
 
-    const { block, imageInfo: { token } } = selectedImage;
     await replaceImageAt(clipboard, block, token.range, src);
 
     return true;

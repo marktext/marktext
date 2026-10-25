@@ -12,20 +12,49 @@ function collectPageErrors(page: Page): string[] {
     return errors;
 }
 
-async function selectFromTo(page: Page, startText: string, startOffset: number, endText: string, endOffset: number): Promise<void> {
-    await page.evaluate(({ startText, startOffset, endText, endOffset }) => {
-        const { scrollPage, selection } = window.muya!.editor;
-        const find = (text: string) => {
-            let block = scrollPage!.firstContentInDescendant();
-            while (block && block.text !== text)
-                block = block.nextContentInContext() ?? null;
-            return block!;
-        };
-        const start = find(startText);
-        const end = find(endText);
-        selection.setSelection({ kind: 'text' as import('@muyajs/core').SelectionType.TEXT, anchor: { offset: startOffset, path: start.blockName === 'language-input' ? [...start.parent!.path, 'meta', 'lang'] : start.path }, focus: { offset: endOffset, path: end.blockName === 'language-input' ? [...end.parent!.path, 'meta', 'lang'] : end.path } }
-        );
-    }, { startText, startOffset, endText, endOffset });
+async function selectFromTo(
+    page: Page,
+    startText: string,
+    startOffset: number,
+    endText: string,
+    endOffset: number,
+): Promise<void> {
+    await page.evaluate(
+        ({ startText, startOffset, endText, endOffset }) => {
+            const { scrollPage, selection } = window.muya!.editor;
+            const find = (text: string) => {
+                let block = scrollPage!.firstContentInDescendant();
+                while (block && block.text !== text)
+                    block = block.nextContentInContext() ?? null;
+                return block!;
+            };
+            const start = find(startText);
+            const end = find(endText);
+            selection.setSelection({
+                kind: 'text' as import('@muyajs/core').SelectionType.TEXT,
+                anchor: {
+                    offset: startOffset,
+                    path:
+                        start.blockName === 'language-input'
+                            ? [...start.parent!.path, 'meta', 'lang']
+                            : start.path,
+                },
+                focus: {
+                    offset: endOffset,
+                    path:
+                        end.blockName === 'language-input'
+                            ? [...end.parent!.path, 'meta', 'lang']
+                            : end.path,
+                },
+            });
+        },
+        {
+            startText,
+            startOffset,
+            endText,
+            endOffset,
+        },
+    );
 }
 
 test.describe('cut starting inside a list or quote (#5385)', () => {

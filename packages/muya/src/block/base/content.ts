@@ -669,8 +669,16 @@ class Content extends TreeNode {
     }
 
     setCursor(begin: number, end: number, needUpdate = false) {
-        const anchor = { offset: Math.max(0, Math.min(begin, this.text.length)), block: this, path: this.path };
-        const focus = { offset: Math.max(0, Math.min(end, this.text.length)), block: this, path: this.path };
+        const anchor = {
+            offset: Math.max(0, Math.min(begin, this.text.length)),
+            block: this,
+            path: this.path,
+        };
+        const focus = {
+            offset: Math.max(0, Math.min(end, this.text.length)),
+            block: this,
+            path: this.path,
+        };
 
         if (needUpdate)
             this.update({ anchor, focus, block: this });

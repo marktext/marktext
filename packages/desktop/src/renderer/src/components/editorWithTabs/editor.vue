@@ -313,29 +313,45 @@ const CONTAINER_FUNCTION_TYPE: Record<string, string> = {
 // Desktop menus still use start/end spans; object selections only supply their ancestry.
 const adaptSelectionChange = ({ selection }: ISelectionChangePayload) => {
   const text = selection?.kind === SelectionType.TEXT ? selection : null
-  const anchorBlock = text?.context.anchorBlock
-  const focusBlock = text?.context.focusBlock
-  const anchorInfo = text?.context.anchorBlockInfo
-  const focusInfo = text?.context.focusBlockInfo
+  const {
+    anchorBlock,
+    focusBlock,
+    anchorBlockInfo: anchorInfo,
+    focusBlockInfo: focusInfo
+  } = text?.context ?? {}
   const rawAffiliation = selection?.context.affiliation ?? []
   const affiliation = rawAffiliation.map((entry) => {
     const functionType =
       entry.type === 'pre' || entry.type === 'figure'
         ? CONTAINER_FUNCTION_TYPE[entry.blockName]
         : undefined
-    return { ...entry, ...(functionType ? { functionType } : {}) }
+    if (!functionType) {
+      return {
+        ...entry
+      }
+    }
+    return {
+      ...entry,
+      functionType
+    }
   })
   return {
     start: {
       key: text?.anchor.path.join('/') ?? '',
       offset: text?.anchor.offset ?? 0,
-      block: { text: anchorBlock?.text, functionType: anchorInfo?.functionType },
+      block: {
+        text: anchorBlock?.text,
+        functionType: anchorInfo?.functionType
+      },
       type: anchorInfo?.type
     },
     end: {
       key: text?.focus.path.join('/') ?? '',
       offset: text?.focus.offset ?? 0,
-      block: { text: focusBlock?.text, functionType: focusInfo?.functionType },
+      block: {
+        text: focusBlock?.text,
+        functionType: focusInfo?.functionType
+      },
       type: focusInfo?.type
     },
     affiliation
@@ -1274,13 +1290,20 @@ const handlePrintServiceClearup = () => {
 // action (e.g. "Paragraph" inside a list/quote) fires no selection-change, so the
 // clicked checkbox menu item's auto-toggled OS checkmark would otherwise linger.
 const pushSelectionMenuState = (changes: ISelectionChangePayload) => {
+  const { selection } = changes
   editorStore.SELECTION_CHANGE({
     ...adaptSelectionChange(changes),
     // Read the live block tree (O(1)) rather than getState(), which deep-clones
     // the whole document — this runs on every cursor move.
     hasFrontMatter: editor.value?.editor?.scrollPage?.firstChild?.blockName === 'frontmatter'
   })
-  editorStore.SELECTION_FORMATS(changes.selection?.kind === SelectionType.TEXT ? changes.selection.context.formats.map((token) => ({ ...token })) : [])
+  const formats =
+    selection?.kind === SelectionType.TEXT
+      ? selection.context.formats.map((token) => ({
+          ...token
+        }))
+      : []
+  editorStore.SELECTION_FORMATS(formats)
 }
 
 const handleEditParagraph = (type: unknown) => {

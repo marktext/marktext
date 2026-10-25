@@ -163,7 +163,20 @@ describe('selection.selectAll table escalation', () => {
 
         const a = cellContent(table, 0, 0);
         const b = cellContent(table, 1, 1);
-        selection.setSelection(createTextSelectionState({ offset: 0, block: a, path: a.path }, { offset: b.text.length, block: b, path: b.path }));
+        selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: a,
+                    path: a.path,
+                },
+                {
+                    offset: b.text.length,
+                    block: b,
+                    path: b.path,
+                },
+            ),
+        );
 
         selection.selectAll();
 
@@ -186,7 +199,20 @@ describe('selection.selectAll table escalation', () => {
 
         const a = cellContent(firstTable, 0, 0);
         const b = cellContent(secondTable, 0, 0);
-        selection.setSelection(createTextSelectionState({ offset: 0, block: a, path: a.path }, { offset: b.text.length, block: b, path: b.path }));
+        selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: a,
+                    path: a.path,
+                },
+                {
+                    offset: b.text.length,
+                    block: b,
+                    path: b.path,
+                },
+            ),
+        );
 
         selection.selectAll();
 
@@ -264,7 +290,20 @@ describe('selection.selectAll honors the live selection over stale cache', () =>
 
         // The whole document is selected: the cached endpoints span first →
         // second across two blocks.
-        selection.setSelection(createTextSelectionState({ offset: 0, block: first, path: first.path }, { offset: second.text.length, block: second, path: second.path }));
+        selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: second.text.length,
+                    block: second,
+                    path: second.path,
+                },
+            ),
+        );
         expect(selection.anchorBlock).toBe(first);
         expect(selection.focusBlock).toBe(second);
 

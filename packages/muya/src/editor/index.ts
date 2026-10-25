@@ -268,7 +268,10 @@ export class Editor {
     transactions: EditTransactions;
     isUpdating = false;
 
-    get isComposing() { return this._isComposing; }
+    get isComposing() {
+        return this._isComposing;
+    }
+
     inlineRenderer: InlineRenderer;
     selection: Selection;
     searchModule: Search;
@@ -555,7 +558,14 @@ export class Editor {
                 debug.log(JSON.stringify(operation));
                 this._muya.eventCenter.emit(
                     'json-change',
-                    createChangePayload(operation, source, before, this.jsonState.rawState, history === 'merge' || history === 'isolated', recordSelection ?? null),
+                    createChangePayload(
+                        operation,
+                        source,
+                        before,
+                        this.jsonState.rawState,
+                        history === 'merge' || history === 'isolated',
+                        recordSelection ?? null,
+                    ),
                 );
             };
             if (history === 'isolated') {

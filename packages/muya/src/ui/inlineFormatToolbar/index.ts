@@ -147,20 +147,25 @@ export class InlineFormatToolbar extends BaseFloat {
     }
 
     private _syncSelection(selection: TSelection | null) {
-        if (this._dragging || this.muya.editor.isComposing || this.muya.isReadOnly
-            || selection?.kind !== SelectionType.TEXT
-            || selection.context.isCollapsed || !selection.context.isSelectionInSameBlock
-            || !(selection.context.anchorBlock instanceof Format) || !selection.context.selectionCoords) {
+        if (selection?.kind !== SelectionType.TEXT) {
             this.hide();
             return;
         }
-        this._block = selection.context.anchorBlock;
-        this._formats = [...selection.context.formats];
-        const rect = selection.context.selectionCoords;
+        const { anchorBlock, formats, isCollapsed, isSelectionInSameBlock, selectionCoords } = selection.context;
+        if (this._dragging || this.muya.editor.isComposing || this.muya.isReadOnly
+            || isCollapsed || !isSelectionInSameBlock
+            || !(anchorBlock instanceof Format) || !selectionCoords) {
+            this.hide();
+            return;
+        }
+        this._block = anchorBlock;
+        this._formats = [...formats];
         const native = document.getSelection();
         const range = native?.rangeCount ? native.getRangeAt(0).cloneRange() : null;
         this._render();
-        this.show({ getBoundingClientRect: () => range?.getBoundingClientRect() ?? rect });
+        this.show({
+            getBoundingClientRect: () => range?.getBoundingClientRect() ?? selectionCoords,
+        });
     }
 
     override hide() {
@@ -313,7 +318,20 @@ export class InlineFormatToolbar extends BaseFloat {
             return;
 
         // Restore selection before formatting
-        selection.setSelection(createTextSelectionState({ offset: anchor.offset, block: anchorBlock, path: anchorPath }, { offset: focus.offset, block: focusBlock, path: focusPath }));
+        selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: anchor.offset,
+                    block: anchorBlock,
+                    path: anchorPath,
+                },
+                {
+                    offset: focus.offset,
+                    block: focusBlock,
+                    path: focusPath,
+                },
+            ),
+        );
 
         this._block!.format(item.type);
 
@@ -525,7 +543,20 @@ export class InlineFormatToolbar extends BaseFloat {
         if (!anchor || !focus || !anchorBlock || !focusBlock || !this._block)
             return false;
 
-        selection.setSelection(createTextSelectionState({ offset: anchor.offset, block: anchorBlock, path: anchorPath }, { offset: focus.offset, block: focusBlock, path: focusPath }));
+        selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: anchor.offset,
+                    block: anchorBlock,
+                    path: anchorPath,
+                },
+                {
+                    offset: focus.offset,
+                    block: focusBlock,
+                    path: focusPath,
+                },
+            ),
+        );
 
         return true;
     }

@@ -47,11 +47,12 @@ export class ImageToolBar extends BaseFloat {
         const { eventCenter } = this.muya;
         super.listen();
         eventCenter.on('selection-change', ({ selection }) => {
-            if (selection?.kind !== SelectionType.IMAGE || this.muya.isReadOnly || !selection.context.domNode) {
+            const image = selection?.kind === SelectionType.IMAGE ? selection.context : null;
+            if (this.muya.isReadOnly || !image?.domNode) {
                 this.hide();
                 return;
             }
-            const { block, imageInfo, domNode } = selection.context;
+            const { block, imageInfo, domNode } = image;
             this._block = block;
             this._imageInfo = imageInfo;
             this._reference = domNode;

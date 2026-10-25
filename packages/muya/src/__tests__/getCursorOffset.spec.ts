@@ -96,7 +96,10 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
             direction: SelectionDirection.FORWARD,
 
         };
-        const sentinelState = injectStateSentinels(muya.getState(), createTextSelectionState(selection.anchor, selection.focus));
+        const sentinelState = injectStateSentinels(
+            muya.getState(),
+            createTextSelectionState(selection.anchor, selection.focus),
+        );
         expect(sentinelState).not.toBeNull();
         const md = muya.editor.jsonState.getMarkdownFromState(sentinelState!);
         const cursor = locateSentinelOffsets(md);
@@ -116,7 +119,10 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
             direction: SelectionDirection.BACKWARD,
 
         };
-        const sentinelState = injectStateSentinels(muya.getState(), createTextSelectionState(selection.anchor, selection.focus));
+        const sentinelState = injectStateSentinels(
+            muya.getState(),
+            createTextSelectionState(selection.anchor, selection.focus),
+        );
         expect(sentinelState).not.toBeNull();
         const md = muya.editor.jsonState.getMarkdownFromState(sentinelState!);
         const cursor = locateSentinelOffsets(md);

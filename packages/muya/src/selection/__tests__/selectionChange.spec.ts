@@ -44,7 +44,20 @@ describe('selection-change payload', () => {
             payload = p as Record<string, unknown>;
         });
 
-        muya.editor.selection.setSelection(createTextSelectionState({ offset: 0, block: first, path: first.path }, { offset: 5, block: first, path: first.path }));
+        muya.editor.selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: 5,
+                    block: first,
+                    path: first.path,
+                },
+            ),
+        );
 
         expect(payload).not.toBeNull();
         // cursorCoords is a DOMRect | null (null under happy-dom, which has no
@@ -64,7 +77,20 @@ describe('selection-change payload', () => {
         });
 
         // `**bold**` — place the selection inside the bolded word (offsets 3–5).
-        muya.editor.selection.setSelection(createTextSelectionState({ offset: 3, block: first, path: first.path }, { offset: 5, block: first, path: first.path }));
+        muya.editor.selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 3,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: 5,
+                    block: first,
+                    path: first.path,
+                },
+            ),
+        );
 
         expect(payload).not.toBeNull();
         const formats = (payload!.selection as { context: { formats: unknown } }).context.formats as Array<{ type: string }>;
@@ -86,7 +112,20 @@ describe('selection-change payload', () => {
 
         // Text is `**_x_**`: `**_` is offsets 0-3, the `x` is offset 3-4, the
         // closing `_**` is 4-7. Select just the `x` (3..4) — inside both ranges.
-        muya.editor.selection.setSelection(createTextSelectionState({ offset: 3, block: first, path: first.path }, { offset: 4, block: first, path: first.path }));
+        muya.editor.selection.setSelection(
+            createTextSelectionState(
+                {
+                    offset: 3,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: 4,
+                    block: first,
+                    path: first.path,
+                },
+            ),
+        );
 
         expect(payload).not.toBeNull();
         const formats = ((payload!.selection as { context: { formats: unknown } }).context.formats as Array<{ type: string }>).map(f => f.type);
@@ -115,7 +154,20 @@ describe('selection-change payload', () => {
         };
 
         try {
-            muya.editor.selection.setSelection(createTextSelectionState({ offset: 0, block: first, path: first.path }, { offset: 5, block: first, path: first.path }));
+            muya.editor.selection.setSelection(
+                createTextSelectionState(
+                    {
+                        offset: 0,
+                        block: first,
+                        path: first.path,
+                    },
+                    {
+                        offset: 5,
+                        block: first,
+                        path: first.path,
+                    },
+                ),
+            );
         }
         finally {
             Range.prototype.getClientRects = original;

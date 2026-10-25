@@ -378,7 +378,10 @@ class Format extends Content {
         return false;
     }
 
-    checkNeedRender(cursor: IRenderCursor = { anchor: this.selection.anchor ?? undefined, focus: this.selection.focus ?? undefined }) {
+    checkNeedRender(cursor: IRenderCursor = {
+        anchor: this.selection.anchor ?? undefined,
+        focus: this.selection.focus ?? undefined,
+    }) {
         // Native selection updates can precede click/keyup; visible markers still
         // need repainting after the logical caret has already left their token.
         if (this.domNode?.querySelector('.mu-remove.mu-gray'))
@@ -519,7 +522,10 @@ class Format extends Content {
         this.selection.setSelection({
             kind: SelectionType.IMAGE,
             path: contentPath(this),
-            range: { start, end: start + imageText.length },
+            range: {
+                start,
+                end: start + imageText.length,
+            },
             raw: imageText,
         });
     }
