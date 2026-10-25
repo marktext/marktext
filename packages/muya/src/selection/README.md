@@ -58,6 +58,11 @@ on mouseup. Commands notify synchronously after their outer transaction.
 Document commits notify even when endpoints stay unchanged. Composition and
 document projection suppress intermediate notifications.
 
+Explicit image reselection also notifies when its snapshot is unchanged, so
+tools dismissed by scrolling can reopen. Read-only Select All releases table
+ownership before synchronizing the whole-document text range. Clearing an
+instance removes a native range only when both endpoints are inside its root.
+
 An active rectangle owns the visible selection while the editor root has
 focus. Native caret events must not cancel the rectangle or its drag candidate.
 An image similarly remains selected while its tools receive focus; a new

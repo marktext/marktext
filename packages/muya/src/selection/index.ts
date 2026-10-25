@@ -152,6 +152,8 @@ class Selection {
     }
 
     selectImage(data: IImageInfo & { block: Format }): void {
+        // Re-clicking a selected image must reopen tools hidden by scrolling.
+        this._lastPublished = '';
         this.setSelection({ kind: SelectionType.IMAGE, path: contentPath(data.block), range: data.token.range, raw: data.token.raw });
     }
 
@@ -367,7 +369,10 @@ class Selection {
         if (this.type === SelectionType.IMAGE)
             this.clear();
         if (this._muya.isReadOnly) {
+            this._table.clear();
             this._text.selectAllContent();
+            this.syncTextSelection();
+            this.flush();
             return;
         }
 

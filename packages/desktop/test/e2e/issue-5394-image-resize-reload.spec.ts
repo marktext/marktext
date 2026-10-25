@@ -45,6 +45,8 @@ for (const scenario of ['reload-auto-save', 'reload-no-auto-save', 'undo'] as co
         await image.click()
         const handle = page.locator('.mu-transformer .right')
         await expect(handle).toBeVisible()
+        const pressedHandle = await handle.elementHandle()
+        if (!pressedHandle) throw new Error('Resize handle is missing')
         const box = await handle.boundingBox()
         if (!box) throw new Error('Resize handle has no bounding box')
         const x = box.x + box.width / 2
@@ -52,9 +54,9 @@ for (const scenario of ['reload-auto-save', 'reload-no-auto-save', 'undo'] as co
         await page.mouse.move(x, y)
         await page.mouse.down()
         await page.mouse.move(x - 40, y)
-        return { x, y }
+        return { x, y, pressedHandle }
       }
-      const { x, y } = await startDrag()
+      const { x, y, pressedHandle } = await startDrag()
       await expect(image).toHaveAttribute('width', '360')
 
       if (scenario === 'undo') {
@@ -72,7 +74,10 @@ for (const scenario of ['reload-auto-save', 'reload-no-auto-save', 'undo'] as co
       }
       const expectedText = scenario === 'undo' ? 'Some text before the image.' : 'Changed on disk.'
       await expect(page.locator('.editor-component')).toContainText(expectedText)
-      await expect(page.locator('.mu-transformer .bar')).toHaveCount(0)
+      await expect.poll(() => pressedHandle.evaluate(element => element.isConnected)).toBe(false)
+      // Reload restores the valid image selection with fresh, idle handles;
+      // Undo restores the selection captured before the document replacement.
+      await expect(page.locator('.mu-transformer .bar')).toHaveCount(scenario === 'undo' ? 0 : 2)
       await page.mouse.move(x - 50, y)
       await page.mouse.up()
       await expect.poll(() => image.evaluate((img) => img.getBoundingClientRect().width)).toBe(400)

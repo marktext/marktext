@@ -346,9 +346,11 @@ class TextSelection {
 
         if (!anchor || !focus) {
             const selection = this._doc.getSelection();
-
-            if (selection)
+            const { domNode } = this._muya;
+            if (selection?.anchorNode && selection.focusNode
+                && domNode.contains(selection.anchorNode) && domNode.contains(selection.focusNode)) {
                 selection.removeAllRanges();
+            }
 
             return;
         }

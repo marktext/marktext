@@ -183,4 +183,58 @@ describe('unified selection state', () => {
             other.destroy();
         }
     });
+
+    it.each([false, true])('preserves another editor native selection on load (collapsed: %s)', (collapsed) => {
+        const host = document.createElement('div');
+        document.body.appendChild(host);
+        const inactive = new Muya(host, { markdown: 'inactive' });
+        inactive.init({ focus: false });
+        try {
+            muya.setSelection(text(1, collapsed ? 1 : 4));
+            const native = document.getSelection()!;
+            const anchor = native.anchorNode;
+            const offset = native.anchorOffset;
+            const selected = native.toString();
+            inactive.setContent('loaded');
+            expect(native.rangeCount).toBe(1);
+            expect(native.anchorNode).toBe(anchor);
+            expect(native.anchorOffset).toBe(offset);
+            expect(native.toString()).toBe(selected);
+            muya.setSelection(null);
+            expect(native.rangeCount).toBe(0);
+        }
+        finally {
+            inactive.destroy();
+        }
+    });
+
+    it('refreshes explicit image reselection while deduplicating passive notifications', () => {
+        muya.setSelection(image());
+        const current = muya.getSelection();
+        if (current?.kind !== SelectionType.IMAGE)
+            throw new Error('Expected image selection');
+        const changed = vi.fn();
+        muya.on('selection-change', changed);
+        muya.editor.selection.notify();
+        expect(changed).not.toHaveBeenCalled();
+        muya.editor.selection.selectImage({ ...current.context.imageInfo, block: current.context.block });
+        expect(changed).toHaveBeenCalledTimes(1);
+        expect(changed.mock.lastCall?.[0]).toMatchObject({ selection: { kind: 'image' }, docChanged: false });
+        muya.editor.selection.notify();
+        expect(changed).toHaveBeenCalledTimes(1);
+    });
+
+    it('transitions a read-only rectangle to the complete text selection', () => {
+        muya.setReadOnly(true);
+        muya.setSelection(table());
+        const state = muya.getState();
+        const history = muya.getHistory();
+        muya.selectAll();
+        expect(muya.getSelection()?.kind).toBe(SelectionType.TEXT);
+        expect(muya.editor.selection.table.hasSelection).toBe(false);
+        expect(muya.getSelectedText()).toContain('hello 😀 world');
+        expect(muya.getSelectedText()).toContain('c\nd');
+        expect(muya.getState()).toEqual(state);
+        expect(muya.getHistory()).toEqual(history);
+    });
 });
