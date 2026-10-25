@@ -103,7 +103,9 @@ import {
   TableDragBar,
   TableRowColumMenu,
   wordCount as muyaWordCount,
-  type IHistorySelection,
+  type TSelectionState,
+  type ISelectionChangePayload,
+  SelectionType,
   type IPreviewDiagramPayload,
   type IMuyaOptions,
   type IReplaceOption,
@@ -153,30 +155,6 @@ import { type InputNumberInstance } from 'element-plus'
 
 const { t } = useI18n()
 const STANDAR_Y = 320
-
-// `Muya.use(...)` appends to the static `Muya.plugins` array, and every
-// `init()` instantiates the full list. Registration is process-global, so guard
-// it with a module-level flag — otherwise remounting this component in the same
-// renderer (window reuse / HMR) would register duplicate plugins and spawn
-// duplicate UI handlers. The per-plugin option closures (imageAction/jumpClick)
-// only read app-singleton Pinia stores, so capturing them once is correct.
-let muyaPluginsRegistered = false
-
-// Desktop fields consumed from engine change events; other engine fields remain opaque.
-interface MuyaChange {
-  anchorPath?: Array<string | number>
-  focusPath?: Array<string | number>
-  anchorBlock?: { text?: string } | null
-  focusBlock?: { text?: string } | null
-  anchorBlockInfo?: { type?: string; functionType?: string } | null
-  focusBlockInfo?: { type?: string; functionType?: string } | null
-  affiliation?: EngineAffiliationEntry[]
-  anchor?: { offset?: number } | null
-  focus?: { offset?: number } | null
-  cursorCoords?: { y?: number } | null
-  formats?: SelectionFormatLike[]
-  [key: string]: unknown
-}
 
 const props = defineProps<{
   markdown?: string
@@ -265,7 +243,7 @@ const defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
 const resolveEditorFont = (family: string): string =>
   family ? `${family}, ${defaultFontFamily}` : defaultFontFamily
 const resolveCodeFont = (family: string): string => `${family}, ${DEFAULT_CODE_FONT_FAMILY}`
-const selectionChange = ref<unknown>(null)
+const selectionChange = ref<ISelectionChangePayload | null>(null)
 // `shallowRef`: the engine instance is `markRaw`d anyway, and a deep ref
 // would map `Muya` through `UnwrapRef` and lose the class's own type.
 const editor = shallowRef<Muya | null>(null)
@@ -291,7 +269,7 @@ let scrollHandler: ((e: Event) => void) | null = null
 const engineHistoryByTab = new Map<string, ISerializedHistory>()
 
 // Capture the WYSIWYG caret before source mode moves DOM focus into CodeMirror.
-let preSourceModeSelection: IHistorySelection | null = null
+let preSourceModeSelection: TSelectionState | null = null
 
 // Track save state by content with monotonic IDs; undo depth is reused for different documents.
 const syntheticHistoryByTab = new Map<string, SyntheticHistory>()
@@ -322,11 +300,6 @@ const pruneClosedTabState = (liveTabIds: Set<string>): void => {
   }
 }
 
-interface SelectionFormatLike {
-  type: string
-  [key: string]: unknown
-}
-
 // Adapt engine blockName to the functionType expected by desktop menu state.
 const CONTAINER_FUNCTION_TYPE: Record<string, string> = {
   'code-block': 'fencecode',
@@ -337,89 +310,60 @@ const CONTAINER_FUNCTION_TYPE: Record<string, string> = {
   diagram: 'diagram'
 }
 
-interface EngineAffiliationEntry {
-  type: string
-  blockName: string
-  listType?: string
-  listItemType?: string
-  isLooseListItem?: boolean
-  [key: string]: unknown
-}
-
-// The engine's `selection-change` payload (since #4410) carries an
-// `affiliation` chain (shared-ancestor paragraph-type blocks, outermost-first)
-// plus per-endpoint `anchorBlockInfo`/`focusBlockInfo` describing the content
-// leaf (`type: 'span'` + `functionType`), alongside the live `anchorBlock`/
-// `focusBlock` refs (which carry `.text`). The desktop's application-menu state
-// builder (`createApplicationMenuState`) and the selected-text derivation in
-// `SELECTION_CHANGE` were written against the legacy `{ start, end, affiliation }`
-// shape, so map the new payload onto it:
-//   - `start.type`/`end.type` from the leaf info (`'span'`) so the
-//     `start.type === 'span'` guards fire,
-//   - `start.block.functionType`/`end.block.functionType` from the leaf info so
-//     code-content / table-cell detection lights up,
-//   - `start.block.text`/`end.block.text` from the live block so the store can
-//     still slice the selected text (`SELECTION_CHANGE` → search prefill),
-//   - `affiliation` straight through (entries already carry `type` +
-//     `listType`/`listItemType`/`isLooseListItem`), surfacing a derived
-//     `functionType` on `pre`/`figure` containers for table / code-fence keys.
-const adaptSelectionChange = (changes: MuyaChange) => {
-  const anchorPath = (changes.anchorPath ?? []) as Array<string | number>
-  const focusPath = (changes.focusPath ?? anchorPath) as Array<string | number>
-  const anchorBlock = changes.anchorBlock as { text?: string } | null | undefined
-  const focusBlock = changes.focusBlock as { text?: string } | null | undefined
-  const anchorInfo = changes.anchorBlockInfo as
-    { type?: string; functionType?: string } | null | undefined
-  const focusInfo = changes.focusBlockInfo as
-    { type?: string; functionType?: string } | null | undefined
-  const rawAffiliation = (changes.affiliation ?? []) as EngineAffiliationEntry[]
+// Desktop menus still use start/end spans; object selections only supply their ancestry.
+const adaptSelectionChange = ({ selection }: ISelectionChangePayload) => {
+  const text = selection?.kind === SelectionType.TEXT ? selection : null
+  const {
+    anchorBlock,
+    focusBlock,
+    anchorBlockInfo: anchorInfo,
+    focusBlockInfo: focusInfo
+  } = text?.context ?? {}
+  const rawAffiliation = selection?.context.affiliation ?? []
   const affiliation = rawAffiliation.map((entry) => {
     const functionType =
       entry.type === 'pre' || entry.type === 'figure'
         ? CONTAINER_FUNCTION_TYPE[entry.blockName]
         : undefined
-    return functionType ? { ...entry, functionType } : entry
+    if (!functionType) {
+      return {
+        ...entry
+      }
+    }
+    return {
+      ...entry,
+      functionType
+    }
   })
   return {
     start: {
-      key: anchorPath.join('/'),
-      offset: (changes.anchor?.offset ?? 0) as number,
-      block: { text: anchorBlock?.text, functionType: anchorInfo?.functionType },
+      key: text?.anchor.path.join('/') ?? '',
+      offset: text?.anchor.offset ?? 0,
+      block: {
+        text: anchorBlock?.text,
+        functionType: anchorInfo?.functionType
+      },
       type: anchorInfo?.type
     },
     end: {
-      key: focusPath.join('/'),
-      offset: (changes.focus?.offset ?? 0) as number,
-      block: { text: focusBlock?.text, functionType: focusInfo?.functionType },
+      key: text?.focus.path.join('/') ?? '',
+      offset: text?.focus.offset ?? 0,
+      block: {
+        text: focusBlock?.text,
+        functionType: focusInfo?.functionType
+      },
       type: focusInfo?.type
     },
     affiliation
   }
 }
 
-// The engine reports only committed selections, so recounting per notification
-// is cheap; a caret reports no text and stops here.
+// Native drag notifications are coalesced by the engine to one per frame.
 const setSelectionWordCountFromText = (selectedText: string) => {
   const hasSelection = selectedText.trim().length > 0
   if (!hasSelection && editorStore.selectionWordCount == null) return
 
   editorStore.SET_SELECTION_WORD_COUNT(hasSelection ? muyaWordCount(selectedText) : null)
-}
-
-// Drop live block references so cursors survive buffered-state serialization.
-const serializeCursor = (
-  selection: {
-    anchor?: { offset: number; path?: Array<string | number> }
-    focus?: { offset: number; path?: Array<string | number> }
-  } | null
-) => {
-  if (!selection) return null
-  return {
-    anchor: selection.anchor ? { offset: selection.anchor.offset } : null,
-    focus: selection.focus ? { offset: selection.focus.offset } : null,
-    anchorPath: selection.anchor?.path,
-    focusPath: selection.focus?.path
-  }
 }
 
 // Watch tab IDs to prune history maps only when tabs are added or closed.
@@ -454,7 +398,7 @@ watch(sourceCode, (isSource) => {
   }
   nextTick(() => {
     if (selectionChange.value) {
-      pushSelectionMenuState(selectionChange.value as MuyaChange)
+      pushSelectionMenuState(selectionChange.value as ISelectionChangePayload)
     } else {
       window.electron.ipcRenderer.send('mt::set-editor-format-menus-enabled', windowId, true)
     }
@@ -940,26 +884,6 @@ const imagePathPicker = () => {
   return editorStore.ASK_FOR_IMAGE_PATH()
 }
 
-// Growing a selection across blocks fires no `selection-change`.
-// TODO(Selection): drop this and its `keyup` branch once the engine reports it.
-const SELECTION_KEYS = new Set([
-  'Shift',
-  'ArrowLeft',
-  'ArrowRight',
-  'ArrowUp',
-  'ArrowDown',
-  'Home',
-  'End',
-  'PageUp',
-  'PageDown'
-])
-
-const keyup = (event: KeyboardEvent) => {
-  if (!sourceCode.value && editor.value && SELECTION_KEYS.has(event.key)) {
-    setSelectionWordCountFromText(editor.value.getSelectedText())
-  }
-}
-
 const switchSpellcheckLanguage = (languageCode: unknown) => {
   // This method is also called from bus, so validate state before continuing.
   if (!spellchecker?.isEnabled) {
@@ -1365,14 +1289,21 @@ const handlePrintServiceClearup = () => {
 // every muya selection-change, and again right after a paragraph action: a no-op
 // action (e.g. "Paragraph" inside a list/quote) fires no selection-change, so the
 // clicked checkbox menu item's auto-toggled OS checkmark would otherwise linger.
-const pushSelectionMenuState = (changes: MuyaChange) => {
+const pushSelectionMenuState = (changes: ISelectionChangePayload) => {
+  const { selection } = changes
   editorStore.SELECTION_CHANGE({
     ...adaptSelectionChange(changes),
     // Read the live block tree (O(1)) rather than getState(), which deep-clones
     // the whole document — this runs on every cursor move.
     hasFrontMatter: editor.value?.editor?.scrollPage?.firstChild?.blockName === 'frontmatter'
   })
-  editorStore.SELECTION_FORMATS((changes.formats ?? []) as SelectionFormatLike[])
+  const formats =
+    selection?.kind === SelectionType.TEXT
+      ? selection.context.formats.map((token) => ({
+          ...token
+        }))
+      : []
+  editorStore.SELECTION_FORMATS(formats)
 }
 
 const handleEditParagraph = (type: unknown) => {
@@ -1392,7 +1323,7 @@ const handleEditParagraph = (type: unknown) => {
     // does not leave the clicked checkbox item checked. A real conversion fires
     // its own selection-change, which resyncs again.
     if (selectionChange.value) {
-      pushSelectionMenuState(selectionChange.value as MuyaChange)
+      pushSelectionMenuState(selectionChange.value as ISelectionChangePayload)
     }
   }
 }
@@ -1669,32 +1600,29 @@ onMounted(() => {
   const ele = editorRef.value
   if (!ele) return
 
-  if (!muyaPluginsRegistered) {
-    muyaPluginsRegistered = true
-    Muya.use(TableChessboard)
-    Muya.use(ParagraphQuickInsertMenu)
-    Muya.use(CodeBlockLanguageSelector)
-    Muya.use(EmojiSelector)
-    Muya.use(ImagePathPicker)
-    Muya.use(ImageEditTool, {
-      imageAction: muyaImageAction,
-      imagePathPicker,
-      imagePathAutoComplete
-    })
-    Muya.use(ImageResizeBar)
-    Muya.use(ImageToolBar)
-    Muya.use(InlineFormatToolbar)
-    Muya.use(ParagraphFrontButton)
-    Muya.use(ParagraphFrontMenu)
-    Muya.use(PreviewToolBar)
-    Muya.use(LinkTools, {
-      jumpClick
-    })
-    Muya.use(FootnoteTool)
-    Muya.use(TableColumnToolbar)
-    Muya.use(TableDragBar)
-    Muya.use(TableRowColumMenu)
-  }
+  Muya.use(TableChessboard)
+  Muya.use(ParagraphQuickInsertMenu)
+  Muya.use(CodeBlockLanguageSelector)
+  Muya.use(EmojiSelector)
+  Muya.use(ImagePathPicker)
+  Muya.use(ImageEditTool, {
+    imageAction: muyaImageAction,
+    imagePathPicker,
+    imagePathAutoComplete
+  })
+  Muya.use(ImageResizeBar)
+  Muya.use(ImageToolBar)
+  Muya.use(InlineFormatToolbar)
+  Muya.use(ParagraphFrontButton)
+  Muya.use(ParagraphFrontMenu)
+  Muya.use(PreviewToolBar)
+  Muya.use(LinkTools, {
+    jumpClick
+  })
+  Muya.use(FootnoteTool)
+  Muya.use(TableColumnToolbar)
+  Muya.use(TableDragBar)
+  Muya.use(TableRowColumMenu)
 
   const options: Partial<IMuyaOptions> = {
     focusMode: focus.value,
@@ -1878,7 +1806,7 @@ onMounted(() => {
       id,
       markdown,
       wordCount: muyaWordCount(markdown),
-      cursor: serializeCursor(editor.value.getSelection()),
+      cursor: editor.value.getSelectionState(),
       // Synthetic, desktop-shaped history so the store's save/dirty tracking
       // keeps working (the engine history shape is incompatible).
       history: makeSyntheticHistory(id, markdown),
@@ -1947,8 +1875,8 @@ onMounted(() => {
     )
   })
 
-  editor.value.on('selection-change', (changes: MuyaChange) => {
-    const y = (changes.cursorCoords?.y ?? null) as number | null
+  editor.value.on('selection-change', (changes: ISelectionChangePayload) => {
+    const y = (changes.selection?.context.cursorCoords?.y ?? null) as number | null
     if (y != null && !currentFile.value?.readOnly) {
       // Before the scrolling below: a 0-duration `animatedScrollTo` assigns
       // `scrollTop` at once, moving the headings out from under `y`.
@@ -1983,12 +1911,11 @@ onMounted(() => {
     // `json-change`) survives an in-session tab switch — `tab.cursor` is what
     // `handleFileChange` replays on re-activation. Cheap: serialized caret only.
     if (currentFile.value?.id && editor.value) {
-      editorStore.PERSIST_CURSOR(currentFile.value.id, serializeCursor(editor.value.getSelection()))
+      editorStore.PERSIST_CURSOR(currentFile.value.id, editor.value.getSelectionState())
     }
     pushSelectionMenuState(changes)
   })
 
-  document.addEventListener('keyup', keyup)
 
   setEditorWidth(editorLineWidth.value)
 })
@@ -2030,7 +1957,6 @@ onBeforeUnmount(() => {
   bus.off('replace-misspelling', replaceMisspelling)
   bus.off('language-changed', handleLanguageChanged)
 
-  document.removeEventListener('keyup', keyup)
   editorStore.SET_SELECTION_WORD_COUNT(null)
 
   // Remove the manual scroll listener; engine `on(...)` listeners are torn down

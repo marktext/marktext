@@ -4,12 +4,16 @@ import { loadMarkdown } from '../helpers/keyboard';
 import { editor } from '../helpers/selectors';
 
 async function seat(page: import('@playwright/test').Page, offset: number) {
-    await page.evaluate((position) => {
-        window.muya!.editor.scrollPage!.firstContentInDescendant()!.setCursor(position, position, true);
+    await page.evaluate(position => {
+        window
+            .muya!.editor.scrollPage!.firstContentInDescendant()!
+            .setCursor(position, position, true);
     }, offset);
 }
 
-test('editing an ATX body preserves its indentation, separators and closing marker through history', async ({ page }) => {
+test('editing an ATX body preserves its indentation, separators and closing marker through history', async ({
+    page,
+}) => {
     const source = '  ##\t title  ####  \n';
     await loadMarkdown(page, source);
     await seat(page, source.indexOf('title') + 5);
@@ -47,7 +51,14 @@ test('typing a noncanonical ATX line preserves the source and caret', async ({ p
     await expect.poll(() => getMarkdown(page)).toBe('#   hello ###\n');
     await expect(page.locator(editor.atxHeading)).toBeVisible();
     expect(await page.evaluate(() => window.muya!.getCursorOffset())).toEqual({
-        anchor: { line: 0, ch: 13 }, focus: { line: 0, ch: 13 },
+        anchor: {
+            line: 0,
+            ch: 13,
+        },
+        focus: {
+            line: 0,
+            ch: 13,
+        },
     });
 });
 
@@ -61,12 +72,16 @@ test('Enter inside an ATX body keeps the closing marker on the heading', async (
 });
 
 for (const pasted of ['one\n\ntwo', '# one\n\ntwo', '- one\n\ntwo']) {
-    test(`structural paste ${JSON.stringify(pasted)} keeps closing hashes on the heading`, async ({ page }) => {
+    test(`structural paste ${JSON.stringify(pasted)} keeps closing hashes on the heading`, async ({
+        page,
+    }) => {
         await loadMarkdown(page, '##   title rest  ###  \n');
         await seat(page, 10);
-        await page.evaluate((text) => {
+        await page.evaluate(text => {
             const event = new ClipboardEvent('paste', {
-                bubbles: true, cancelable: true, clipboardData: new DataTransfer(),
+                bubbles: true,
+                cancelable: true,
+                clipboardData: new DataTransfer(),
             });
             event.clipboardData!.setData('text/plain', text);
             window.muya!.domNode.dispatchEvent(event);
@@ -82,18 +97,35 @@ for (const pasted of ['one\n\ntwo', '# one\n\ntwo', '- one\n\ntwo']) {
     });
 }
 
-for (const [start, end] of [[4, 4], [4, 6]]) {
+for (const [start, end] of [
+    [4, 4],
+    [4, 6],
+]) {
     test(`paragraph conversion preserves body selection ${start}–${end}`, async ({ page }) => {
         await loadMarkdown(page, '# title  ###  \n');
-        await page.evaluate(([from, to]) => {
-            window.muya!.editor.scrollPage!.firstContentInDescendant()!.setCursor(from, to, true);
-            window.muya!.updateParagraph('paragraph');
-        }, [start, end]);
+        await page.evaluate(
+            ([from, to]) => {
+                window
+                    .muya!.editor.scrollPage!.firstContentInDescendant()!
+                    .setCursor(from, to, true);
+                window.muya!.updateParagraph('paragraph');
+            },
+            [start, end],
+        );
         expect(await getMarkdown(page)).toBe('title\n');
         expect(await page.evaluate(() => window.muya!.getCursorOffset())).toEqual({
-            anchor: { line: 0, ch: start - 2 }, focus: { line: 0, ch: end - 2 },
+            anchor: {
+                line: 0,
+                ch: start - 2,
+            },
+            focus: {
+                line: 0,
+                ch: end - 2,
+            },
         });
-        expect(await page.evaluate(() => document.getSelection()?.toString())).toBe('title'.slice(start - 2, end - 2));
+        expect(await page.evaluate(() => document.getSelection()?.toString())).toBe(
+            'title'.slice(start - 2, end - 2),
+        );
     });
 }
 
@@ -115,7 +147,9 @@ test('NBSP accepted by marked imports without a second parser rejecting it', asy
 });
 
 for (const source of ['# title ###\n', '  ##   title  ###  \n']) {
-    test(`formatting a whole heading excludes its closing syntax: ${JSON.stringify(source)}`, async ({ page }) => {
+    test(`formatting a whole heading excludes its closing syntax: ${JSON.stringify(source)}`, async ({
+        page,
+    }) => {
         await loadMarkdown(page, source);
         await page.evaluate(() => {
             const content = window.muya!.editor.scrollPage!.firstContentInDescendant()!;
@@ -132,10 +166,23 @@ test('formatting across blocks excludes heading delimiters', async ({ page }) =>
         const muya = window.muya!;
         const first = muya.editor.scrollPage!.firstContentInDescendant()!;
         const last = muya.editor.scrollPage!.lastContentInDescendant()!;
-        muya.editor.selection.setSelection(
-            { block: first, path: first.path, offset: 0 },
-            { block: last, path: last.path, offset: last.text.length },
-        );
+        muya.editor.selection.setSelection({
+            kind: 'text' as import('@muyajs/core').SelectionType.TEXT,
+            anchor: {
+                offset: 0,
+                path:
+                    first.blockName === 'language-input'
+                        ? [...first.parent!.path, 'meta', 'lang']
+                        : first.path,
+            },
+            focus: {
+                offset: last.text.length,
+                path:
+                    last.blockName === 'language-input'
+                        ? [...last.parent!.path, 'meta', 'lang']
+                        : last.path,
+            },
+        });
         muya.format('strong');
     });
     await expect.poll(() => getMarkdown(page)).toBe('# **title** ###\n\n**other**\n');
@@ -147,12 +194,19 @@ for (const [source, start, end] of [
     ['#\n', 1, 1],
     ['## ###\n', 3, 3],
 ] as const) {
-    test(`formatting syntax-only or empty heading content is a no-op: ${JSON.stringify([source, start, end])}`, async ({ page }) => {
+    test(`formatting syntax-only or empty heading content is a no-op: ${JSON.stringify([source, start, end])}`, async ({
+        page,
+    }) => {
         await loadMarkdown(page, source);
-        await page.evaluate(([from, to]) => {
-            window.muya!.editor.scrollPage!.firstContentInDescendant()!.setCursor(from, to, true);
-            window.muya!.format('strong');
-        }, [start, end]);
+        await page.evaluate(
+            ([from, to]) => {
+                window
+                    .muya!.editor.scrollPage!.firstContentInDescendant()!
+                    .setCursor(from, to, true);
+                window.muya!.format('strong');
+            },
+            [start, end],
+        );
         expect(await getMarkdown(page)).toBe(source);
     });
 }
@@ -170,7 +224,14 @@ test('converting an indented paragraph keeps the real typing position', async ({
     await seat(page, 4);
     await page.evaluate(() => window.muya!.updateParagraph('heading 2'));
     expect(await page.evaluate(() => window.muya!.getCursorOffset())).toEqual({
-        anchor: { line: 0, ch: 7 }, focus: { line: 0, ch: 7 },
+        anchor: {
+            line: 0,
+            ch: 7,
+        },
+        focus: {
+            line: 0,
+            ch: 7,
+        },
     });
     await page.keyboard.type('X');
     await expect.poll(() => getMarkdown(page)).toBe('##   tiXtle\n');

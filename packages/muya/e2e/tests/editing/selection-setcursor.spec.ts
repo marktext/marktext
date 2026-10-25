@@ -30,7 +30,7 @@ interface SelectionSnapshot {
 async function readSelection(page: Page): Promise<SelectionSnapshot> {
     return page.evaluate(() => {
         const sel = window.muya!.editor.selection;
-        const live = sel.getSelection();
+        const live = sel.getTextSelection();
         return {
             anchorText: sel.anchorBlock?.text ?? null,
             focusText: sel.focusBlock?.text ?? null,

@@ -158,7 +158,13 @@ describe('track B — selected inline image copies its raw markdown', () => {
         const raw = '![alt](https://e.com/x.png)';
         const muya = fakeMuya({
             editor: {
-                selection: { image: { token: imageToken(raw) } },
+                selection: {
+                    image: {
+                        imageInfo: {
+                            token: imageToken(raw),
+                        },
+                    },
+                },
             },
         } as unknown as Partial<Muya>);
         const clipboard = new Clipboard(muya);
@@ -176,7 +182,13 @@ describe('track B — selected inline image copies its raw markdown', () => {
     it('does nothing for an image with empty raw', () => {
         const muya = fakeMuya({
             editor: {
-                selection: { image: { token: imageToken('') } },
+                selection: {
+                    image: {
+                        imageInfo: {
+                            token: imageToken(''),
+                        },
+                    },
+                },
             },
         } as unknown as Partial<Muya>);
         const clipboard = new Clipboard(muya);

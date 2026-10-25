@@ -93,7 +93,7 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
         });
 
         const handleKeydown = (event: Event) => {
-            const selectionResult = editor.selection.getSelection();
+            const selectionResult = editor.selection.getTextSelection();
             const anchorBlock = selectionResult?.anchor.block;
             const isSelectionInSameBlock = selectionResult?.isSelectionInSameBlock;
             if (isSelectionInSameBlock && anchorBlock instanceof ParagraphContent) {
@@ -211,8 +211,13 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
                 .splice(2, 1);
         }
 
-        for (const menu of menuConfig)
-            menu.children = menu.children.filter(child => canInsertLabel(child.label, muya) && (!child.label.startsWith('github-alert ') || block?.parent?.parent?.isScrollPage));
+        for (const menu of menuConfig) {
+            menu.children = menu.children.filter(({ label }) => {
+                if (!canInsertLabel(label, muya))
+                    return false;
+                return !label.startsWith('github-alert ') || block?.parent?.parent?.isScrollPage;
+            });
+        }
         const availableMenus = menuConfig.filter(menu => menu.children.length);
         let result = availableMenus;
         if (text !== '') {

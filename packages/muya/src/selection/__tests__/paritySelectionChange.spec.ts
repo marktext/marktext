@@ -1,8 +1,9 @@
-// @vitest-environment happy-dom
-
 import type Content from '../../block/base/content';
+
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
+// @vitest-environment happy-dom
+import { createTextSelectionState } from '../state';
 
 const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;
@@ -38,12 +39,23 @@ function emitSelectionFor(muya: Muya, content: Content): Record<string, unknown>
         payload = p as Record<string, unknown>;
     });
     muya.editor.selection.setSelection(
-        { offset: 0, block: content, path: content.path },
-        { offset: 0, block: content, path: content.path },
+        createTextSelectionState(
+            {
+                offset: 1,
+                block: content,
+                path: content.path,
+            },
+            {
+                offset: 1,
+                block: content,
+                path: content.path,
+            },
+        ),
     );
     if (!payload)
         throw new Error('selection-change was not emitted');
-    return payload;
+    const { selection } = payload as { selection: { context: Record<string, unknown> } };
+    return selection.context;
 }
 
 describe('parity PG1: selection-change block affiliation', () => {
@@ -71,10 +83,9 @@ describe('parity PG1: selection-change block affiliation', () => {
             // A consumer can learn the cursor sits in an `h1` heading (so
             // `heading1MenuItem` can be checked) — the affiliation chain reports
             // the markdown block type, separate from the selection kind
-            // (`type` stays 'Caret' / 'Range').
+            // (stored separately from the runtime context).
             const affiliation = payload.affiliation as Array<{ type: string }>;
             expect(affiliation.map(entry => entry.type)).toContain('h1');
-            expect(payload.type).toBe('Caret');
         },
     );
 

@@ -5,7 +5,7 @@ import type { ImageToken } from '../../inlineRenderer/types';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // muyajs `pasteImage` replaces a selected inline image when an image is pasted,
 // instead of inserting a second image at a (now collapsed) text cursor.
@@ -61,13 +61,13 @@ function selectWholeImage(muya: Muya): Format {
     // `getSelection` to the image's range — what a real browser would report
     // after the replace path selects the old image.
     const path = block.path;
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: 0, block, path },
         focus: { offset: raw.length, block, path },
         isCollapsed: false,
         isSelectionInSameBlock: true,
         direction: SelectionDirection.FORWARD,
-        type: SelectionCaretType.RANGE,
+
     });
     return block;
 }
@@ -110,13 +110,13 @@ describe('paste — replace a selected inline image (muyajs parity)', () => {
             block,
         });
         const path = block.path;
-        muya.editor.selection.getSelection = () => ({
+        muya.editor.selection.getTextSelection = () => ({
             anchor: { offset: 0, block, path },
             focus: { offset: 1, block, path }, // clamped across the atomic image
             isCollapsed: false,
             isSelectionInSameBlock: true,
             direction: SelectionDirection.FORWARD,
-            type: SelectionCaretType.RANGE,
+
         });
 
         await muya.editor.clipboard.pasteHandler(pasteEvent(), '', '');
@@ -136,6 +136,6 @@ describe('paste — replace a selected inline image (muyajs parity)', () => {
 
         const selected = muya.editor.selection.image;
         expect(selected).not.toBeNull();
-        expect(selected!.token.attrs.src).toContain('/tmp/new.png');
+        expect(selected!.imageInfo.token.attrs.src).toContain('/tmp/new.png');
     });
 });

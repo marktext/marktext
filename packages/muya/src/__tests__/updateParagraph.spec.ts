@@ -1,8 +1,9 @@
+import type Content from '../block/base/content';
 // @vitest-environment happy-dom
 
-import type Content from '../block/base/content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../muya';
+import { createTextSelectionState } from '../selection/state';
 
 // Coverage for muya.updateParagraph — the block-type conversions the desktop
 // Paragraph menu drives (added for the muyajs -> @muyajs/core migration). It
@@ -204,9 +205,8 @@ describe('muya.updateParagraph()', () => {
             isCollapsed: false,
             isSelectionInSameBlock: false,
             direction: 'forward',
-            type: 'Range',
         };
-        vi.spyOn(muya.editor.selection, 'getSelection').mockReturnValue(liveSelection as never);
+        muya.setSelection(createTextSelectionState(liveSelection.anchor, liveSelection.focus));
         muya.editor.activeContentBlock = third;
 
         muya.updateParagraph('loose-list-item');

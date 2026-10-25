@@ -6,7 +6,7 @@ import type { IBulletListState, IOrderListState, ITaskListState } from '../state
 import * as json1 from 'ot-json1';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../muya';
-import { SelectionCaretType, SelectionDirection } from '../selection/types';
+import { SelectionDirection } from '../selection/types';
 import { asDoc } from '../state';
 import { MarkdownToState } from '../state/markdownToState';
 import ExportMarkdown from '../state/stateToMarkdown';
@@ -302,13 +302,13 @@ describe('list looseness across editing and history', () => {
         const block = parentAt(muya, [0, 'children', 1]).firstContentInDescendant()!;
         block.setCursor(1, 1, true);
         const path = block.path;
-        const selection = vi.spyOn(muya.editor.selection, 'getSelection').mockImplementation(() => ({
+        const selection = vi.spyOn(muya.editor.selection, 'getTextSelection').mockImplementation(() => ({
             anchor: { offset: 1, block, path },
             focus: { offset: 1, block, path },
             isCollapsed: true,
             isSelectionInSameBlock: true,
             direction: SelectionDirection.FORWARD,
-            type: SelectionCaretType.RANGE,
+
         }));
         const event = {
             preventDefault() {},

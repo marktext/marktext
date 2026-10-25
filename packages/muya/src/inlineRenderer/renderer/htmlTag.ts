@@ -1,7 +1,7 @@
 import type { VNode } from 'snabbdom';
 import type Format from '../../block/base/format';
 import type { IRenderCursor } from '../../selection/types';
-import type { H, HTMLTagToken, ImageToken, ISyntaxRenderOptions, Token } from '../types';
+import type { H, HTMLTagToken, ISyntaxRenderOptions, Token } from '../types';
 import type Renderer from './index';
 import { BLOCK_TYPE6, CLASS_NAMES } from '../../config';
 import { snakeToCamel } from '../../utils';
@@ -141,8 +141,16 @@ export default function htmlTag(
 
     switch (tag) {
         case 'img': {
-            // eslint-disable-next-line no-restricted-syntax
-            return this.image({ h, cursor, block, token: token as unknown as ImageToken, outerClass });
+            return this.image({
+                h,
+                cursor,
+                block,
+                token: {
+                    ...token,
+                    tag,
+                },
+                outerClass,
+            });
         }
 
         case 'br': {

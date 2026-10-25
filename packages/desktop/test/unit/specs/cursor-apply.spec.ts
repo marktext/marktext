@@ -3,7 +3,7 @@ import { applyCursor, isIndexCursor } from '@/util/cursor'
 
 describe('applyCursor', () => {
   const makeEditor = () => ({
-    setCursor: vi.fn(),
+    setSelection: vi.fn(),
     setCursorByOffset: vi.fn(() => true)
   })
 
@@ -14,21 +14,26 @@ describe('applyCursor', () => {
     applyCursor(editor, cursor)
 
     expect(editor.setCursorByOffset).toHaveBeenCalledWith(cursor)
-    expect(editor.setCursor).not.toHaveBeenCalled()
+    expect(editor.setSelection).not.toHaveBeenCalled()
   })
 
-  it('routes a block-key cursor to setCursor', () => {
+  it('routes a selection snapshot to setSelection', () => {
     const editor = makeEditor()
     const cursor = {
-      anchor: { offset: 1 },
-      focus: { offset: 4 },
-      anchorPath: ['p', 0],
-      focusPath: ['p', 0]
+      kind: 'text',
+      anchor: {
+        offset: 1,
+        path: [0, 'text']
+      },
+      focus: {
+        offset: 4,
+        path: [0, 'text']
+      }
     }
 
     applyCursor(editor, cursor)
 
-    expect(editor.setCursor).toHaveBeenCalledWith(cursor)
+    expect(editor.setSelection).toHaveBeenCalledWith(cursor)
     expect(editor.setCursorByOffset).not.toHaveBeenCalled()
   })
 
@@ -37,7 +42,7 @@ describe('applyCursor', () => {
 
     applyCursor(editor, null)
 
-    expect(editor.setCursor).not.toHaveBeenCalled()
+    expect(editor.setSelection).not.toHaveBeenCalled()
     expect(editor.setCursorByOffset).not.toHaveBeenCalled()
   })
 })

@@ -1,10 +1,11 @@
+import type { IResolvedTextSelection } from '../selection/types';
 // @vitest-environment happy-dom
 
-import type { ISelection } from '../selection/types';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../muya';
 import { injectStateSentinels, locateSentinelOffsets } from '../selection/offsetCursor';
-import { SelectionCaretType, SelectionDirection } from '../selection/types';
+import { createTextSelectionState } from '../selection/state';
+import { SelectionDirection } from '../selection/types';
 
 // PARITY (gap PG2 / Phase G — G7): `getCursorOffset` is the READ inverse of
 // `setCursorByOffset`. It maps the live WYSIWYG block-key caret back to a
@@ -87,15 +88,18 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
         // (the resolver computes the sentinel-free anchor/focus offsets).
         const muya = bootMuya('hello world\n');
         const block = muya.editor.scrollPage!.firstContentInDescendant()!;
-        const selection: ISelection = {
+        const selection: IResolvedTextSelection = {
             anchor: { offset: 0, block, path: [0, 'text'] },
             focus: { offset: 5, block, path: [0, 'text'] },
             isCollapsed: false,
             isSelectionInSameBlock: true,
             direction: SelectionDirection.FORWARD,
-            type: SelectionCaretType.RANGE,
+
         };
-        const sentinelState = injectStateSentinels(muya.getState(), selection);
+        const sentinelState = injectStateSentinels(
+            muya.getState(),
+            createTextSelectionState(selection.anchor, selection.focus),
+        );
         expect(sentinelState).not.toBeNull();
         const md = muya.editor.jsonState.getMarkdownFromState(sentinelState!);
         const cursor = locateSentinelOffsets(md);
@@ -107,15 +111,18 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
     it('resolves a BACKWARD same-block selection (anchor after focus)', () => {
         const muya = bootMuya('hello world\n');
         const block = muya.editor.scrollPage!.firstContentInDescendant()!;
-        const selection: ISelection = {
+        const selection: IResolvedTextSelection = {
             anchor: { offset: 9, block, path: [0, 'text'] }, // after "hello wor"
             focus: { offset: 2, block, path: [0, 'text'] }, //  after "he"
             isCollapsed: false,
             isSelectionInSameBlock: true,
             direction: SelectionDirection.BACKWARD,
-            type: SelectionCaretType.RANGE,
+
         };
-        const sentinelState = injectStateSentinels(muya.getState(), selection);
+        const sentinelState = injectStateSentinels(
+            muya.getState(),
+            createTextSelectionState(selection.anchor, selection.focus),
+        );
         expect(sentinelState).not.toBeNull();
         const md = muya.editor.jsonState.getMarkdownFromState(sentinelState!);
         const cursor = locateSentinelOffsets(md);
@@ -127,7 +134,7 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
 
     it('returns null when there is no selection', () => {
         const muya = bootMuya('text\n');
-        document.getSelection()?.removeAllRanges();
+        muya.setSelection(null);
         expect(muya.getCursorOffset()).toBeNull();
     });
 });

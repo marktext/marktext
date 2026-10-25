@@ -118,7 +118,6 @@ describe('clickHandler forwards the backward anchor/focus (not normalized start/
             isCollapsed: false,
             isSelectionInSameBlock: true,
             direction: SelectionDirection.BACKWARD,
-            type: 'Range' as never,
         });
         const setCursorSpy = vi.spyOn(content, 'setCursor');
 

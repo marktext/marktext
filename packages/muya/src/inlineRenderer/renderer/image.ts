@@ -1,7 +1,8 @@
 import type { VNode } from 'snabbdom';
 import type Format from '../../block/base/format';
-import type { IImageSelectionData } from '../../selection/types';
-import type { H, ImageToken, ISyntaxRenderOptions } from '../types';
+import type { IImageSelectionContext } from '../../selection/types';
+import type { TSelectableImageToken } from '../../utils/image';
+import type { H, ISyntaxRenderOptions } from '../types';
 import type Renderer from './index';
 import DeleteIcon from '../../assets/icons/delete/2.png';
 import ImageIcon from '../../assets/icons/image/2.png';
@@ -33,18 +34,6 @@ function renderIcon(h: H, className: string, icon: string) {
     return h(selector, iconVNode);
 }
 
-function shouldSyncSelectedImageId(
-    selectedImage: IImageSelectionData | null,
-    src: string,
-    id: string,
-): selectedImage is IImageSelectionData {
-    return (
-        !!selectedImage
-        && selectedImage.token.attrs.src === src
-        && selectedImage.imageId !== id
-    );
-}
-
 function isSmallImage(
     naturalWidth: number | undefined,
     naturalHeight: number | undefined,
@@ -57,19 +46,17 @@ function isSmallImage(
 }
 
 function isImageSelected(
-    selectedImage: IImageSelectionData | null,
+    selectedImage: IImageSelectionContext | null,
     block: Format,
-    token: ImageToken,
-    id: string,
+    token: TSelectableImageToken,
 ) {
     if (!selectedImage)
         return false;
 
-    const { imageId, block: selectedBlock, token: selectedToken } = selectedImage;
+    const { block: selectedBlock, imageInfo: { token: selectedToken } } = selectedImage;
 
     return (
-        imageId === `${id}_${token.range.start}`
-        && selectedBlock === block
+        selectedBlock === block
         && selectedToken.range.start === token.range.start
         && selectedToken.range.end === token.range.end
     );
@@ -78,9 +65,9 @@ function isImageSelected(
 // I don't want operate dom directly, is there any better way? need help!
 export default function image(
     this: Renderer,
-    { h, block, token }: ISyntaxRenderOptions & { token: ImageToken },
+    { h, block, token }: ISyntaxRenderOptions & { token: TSelectableImageToken },
 ) {
-    const imageSrc = getImageSrc(token.attrs.src);
+    const imageSrc = getImageSrc(token.attrs.src ?? '');
     const selectedImage = this.muya.editor.selection.image;
     const { i18n } = this.muya;
     const data = {
@@ -100,14 +87,17 @@ export default function image(
     let resolvedUrl: string | undefined;
     // `src` stays the plain path — it is the key the `urlMap`/cache lookups use.
     const src = imageSrc.src;
-    const alt = token.attrs.alt;
-    const title = token.attrs.title;
+    const alt = token.attrs.alt ?? '';
+    const title = token.attrs.title ?? '';
     const width = token.attrs.width;
     const height = token.attrs.height;
 
     if (src) {
+        const attrs = Object.fromEntries(
+            Object.entries(token.attrs).filter((entry): entry is [string, string] => entry[1] !== null),
+        );
         ({ id, isSuccess, url: resolvedUrl, width: naturalWidth, height: naturalHeight }
-            = this.loadImageAsync(imageSrc, token.attrs));
+            = this.loadImageAsync(imageSrc, attrs));
     }
 
     // What the rendered <img> actually points at. For local files this is the
@@ -151,9 +141,6 @@ export default function image(
     // the src image is still loading, so use the url Map base64.
     if (this.urlMap.has(src)) {
     // fix: it will generate a new id if the image is not loaded.
-        if (shouldSyncSelectedImageId(selectedImage, src, id))
-            selectedImage.imageId = id;
-
         imgSrc = this.urlMap.get(src)!;
         isSuccess = true;
     }
@@ -194,7 +181,7 @@ export default function image(
         }
 
         // Add image selected class name.
-        if (isImageSelected(selectedImage, block, token, id))
+        if (isImageSelected(selectedImage, block, token))
             wrapperSelector += `.${CLASS_NAMES.MU_INLINE_IMAGE_SELECTED}`;
 
         const renderImage = () => {

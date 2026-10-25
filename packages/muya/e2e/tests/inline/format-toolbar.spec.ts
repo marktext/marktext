@@ -30,6 +30,30 @@ test.describe('inline format toolbar', () => {
         await expect(page.locator(floats.inlineFormatToolbar)).toBeVisible();
     });
 
+    for (const completion of ['compositionend', 'document load'] as const) {
+        test(`resumes after ${completion} clears the editor composition state`, async ({
+            page,
+        }) => {
+            await page.evaluate(() => window.muya!.setContent('hello world'));
+            await selectAllOfFirstParagraph(page);
+            const toolbar = page.locator(floats.inlineFormatToolbar);
+            await expect(toolbar).toBeInViewport();
+            await page.locator(editor.paragraphContent).dispatchEvent('compositionstart');
+            expect(await page.evaluate(() => window.muya!.editor.isComposing)).toBe(true);
+            await expect(toolbar).not.toBeInViewport();
+
+            if (completion === 'compositionend')
+                await page.locator(editor.paragraphContent).dispatchEvent('compositionend', {
+                    data: '',
+                });
+            else await page.evaluate(() => window.muya!.setContent('new document'));
+
+            expect(await page.evaluate(() => window.muya!.editor.isComposing)).toBe(false);
+            await selectAllOfFirstParagraph(page);
+            await expect(toolbar).toBeInViewport();
+        });
+    }
+
     test('clicking the strong button wraps the selection in **bold**', async ({ page }) => {
         await page.evaluate(() => window.muya!.setContent('hello world'));
         await selectAllOfFirstParagraph(page);
@@ -47,11 +71,21 @@ test.describe('inline format toolbar', () => {
         expect(md).toMatch(/[*_]alpha[*_]/);
     });
 
-    test('strong run renders with collapsed (mu-hide) markers when the caret is outside', async ({ page }) => {
+    test('strong run renders with collapsed (mu-hide) markers when the caret is outside', async ({
+        page,
+    }) => {
         await page.evaluate(() => window.muya!.setContent('a **bold** b'));
         // Click at the very start of the paragraph so the caret sits OUTSIDE
         // the strong token; the markers should collapse to `.mu-hide`.
-        await page.locator(editor.paragraph).first().click({ position: { x: 2, y: 2 } });
+        await page
+            .locator(editor.paragraph)
+            .first()
+            .click({
+                position: {
+                    x: 2,
+                    y: 2,
+                },
+            });
 
         const strongRun = page.locator(`${editor.paragraph} strong.mu-inline-rule`);
         await expect(strongRun).toHaveCount(1);
@@ -65,11 +99,21 @@ test.describe('inline format toolbar', () => {
         expect(await getMarkdown(page)).toContain('**bold**');
     });
 
-    test('mu-hide toggles off the **markers as the caret enters the strong run, and back on as it leaves', async ({ page }) => {
+    test('mu-hide toggles off the **markers as the caret enters the strong run, and back on as it leaves', async ({
+        page,
+    }) => {
         await page.evaluate(() => window.muya!.setContent('a **bold** b'));
 
         // 1) Caret outside the strong run → both markers carry `.mu-hide`.
-        await page.locator(editor.paragraph).first().click({ position: { x: 2, y: 2 } });
+        await page
+            .locator(editor.paragraph)
+            .first()
+            .click({
+                position: {
+                    x: 2,
+                    y: 2,
+                },
+            });
         await expect(page.locator(strongMarkerHidden)).toHaveCount(2);
         await expect(page.locator(strongMarkerGray)).toHaveCount(0);
 
@@ -82,7 +126,15 @@ test.describe('inline format toolbar', () => {
         await expect(page.locator(strongMarkerGray)).toHaveCount(2);
 
         // 3) Move the caret back OUT → `.mu-hide` returns on both markers.
-        await page.locator(editor.paragraph).first().click({ position: { x: 2, y: 2 } });
+        await page
+            .locator(editor.paragraph)
+            .first()
+            .click({
+                position: {
+                    x: 2,
+                    y: 2,
+                },
+            });
         await expect(page.locator(strongMarkerHidden)).toHaveCount(2);
         await expect(page.locator(strongMarkerGray)).toHaveCount(0);
     });

@@ -64,7 +64,7 @@ test.describe('TOC panel content + live update', () => {
   let app: ElectronApplication
   let page: Page
 
-  test.beforeAll(async() => {
+  test.beforeEach(async() => {
     const launched = await launchWithMarkdown(INITIAL_DOC)
     app = launched.app
     page = launched.page
@@ -81,7 +81,7 @@ test.describe('TOC panel content + live update', () => {
     )
   })
 
-  test.afterAll(async() => {
+  test.afterEach(async() => {
     if (app) await app.close()
   })
 
@@ -101,27 +101,12 @@ test.describe('TOC panel content + live update', () => {
   })
 
   test('renaming a heading updates its tree label live', async() => {
-    await page.evaluate(() => {
-      const headings = Array.from(
-        document.querySelectorAll('.mu-container h1, .mu-container h2, .mu-container h3')
-      ) as HTMLElement[]
-      const normalize = (s: string) => s.replace(/^[#\s]+/, '').trim()
-      const target = headings.find((h) => normalize(h.textContent || '') === 'B1')
-      if (!target) throw new Error('B1 heading not found in editor')
-      const range = document.createRange()
-      range.selectNodeContents(target)
-      range.collapse(false)
-      const sel = window.getSelection()
-      if (!sel) throw new Error('no selection')
-      sel.removeAllRanges()
-      sel.addRange(range)
-      ;(target as HTMLElement).focus?.()
-      const root = document.querySelector('.editor-component') as HTMLElement | null
-      root?.dispatchEvent(
-        new KeyboardEvent('keyup', { key: 'ArrowRight', bubbles: true, cancelable: true })
-      )
-    })
+    // A range on the h3 wrapper is outside its editable content span; focusing it can reset the caret.
+    const heading = page.locator('.mu-container h3 .mu-atxheading-content')
+    await heading.click()
+    await page.keyboard.press('End')
     await page.keyboard.type(' Renamed', { delay: 0 })
+    await expect(heading).toHaveText('### B1 Renamed')
 
     // json-change -> UPDATE_TOC -> el-tree re-render. Poll until reflected.
     await expect
@@ -154,13 +139,16 @@ test.describe('TOC panel content + live update', () => {
 
     await expect
       .poll(() => readTocLabels(page), { timeout: 8000 })
-      .toEqual(['A', 'B', 'B1 Renamed', 'C', 'D'])
+      .toEqual(['A', 'B', 'B1', 'C', 'D'])
 
     const tree = await readTocTree(page)
     expect(tree).toEqual([
       { label: 'A', depth: 1 },
       { label: 'B', depth: 2 },
-      { label: 'B1 Renamed', depth: 3 },
+      {
+        label: 'B1',
+        depth: 3
+      },
       { label: 'C', depth: 2 },
       { label: 'D', depth: 2 }
     ])

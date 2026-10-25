@@ -1,11 +1,14 @@
 import type { VNode } from 'snabbdom';
 import type { Muya } from '../../index';
 import type { Token } from '../../inlineRenderer/types';
+import type { TSelection } from '../../selection/types';
 import type { ColorFormatType, IColorStyle } from '../../utils/colorSpan';
 import type { IBaseOptions } from '../types';
 
 import type { FormatToolIcon, IColorSection, IColorSwatch } from './config';
 import Format from '../../block/base/format';
+import { createTextSelectionState } from '../../selection/state';
+import { SelectionType } from '../../selection/types';
 import { isKeyboardEvent } from '../../utils';
 import { parseColorStyle } from '../../utils/colorSpan';
 import { h, patch } from '../../utils/snabbdom';
@@ -80,6 +83,8 @@ export class InlineFormatToolbar extends BaseFloat {
     /** Container element for the format toolbar */
     private _formatContainer: HTMLDivElement = document.createElement('div');
 
+    private _dragging = false;
+
     private _colorPanelCloseTimer: number | null = null;
 
     /**
@@ -104,30 +109,20 @@ export class InlineFormatToolbar extends BaseFloat {
         const { eventCenter, domNode, editor } = this.muya;
         super.listen();
 
-        eventCenter.subscribe('muya-format-picker', ({ reference, block }) => {
-            if (reference) {
-                this._block = block;
-                this._formats = block.getFormatsInRange().formats;
-                requestAnimationFrame(() => {
-                    this.show(reference);
-                    this._render();
-                });
-            }
-            else {
-                this.hide();
-            }
+        eventCenter.subscribe('selection-change', ({ selection }) => this._syncSelection(selection));
+        eventCenter.attachDOMEvent(domNode, 'mousedown', () => {
+            this._dragging = true;
+            this.hide();
         });
-
-        // While open, re-sync the highlight from the selection's current
-        // formats — this is how formats applied outside the toolbar (menu /
-        // command / shortcut) light up their buttons. Single-block tool, so
-        // ignore collapsed / cross-block selections.
-        eventCenter.subscribe('selection-change', ({ formats, isCollapsed, isSelectionInSameBlock }) => {
-            if (!this.status || isCollapsed || !isSelectionInSameBlock)
-                return;
-
-            this._formats = formats;
-            this._render();
+        eventCenter.attachDOMEvent(document, 'mouseup', () => {
+            this._dragging = false;
+            requestAnimationFrame(() => {
+                if (this.container?.isConnected)
+                    this._syncSelection(this.muya.getSelection());
+            });
+        });
+        eventCenter.attachDOMEvent(domNode, 'compositionstart', () => {
+            this.hide();
         });
 
         eventCenter.attachDOMEvent(domNode, 'keydown', (event) => {
@@ -148,6 +143,28 @@ export class InlineFormatToolbar extends BaseFloat {
         });
     }
 
+    private _syncSelection(selection: TSelection | null) {
+        if (selection?.kind !== SelectionType.TEXT) {
+            this.hide();
+            return;
+        }
+        const { anchorBlock, formats, isCollapsed, isSelectionInSameBlock, selectionCoords } = selection.context;
+        if (this._dragging || this.muya.editor.isComposing || this.muya.isReadOnly
+            || isCollapsed || !isSelectionInSameBlock
+            || !(anchorBlock instanceof Format) || !selectionCoords) {
+            this.hide();
+            return;
+        }
+        this._block = anchorBlock;
+        this._formats = [...formats];
+        const native = document.getSelection();
+        const range = native?.rangeCount ? native.getRangeAt(0).cloneRange() : null;
+        this._render();
+        this.show({
+            getBoundingClientRect: () => range?.getBoundingClientRect() ?? selectionCoords,
+        });
+    }
+
     override hide() {
         this._closeColorPanelNow();
         super.hide();
@@ -163,7 +180,7 @@ export class InlineFormatToolbar extends BaseFloat {
             return;
 
         const { key, shiftKey, metaKey, ctrlKey } = event;
-        const selection = editor.selection.getSelection();
+        const selection = editor.selection.getTextSelection();
         if (!selection)
             return;
 
@@ -299,8 +316,18 @@ export class InlineFormatToolbar extends BaseFloat {
 
         // Restore selection before formatting
         selection.setSelection(
-            { offset: anchor.offset, block: anchorBlock, path: anchorPath },
-            { offset: focus.offset, block: focusBlock, path: focusPath },
+            createTextSelectionState(
+                {
+                    offset: anchor.offset,
+                    block: anchorBlock,
+                    path: anchorPath,
+                },
+                {
+                    offset: focus.offset,
+                    block: focusBlock,
+                    path: focusPath,
+                },
+            ),
         );
 
         this._block!.format(item.type);
@@ -514,8 +541,18 @@ export class InlineFormatToolbar extends BaseFloat {
             return false;
 
         selection.setSelection(
-            { offset: anchor.offset, block: anchorBlock, path: anchorPath },
-            { offset: focus.offset, block: focusBlock, path: focusPath },
+            createTextSelectionState(
+                {
+                    offset: anchor.offset,
+                    block: anchorBlock,
+                    path: anchorPath,
+                },
+                {
+                    offset: focus.offset,
+                    block: focusBlock,
+                    path: focusPath,
+                },
+            ),
         );
 
         return true;

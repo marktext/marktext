@@ -88,7 +88,7 @@ describe('muya history serialization api', () => {
         // The recorded selection is path-only — no live anchorBlock / focusBlock.
         const recorded = snapshot.stack.undo[0];
         expect(Array.isArray(recorded.operation)).toBe(true);
-        if (recorded.selection) {
+        if (recorded.selection?.kind === 'text') {
             expect(recorded.selection).not.toHaveProperty('anchorBlock');
             expect(recorded.selection).not.toHaveProperty('focusBlock');
             expect(Array.isArray(recorded.selection.anchor.path)).toBe(true);

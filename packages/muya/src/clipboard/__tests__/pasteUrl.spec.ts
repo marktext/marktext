@@ -4,7 +4,7 @@ import type Content from '../../block/base/content';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 import { tryPasteUrl } from '../pasteUrl';
 import { PasteType } from '../types';
 
@@ -63,13 +63,13 @@ function contentBlocks(muya: Muya): Content[] {
 
 function stubSelection(muya: Muya, block: Content, start: number, end: number) {
     const path = block.path;
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: start, block, path },
         focus: { offset: end, block, path },
         isCollapsed: start === end,
         isSelectionInSameBlock: true,
         direction: start <= end ? SelectionDirection.FORWARD : SelectionDirection.BACKWARD,
-        type: SelectionCaretType.RANGE,
+
     });
 }
 
@@ -169,8 +169,11 @@ describe('paste URL over selected text (#2029)', () => {
         vi.spyOn(muya.editor.selection.table, 'hasSelection', 'get').mockReturnValue(true);
         expect(tryPasteUrl(muya.editor.clipboard, block, 'https://home.com', PasteType.NORMAL)).toBe(false);
         vi.restoreAllMocks();
-        const selection = muya.editor.selection.getSelection()!;
-        muya.editor.selection.getSelection = () => ({ ...selection, isSelectionInSameBlock: false });
+        const selection = muya.editor.selection.getTextSelection()!;
+        muya.editor.selection.getTextSelection = () => ({
+            ...selection,
+            isSelectionInSameBlock: false,
+        });
         expect(tryPasteUrl(muya.editor.clipboard, block, 'https://home.com', PasteType.NORMAL)).toBe(false);
     });
 

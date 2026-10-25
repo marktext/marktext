@@ -14,12 +14,17 @@ function collectPageErrors(page: Page): string[] {
 }
 
 async function nextFrames(page: Page): Promise<void> {
-    await page.evaluate(() => new Promise<void>((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-    }));
+    await page.evaluate(
+        () =>
+            new Promise<void>(resolve => {
+                requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+            }),
+    );
 }
 
-test('typing over a selection from a nested language line into its code keeps the list (#5368)', async ({ page }) => {
+test('typing over a selection from a nested language line into its code keeps the list (#5368)', async ({
+    page,
+}) => {
     const errors = collectPageErrors(page);
     await loadMarkdown(page, '- item one\n\n  ```js\n  const a = 1\n  ```\n\n- item two\n');
     // The code re-renders once highlighted, which resets a DOM selection inside it.
@@ -32,10 +37,23 @@ test('typing over a selection from a nested language line into its code keeps th
         while (languageInput && languageInput.blockName !== 'language-input')
             languageInput = languageInput.nextContentInContext() ?? null;
         const code = languageInput!.nextContentInContext()!;
-        selection.setSelection(
-            { offset: 1, block: languageInput!, path: languageInput!.path },
-            { offset: 3, block: code, path: code.path },
-        );
+        selection.setSelection({
+            kind: 'text' as import('@muyajs/core').SelectionType.TEXT,
+            anchor: {
+                offset: 1,
+                path:
+                    languageInput!.blockName === 'language-input'
+                        ? [...languageInput!.parent!.path, 'meta', 'lang']
+                        : languageInput!.path,
+            },
+            focus: {
+                offset: 3,
+                path:
+                    code.blockName === 'language-input'
+                        ? [...code.parent!.path, 'meta', 'lang']
+                        : code.path,
+            },
+        });
     });
     await page.keyboard.type('q');
 

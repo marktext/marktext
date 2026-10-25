@@ -69,7 +69,7 @@ async function setContentAndSelect(
 
     const selectedText = initial.slice(start, end);
     await expect.poll(() => page.evaluate(() => {
-        const live = window.muya!.editor.selection.getSelection();
+        const live = window.muya!.editor.selection.getTextSelection();
         const native = window.getSelection();
         return {
             anchorOffset: live?.anchor.offset ?? null,
@@ -90,7 +90,7 @@ async function expectSelectedText(
     end: number,
 ): Promise<void> {
     await expect.poll(() => page.evaluate(() => {
-        const live = window.muya!.editor.selection.getSelection();
+        const live = window.muya!.editor.selection.getTextSelection();
         const native = window.getSelection();
         return {
             anchorOffset: live?.anchor.offset ?? null,

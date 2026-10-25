@@ -1,5 +1,5 @@
 import type { JSONOp } from 'ot-json1';
-import type { IHistorySelection } from '../selection/types';
+import type { TSelectionState } from '../selection/types';
 import type { ChangeSource } from '../types';
 import type { TState } from './types';
 import { deepClone } from '../utils';
@@ -15,9 +15,16 @@ export interface IJSONChangePayload {
 // to public listeners.
 const previousRoots = new WeakMap<object, readonly TState[]>();
 const historySuppressed = new WeakSet<object>();
-const recordSelections = new WeakMap<object, IHistorySelection | null>();
+const recordSelections = new WeakMap<object, TSelectionState | null>();
 
-export function createChangePayload(op: JSONOp, source: ChangeSource, before: readonly TState[], after: readonly TState[], recordHistory = true, recordSelection?: IHistorySelection | null): IJSONChangePayload {
+export function createChangePayload(
+    op: JSONOp,
+    source: ChangeSource,
+    before: readonly TState[],
+    after: readonly TState[],
+    recordHistory = true,
+    recordSelection?: TSelectionState | null,
+): IJSONChangePayload {
     let prevDoc: TState[] | undefined;
     let doc: TState[] | undefined;
     const payload = {
@@ -38,7 +45,7 @@ export function createChangePayload(op: JSONOp, source: ChangeSource, before: re
     return payload;
 }
 
-export function getRecordSelection(payload: IJSONChangePayload): IHistorySelection | null {
+export function getRecordSelection(payload: IJSONChangePayload): TSelectionState | null {
     return recordSelections.get(payload) ?? null;
 }
 

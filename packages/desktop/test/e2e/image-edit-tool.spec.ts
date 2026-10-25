@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
+import type { Muya } from '@muyajs/core'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import {
   launchWithMarkdown,
   clickMenuById,
@@ -51,9 +55,10 @@ const isSrcInputFocused = (page: Page): Promise<boolean> =>
 // toBeVisible ignores opacity, so the inline opacity is the reliable signal.
 const toolShown = (page: Page): Promise<boolean> =>
   page.evaluate(() => {
-    const tool = document.querySelector('.mu-image-selector')
-    const wrapper = tool?.closest('.mu-float-wrapper') as HTMLElement | null
-    return Number.parseFloat(wrapper?.style.opacity || '0') > 0
+    return Array.from(document.querySelectorAll('.mu-image-selector')).some((tool) => {
+      const wrapper = tool.closest<HTMLElement>('.mu-float-wrapper')
+      return Number.parseFloat(wrapper?.style.opacity || '0') > 0
+    })
   })
 
 // Reset the editor to a single empty paragraph and dismiss any open edit tool,
@@ -125,17 +130,145 @@ test.describe('Format -> Image edit tool wiring', () => {
     await page.waitForSelector(srcInput, { state: 'attached', timeout: 5000 })
     await expect.poll(() => toolShown(page), { timeout: 5000 }).toBe(true)
 
-    await expect.poll(
-      () =>
-        page.evaluate(() => {
-          const input = document.querySelector(
-            '.mu-image-selector input.src'
-          ) as HTMLInputElement | null
-          return input ? input.value : null
-        }),
-      { timeout: 5000 }
-    ).toBe('')
+    await expect
+      .poll(
+        () =>
+          page.evaluate(() => {
+            const input = document.querySelector(
+              '.mu-image-selector input.src'
+            ) as HTMLInputElement | null
+            return input ? input.value : null
+          }),
+        {
+          timeout: 5000
+        }
+      )
+      .toBe('')
 
     await expectNoRendererErrors(app)
   })
 })
+
+test('choosing a local image hides the selector after closing and reopening all tabs', async() => {
+  const fixture = mkdtempSync(join(tmpdir(), 'marktext-image-selector-'))
+  const imagePath = join(fixture, 'selected.svg')
+  writeFileSync(
+    imagePath,
+    '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="180"><rect width="300" height="180" fill="#3677c8"/></svg>'
+  )
+  const { app, page } = await launchWithMarkdown('\n', {
+    suppressErrorDialog: true,
+    preferences: {
+      language: 'en',
+      autoSave: false,
+      imageInsertAction: 'path'
+    }
+  })
+  try {
+    // Removing the final tab unmounts the editor; creating another mounts it in the same renderer.
+    for (let cycle = 0; cycle < 2; cycle++) {
+      await sendIpcToRenderer(app, 'mt::editor-close-tab')
+      await expect(page.locator('.editor-component')).toHaveCount(0)
+      await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, '')
+      await expect(page.locator('.editor-component')).toHaveCount(1)
+    }
+    await app.evaluate(({ dialog }, selected) => {
+      dialog.showOpenDialog = async() => ({
+        canceled: false,
+        filePaths: [selected]
+      })
+    }, imagePath)
+    await placeCaretInEditor(page)
+    await clickMenuById(app, 'imageMenuItem')
+    await expect.poll(() => toolShown(page)).toBe(true)
+    const selector = page.locator('.mu-image-selector').last()
+    await selector.locator('.header li').first().click()
+    await selector.locator('button.select').click()
+    await expect(page.locator('.editor-component .mu-image-container img')).toHaveAttribute(
+      'src',
+      /selected\.svg(?:\?|$)/
+    )
+    await expect.poll(() => toolShown(page)).toBe(false)
+    await expect(page.locator('.mu-image-selector')).toHaveCount(1)
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+    rmSync(fixture, {
+      recursive: true,
+      force: true
+    })
+  }
+})
+
+for (const [key, expectedOffset] of [
+  ['ArrowLeft', 14],
+  ['ArrowRight', 16]
+] as const) {
+  test(`${key} in the image address field moves its caret without changing the image selection`, async() => {
+    const fixture = mkdtempSync(join(tmpdir(), 'marktext-image-edit-key-'))
+    const imagePath = join(fixture, 'selected-image.svg')
+    writeFileSync(
+      imagePath,
+      '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="180"><rect width="300" height="180" fill="#3677c8"/></svg>'
+    )
+    const { app, page } = await launchWithMarkdown(`![selected](${imagePath})\n`, {
+      suppressErrorDialog: true,
+      preferences: {
+        language: 'en',
+        autoSave: false
+      }
+    })
+    try {
+      await page.locator('.editor-component .mu-image-container img').click()
+      await page.locator('.mu-image-toolbar .item.edit').click()
+      await expect.poll(() => toolShown(page)).toBe(true)
+      const input = page.locator(srcInput)
+      await expect(input).toBeFocused()
+      const selectionState = () =>
+        page.evaluate(() => {
+          const content = document.querySelector('.editor-component .mu-content') as HTMLElement & {
+            __MUYA_BLOCK__: { muya: Muya }
+          }
+          return content.__MUYA_BLOCK__.muya.getSelectionState()
+        })
+      const before = await selectionState()
+      expect(before?.kind).toBe('image')
+      await input.evaluate((element: HTMLInputElement) => element.setSelectionRange(15, 15))
+      await input.press(key)
+      await test.info().attach('image-edit-keyboard-state', {
+        body: JSON.stringify(
+          {
+            key,
+            before,
+            after: await selectionState(),
+            caret: await input.evaluate((element: HTMLInputElement) => element.selectionStart)
+          },
+          null,
+          2
+        ),
+        contentType: 'application/json'
+      })
+      await expect
+        .poll(() =>
+          input.evaluate((element: HTMLInputElement) => ({
+            start: element.selectionStart,
+            end: element.selectionEnd
+          }))
+        )
+        .toEqual({
+          start: expectedOffset,
+          end: expectedOffset
+        })
+      await expect(input).toBeFocused()
+      expect(await selectionState()).toEqual(before)
+      await expect.poll(() => toolShown(page)).toBe(true)
+      await expectNoRendererErrors(app)
+    } finally {
+      await app.close()
+      rmSync(fixture, {
+        recursive: true,
+        force: true
+      })
+    }
+  })
+}

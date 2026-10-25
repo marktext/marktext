@@ -22,8 +22,6 @@ const clearSourceSelection = async(page: Page): Promise<void> => {
   await page.keyboard.press('ArrowRight')
 }
 
-// The engine reports a selection when the drag is released, so every assertion
-// below waits for the released state rather than an intermediate one.
 const dragAcrossParagraphs = async(page: Page, from: number, to: number): Promise<void> => {
   const paragraphs = page.locator('p.mu-paragraph')
   const start = await paragraphs.nth(from).boundingBox()
@@ -177,10 +175,7 @@ test.describe('Title bar selection word count', () => {
   })
 })
 
-// A frozen rectangular table selection drops the native range, which is what
-// the engine reads, so it contributes no selected count. Pinned here so the
-// Selection rework has to decide about it deliberately.
-test('shows no selected count for a rectangular table selection', async() => {
+test('counts a rectangular table selection and clears the count on a text caret', async() => {
   const { app, page } = await launchWithMarkdown(TABLE_DOC, {
     suppressErrorDialog: true,
     preferences: { language: 'en' }
@@ -189,9 +184,14 @@ test('shows no selected count for a rectangular table selection', async() => {
     await clearRendererErrors(app)
     const counter = page.locator('.word-count')
     await expect(counter).toHaveText(/^Words\s+\d+$/)
+    const documentCount = await counter.innerText()
+    const totalWords = documentCount.match(/\d+$/)?.[0]
+    if (!totalWords) throw new Error('Document word count is unavailable')
 
     await dragSelectTableCells(page)
-    await expect(counter).toHaveText(/^Words\s+\d+$/)
+    await expect(counter).toHaveText(`Words 2 / ${totalWords}`)
+    await page.locator('.editor-component .mu-content').first().click()
+    await expect(counter).toHaveText(documentCount)
     await expectNoRendererErrors(app)
   } finally {
     await app.close()

@@ -20,9 +20,12 @@ function collectPageErrors(page: Page): string[] {
 }
 
 async function nextFrames(page: Page): Promise<void> {
-    await page.evaluate(() => new Promise<void>((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-    }));
+    await page.evaluate(
+        () =>
+            new Promise<void>(resolve => {
+                requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+            }),
+    );
 }
 
 async function loadDocument(page: Page): Promise<void> {
@@ -33,29 +36,65 @@ async function loadDocument(page: Page): Promise<void> {
     await nextFrames(page);
 }
 
-async function selectFromLanguageInputIntoCode(page: Page, languageOffset: number, codeOffset: number): Promise<void> {
-    await page.evaluate(({ languageOffset, codeOffset }) => {
-        const { scrollPage, selection } = window.muya!.editor;
-        const languageInput = scrollPage!.firstContentInDescendant()!.nextContentInContext()!;
-        const code = languageInput.nextContentInContext()!;
-        selection.setSelection(
-            { offset: languageOffset, block: languageInput, path: languageInput.path },
-            { offset: codeOffset, block: code, path: code.path },
-        );
-    }, { languageOffset, codeOffset });
-    await expect.poll(() => page.evaluate(() => {
-        const selection = window.muya!.editor.selection.getSelection();
-        return selection && `${selection.anchor.block.blockName}@${selection.anchor.offset} -> ${selection.focus.block.blockName}@${selection.focus.offset}`;
-    })).toBe(`language-input@${languageOffset} -> codeblock.content@${codeOffset}`);
+async function selectFromLanguageInputIntoCode(
+    page: Page,
+    languageOffset: number,
+    codeOffset: number,
+): Promise<void> {
+    await page.evaluate(
+        ({ languageOffset, codeOffset }) => {
+            const { scrollPage, selection } = window.muya!.editor;
+            const languageInput = scrollPage!.firstContentInDescendant()!.nextContentInContext()!;
+            const code = languageInput.nextContentInContext()!;
+            selection.setSelection({
+                kind: 'text' as import('@muyajs/core').SelectionType.TEXT,
+                anchor: {
+                    offset: languageOffset,
+                    path:
+                        languageInput.blockName === 'language-input'
+                            ? [...languageInput.parent!.path, 'meta', 'lang']
+                            : languageInput.path,
+                },
+                focus: {
+                    offset: codeOffset,
+                    path:
+                        code.blockName === 'language-input'
+                            ? [...code.parent!.path, 'meta', 'lang']
+                            : code.path,
+                },
+            });
+        },
+        {
+            languageOffset,
+            codeOffset,
+        },
+    );
+    await expect
+        .poll(() =>
+            page.evaluate(() => {
+                const selection = window.muya!.editor.selection.getTextSelection();
+                return (
+                    selection &&
+                    `${selection.anchor.block.blockName}@${selection.anchor.offset} -> ${selection.focus.block.blockName}@${selection.focus.offset}`
+                );
+            }),
+        )
+        .toBe(`language-input@${languageOffset} -> codeblock.content@${codeOffset}`);
 }
 
 async function placeCaret(page: Page, text: string, offset: number): Promise<void> {
-    await page.evaluate(({ text, offset }) => {
-        let block = window.muya!.editor.scrollPage!.firstContentInDescendant();
-        while (block && block.text !== text)
-            block = block.nextContentInContext() ?? null;
-        block!.setCursor(offset, offset, true);
-    }, { text, offset });
+    await page.evaluate(
+        ({ text, offset }) => {
+            let block = window.muya!.editor.scrollPage!.firstContentInDescendant();
+            while (block && block.text !== text)
+                block = block.nextContentInContext() ?? null;
+            block!.setCursor(offset, offset, true);
+        },
+        {
+            text,
+            offset,
+        },
+    );
 }
 
 // The json state is what gets saved; the block tree is what the user edits.
@@ -64,7 +103,7 @@ async function expectTreeMatchesJson(page: Page): Promise<void> {
     const { tree, json } = await page.evaluate(() => {
         const muya = window.muya!;
         const blocks: unknown[] = [];
-        muya.editor.scrollPage!.forEach((block) => {
+        muya.editor.scrollPage!.forEach(block => {
             if (block.isParent())
                 blocks.push(block.getState());
         });
@@ -74,8 +113,15 @@ async function expectTreeMatchesJson(page: Page): Promise<void> {
 }
 
 test.describe('selection from a language line into its own code (#4903, #5148)', () => {
-    test('pasting over it keeps the next paragraph editable', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+    test('pasting over it keeps the next paragraph editable', async ({
+        browserName,
+        context,
+        page,
+    }) => {
+        test.skip(
+            browserName !== 'chromium',
+            'ClipboardItem unreliable on Firefox/WebKit headless — BACKLOG Phase 3.',
+        );
         await context.grantPermissions(['clipboard-read', 'clipboard-write']);
         const errors = collectPageErrors(page);
         await loadDocument(page);
@@ -83,13 +129,17 @@ test.describe('selection from a language line into its own code (#4903, #5148)',
         await selectFromLanguageInputIntoCode(page, 1, 3);
         await page.evaluate(() => navigator.clipboard.writeText('python'));
         await page.keyboard.press(`${metaKey()}+v`);
-        await expect.poll(() => getMarkdown(page)).toBe('Intro paragraph\n\njpythonst a = 1\n\nOutro paragraph\n');
+        await expect
+            .poll(() => getMarkdown(page))
+            .toBe('Intro paragraph\n\njpythonst a = 1\n\nOutro paragraph\n');
         await expectTreeMatchesJson(page);
 
         await placeCaret(page, 'Outro paragraph', 'Outro paragraph'.length);
         await page.keyboard.press('Enter');
         await page.keyboard.type('next');
-        await expect.poll(() => getMarkdown(page)).toBe('Intro paragraph\n\njpythonst a = 1\n\nOutro paragraph\n\nnext\n');
+        await expect
+            .poll(() => getMarkdown(page))
+            .toBe('Intro paragraph\n\njpythonst a = 1\n\nOutro paragraph\n\nnext\n');
         await expectTreeMatchesJson(page);
         expect(errors).toEqual([]);
     });
@@ -100,12 +150,16 @@ test.describe('selection from a language line into its own code (#4903, #5148)',
 
         await selectFromLanguageInputIntoCode(page, 1, 3);
         await page.keyboard.type('q');
-        await expect.poll(() => getMarkdown(page)).toBe('Intro paragraph\n\njqst a = 1\n\nOutro paragraph\n');
+        await expect
+            .poll(() => getMarkdown(page))
+            .toBe('Intro paragraph\n\njqst a = 1\n\nOutro paragraph\n');
         await expectTreeMatchesJson(page);
 
         await placeCaret(page, 'Outro paragraph', 0);
         await page.keyboard.press('Backspace');
-        await expect.poll(() => getMarkdown(page)).toBe('Intro paragraph\n\njqst a = 1Outro paragraph\n');
+        await expect
+            .poll(() => getMarkdown(page))
+            .toBe('Intro paragraph\n\njqst a = 1Outro paragraph\n');
         await expectTreeMatchesJson(page);
         expect(errors).toEqual([]);
     });

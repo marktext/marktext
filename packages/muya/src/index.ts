@@ -5,7 +5,18 @@ export { de, en, es, fr, it, ja, ko, nl, pt, ru, tr, zhCN, zhTW } from './locale
 export { Muya } from './muya';
 export type { IMatch, IReplaceOption, ISearchOption } from './search/types';
 export type { IIndexCursor } from './selection/offsetCursor';
-export type { IHistorySelection, IPublicCursorInput } from './selection/types';
+export { SelectionDirection, SelectionType } from './selection/types';
+export type {
+    IImageSelection,
+    IImageSelectionState,
+    ISelectionChangePayload,
+    ITableRectSelection,
+    ITableRectSelectionState,
+    ITextSelection,
+    ITextSelectionState,
+    TSelection,
+    TSelectionState,
+} from './selection/types';
 export type { ITocItem } from './state/getTOC';
 export { MarkdownToHtml } from './state/markdownToHtml';
 export { renderToStaticHTML } from './state/renderToStaticHTML';

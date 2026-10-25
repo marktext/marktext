@@ -4,7 +4,7 @@ import type Content from '../../block/base/content';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // muyajs `pasteCtrl` MERGE semantics ported into @muyajs/core: pasting a
 // paragraph into a non-empty text block merges its first paragraph inline
@@ -69,13 +69,13 @@ function contentBlocks(muya: Muya): Content[] {
 
 function stubSelection(muya: Muya, block: Content, start: number, end: number) {
     const path = block.path;
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: start, block, path },
         focus: { offset: end, block, path },
         isCollapsed: start === end,
         isSelectionInSameBlock: true,
         direction: SelectionDirection.FORWARD,
-        type: SelectionCaretType.RANGE,
+
     });
 }
 

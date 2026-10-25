@@ -68,12 +68,10 @@ class InlineRenderer {
             debug.error('Patch can only handle content block');
 
         const tokens = this._tokenizer(block, highlights);
-        const html = this.renderer.output(
-            tokens,
-            block,
-            !this.muya.isReadOnly && cursor && cursor.block === block ? cursor : {},
-        );
+        const renderCursor = !this.muya.isReadOnly && cursor?.block === block ? cursor : {};
+        const html = this.renderer.output(tokens, block, renderCursor);
         domNode!.innerHTML = html;
+
         if (this.muya.isReadOnly)
             prepareReadingLinks(domNode!);
     }

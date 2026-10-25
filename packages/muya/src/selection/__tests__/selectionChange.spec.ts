@@ -1,7 +1,8 @@
-// @vitest-environment happy-dom
-
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
 import { Muya } from '../../muya';
+// @vitest-environment happy-dom
+import { createTextSelectionState } from '../state';
 
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
@@ -44,16 +45,26 @@ describe('selection-change payload', () => {
         });
 
         muya.editor.selection.setSelection(
-            { offset: 0, block: first, path: first.path },
-            { offset: 5, block: first, path: first.path },
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: 5,
+                    block: first,
+                    path: first.path,
+                },
+            ),
         );
 
         expect(payload).not.toBeNull();
         // cursorCoords is a DOMRect | null (null under happy-dom, which has no
         // real layout) — assert the key is present so the desktop typewriter
         // path always receives it.
-        expect(payload!).toHaveProperty('cursorCoords');
-        expect(Array.isArray(payload!.formats)).toBe(true);
+        expect(payload!).toHaveProperty('selection.context.cursorCoords');
+        expect(Array.isArray((payload!.selection as { context: { formats: unknown } }).context.formats)).toBe(true);
     });
 
     it('reports the active inline format when the cursor is inside bold text', () => {
@@ -67,12 +78,22 @@ describe('selection-change payload', () => {
 
         // `**bold**` — place the selection inside the bolded word (offsets 3–5).
         muya.editor.selection.setSelection(
-            { offset: 3, block: first, path: first.path },
-            { offset: 5, block: first, path: first.path },
+            createTextSelectionState(
+                {
+                    offset: 3,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: 5,
+                    block: first,
+                    path: first.path,
+                },
+            ),
         );
 
         expect(payload).not.toBeNull();
-        const formats = payload!.formats as Array<{ type: string }>;
+        const formats = (payload!.selection as { context: { formats: unknown } }).context.formats as Array<{ type: string }>;
         expect(formats.some(f => f.type === 'strong')).toBe(true);
     });
 
@@ -92,12 +113,22 @@ describe('selection-change payload', () => {
         // Text is `**_x_**`: `**_` is offsets 0-3, the `x` is offset 3-4, the
         // closing `_**` is 4-7. Select just the `x` (3..4) — inside both ranges.
         muya.editor.selection.setSelection(
-            { offset: 3, block: first, path: first.path },
-            { offset: 4, block: first, path: first.path },
+            createTextSelectionState(
+                {
+                    offset: 3,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: 4,
+                    block: first,
+                    path: first.path,
+                },
+            ),
         );
 
         expect(payload).not.toBeNull();
-        const formats = (payload!.formats as Array<{ type: string }>).map(f => f.type);
+        const formats = ((payload!.selection as { context: { formats: unknown } }).context.formats as Array<{ type: string }>).map(f => f.type);
         expect(formats).toContain('strong');
         expect(formats).toContain('em');
     });
@@ -124,8 +155,18 @@ describe('selection-change payload', () => {
 
         try {
             muya.editor.selection.setSelection(
-                { offset: 0, block: first, path: first.path },
-                { offset: 5, block: first, path: first.path },
+                createTextSelectionState(
+                    {
+                        offset: 0,
+                        block: first,
+                        path: first.path,
+                    },
+                    {
+                        offset: 5,
+                        block: first,
+                        path: first.path,
+                    },
+                ),
             );
         }
         finally {
@@ -133,7 +174,7 @@ describe('selection-change payload', () => {
         }
 
         expect(payload).not.toBeNull();
-        const cursorCoords = payload!.cursorCoords as DOMRect;
+        const cursorCoords = (payload!.selection as { context: { cursorCoords: unknown } }).context.cursorCoords as DOMRect;
         expect(cursorCoords).not.toBeNull();
         expect(typeof cursorCoords.y).toBe('number');
         expect(cursorCoords.y).toBe(123);

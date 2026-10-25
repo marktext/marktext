@@ -1,12 +1,18 @@
-import type { ImageToken } from '../inlineRenderer/types';
+import type { HTMLTagToken, ImageToken, Token } from '../inlineRenderer/types';
 import { isWin } from '../config/index';
 import { tokenizer } from '../inlineRenderer/lexer';
 import { findContentDOM, getOffsetOfParagraph } from '../selection/dom';
 import { ABSOLUTE_LOCAL_REG, encodeDirnameForUrl, localPathToFileUrl, resolveRelativePath } from './fileUrl';
 
+export type TSelectableImageToken = ImageToken | (HTMLTagToken & { tag: 'img' });
+
 export interface IImageInfo {
-    token: ImageToken;
+    token: TSelectableImageToken;
     imageId: string;
+}
+
+function isImageToken(token: Token | undefined): token is TSelectableImageToken {
+    return token?.type === 'image' || (token?.type === 'html_tag' && token.tag === 'img');
 }
 
 export function getImageInfo(image: HTMLElement): IImageInfo {
@@ -14,7 +20,9 @@ export function getImageInfo(image: HTMLElement): IImageInfo {
     const raw = image.getAttribute('data-raw')!;
     const offset = getOffsetOfParagraph(image, paragraph);
     const tokens = tokenizer(raw);
-    const token = tokens[0] as ImageToken;
+    const token = tokens[0];
+    if (!isImageToken(token))
+        throw new Error('Image wrapper does not contain an image token');
     token.range = {
         start: offset,
         end: offset + raw.length,

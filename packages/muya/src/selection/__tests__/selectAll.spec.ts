@@ -1,11 +1,12 @@
-// @vitest-environment happy-dom
-
 import type Content from '../../block/base/content';
+
 import type Table from '../../block/gfm/table';
-import type { ISelection } from '../types';
+import type { IResolvedTextSelection } from '../types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../types';
+// @vitest-environment happy-dom
+import { createTextSelectionState } from '../state';
+import { SelectionDirection } from '../types';
 
 // happy-dom cannot extend native ranges; mirror tracked endpoints for live-selection reads.
 
@@ -42,7 +43,7 @@ function mirrorLiveSelection(muya: Muya): void {
     const selection = muya.editor.selection;
     const text = (selection as unknown as { _text: ITrackedEndpoints })._text;
 
-    vi.spyOn(selection, 'getSelection').mockImplementation((): ISelection | null => {
+    vi.spyOn(selection, 'getTextSelection').mockImplementation((): IResolvedTextSelection | null => {
         const { anchorBlock, focusBlock, anchor, focus } = text;
         if (!anchorBlock || !focusBlock || anchor == null || focus == null)
             return null;
@@ -56,7 +57,7 @@ function mirrorLiveSelection(muya: Muya): void {
             isCollapsed,
             isSelectionInSameBlock,
             direction: SelectionDirection.NONE,
-            type: isCollapsed ? SelectionCaretType.CARET : SelectionCaretType.RANGE,
+
         };
     });
 }
@@ -163,8 +164,18 @@ describe('selection.selectAll table escalation', () => {
         const a = cellContent(table, 0, 0);
         const b = cellContent(table, 1, 1);
         selection.setSelection(
-            { offset: 0, block: a, path: a.path },
-            { offset: b.text.length, block: b, path: b.path },
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: a,
+                    path: a.path,
+                },
+                {
+                    offset: b.text.length,
+                    block: b,
+                    path: b.path,
+                },
+            ),
         );
 
         selection.selectAll();
@@ -189,8 +200,18 @@ describe('selection.selectAll table escalation', () => {
         const a = cellContent(firstTable, 0, 0);
         const b = cellContent(secondTable, 0, 0);
         selection.setSelection(
-            { offset: 0, block: a, path: a.path },
-            { offset: b.text.length, block: b, path: b.path },
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: a,
+                    path: a.path,
+                },
+                {
+                    offset: b.text.length,
+                    block: b,
+                    path: b.path,
+                },
+            ),
         );
 
         selection.selectAll();
@@ -270,8 +291,18 @@ describe('selection.selectAll honors the live selection over stale cache', () =>
         // The whole document is selected: the cached endpoints span first →
         // second across two blocks.
         selection.setSelection(
-            { offset: 0, block: first, path: first.path },
-            { offset: second.text.length, block: second, path: second.path },
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: second.text.length,
+                    block: second,
+                    path: second.path,
+                },
+            ),
         );
         expect(selection.anchorBlock).toBe(first);
         expect(selection.focusBlock).toBe(second);
@@ -279,16 +310,17 @@ describe('selection.selectAll honors the live selection over stale cache', () =>
         // The user clicks into the second block: the live DOM is a caret there,
         // but the cached endpoints stay stale (the menu-driven selectAll never
         // saw a setSelection refreshing them).
-        vi.mocked(selection.getSelection).mockReturnValue({
+        vi.mocked(selection.getTextSelection).mockReturnValue({
             anchor: { offset: 3, block: second, path: second.path },
             focus: { offset: 3, block: second, path: second.path },
             isCollapsed: true,
             isSelectionInSameBlock: true,
             direction: SelectionDirection.NONE,
-            type: SelectionCaretType.CARET,
+
         });
 
         selection.selectAll();
+        vi.mocked(selection.getTextSelection).mockRestore();
         expect(selection.anchorBlock).toBe(second);
         expect(selection.focusBlock).toBe(second);
         expect(selection.anchor!.offset).toBe(0);

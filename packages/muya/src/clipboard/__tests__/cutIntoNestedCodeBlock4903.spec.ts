@@ -6,7 +6,7 @@ import type { Muya } from '../../muya';
 import type { TState } from '../../state/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // #4903 / #5148: a cross-block cut (paste, typing or Backspace over the
 // selection) that ends inside a code, math or html block nested in a list item
@@ -69,13 +69,13 @@ function treeState(muya: Muya): TState[] {
 function stubSelection(muya: Muya, anchor: Content, anchorOffset: number, focus: Content, focusOffset: number) {
     const anchorPath = anchor.path;
     const focusPath = focus.path;
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: anchorOffset, block: anchor, path: anchorPath },
         focus: { offset: focusOffset, block: focus, path: focusPath },
         isCollapsed: false,
         isSelectionInSameBlock: false,
         direction: SelectionDirection.FORWARD,
-        type: SelectionCaretType.RANGE,
+
     });
 }
 

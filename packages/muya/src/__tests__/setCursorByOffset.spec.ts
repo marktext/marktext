@@ -50,7 +50,7 @@ describe('muya.setCursorByOffset() (PG2)', () => {
         expect(restored).toBe(true);
 
         await vi.waitFor(() => {
-            const sel = muya.editor.selection.getSelection();
+            const sel = muya.editor.selection.getTextSelection();
             expect(sel).not.toBeNull();
             expect(sel!.anchor.block.text).toBe('third para here');
             expect(sel!.anchor.offset).toBe(6);
@@ -68,7 +68,7 @@ describe('muya.setCursorByOffset() (PG2)', () => {
         });
         expect(restored).toBe(true);
         await vi.waitFor(() => {
-            const sel = muya.editor.selection.getSelection();
+            const sel = muya.editor.selection.getTextSelection();
             // This engine keeps the `# ` marker in the heading content block's
             // text, so the caret lands at offset 4 of "# Title".
             expect(sel!.anchor.block.text).toBe('# Title');
@@ -93,7 +93,7 @@ describe('muya.setCursorByOffset() (PG2)', () => {
         expect(cursor!.anchor!.offset).toBe(0);
         expect(cursor!.focus!.offset).toBe(5);
         // Both endpoints resolve to the same block (same path).
-        expect(cursor!.anchorPath).toEqual(cursor!.focusPath);
+        expect(cursor!.anchor.path).toEqual(cursor!.focus.path);
     });
 
     it('PG2: returns false and leaves the document intact for a stale line', () => {

@@ -96,7 +96,10 @@ describe('backspace deletes a whole image', () => {
 
         backspace(content);
         expect(muya.editor.selection.type).toBe('image');
-        expect(muya.editor.selection.image?.token.range).toEqual({ start: 0, end: content.text.length });
+        expect(muya.editor.selection.image?.imageInfo.token.range).toEqual({
+            start: 0,
+            end: content.text.length,
+        });
         expect(muya.getMarkdown()).toContain('![alt](https://example.com/a.png)');
 
         // ImageSelection's document keydown listener deletes the selected image.

@@ -5,7 +5,7 @@ import type TableBlock from '../../block/gfm/table';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
-import { SelectionCaretType, SelectionDirection } from '../../selection/types';
+import { SelectionDirection } from '../../selection/types';
 
 // The clipboard module pulls in CodeBlockContent → utils/prism which touches
 // `window` at import time. Stub the prism shim (same stub as sibling specs).
@@ -69,13 +69,13 @@ function stubSelection(
 ) {
     const aPath = a.path;
     const fPath = f.path;
-    muya.editor.selection.getSelection = () => ({
+    muya.editor.selection.getTextSelection = () => ({
         anchor: { offset: aOff, block: a, path: aPath },
         focus: { offset: fOff, block: f, path: fPath },
         isCollapsed: false,
         isSelectionInSameBlock: a === f,
         direction,
-        type: SelectionCaretType.RANGE,
+
     });
 }
 

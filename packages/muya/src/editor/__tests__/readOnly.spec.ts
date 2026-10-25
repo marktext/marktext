@@ -247,7 +247,13 @@ describe('reading mode', () => {
         expect(range.endOffset).toBe(last.domNode!.childNodes.length);
         expect(muya.editor.selection.table.hasSelection).toBe(false);
         expect(setSelection).not.toHaveBeenCalled();
-        expect(changed).not.toHaveBeenCalled();
+        expect(changed).toHaveBeenCalledTimes(1);
+        expect(changed.mock.lastCall?.[0]).toMatchObject({
+            selection: {
+                kind: 'text',
+            },
+            docChanged: false,
+        });
         expect(muya.getState()).toEqual(state);
         expect(muya.getHistory()).toEqual(history);
     });

@@ -1,10 +1,11 @@
-// @vitest-environment happy-dom
-
 import type Content from '../block/base/content';
+
 import type Parent from '../block/base/parent';
 import type { ITableState, TState } from '../state/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../muya';
+// @vitest-environment happy-dom
+import { SelectionType } from '../selection/types';
 import { isTableState } from '../state/types';
 
 // Coverage for the programmatic editing API added for the muyajs ->
@@ -98,7 +99,7 @@ describe('muya.createTable()', () => {
         await vi.waitFor(() => {
             expect(firstBlock(muya).name).toBe('table');
         });
-        const sel = muya.editor.selection.getSelection();
+        const sel = muya.editor.selection.getTextSelection();
         expect(sel).not.toBeNull();
         expect(sel!.anchor.block.blockName).toBe('table.cell.content');
     });
@@ -162,7 +163,7 @@ describe('muya.createTable()', () => {
             expect(s[1].name).toBe('table'); // table directly below
         });
         // the new table gets focus (caret in its first cell)
-        const sel = muya.editor.selection.getSelection();
+        const sel = muya.editor.selection.getTextSelection();
         expect(sel!.anchor.block.blockName).toBe('table.cell.content');
     });
 
@@ -283,34 +284,45 @@ describe('muya.insertImage()', () => {
     });
 });
 
-describe('muya.setCursor()', () => {
+describe('muya.setSelection()', () => {
     it('positions the caret in the same block (anchor/focus/path shape)', async () => {
         const muya = bootMuya('hello world\n');
         const first = muya.editor.scrollPage!.firstContentInDescendant()!;
-        muya.setCursor({
-            anchor: { offset: 3 },
-            focus: { offset: 3 },
-            anchorPath: first.path,
-            focusPath: first.path,
+        muya.setSelection({
+            kind: SelectionType.TEXT,
+            anchor: {
+                offset: 3,
+                path: first.path,
+            },
+            focus: {
+                offset: 3,
+                path: first.path,
+            },
         });
         await vi.waitFor(() => {
-            const sel = muya.editor.selection.getSelection();
+            const sel = muya.editor.selection.getTextSelection();
             expect(sel).not.toBeNull();
             expect(sel!.anchor.block).toBe(first);
             expect(sel!.anchor.offset).toBe(3);
         });
     });
 
-    it('accepts the start/end/path shape', async () => {
+    it('accepts a collapsed text state', async () => {
         const muya = bootMuya('hello world\n');
         const first = muya.editor.scrollPage!.firstContentInDescendant()!;
-        muya.setCursor({
-            start: { offset: 2 },
-            end: { offset: 2 },
-            path: first.path,
+        muya.setSelection({
+            kind: SelectionType.TEXT,
+            anchor: {
+                offset: 2,
+                path: first.path,
+            },
+            focus: {
+                offset: 2,
+                path: first.path,
+            },
         });
         await vi.waitFor(() => {
-            const sel = muya.editor.selection.getSelection();
+            const sel = muya.editor.selection.getTextSelection();
             expect(sel!.anchor.block).toBe(first);
             expect(sel!.anchor.offset).toBe(2);
         });
@@ -321,14 +333,19 @@ describe('muya.setCursor()', () => {
         const blocks = muya.editor.scrollPage!;
         const secondPara = blocks.find(1) as Parent;
         const secondContent = secondPara.firstContentInDescendant()!;
-        muya.setCursor({
-            anchor: { offset: 1 },
-            focus: { offset: 1 },
-            anchorPath: secondContent.path,
-            focusPath: secondContent.path,
+        muya.setSelection({
+            kind: SelectionType.TEXT,
+            anchor: {
+                offset: 1,
+                path: secondContent.path,
+            },
+            focus: {
+                offset: 1,
+                path: secondContent.path,
+            },
         });
         await vi.waitFor(() => {
-            const sel = muya.editor.selection.getSelection();
+            const sel = muya.editor.selection.getTextSelection();
             expect(sel!.anchor.block).toBe(secondContent);
             expect(sel!.anchor.offset).toBe(1);
         });
@@ -336,11 +353,16 @@ describe('muya.setCursor()', () => {
 
     it('does not throw and leaves the document intact for an unresolvable path', () => {
         const muya = bootMuya('hello\n');
-        expect(() => muya.setCursor({
-            anchor: { offset: 0 },
-            focus: { offset: 0 },
-            anchorPath: [99, 'text'],
-            focusPath: [99, 'text'],
+        expect(() => muya.setSelection({
+            kind: SelectionType.TEXT,
+            anchor: {
+                offset: 0,
+                path: [99, 'text'],
+            },
+            focus: {
+                offset: 0,
+                path: [99, 'text'],
+            },
         })).not.toThrow();
     });
 });

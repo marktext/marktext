@@ -1,5 +1,5 @@
 import type { Doc, JSONOp, Path } from 'ot-json1';
-import type { IHistorySelection } from '../../selection/types';
+import type { TSelectionState } from '../../selection/types';
 import type JSONState from '../../state';
 import type { TState } from '../../state/types';
 import type { IMuyaOptions, Nullable } from '../../types';
@@ -12,18 +12,18 @@ import { listLoosenessOperations } from './listLooseness';
 
 export interface ITransactionOptions {
     source?: ChangeSource;
-    selection?: Nullable<IHistorySelection>;
+    selection?: Nullable<TSelectionState>;
     view?: 'incremental' | 'rebuild';
     history?: 'merge' | 'isolated' | 'separate' | 'ignore';
     replay?: boolean;
-    recordSelection?: Nullable<IHistorySelection>;
+    recordSelection?: Nullable<TSelectionState>;
 }
 
 export interface ICompletedTransaction extends Required<Omit<ITransactionOptions, 'recordSelection' | 'view'>> {
     view: 'incremental' | 'rebuild' | 'mutated';
     operation: JSONOp;
     blockOperation: JSONOp;
-    recordSelection?: Nullable<IHistorySelection>;
+    recordSelection?: Nullable<TSelectionState>;
 }
 
 type TEditingRule = (before: readonly TState[], after: readonly TState[], operation: JSONOp, options: IMuyaOptions) => JSONOp;
@@ -40,7 +40,7 @@ export class EditTransactions {
     private _pendingSource: ChangeSource | undefined;
     private _candidate: readonly TState[] | null = null;
     private _pendingHistory: 'merge' | 'isolated' = 'merge';
-    private _recordSelection: Nullable<IHistorySelection> | undefined;
+    private _recordSelection: Nullable<TSelectionState> | undefined;
     private _rafId: number | null = null;
     private _depth = 0;
     private _failed = false;
@@ -52,7 +52,7 @@ export class EditTransactions {
         private _commit: (transaction: ICompletedTransaction) => void,
         private _rollback: () => void,
         private _applyPending: (operation: JSONOp, options: ITransactionOptions, preview: readonly TState[]) => void,
-        private _getSelection: () => Nullable<IHistorySelection> = () => null,
+        private _getSelection: () => Nullable<TSelectionState> = () => null,
     ) {}
 
     /** Read-only document for rendering live edits before the scope commits. */
@@ -62,13 +62,17 @@ export class EditTransactions {
         return this._candidate ??= this._state.preview(this._pending);
     }
 
+    get isActive(): boolean {
+        return this._depth > 0 || this._pending !== null;
+    }
+
     captureSelection() {
         if (this._recordSelection === undefined)
             this._recordSelection = this._getSelection();
     }
 
     /** Synchronous Block commands form one commit, including nested commands. */
-    run<T>(command: () => T, isolated = false, selection: Nullable<IHistorySelection> = null): T {
+    run<T>(command: () => T, isolated = false, selection: Nullable<TSelectionState> = null): T {
         if (this._depth === 0) {
             this.flush();
             this._failed = false;

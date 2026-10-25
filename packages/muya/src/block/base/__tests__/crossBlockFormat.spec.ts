@@ -1,7 +1,8 @@
-// @vitest-environment happy-dom
 import type Parent from '../parent';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../muya';
+// @vitest-environment happy-dom
+import { createTextSelectionState } from '../../../selection/state';
 
 const hosts: HTMLElement[] = [];
 beforeEach(() => {
@@ -35,7 +36,6 @@ function stubFullRange(leaf: any) {
         isCollapsed: false,
         isSelectionInSameBlock: true,
         direction: 'forward',
-        type: 'Range',
     });
 }
 
@@ -49,8 +49,18 @@ describe('cross-block format', () => {
         stubFullRange(second);
         muya.editor.activeContentBlock = second;
         muya.editor.selection.setSelection(
-            { offset: 0, block: first, path: first.path },
-            { offset: second.text.length, block: second, path: second.path },
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: second.text.length,
+                    block: second,
+                    path: second.path,
+                },
+            ),
         );
         muya.format('strong');
         await vi.waitFor(() => {
@@ -69,8 +79,18 @@ describe('cross-block format', () => {
         stubFullRange(second);
         muya.editor.activeContentBlock = second;
         muya.editor.selection.setSelection(
-            { offset: 0, block: first, path: first.path },
-            { offset: second.text.length, block: second, path: second.path },
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: second.text.length,
+                    block: second,
+                    path: second.path,
+                },
+            ),
         );
         muya.format('strong');
         await vi.waitFor(() => expect(muya.getMarkdown()).toContain('**alpha**'));
@@ -95,8 +115,18 @@ describe('cross-block format', () => {
         stubFullRange(second);
         muya.editor.activeContentBlock = second;
         muya.editor.selection.setSelection(
-            { offset: 0, block: first, path: first.path },
-            { offset: second.text.length, block: second, path: second.path },
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: second.text.length,
+                    block: second,
+                    path: second.path,
+                },
+            ),
         );
         muya.format('strong');
         await vi.waitFor(() => {
@@ -115,8 +145,18 @@ describe('cross-block format', () => {
         stubFullRange(last);
         muya.editor.activeContentBlock = last;
         muya.editor.selection.setSelection(
-            { offset: 0, block: first, path: first.path },
-            { offset: last.text.length, block: last, path: last.path },
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: last.text.length,
+                    block: last,
+                    path: last.path,
+                },
+            ),
         );
         muya.format('strong');
         await vi.waitFor(() => {
@@ -144,7 +184,6 @@ function stubDynamicCursor(muya: Muya, leaf: any) {
             isCollapsed: a === f,
             isSelectionInSameBlock: true,
             direction: 'forward',
-            type: 'Range',
         };
     };
 }
@@ -160,8 +199,18 @@ describe('inline format — selection range & heading markers', () => {
         muya.editor.activeContentBlock = second;
         // select "ha beta" .. "gamma d": first@3 -> second@7
         muya.editor.selection.setSelection(
-            { offset: 3, block: first, path: first.path },
-            { offset: 7, block: second, path: second.path },
+            createTextSelectionState(
+                {
+                    offset: 3,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: 7,
+                    block: second,
+                    path: second.path,
+                },
+            ),
         );
         muya.format('strong');
         const sel = muya.editor.selection;
@@ -176,9 +225,9 @@ describe('inline format — selection range & heading markers', () => {
         // eslint-disable-next-line ts/no-explicit-any
         const c: any = muya.editor.scrollPage!.firstContentInDescendant()!; // "# Title"
         muya.editor.activeContentBlock = c;
-        // muya.format() reads selection.getSelection(); happy-dom collapses the
+        // muya.format() reads selection.getTextSelection(); happy-dom collapses the
         // DOM selection, so stub it to the whole-heading range the user dragged.
-        muya.editor.selection.getSelection = () => ({
+        muya.editor.selection.getTextSelection = () => ({
             anchor: { offset: 0, block: c, path: c.path },
             focus: { offset: 7, block: c, path: c.path },
             start: { offset: 0, block: c },
@@ -186,7 +235,6 @@ describe('inline format — selection range & heading markers', () => {
             isSelectionInSameBlock: true,
             isCollapsed: false,
             direction: 'forward',
-            type: 'Range',
             // eslint-disable-next-line ts/no-explicit-any
         }) as any;
         stubDynamicCursor(muya, c); // Format.format reads getCursor after the clamp
@@ -203,8 +251,18 @@ describe('inline format — selection range & heading markers', () => {
         stubDynamicCursor(muya, second);
         muya.editor.activeContentBlock = second;
         muya.editor.selection.setSelection(
-            { offset: 0, block: first, path: first.path },
-            { offset: second.text.length, block: second, path: second.path },
+            createTextSelectionState(
+                {
+                    offset: 0,
+                    block: first,
+                    path: first.path,
+                },
+                {
+                    offset: second.text.length,
+                    block: second,
+                    path: second.path,
+                },
+            ),
         );
         muya.format('strong');
         await vi.waitFor(() => {

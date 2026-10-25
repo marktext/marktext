@@ -15,30 +15,63 @@ function collectPageErrors(page: Page): string[] {
     return errors;
 }
 
-async function selectFromTo(page: Page, startText: string, startOffset: number, endText: string, endOffset: number): Promise<void> {
-    await page.evaluate(({ startText, startOffset, endText, endOffset }) => {
-        const { scrollPage, selection } = window.muya!.editor;
-        const find = (text: string) => {
-            let block = scrollPage!.firstContentInDescendant();
-            while (block && block.text !== text)
-                block = block.nextContentInContext() ?? null;
-            return block!;
-        };
-        const start = find(startText);
-        const end = find(endText);
-        selection.setSelection(
-            { offset: startOffset, block: start, path: start.path },
-            { offset: endOffset, block: end, path: end.path },
-        );
-    }, { startText, startOffset, endText, endOffset });
+async function selectFromTo(
+    page: Page,
+    startText: string,
+    startOffset: number,
+    endText: string,
+    endOffset: number,
+): Promise<void> {
+    await page.evaluate(
+        ({ startText, startOffset, endText, endOffset }) => {
+            const { scrollPage, selection } = window.muya!.editor;
+            const find = (text: string) => {
+                let block = scrollPage!.firstContentInDescendant();
+                while (block && block.text !== text)
+                    block = block.nextContentInContext() ?? null;
+                return block!;
+            };
+            const start = find(startText);
+            const end = find(endText);
+            selection.setSelection({
+                kind: 'text' as import('@muyajs/core').SelectionType.TEXT,
+                anchor: {
+                    offset: startOffset,
+                    path:
+                        start.blockName === 'language-input'
+                            ? [...start.parent!.path, 'meta', 'lang']
+                            : start.path,
+                },
+                focus: {
+                    offset: endOffset,
+                    path:
+                        end.blockName === 'language-input'
+                            ? [...end.parent!.path, 'meta', 'lang']
+                            : end.path,
+                },
+            });
+        },
+        {
+            startText,
+            startOffset,
+            endText,
+            endOffset,
+        },
+    );
 }
 
 function cellTexts(page: Page): Promise<string[]> {
-    return page.evaluate(() => [...document.querySelectorAll('.mu-table-cell-content')].map(cell => (cell as HTMLElement).textContent ?? ''));
+    return page.evaluate(() =>
+        [...document.querySelectorAll('.mu-table-cell-content')].map(
+            cell => (cell as HTMLElement).textContent ?? '',
+        ),
+    );
 }
 
 test.describe('cut ending in a table', () => {
-    test('keeps the blocks after the list the table is nested in (#5400, #5398)', async ({ page }) => {
+    test('keeps the blocks after the list the table is nested in (#5400, #5398)', async ({
+        page,
+    }) => {
         const errors = collectPageErrors(page);
         await loadMarkdown(page, '- a\n\n  | h |\n  | --- |\n  | 1 |\n\nafter\n\nmore\n');
 
@@ -64,7 +97,9 @@ test.describe('cut ending in a table', () => {
         expect(errors).toEqual([]);
     });
 
-    test('removes the rest of the list and keeps the unselected cell text (#5399, #5405)', async ({ page }) => {
+    test('removes the rest of the list and keeps the unselected cell text (#5399, #5405)', async ({
+        page,
+    }) => {
         const errors = collectPageErrors(page);
         await loadMarkdown(page, '- a\n- b\n\n| h |\n| --- |\n| 12 |\n| 34 |\n');
 

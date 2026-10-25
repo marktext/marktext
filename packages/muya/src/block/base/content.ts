@@ -10,6 +10,7 @@ import { ScrollPage } from '../../block/scrollPage';
 import { BACK_HASH, BRACKET_HASH, CLASS_NAMES, EVENT_KEYS, isOsx } from '../../config';
 import Selection from '../../selection';
 import { offsetInBlockAtPoint } from '../../selection/dom';
+import { createTextSelectionState } from '../../selection/state';
 import { ChangeSource } from '../../types';
 import {
     adjustOffset,
@@ -641,7 +642,7 @@ class Content extends TreeNode {
     }
 
     getCursor(): IContentCursor | null {
-        const selection = this.selection.getSelection();
+        const selection = this.selection.getTextSelection();
         if (selection == null)
             return null;
 
@@ -651,7 +652,6 @@ class Content extends TreeNode {
             isCollapsed,
             isSelectionInSameBlock, // This is always be true.
             direction,
-            type,
         } = selection;
 
         if (anchor.block !== this || focus.block !== this)
@@ -665,20 +665,27 @@ class Content extends TreeNode {
             isCollapsed,
             isSelectionInSameBlock,
             direction,
-            type,
         };
     }
 
     setCursor(begin: number, end: number, needUpdate = false) {
-        const anchor = { offset: begin, block: this, path: this.path };
-        const focus = { offset: end, block: this, path: this.path };
+        const anchor = {
+            offset: Math.max(0, Math.min(begin, this.text.length)),
+            block: this,
+            path: this.path,
+        };
+        const focus = {
+            offset: Math.max(0, Math.min(end, this.text.length)),
+            block: this,
+            path: this.path,
+        };
 
         if (needUpdate)
             this.update({ anchor, focus, block: this });
 
         this.muya.editor.activeContentBlock = this;
 
-        this.selection.setSelection(anchor, focus);
+        this.selection.setSelection(createTextSelectionState(anchor, focus));
     }
 
     update(_cursor?: IRenderCursor, _highlights: IHighlight[] = []) {

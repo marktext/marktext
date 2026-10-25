@@ -3,8 +3,9 @@ import type { VNode } from 'snabbdom';
 import type Format from '../../block/base/format';
 import type { Muya } from '../../index';
 
-import type { ImageToken } from '../../inlineRenderer/types';
+import type { IImageInfo } from '../../utils/image';
 import type { Icon } from './config';
+import { SelectionType } from '../../selection/types';
 import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
 import icons from './config';
@@ -23,10 +24,7 @@ const defaultOptions = {
 export class ImageToolBar extends BaseFloat {
     static pluginName = 'imageToolbar';
     private _oldVNode: VNode | null = null;
-    private _imageInfo: {
-        token: ImageToken;
-        imageId: string;
-    } | null = null;
+    private _imageInfo: IImageInfo | null = null;
 
     private _icons: Icon[] = icons;
     private _reference: ReferenceElement | null = null;
@@ -48,19 +46,22 @@ export class ImageToolBar extends BaseFloat {
     override listen() {
         const { eventCenter } = this.muya;
         super.listen();
-        eventCenter.on('muya-image-toolbar', ({ block, reference, imageInfo }) => {
-            this._reference = reference;
-            if (reference) {
-                this._block = block;
-                this._imageInfo = imageInfo;
-                setTimeout(() => {
-                    this.show(reference);
-                    this._render();
-                }, 0);
-            }
-            else {
+        eventCenter.on('selection-change', ({ selection }) => {
+            const image = selection?.kind === SelectionType.IMAGE ? selection.context : null;
+            if (this.muya.isReadOnly || !image?.domNode) {
                 this.hide();
+                return;
             }
+            const { block, imageInfo, domNode } = image;
+            this._block = block;
+            this._imageInfo = imageInfo;
+            this._reference = domNode;
+            this.show(domNode);
+            this._render();
+        });
+        eventCenter.attachDOMEvent(document, 'mousedown', (event) => {
+            if (event.target instanceof Element && event.target.closest('.mu-transformer'))
+                this.hide();
         });
     }
 
@@ -68,7 +69,7 @@ export class ImageToolBar extends BaseFloat {
         const { _icons: icons, _oldVNode: oldVNode, _toolbarContainer: toolbarContainer, _imageInfo: imageInfo } = this;
         const { i18n } = this.muya;
         const { attrs } = imageInfo!.token;
-        const dataAlign = attrs['data-align'];
+        const dataAlign = attrs?.['data-align'];
         const children = icons.map((i) => {
             const iconWrapperSelector = 'div.icon-wrapper';
             const icon = h(
@@ -129,10 +130,6 @@ export class ImageToolBar extends BaseFloat {
             // Delete image.
             case 'delete':
                 this._block!.deleteImage(imageInfo!);
-                // Hide image transformer
-                this.muya.eventCenter.emit('muya-transformer', {
-                    reference: null,
-                });
 
                 return this.hide();
 
@@ -146,10 +143,7 @@ export class ImageToolBar extends BaseFloat {
                         return rect;
                     },
                 };
-                // Hide image resize bar
-                this.muya.eventCenter.emit('muya-transformer', {
-                    reference: null,
-                });
+                this.muya.ui.hideAllFloatTools();
 
                 this.muya.eventCenter.emit('muya-image-selector', {
                     block: this._block,

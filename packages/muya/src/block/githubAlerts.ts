@@ -1,6 +1,7 @@
 import type { IAnchorFocusInfo } from '../selection/types';
 import type { IGithubAlertState, TState } from '../state/types';
 import type Parent from './base/parent';
+import { createTextSelectionState } from '../selection/state';
 import { githubAlertBlockType, githubAlertType, matchGithubAlertMarker } from '../utils/githubAlerts';
 
 function alertTypeFromLabel(label: string) {
@@ -63,7 +64,7 @@ function convertAlert(block: Parent, label: string, text?: string): boolean {
     if (!children.length)
         children = [{ name: 'paragraph', text: '' }];
 
-    const selection = muya.editor.selection.getSelection();
+    const selection = muya.editor.selection.getTextSelection();
     const index = block.parent!.offset(block);
     const replacements = muya.editor.scrollPage!.replaceBlock(block, replacementStates(state, children, label));
     const remap = (point: IAnchorFocusInfo) => {
@@ -78,7 +79,7 @@ function convertAlert(block: Parent, label: string, text?: string): boolean {
         const focus = remap(selection.focus);
         if (anchor && focus) {
             muya.editor.activeContentBlock = anchor.block;
-            muya.editor.selection.setSelection(anchor, focus);
+            muya.editor.selection.setSelection(createTextSelectionState(anchor, focus));
             return true;
         }
     }
