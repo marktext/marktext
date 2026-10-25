@@ -84,7 +84,6 @@ export class InlineFormatToolbar extends BaseFloat {
     private _formatContainer: HTMLDivElement = document.createElement('div');
 
     private _dragging = false;
-    private _composing = false;
 
     private _colorPanelCloseTimer: number | null = null;
 
@@ -123,11 +122,9 @@ export class InlineFormatToolbar extends BaseFloat {
             });
         });
         eventCenter.attachDOMEvent(domNode, 'compositionstart', () => {
-            this._composing = true;
             this.hide();
         });
         eventCenter.attachDOMEvent(domNode, 'compositionend', () => {
-            this._composing = false;
             this._syncSelection(this.muya.getSelection());
         });
 
@@ -150,7 +147,7 @@ export class InlineFormatToolbar extends BaseFloat {
     }
 
     private _syncSelection(selection: TSelection | null) {
-        if (this._dragging || this._composing || this.muya.isReadOnly
+        if (this._dragging || this.muya.editor.isComposing || this.muya.isReadOnly
             || selection?.kind !== SelectionType.TEXT
             || selection.context.isCollapsed || !selection.context.isSelectionInSameBlock
             || !(selection.context.anchorBlock instanceof Format) || !selection.context.selectionCoords) {

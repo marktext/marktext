@@ -30,6 +30,27 @@ test.describe('inline format toolbar', () => {
         await expect(page.locator(floats.inlineFormatToolbar)).toBeVisible();
     });
 
+    for (const completion of ['compositionend', 'document load'] as const) {
+        test(`resumes after ${completion} clears the editor composition state`, async ({ page }) => {
+            await page.evaluate(() => window.muya!.setContent('hello world'));
+            await selectAllOfFirstParagraph(page);
+            const toolbar = page.locator(floats.inlineFormatToolbar);
+            await expect(toolbar).toBeInViewport();
+            await page.locator(editor.paragraphContent).dispatchEvent('compositionstart');
+            expect(await page.evaluate(() => window.muya!.editor.isComposing)).toBe(true);
+            await expect(toolbar).not.toBeInViewport();
+
+            if (completion === 'compositionend')
+                await page.locator(editor.paragraphContent).dispatchEvent('compositionend', { data: '' });
+            else
+                await page.evaluate(() => window.muya!.setContent('new document'));
+
+            expect(await page.evaluate(() => window.muya!.editor.isComposing)).toBe(false);
+            await selectAllOfFirstParagraph(page);
+            await expect(toolbar).toBeInViewport();
+        });
+    }
+
     test('clicking the strong button wraps the selection in **bold**', async ({ page }) => {
         await page.evaluate(() => window.muya!.setContent('hello world'));
         await selectAllOfFirstParagraph(page);
