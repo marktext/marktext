@@ -213,6 +213,8 @@ class TextSelection {
     }
 
     setSelection(anchor: IAnchorFocusInfo, focus: IAnchorFocusInfo) {
+        if (anchor.block !== focus.block)
+            this._muya.editor.activeContentBlock = null;
         if (!this._muya.isReadOnly) {
             revealBlock(anchor.block);
             revealBlock(focus.block);

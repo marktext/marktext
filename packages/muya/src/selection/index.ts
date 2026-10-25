@@ -118,6 +118,12 @@ class Selection {
 
     private _cacheText(live: IResolvedTextSelection) {
         const { anchor, focus } = live;
+        // Native reads refresh the public state; block handlers still need the
+        // previously applied endpoints when updating inline presentation.
+        this._state = createTextSelectionState(anchor, focus);
+        if (this._text.anchor && this._text.focus)
+            return;
+
         this._text.anchor = {
             offset: anchor.offset,
         };
@@ -128,7 +134,6 @@ class Selection {
         this._text.focusBlock = focus.block;
         this._text.anchorPath = [...anchor.path];
         this._text.focusPath = [...focus.path];
-        this._state = createTextSelectionState(anchor, focus);
     }
 
     getSelectionState(): TSelectionState | null {
@@ -186,8 +191,10 @@ class Selection {
             this._state = copySelectionState(state);
             this._image.clear();
             this._table.clear();
-            if (selection?.kind !== SelectionType.TEXT)
+            if (selection?.kind !== SelectionType.TEXT) {
+                this._muya.editor.activeContentBlock = null;
                 this._text.collapse();
+            }
             if (selection?.kind === SelectionType.TEXT) {
                 const { anchor, focus } = selection;
                 const { anchorBlock, focusBlock } = selection.context;
@@ -206,7 +213,6 @@ class Selection {
                 );
             }
             else {
-                this._muya.editor.activeContentBlock = null;
                 if (selection?.kind === SelectionType.IMAGE)
                     this._image.setSelection(this._resolveImage(selection) ?? selection);
                 else if (selection?.kind === SelectionType.TABLE)
@@ -310,8 +316,8 @@ class Selection {
                 this._state = null;
                 this._image.clear();
                 this._table.clear();
-                this._text.collapse();
                 this._muya.editor.activeContentBlock = null;
+                this._text.collapse();
             }
             finally {
                 this._setting = false;

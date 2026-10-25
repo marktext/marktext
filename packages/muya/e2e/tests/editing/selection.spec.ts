@@ -3,6 +3,32 @@ import { metaKey } from '../helpers/keyboard';
 import { editor, toolbar } from '../helpers/selectors';
 
 test.describe('selection', () => {
+    test('keeps keyboard-selected block endpoints across a transient native collapse', async ({ page }) => {
+        await page.evaluate(() => window.muya!.setContent('alpha\n\nbeta\n'));
+        await page.locator(editor.paragraph).first().click();
+        await page.evaluate(() => {
+            window.muya!.editor.scrollPage!.firstContentInDescendant()!.setCursor(0, 0, true);
+        });
+        await page.keyboard.down('Shift');
+        for (let i = 0; i < 8; i++)
+            await page.keyboard.press('ArrowRight');
+        await page.keyboard.up('Shift');
+        const selected = await page.evaluate(() => window.muya!.getSelectionState());
+        expect(selected?.kind).toBe('text');
+        if (selected?.kind === 'text')
+            expect(selected.anchor.path).not.toEqual(selected.focus.path);
+
+        await page.evaluate(() => {
+            const muya = window.muya!;
+            const block = muya.editor.scrollPage!.firstContentInDescendant()!;
+            const text = document.createTreeWalker(block.domNode!, NodeFilter.SHOW_TEXT).nextNode();
+            window.getSelection()!.collapse(text, 0);
+            muya.updateParagraph('blockquote');
+        });
+        await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown()))
+            .toBe('> alpha\n>\n> beta\n');
+    });
+
     test('#select-all button (clicked twice) selects across blocks', async ({ page }) => {
         await page.evaluate(() => {
             window.muya!.setContent('first paragraph\n\nsecond paragraph\n');

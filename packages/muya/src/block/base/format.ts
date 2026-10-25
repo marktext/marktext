@@ -384,15 +384,11 @@ class Format extends Content {
     }) {
         const { labels } = this.inlineRenderer;
         const { text } = this;
-        const offsets: number[] = [];
-        for (const candidate of [cursor, this.inlineRenderer.getRenderedCursor(this)]) {
-            const anchor = candidate?.start ?? candidate?.anchor;
-            const focus = candidate?.end ?? candidate?.focus;
-            if (anchor && focus)
-                offsets.push(anchor.offset, focus.offset);
-        }
-        if (!offsets.length)
+        const anchor = cursor.start ?? cursor.anchor;
+        const focus = cursor.end ?? cursor.focus;
+        if (!anchor || !focus)
             return false;
+        const offsets = [anchor.offset, focus.offset];
         const NO_NEED_TOKEN_REG = /text|hard_line_break|soft_line_break/;
 
         for (const token of tokenizer(text, {
@@ -574,7 +570,9 @@ class Format extends Content {
                 block: this,
             });
 
-            if (this.checkNeedRender(cursor))
+            const needRender = this.checkNeedRender(cursor)
+                || (this.selection.anchorBlock === this && this.checkNeedRender());
+            if (needRender)
                 this.update(cursor);
 
             this.setCursor(currentCursor.anchor.offset, currentCursor.focus.offset);
@@ -588,19 +586,19 @@ class Format extends Content {
         const {
             anchor: oldAnchor,
             focus: oldFocus,
-            isSelectionInSameBlock,
         } = this.selection;
-
-        if (!isSelectionInSameBlock)
+        const currentCursor = this.getCursor();
+        if (!currentCursor)
             return;
 
-        const { anchor, focus } = this.getCursor()!;
+        const { anchor, focus } = currentCursor;
         const cursor = {
             anchor,
             focus,
             block: this,
         };
-        const needUpdate = this.checkNeedRender(cursor);
+        const needUpdate = this.checkNeedRender(cursor)
+            || (this.selection.anchorBlock === this && this.checkNeedRender());
 
         if (
             anchor.offset !== oldAnchor?.offset

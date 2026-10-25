@@ -3,58 +3,55 @@
 import type Format from '../format';
 import { afterEach, expect, it, vi } from 'vitest';
 import { bootMuya, useMuyaHarness } from '../../../__tests__/muyaHarness';
+import { getNodeAndOffset } from '../../../selection/dom';
 
 afterEach(() => vi.restoreAllMocks());
 useMuyaHarness();
 
-it('uses the rendered cursor when native selection has already left a token', () => {
+function moveNativeCaret(block: Format, offset: number) {
+    const point = getNodeAndOffset(block.domNode!, offset);
+    document.getSelection()!.collapse(point.node, point.offset);
+    block.muya.editor.selection.syncTextSelection();
+}
+
+it('still detects a token exit after reading the current native selection', () => {
     const muya = bootMuya('**hello**bar\n');
     const block = muya.editor.scrollPage!.firstContentInDescendant()! as Format;
     block.setCursor(6, 6, true);
-    block.setCursor(12, 12);
+    moveNativeCaret(block, 12);
+    const state = muya.getSelectionState();
+    expect(state?.kind).toBe('text');
+    if (state?.kind === 'text')
+        expect(state.anchor.offset).toBe(12);
 
     vi.spyOn(block.domNode!, 'querySelector').mockImplementation(() => {
         throw new Error('Render decisions must not inspect the DOM');
     });
-
     expect(block.checkNeedRender()).toBe(true);
 });
 
-it('updates the rendered cursor after repainting outside the token', () => {
+it('repaints on keyup after native synchronization and then advances the applied endpoints', () => {
     const muya = bootMuya('**hello**bar\n');
     const block = muya.editor.scrollPage!.firstContentInDescendant()! as Format;
     block.setCursor(6, 6, true);
-    block.setCursor(12, 12, true);
+    moveNativeCaret(block, 12);
+    const update = vi.spyOn(block, 'update');
 
+    block.keyupHandler();
+
+    expect(update).toHaveBeenCalledTimes(1);
     expect(block.checkNeedRender()).toBe(false);
 });
 
-it('clears the rendered cursor after repainting without a cursor', () => {
-    const muya = bootMuya('**hello**bar\n');
+it('does not repaint a plain-text caret movement', () => {
+    const muya = bootMuya('hello world\n');
     const block = muya.editor.scrollPage!.firstContentInDescendant()! as Format;
     block.setCursor(6, 6, true);
-    block.setCursor(12, 12);
-    block.update();
+    moveNativeCaret(block, 11);
+    const update = vi.spyOn(block, 'update');
 
-    expect(block.checkNeedRender()).toBe(false);
-});
+    block.keyupHandler();
 
-it('keeps rendered offsets independent of a mutable render cursor', () => {
-    const muya = bootMuya('**hello**bar\n');
-    const block = muya.editor.scrollPage!.firstContentInDescendant()! as Format;
-    const cursor = {
-        block,
-        anchor: {
-            offset: 6,
-        },
-        focus: {
-            offset: 6,
-        },
-    };
-    block.update(cursor);
-    cursor.anchor.offset = 12;
-    cursor.focus.offset = 12;
-    block.setCursor(12, 12);
-
-    expect(block.checkNeedRender()).toBe(true);
+    expect(update).not.toHaveBeenCalled();
+    expect(block.getCursor()?.anchor.offset).toBe(11);
 });

@@ -124,9 +124,6 @@ export class InlineFormatToolbar extends BaseFloat {
         eventCenter.attachDOMEvent(domNode, 'compositionstart', () => {
             this.hide();
         });
-        eventCenter.attachDOMEvent(domNode, 'compositionend', () => {
-            this._syncSelection(this.muya.getSelection());
-        });
 
         eventCenter.attachDOMEvent(domNode, 'keydown', (event) => {
             this._handleKeydown(event, editor);

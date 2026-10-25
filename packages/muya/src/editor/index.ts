@@ -17,6 +17,7 @@ import InlineRenderer from '../inlineRenderer';
 import { Search } from '../search';
 import Selection from '../selection';
 import { findContentDOM } from '../selection/dom';
+import { createTextSelectionState } from '../selection/state';
 import JSONState from '../state';
 import { createChangePayload } from '../state/changePayload';
 import { stateAtPath } from '../state/paths';
@@ -379,6 +380,10 @@ export class Editor {
 
             if (!isSelectionInSameBlock || !anchorBlock) {
                 this.activeContentBlock = null;
+                if (event.type === 'keyup' && selectionResult) {
+                    const { anchor, focus } = selectionResult;
+                    this.selection.setSelection(createTextSelectionState(anchor, focus));
+                }
                 return;
             }
 
