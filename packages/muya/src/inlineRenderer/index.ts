@@ -16,6 +16,9 @@ class InlineRenderer {
     public labels: Labels = new Map();
     public renderer: Renderer;
     private _labelsState: readonly TState[] | null = null;
+    // Native caret synchronization can precede click/keyup, so render decisions
+    // also need the offsets used by the previous render.
+    private _renderedCursors = new WeakMap<Format, IRenderCursor>();
 
     constructor(public muya: Muya) {
         this.renderer = new Renderer(muya, this);
@@ -68,14 +71,31 @@ class InlineRenderer {
             debug.error('Patch can only handle content block');
 
         const tokens = this._tokenizer(block, highlights);
-        const html = this.renderer.output(
-            tokens,
-            block,
-            !this.muya.isReadOnly && cursor && cursor.block === block ? cursor : {},
-        );
+        const renderCursor = !this.muya.isReadOnly && cursor?.block === block ? cursor : {};
+        const html = this.renderer.output(tokens, block, renderCursor);
         domNode!.innerHTML = html;
+
+        const anchor = renderCursor.anchor ?? renderCursor.start;
+        const focus = renderCursor.focus ?? renderCursor.end;
+        if (anchor && focus) {
+            this._renderedCursors.set(block, {
+                anchor: {
+                    offset: anchor.offset,
+                },
+                focus: {
+                    offset: focus.offset,
+                },
+            });
+        }
+        else {
+            this._renderedCursors.delete(block);
+        }
         if (this.muya.isReadOnly)
             prepareReadingLinks(domNode!);
+    }
+
+    getRenderedCursor(block: Format): IRenderCursor | undefined {
+        return this._renderedCursors.get(block);
     }
 
     // Definitions live in paragraphs across the document; rescanning for every block caused #4887.

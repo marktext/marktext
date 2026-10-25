@@ -382,16 +382,16 @@ class Format extends Content {
         anchor: this.selection.anchor ?? undefined,
         focus: this.selection.focus ?? undefined,
     }) {
-        // Native selection updates can precede click/keyup; visible markers still
-        // need repainting after the logical caret has already left their token.
-        if (this.domNode?.querySelector('.mu-remove.mu-gray'))
-            return true;
         const { labels } = this.inlineRenderer;
         const { text } = this;
-        const { start: cStart, end: cEnd, anchor, focus } = cursor;
-        const anchorOffset = cStart ? cStart.offset : anchor?.offset;
-        const focusOffset = cEnd ? cEnd.offset : focus?.offset;
-        if (anchorOffset == null || focusOffset == null)
+        const offsets: number[] = [];
+        for (const candidate of [cursor, this.inlineRenderer.getRenderedCursor(this)]) {
+            const anchor = candidate?.start ?? candidate?.anchor;
+            const focus = candidate?.end ?? candidate?.focus;
+            if (anchor && focus)
+                offsets.push(anchor.offset, focus.offset);
+        }
+        if (!offsets.length)
             return false;
         const NO_NEED_TOKEN_REG = /text|hard_line_break|soft_line_break/;
 
@@ -403,20 +403,9 @@ class Format extends Content {
                 continue;
 
             const { start, end } = token.range;
-            const textLen = text.length;
-
-            if (
-                conflict(
-                    [Math.max(0, start - 1), Math.min(textLen, end + 1)],
-                    [anchorOffset, anchorOffset],
-                )
-                || conflict(
-                    [Math.max(0, start - 1), Math.min(textLen, end + 1)],
-                    [focusOffset, focusOffset],
-                )
-            ) {
+            const range: [number, number] = [Math.max(0, start - 1), Math.min(text.length, end + 1)];
+            if (offsets.some(offset => conflict(range, [offset, offset])))
                 return true;
-            }
         }
 
         return false;
@@ -585,12 +574,7 @@ class Format extends Content {
                 block: this,
             });
 
-            const needRender
-                = this.selection.anchorBlock === this
-                    ? this.checkNeedRender(cursor) || this.checkNeedRender()
-                    : this.checkNeedRender(cursor);
-
-            if (needRender)
+            if (this.checkNeedRender(cursor))
                 this.update(cursor);
 
             this.setCursor(currentCursor.anchor.offset, currentCursor.focus.offset);
@@ -611,15 +595,18 @@ class Format extends Content {
             return;
 
         const { anchor, focus } = this.getCursor()!;
+        const cursor = {
+            anchor,
+            focus,
+            block: this,
+        };
+        const needUpdate = this.checkNeedRender(cursor);
 
         if (
             anchor.offset !== oldAnchor?.offset
             || focus.offset !== oldFocus?.offset
-            || this.checkNeedRender()
+            || needUpdate
         ) {
-            const needUpdate = this.checkNeedRender({ anchor, focus }) || this.checkNeedRender();
-            const cursor = { anchor, focus, block: this };
-
             if (needUpdate)
                 this.update(cursor);
 
