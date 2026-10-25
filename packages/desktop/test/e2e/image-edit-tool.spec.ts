@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
+import type { Muya } from '@muyajs/core'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -178,3 +179,51 @@ test('choosing a local image hides the selector after closing and reopening all 
     rmSync(fixture, { recursive: true, force: true })
   }
 })
+
+for (const [key, expectedOffset] of [['ArrowLeft', 14], ['ArrowRight', 16]] as const) {
+  test(`${key} in the image address field moves its caret without changing the image selection`, async() => {
+    const fixture = mkdtempSync(join(tmpdir(), 'marktext-image-edit-key-'))
+    const imagePath = join(fixture, 'selected-image.svg')
+    writeFileSync(imagePath, '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="180"><rect width="300" height="180" fill="#3677c8"/></svg>')
+    const { app, page } = await launchWithMarkdown(`![selected](${imagePath})\n`, {
+      suppressErrorDialog: true,
+      preferences: { language: 'en', autoSave: false }
+    })
+    try {
+      await page.locator('.editor-component .mu-image-container img').click()
+      await page.locator('.mu-image-toolbar .item.edit').click()
+      await expect.poll(() => toolShown(page)).toBe(true)
+      const input = page.locator(srcInput)
+      await expect(input).toBeFocused()
+      const selectionState = () => page.evaluate(() => {
+        const content = document.querySelector('.editor-component .mu-content') as
+          HTMLElement & { __MUYA_BLOCK__: { muya: Muya } }
+        return content.__MUYA_BLOCK__.muya.getSelectionState()
+      })
+      const before = await selectionState()
+      expect(before?.kind).toBe('image')
+      await input.evaluate((element: HTMLInputElement) => element.setSelectionRange(15, 15))
+      await input.press(key)
+      await test.info().attach('image-edit-keyboard-state', {
+        body: JSON.stringify({
+          key,
+          before,
+          after: await selectionState(),
+          caret: await input.evaluate((element: HTMLInputElement) => element.selectionStart)
+        }, null, 2),
+        contentType: 'application/json'
+      })
+      await expect.poll(() => input.evaluate((element: HTMLInputElement) => ({
+        start: element.selectionStart,
+        end: element.selectionEnd
+      }))).toEqual({ start: expectedOffset, end: expectedOffset })
+      await expect(input).toBeFocused()
+      expect(await selectionState()).toEqual(before)
+      await expect.poll(() => toolShown(page)).toBe(true)
+      await expectNoRendererErrors(app)
+    } finally {
+      await app.close()
+      rmSync(fixture, { recursive: true, force: true })
+    }
+  })
+}

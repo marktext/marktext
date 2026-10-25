@@ -58,7 +58,14 @@ class ImageSelection {
         if (!isKeyboardEvent(event))
             return;
 
-        const { key } = event;
+        const { key, target } = event;
+        // This listener also receives bubbling keys from floating tools and other editors.
+        if (isHTMLElement(target) && (
+            target.closest('input, textarea, select')
+            || (target.isContentEditable && !this._muya.domNode.contains(target))
+        )) {
+            return;
+        }
         const context = this._selection.getImageSelection()?.context;
         if (!context)
             return;
