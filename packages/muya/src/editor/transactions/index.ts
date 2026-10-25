@@ -40,7 +40,7 @@ export class EditTransactions {
     private _pendingSource: ChangeSource | undefined;
     private _candidate: readonly TState[] | null = null;
     private _pendingHistory: 'merge' | 'isolated' = 'merge';
-    private _recordSelection: Nullable<IHistorySelection> = null;
+    private _recordSelection: Nullable<IHistorySelection> | undefined;
     private _rafId: number | null = null;
     private _depth = 0;
     private _failed = false;
@@ -52,6 +52,7 @@ export class EditTransactions {
         private _commit: (transaction: ICompletedTransaction) => void,
         private _rollback: () => void,
         private _applyPending: (operation: JSONOp, options: ITransactionOptions, preview: readonly TState[]) => void,
+        private _getSelection: () => Nullable<IHistorySelection> = () => null,
     ) {}
 
     /** Read-only document for rendering live edits before the scope commits. */
@@ -59,6 +60,11 @@ export class EditTransactions {
         if (this._pending === null)
             return this._state.rawState;
         return this._candidate ??= this._state.preview(this._pending);
+    }
+
+    captureSelection() {
+        if (this._recordSelection === undefined)
+            this._recordSelection = this._getSelection();
     }
 
     /** Synchronous Block commands form one commit, including nested commands. */
@@ -102,6 +108,7 @@ export class EditTransactions {
     enqueue(operation: JSONOp, source = ChangeSource.User) {
         if (operation === null)
             return;
+        this.captureSelection();
         this._pending = json1.type.compose(this._pending, deepClone(operation));
         this._candidate = null;
         if (source === ChangeSource.User || this._pendingSource === undefined)
@@ -145,7 +152,10 @@ export class EditTransactions {
         }
         this.assertStandalone();
         this.flush();
-        const transaction = this._complete(operation, options);
+        const transaction = this._complete(operation, {
+            ...options,
+            recordSelection: options.recordSelection !== undefined ? options.recordSelection : this._getSelection(),
+        });
         this._commit(transaction);
     }
 
@@ -180,7 +190,7 @@ export class EditTransactions {
         this._pendingSource = undefined;
         this._candidate = null;
         this._pendingHistory = 'merge';
-        this._recordSelection = null;
+        this._recordSelection = undefined;
     }
 
     /** History and document replacement are standalone transaction boundaries. */

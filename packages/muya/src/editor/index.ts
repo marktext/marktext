@@ -273,6 +273,8 @@ export class Editor {
     scrollPage: Nullable<ScrollPage> = null;
 
     private _activeContentBlock: Nullable<Content> = null;
+    private _inputSelection: Nullable<IHistorySelection> | undefined;
+    private _isComposing = false;
 
     constructor(private _muya: Muya) {
         const state = _muya.options.json || _muya.options.markdown || '';
@@ -289,6 +291,7 @@ export class Editor {
                 options.selection ?? null,
                 () => deepClone(preview) as TState[],
             ),
+            () => this.selection.getSelectionState(),
         );
         this.inlineRenderer = new InlineRenderer(_muya);
         this.selection = new Selection(_muya);
@@ -336,6 +339,14 @@ export class Editor {
 
     private _dispatchEvents() {
         const { domNode } = this._muya;
+
+        // Native input moves the DOM caret before the input handler runs (#5258).
+        this._muya.eventCenter.attachDOMEvent(domNode, 'beforeinput', () => {
+            if (this._muya.isReadOnly || this._isComposing)
+                return;
+            this.transactions.flush();
+            this._inputSelection = this.selection.getSelectionState();
+        }, true);
 
         const eventHandler = (event: Event) => {
             if (this._muya.isReadOnly)
@@ -394,7 +405,25 @@ export class Editor {
             fromEvent(domNode, 'keyup'),
             fromEvent(domNode, 'compositionend'),
             fromEvent(domNode, 'compositionstart'),
-        ).subscribe(event => this.transact(() => eventHandler(event)));
+        ).subscribe((event) => {
+            if (event.type === 'compositionstart') {
+                this._inputSelection = this.selection.getSelectionState();
+                this._isComposing = true;
+            }
+            const consumesInput = event.type === 'input' || event.type === 'compositionend';
+            const selection = consumesInput && this._inputSelection !== undefined
+                ? this._inputSelection
+                : this.selection.getSelectionState();
+            try {
+                this.transact(() => eventHandler(event), false, selection);
+            }
+            finally {
+                if (event.type === 'compositionend')
+                    this._isComposing = false;
+                if (consumesInput && !this._isComposing)
+                    this._inputSelection = undefined;
+            }
+        });
     }
 
     focus() {
@@ -439,8 +468,9 @@ export class Editor {
         firstLeafBlock.setCursor(0, 0, needUpdated);
     }
 
-    transact<T>(command: () => T, isolated = false): T {
-        const selection = this.selection.getSelection();
+    transact<T>(command: () => T, isolated = false, recordSelection?: Nullable<IHistorySelection>): T {
+        this.transactions.flush();
+        const selection = recordSelection !== undefined ? recordSelection : this.selection.getSelectionState();
         try {
             return this.transactions.run(command, isolated, selection);
         }
@@ -459,12 +489,21 @@ export class Editor {
     replayContents(operation: JSONOp, selection: Nullable<IHistorySelection>, rebuild = false) {
         if (!this._muya.canMutate)
             return;
-        return this.transactions.apply(operation, {
-            selection,
-            history: 'ignore',
-            replay: true,
-            view: rebuild ? 'rebuild' : 'incremental',
-        });
+        const focused = document.activeElement;
+        try {
+            return this.transactions.apply(operation, {
+                selection,
+                history: 'ignore',
+                replay: true,
+                view: rebuild ? 'rebuild' : 'incremental',
+            });
+        }
+        finally {
+            if (focused instanceof HTMLElement && focused !== document.body && focused.isConnected
+                && !this._muya.domNode.contains(focused)) {
+                focused.focus({ preventScroll: true });
+            }
+        }
     }
 
     private _commitTransaction(transaction: ICompletedTransaction) {
@@ -479,7 +518,7 @@ export class Editor {
             debug.log(JSON.stringify(operation));
             this._muya.eventCenter.emit(
                 'json-change',
-                createChangePayload(operation, source, before, this.jsonState.rawState, history === 'merge' || history === 'isolated'),
+                createChangePayload(operation, source, before, this.jsonState.rawState, history === 'merge' || history === 'isolated', recordSelection ?? null),
             );
         };
         if (history === 'isolated') {
@@ -586,6 +625,8 @@ export class Editor {
     setContent(content: TState[] | string, autoFocus = false) {
         this.transactions.assertStandalone();
         this.transactions.cancel();
+        this._inputSelection = undefined;
+        this._isComposing = false;
         this.jsonState.setContent(content);
         const state = this.jsonState.getState();
 

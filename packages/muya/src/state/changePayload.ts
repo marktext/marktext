@@ -1,4 +1,5 @@
 import type { JSONOp } from 'ot-json1';
+import type { IHistorySelection } from '../selection/types';
 import type { ChangeSource } from '../types';
 import type { TState } from './types';
 import { deepClone } from '../utils';
@@ -14,8 +15,9 @@ export interface IJSONChangePayload {
 // to public listeners.
 const previousRoots = new WeakMap<object, readonly TState[]>();
 const historySuppressed = new WeakSet<object>();
+const recordSelections = new WeakMap<object, IHistorySelection | null>();
 
-export function createChangePayload(op: JSONOp, source: ChangeSource, before: readonly TState[], after: readonly TState[], recordHistory = true): IJSONChangePayload {
+export function createChangePayload(op: JSONOp, source: ChangeSource, before: readonly TState[], after: readonly TState[], recordHistory = true, recordSelection?: IHistorySelection | null): IJSONChangePayload {
     let prevDoc: TState[] | undefined;
     let doc: TState[] | undefined;
     const payload = {
@@ -29,9 +31,15 @@ export function createChangePayload(op: JSONOp, source: ChangeSource, before: re
         },
     };
     previousRoots.set(payload, before);
+    if (recordSelection !== undefined)
+        recordSelections.set(payload, recordSelection);
     if (!recordHistory)
         historySuppressed.add(payload);
     return payload;
+}
+
+export function getRecordSelection(payload: IJSONChangePayload): IHistorySelection | null {
+    return recordSelections.get(payload) ?? null;
 }
 
 // Suppression belongs to one event; reentrant edits retain their own policy.

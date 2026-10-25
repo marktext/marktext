@@ -374,6 +374,12 @@ test.describe('block commands after Undo removed the caret line (#5355)', () => 
         await slowType(page, 'abc');
         await expect.poll(() => getMarkdown(page)).toBe('Hello\n\nabc\n\nWorld\n');
 
+        await page.evaluate(() => {
+            // Imported history can have no caret; ordinary undo now restores its pre-edit caret.
+            const history = window.muya!.getHistory();
+            history.stack.undo[history.stack.undo.length - 1].selection = null;
+            window.muya!.setHistory(history);
+        });
         await undo(page);
         await expect.poll(() => getMarkdown(page)).toBe('Hello\n\nWorld\n');
         const thrown = await page.evaluate(() => {
