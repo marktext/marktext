@@ -649,7 +649,7 @@
       "actions": {
         "upload": "Caricala nel cloud",
         "folder": "Copiala nella cartella predefinita",
-        "path": "Usa un percorso (path) assoluto"
+        "path": "Usala da un percorso (path) assoluto"
       },
       "folderSetting": {
         "title": "Impostazione cartella",
