@@ -34,6 +34,7 @@ import type {
   SidebarOpenOptions,
   TabOptions
 } from '@shared/types/files'
+import type { IpcMainEventChannels, IpcSendChannels, SaveDocumentResult } from '@shared/types/ipc'
 
 
 interface TocItem extends ListItem {
@@ -636,25 +637,28 @@ export const useEditorStore = defineStore('editor', {
       bus.emit('flush-active-editor')
     },
 
-    FILE_SAVE(): void {
-      if (this.currentFile?.readOnly || this.currentFile?.modeChanging) return
-      if (!this.currentFile) return
+    FILE_SAVE({ waitForResult = false } = {}): Promise<SaveDocumentResult> | void {
+      if (!this.currentFile || this.currentFile.readOnly || this.currentFile.modeChanging) return
       this.flushActiveEditor()
-      const projectStore = useProjectStore()
-      const { id, filename, pathname, markdown } = this.currentFile
-      const options = getOptionsFromState(this.currentFile)
-      const defaultPath = getRootFolderFromState(projectStore)
-      if (id) {
-        window.electron.ipcRenderer.send(
-          'mt::response-file-save',
-          id,
-          filename,
-          pathname,
-          markdown,
-          deepClone(options),
-          defaultPath
-        )
+      const file = this.currentFile
+      if (!file.id) return
+      const args: IpcSendChannels['mt::response-file-save'] = [
+        file.id,
+        file.filename,
+        file.pathname,
+        file.markdown,
+        deepClone(getOptionsFromState(file)),
+        getRootFolderFromState(useProjectStore())
+      ]
+      if (waitForResult) {
+        return window.electron.ipcRenderer.invoke('mt::response-file-save', ...args).then((result) => {
+          if (result.status === 'saved' && this.tabs.some((tab) => tab.id === file.id)) {
+            this.SET_PATHNAME({ id: file.id, ...result })
+          }
+          return result
+        })
       }
+      window.electron.ipcRenderer.send('mt::response-file-save', ...args)
     },
 
     LISTEN_FOR_SAVE(): void {
@@ -697,37 +701,37 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
+    SET_PATHNAME(fileInfo: IpcMainEventChannels['mt::set-pathname'][0]): void {
+      const { tabs } = this
+      const { pathname, id } = fileInfo
+      const tab = tabs.find((f) => f.id === id)
+      if (!tab) {
+        console.error('[ERROR] Cannot change file path from unknown tab.')
+        return
+      }
+
+      const existingTab = tabs.find(
+        (t) => t.id !== id && window.fileUtils.isSamePathSync(t.pathname, pathname)
+      )
+      // Both the save event and invoke reply can arrive while the close dialog is pending.
+      if (existingTab && (tab.isPendingCreation || !window.fileUtils.isSamePathSync(tab.pathname, pathname))) {
+        this.CLOSE_TAB(existingTab)
+      }
+
+      const { filename } = fileInfo
+      if (id === this.currentFile?.id && pathname) {
+        window.DIRNAME = window.path.dirname(pathname)
+      }
+      Object.assign(tab, { filename, pathname, isPendingCreation: false })
+      if ('savedMarkdown' in fileInfo && fileInfo.savedMarkdown === tab.markdown)
+        tab.isSaved = true
+      debouncedSendBufferedState()
+    },
+
     LISTEN_FOR_SET_PATHNAME(): void {
       window.electron.ipcRenderer.on('mt::set-pathname', (_, fileInfo) => {
-        const { tabs } = this
-        const { pathname, id } = fileInfo
-        const tab = tabs.find((f) => f.id === id)
-        if (!tab) {
-          console.error('[ERROR] Cannot change file path from unknown tab.')
-          return
-        }
-
-        // If a tab with the same file path already exists we need to close the tab.
-        // The existing tab is overwritten by this tab.
-        const existingTab = tabs.find(
-          (t) => t.id !== id && window.fileUtils.isSamePathSync(t.pathname, pathname)
-        )
-        if (existingTab) {
-          this.CLOSE_TAB(existingTab)
-        }
-
-        const { filename } = fileInfo
-        if (id === this.currentFile?.id && pathname) {
-          window.DIRNAME = window.path.dirname(pathname)
-        }
-        if (tab) {
-          Object.assign(tab, { filename, pathname, isPendingCreation: false })
-          if ('savedMarkdown' in fileInfo && fileInfo.savedMarkdown === tab.markdown)
-            tab.isSaved = true
-          debouncedSendBufferedState()
-        }
+        this.SET_PATHNAME(fileInfo)
       })
-
       window.electron.ipcRenderer.on('mt::tab-saved', (_, tabId, savedMarkdown) => {
         const tab = this.tabs.find((f) => f.id === tabId)
         if (tab && (savedMarkdown === undefined || tab.markdown === savedMarkdown)) {

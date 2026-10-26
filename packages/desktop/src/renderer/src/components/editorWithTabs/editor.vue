@@ -122,6 +122,7 @@ import MediaViewer from '../mediaViewer/index.vue'
 import bus from '@/bus'
 import { DEFAULT_EDITOR_FONT_FAMILY, DEFAULT_CODE_FONT_FAMILY } from '@/config'
 import notice from '@/services/notification'
+import { beforeImageDrop } from '@/services/imageDrop'
 import Printer from '@/services/printService'
 import { SpellcheckerLanguageCommand } from '@/commands'
 import { SpellChecker } from '@/spellchecker'
@@ -776,8 +777,7 @@ const imageAction = async (
     if (file) image = file
   }
 
-  // Use the saved file directory, falling back to the project root for untitled tabs.
-  const isTabSavedOnDisk = !!currentPathname
+  const isTabSavedOnDisk = !!currentPathname && !currentFile.value.isPendingCreation
   let relativeBasePath: string | null = isTabSavedOnDisk
     ? window.path.dirname(currentPathname)
     : null
@@ -1685,6 +1685,7 @@ onMounted(() => {
     fetchLinkHtml: (url) => window.electron.fetchLinkHtml(url),
     // Clipboard and drag-drop handlers read these callbacks from engine options, separately from ImageEditTool.
     imageAction: muyaImageAction,
+    beforeImageDrop,
     getPathForFile: (file: File) => window.electron.webUtils.getPathForFile(file)
   }
 
@@ -1702,6 +1703,9 @@ onMounted(() => {
   const muya = markRaw(new Muya(ele, options))
   muya.init({ focus: editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false })
   editor.value = muya
+  muya.on('image-drop-error', () => {
+    void notice.notify({ title: t('editor.imageDrop.failed'), type: 'error' })
+  })
   muya.on(
     'reading-context-menu',
     ({ event, href, image }: { event: MouseEvent; href?: string; image?: string }) => {

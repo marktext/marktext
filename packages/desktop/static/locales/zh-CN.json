@@ -1042,6 +1042,11 @@
     "unexpectedError": "意外的拼写检查器错误"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "保存文档以使用相对图片目录",
+      "saveMessage": "保存文档后，图片将存入配置的相对目录。取消保存将把图片存入全局图片目录。",
+      "failed": "图片插入失败"
+    },
     "insertTable": {
       "title": "插入表格",
       "rows": "行",

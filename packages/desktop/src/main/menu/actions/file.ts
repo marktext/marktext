@@ -38,6 +38,7 @@ import pandoc, {
 } from '../../utils/pandoc'
 import { t, getCurrentLanguage } from '../../i18n'
 import type { PandocExportPayload, TabOptions, UnsavedFile } from '@shared/types/files'
+import type { IpcInvokeChannels, SaveDocumentResult } from '@shared/types/ipc'
 
 type Win = BrowserWindow | null | undefined
 
@@ -280,8 +281,8 @@ const handleResponseForPrint = async(e: IpcMainEvent): Promise<void> => {
   })
 }
 
-const handleResponseForSave = async(
-  e: IpcMainEvent,
+const saveDocument = async(
+  e: Pick<IpcMainEvent, 'sender'>,
   id: string,
   filename: string,
   pathname: string | undefined,
@@ -289,12 +290,12 @@ const handleResponseForSave = async(
   options: UnsavedFile['options'],
   defaultPath?: string,
   saveAs = false
-): Promise<string | void> => {
+): Promise<SaveDocumentResult> => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  if (!win) return
+  if (!win) return { status: 'failed' }
   registerDocumentOwner(e.sender)
   const writeEpoch = documentWrites.capture(e.sender.id, id)
-  if (writeEpoch === null) return
+  if (writeEpoch === null) return { status: 'failed' }
   let recommendFilename = getRecommendTitleFromMarkdownString(markdown)
   if (!recommendFilename) {
     recommendFilename = filename || 'Untitled'
@@ -311,7 +312,7 @@ const handleResponseForSave = async(
       cancelId: 1,
       message: t('dialog.fileExists', { filename: pathname })
     })
-    if (response !== 0) return
+    if (response !== 0) return { status: 'canceled' }
   }
 
   let filePath = pathname
@@ -323,7 +324,7 @@ const handleResponseForSave = async(
           ? pathname
           : path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
     })
-    if (canceled || !dialogPath) return
+    if (canceled || !dialogPath) return { status: 'canceled' }
     filePath = dialogPath
   }
 
@@ -337,8 +338,8 @@ const handleResponseForSave = async(
         options as Parameters<typeof writeMarkdownFile>[2]
       ).then(() => true)
     )
-    .then((written) => {
-      if (!written) return
+    .then((written): SaveDocumentResult => {
+      if (!written) return { status: 'failed' }
       if (!alreadyExistOnDisk || pathname !== destination) {
         if (pathname && pathname !== destination) {
           ipcMain.emit('window-change-file-path', win.id, destination, pathname)
@@ -358,14 +359,32 @@ const handleResponseForSave = async(
         ipcMain.emit('window-file-saved', win.id, destination)
         win.webContents.send('mt::tab-saved', id, markdown)
       }
-      return id
+      return {
+        status: 'saved',
+        pathname: destination,
+        filename: path.basename(destination),
+        savedMarkdown: markdown
+      }
     })
     .catch((err: unknown) => {
       log.error('Error while saving:', err)
       const msg = err instanceof Error ? err.message : String(err)
       win.webContents.send('mt::tab-save-failure', id, msg)
+      return { status: 'failed' } as const
     })
 }
+
+const handleResponseForSave = async(
+  ...args: Parameters<typeof saveDocument>
+): Promise<string | void> => {
+  const result = await saveDocument(...args)
+  if (result.status === 'saved') return args[1]
+}
+
+ipcMain.handle('mt::response-file-save', (
+  event,
+  ...args: IpcInvokeChannels['mt::response-file-save']['args']
+) => saveDocument(event, ...args))
 
 const showUnsavedFilesMessage = async(
   win: BrowserWindow,

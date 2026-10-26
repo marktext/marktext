@@ -1042,6 +1042,11 @@
     "unexpectedError": "Unerwarteter Rechtschreibprüfungsfehler"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "Dokument speichern, um ein relatives Bildverzeichnis zu verwenden",
+      "saveMessage": "Wenn Sie das Dokument speichern, wird das Bild im konfigurierten relativen Verzeichnis gespeichert. Wenn Sie abbrechen, wird das Bild im globalen Bildverzeichnis gespeichert.",
+      "failed": "Das Bild konnte nicht eingefügt werden"
+    },
     "export": {
       "error": "Export-Fehler",
       "errorExporting": "Fehler beim Exportieren der {type}-Datei",

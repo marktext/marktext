@@ -1042,6 +1042,11 @@
     "unexpectedError": "意外的拼字檢查錯誤"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "儲存文件以使用相對圖片目錄",
+      "saveMessage": "儲存文件後，圖片將存入設定的相對目錄。取消儲存將把圖片存入全域圖片目錄。",
+      "failed": "圖片插入失敗"
+    },
     "export": {
       "error": "匯出錯誤",
       "errorExporting": "匯出 {type} 檔案時發生錯誤",
