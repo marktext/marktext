@@ -15,6 +15,13 @@ export interface IDelimiterRun {
     canClose: boolean;
 }
 
+export interface IDelimiterPairingOptions {
+    // Pure precedence check; flanking flags still participate in rule-of-three balancing.
+    mayOpen?: (run: Readonly<IDelimiterRun>) => boolean;
+    // Runs before any unused part of the closer is considered as a new opener.
+    onPair?: (span: Readonly<IEmphasisSpan>) => void;
+}
+
 function unspent(run: IDelimiterRun) {
     return run.right - run.left;
 }
@@ -40,7 +47,7 @@ function canPair(opener: IDelimiterRun, closer: IDelimiterRun) {
 }
 
 /** Consumes caller-owned run bounds; returned spans retain offsets in the original source. */
-export function pairEmphasisDelimiters(runs: IDelimiterRun[], base = 0): Map<number, IEmphasisSpan> {
+export function pairEmphasisDelimiters(runs: IDelimiterRun[], base = 0, options: IDelimiterPairingOptions = {}): Map<number, IEmphasisSpan> {
     const spans = new Map<number, IEmphasisSpan>();
     const openers: number[] = [];
 
@@ -61,17 +68,20 @@ export function pairEmphasisDelimiters(runs: IDelimiterRun[], base = 0): Map<num
             const markerLen = opener.char === '~' ? opener.length : unspent(opener) >= 2 && unspent(closer) >= 2 ? 2 : 1;
             opener.right -= markerLen;
             closer.left += markerLen;
-            spans.set(base + opener.right, {
+            const span = {
                 start: base + opener.right,
                 end: base + closer.left,
                 markerLen,
-            });
+            };
+            spans.set(span.start, span);
+            options.onPair?.(span);
 
             if (unspent(opener) === 0)
                 openers.pop();
         }
 
-        if (closer.canOpen && unspent(closer) > 0)
+        const mayOpen = options.mayOpen?.(closer) ?? true;
+        if (closer.canOpen && unspent(closer) > 0 && mayOpen)
             openers.push(i);
     }
 

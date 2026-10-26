@@ -25,6 +25,24 @@ $$a \\ne b$$
 `;
 
 test.describe('export / MarkdownToHtml', () => {
+    test('formatted bare URLs keep adjacent text out of the link target', async ({ page }) => {
+        const result = await page.evaluate(async () => {
+            const html = await new window.MarkdownToHtml!('**https://example.com/path**text').generate();
+            const document = new DOMParser().parseFromString(html, 'text/html');
+            const strong = document.querySelector('article strong');
+            return {
+                href: strong?.querySelector('a')?.getAttribute('href'),
+                label: strong?.textContent,
+                tail: strong?.nextSibling?.textContent,
+            };
+        });
+        expect(result).toEqual({
+            href: 'https://example.com/path',
+            label: 'https://example.com/path',
+            tail: 'text',
+        });
+    });
+
     test('window.MarkdownToHtml is exposed by the host', async ({ page }) => {
         const isClass = await page.evaluate(() => typeof window.MarkdownToHtml === 'function');
         expect(isClass).toBe(true);
