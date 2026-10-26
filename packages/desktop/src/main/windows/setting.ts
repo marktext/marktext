@@ -1,7 +1,7 @@
 import path from 'path'
 import { BrowserWindow, ipcMain } from 'electron'
 import type { BrowserWindowConstructorOptions } from 'electron'
-import { electronLocalshortcut } from '@hfelix/electron-localshortcut'
+import { electronLocalshortcut } from 'common/localShortcut'
 import BaseWindow, { WindowLifecycle, WindowType, type EnvLike, type PreferenceLike } from './base'
 import type Accessor from '../app/accessor'
 import { centerWindowOptions } from './utils'

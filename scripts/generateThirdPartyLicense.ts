@@ -18,6 +18,12 @@ thirdPartyChecker.getLicenses(desktopRoot, (err, packages) => {
   let index = 1
   const addedKeys = {}
 
+  // Vendored sources are shipped without an entry in the dependency graph.
+  packages['@hfelix/electron-localshortcut@4.0.1 (vendored)'] = {
+    licenses: 'MIT',
+    licenseText: fs.readFileSync(path.join(desktopRoot, 'src/common/localShortcut/LICENSE'), 'utf8')
+  }
+
   Object.keys(packages).forEach((key) => {
     let packageName = key
     const nameRegex = /(^.+)(?:@)/.exec(key)

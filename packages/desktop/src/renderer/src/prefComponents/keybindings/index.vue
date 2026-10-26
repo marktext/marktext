@@ -119,7 +119,7 @@
 
 <script setup lang="ts">
 import log from 'electron-log'
-import { setKeyboardLayout } from '@hfelix/electron-localshortcut'
+import { setKeyboardLayout } from 'common/localShortcut'
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import Separator from '../common/separator/index.vue'
 import KeyInputDialog from './key-input-dialog.vue'

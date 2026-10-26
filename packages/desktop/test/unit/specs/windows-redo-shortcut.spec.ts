@@ -12,7 +12,7 @@ const { register } = vi.hoisted(() => ({ register: vi.fn() }))
 
 vi.mock('electron', () => ({ shell: { openPath: vi.fn() } }))
 vi.mock('main_renderer/config', () => ({ isOsx: false, isLinux: false }))
-vi.mock('@hfelix/electron-localshortcut', () => ({
+vi.mock('common/localShortcut', () => ({
   electronLocalshortcut: { register, unregister: vi.fn(), setKeyboardLayout: vi.fn() },
   isValidElectronAccelerator: () => true
 }))
