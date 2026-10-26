@@ -64,11 +64,17 @@ export const copyImageToClipboard = async(
   }
 }
 
+/**
+ * Cross-document imageAction expects an absolute filesystem path for local images.
+ * Decode file URL escapes and omit query/hash suffixes used by the editor's cache;
+ * non-file URLs pass through unchanged.
+ */
 export const clipboardImagePath = (src: string): string => {
   const url = new URL(src)
   if (url.protocol !== 'file:') return src
   let pathname = decodeURIComponent(url.pathname)
   if (url.hostname) pathname = `//${url.hostname}${pathname}`
+  // File URLs prefix Windows drive letters with '/', which filesystem paths omit.
   if (window.electron.process.platform === 'win32' && /^\/[a-z]:/i.test(pathname))
     pathname = pathname.slice(1)
   return pathname
