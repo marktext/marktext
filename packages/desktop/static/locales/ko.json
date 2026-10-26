@@ -271,6 +271,7 @@
       "expand": "목차 펼치기",
       "collapse": "목차 접기",
       "empty": "제목 없음",
+      "resize": "목차 너비 조절",
       "title": "목차",
       "expandAll": "모두 펼치기",
       "collapseAll": "모두 접기"
@@ -541,6 +542,9 @@
       "sidebar": {
         "title": "사이드바",
         "wrapTextInToc": "목차에서 텍스트 줄바꿈",
+        "tocPosition": "목차 위치",
+        "tocLeft": "왼쪽",
+        "tocRight": "오른쪽",
         "showOpenedFiles": "열린 파일 표시",
         "autoReveal": "사이드바에서 활성 파일 표시",
         "openFilesInPreviewMode": "사이드바 파일을 미리보기 탭에서 엽니다. 편집하거나 두 번 클릭하면 탭이 유지됩니다.",

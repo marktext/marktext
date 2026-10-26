@@ -271,6 +271,7 @@
       "expand": "Inhaltsverzeichnis aufklappen",
       "collapse": "Inhaltsverzeichnis zuklappen",
       "empty": "Keine Überschriften",
+      "resize": "Breite des Inhaltsverzeichnisses ändern",
       "title": "Inhaltsverzeichnis",
       "expandAll": "Alle ausklappen",
       "collapseAll": "Alle einklappen"
@@ -541,6 +542,9 @@
       "sidebar": {
         "title": "Seitenleiste",
         "wrapTextInToc": "Text im Inhaltsverzeichnis umbrechen",
+        "tocPosition": "Position des Inhaltsverzeichnisses",
+        "tocLeft": "Links",
+        "tocRight": "Rechts",
         "showOpenedFiles": "Geöffnete Dateien anzeigen",
         "autoReveal": "Aktive Datei in der Seitenleiste anzeigen",
         "openFilesInPreviewMode": "Sidebar-Dateien in Vorschauregistern öffnen. Bearbeiten oder Doppelklicken behält das Register bei.",

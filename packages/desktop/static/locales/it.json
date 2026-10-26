@@ -271,6 +271,7 @@
       "expand": "Espandi sommario",
       "collapse": "Comprimi sommario",
       "empty": "Nessuna intestazione",
+      "resize": "Ridimensiona il sommario",
       "title": "Sommario",
       "expandAll": "Espandi tutto",
       "collapseAll": "Comprimi tutto"
@@ -541,6 +542,9 @@
       "sidebar": {
         "title": "Barra laterale",
         "wrapTextInToc": "Vai a capo nel Sommario",
+        "tocPosition": "Posizione del sommario",
+        "tocLeft": "Sinistra",
+        "tocRight": "Destra",
         "showOpenedFiles": "Mostra i file aperti",
         "autoReveal": "Mostra il file attivo",
         "excludePatterns": "Pattern di esclusione",

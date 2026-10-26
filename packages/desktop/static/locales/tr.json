@@ -271,6 +271,7 @@
       "expand": "İçindekileri genişlet",
       "collapse": "İçindekileri daralt",
       "empty": "Başlık yok",
+      "resize": "İçindekiler genişliğini ayarla",
       "title": "İçindekiler",
       "expandAll": "Tümünü genişlet",
       "collapseAll": "Tümünü daralt"
@@ -541,6 +542,9 @@
       "sidebar": {
         "title": "Kenar Çubuğu",
         "wrapTextInToc": "İçindekilerde metni kaydır",
+        "tocPosition": "İçindekilerin konumu",
+        "tocLeft": "Sol",
+        "tocRight": "Sağ",
         "showOpenedFiles": "Açık dosyaları göster",
         "autoReveal": "Etkin dosyayı kenar çubuğunda göster",
         "openFilesInPreviewMode": "Kenar çubuğu dosyalarını önizleme sekmelerinde açar. Düzenleme veya çift tıklama sekmeyi korur.",

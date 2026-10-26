@@ -126,4 +126,4 @@ In the 0.24.0 development version, search covers all available sidebar folder ro
 
 Since 0.23.0, headings in the WYSIWYG editor have a fold control. Click it to hide the section beneath the heading, including deeper headings, up to the next heading of the same or a higher level. Click again to expand it. Folding changes the view only: it does not remove text from saved Markdown or exports.
 
-The independent document outline lists headings for navigation. Toggle its expanded state through the View menu or <kbd>CmdOrCtrl</kbd>+<kbd>K</kbd>; it floats when there is insufficient room to stay expanded. See [Basics](BASICS.md) for Reading Mode and document statistics.
+The independent document outline lists headings for navigation. Toggle its expanded state through the View menu or <kbd>CmdOrCtrl</kbd>+<kbd>K</kbd>. It docks to either side of the editor and supports resizing; when collapsed, hover its icon for a floating preview. See [Basics](BASICS.md) for layout controls, Reading Mode and document statistics.

@@ -271,6 +271,7 @@
       "expand": "Expandir sumário",
       "collapse": "Recolher sumário",
       "empty": "Sem títulos",
+      "resize": "Redimensionar índice",
       "title": "Índice",
       "expandAll": "Expandir tudo",
       "collapseAll": "Recolher tudo"
@@ -541,6 +542,9 @@
       "sidebar": {
         "title": "Barra Lateral",
         "wrapTextInToc": "Quebrar texto no índice",
+        "tocPosition": "Posição do índice",
+        "tocLeft": "Esquerda",
+        "tocRight": "Direita",
         "showOpenedFiles": "Mostrar arquivos abertos",
         "autoReveal": "Mostrar o arquivo ativo na barra lateral",
         "openFilesInPreviewMode": "Abrir arquivos da barra lateral em abas de visualização. Editar ou clicar duas vezes mantém a aba.",
