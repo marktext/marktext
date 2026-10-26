@@ -22,7 +22,8 @@ export const editorWinOptions: Readonly<BrowserWindowConstructorOptions> = Objec
     webSecurity,
     preload: path.join(__dirname, '../preload/index.js')
   },
-  useContentSize: true,
+  // electron-window-state persists outer bounds, including native decorations.
+  useContentSize: false,
   show: true,
   frame: false,
   titleBarStyle: 'hiddenInset',
