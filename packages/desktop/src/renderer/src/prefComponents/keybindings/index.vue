@@ -42,6 +42,7 @@
                 type="text"
                 size="small"
                 :aria-label="t('preferences.keybindings.table.edit')"
+                :disabled="isSaving"
                 @click="handleEditClick(scope.$index, scope.row)"
               >
                 <Edit
@@ -55,6 +56,7 @@
                 type="text"
                 size="small"
                 :aria-label="t('preferences.keybindings.table.reset')"
+                :disabled="isSaving"
                 @click="handleResetClick(scope.$index, scope.row)"
               >
                 <RefreshRight
@@ -68,6 +70,7 @@
                 type="text"
                 size="small"
                 :aria-label="t('preferences.keybindings.table.unbind')"
+                :disabled="isSaving"
                 @click="handleUnbindClick(scope.$index, scope.row)"
               >
                 <Delete
@@ -84,12 +87,7 @@
       <separator />
       <el-button
         size="medium"
-        @click="saveKeybindings"
-      >
-        {{ t('preferences.keybindings.save') }}
-      </el-button>
-      <el-button
-        size="medium"
+        :disabled="isSaving"
         @click="restoreDefaults"
       >
         {{ t('preferences.keybindings.restoreDefaults') }}
@@ -136,6 +134,7 @@ const { t, locale } = useI18n()
 const showDebugTools = ref<boolean>(false)
 const keybindingConfigurator = ref<KeybindingConfigurator | null>(null)
 const selectedShortcutId = ref<string | null>(null)
+const isSaving = ref(false)
 const keybindingList = ref<UiKeybinding[]>([])
 
 const rebuildKeybindingList = (): void => {
@@ -182,64 +181,63 @@ const openKeybindingDocs = (): void => {
   )
 }
 
-const saveKeybindings = (): void => {
-  if (keybindingConfigurator.value && keybindingList.value.length > 0) {
-    keybindingConfigurator.value
-      .save()
-      .then((success) => {
-        if (!success) {
-          notice.notify({
-            title: t('preferences.keybindings.failedToSave'),
-            type: 'error',
-            message: t('preferences.keybindings.saveError')
-          })
-        }
-      })
-      .catch((error) => log.error(error))
+const persistKeybindings = async(save: () => Promise<boolean>): Promise<void> => {
+  if (isSaving.value) return
+  isSaving.value = true
+  try {
+    if (await save()) return
+  } catch (error) {
+    log.error(error)
+  } finally {
+    isSaving.value = false
   }
+  notice.notify({
+    title: t('preferences.keybindings.failedToSave'),
+    type: 'error',
+    message: t('preferences.keybindings.saveError')
+  })
+}
+
+const saveKeybindings = (): void => {
+  const configurator = keybindingConfigurator.value
+  if (configurator) void persistKeybindings(() => configurator.save())
 }
 
 const restoreDefaults = (): void => {
-  if (!keybindingConfigurator.value) return
-  keybindingConfigurator.value
-    .resetAll()
-    .then((success) => {
-      if (!success) {
-        notice.notify({
-          title: t('preferences.keybindings.failedToSave'),
-          type: 'error',
-          message: t('preferences.keybindings.saveError')
-        })
-      }
-    })
-    .catch((error) => log.error(error))
+  const configurator = keybindingConfigurator.value
+  if (configurator) void persistKeybindings(() => configurator.resetAll())
 }
 
 const handleEditClick = (index: number, entry: UiKeybinding | undefined): void => {
-  if (index >= 0 && entry) {
+  if (!isSaving.value && index >= 0 && entry) {
     selectedShortcutId.value = entry.id
   }
 }
 
 const handleResetClick = (_index: number, entry: UiKeybinding): void => {
-  if (!keybindingConfigurator.value) return
+  if (isSaving.value || !keybindingConfigurator.value) return
   const { id } = entry
   const success = keybindingConfigurator.value.resetToDefault(id)
   if (!success) {
     handleDuplicateShortcut(id, keybindingConfigurator.value.getDefaultAccelerator(id) ?? '')
+  } else {
+    saveKeybindings()
   }
 }
 
 const handleUnbindClick = (_index: number, entry: UiKeybinding): void => {
-  keybindingConfigurator.value?.unbind(entry.id)
+  if (isSaving.value) return
+  if (keybindingConfigurator.value?.unbind(entry.id)) saveKeybindings()
 }
 
 const onKeybinding = (value: string | null): void => {
   const selectedId = selectedShortcutId.value
-  if (value && selectedId && keybindingConfigurator.value) {
+  if (!isSaving.value && value && selectedId && keybindingConfigurator.value) {
     const success = keybindingConfigurator.value.change(selectedId, value)
     if (!success) {
       handleDuplicateShortcut(selectedId, value)
+    } else {
+      saveKeybindings()
     }
   }
   selectedShortcutId.value = null

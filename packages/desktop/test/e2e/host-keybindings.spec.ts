@@ -236,12 +236,15 @@ test.describe('host-owned keybindings', () => {
     )
   })
 
-  test('Preferences records shifted digits, saves, unbinds and restores defaults', async() => {
+  test('Preferences autosaves shifted digits, unbinding and restoring defaults', async() => {
     await selectText(page)
     const settingsWindow = app.waitForEvent('window')
     await app.evaluate(({ ipcMain }) => ipcMain.emit('app-create-settings-window', 'keybindings'))
     const settings = await settingsWindow
     await settings.getByText('Keybindings', { exact: true }).click()
+    await expect(settings.locator('.pref-keybindings .footer').getByRole('button', {
+      name: 'Save', exact: true
+    })).toHaveCount(0)
     const bold = settings
       .locator('.el-table__row')
       .filter({ has: settings.getByText('Bold', { exact: true }) })
@@ -253,10 +256,6 @@ test.describe('host-owned keybindings', () => {
     await expect(recorder).toHaveValue(recorded)
     await recorder.press('Enter')
     await expect(bold).toContainText(recorded)
-    await settings
-      .locator('.pref-keybindings .footer')
-      .getByRole('button', { name: 'Save', exact: true })
-      .click()
     await expect(page.locator('.mu-format-picker .item.strong')).toHaveAttribute(
       'title',
       `Emphasize\n${label('7')}`
@@ -267,19 +266,11 @@ test.describe('host-owned keybindings', () => {
     ).toBe(recorded)
 
     await bold.getByRole('button', { name: 'Unbind', exact: true }).click()
-    await settings
-      .locator('.pref-keybindings .footer')
-      .getByRole('button', { name: 'Save', exact: true })
-      .click()
     await expect(page.locator('.mu-format-picker .item.strong')).toHaveAttribute(
       'title',
       'Emphasize'
     )
     await bold.getByRole('button', { name: 'Reset', exact: true }).click()
-    await settings
-      .locator('.pref-keybindings .footer')
-      .getByRole('button', { name: 'Save', exact: true })
-      .click()
     await expect(page.locator('.mu-format-picker .item.strong')).toHaveAttribute(
       'title',
       `Emphasize\n${isMac ? '⌘B' : 'Ctrl+B'}`
