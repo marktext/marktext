@@ -63,7 +63,7 @@ export const it = {
         'Italic': 'Corsivo',
         'Underline': 'Sottolineato',
         'Strikethrough': 'Barrato',
-        'Highlight': 'Evidenzia',
+        'Highlight': 'Evidenziato',
         'Text color': 'Colore del testo',
         'Background color': 'Colore di sfondo',
         'Default': 'Predefinito',

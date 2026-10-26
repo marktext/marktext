@@ -17,7 +17,7 @@
       "openFile": "Apri file…",
       "openFolder": "Apri cartella…",
       "openRecent": "Documenti recenti",
-      "openRecentMore": "Cerca nei recenti…",
+      "openRecentMore": "Cerca nei documenti recenti…",
       "clearRecentlyUsed": "Svuota elenco dei file recenti",
       "save": "Salva",
       "saveAs": "Salva con nome…",
@@ -197,7 +197,7 @@
     "lookUp": "Cerca \"{selection}\"",
     "insertParagraphBefore": "Inserisci paragrafo prima",
     "insertParagraphAfter": "Inserisci paragrafo dopo",
-    "spelling": "Controllo ortografico…",
+    "spelling": "Controllo ortografico",
     "changeLanguage": "Cambia lingua…",
     "addToDictionary": "Aggiungi al dizionario",
     "editDictionary": "Modifica il dizionario…",
@@ -285,11 +285,11 @@
   "titleBar": {
     "applicationMenu": "Menu applicazione",
     "minimize": "Riduci a icona",
-    "maximize": "Massimizza",
+    "maximize": "Ingrandisci",
     "restore": "Ripristina",
     "close": "Chiudi",
     "documentStatistics": {
-      "title": "Statistiche sul documento",
+      "title": "Statistiche del documento",
       "fileInformation": "Informazioni sul file",
       "created": "Creato",
       "lastModified": "Modificato",
@@ -541,7 +541,7 @@
       },
       "sidebar": {
         "title": "Barra laterale",
-        "wrapTextInToc": "Vai a capo nel Sommario",
+        "wrapTextInToc": "Vai a capo nel sommario",
         "tocPosition": "Posizione del sommario",
         "tocLeft": "Sinistra",
         "tocRight": "Destra",
@@ -675,7 +675,7 @@
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Scegli il metodo di installazione:",
         "retestPicgo": "Riprova",
-        "lastDetectionTime": "Ultimo orario di rilevamento",
+        "lastDetectionTime": "Ultimo rilevamento",
         "picgoDetection": "Rilevamento di PicGo",
         "usageGuide": {
           "title": "Guida rapida di PicGo",
@@ -774,7 +774,7 @@
     "theme": {
       "title": "Tema",
       "followSystemTheme": "Segui il tema di sistema",
-      "followSystemNote": "Se si segue il tema di sistema, viene impedito l’accesso al sottostante elenco di temi alternativi. Disattivare questa opzione per poter cambiare tema liberamente.",
+      "followSystemNote": "Se si segue il tema di sistema, viene impedito l’accesso al sottostante elenco di temi alternativi. Disattivare tale opzione per poter cambiare tema liberamente.",
       "modeThemes": "Selezione tema",
       "lightModeTheme": "Tema chiaro",
       "darkModeTheme": "Tema scuro",
