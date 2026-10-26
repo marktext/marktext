@@ -10,8 +10,10 @@ import type { IAnchorFocusInfo, INodeOffset, IResolvedTextSelection, ISelectionE
 import { revealBlock } from '../block/folding';
 import { isHTMLElement, isMouseEvent } from '../utils';
 import logger from '../utils/logger';
+import { collapsedPreviewEndpoint, collapsedSyntaxBoundaries, snapToCollapsedSyntax } from './collapsedSyntax';
 import {
     compareParagraphsOrder,
+    endpointAtPoint,
     getLegalOffset,
     getNodeAndOffset,
     lineAtPoint,
@@ -71,9 +73,17 @@ class TextSelection {
     private _selectInfo: {
         isSelect: boolean;
         selection: ISelectionEndpoints | null;
+        boundaries: Map<Content, ReturnType<typeof collapsedSyntaxBoundaries>>;
+        anchor: IAnchorFocusInfo | null;
+        focus: IAnchorFocusInfo | null;
+        moved: boolean;
     } = {
         isSelect: false,
         selection: null,
+        boundaries: new Map(),
+        anchor: null,
+        focus: null,
+        moved: false,
     };
 
     constructor(private _muya: Muya, private _selection: Selection) {
@@ -153,11 +163,24 @@ class TextSelection {
         if (!anchorNode || !focusNode)
             return null;
 
-        const anchor = resolveEndpoint(anchorNode, anchorOffset);
-        const focus = resolveEndpoint(focusNode, focusOffset);
+        const dragging = this._selectInfo.isSelect && (this._selectInfo.moved || !selection.isCollapsed);
+        const anchor = (dragging && this._selectInfo.anchor) || resolveEndpoint(anchorNode, anchorOffset);
+        const focus = (dragging && this._selectInfo.focus) || resolveEndpoint(focusNode, focusOffset);
 
         if (!anchor || !focus)
             return null;
+
+        if (dragging) {
+            for (const endpoint of [anchor, focus]) {
+                const { block } = endpoint;
+                let boundaries = this._selectInfo.boundaries.get(block);
+                if (!boundaries) {
+                    boundaries = collapsedSyntaxBoundaries(block);
+                    this._selectInfo.boundaries.set(block, boundaries);
+                }
+                endpoint.offset = snapToCollapsedSyntax(endpoint.offset, boundaries);
+            }
+        }
 
         const anchorBlock = anchor.block;
         const focusBlock = focus.block;
@@ -241,14 +264,18 @@ class TextSelection {
         const { eventCenter, domNode } = this._muya;
 
         const handleMousedown = (event: Event) => {
-            if (this._muya.isReadOnly)
+            if (this._muya.isReadOnly || !isMouseEvent(event) || event.button !== 0)
                 return;
             this._selectInfo = {
                 isSelect: true,
                 selection: null,
+                boundaries: new Map(),
+                anchor: event.shiftKey ? null : collapsedPreviewEndpoint(this._doc.elementFromPoint(event.clientX, event.clientY), event.clientX, event.clientY),
+                focus: null,
+                moved: false,
             };
 
-            if (!isMouseEvent(event) || event.button !== 0 || event.detail < 3)
+            if (event.detail < 3)
                 return;
 
             const line = lineAtPoint(this._doc, event.clientX, event.clientY);
@@ -260,17 +287,21 @@ class TextSelection {
             line.block.setCursor(line.start, line.end);
         };
 
-        const handleMouseupOrLeave = () => {
+        const handleMouseup = (event: Event) => {
             if (this._muya.isReadOnly)
                 return;
-            const { selection } = this._selectInfo;
-            if (!this._selection.table.hasSelection && selection?.anchor.block.outMostBlock && selection.focus.block.outMostBlock)
+            if (!this._selectInfo.isSelect)
+                return;
+            if (isMouseEvent(event))
+                this._selectInfo.focus = this._pointerFocus(event);
+            const selection = this.getSelection() ?? this._selectInfo.selection;
+            if (!this._selection.table.hasSelection
+                && selection?.anchor.block.outMostBlock && selection.focus.block.outMostBlock
+                && (selection.anchor.block !== selection.focus.block || selection.anchor.offset !== selection.focus.offset)) {
                 this.setSelection(selection.anchor, selection.focus);
+            }
 
-            this._selectInfo = {
-                isSelect: false,
-                selection: null,
-            };
+            this._resetDrag();
         };
 
         const handleMousemoveOrClick = (event: Event) => {
@@ -283,9 +314,17 @@ class TextSelection {
             if (type === 'mousemove' && !this._selectInfo.isSelect)
                 return;
 
+            if (type === 'mousemove' && event.buttons !== 1) {
+                this._resetDrag();
+                return;
+            }
+
             if (type === 'click' && !shiftKey)
                 return;
 
+            if (type === 'mousemove' && event.buttons === 1)
+                this._selectInfo.moved = true;
+            this._selectInfo.focus = this._pointerFocus(event);
             const selection = this.getSelection();
             if (!selection)
                 return;
@@ -322,9 +361,25 @@ class TextSelection {
 
         eventCenter.attachDOMEvent(domNode, 'mousedown', handleMousedown);
         eventCenter.attachDOMEvent(domNode, 'mousemove', handleMousemoveOrClick);
-        eventCenter.attachDOMEvent(domNode, 'mouseup', handleMouseupOrLeave);
-        eventCenter.attachDOMEvent(domNode, 'mouseleave', handleMouseupOrLeave);
+        eventCenter.attachDOMEvent(this._doc, 'mouseup', handleMouseup);
+        // A release outside the window must not carry drag snapping into keyboard edits.
+        eventCenter.attachDOMEvent(this._doc, 'keydown', () => this._resetDrag(), true);
         eventCenter.attachDOMEvent(domNode, 'click', handleMousemoveOrClick);
+    }
+
+    private _resetDrag() {
+        this._selectInfo.isSelect = false;
+        this._selectInfo.selection = null;
+        this._selectInfo.boundaries.clear();
+        this._selectInfo.anchor = null;
+        this._selectInfo.focus = null;
+        this._selectInfo.moved = false;
+    }
+
+    private _pointerFocus(event: MouseEvent): IAnchorFocusInfo | null {
+        const { clientX, clientY } = event;
+        return collapsedPreviewEndpoint(this._doc.elementFromPoint(clientX, clientY), clientX, clientY)
+            ?? (this._selectInfo.anchor ? endpointAtPoint(this._doc, clientX, clientY) : null);
     }
 
     private _selectRange(range: Range) {
