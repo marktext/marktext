@@ -1,6 +1,6 @@
 import { isReadingCommandAllowed } from 'common/commands/readingMode'
 import { useEditorStore } from './editor'
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 import { defineStore } from 'pinia'
 import log from 'electron-log'
 import bus from '../bus'
@@ -17,12 +17,43 @@ type Command = CommandDescriptor
 type Root = { subcommands: Command[] }
 
 export const useCommandCenterStore = defineStore('commandCenter', () => {
+  const activeKeybindings = shallowRef<Readonly<Record<string, string>>>({})
+  const registeredCommands = new Map<string, Command>()
   const rootCommand = ref<Root>(
     new RootCommand(staticCommands as unknown as CommandDescriptor[]) as Root
   )
 
   function REGISTER_COMMAND(command: Command): void {
-    rootCommand.value.subcommands.push(command)
+    registeredCommands.set(command.id, command)
+    command.shortcut = normalizeAccelerator(getAccelerator(command.id) ?? '')
+    const index = rootCommand.value.subcommands.findIndex((entry) => entry.id === command.id)
+    if (index === -1) rootCommand.value.subcommands.push(command)
+    else rootCommand.value.subcommands[index] = command
+  }
+
+  function getAccelerator(commandId: string): string | undefined {
+    return activeKeybindings.value[commandId]
+  }
+
+  function applyShortcuts(): void {
+    for (const entry of rootCommand.value.subcommands) {
+      entry.shortcut = normalizeAccelerator(getAccelerator(entry.id) ?? '')
+    }
+  }
+
+  function UPDATE_KEYBINDINGS(bindings: Readonly<Record<string, string>>): void {
+    activeKeybindings.value = { ...bindings }
+    applyShortcuts()
+  }
+
+  async function refreshCommands(): Promise<void> {
+    const commands = await getCommandsWithDescriptions()
+    rootCommand.value.subcommands = [
+      ...commands.filter((entry) => !registeredCommands.has(entry.id)),
+      ...registeredCommands.values()
+    ]
+    applyShortcuts()
+    SORT_COMMANDS()
   }
 
   function SORT_COMMANDS(): void {
@@ -32,27 +63,17 @@ export const useCommandCenterStore = defineStore('commandCenter', () => {
   }
 
   async function LISTEN_COMMAND_CENTER_BUS(): Promise<void> {
-    rootCommand.value.subcommands = await getCommandsWithDescriptions()
-    SORT_COMMANDS()
+    window.electron.ipcRenderer.on('mt::keybindings-response', (_e, keybindingMap) => {
+      UPDATE_KEYBINDINGS(keybindingMap)
+    })
+    window.electron.ipcRenderer.send('mt::request-keybindings')
 
     bus.on('language-changed', async() => {
-      rootCommand.value.subcommands = await getCommandsWithDescriptions()
-      SORT_COMMANDS()
+      await refreshCommands()
     })
 
     bus.on('cmd::sort-commands', () => {
       SORT_COMMANDS()
-    })
-
-    window.electron.ipcRenderer.on('mt::keybindings-response', (_e, keybindingMap) => {
-      const map = keybindingMap as Record<string, string>
-      const { subcommands } = rootCommand.value
-      for (const entry of subcommands) {
-        const value = map[entry.id]
-        if (value) {
-          entry.shortcut = normalizeAccelerator(value)
-        }
-      }
     })
 
     bus.on('cmd::register-command', (command: unknown) => {
@@ -65,10 +86,14 @@ export const useCommandCenterStore = defineStore('commandCenter', () => {
     window.electron.ipcRenderer.on('mt::execute-command-by-id', (_e, commandId) => {
       executeCommand(rootCommand.value, String(commandId))
     })
+    await refreshCommands()
   }
 
   return {
     rootCommand,
+    activeKeybindings,
+    getAccelerator,
+    UPDATE_KEYBINDINGS,
     REGISTER_COMMAND,
     SORT_COMMANDS,
     LISTEN_COMMAND_CENTER_BUS

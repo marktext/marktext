@@ -68,6 +68,10 @@ Concrete blocks live under `src/block/{commonMark,gfm,extra,content}` and **must
 
 Each subfolder is a floating tool/menu (inline format toolbar, image tools, paragraph front button, table tools, emoji selector, etc.) extending `baseFloat` or `baseScrollFloat` and positioned with `@floating-ui/dom`. They're imported and re-exported from `src/index.ts` and registered by consumers via `Muya.use(...)`. `Ui` (`src/ui/ui.ts`) is the registry the editor talks to.
 
+### Host-owned command shortcuts
+
+`InlineFormatToolbar` and `ParagraphQuickInsertMenu` accept `keyboardShortcuts: false` to let a host own command dispatch. This keeps clicks, slash-menu navigation, and toolbar visibility handling enabled. These plugins and `ParagraphFrontMenu` accept a `getShortcut(action)` provider: once supplied, empty results hide a hint rather than falling back to bundled defaults. After the provider's data changes, call `muya.refreshShortcutHints()` to repaint visible tools without replacing selection or search state. The desktop uses the main process's active keybinding snapshot for all three surfaces. Standalone consumers may omit these options.
+
 ### Public API surface
 
 `src/index.ts` is the published entrypoint. The `exports` map in `package.json` points `.` at `./src/index.ts` during development and `./lib/es/index.js` after publish — keep this file the single export hub.

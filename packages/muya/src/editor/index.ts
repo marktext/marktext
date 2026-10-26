@@ -349,7 +349,12 @@ export class Editor {
         const { domNode } = this._muya;
 
         // Native input moves the DOM caret before the input handler runs (#5258).
-        this._muya.eventCenter.attachDOMEvent(domNode, 'beforeinput', () => {
+        this._muya.eventCenter.attachDOMEvent(domNode, 'beforeinput', (event) => {
+            // Browser rich-text commands must not mutate DOM outside the document model.
+            if (event instanceof InputEvent && event.inputType.startsWith('format')) {
+                event.preventDefault();
+                return;
+            }
             if (this._muya.isReadOnly || this._isComposing)
                 return;
             this.transactions.flush();

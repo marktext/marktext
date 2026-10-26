@@ -1,5 +1,6 @@
 import type { VNode } from 'snabbdom';
 import type { Muya } from '../../index';
+import type { IBaseOptions, IKeyboardShortcutOptions } from '../types';
 import type {
     IQuickInsertMenuItem,
 } from './config';
@@ -11,6 +12,7 @@ import { query } from '../../utils/dom';
 import { h, patch } from '../../utils/snabbdom';
 import BaseScrollFloat from '../baseScrollFloat';
 import { renderMenuIcon } from '../menuIcon';
+import { getShortcutHint } from '../shortcuts';
 import {
     getLabelFromEvent,
     MENU_CONFIG,
@@ -39,10 +41,12 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
     public override activeItem: IQuickInsertMenuItem['children'][number] | null = null;
     public override renderArray: IQuickInsertMenuItem['children'] = [];
     private _renderData: IQuickInsertMenuItem[] = [];
+    private _shortcutOptions: IKeyboardShortcutOptions;
 
-    constructor(muya: Muya) {
+    constructor(muya: Muya, options: Partial<IBaseOptions> & IKeyboardShortcutOptions = {}) {
         const name = 'mu-quick-insert';
-        super(muya, name);
+        super(muya, name, options);
+        this._shortcutOptions = options;
         this.renderArray = [];
         this.renderData = MENU_CONFIG;
         this.render();
@@ -112,7 +116,12 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
             }
         };
 
-        eventCenter.attachDOMEvent(domNode, 'keydown', handleKeydown);
+        if (this._shortcutOptions.keyboardShortcuts !== false)
+            eventCenter.attachDOMEvent(domNode, 'keydown', handleKeydown);
+        eventCenter.subscribe('shortcut-hints-change', () => {
+            if (this.status)
+                this.render();
+        });
         eventCenter.attachDOMEvent(this.container!, 'mousemove', (event: Event) => {
             this.container!.classList.remove('mu-keyboard-navigation');
             if (!(event.target instanceof Element))
@@ -148,7 +157,8 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
             const items = [];
 
             for (const item of section.children) {
-                const { title, subTitle, label, icon, shortCut } = item;
+                const { title, subTitle, label, icon } = item;
+                const shortCut = getShortcutHint(this._shortcutOptions, label, item.shortCut);
                 const iconVnode = h(
                     'div.icon-container',
                     renderMenuIcon({ label, icon }),
@@ -163,7 +173,7 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
                         i18n.t(title),
                     ),
                 ]);
-                const shortCutVnode = shortCut ? h('div.short-cut', [h('span', shortCut)]) : null;
+                const shortCutVnode = shortCut ? h('div.short-cut', { attrs: { title: shortCut } }, [h('span', shortCut)]) : null;
                 const selector
                     = activeItem!.label === label ? 'div.item.active' : 'div.item';
                 items.push(

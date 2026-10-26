@@ -10,6 +10,7 @@ import type {
     TState,
 } from '../../state/types';
 import type { IQuickInsertMenuItem } from '../paragraphQuickInsertMenu/config';
+import type { IBaseOptions, IShortcutHintOptions } from '../types';
 import { replaceBlockByLabel } from '../../block/blockTransforms';
 import { canConvertGithubAlert, convertGithubAlert } from '../../block/githubAlerts';
 import { ScrollPage } from '../../block/scrollPage';
@@ -22,6 +23,7 @@ import { githubAlertBlockType } from '../../utils/githubAlerts';
 import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
 import { renderMenuIcon } from '../menuIcon';
+import { getShortcutHint } from '../shortcuts';
 import { canTurnIntoMenu, FRONT_MENU } from './config';
 import './index.css';
 
@@ -41,11 +43,13 @@ export class ParagraphFrontMenu extends BaseFloat {
     private _oldVNode: VNode | null = null;
     private _block: Parent | null = null;
     private _frontMenuContainer: HTMLDivElement = document.createElement('div');
+    private _shortcutOptions: IShortcutHintOptions;
 
-    constructor(muya: Muya, options = {}) {
+    constructor(muya: Muya, options: Partial<IBaseOptions> & IShortcutHintOptions = {}) {
         const name = 'mu-front-menu';
         const opts = Object.assign({}, defaultOptions, options);
         super(muya, name, opts);
+        this._shortcutOptions = options;
         const parent = this.container!.parentNode;
         if (isHTMLElement(parent)) {
             Object.assign(parent.style, {
@@ -60,6 +64,10 @@ export class ParagraphFrontMenu extends BaseFloat {
         const { container } = this;
         const { eventCenter } = this.muya;
         super.listen();
+        eventCenter.subscribe('shortcut-hints-change', () => {
+            if (this.status && this._block?.parent)
+                this.render();
+        });
 
         eventCenter.subscribe('muya-front-menu', ({ reference, block }) => {
             if (reference) {
@@ -92,7 +100,7 @@ export class ParagraphFrontMenu extends BaseFloat {
                 iconWrapperSelector,
                 {
                     props: {
-                        title: `${i18n.t(title)}\n${subTitle}`,
+                        title: [i18n.t(title), subTitle, getShortcutHint(this._shortcutOptions, label, menuItem.shortCut)].filter(Boolean).join('\n'),
                     },
                 },
                 renderMenuIcon(menuItem),
@@ -140,9 +148,10 @@ export class ParagraphFrontMenu extends BaseFloat {
             const iconWrapperSelector = 'div.icon-wrapper';
             const iconWrapper = h(iconWrapperSelector, renderMenuIcon({ icon, label }));
             const textWrapper = h('span.text', i18n.t(text));
-            const shortCutWrapper = h('div.short-cut', [h('span', shortCut)]);
+            const hint = getShortcutHint(this._shortcutOptions, label, shortCut);
+            const shortCutWrapper = hint ? h('div.short-cut', { attrs: { title: hint } }, [h('span', hint)]) : null;
             const itemSelector = `li.item.${label}`;
-            const itemChildren = [iconWrapper, textWrapper, shortCutWrapper];
+            const itemChildren = shortCutWrapper ? [iconWrapper, textWrapper, shortCutWrapper] : [iconWrapper, textWrapper];
 
             return h(
                 itemSelector,

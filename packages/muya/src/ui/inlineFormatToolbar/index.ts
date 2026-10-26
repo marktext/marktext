@@ -3,7 +3,7 @@ import type { Muya } from '../../index';
 import type { Token } from '../../inlineRenderer/types';
 import type { TSelection } from '../../selection/types';
 import type { ColorFormatType, IColorStyle } from '../../utils/colorSpan';
-import type { IBaseOptions } from '../types';
+import type { IBaseOptions, IKeyboardShortcutOptions } from '../types';
 
 import type { FormatToolIcon, IColorSection, IColorSwatch } from './config';
 import Format from '../../block/base/format';
@@ -13,6 +13,7 @@ import { isKeyboardEvent } from '../../utils';
 import { parseColorStyle } from '../../utils/colorSpan';
 import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
+import { getShortcutHint } from '../shortcuts';
 import icons, { COLOR_SECTIONS } from './config';
 import './index.css';
 
@@ -86,17 +87,19 @@ export class InlineFormatToolbar extends BaseFloat {
     private _dragging = false;
 
     private _colorPanelCloseTimer: number | null = null;
+    private _shortcutOptions: IKeyboardShortcutOptions;
 
     /**
      * Create inline format toolbar instance
      * @param muya - Muya editor instance
      * @param options - Toolbar options
      */
-    constructor(muya: Muya, options = {}) {
+    constructor(muya: Muya, options: Partial<IBaseOptions> & IKeyboardShortcutOptions = {}) {
         const name = 'mu-format-picker';
         const opts = Object.assign({}, defaultOptions, options);
         super(muya, name, opts);
         this.options = opts;
+        this._shortcutOptions = options;
         this.container!.appendChild(this._formatContainer);
         this.floatBox!.classList.add('mu-format-picker-container');
         this.listen();
@@ -127,6 +130,10 @@ export class InlineFormatToolbar extends BaseFloat {
 
         eventCenter.attachDOMEvent(domNode, 'keydown', (event) => {
             this._handleKeydown(event, editor);
+        });
+        eventCenter.subscribe('shortcut-hints-change', () => {
+            if (this.status)
+                this._render();
         });
 
         // Leaving the toolbar starts a short close delay: the pointer crosses a
@@ -197,7 +204,8 @@ export class InlineFormatToolbar extends BaseFloat {
         }
 
         // Handle format shortcuts
-        this._handleFormatShortcut(event, key, shiftKey, anchorBlock);
+        if (this._shortcutOptions.keyboardShortcuts !== false)
+            this._handleFormatShortcut(event, key, shiftKey, anchorBlock);
     }
 
     /**
@@ -289,7 +297,7 @@ export class InlineFormatToolbar extends BaseFloat {
             itemSelector,
             {
                 attrs: {
-                    title: `${i18n.t(icon.tooltip)}\n${icon.shortcut}`,
+                    title: [i18n.t(icon.tooltip), getShortcutHint(this._shortcutOptions, icon.type, icon.shortcut)].filter(Boolean).join('\n'),
                 },
                 on: {
                     click: event => this._selectItem(event, icon),

@@ -1,5 +1,7 @@
 .mu-quick-insert {
-    width: 230px;
+    width: max-content;
+    min-width: 230px;
+    max-width: calc(100vw - 32px);
     max-height: 260px;
     padding: 0 0 20px;
     overflow-y: auto;
@@ -103,9 +105,9 @@
 .mu-quick-insert .short-cut {
     display: flex;
     flex-direction: row-reverse;
-    flex-shrink: 1;
+    flex-shrink: 0;
     align-items: center;
-    width: 70px;
+    min-width: 70px;
     margin-right: 20px;
 
     color: var(--editor-color-50);

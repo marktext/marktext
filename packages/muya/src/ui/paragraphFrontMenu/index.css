@@ -1,5 +1,7 @@
 .mu-front-menu {
-    width: 230px;
+    width: max-content;
+    min-width: 230px;
+    max-width: calc(100vw - 32px);
 
     font-weight: 600;
     font-size: 14px;
@@ -79,6 +81,9 @@
 }
 
 .mu-front-menu > ul li > .short-cut {
+    flex-shrink: 0;
+    margin-left: 12px;
+
     color: var(--editor-color);
     font-size: 13px;
 }

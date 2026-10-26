@@ -113,6 +113,8 @@ import {
   type ISerializedHistory
 } from '@muyajs/core'
 import { getMuyaLocale } from '@/util/muyaLocale'
+import { createMuyaShortcutResolvers } from '@/util/muyaShortcuts'
+import { useCommandCenterStore } from '@/store/commandCenter'
 import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
 import { applyCursor, isIndexCursor } from '@/util/cursor'
 import EditorSearch from '../search/index.vue'
@@ -165,6 +167,7 @@ const props = defineProps<{
 
 const preferencesStore = usePreferencesStore()
 const editorStore = useEditorStore()
+const commandCenterStore = useCommandCenterStore()
 const projectStore = useProjectStore()
 
 const {
@@ -247,6 +250,9 @@ const selectionChange = ref<ISelectionChangePayload | null>(null)
 // `shallowRef`: the engine instance is `markRaw`d anyway, and a deep ref
 // would map `Muya` through `UnwrapRef` and lose the class's own type.
 const editor = shallowRef<Muya | null>(null)
+watch(() => commandCenterStore.activeKeybindings, () => {
+  editor.value?.refreshShortcutHints()
+})
 const isShowClose = ref(false)
 const dialogTableVisible = ref(false)
 const tableChecker = reactive({
@@ -1601,7 +1607,11 @@ onMounted(() => {
   if (!ele) return
 
   Muya.use(TableChessboard)
-  Muya.use(ParagraphQuickInsertMenu)
+  const shortcuts = createMuyaShortcutResolvers(commandCenterStore.getAccelerator, isMac)
+  Muya.use(ParagraphQuickInsertMenu, {
+    keyboardShortcuts: false,
+    getShortcut: shortcuts.paragraph
+  })
   Muya.use(CodeBlockLanguageSelector)
   Muya.use(EmojiSelector)
   Muya.use(ImagePathPicker)
@@ -1612,9 +1622,12 @@ onMounted(() => {
   })
   Muya.use(ImageResizeBar)
   Muya.use(ImageToolBar)
-  Muya.use(InlineFormatToolbar)
+  Muya.use(InlineFormatToolbar, {
+    keyboardShortcuts: false,
+    getShortcut: shortcuts.format
+  })
   Muya.use(ParagraphFrontButton)
-  Muya.use(ParagraphFrontMenu)
+  Muya.use(ParagraphFrontMenu, { getShortcut: shortcuts.front })
   Muya.use(PreviewToolBar)
   Muya.use(LinkTools, {
     jumpClick

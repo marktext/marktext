@@ -1,5 +1,9 @@
 # Key Bindings
 
+The editor toolbar, paragraph menus, application menu and command palette show the active key bindings for your platform. Changes in Preferences take effect in open editor windows without restarting. Clearing a binding removes its shortcut hint and disables that keyboard command; the menu action remains available. Restoring the default binding restores both the shortcut and its hint.
+
+On Windows, `Ctrl+P` opens Quick Open. Print has no default shortcut and remains available from the File menu; you can assign it a different shortcut in Preferences.
+
 Customize registered command shortcuts with the `keybindings.json` file. The file is located in the [application data directory](APPLICATION_DATA_DIRECTORY.md). Each entry maps a command ID to an accelerator string. Use the IDs exactly as listed in the platform tables, including capitalization.
 
 Here is an example:
