@@ -76,7 +76,7 @@ export class InlineFormatToolbar extends BaseFloat {
     private _formats: Token[] = [];
 
     /** Toolbar configuration options */
-    public override options: IBaseOptions;
+    declare public options: IBaseOptions & IKeyboardShortcutOptions;
 
     /** Format tool icons configuration */
     private _icons: FormatToolIcon[] = icons;
@@ -87,7 +87,6 @@ export class InlineFormatToolbar extends BaseFloat {
     private _dragging = false;
 
     private _colorPanelCloseTimer: number | null = null;
-    private _shortcutOptions: IKeyboardShortcutOptions;
 
     /**
      * Create inline format toolbar instance
@@ -98,8 +97,6 @@ export class InlineFormatToolbar extends BaseFloat {
         const name = 'mu-format-picker';
         const opts = Object.assign({}, defaultOptions, options);
         super(muya, name, opts);
-        this.options = opts;
-        this._shortcutOptions = options;
         this.container!.appendChild(this._formatContainer);
         this.floatBox!.classList.add('mu-format-picker-container');
         this.listen();
@@ -204,7 +201,7 @@ export class InlineFormatToolbar extends BaseFloat {
         }
 
         // Handle format shortcuts
-        if (this._shortcutOptions.keyboardShortcuts !== false)
+        if (this.options.keyboardShortcuts !== false)
             this._handleFormatShortcut(event, key, shiftKey, anchorBlock);
     }
 
@@ -297,7 +294,7 @@ export class InlineFormatToolbar extends BaseFloat {
             itemSelector,
             {
                 attrs: {
-                    title: [i18n.t(icon.tooltip), getShortcutHint(this._shortcutOptions, icon.type, icon.shortcut)].filter(Boolean).join('\n'),
+                    title: [i18n.t(icon.tooltip), getShortcutHint(this.options, icon.type, icon.shortcut)].filter(Boolean).join('\n'),
                 },
                 on: {
                     click: event => this._selectItem(event, icon),

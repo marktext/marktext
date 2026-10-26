@@ -43,13 +43,12 @@ export class ParagraphFrontMenu extends BaseFloat {
     private _oldVNode: VNode | null = null;
     private _block: Parent | null = null;
     private _frontMenuContainer: HTMLDivElement = document.createElement('div');
-    private _shortcutOptions: IShortcutHintOptions;
+    declare protected options: IBaseOptions & IShortcutHintOptions;
 
     constructor(muya: Muya, options: Partial<IBaseOptions> & IShortcutHintOptions = {}) {
         const name = 'mu-front-menu';
         const opts = Object.assign({}, defaultOptions, options);
         super(muya, name, opts);
-        this._shortcutOptions = options;
         const parent = this.container!.parentNode;
         if (isHTMLElement(parent)) {
             Object.assign(parent.style, {
@@ -100,7 +99,7 @@ export class ParagraphFrontMenu extends BaseFloat {
                 iconWrapperSelector,
                 {
                     props: {
-                        title: [i18n.t(title), subTitle, getShortcutHint(this._shortcutOptions, label, menuItem.shortCut)].filter(Boolean).join('\n'),
+                        title: [i18n.t(title), subTitle, getShortcutHint(this.options, label, menuItem.shortCut)].filter(Boolean).join('\n'),
                     },
                 },
                 renderMenuIcon(menuItem),
@@ -148,7 +147,7 @@ export class ParagraphFrontMenu extends BaseFloat {
             const iconWrapperSelector = 'div.icon-wrapper';
             const iconWrapper = h(iconWrapperSelector, renderMenuIcon({ icon, label }));
             const textWrapper = h('span.text', i18n.t(text));
-            const hint = getShortcutHint(this._shortcutOptions, label, shortCut);
+            const hint = getShortcutHint(this.options, label, shortCut);
             const shortCutWrapper = hint ? h('div.short-cut', { attrs: { title: hint } }, [h('span', hint)]) : null;
             const itemSelector = `li.item.${label}`;
             const itemChildren = shortCutWrapper ? [iconWrapper, textWrapper, shortCutWrapper] : [iconWrapper, textWrapper];

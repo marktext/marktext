@@ -41,12 +41,11 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
     public override activeItem: IQuickInsertMenuItem['children'][number] | null = null;
     public override renderArray: IQuickInsertMenuItem['children'] = [];
     private _renderData: IQuickInsertMenuItem[] = [];
-    private _shortcutOptions: IKeyboardShortcutOptions;
+    declare protected options: IBaseOptions & IKeyboardShortcutOptions;
 
     constructor(muya: Muya, options: Partial<IBaseOptions> & IKeyboardShortcutOptions = {}) {
         const name = 'mu-quick-insert';
         super(muya, name, options);
-        this._shortcutOptions = options;
         this.renderArray = [];
         this.renderData = MENU_CONFIG;
         this.render();
@@ -116,7 +115,7 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
             }
         };
 
-        if (this._shortcutOptions.keyboardShortcuts !== false)
+        if (this.options.keyboardShortcuts !== false)
             eventCenter.attachDOMEvent(domNode, 'keydown', handleKeydown);
         eventCenter.subscribe('shortcut-hints-change', () => {
             if (this.status)
@@ -158,7 +157,7 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
 
             for (const item of section.children) {
                 const { title, subTitle, label, icon } = item;
-                const shortCut = getShortcutHint(this._shortcutOptions, label, item.shortCut);
+                const shortCut = getShortcutHint(this.options, label, item.shortCut);
                 const iconVnode = h(
                     'div.icon-container',
                     renderMenuIcon({ label, icon }),
