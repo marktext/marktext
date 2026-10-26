@@ -50,7 +50,7 @@ const dropImage = async(page: Page, pathname: string): Promise<void> => {
   })
 }
 
-for (const outcome of ['prompt-cancel', 'native-cancel', 'saved', 'failed'] as const) {
+for (const outcome of ['prompt-cancel', 'native-cancel', 'saved', 'failed', 'copy-failed'] as const) {
   test(`relative-directory image drop: ${outcome}`, async() => {
     const root = mkdtempSync(join(tmpdir(), 'marktext-2561-'))
     const globalImages = join(root, 'global')
@@ -64,6 +64,7 @@ for (const outcome of ['prompt-cancel', 'native-cancel', 'saved', 'failed'] as c
       )
     )
     const document = join(root, 'demo.md')
+    if (outcome === 'copy-failed') writeFileSync(join(root, 'demo.assets'), 'not a directory')
     const blocked = join(root, 'blocked')
     writeFileSync(blocked, 'not a directory')
     const { app, page } = await launchElectron([], {
@@ -108,10 +109,11 @@ for (const outcome of ['prompt-cancel', 'native-cancel', 'saved', 'failed'] as c
         .getByRole('button', { name: outcome === 'prompt-cancel' ? 'Cancel' : 'Save', exact: true })
         .click()
       await expect(prompt).toBeHidden()
-      if (outcome === 'failed') {
-        await expect(page.locator('.editor-notifications')).toBeVisible()
+      if (outcome === 'failed' || outcome === 'copy-failed') {
+        await expect(page.locator(outcome === 'failed' ? '.editor-notifications' : '.mt-notification')).toBeVisible()
         expect(await markdown(page)).toBe(original)
         expect(readdirSync(globalImages)).toEqual([])
+        if (outcome === 'copy-failed') expect(readFileSync(document, 'utf8')).toBe(original)
       } else {
         await expect(page.locator('.editor-component .mu-image-success')).toHaveCount(1)
         const inserted = await markdown(page)

@@ -230,18 +230,22 @@ async function persistDroppedImage(
 
 async function insertPersistedImage(
     muya: Muya,
-    pending: Promise<string>,
+    ready: Promise<boolean>,
+    path: string,
     name: string,
     target: IDropTarget,
 ): Promise<void> {
     try {
-        const src = await pending;
+        if (!await ready || muya.isReadOnly || !muya.isBlockInDocument(target.anchor))
+            return;
+        const src = await muya.options.imageAction?.({ src: path, alt: name, title: '' }) ?? path;
         if (!src || muya.isReadOnly || !muya.isBlockInDocument(target.anchor))
             return;
         insertImageParagraph(muya, target, `![${name}](${encodeImageSrc(src)})`);
     }
     catch (error) {
         debug.warn(`Unexpected error on image drop: ${String(error)}`);
+        muya.eventCenter.emit('image-drop-error', error);
     }
 }
 
@@ -275,9 +279,9 @@ function handleFileImage(
         return false;
 
     const { name } = image;
-    const pending = muya.options.imageDropAction?.({ src: path, alt: name, title: '' });
-    if (pending) {
-        void insertPersistedImage(muya, pending, name, target);
+    const ready = muya.options.beforeImageDrop?.();
+    if (ready) {
+        void insertPersistedImage(muya, ready, path, name, target);
         return true;
     }
     const encodedPath = encodeImageSrc(path);

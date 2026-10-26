@@ -52,7 +52,7 @@ interface IMockMuya {
     domNode: HTMLElement;
     options: {
         imageAction?: (state: { src: string; alt: string; title: string }) => Promise<string>;
-        imageDropAction?: (state: { src: string; alt: string; title: string }) => Promise<string> | undefined;
+        beforeImageDrop?: () => Promise<boolean> | undefined;
         getPathForFile?: (file: File) => string;
     };
     editor: { inlineRenderer: { renderer: { urlMap: Map<string, string> } } };
@@ -123,58 +123,56 @@ afterEach(() => {
 });
 
 describe('attachDragDropImageHandlers — local image FILE', () => {
-    it('uses the default image action when the host defers to it', async () => {
-        const imageAction = vi.fn().mockResolvedValue('assets/shot.png');
-        const muya = makeMuya({
-            imageDropAction: () => undefined,
-            imageAction,
-            getPathForFile: () => '/abs/shot.png',
-        });
-        const contentDom = makeDropTarget(muya);
+    function dropLocalImage(options: IMockMuya['options']) {
+        const muya = makeMuya({ getPathForFile: () => '/abs/shot.png', ...options });
+        const target = makeDropTarget(muya);
         attachDragDropImageHandlers(muya as unknown as Muya);
         const dt = new DataTransfer();
         dt.items.add(new File(['x'], 'shot.png', { type: 'image/png' }));
-        muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
-        await Promise.resolve();
+        muya.domNode.dispatchEvent(dropEvent(target, dt));
+        return muya;
+    }
+
+    it('inserts the loading placeholder synchronously when no preflight is needed', () => {
+        const imageAction = vi.fn(() => new Promise<string>(() => {}));
+        dropLocalImage({ beforeImageDrop: () => undefined, imageAction });
         expect(createdBlocks).toHaveLength(1);
+        expect(createdBlocks[0].text).toMatch(/^!\[loading-/);
         expect(imageAction).toHaveBeenCalledOnce();
     });
 
-    it('keeps the document unchanged until the host finishes saving and persisting the drop', async () => {
+    it('uses imageAction after preflight and inserts only its final result', async () => {
+        let ready!: (allowed: boolean) => void;
         let finish!: (src: string) => void;
-        const imageDropAction = vi.fn(() => new Promise<string>((resolve) => {
+        const beforeImageDrop = vi.fn(() => new Promise<boolean>((resolve) => {
+            ready = resolve;
+        }));
+        const imageAction = vi.fn(() => new Promise<string>((resolve) => {
             finish = resolve;
         }));
-        const imageAction = vi.fn();
-        const muya = makeMuya({ imageDropAction, imageAction, getPathForFile: () => '/abs/shot.png' });
-        const contentDom = makeDropTarget(muya);
-        attachDragDropImageHandlers(muya as unknown as Muya);
-        const dt = new DataTransfer();
-        dt.items.add(new File(['x'], 'shot.png', { type: 'image/png' }));
-        const event = dropEvent(contentDom, dt);
-        muya.domNode.dispatchEvent(event);
+        dropLocalImage({ beforeImageDrop, imageAction });
         expect(createdBlocks).toHaveLength(0);
         expect(imageAction).not.toHaveBeenCalled();
+        ready(true);
+        await Promise.resolve();
+        expect(imageAction).toHaveBeenCalledWith({ src: '/abs/shot.png', alt: 'shot.png', title: '' });
+        expect(createdBlocks).toHaveLength(0);
         finish('assets/my shot.png');
         await Promise.resolve();
         expect(createdBlocks).toEqual([{ text: '![shot.png](assets/my%20shot.png)', insertedBefore: true, insertedAfter: false }]);
     });
 
-    it.each(['empty', 'detached', 'readOnly', 'failed'])('skips insertion when the host drop is %s', async (reason) => {
-        let finish!: (src: string) => void;
+    it.each(['declined', 'detached', 'readOnly', 'failed'])('skips imageAction when preflight is %s', async (reason) => {
+        let ready!: (allowed: boolean) => void;
         let fail!: (error: Error) => void;
-        const muya = makeMuya({
-            imageDropAction: () => new Promise<string>((resolve, reject) => {
-                finish = resolve;
+        const imageAction = vi.fn();
+        const muya = dropLocalImage({
+            beforeImageDrop: () => new Promise<boolean>((resolve, reject) => {
+                ready = resolve;
                 fail = reject;
             }),
-            getPathForFile: () => '/abs/shot.png',
+            imageAction,
         });
-        const contentDom = makeDropTarget(muya);
-        attachDragDropImageHandlers(muya as unknown as Muya);
-        const dt = new DataTransfer();
-        dt.items.add(new File(['x'], 'shot.png', { type: 'image/png' }));
-        muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
         if (reason === 'detached')
             muya.isBlockInDocument = () => false;
         if (reason === 'readOnly')
@@ -182,9 +180,36 @@ describe('attachDragDropImageHandlers — local image FILE', () => {
         if (reason === 'failed')
             fail(new Error('save failed'));
         else
+            ready(reason !== 'declined');
+        await Promise.resolve();
+        expect(createdBlocks).toHaveLength(0);
+        expect(imageAction).not.toHaveBeenCalled();
+    });
+
+    it.each(['empty', 'detached', 'readOnly', 'failed'])('discards an imageAction result that becomes %s', async (reason) => {
+        let finish!: (src: string) => void;
+        let fail!: (error: Error) => void;
+        const muya = dropLocalImage({
+            beforeImageDrop: () => Promise.resolve(true),
+            imageAction: () => new Promise<string>((resolve, reject) => {
+                finish = resolve;
+                fail = reject;
+            }),
+        });
+        const onError = vi.fn();
+        muya.eventCenter.on('image-drop-error', onError);
+        await Promise.resolve();
+        if (reason === 'detached')
+            muya.isBlockInDocument = () => false;
+        if (reason === 'readOnly')
+            Object.assign(muya, { isReadOnly: true });
+        if (reason === 'failed')
+            fail(new Error('copy failed'));
+        else
             finish(reason === 'empty' ? '' : 'assets/shot.png');
         await Promise.resolve();
         expect(createdBlocks).toHaveLength(0);
+        expect(onError).toHaveBeenCalledTimes(reason === 'failed' ? 1 : 0);
     });
 
     it('inserts a loading placeholder and invokes imageAction with the resolved path', async () => {

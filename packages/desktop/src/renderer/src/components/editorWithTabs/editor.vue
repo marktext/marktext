@@ -122,7 +122,7 @@ import MediaViewer from '../mediaViewer/index.vue'
 import bus from '@/bus'
 import { DEFAULT_EDITOR_FONT_FAMILY, DEFAULT_CODE_FONT_FAMILY } from '@/config'
 import notice from '@/services/notification'
-import { resolveDroppedImage } from '@/services/imageDrop'
+import { beforeImageDrop } from '@/services/imageDrop'
 import Printer from '@/services/printService'
 import { SpellcheckerLanguageCommand } from '@/commands'
 import { SpellChecker } from '@/spellchecker'
@@ -1685,7 +1685,7 @@ onMounted(() => {
     fetchLinkHtml: (url) => window.electron.fetchLinkHtml(url),
     // Clipboard and drag-drop handlers read these callbacks from engine options, separately from ImageEditTool.
     imageAction: muyaImageAction,
-    imageDropAction: (state) => resolveDroppedImage(() => muyaImageAction(state)),
+    beforeImageDrop,
     getPathForFile: (file: File) => window.electron.webUtils.getPathForFile(file)
   }
 
@@ -1703,6 +1703,9 @@ onMounted(() => {
   const muya = markRaw(new Muya(ele, options))
   muya.init({ focus: editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false })
   editor.value = muya
+  muya.on('image-drop-error', () => {
+    void notice.notify({ title: t('editor.imageDrop.failed'), type: 'error' })
+  })
   muya.on(
     'reading-context-menu',
     ({ event, href, image }: { event: MouseEvent; href?: string; image?: string }) => {

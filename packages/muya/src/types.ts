@@ -100,12 +100,11 @@ export interface IMuyaOptions {
      */
     imageAction?: (state: IImageActionState) => Promise<string>;
     /**
-     * Override local image drops when the host needs to save the document
-     * before inserting anything. The drop stays outside document history
-     * until this resolves to a persisted src; an empty src skips insertion.
-     * Return undefined to use the default imageAction flow.
+     * Check whether a local image drop can proceed before changing the document.
+     * Return undefined for immediate insertion, or a promise resolving to false
+     * to abort. Image persistence still uses imageAction after the check.
      */
-    imageDropAction?: (state: IImageActionState) => Promise<string> | undefined;
+    beforeImageDrop?: () => Promise<boolean> | undefined;
     /**
      * Resolve a dropped `File` to a local filesystem path.
      *

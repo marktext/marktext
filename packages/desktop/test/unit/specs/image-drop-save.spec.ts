@@ -14,7 +14,7 @@ const { confirm, save, notify, file, store, preferences } = vi.hoisted(() => {
     save,
     notify: vi.fn(),
     file,
-    store: { currentFile: file, SAVE_FILE_FOR_IMAGE: save },
+    store: { currentFile: file, FILE_SAVE: save },
     preferences: { imageInsertAction: 'folder', imagePreferRelativeDirectory: true }
   }
 })
@@ -25,7 +25,7 @@ vi.mock('@/store/editor', () => ({ useEditorStore: () => store }))
 vi.mock('@/store/preferences', () => ({ usePreferencesStore: () => preferences }))
 vi.mock('@/services/notification', () => ({ default: { notify } }))
 
-import { resolveDroppedImage } from '@/services/imageDrop'
+import { beforeImageDrop } from '@/services/imageDrop'
 
 describe('dropped images in a never-saved document', () => {
   beforeEach(() => {
@@ -54,12 +54,7 @@ describe('dropped images in a never-saved document', () => {
         chooseSave = resolve
       })
     )
-    const action = vi.fn(async() => {
-      expect(file.pathname).toBe('/notes/demo.md')
-      return 'assets/image.png'
-    })
-    const result = resolveDroppedImage(action)
-    expect(action).not.toHaveBeenCalled()
+    const result = beforeImageDrop()
     expect(save).not.toHaveBeenCalled()
     expect(confirm).toHaveBeenCalledWith(
       'editor.imageDrop.saveMessage',
@@ -70,7 +65,8 @@ describe('dropped images in a never-saved document', () => {
       })
     )
     chooseSave('confirm')
-    expect(await result).toBe('assets/image.png')
+    expect(await result).toBe(true)
+    expect(file.pathname).toBe('/notes/demo.md')
     expect(save).toHaveBeenCalledOnce()
   })
 
@@ -78,8 +74,7 @@ describe('dropped images in a never-saved document', () => {
     'uses the original image action after dismissing the prompt with %s',
     async(reason) => {
       confirm.mockRejectedValueOnce(reason)
-      const action = vi.fn().mockResolvedValue('/global/image.png')
-      expect(await resolveDroppedImage(action)).toBe('/global/image.png')
+      expect(await beforeImageDrop()).toBe(true)
       expect(save).not.toHaveBeenCalled()
       expect(file.pathname).toBe('')
       expect(notify).not.toHaveBeenCalled()
@@ -88,22 +83,19 @@ describe('dropped images in a never-saved document', () => {
 
   it('continues with the original action when the native save dialog is canceled', async() => {
     save.mockResolvedValueOnce({ status: 'canceled' })
-    const action = vi.fn().mockResolvedValue('/global/image.png')
-    expect(await resolveDroppedImage(action)).toBe('/global/image.png')
+    expect(await beforeImageDrop()).toBe(true)
     expect(file.pathname).toBe('')
     expect(notify).not.toHaveBeenCalled()
   })
 
   it('stops on a failed save instead of treating it as cancellation', async() => {
     save.mockResolvedValueOnce({ status: 'failed' })
-    const action = vi.fn()
-    expect(await resolveDroppedImage(action)).toBe('')
-    expect(action).not.toHaveBeenCalled()
+    expect(await beforeImageDrop()).toBe(false)
   })
 
   it('prompts for a CLI buffer that has a path but has not been created', async() => {
     Object.assign(file, { pathname: '/notes/new.md', isPendingCreation: true })
-    await resolveDroppedImage(async() => 'assets/image.png')
+    await beforeImageDrop()
     expect(confirm).toHaveBeenCalledOnce()
     expect(save).toHaveBeenCalledOnce()
   })
@@ -113,7 +105,7 @@ describe('dropped images in a never-saved document', () => {
     async(mode) => {
       preferences.imageInsertAction = mode
       if (mode === 'folder') file.pathname = '/notes/existing.md'
-      expect(resolveDroppedImage(async() => 'image.png')).toBeUndefined()
+      expect(beforeImageDrop()).toBeUndefined()
       expect(confirm).not.toHaveBeenCalled()
       expect(save).not.toHaveBeenCalled()
     }
@@ -121,7 +113,7 @@ describe('dropped images in a never-saved document', () => {
 
   it('keeps the global-directory behavior when relative directories are disabled', async() => {
     preferences.imagePreferRelativeDirectory = false
-    expect(resolveDroppedImage(async() => '/global/image.png')).toBeUndefined()
+    expect(beforeImageDrop()).toBeUndefined()
     expect(confirm).not.toHaveBeenCalled()
   })
 
@@ -130,19 +122,16 @@ describe('dropped images in a never-saved document', () => {
       store.currentFile = { ...file, id: 'other' }
       return 'confirm'
     })
-    const action = vi.fn()
-    expect(await resolveDroppedImage(action)).toBe('')
+    expect(await beforeImageDrop()).toBe(false)
     expect(save).not.toHaveBeenCalled()
-    expect(action).not.toHaveBeenCalled()
   })
 
-  it('discards a result if the document changes while the image is being copied', async() => {
-    expect(
-      await resolveDroppedImage(async() => {
-        store.currentFile = { ...file, id: 'other' }
-        return 'assets/image.png'
-      })
-    ).toBe('')
+  it('stops if the document changes while saving', async() => {
+    save.mockImplementationOnce(async() => {
+      store.currentFile = { ...file, id: 'other' }
+      return { status: 'saved' }
+    })
+    expect(await beforeImageDrop()).toBe(false)
   })
 
   it('ignores another drop while a save choice is pending', async() => {
@@ -152,26 +141,20 @@ describe('dropped images in a never-saved document', () => {
         chooseSave = resolve
       })
     )
-    const first = resolveDroppedImage(async() => 'assets/first.png')
-    const second = vi.fn()
-    expect(await resolveDroppedImage(second)).toBe('')
-    expect(second).not.toHaveBeenCalled()
+    const first = beforeImageDrop()
+    expect(await beforeImageDrop()).toBe(false)
     expect(confirm).toHaveBeenCalledOnce()
     chooseSave('confirm')
     await first
   })
 
-  it('reports a copy failure and allows a later drop to proceed', async() => {
+  it('reports unexpected save errors and allows another attempt', async() => {
     const log = vi.spyOn(console, 'error').mockImplementation(() => {})
     try {
-      expect(
-        await resolveDroppedImage(async() => {
-          throw new Error('permission denied')
-        })
-      ).toBe('')
+      save.mockRejectedValueOnce(new Error('IPC failed'))
+      expect(await beforeImageDrop()).toBe(false)
       expect(notify).toHaveBeenCalledWith({ title: 'editor.imageDrop.failed', type: 'error' })
-      file.pathname = ''
-      expect(await resolveDroppedImage(async() => 'assets/retry.png')).toBe('assets/retry.png')
+      expect(await beforeImageDrop()).toBe(true)
     } finally {
       log.mockRestore()
     }

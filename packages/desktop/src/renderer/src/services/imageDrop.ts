@@ -6,59 +6,31 @@ import notice from './notification'
 
 let pendingDrop = false
 
-export const resolveDroppedImage = (action: () => Promise<string>): Promise<string> | undefined => {
-  const file = useEditorStore().currentFile
-  const preferences = usePreferencesStore()
-  if (
-    file &&
-    preferences.imageInsertAction === 'folder' &&
-    preferences.imagePreferRelativeDirectory &&
-    (!file.pathname || file.isPendingCreation)
-  ) {
-    return resolveImageAfterSaveChoice(action)
-  }
-}
-
-const resolveImageAfterSaveChoice = async(action: () => Promise<string>): Promise<string> => {
-  if (pendingDrop) return ''
+export const beforeImageDrop = (): Promise<boolean> | undefined => {
   const editorStore = useEditorStore()
   const file = editorStore.currentFile
-  if (!file || file.readOnly || file.modeChanging) return ''
-  const isCurrentDocument = () =>
-    editorStore.currentFile?.id === file.id &&
-    !editorStore.currentFile.readOnly &&
-    !editorStore.currentFile.modeChanging
+  const preferences = usePreferencesStore()
+  if (!file || preferences.imageInsertAction !== 'folder' ||
+    !preferences.imagePreferRelativeDirectory || (file.pathname && !file.isPendingCreation)) return
+  if (pendingDrop || file.readOnly || file.modeChanging) return Promise.resolve(false)
+  const isCurrentDocument = () => editorStore.currentFile?.id === file.id &&
+    !editorStore.currentFile.readOnly && !editorStore.currentFile.modeChanging
 
   pendingDrop = true
-  try {
-    let shouldSave = true
-    try {
-      await ElMessageBox.confirm(
-        t('editor.imageDrop.saveMessage'),
-        t('editor.imageDrop.saveTitle'),
-        {
-          confirmButtonText: t('dialog.save'),
-          cancelButtonText: t('common.cancel'),
-          closeOnClickModal: false
-        }
-      )
-    } catch (reason) {
-      if (reason !== 'cancel' && reason !== 'close') throw reason
-      shouldSave = false
-    }
-    if (!isCurrentDocument()) return ''
-    if (shouldSave) {
-      const result = await editorStore.SAVE_FILE_FOR_IMAGE()
-      if (result.status === 'failed') return ''
-    }
-    if (!isCurrentDocument()) return ''
-    const src = await action()
-    return isCurrentDocument() ? src : ''
-  } catch (error) {
-    console.error('Unable to insert dropped image:', error)
+  return ElMessageBox.confirm(t('editor.imageDrop.saveMessage'), t('editor.imageDrop.saveTitle'), {
+    confirmButtonText: t('dialog.save'),
+    cancelButtonText: t('common.cancel'),
+    closeOnClickModal: false
+  }).then(async() => {
+    if (!isCurrentDocument()) return false
+    const result = await editorStore.FILE_SAVE({ waitForResult: true })
+    return !!result && result.status !== 'failed' && isCurrentDocument()
+  }, (reason) => {
+    if (reason !== 'cancel' && reason !== 'close') throw reason
+    return isCurrentDocument()
+  }).catch((error) => {
+    console.error('Unable to prepare image drop:', error)
     void notice.notify({ title: t('editor.imageDrop.failed'), type: 'error' })
-    return ''
-  } finally {
-    pendingDrop = false
-  }
+    return false
+  }).finally(() => { pendingDrop = false })
 }

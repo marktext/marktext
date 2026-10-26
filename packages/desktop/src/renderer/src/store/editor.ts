@@ -34,7 +34,7 @@ import type {
   SidebarOpenOptions,
   TabOptions
 } from '@shared/types/files'
-import type { IpcMainEventChannels, SaveDocumentResult } from '@shared/types/ipc'
+import type { IpcMainEventChannels, IpcSendChannels, SaveDocumentResult } from '@shared/types/ipc'
 
 
 interface TocItem extends ListItem {
@@ -637,44 +637,28 @@ export const useEditorStore = defineStore('editor', {
       bus.emit('flush-active-editor')
     },
 
-    FILE_SAVE(): void {
-      if (this.currentFile?.readOnly || this.currentFile?.modeChanging) return
-      if (!this.currentFile) return
+    FILE_SAVE({ waitForResult = false } = {}): Promise<SaveDocumentResult> | void {
+      if (!this.currentFile || this.currentFile.readOnly || this.currentFile.modeChanging) return
       this.flushActiveEditor()
-      const projectStore = useProjectStore()
-      const { id, filename, pathname, markdown } = this.currentFile
-      const options = getOptionsFromState(this.currentFile)
-      const defaultPath = getRootFolderFromState(projectStore)
-      if (id) {
-        window.electron.ipcRenderer.send(
-          'mt::response-file-save',
-          id,
-          filename,
-          pathname,
-          markdown,
-          deepClone(options),
-          defaultPath
-        )
-      }
-    },
-
-    async SAVE_FILE_FOR_IMAGE(): Promise<SaveDocumentResult> {
       const file = this.currentFile
-      if (!file || file.readOnly || file.modeChanging) return { status: 'failed' }
-      this.flushActiveEditor()
-      const result = await window.electron.ipcRenderer.invoke(
-        'mt::save-file-for-image',
+      if (!file.id) return
+      const args: IpcSendChannels['mt::response-file-save'] = [
         file.id,
         file.filename,
         file.pathname,
         file.markdown,
         deepClone(getOptionsFromState(file)),
         getRootFolderFromState(useProjectStore())
-      )
-      if (result.status === 'saved' && this.tabs.some((tab) => tab.id === file.id)) {
-        this.SET_PATHNAME({ id: file.id, ...result })
+      ]
+      if (waitForResult) {
+        return window.electron.ipcRenderer.invoke('mt::response-file-save', ...args).then((result) => {
+          if (result.status === 'saved' && this.tabs.some((tab) => tab.id === file.id)) {
+            this.SET_PATHNAME({ id: file.id, ...result })
+          }
+          return result
+        })
       }
-      return result
+      window.electron.ipcRenderer.send('mt::response-file-save', ...args)
     },
 
     LISTEN_FOR_SAVE(): void {

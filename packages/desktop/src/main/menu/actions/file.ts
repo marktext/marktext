@@ -381,9 +381,9 @@ const handleResponseForSave = async(
   if (result.status === 'saved') return args[1]
 }
 
-ipcMain.handle('mt::save-file-for-image', (
+ipcMain.handle('mt::response-file-save', (
   event,
-  ...args: IpcInvokeChannels['mt::save-file-for-image']['args']
+  ...args: IpcInvokeChannels['mt::response-file-save']['args']
 ) => saveDocument(event, ...args))
 
 const showUnsavedFilesMessage = async(

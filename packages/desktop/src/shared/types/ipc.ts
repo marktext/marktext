@@ -42,7 +42,7 @@ export type SaveDocumentResult =
   | { status: 'canceled' | 'failed' }
 
 export interface IpcInvokeChannels {
-  'mt::save-file-for-image': {
+  'mt::response-file-save': {
     args: IpcSendChannels['mt::response-file-save']
     ret: SaveDocumentResult
   }

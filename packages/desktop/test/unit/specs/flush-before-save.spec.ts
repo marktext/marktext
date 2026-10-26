@@ -115,7 +115,7 @@ describe('editor store — flush pending edits before saving (#3803)', () => {
     expect(call?.[MARKDOWN_ARG]).toBe(FLUSHED)
   })
 
-  it('SAVE_FILE_FOR_IMAGE flushes before saving and applies the returned path before resolving', async() => {
+  it('FILE_SAVE with a result flushes before saving and applies the returned path before resolving', async() => {
     const store = useEditorStore()
     seedCurrentFile(store, { pathname: '', isPendingCreation: true })
     if (store.currentFile) store.tabs = [store.currentFile]
@@ -123,10 +123,10 @@ describe('editor store — flush pending edits before saving (#3803)', () => {
     const invoke = vi.spyOn(window.electron.ipcRenderer, 'invoke').mockResolvedValue({
       status: 'saved', pathname: '/notes/final.md', filename: 'final.md', savedMarkdown: FLUSHED
     })
-    const result = await store.SAVE_FILE_FOR_IMAGE()
-    expect(invoke).toHaveBeenCalledWith('mt::save-file-for-image', 'tab-1', 'note.md', '', FLUSHED,
+    const result = await store.FILE_SAVE({ waitForResult: true })
+    expect(invoke).toHaveBeenCalledWith('mt::response-file-save', 'tab-1', 'note.md', '', FLUSHED,
       expect.any(Object), expect.any(String))
-    expect(result.status).toBe('saved')
+    expect(result?.status).toBe('saved')
     expect(store.currentFile).toMatchObject({
       pathname: '/notes/final.md', filename: 'final.md', isPendingCreation: false, isSaved: true
     })
@@ -137,7 +137,7 @@ describe('editor store — flush pending edits before saving (#3803)', () => {
     const store = useEditorStore()
     seedCurrentFile(store, { pathname: '' })
     vi.spyOn(window.electron.ipcRenderer, 'invoke').mockResolvedValue({ status })
-    expect(await store.SAVE_FILE_FOR_IMAGE()).toEqual({ status })
+    expect(await store.FILE_SAVE({ waitForResult: true })).toEqual({ status })
     expect(store.currentFile?.pathname).toBe('')
   })
 
@@ -166,7 +166,7 @@ describe('editor store — flush pending edits before saving (#3803)', () => {
       return result
     })
 
-    await store.SAVE_FILE_FOR_IMAGE()
+    await store.FILE_SAVE({ waitForResult: true })
     if (delivery === 'reply-first') store.SET_PATHNAME({ id: file.id, ...result })
 
     const closeRequests = send.mock.calls.filter(([channel]) => channel === 'mt::save-and-close-tabs')
