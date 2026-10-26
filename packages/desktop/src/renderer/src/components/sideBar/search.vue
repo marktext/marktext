@@ -16,7 +16,7 @@
           </el-icon>
         </button>
       </icon-tooltip>
-      <div class="search-wrapper">
+      <div class="search-wrapper input-focus-border">
         <input
           ref="searchEl"
           v-model="keyword"

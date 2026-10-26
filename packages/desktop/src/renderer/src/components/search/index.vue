@@ -20,7 +20,7 @@
     <div class="right-controls">
       <section class="search">
         <div
-          class="input-wrapper"
+          class="input-wrapper input-focus-border"
           :class="{ error: !!searchErrorMsg }"
         >
           <input
@@ -109,7 +109,7 @@
         v-if="type === 'replace'"
         class="replace"
       >
-        <div class="input-wrapper replace-input">
+        <div class="input-wrapper replace-input input-focus-border">
           <input
             v-model="replaceValue"
             type="text"

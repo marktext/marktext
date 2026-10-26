@@ -245,7 +245,7 @@
       "cancel": "취소",
       "openFolder": "Add Folder…",
       "showMoreMatches": "더 많은 일치 항목 보기",
-      "searchInFolders": "Search in added folders",
+      "searchInFolders": "폴더에서 찾기",
       "partialSearch": "Some folders could not be searched.",
       "noSearchableFolders": "No available folders to search."
     },

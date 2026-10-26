@@ -245,7 +245,7 @@
       "cancel": "Cancel",
       "openFolder": "Add Folder…",
       "showMoreMatches": "Show more matches",
-      "searchInFolders": "Search in added folders",
+      "searchInFolders": "Find in Folder",
       "partialSearch": "Some folders could not be searched.",
       "noSearchableFolders": "No available folders to search."
     },
