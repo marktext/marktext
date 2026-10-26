@@ -93,7 +93,7 @@ class InlineRenderer {
             const state = next.value;
             if (state.name === 'paragraph') {
                 const { label, info } = this.getLabelInfo(state);
-                if (label && info)
+                if (label && info && !labels.has(label))
                     labels.set(label, info);
             }
             else if ('children' in state && Array.isArray(state.children)) {

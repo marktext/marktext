@@ -25,7 +25,7 @@ import { renderToStaticHTML } from '../renderToStaticHTML';
 //   Legacy marktext (muyajs) shipped a custom inline tokenizer whose
 //   flanking helpers treat CJK as punctuation. We restore that, additively,
 //   in both of muya's paths:
-//     - Static / export path  — marked@16, via the `cjkEmStrong` tokenizer
+//     - Static / export path  — marked, via the `cjkEmStrong` tokenizer
 //       override registered in `getHighlightHtml` / `getClipboardHtml`.
 //     - Live editor path       — muya's own inline lexer, via the CJK widening
 //       `isBoundary` applies in `inlineRenderer/emphasis.ts`.
@@ -90,7 +90,7 @@ function tokenizesEmphasis(src: string): boolean {
 }
 
 describe('strong emphasis with CJK boundaries (#4307)', () => {
-    describe('static / export path — renderToStaticHTML (marked@16)', () => {
+    describe('static / export path — renderToStaticHTML (marked)', () => {
         for (const src of SANITY_CASES) {
             it(`recognises strong in: ${src}`, () => {
                 expect(rendersStrong(src)).toBe(true);
