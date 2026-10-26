@@ -250,6 +250,11 @@ export class Muya {
         }
     }
 
+    /** Repaint host-owned shortcut hints without changing document or selection state. */
+    refreshShortcutHints() {
+        this.eventCenter.emit('shortcut-hints-change');
+    }
+
     locale(object: ILocale) {
         if (this.editor.scrollPage)
             this._prepareDocumentRebuild();

@@ -45,7 +45,7 @@ Modifier keys use their full macOS names and appear in this order: Control, Opti
 | `edit.copy-as-html`       | -                                                 | Copy selected text as html                      |
 | `edit.paste-as-plaintext` | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>V</kbd>  | Paste clipboard contents as plain text          |
 | `edit.select-all`         | <kbd>Command</kbd>+<kbd>A</kbd>                   | Select all text of the document                 |
-| `edit.duplicate`          | <kbd>Option</kbd>+<kbd>Command</kbd>+<kbd>D</kbd> | Duplicate the current paragraph                 |
+| `edit.duplicate`          | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>E</kbd> | Duplicate the current paragraph                 |
 | `edit.create-paragraph`   | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>N</kbd>  | Create a new paragraph after the current one    |
 | `edit.delete-paragraph`   | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>D</kbd>  | Delete current paragraph                        |
 | `edit.find`               | <kbd>Command</kbd>+<kbd>F</kbd>                   | Find information in the document                |

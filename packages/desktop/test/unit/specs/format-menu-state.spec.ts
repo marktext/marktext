@@ -23,7 +23,6 @@ vi.mock('main_renderer/i18n', () => ({ t: (key: string) => key }))
 
 import { createSelectionFormatState } from '@/store/editor'
 import { updateFormatMenu } from 'main_renderer/menu/actions/format'
-import inlineFormatIcons from '@muyajs/core/ui/inlineFormatToolbar/config'
 import keybindingsWindows from 'main_renderer/keyboard/keybindingsWindows'
 import keybindingsLinux from 'main_renderer/keyboard/keybindingsLinux'
 import keybindingsDarwin from 'main_renderer/keyboard/keybindingsDarwin'
@@ -31,8 +30,6 @@ import { isEqualAccelerator } from 'common/keybinding'
 import paragraphTemplate from 'main_renderer/menu/templates/paragraph'
 import editTemplate from 'main_renderer/menu/templates/edit'
 import viewTemplate from 'main_renderer/menu/templates/view'
-
-interface IInlineFormatIcon { type: string, shortcut?: string }
 
 // Mimic the Electron application menu surface `updateFormatMenu` touches:
 // `getMenuItemById('formatMenuItem')` returning an object whose
@@ -114,88 +111,8 @@ describe('updateFormatMenu', () => {
   })
 })
 
-// Two surfaces advertise inline-format shortcuts to the user:
-//  - the desktop Format menu accelerators (keybindings*.ts → menu/templates/format.ts)
-//  - the muya InlineFormatToolbar (`@muyajs/core` config.ts → tooltip badge)
-// They are NOT derived from a single source, so they can drift. The test env is
-// non-osx (jsdom userAgent has no "Mac"), so the toolbar config renders with the
-// `Ctrl` COMMAND_KEY — line it up against the non-osx (Windows/Linux) keybindings.
-describe('Format-menu accelerators vs muya inlineFormatToolbar shortcuts', () => {
-  // muya toolbar `type` → desktop keybinding id (menu item accelerator source).
-  const TYPE_TO_KEYBINDING: Readonly<Record<string, string>> = {
-    strong: 'format.strong',
-    em: 'format.emphasis',
-    u: 'format.underline',
-    del: 'format.strike',
-    mark: 'format.highlight',
-    inline_code: 'format.inline-code',
-    inline_math: 'format.inline-math',
-    link: 'format.hyperlink',
-    image: 'format.image',
-    clear: 'format.clear-format'
-  }
-
-  // Canonical form so display notation (`⇧+Ctrl+H`, `⌘`) and Electron accelerator
-  // notation (`Ctrl+Shift+H`, `Command`) compare equal: sorted modifier set + key.
-  const normalizeShortcut = (raw: string | undefined | null): string => {
-    if (!raw) return ''
-    const mods = new Set<string>()
-    let key = ''
-    for (const part of raw.split('+').map((p) => p.trim()).filter(Boolean)) {
-      const lower = part.toLowerCase()
-      if (lower === 'ctrl' || lower === 'control' || lower === '⌃') mods.add('ctrl')
-      else if (lower === 'cmd' || lower === 'command' || lower === '⌘') mods.add('cmd')
-      else if (lower === 'cmdorctrl' || lower === 'commandorcontrol') mods.add('cmdorctrl')
-      else if (lower === 'shift' || lower === '⇧') mods.add('shift')
-      else if (lower === 'alt' || lower === 'option' || lower === '⌥') mods.add('alt')
-      else key = lower
-    }
-    return [...[...mods].sort(), `KEY=${key}`].join('+')
-  }
-
-  const toolbarShortcutOf = (type: string): string | undefined =>
-    (inlineFormatIcons as IInlineFormatIcon[]).find((i) => i.type === type)?.shortcut
-
-  it('confirms the test env is the non-osx (Ctrl) variant', () => {
-    // The toolbar config picks COMMAND_KEY from `isOsx`; jsdom is non-osx here.
-    expect(toolbarShortcutOf('strong')).toBe('Ctrl+B')
-  })
-
-  const RECONCILABLE = ['strong', 'em', 'u', 'del', 'mark', 'inline_math', 'link', 'image', 'clear'] as const
-
-  it.each(RECONCILABLE)(
-    'toolbar shortcut for "%s" matches the Format-menu accelerator (Windows + Linux)',
-    (type) => {
-      const kbId = TYPE_TO_KEYBINDING[type]
-      const toolbar = normalizeShortcut(toolbarShortcutOf(type))
-      expect(toolbar).not.toBe('')
-      expect(normalizeShortcut(keybindingsWindows.get(kbId))).toBe(toolbar)
-      expect(normalizeShortcut(keybindingsLinux.get(kbId))).toBe(toolbar)
-    }
-  )
-
-  // After #4611 the toolbar advertises the real defaults — Ctrl+` for inline code
-  // and ⇧+Ctrl+M for inline math — so the tooltips agree with the keybindings.
-  // inline_math now matches the Format menu on every platform (covered by
-  // RECONCILABLE above). inline_code matches on Windows (Ctrl+`) but still
-  // diverges on Linux, which intentionally binds Ctrl+Y (see #4611 / #3630).
-  it('inlineCode toolbar matches Windows but diverges from the Linux accelerator (Ctrl+Y)', () => {
-    const toolbar = normalizeShortcut(toolbarShortcutOf('inline_code'))
-    expect(toolbar).toBe(normalizeShortcut('Ctrl+`'))
-    expect(normalizeShortcut(keybindingsWindows.get('format.inline-code'))).toBe(toolbar)
-    // Linux intentionally binds Ctrl+Y, which still diverges from the toolbar.
-    expect(normalizeShortcut(keybindingsLinux.get('format.inline-code'))).toBe(
-      normalizeShortcut('Ctrl+Y')
-    )
-    expect(normalizeShortcut(keybindingsLinux.get('format.inline-code'))).not.toBe(toolbar)
-  })
-})
-
-// The Format slice above pins one menu's accelerators. The Paragraph/Edit/View
-// templates source their accelerators the same way — `keybindings.getAccelerator(id)`
-// off the active platform map — so a hardcoded literal in a template would silently
-// diverge from the table. This walks each template with a fake keybindings backed by
-// every platform map and asserts the menu items pass the table value through verbatim.
+// Exercise templates against every platform map to catch hardcoded accelerators.
+// Muya's host hint mapping is covered separately in muya-shortcuts.spec.ts.
 describe('menu template accelerators match the platform keybinding tables (Paragraph/Edit/View)', () => {
   type Template = (kb: { getAccelerator(id: string): string | null }) => MenuItemConstructorOptions
 
@@ -306,7 +223,7 @@ describe('menu template accelerators match the platform keybinding tables (Parag
 
     expect(isEqualAccelerator(accel(keybindingsDarwin, 'paragraph.heading-1'), 'Command+1')).toBe(true)
     expect(keybindingsWindows.get('paragraph.heading-1')).toBe('')
-    expect(isEqualAccelerator(accel(keybindingsDarwin, 'edit.duplicate'), 'Command+Option+D')).toBe(true)
+    expect(isEqualAccelerator(accel(keybindingsDarwin, 'edit.duplicate'), 'Shift+Command+E')).toBe(true)
     expect(isEqualAccelerator(accel(keybindingsLinux, 'edit.duplicate'), 'Ctrl+Shift+E')).toBe(true)
     expect(isEqualAccelerator(accel(keybindingsLinux, 'edit.find-next'), 'F3')).toBe(true)
     expect(isEqualAccelerator(accel(keybindingsDarwin, 'edit.find-next'), 'Cmd+G')).toBe(true)

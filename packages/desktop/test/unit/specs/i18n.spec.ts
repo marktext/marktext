@@ -132,3 +132,51 @@ describe('renderer i18n malformed-message resilience (issue #4046)', () => {
     expect(composer.t('greeting', { name: 'World' })).toBe('Hello World')
   })
 })
+
+describe('language notification after lazy translation loading', () => {
+  const originalElectron = Object.getOwnPropertyDescriptor(window, 'electron')
+
+  afterEach(() => {
+    delete win.i18nUtils
+    if (originalElectron) Object.defineProperty(window, 'electron', originalElectron)
+    else Reflect.deleteProperty(window, 'electron')
+    vi.restoreAllMocks()
+  })
+
+  it.each(['language-changed', 'mt::current-language'])(
+    'waits for translations before broadcasting %s',
+    async(channel) => {
+      vi.resetModules()
+      let finish!: (translation: Record<string, unknown>) => void
+      win.i18nUtils = {
+        loadTranslations: vi.fn(
+          () =>
+            new Promise((resolve) => {
+              finish = resolve
+            })
+        )
+      }
+      const handlers = new Map<string, (_event: unknown, locale: string) => unknown>()
+      Object.defineProperty(window, 'electron', {
+        configurable: true,
+        value: {
+          ipcRenderer: {
+            on: (name: string, handler: (_event: unknown, locale: string) => unknown) =>
+              handlers.set(name, handler),
+            send: vi.fn()
+          }
+        }
+      })
+      const { getCurrentLanguage, t } = await import('../../../src/renderer/src/i18n')
+      const { default: bus } = await import('../../../src/renderer/src/bus')
+      const notify = vi.spyOn(bus, 'emit')
+      const pending = handlers.get(channel)!(undefined, 'zh-CN')
+      expect(getCurrentLanguage()).toBe('en')
+      expect(notify).not.toHaveBeenCalled()
+      finish({ commands: { file: { quickOpen: '快速打开' } } })
+      await pending
+      expect(t('commands.file.quickOpen')).toBe('快速打开')
+      expect(notify).toHaveBeenCalledWith('language-changed', 'zh-CN')
+    }
+  )
+})

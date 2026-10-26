@@ -260,7 +260,7 @@ export interface IpcMainEventChannels {
   'mt::file-saved': [tabId: string]
   'mt::force-close-tabs-by-id': [tabIds: string[]]
   'mt::invalidate-image-cache': []
-  'mt::keybindings-response': [bindings: unknown]
+  'mt::keybindings-response': [bindings: Readonly<Record<string, string>>]
   'mt::load-state': [state: BufferedStateType]
   'mt::menu::click': [menuId: string]
   'mt::menu::closed': []

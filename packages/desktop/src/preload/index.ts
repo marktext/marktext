@@ -264,10 +264,9 @@ const electronAPI = {
 // (`pathe.posix.posix === pathe.posix`), which breaks `contextBridge` cloning.
 const pathAPI = createPlatformPath((bootInfo?.platform || process.platform) === 'win32')
 
-// Bundled third-party packages occasionally read `process.platform` at module
-// load time (e.g. @hfelix/electron-localshortcut/src/utils.js). Expose a
-// minimal browser-safe `process` global so those imports don't throw before
-// the Vue app can mount.
+// Shared keyboard helpers and bundled packages read `process.platform` at module
+// load time. Expose a minimal browser-safe `process` global so those imports
+// don't throw before the Vue app can mount.
 const processShim = {
   platform: bootInfo?.platform || process.platform,
   arch: bootInfo?.arch,

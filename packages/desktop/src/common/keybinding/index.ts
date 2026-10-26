@@ -1,3 +1,7 @@
+import { toKeyEvent } from '../localShortcut/accelerator'
+import { equalKeyEvents } from '../localShortcut/keymap'
+import { keyboardMapper } from '../localShortcut/mapper'
+
 const isOsx = process.platform === 'darwin'
 
 const _normalizeAccelerator = (accelerator: string): string => {
@@ -12,6 +16,14 @@ const _normalizeAccelerator = (accelerator: string): string => {
 }
 
 export const isEqualAccelerator = (a: string, b: string): boolean => {
+  try {
+    return equalKeyEvents(
+      keyboardMapper.normalizeBinding(toKeyEvent(a, process.platform)),
+      keyboardMapper.normalizeBinding(toKeyEvent(b, process.platform))
+    )
+  } catch {
+    // Legacy callers also compare empty values and bindings from other platforms.
+  }
   a = _normalizeAccelerator(a)
   b = _normalizeAccelerator(b)
   const i1 = a.indexOf('+')

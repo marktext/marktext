@@ -15,7 +15,7 @@ const keybindings: Map<string, string> = new Map([
   ['file.save-as', 'Ctrl+Shift+S'],
   ['file.move-file', ''],
   ['file.rename-file', ''],
-  ['file.print', 'Ctrl+P'],
+  ['file.print', ''],
   ['file.preferences', 'Ctrl+,'],
   ['file.close-tab', 'Ctrl+W'],
   ['file.close-window', 'Ctrl+Shift+W'],

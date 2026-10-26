@@ -6,7 +6,7 @@ import copyIcon from '../../assets/icons/copy/2.png';
 import deleteIcon from '../../assets/icons/delete/2.png';
 import newIcon from '../../assets/icons/paragraph/2.png';
 import { canTurnInto } from '../../block/blockTransforms';
-import { isOsx } from '../../config';
+import { isOsx, isWin } from '../../config';
 import {
     MENU_CONFIG,
 } from '../paragraphQuickInsertMenu/config';
@@ -23,7 +23,7 @@ export const FRONT_MENU = [
         icon: copyIcon,
         label: 'duplicate',
         text: 'Duplicate',
-        shortCut: `⇧${COMMAND_KEY}P`,
+        shortCut: isOsx ? '⇧⌘E' : isWin ? 'Ctrl+Alt+D' : 'Ctrl+Shift+E',
     },
     {
         icon: newIcon,

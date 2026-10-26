@@ -24,5 +24,5 @@ export interface IListeners {
     }[];
 }
 
-export type TEventListener<K extends string> = K extends 'selection-change' ? (payload: ISelectionChangePayload) => void : Listener;
-export type TEventArgs<K extends string> = K extends 'selection-change' ? [payload: ISelectionChangePayload] : unknown[];
+export type TEventListener<K extends string> = K extends 'selection-change' ? (payload: ISelectionChangePayload) => void : K extends 'shortcut-hints-change' ? () => void : Listener;
+export type TEventArgs<K extends string> = K extends 'selection-change' ? [payload: ISelectionChangePayload] : K extends 'shortcut-hints-change' ? [] : unknown[];

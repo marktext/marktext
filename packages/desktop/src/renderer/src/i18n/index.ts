@@ -94,14 +94,15 @@ export { i18n }
 export default i18n
 
 if (window.electron && window.electron.ipcRenderer) {
-  window.electron.ipcRenderer.on('language-changed', (_event, newLocale) => {
-    setLanguage(newLocale)
+  // Command descriptions must refresh after lazy translations are available.
+  window.electron.ipcRenderer.on('language-changed', async(_event, newLocale) => {
+    await setLanguage(newLocale)
     bus.emit('language-changed', newLocale)
   })
 
   window.electron.ipcRenderer.send('mt::get-current-language')
-  window.electron.ipcRenderer.on('mt::current-language', (_event, language) => {
-    setLanguage(language)
+  window.electron.ipcRenderer.on('mt::current-language', async(_event, language) => {
+    await setLanguage(language)
     bus.emit('language-changed', language)
   })
 }

@@ -49,11 +49,10 @@ import {
   isCompositionEvent,
   isValidElectronAccelerator,
   getAcceleratorFromKeyboardEvent
-} from '@hfelix/electron-localshortcut'
+} from 'common/localShortcut'
 import { ref, watch, useTemplateRef, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-// The accelerator package is untyped; describe only the fields consumed here.
 interface AcceleratorResult {
   accelerator: string
   isValid: boolean
@@ -126,7 +125,7 @@ const handleKeyDown = (event: KeyboardEvent): void => {
     return
   }
 
-  const keybinding = getAcceleratorFromKeyboardEvent(event) as AcceleratorResult
+  const keybinding = getAcceleratorFromKeyboardEvent(event)
   currentKeybinding = keybinding
   isKeybindingValid.value = keybinding.isValid && isValidElectronAccelerator(keybinding.accelerator)
   keybindingInputValue.value = keybinding.accelerator

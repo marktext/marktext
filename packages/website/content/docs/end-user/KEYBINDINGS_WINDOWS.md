@@ -19,7 +19,7 @@ Redo uses <kbd>Ctrl</kbd>+<kbd>Y</kbd>. The previous default, <kbd>Ctrl</kbd>+<k
 | `file.export-file.pdf` | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>E</kbd>   | Export file as PDF                    |
 | `file.move-file`       | -                                             | Move current file to another location |
 | `file.rename-file`     | -                                             | Rename current file                   |
-| `file.print`           | <kbd>Ctrl</kbd>+<kbd>P</kbd>                  | Print current tab                     |
+| `file.print`           | -                                            | Print current tab                     |
 | `file.preferences`     | <kbd>Ctrl</kbd>+<kbd>,</kbd>                  | Open settings window                  |
 | `file.close-tab`       | <kbd>Ctrl</kbd>+<kbd>W</kbd>                  | Close tab                             |
 | `file.close-window`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> | Close window                          |

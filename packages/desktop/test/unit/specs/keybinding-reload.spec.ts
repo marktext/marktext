@@ -16,7 +16,7 @@ vi.mock('electron', () => ({
   shell: { openPath: vi.fn(), openExternal: vi.fn() }
 }))
 
-vi.mock('@hfelix/electron-localshortcut', () => ({
+vi.mock('common/localShortcut', () => ({
   electronLocalshortcut: {
     register,
     unregister,

@@ -23,3 +23,11 @@ The document outline is a separate responsive panel, available since 0.23.0. It 
 ### Editor
 
 The editor is the core element that hosts the realtime preview editor called Muya and consists of three parts. Tabs are located at the top and at the bottom the per-tab notification bar is located for events like file changed or deleted. The main part is the editor that is either provided by Muya or CodeMirror for the source-code editor. There are multiple overlays available like inline toolbar, emoji picker, quick insert or image tools. Hovering a rendered diagram, math block or HTML block shows a small toolbar in its top-right corner; for a diagram it also offers a view action that opens the diagram full-screen in the media viewer, which is shared with the image preview and adds zoom, pan and image export.
+
+#### Editor shortcuts
+
+The desktop main process handles command shortcuts. Muya menus display the active desktop bindings, including custom overrides and unbound commands.
+
+Set `keyboardShortcuts: false` on `InlineFormatToolbar` and `ParagraphQuickInsertMenu`, and provide `getShortcut(action)` to both and `ParagraphFrontMenu`. Empty results hide the hint. Call `muya.refreshShortcutHints()` when bindings change. Clicks and slash-menu navigation remain enabled; standalone consumers can omit these options to retain defaults.
+
+Recording, conflict checks and dispatch share `common/localShortcut`. See its README for layout handling and retain its MIT notice when packaging.

@@ -113,6 +113,7 @@ const COMMAND_KEY_MAP: Record<string, string> = {
   'window.toggle-full-screen': 'commands.window.toggleFullScreen',
 
   'window.zoomIn': 'commands.window.zoomIn',
+  'window.resetZoom': 'menu.window.resetZoom',
   'window.zoomOut': 'commands.window.zoomOut',
 
   'window.change-theme': 'commands.window.changeTheme',

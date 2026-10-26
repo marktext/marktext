@@ -30,9 +30,19 @@ const OTHER_WORDS: Record<string, string> = {
 
 export const acceleratorToTokens = (accelerator: string, isOsx: boolean): string[] => {
   const map = isOsx ? MAC_SYMBOLS : OTHER_WORDS
-  return accelerator
+  const order = isOsx ? ['⌃', '⌥', '⇧', '⌘'] : ['Ctrl', 'Alt', 'Shift', 'Win']
+  const parts = accelerator
     .split('+')
     .map((part) => part.trim())
     .filter((part) => part.length > 0)
-    .map((part) => map[part.toLowerCase()] ?? part)
+  if (accelerator.trim().endsWith('++') || accelerator.trim() === '+') parts.push('Plus')
+  const modifiers = parts.filter((part) => map[part.toLowerCase()])
+    .map((part) => map[part.toLowerCase()])
+    .sort((a, b) => order.indexOf(a) - order.indexOf(b))
+  const keys = parts.filter((part) => !map[part.toLowerCase()])
+    .map((part) => part.toLowerCase() === 'plus' ? '+' : /^[a-z]$/i.test(part) ? part.toUpperCase() : part)
+  return [...new Set(modifiers), ...keys]
 }
+
+export const acceleratorToLabel = (accelerator: string, isOsx: boolean): string =>
+  acceleratorToTokens(accelerator, isOsx).join(isOsx ? '' : '+')
