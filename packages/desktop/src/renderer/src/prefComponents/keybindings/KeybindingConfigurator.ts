@@ -112,7 +112,7 @@ export default class KeybindingConfigurator {
       return false
     }
 
-    if (accelerator && this._isDuplicate(accelerator)) {
+    if (accelerator && this._isDuplicate(id, accelerator)) {
       return false
     }
 
@@ -156,12 +156,12 @@ export default class KeybindingConfigurator {
     return this.defaultKeybindings.get(id)
   }
 
-  _isDuplicate(accelerator: string): boolean {
+  _isDuplicate(id: string, accelerator: string): boolean {
     return (
       accelerator !== '' &&
-      this.keybindingList.findIndex((entry) =>
-        isEqualAccelerator(entry.accelerator, accelerator)
-      ) !== -1
+      this.keybindingList.some((entry) =>
+        entry.id !== id && isEqualAccelerator(entry.accelerator, accelerator)
+      )
     )
   }
 
