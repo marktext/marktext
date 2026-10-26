@@ -1,10 +1,30 @@
 // @vitest-environment happy-dom
 
+// @ts-expect-error commonmark-spec is plain CommonJS without types
+import cms from 'commonmark-spec';
 import { Marked } from 'marked';
 import { describe, expect, it } from 'vitest';
 import cjkEmStrongExtension from '../extensions/cjkEmStrong';
 import { getClipBoardHtml } from '../getClipboardHtml';
 import { getHighlightHtml } from '../getHighlightHtml';
+import regressions from './fixtures/emphasis-context-regressions.json';
+import gfmRegressions from './fixtures/gfm-emphasis-regressions.json';
+
+interface ISpecExample {
+    markdown: string;
+    html: string;
+    section: string;
+    number: number;
+}
+
+const emphasisExamples = (cms.tests as ISpecExample[]).filter(
+    example => example.section === 'Emphasis and strong emphasis',
+);
+
+// CommonMark fixtures use self-closing void tags; Marked emits HTML5.
+function normalize(html: string): string {
+    return html.replace(/\s*\/>/g, '>');
+}
 
 const CASES = [
     ['***.a*', '**<em>.a</em>'],
@@ -17,9 +37,22 @@ const CASES = [
 ] as const;
 
 describe('marked emphasis with CJK boundaries', () => {
+    it('loads every CommonMark 0.31 emphasis example', () => {
+        expect(emphasisExamples).toHaveLength(132);
+    });
+
     for (const [name, render] of [['clipboard', getClipBoardHtml], ['export', getHighlightHtml]] as const) {
+        // Includes seed 20261027 counterexamples; fixed commonmark.js 0.31.2 HTML keeps CI offline.
+        it.each(regressions)(`${name}: $markdown retains outer delimiter context`, ({ markdown, html }) => {
+            expect(normalize(render(markdown, { superSubScript: false, texMathDollars: false }))).toBe(normalize(html));
+        });
+
         it.each(CASES)(`${name}: %s follows whole delimiter run rules`, (markdown, expected) => {
             expect(render(markdown, { superSubScript: false })).toBe(`<p>${expected}</p>\n`);
+        });
+
+        it.each(gfmRegressions)(`${name}: $markdown preserves GFM delimiter precedence`, ({ markdown, html }) => {
+            expect(render(markdown, { superSubScript: false, texMathDollars: false })).toBe(html);
         });
 
         it.each([
@@ -35,6 +68,22 @@ describe('marked emphasis with CJK boundaries', () => {
         for (const [markdown, expected] of CASES)
             expect(marked.parseInline(markdown), markdown).toBe(expected);
     });
+
+    for (const gfm of [false, true]) {
+        const marked = new Marked(cjkEmStrongExtension(), { gfm });
+        it.each(regressions)(`gfm=${gfm}: $markdown retains outer delimiter context`, ({ markdown, html }) => {
+            expect(normalize(marked.parse(markdown) as string)).toBe(normalize(html));
+        });
+
+        it.each(emphasisExamples)(`gfm=${gfm}: CommonMark emphasis #$number`, ({ markdown, html }) => {
+            expect(marked.parse(markdown)).toBe(html);
+        });
+
+        it(`gfm=${gfm}: leaves a long unmatched delimiter run literal`, () => {
+            const markdown = `${'*'.repeat(20000)}(`;
+            expect(marked.parseInline(markdown)).toBe(markdown);
+        });
+    }
 
     it('does not change the grammar of other Marked instances', () => {
         const markdown = '中文**"加粗"**中文';

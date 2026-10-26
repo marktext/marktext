@@ -1,5 +1,7 @@
+import type { IDelimiterRun, IEmphasisSpan } from '../utils/emphasis';
 import type { InlineRules } from './rules';
 import type { ITokenizerFacOptions, Labels } from './types';
+import { pairEmphasisDelimiters } from '../utils/emphasis';
 import { BACKSLASH_MATH_RULES, linkValidateRules } from './rules';
 import {
     CJK_REG,
@@ -13,20 +15,7 @@ import {
     UNICODE_WHITESPACE_REG,
 } from './utils';
 
-export interface IEmphasisSpan {
-    start: number;
-    end: number;
-    markerLen: number;
-}
-
-interface IDelimiterRun {
-    char: string;
-    length: number;
-    left: number;
-    right: number;
-    canOpen: boolean;
-    canClose: boolean;
-}
+export type { IEmphasisSpan } from '../utils/emphasis';
 
 interface IScanContext {
     rules: InlineRules;
@@ -34,10 +23,6 @@ interface IScanContext {
     options: ITokenizerFacOptions;
     top: boolean;
     mayAutoLink: boolean;
-}
-
-function unspent(run: IDelimiterRun) {
-    return run.right - run.left;
 }
 
 function isWhitespace(char: string) {
@@ -168,24 +153,6 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
     return runs;
 }
 
-function violatesRuleOfThree(opener: IDelimiterRun, closer: IDelimiterRun) {
-    if (!opener.canClose && !closer.canOpen)
-        return false;
-
-    if ((opener.length + closer.length) % 3 !== 0)
-        return false;
-
-    return opener.length % 3 !== 0 || closer.length % 3 !== 0;
-}
-
-function canPair(opener: IDelimiterRun, closer: IDelimiterRun) {
-    return (
-        opener.char === closer.char
-        && unspent(opener) > 0
-        && !violatesRuleOfThree(opener, closer)
-    );
-}
-
 export function scanEmphasisSpans(
     src: string,
     base: number,
@@ -203,39 +170,5 @@ export function scanEmphasisSpans(
             top
             && (src.includes('www.') || src.includes('http') || src.includes('@')),
     });
-    const spans = new Map<number, IEmphasisSpan>();
-    const openers: number[] = [];
-
-    for (let i = 0; i < runs.length; i++) {
-        const closer = runs[i];
-
-        while (closer.canClose && unspent(closer) > 0) {
-            let top = openers.length - 1;
-            while (top >= 0 && !canPair(runs[openers[top]], closer))
-                top--;
-
-            if (top < 0)
-                break;
-
-            const opener = runs[openers[top]];
-            openers.length = top + 1;
-
-            const markerLen = unspent(opener) >= 2 && unspent(closer) >= 2 ? 2 : 1;
-            opener.right -= markerLen;
-            closer.left += markerLen;
-            spans.set(base + opener.right, {
-                start: base + opener.right,
-                end: base + closer.left,
-                markerLen,
-            });
-
-            if (unspent(opener) === 0)
-                openers.pop();
-        }
-
-        if (closer.canOpen && unspent(closer) > 0)
-            openers.push(i);
-    }
-
-    return spans;
+    return pairEmphasisDelimiters(runs, base);
 }

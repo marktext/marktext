@@ -1,0 +1,386 @@
+[
+    {
+        "markdown": "_**.*_",
+        "html": "<p><em>**.*</em></p>\n"
+    },
+    {
+        "markdown": "*_*a*a",
+        "html": "<p>*_<em>a</em>a</p>\n"
+    },
+    {
+        "markdown": "***a*a",
+        "html": "<p>**<em>a</em>a</p>\n"
+    },
+    {
+        "markdown": "_**__*_",
+        "html": "<p><em>**__*</em></p>\n"
+    },
+    {
+        "markdown": "*_*a.*.",
+        "html": "<p>*_<em>a.</em>.</p>\n"
+    },
+    {
+        "markdown": "***a_*_",
+        "html": "<p>**<em>a_</em>_</p>\n"
+    },
+    {
+        "markdown": "***a_*.",
+        "html": "<p>**<em>a_</em>.</p>\n"
+    },
+    {
+        "markdown": "***a.*_",
+        "html": "<p>**<em>a.</em>_</p>\n"
+    },
+    {
+        "markdown": "***a.*.",
+        "html": "<p>**<em>a.</em>.</p>\n"
+    },
+    {
+        "markdown": "_ *_*a*a",
+        "html": "<p>_ *_<em>a</em>a</p>\n"
+    },
+    {
+        "markdown": "_**_a*__",
+        "html": "<p><em>**<em>a*</em></em></p>\n"
+    },
+    {
+        "markdown": "_**.* ._",
+        "html": "<p><em>**.* .</em></p>\n"
+    },
+    {
+        "markdown": "_**.* *_",
+        "html": "<p><em>**.* *</em></p>\n"
+    },
+    {
+        "markdown": "_**.* a_",
+        "html": "<p><em>**.* a</em></p>\n"
+    },
+    {
+        "markdown": "_**.*_ a",
+        "html": "<p><em>**.*</em> a</p>\n"
+    },
+    {
+        "markdown": "_a **.*_",
+        "html": "<p><em>a **.*</em></p>\n"
+    },
+    {
+        "markdown": "* _**.*_",
+        "html": "<ul>\n<li><em>**.*</em></li>\n</ul>\n"
+    },
+    {
+        "markdown": "*__*a_*.",
+        "html": "<p>*__<em>a_</em>.</p>\n"
+    },
+    {
+        "markdown": "*__*a.*_",
+        "html": "<p>*__<em>a.</em>_</p>\n"
+    },
+    {
+        "markdown": "*_*a _*.",
+        "html": "<p>*_<em>a _</em>.</p>\n"
+    },
+    {
+        "markdown": "*_*a__*.",
+        "html": "<p>*_<em>a__</em>.</p>\n"
+    },
+    {
+        "markdown": "*_*a.*__",
+        "html": "<p>*_<em>a.</em>__</p>\n"
+    },
+    {
+        "markdown": "*_*a.*_a",
+        "html": "<p>*_<em>a.</em>_a</p>\n"
+    },
+    {
+        "markdown": "*_*a**a*",
+        "html": "<p>*_<em>a**a</em></p>\n"
+    },
+    {
+        "markdown": "*_*a*a *",
+        "html": "<p>*_<em>a</em>a *</p>\n"
+    },
+    {
+        "markdown": "***a*a *",
+        "html": "<p>**<em>a</em>a *</p>\n"
+    },
+    {
+        "markdown": "_ ***a_*.",
+        "html": "<p>_ **<em>a_</em>.</p>\n"
+    },
+    {
+        "markdown": "__. _*_*_",
+        "html": "<p>_<em>. <em>*</em>*</em></p>\n"
+    },
+    {
+        "markdown": "__._a._._",
+        "html": "<p>_<em>.<em>a.</em>.</em></p>\n"
+    },
+    {
+        "markdown": "__._a._*_",
+        "html": "<p>_<em>.<em>a.</em>*</em></p>\n"
+    },
+    {
+        "markdown": "__._a*_._",
+        "html": "<p>_<em>.<em>a*</em>.</em></p>\n"
+    },
+    {
+        "markdown": "__._a*_*_",
+        "html": "<p>_<em>.<em>a*</em>*</em></p>\n"
+    },
+    {
+        "markdown": "__* _._*_",
+        "html": "<p>_<em>* <em>.</em>*</em></p>\n"
+    },
+    {
+        "markdown": "__*_a._._",
+        "html": "<p>_<em>*<em>a.</em>.</em></p>\n"
+    },
+    {
+        "markdown": "__*_a._*_",
+        "html": "<p>_<em><em><em>a.</em></em></em></p>\n"
+    },
+    {
+        "markdown": "__a _*_*_",
+        "html": "<p>_<em>a <em>*</em>*</em></p>\n"
+    },
+    {
+        "markdown": "_**__*_ a",
+        "html": "<p><em>**__*</em> a</p>\n"
+    },
+    {
+        "markdown": "_****.**_",
+        "html": "<p><em>****.**</em></p>\n"
+    },
+    {
+        "markdown": "*_*a__*_a",
+        "html": "<p>*_<em>a__</em>_a</p>\n"
+    },
+    {
+        "markdown": "*_*a.*. _",
+        "html": "<p>*_<em>a.</em>. _</p>\n"
+    },
+    {
+        "markdown": "*_*a.**.*",
+        "html": "<p>*_<em>a.**.</em></p>\n"
+    },
+    {
+        "markdown": "*.*_**.*_",
+        "html": "<p><em>.</em><em>**.*</em></p>\n"
+    },
+    {
+        "markdown": "****a*a**",
+        "html": "<p>*<strong><em>a</em>a</strong></p>\n"
+    },
+    {
+        "markdown": "***a_*_ *",
+        "html": "<p>**<em>a_</em>_ *</p>\n"
+    },
+    {
+        "markdown": "**a *.*.*",
+        "html": "<p>*<em>a <em>.</em>.</em></p>\n"
+    },
+    {
+        "markdown": "**a *a*a*",
+        "html": "<p>*<em>a <em>a</em>a</em></p>\n"
+    },
+    {
+        "markdown": "**a.*a*a*",
+        "html": "<p>*<em>a.<em>a</em>a</em></p>\n"
+    },
+    {
+        "markdown": "a*_*a***a",
+        "html": "<p>a*_<em>a</em>**a</p>\n"
+    },
+    {
+        "markdown": "_ *__*a_*.",
+        "html": "<p>_ *__<em>a_</em>.</p>\n"
+    },
+    {
+        "markdown": "_**.*a*.**",
+        "html": "<p>_<strong>.<em>a</em>.</strong></p>\n"
+    },
+    {
+        "markdown": ".*_**a**_*",
+        "html": "<p>.<em><em><strong>a</strong></em></em></p>\n"
+    },
+    {
+        "markdown": ".*_**a**.*",
+        "html": "<p>.<em>_<strong>a</strong>.</em></p>\n"
+    },
+    {
+        "markdown": ".**.*a*_**",
+        "html": "<p>.<strong>.<em>a</em>_</strong></p>\n"
+    },
+    {
+        "markdown": ".**.*a*.**",
+        "html": "<p>.<strong>.<em>a</em>.</strong></p>\n"
+    },
+    {
+        "markdown": "*_*a__ _*.",
+        "html": "<p>*_<em>a__ _</em>.</p>\n"
+    },
+    {
+        "markdown": "**_a **.*_",
+        "html": "<p>**<em>a **.*</em></p>\n"
+    },
+    {
+        "markdown": "**a.*a_*.*",
+        "html": "<p>*<em>a.<em>a_</em>.</em></p>\n"
+    },
+    {
+        "markdown": "**a.*a.*.*",
+        "html": "<p>*<em>a.<em>a.</em>.</em></p>\n"
+    },
+    {
+        "markdown": "a*_a **.*_",
+        "html": "<p>a*<em>a **.*</em></p>\n"
+    },
+    {
+        "markdown": "_ __._a*_._",
+        "html": "<p>_ _<em>.<em>a*</em>.</em></p>\n"
+    },
+    {
+        "markdown": "_ **a_*a*a*",
+        "html": "<p>_ *<em>a_<em>a</em>a</em></p>\n"
+    },
+    {
+        "markdown": "__* _._._ .",
+        "html": "<p>_<em>* <em>.</em>.</em> .</p>\n"
+    },
+    {
+        "markdown": "_****_a**__",
+        "html": "<p><em>****<em>a**</em></em></p>\n"
+    },
+    {
+        "markdown": "***a *a*.*_",
+        "html": "<p>**<em>a <em>a</em>.</em>_</p>\n"
+    },
+    {
+        "markdown": "***a.*a*_*.",
+        "html": "<p>**<em>a.<em>a</em>_</em>.</p>\n"
+    },
+    {
+        "markdown": "***a.*a*.*_",
+        "html": "<p>**<em>a.<em>a</em>.</em>_</p>\n"
+    },
+    {
+        "markdown": "**a *_*.* _",
+        "html": "<p>*<em>a <em>_</em>.</em> _</p>\n"
+    },
+    {
+        "markdown": "**a.*a*a* a",
+        "html": "<p>*<em>a.<em>a</em>a</em> a</p>\n"
+    },
+    {
+        "markdown": ". _**_a* a__",
+        "html": "<p>. <em>**<em>a* a</em></em></p>\n"
+    },
+    {
+        "markdown": ".**. *_* a**",
+        "html": "<p>.<strong>. <em>_</em> a</strong></p>\n"
+    },
+    {
+        "markdown": "a**a *_* .**",
+        "html": "<p>a<strong>a <em>_</em> .</strong></p>\n"
+    },
+    {
+        "markdown": "__****(**__",
+        "html": "<p><strong>****(**</strong></p>\n"
+    },
+    {
+        "markdown": "__ __****_ö**__",
+        "html": "<p>__ _<em>****<em>ö**</em></em></p>\n"
+    },
+    {
+        "markdown": "<*>*",
+        "html": "<p>&lt;<em>&gt;</em></p>\n"
+    },
+    {
+        "markdown": "<_>_",
+        "html": "<p>&lt;<em>&gt;</em></p>\n"
+    },
+    {
+        "markdown": "<;[( _>_\"",
+        "html": "<p>&lt;;[( <em>&gt;</em>&quot;</p>\n"
+    },
+    {
+        "markdown": "*a <invalid*tag> b*",
+        "html": "<p><em>a &lt;invalid</em>tag&gt; b*</p>\n"
+    },
+    {
+        "markdown": "*a <span title=\"*\">b</span> c*",
+        "html": "<p><em>a <span title=\"*\">b</span> c</em></p>\n"
+    },
+    {
+        "markdown": "*a `x*y` b*",
+        "html": "<p><em>a <code>x*y</code> b</em></p>\n"
+    },
+    {
+        "markdown": "`*a*` *b*",
+        "html": "<p><code>*a*</code> <em>b</em></p>\n"
+    },
+    {
+        "markdown": "\\*a*",
+        "html": "<p>*a*</p>\n"
+    },
+    {
+        "markdown": "*a [b*](/u)",
+        "html": "<p>*a <a href=\"/u\">b*</a></p>\n"
+    },
+    {
+        "markdown": "*a [b*][r]\n\n[r]: /u",
+        "html": "<p>*a <a href=\"/u\">b*</a></p>\n"
+    },
+    {
+        "markdown": "*a [b*][missing]",
+        "html": "<p><em>a [b</em>][missing]</p>\n"
+    },
+    {
+        "markdown": "[**.a*](/u)",
+        "html": "<p><a href=\"/u\">**.a*</a></p>\n"
+    },
+    {
+        "markdown": "![**.a*](/i)",
+        "html": "<p><img src=\"/i\" alt=\"**.a*\" /></p>\n"
+    },
+    {
+        "markdown": "*a [**.a*](/u) b*",
+        "html": "<p><em>a <a href=\"/u\">**.a*</a> b</em></p>\n"
+    },
+    {
+        "markdown": "*a [**.a*][r] b*\n\n[r]: /u",
+        "html": "<p><em>a <a href=\"/u\">**.a*</a> b</em></p>\n"
+    },
+    {
+        "markdown": "[a&#42;b*](/u)",
+        "html": "<p><a href=\"/u\">a*b*</a></p>\n"
+    },
+    {
+        "markdown": "&#42;*a*",
+        "html": "<p>*<em>a</em></p>\n"
+    },
+    {
+        "markdown": "&#x61;*b*",
+        "html": "<p>a<em>b</em></p>\n"
+    },
+    {
+        "markdown": "a*&#x20;b*",
+        "html": "<p>a* b*</p>\n"
+    },
+    {
+        "markdown": "*a&#0;b*",
+        "html": "<p><em>a�b</em></p>\n"
+    },
+    {
+        "markdown": "foo <code>*a*</code> *b*",
+        "html": "<p>foo <code><em>a</em></code> <em>b</em></p>\n"
+    },
+    {
+        "markdown": "foo <kbd>*a*</kbd> *b*",
+        "html": "<p>foo <kbd><em>a</em></kbd> <em>b</em></p>\n"
+    },
+    {
+        "markdown": "foo <pre>*a*</pre> *b*",
+        "html": "<p>foo <pre><em>a</em></pre> <em>b</em></p>\n"
+    }
+]
