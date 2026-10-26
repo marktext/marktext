@@ -52,6 +52,7 @@ interface IMockMuya {
     domNode: HTMLElement;
     options: {
         imageAction?: (state: { src: string; alt: string; title: string }) => Promise<string>;
+        imageDropAction?: (state: { src: string; alt: string; title: string }) => Promise<string> | undefined;
         getPathForFile?: (file: File) => string;
     };
     editor: { inlineRenderer: { renderer: { urlMap: Map<string, string> } } };
@@ -122,6 +123,70 @@ afterEach(() => {
 });
 
 describe('attachDragDropImageHandlers — local image FILE', () => {
+    it('uses the default image action when the host defers to it', async () => {
+        const imageAction = vi.fn().mockResolvedValue('assets/shot.png');
+        const muya = makeMuya({
+            imageDropAction: () => undefined,
+            imageAction,
+            getPathForFile: () => '/abs/shot.png',
+        });
+        const contentDom = makeDropTarget(muya);
+        attachDragDropImageHandlers(muya as unknown as Muya);
+        const dt = new DataTransfer();
+        dt.items.add(new File(['x'], 'shot.png', { type: 'image/png' }));
+        muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
+        await Promise.resolve();
+        expect(createdBlocks).toHaveLength(1);
+        expect(imageAction).toHaveBeenCalledOnce();
+    });
+
+    it('keeps the document unchanged until the host finishes saving and persisting the drop', async () => {
+        let finish!: (src: string) => void;
+        const imageDropAction = vi.fn(() => new Promise<string>((resolve) => {
+            finish = resolve;
+        }));
+        const imageAction = vi.fn();
+        const muya = makeMuya({ imageDropAction, imageAction, getPathForFile: () => '/abs/shot.png' });
+        const contentDom = makeDropTarget(muya);
+        attachDragDropImageHandlers(muya as unknown as Muya);
+        const dt = new DataTransfer();
+        dt.items.add(new File(['x'], 'shot.png', { type: 'image/png' }));
+        const event = dropEvent(contentDom, dt);
+        muya.domNode.dispatchEvent(event);
+        expect(createdBlocks).toHaveLength(0);
+        expect(imageAction).not.toHaveBeenCalled();
+        finish('assets/my shot.png');
+        await Promise.resolve();
+        expect(createdBlocks).toEqual([{ text: '![shot.png](assets/my%20shot.png)', insertedBefore: true, insertedAfter: false }]);
+    });
+
+    it.each(['empty', 'detached', 'readOnly', 'failed'])('skips insertion when the host drop is %s', async (reason) => {
+        let finish!: (src: string) => void;
+        let fail!: (error: Error) => void;
+        const muya = makeMuya({
+            imageDropAction: () => new Promise<string>((resolve, reject) => {
+                finish = resolve;
+                fail = reject;
+            }),
+            getPathForFile: () => '/abs/shot.png',
+        });
+        const contentDom = makeDropTarget(muya);
+        attachDragDropImageHandlers(muya as unknown as Muya);
+        const dt = new DataTransfer();
+        dt.items.add(new File(['x'], 'shot.png', { type: 'image/png' }));
+        muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
+        if (reason === 'detached')
+            muya.isBlockInDocument = () => false;
+        if (reason === 'readOnly')
+            Object.assign(muya, { isReadOnly: true });
+        if (reason === 'failed')
+            fail(new Error('save failed'));
+        else
+            finish(reason === 'empty' ? '' : 'assets/shot.png');
+        await Promise.resolve();
+        expect(createdBlocks).toHaveLength(0);
+    });
+
     it('inserts a loading placeholder and invokes imageAction with the resolved path', async () => {
         const imageAction = vi.fn().mockResolvedValue('assets/shot.png');
         const getPathForFile = vi.fn().mockReturnValue('/abs/shot.png');

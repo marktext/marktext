@@ -228,6 +228,23 @@ async function persistDroppedImage(
     }
 }
 
+async function insertPersistedImage(
+    muya: Muya,
+    pending: Promise<string>,
+    name: string,
+    target: IDropTarget,
+): Promise<void> {
+    try {
+        const src = await pending;
+        if (!src || muya.isReadOnly || !muya.isBlockInDocument(target.anchor))
+            return;
+        insertImageParagraph(muya, target, `![${name}](${encodeImageSrc(src)})`);
+    }
+    catch (error) {
+        debug.warn(`Unexpected error on image drop: ${String(error)}`);
+    }
+}
+
 // Drop path 2 — a local image FILE. Resolve it to a path via the embedder
 // `getPathForFile` hook, then insert it.
 //
@@ -258,6 +275,11 @@ function handleFileImage(
         return false;
 
     const { name } = image;
+    const pending = muya.options.imageDropAction?.({ src: path, alt: name, title: '' });
+    if (pending) {
+        void insertPersistedImage(muya, pending, name, target);
+        return true;
+    }
     const encodedPath = encodeImageSrc(path);
 
     if (!muya.options.imageAction) {

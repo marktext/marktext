@@ -1042,6 +1042,11 @@
     "unexpectedError": "Unexpected spellchecker error"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "Save document to use a relative image directory",
+      "saveMessage": "Saving the document will store the image in the configured relative directory. Canceling will store the image in the global image directory.",
+      "failed": "Could not insert the image"
+    },
     "export": {
       "error": "Export error",
       "errorExporting": "Error exporting {type} file",
