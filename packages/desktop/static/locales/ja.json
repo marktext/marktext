@@ -245,7 +245,7 @@
       "cancel": "キャンセル",
       "openFolder": "Add Folder…",
       "showMoreMatches": "さらに一致するものを表示",
-      "searchInFolders": "Search in added folders",
+      "searchInFolders": "フォルダー内の検索",
       "partialSearch": "Some folders could not be searched.",
       "noSearchableFolders": "No available folders to search."
     },
