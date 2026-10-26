@@ -116,6 +116,9 @@ const COMMAND_KEY_MAP: Record<string, string> = {
   'window.resetZoom': 'menu.window.resetZoom',
   'window.zoomOut': 'commands.window.zoomOut',
 
+  'window.increase-opacity': 'commands.window.increaseOpacity',
+  'window.decrease-opacity': 'commands.window.decreaseOpacity',
+
   'window.change-theme': 'commands.window.changeTheme',
 
   'view.toggle-sidebar': 'commands.view.toggleSidebar',

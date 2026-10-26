@@ -33,7 +33,7 @@ export default function(
     edit(keybindings),
     paragraph(keybindings, preferences),
     format(keybindings),
-    window(keybindings),
+    window(keybindings, preferences),
     theme(preferences),
     view(keybindings),
     help()

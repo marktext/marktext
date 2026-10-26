@@ -41,7 +41,7 @@ class Accessor {
   private _loadCommands(): void {
     const { commandManager } = this
     loadDefaultCommands(commandManager)
-    loadMenuCommands(commandManager)
+    loadMenuCommands(commandManager, this.preferences)
 
     if (this.env.isDevMode) {
       commandManager.__verifyDefaultCommands()

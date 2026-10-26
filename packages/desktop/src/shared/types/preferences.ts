@@ -1,5 +1,11 @@
 // Renderer-facing preference shape; the canonical schema lives in main/preferences/schema.json.
 
+// Percent bounds shared by the Preferences slider, the opacity menu actions and
+// the main-process clamping, so the UI and stored value can never disagree.
+export const WINDOW_OPACITY_MIN = 20
+export const WINDOW_OPACITY_MAX = 100
+export const WINDOW_OPACITY_STEP = 5
+
 export interface IUserPreferences {
   defaultOpenMode?: 'edit' | 'read'
   autoSave?: boolean
@@ -8,6 +14,7 @@ export interface IUserPreferences {
   openFilesInNewWindow?: boolean
   openFolderInNewWindow?: boolean
   hideScrollbar?: boolean
+  windowOpacity?: number
   tocVisibility?: boolean
   sidebarColumn?: number
   fileSortBy?: string

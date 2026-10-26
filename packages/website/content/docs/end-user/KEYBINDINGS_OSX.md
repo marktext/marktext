@@ -106,6 +106,8 @@ Modifier keys use their full macOS names and appear in this order: Control, Opti
 | `window.zoomIn`               | -                                                  | Zoom in                   |
 | `window.resetZoom`            | -                                                  | Reset zoom                |
 | `window.zoomOut`              | -                                                  | Zoom out                  |
+| `window.increase-opacity`     | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>Up</kbd>   | Increase window opacity   |
+| `window.decrease-opacity`     | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>Down</kbd> | Decrease window opacity   |
 | `window.toggle-full-screen`   | <kbd>Control</kbd>+<kbd>Command</kbd>+<kbd>F</kbd> | Toggle fullscreen mode    |
 
 #### View menu

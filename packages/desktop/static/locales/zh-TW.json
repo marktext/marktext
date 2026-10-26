@@ -92,7 +92,9 @@
       "resetZoom": "重置縮放",
       "fullScreen": "全螢幕",
       "bringAllToFront": "將全部移到前面",
-      "alwaysOnTop": "總是在最上層"
+      "alwaysOnTop": "總是在最上層",
+      "increaseOpacity": "增加不透明度",
+      "decreaseOpacity": "降低不透明度"
     },
     "help": {
       "help": "說明",
@@ -486,7 +488,8 @@
         "imageRelativeDirectoryName": "相對圖片資料夾名稱",
         "fileSortOrder": "開啟資料夾中檔案的排序順序：遞增或遞減",
         "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案",
-        "showPandocConvert": "顯示 Pandoc 轉換選單。需要先安裝 Pandoc。"
+        "showPandocConvert": "顯示 Pandoc 轉換選單。需要先安裝 Pandoc。",
+        "windowOpacity": "主視窗的不透明度（百分比）"
       }
     },
     "categories": {
@@ -516,7 +519,8 @@
         "hideScrollbars": "隱藏捲軸",
         "openFilesInNewWindow": "在新視窗中開啟檔案",
         "openFoldersInNewWindow": "在新視窗中開啟資料夾",
-        "zoom": "縮放"
+        "zoom": "縮放",
+        "opacity": "視窗不透明度"
       },
       "startup": {
         "title": "啟動",
@@ -926,7 +930,9 @@
       "zoomOut": "縮小",
       "toggleFullScreen": "切換全螢幕",
       "changeTheme": "變更主題",
-      "close": "關閉"
+      "close": "關閉",
+      "increaseOpacity": "增加不透明度",
+      "decreaseOpacity": "降低不透明度"
     },
     "view": {
       "commandPalette": "命令面板",

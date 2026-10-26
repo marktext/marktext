@@ -1,6 +1,21 @@
 import { screen } from 'electron'
 import type { BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
+import { WINDOW_OPACITY_MAX, WINDOW_OPACITY_MIN } from '@shared/types/preferences'
 import { isLinux } from '../config'
+
+export const clampWindowOpacity = (percent: number): number => {
+  if (!Number.isFinite(percent)) return WINDOW_OPACITY_MAX
+  return Math.min(WINDOW_OPACITY_MAX, Math.max(WINDOW_OPACITY_MIN, Math.round(percent)))
+}
+
+/** Applies a stored percentage to a window; Electron expects a 0–1 fraction. */
+export const applyWindowOpacity = (
+  win: BrowserWindow | null | undefined,
+  percent: number | undefined
+): void => {
+  if (!win) return
+  win.setOpacity(clampWindowOpacity(percent ?? WINDOW_OPACITY_MAX) / 100)
+}
 
 export const zoomIn = (win: BrowserWindow | null | undefined): void => {
   if (!win) return

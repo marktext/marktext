@@ -12,6 +12,7 @@ import type Preference from '../preferences'
 import { WindowType } from '../windows/base'
 import type { WindowTypeValue } from '../windows/base'
 import type EditorWindow from '../windows/editor'
+import { applyWindowOpacity } from '../windows/utils'
 import type { ProjectRootWatch } from '@shared/types/project'
 
 class WindowActivityList {
@@ -446,6 +447,13 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     })
 
     onInternalChannel('broadcast-preferences-changed', (prefs: Record<string, unknown>) => {
+      if (typeof prefs.windowOpacity === 'number') {
+        for (const { browserWindow, type } of this._windows.values()) {
+          if (type === WindowType.EDITOR) {
+            applyWindowOpacity(browserWindow, prefs.windowOpacity)
+          }
+        }
+      }
       // We can not dynamic change the title bar style, so do not need to send it to renderer.
       if (typeof prefs.titleBarStyle !== 'undefined') {
         delete prefs.titleBarStyle

@@ -32,6 +32,13 @@
     "maximum": 2.0,
     "default": 1.0
   },
+  "windowOpacity": {
+    "description": "General--The opacity of the main window in percent.",
+    "type": "number",
+    "minimum": 20,
+    "maximum": 100,
+    "default": 100
+  },
   "hideScrollbar": {
     "description": "General--Whether to hide scrollbars.",
     "type": "boolean",

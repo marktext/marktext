@@ -98,6 +98,8 @@ Redo uses <kbd>Ctrl</kbd>+<kbd>Y</kbd>. The previous default, <kbd>Ctrl</kbd>+<k
 | `window.zoomIn`               | -                            | Zoom in                   |
 | `window.resetZoom`            | -                            | Reset zoom                |
 | `window.zoomOut`              | -                            | Zoom out                  |
+| `window.increase-opacity`     | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Up</kbd>   | Increase window opacity   |
+| `window.decrease-opacity`     | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Down</kbd> | Decrease window opacity   |
 | `window.toggle-full-screen`   | <kbd>F11</kbd>               | Toggle fullscreen mode    |
 
 #### View menu

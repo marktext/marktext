@@ -92,7 +92,9 @@
       "resetZoom": "Réinitialiser le zoom",
       "fullScreen": "Plein écran",
       "bringAllToFront": "Tout amener au premier plan",
-      "alwaysOnTop": "Toujours au premier plan"
+      "alwaysOnTop": "Toujours au premier plan",
+      "increaseOpacity": "Augmenter l'opacité",
+      "decreaseOpacity": "Diminuer l'opacité"
     },
     "help": {
       "help": "Aide",
@@ -486,7 +488,8 @@
         "imageRelativeDirectoryName": "Le nom du dossier d'image relatif",
         "fileSortOrder": "Ordre de tri des fichiers dans les dossiers ouverts : croissant ou décroissant.",
         "openedFilesInSidebar": "Afficher ou non les fichiers ouverts dans la barre latérale.",
-        "showPandocConvert": "Afficher le menu de conversion Pandoc. Nécessite l'installation de Pandoc."
+        "showPandocConvert": "Afficher le menu de conversion Pandoc. Nécessite l'installation de Pandoc.",
+        "windowOpacity": "L'opacité de la fenêtre principale en pourcentage"
       }
     },
     "categories": {
@@ -516,7 +519,8 @@
         "hideScrollbars": "Masquer les barres de défilement",
         "openFilesInNewWindow": "Ouvrir les fichiers dans une nouvelle fenêtre",
         "openFoldersInNewWindow": "Ouvrir les dossiers dans une nouvelle fenêtre",
-        "zoom": "Zoom"
+        "zoom": "Zoom",
+        "opacity": "Opacité de la fenêtre"
       },
       "startup": {
         "title": "Démarrage",
@@ -926,7 +930,9 @@
       "zoomOut": "Réduire",
       "toggleFullScreen": "Basculer le plein écran",
       "changeTheme": "Changer de thème",
-      "close": "Fermer"
+      "close": "Fermer",
+      "increaseOpacity": "Augmenter l'opacité",
+      "decreaseOpacity": "Diminuer l'opacité"
     },
     "view": {
       "commandPalette": "Palette de commandes",

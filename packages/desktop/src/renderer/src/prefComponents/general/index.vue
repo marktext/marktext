@@ -71,6 +71,16 @@
           :options="zoomOptions"
           :on-change="(value) => onSelectChange('zoom', value)"
         />
+        <range
+          v-if="!isLinux"
+          :description="t('preferences.general.window.opacity')"
+          :value="windowOpacity"
+          :min="WINDOW_OPACITY_MIN"
+          :max="WINDOW_OPACITY_MAX"
+          :step="WINDOW_OPACITY_STEP"
+          unit="%"
+          :on-change="(value) => onSelectChange('windowOpacity', value)"
+        />
       </template>
     </compound>
 
@@ -245,7 +255,12 @@ import Bool from '../common/bool/index.vue'
 import textBox from '../common/textBox/index.vue'
 import { pandocSwitchState } from './pandoc'
 import type { PandocCommandInfo } from '@shared/types/pandoc'
-import { isMac } from '@/util'
+import {
+  WINDOW_OPACITY_MAX,
+  WINDOW_OPACITY_MIN,
+  WINDOW_OPACITY_STEP
+} from '@shared/types/preferences'
+import { isLinux, isMac } from '@/util'
 
 import {
   getTitleBarStyleOptions,
@@ -268,6 +283,7 @@ const {
   openFolderInNewWindow,
   treePathExcludePatterns: projectPaths,
   zoom,
+  windowOpacity,
   hideScrollbar,
   wordWrapInToc,
   fileSortBy,

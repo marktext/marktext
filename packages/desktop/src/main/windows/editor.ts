@@ -6,7 +6,7 @@ import windowStateKeeper from 'electron-window-state'
 import { isChildOfDirectory } from 'common/filesystem/paths'
 import BaseWindow, { WindowLifecycle, WindowType } from './base'
 import type Accessor from '../app/accessor'
-import { ensureWindowPosition, zoomIn, zoomOut } from './utils'
+import { ensureWindowPosition, zoomIn, zoomOut, applyWindowOpacity } from './utils'
 import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
 import { showEditorContextMenu } from '../contextMenu/editor'
 import { loadMarkdownFile, loadCliMarkdownFile } from '../filesystem/markdown'
@@ -133,7 +133,8 @@ class EditorWindow extends BaseWindow {
       tabBarVisibility,
       sourceCodeModeEnabled,
       spellcheckerEnabled,
-      spellcheckerLanguage
+      spellcheckerLanguage,
+      windowOpacity
     } = preferences.getAll()
     const resolvedSideBarVisibility = restoreLayoutState ? !!sideBarVisibility : false
 
@@ -150,6 +151,7 @@ class EditorWindow extends BaseWindow {
     }
 
     let win: BrowserWindow | null = (this.browserWindow = new BrowserWindow(winOptions))
+    applyWindowOpacity(win, windowOpacity)
 
     // Give every editor window a stable id for session buffer persistence.
     // We cant use win.id as it might collide with same IDs from closed windows

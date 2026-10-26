@@ -92,7 +92,9 @@
       "resetZoom": "Zoom zurücksetzen",
       "fullScreen": "Vollbild",
       "bringAllToFront": "Alle nach vorne bringen",
-      "alwaysOnTop": "Immer im Vordergrund"
+      "alwaysOnTop": "Immer im Vordergrund",
+      "increaseOpacity": "Deckkraft erhöhen",
+      "decreaseOpacity": "Deckkraft verringern"
     },
     "help": {
       "help": "Hilfe",
@@ -486,7 +488,8 @@
         "imageRelativeDirectoryName": "Der relative Bildordner-Name",
         "fileSortOrder": "Sortierreihenfolge für Dateien in geöffneten Ordnern: aufsteigend oder absteigend.",
         "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen.",
-        "showPandocConvert": "Pandoc-Konvertierungsmenü anzeigen. Erfordert eine Pandoc-Installation."
+        "showPandocConvert": "Pandoc-Konvertierungsmenü anzeigen. Erfordert eine Pandoc-Installation.",
+        "windowOpacity": "Die Deckkraft des Hauptfensters in Prozent"
       }
     },
     "categories": {
@@ -516,7 +519,8 @@
         "hideScrollbars": "Bildlaufleisten ausblenden",
         "openFilesInNewWindow": "Dateien in neuem Fenster öffnen",
         "openFoldersInNewWindow": "Ordner in neuem Fenster öffnen",
-        "zoom": "Zoom"
+        "zoom": "Zoom",
+        "opacity": "Fensterdeckkraft"
       },
       "startup": {
         "title": "Start",
@@ -926,7 +930,9 @@
       "zoomOut": "Verkleinern",
       "toggleFullScreen": "Vollbild umschalten",
       "changeTheme": "Design ändern",
-      "close": "Schließen"
+      "close": "Schließen",
+      "increaseOpacity": "Deckkraft erhöhen",
+      "decreaseOpacity": "Deckkraft verringern"
     },
     "view": {
       "commandPalette": "Befehlspalette",

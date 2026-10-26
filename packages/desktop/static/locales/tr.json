@@ -92,7 +92,9 @@
       "resetZoom": "Yakınlaştırmayı Sıfırla",
       "fullScreen": "Tam Ekran",
       "bringAllToFront": "Tümünü Öne Getir",
-      "alwaysOnTop": "Her Zaman Üstte"
+      "alwaysOnTop": "Her Zaman Üstte",
+      "increaseOpacity": "Opaklığı artır",
+      "decreaseOpacity": "Opaklığı azalt"
     },
     "help": {
       "help": "Yardım",
@@ -486,7 +488,8 @@
         "autoNormalizeLineEndings": "Dosyaları açarken yeni satır karakterlerini otomatik olarak normalleştir. Devre dışı bırakıldığında dosyalar olduğu gibi açılır.",
         "fileSortOrder": "Açık klasörlerdeki dosyaların sıralama düzeni: artan veya azalan.",
         "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği.",
-        "showPandocConvert": "Pandoc dönüştürme menüsünü gösterir. Pandoc kurulu olmalıdır."
+        "showPandocConvert": "Pandoc dönüştürme menüsünü gösterir. Pandoc kurulu olmalıdır.",
+        "windowOpacity": "Ana pencerenin opaklığı (yüzde)"
       }
     },
     "categories": {
@@ -516,7 +519,8 @@
         "hideScrollbars": "Kaydırma çubuklarını gizle",
         "openFilesInNewWindow": "Dosyaları yeni pencerede aç",
         "openFoldersInNewWindow": "Klasörleri yeni pencerede aç",
-        "zoom": "Yakınlaştırma"
+        "zoom": "Yakınlaştırma",
+        "opacity": "Pencere opaklığı"
       },
       "startup": {
         "title": "Başlangıç Seçenekleri",
@@ -926,7 +930,9 @@
       "zoomIn": "Yakınlaştır",
       "zoomOut": "Uzaklaştır",
       "toggleFullScreen": "Tam Ekranı Aç/Kapat",
-      "changeTheme": "Temayı Değiştir"
+      "changeTheme": "Temayı Değiştir",
+      "increaseOpacity": "Opaklığı artır",
+      "decreaseOpacity": "Opaklığı azalt"
     },
     "view": {
       "commandPalette": "Komut Paleti",

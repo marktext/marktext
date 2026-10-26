@@ -1,11 +1,44 @@
 import { Menu, type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
-import { minimizeWindow, toggleAlwaysOnTop, toggleFullScreen } from '../actions/window'
+import {
+  decreaseWindowOpacity,
+  increaseWindowOpacity,
+  minimizeWindow,
+  toggleAlwaysOnTop,
+  toggleFullScreen
+} from '../actions/window'
 import { zoomIn, zoomOut, resetZoom } from '../../windows/utils'
-import { isOsx } from '../../config'
+import { isLinux, isOsx } from '../../config'
 import { t } from '../../i18n'
 import type Keybindings from '../../keyboard/shortcutHandler'
+import type Preference from '../../preferences'
 
-export default function(keybindings: Keybindings): MenuItemConstructorOptions {
+export default function(
+  keybindings: Keybindings,
+  preferences: Preference
+): MenuItemConstructorOptions {
+  // Electron's setOpacity is a no-op on Linux, so the items would do nothing there.
+  const opacityMenuItems: MenuItemConstructorOptions[] = isLinux
+    ? []
+    : [
+      {
+        label: t('menu.window.increaseOpacity'),
+        accelerator: keybindings.getAccelerator('window.increase-opacity') ?? undefined,
+        click(_menuItem, browserWindow) {
+          increaseWindowOpacity(browserWindow as BrowserWindow | undefined, preferences)
+        }
+      },
+      {
+        label: t('menu.window.decreaseOpacity'),
+        accelerator: keybindings.getAccelerator('window.decrease-opacity') ?? undefined,
+        click(_menuItem, browserWindow) {
+          decreaseWindowOpacity(browserWindow as BrowserWindow | undefined, preferences)
+        }
+      },
+      {
+        type: 'separator'
+      }
+    ]
+
   const submenu: MenuItemConstructorOptions[] = [
     {
       label: t('menu.window.minimize'),
@@ -50,6 +83,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
     {
       type: 'separator'
     },
+    ...opacityMenuItems,
     {
       label: t('menu.window.fullScreen'),
       accelerator: keybindings.getAccelerator('window.toggle-full-screen') ?? undefined,

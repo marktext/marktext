@@ -92,7 +92,9 @@
       "resetZoom": "ズームをリセット",
       "fullScreen": "フルスクリーン",
       "bringAllToFront": "すべてを前面に移動",
-      "alwaysOnTop": "常に手前に表示"
+      "alwaysOnTop": "常に手前に表示",
+      "increaseOpacity": "不透明度を上げる",
+      "decreaseOpacity": "不透明度を下げる"
     },
     "help": {
       "help": "ヘルプ",
@@ -486,7 +488,8 @@
         "imageRelativeDirectoryName": "相対画像フォルダー名",
         "fileSortOrder": "開いたフォルダー内のファイルの並べ替え順、昇順または降順",
         "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか",
-        "showPandocConvert": "Pandoc 変換メニューを表示します。Pandoc がインストールされている必要があります。"
+        "showPandocConvert": "Pandoc 変換メニューを表示します。Pandoc がインストールされている必要があります。",
+        "windowOpacity": "メインウィンドウの不透明度（パーセント）"
       }
     },
     "categories": {
@@ -516,7 +519,8 @@
         "hideScrollbars": "スクロールバーを隠す",
         "openFilesInNewWindow": "新しいウィンドウでファイルを開く",
         "openFoldersInNewWindow": "新しいウィンドウでフォルダーを開く",
-        "zoom": "ズーム"
+        "zoom": "ズーム",
+        "opacity": "ウィンドウの不透明度"
       },
       "startup": {
         "title": "起動",
@@ -926,7 +930,9 @@
       "zoomOut": "縮小",
       "toggleFullScreen": "フルスクリーンの切り替え",
       "changeTheme": "テーマの変更",
-      "close": "閉じる"
+      "close": "閉じる",
+      "increaseOpacity": "不透明度を上げる",
+      "decreaseOpacity": "不透明度を下げる"
     },
     "view": {
       "commandPalette": "コマンドパレット",

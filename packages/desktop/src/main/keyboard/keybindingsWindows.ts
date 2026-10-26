@@ -82,6 +82,8 @@ const keybindings: Map<string, string> = new Map([
   ['window.zoomIn', ''],
   ['window.resetZoom', ''],
   ['window.zoomOut', ''],
+  ['window.increase-opacity', 'Ctrl+Shift+Up'],
+  ['window.decrease-opacity', 'Ctrl+Shift+Down'],
   ['window.toggle-full-screen', 'F11'],
 
   ['view.read-only-mode', 'Ctrl+Alt+R'],

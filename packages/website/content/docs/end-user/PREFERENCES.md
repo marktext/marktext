@@ -14,6 +14,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | openFilesInNewWindow   | Boolean | `false`       | Open files in a new window.                                                                                                       |
 | openFolderInNewWindow  | Boolean | `false`       | Open folder via menu in a new window.                                                                                             |
 | zoom                   | Number  | `1.0`         | The zoom level. Between `0.5` and `2.0` inclusive.                                                                                |
+| windowOpacity          | Number  | `100`         | The opacity of the main window in percent (Windows and macOS). Range `20`–`100`.                                                  |
 | hideScrollbar          | Boolean | `false`       | Whether to hide scrollbars.                                                                                                       |
 | wordWrapInToc          | Boolean | `false`       | Whether to enable word wrap in the table of contents.                                                                             |
 | fileSortBy             | String  | `created`     | Sort files in the opened folder. Optional values: `created`, `modified`, `title`.                                                 |

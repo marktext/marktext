@@ -92,7 +92,9 @@
       "resetZoom": "Redefinir Zoom",
       "fullScreen": "Tela Cheia",
       "bringAllToFront": "Trazer Todas para Frente",
-      "alwaysOnTop": "Sempre no Topo"
+      "alwaysOnTop": "Sempre no Topo",
+      "increaseOpacity": "Aumentar a opacidade",
+      "decreaseOpacity": "Diminuir a opacidade"
     },
     "help": {
       "help": "Ajuda",
@@ -486,7 +488,8 @@
         "imageRelativeDirectoryName": "O nome da pasta de imagem relativa",
         "fileSortOrder": "Ordem de classificação dos arquivos nas pastas abertas: ascendente ou descendente.",
         "openedFilesInSidebar": "Se os arquivos abertos são mostrados na barra lateral.",
-        "showPandocConvert": "Mostrar o menu de conversão do Pandoc. Requer o Pandoc instalado."
+        "showPandocConvert": "Mostrar o menu de conversão do Pandoc. Requer o Pandoc instalado.",
+        "windowOpacity": "A opacidade da janela principal em porcentagem"
       }
     },
     "categories": {
@@ -516,7 +519,8 @@
         "hideScrollbars": "Ocultar barras de rolagem",
         "openFilesInNewWindow": "Abrir arquivos em nova janela",
         "openFoldersInNewWindow": "Abrir pastas em nova janela",
-        "zoom": "Zoom"
+        "zoom": "Zoom",
+        "opacity": "Opacidade da janela"
       },
       "startup": {
         "title": "Inicialização",
@@ -926,7 +930,9 @@
       "zoomOut": "Diminuir Zoom",
       "toggleFullScreen": "Alternar Tela Cheia",
       "changeTheme": "Alterar Tema",
-      "close": "Fechar"
+      "close": "Fechar",
+      "increaseOpacity": "Aumentar a opacidade",
+      "decreaseOpacity": "Diminuir a opacidade"
     },
     "view": {
       "commandPalette": "Paleta de Comandos",

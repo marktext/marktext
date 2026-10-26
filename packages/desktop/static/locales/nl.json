@@ -92,7 +92,9 @@
       "resetZoom": "Zoom herstellen",
       "fullScreen": "Volledig scherm",
       "bringAllToFront": "Alles naar voren",
-      "alwaysOnTop": "Altijd bovenaan"
+      "alwaysOnTop": "Altijd bovenaan",
+      "increaseOpacity": "Dekking verhogen",
+      "decreaseOpacity": "Dekking verlagen"
     },
     "help": {
       "help": "Help",
@@ -486,7 +488,8 @@
         "autoNormalizeLineEndings": "Regeleindes automatisch normaliseren bij het openen van bestanden. Indien uitgeschakeld worden bestanden ongewijzigd geopend.",
         "fileSortOrder": "Sorteervolgorde voor bestanden in geopende mappen: oplopend of aflopend.",
         "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk.",
-        "showPandocConvert": "Het Pandoc-conversiemenu tonen. Vereist een installatie van Pandoc."
+        "showPandocConvert": "Het Pandoc-conversiemenu tonen. Vereist een installatie van Pandoc.",
+        "windowOpacity": "De dekking van het hoofdvenster in procent"
       }
     },
     "categories": {
@@ -516,7 +519,8 @@
         "hideScrollbars": "Schuifbalken verbergen",
         "openFilesInNewWindow": "Bestanden in nieuw venster openen",
         "openFoldersInNewWindow": "Mappen in nieuw venster openen",
-        "zoom": "Zoom"
+        "zoom": "Zoom",
+        "opacity": "Vensterdekking"
       },
       "startup": {
         "title": "Opstartopties",
@@ -926,7 +930,9 @@
       "zoomIn": "Inzoomen",
       "zoomOut": "Uitzoomen",
       "toggleFullScreen": "Volledig scherm in-/uitschakelen",
-      "changeTheme": "Thema wijzigen"
+      "changeTheme": "Thema wijzigen",
+      "increaseOpacity": "Dekking verhogen",
+      "decreaseOpacity": "Dekking verlagen"
     },
     "view": {
       "commandPalette": "Opdrachtpalet",

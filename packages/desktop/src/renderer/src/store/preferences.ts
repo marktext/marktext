@@ -24,6 +24,7 @@ export interface PreferencesState {
   openFilesInNewWindow: boolean
   openFolderInNewWindow: boolean
   zoom: number
+  windowOpacity: number
   hideScrollbar: boolean
   wordWrapInToc: boolean
   fileSortBy: FileSortBy | string
@@ -150,6 +151,7 @@ export const usePreferencesStore = defineStore('preferences', {
     openFilesInNewWindow: false,
     openFolderInNewWindow: false,
     zoom: 1.0,
+    windowOpacity: 100,
     hideScrollbar: false,
     wordWrapInToc: false,
     fileSortBy: 'created',
