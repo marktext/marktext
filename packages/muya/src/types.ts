@@ -100,6 +100,12 @@ export interface IMuyaOptions {
      */
     imageAction?: (state: IImageActionState) => Promise<string>;
     /**
+     * Check whether a local image drop can proceed before changing the document.
+     * Return undefined for immediate insertion, or a promise resolving to false
+     * to abort. Image persistence still uses imageAction after the check.
+     */
+    beforeImageDrop?: () => Promise<boolean> | undefined;
+    /**
      * Resolve a dropped `File` to a local filesystem path.
      *
      * The DnD `DataTransfer` exposes a `File` object but not its on-disk

@@ -1042,6 +1042,11 @@
     "unexpectedError": "Beklenmeyen yazım denetleyici hatası"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "Göreli resim klasörünü kullanmak için belgeyi kaydedin",
+      "saveMessage": "Belgeyi kaydettiğinizde resim, yapılandırılan göreli klasöre kaydedilir. İptal ederseniz resim, genel resim klasörüne kaydedilir.",
+      "failed": "Resim eklenemedi"
+    },
     "export": {
       "error": "Dışa aktarma hatası",
       "errorExporting": "{type} dosyası dışa aktarılırken hata",

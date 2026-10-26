@@ -1042,6 +1042,11 @@
     "unexpectedError": "Errore imprevisto del correttore ortografico"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "Salva il documento per usare una cartella relativa per le immagini",
+      "saveMessage": "Salvando il documento, l’immagine verrà memorizzata nella cartella relativa configurata. Annullando, l’immagine verrà memorizzata nella cartella globale delle immagini.",
+      "failed": "Impossibile inserire l’immagine"
+    },
     "export": {
       "error": "Errore di esportazione",
       "errorExporting": "Errore durante l’esportazione del file {type}",

@@ -7,17 +7,23 @@ vi.hoisted(() => {
   const w = globalThis as unknown as {
     window?: {
       path?: { sep: string; dirname: (p: string) => string }
+      fileUtils?: { isSamePathSync: (left: string, right: string) => boolean }
       electron?: {
         clipboard: { writeText: (s: string) => void }
-        ipcRenderer: { send: (...a: unknown[]) => void; on: (...a: unknown[]) => void }
+        ipcRenderer: {
+          send: (...a: unknown[]) => void
+          on: (...a: unknown[]) => void
+          invoke: (...a: unknown[]) => Promise<unknown>
+        }
       }
     }
   }
   w.window ??= {}
   w.window.path ??= { sep: '/', dirname: (p: string) => p }
+  w.window.fileUtils ??= { isSamePathSync: (left, right) => left === right }
   w.window.electron ??= {
     clipboard: { writeText: () => {} },
-    ipcRenderer: { send: () => {}, on: () => {} }
+    ipcRenderer: { send: () => {}, on: () => {}, invoke: async() => undefined }
   }
 })
 
@@ -107,6 +113,67 @@ describe('editor store — flush pending edits before saving (#3803)', () => {
     const call = sendSpy.mock.calls.find((c) => c[0] === 'mt::response-file-save')
     expect(call).toBeDefined()
     expect(call?.[MARKDOWN_ARG]).toBe(FLUSHED)
+  })
+
+  it('FILE_SAVE with a result flushes before saving and applies the returned path before resolving', async() => {
+    const store = useEditorStore()
+    seedCurrentFile(store, { pathname: '', isPendingCreation: true })
+    if (store.currentFile) store.tabs = [store.currentFile]
+    detach = onFlushCommit(store)
+    const invoke = vi.spyOn(window.electron.ipcRenderer, 'invoke').mockResolvedValue({
+      status: 'saved', pathname: '/notes/final.md', filename: 'final.md', savedMarkdown: FLUSHED
+    })
+    const result = await store.FILE_SAVE({ waitForResult: true })
+    expect(invoke).toHaveBeenCalledWith('mt::response-file-save', 'tab-1', 'note.md', '', FLUSHED,
+      expect.any(Object), expect.any(String))
+    expect(result?.status).toBe('saved')
+    expect(store.currentFile).toMatchObject({
+      pathname: '/notes/final.md', filename: 'final.md', isPendingCreation: false, isSaved: true
+    })
+    expect(window.DIRNAME).toBe(window.path.dirname('/notes/final.md'))
+  })
+
+  it.each(['canceled', 'failed'] as const)('leaves the document path unchanged when image-triggered saving is %s', async(status) => {
+    const store = useEditorStore()
+    seedCurrentFile(store, { pathname: '' })
+    vi.spyOn(window.electron.ipcRenderer, 'invoke').mockResolvedValue({ status })
+    expect(await store.FILE_SAVE({ waitForResult: true })).toEqual({ status })
+    expect(store.currentFile?.pathname).toBe('')
+  })
+
+  it.each([
+    { delivery: 'event-first', pathname: '' },
+    { delivery: 'reply-first', pathname: '' },
+    { delivery: 'event-first', pathname: '/notes/final.md' },
+    { delivery: 'reply-first', pathname: '/notes/final.md' }
+  ])('requests closing an unsaved destination tab once ($delivery, initial path "$pathname")', async({ delivery, pathname }) => {
+    const store = useEditorStore()
+    seedCurrentFile(store, { pathname, isPendingCreation: !!pathname })
+    const file = store.currentFile
+    if (!file) throw new Error('Missing current file')
+    const destinationTab = {
+      ...file, id: 'destination-tab', pathname: '/notes/final.md',
+      isPendingCreation: false, markdown: 'Unsaved destination edits'
+    }
+    store.tabs = [file, destinationTab]
+    const result = {
+      status: 'saved' as const, pathname: '/notes/final.md',
+      filename: 'final.md', savedMarkdown: STALE
+    }
+    const send = vi.spyOn(window.electron.ipcRenderer, 'send')
+    vi.spyOn(window.electron.ipcRenderer, 'invoke').mockImplementationOnce(async() => {
+      if (delivery === 'event-first') store.SET_PATHNAME({ id: file.id, ...result })
+      return result
+    })
+
+    await store.FILE_SAVE({ waitForResult: true })
+    if (delivery === 'reply-first') store.SET_PATHNAME({ id: file.id, ...result })
+
+    const closeRequests = send.mock.calls.filter(([channel]) => channel === 'mt::save-and-close-tabs')
+    expect(closeRequests).toHaveLength(1)
+    expect(closeRequests[0][1]).toMatchObject([{ id: 'destination-tab', markdown: 'Unsaved destination edits' }])
+    expect(store.tabs).toHaveLength(2)
+    expect(store.currentFile).toMatchObject({ pathname: '/notes/final.md', isPendingCreation: false })
   })
 
   it('FILE_SAVE_AS sends the flushed markdown, not the stale pre-flush snapshot', () => {

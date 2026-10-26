@@ -1042,6 +1042,11 @@
     "unexpectedError": "Onverwachte fout in spellingcontrole"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "Sla het document op om een relatieve afbeeldingenmap te gebruiken",
+      "saveMessage": "Als u het document opslaat, wordt de afbeelding in de ingestelde relatieve map opgeslagen. Als u annuleert, wordt de afbeelding in de algemene afbeeldingenmap opgeslagen.",
+      "failed": "De afbeelding kon niet worden ingevoegd"
+    },
     "export": {
       "error": "Exportfout",
       "errorExporting": "Fout bij exporteren van {type}-bestand",

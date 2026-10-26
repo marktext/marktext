@@ -1042,6 +1042,11 @@
     "unexpectedError": "예상치 못한 맞춤법 검사 오류"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "상대 이미지 폴더를 사용하려면 문서를 저장하세요",
+      "saveMessage": "문서를 저장하면 이미지가 설정된 상대 폴더에 저장됩니다. 취소하면 이미지가 전역 이미지 폴더에 저장됩니다.",
+      "failed": "이미지를 삽입할 수 없습니다"
+    },
     "export": {
       "error": "내보내기 오류",
       "errorExporting": "{type} 파일 내보내기 오류",

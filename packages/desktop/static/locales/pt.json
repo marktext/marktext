@@ -1042,6 +1042,11 @@
     "unexpectedError": "Erro inesperado do corretor ortográfico"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "Salve o documento para usar uma pasta relativa de imagens",
+      "saveMessage": "Ao salvar o documento, a imagem será armazenada na pasta relativa configurada. Se você cancelar, a imagem será armazenada na pasta global de imagens.",
+      "failed": "Não foi possível inserir a imagem"
+    },
     "export": {
       "error": "Erro de exportação",
       "errorExporting": "Erro ao exportar arquivo {type}",
