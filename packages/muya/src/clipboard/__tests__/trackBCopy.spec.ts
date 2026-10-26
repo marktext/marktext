@@ -151,10 +151,10 @@ describe('track B — copyAsHtml is sanitized and text-guarded', () => {
 
 describe('track B — selected inline image copies its raw markdown', () => {
     function imageToken(raw: string): ImageToken {
-        return { type: 'image', raw } as unknown as ImageToken;
+        return { type: 'image', raw, attrs: { src: 'https://e.com/x.png', alt: 'alt', title: '' } } as unknown as ImageToken;
     }
 
-    it('writes `![alt](src)` to both slots and short-circuits', () => {
+    it('writes image HTML and raw Markdown without collecting text selection data', () => {
         const raw = '![alt](https://e.com/x.png)';
         const muya = fakeMuya({
             editor: {
@@ -174,7 +174,9 @@ describe('track B — selected inline image copies its raw markdown', () => {
 
         clipboard.copyHandler(event);
 
-        expect(dataFor(setData, 'text/html')).toBe(raw);
+        const html = new DOMParser().parseFromString(dataFor(setData, 'text/html'), 'text/html');
+        expect(html.querySelector('img')?.getAttribute('src')).toBe('https://e.com/x.png');
+        expect(html.querySelector('img')?.hasAttribute('data-marktext-image')).toBe(true);
         expect(dataFor(setData, 'text/plain')).toBe(raw);
         expect(getData).not.toHaveBeenCalled();
     });

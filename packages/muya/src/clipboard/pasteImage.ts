@@ -54,7 +54,7 @@ function replacePlaceholderImage(
 
 // Apply the host's imageAction preference to a file path or data URL.
 // Show a loading placeholder while the hook resolves; insert directly when no hook exists.
-async function insertImageSrc(
+export async function insertImageSrc(
     clipboard: Clipboard,
     anchorBlock: Content,
     src: string,
@@ -85,10 +85,10 @@ async function insertImageSrc(
 // Resolve a pasted image to an `src`: a clipboard FILE path (via the
 // `clipboardFilePath` hook) first, then an in-memory bitmap File read as a
 // base64 `data:` URL. Returns null when the clipboard carries no image.
-async function resolveImageSrc(
+export async function resolveImageSrc(
     clipboard: Clipboard,
     imageFile: Nullable<File>,
-): Promise<Nullable<string>> {
+): Promise<string | null> {
     const imagePath = await resolveClipboardImagePath(
         clipboard.muya.options.clipboardFilePath,
     );
@@ -117,25 +117,6 @@ export async function pasteImageSrc(
         return;
 
     await insertImageSrc(clipboard, anchorBlock, src);
-}
-
-/**
- * Insert a pasted image when the clipboard carries one. An image consumes the
- * paste even if its target disappeared while resolving it; only a clipboard
- * without an image falls through to text/HTML paste.
- */
-export async function tryPasteImage(
-    clipboard: Clipboard,
-    anchorBlock: Content,
-    imageFile: Nullable<File>,
-): Promise<boolean> {
-    const src = await resolveImageSrc(clipboard, imageFile);
-    if (src == null)
-        return false;
-
-    await insertImageSrc(clipboard, anchorBlock, src);
-
-    return true;
 }
 
 // Replace [start, end) directly: a DOM selection clamps across atomic images
@@ -189,7 +170,7 @@ function reselectImageAt(clipboard: Clipboard, block: Format, startOffset: numbe
 }
 
 // Apply imageAction to the replacement and leave it selected so controls follow it.
-async function replaceImageAt(
+export async function replaceImageAt(
     clipboard: Clipboard,
     block: Format,
     range: { start: number; end: number },
@@ -216,29 +197,4 @@ async function replaceImageAt(
 
     replacePlaceholderImage(block, placeholderText, finalSrc);
     reselectImageAt(clipboard, block, range.start);
-}
-
-// Return true when an image paste was handled, even if its target became invalid
-// while resolving, so the paste cannot be redirected to a different selection.
-export async function tryReplaceSelectedImage(
-    clipboard: Clipboard,
-    imageFile: Nullable<File>,
-): Promise<boolean> {
-    const selectedImage = clipboard.selection.image;
-    if (selectedImage == null)
-        return false;
-
-    const { block, imageInfo: { token } } = selectedImage;
-    const original = block.text.slice(token.range.start, token.range.end);
-    const src = await resolveImageSrc(clipboard, imageFile);
-    if (clipboard.muya.isReadOnly || !clipboard.muya.isBlockInDocument(block))
-        return true;
-    if (block.text.slice(token.range.start, token.range.end) !== original)
-        return true;
-    if (src == null)
-        return false;
-
-    await replaceImageAt(clipboard, block, token.range, src);
-
-    return true;
 }

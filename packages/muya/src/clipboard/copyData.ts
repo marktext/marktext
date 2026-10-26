@@ -10,6 +10,7 @@ import { SelectionDirection } from '../selection/types';
 import StateToMarkdown from '../state/stateToMarkdown';
 import { githubAlertBlockType } from '../utils/githubAlerts';
 import { getClipBoardHtml, getSanitizeClipboardHtml } from '../utils/marked';
+import { imageClipboardData } from './image';
 import { CopyType } from './types';
 
 export interface IClipboardPayload {
@@ -385,9 +386,16 @@ export function writeClipboardData(
     const selectedImage = clipboard.muya.editor?.selection?.image;
     if (selectedImage) {
         const { raw } = selectedImage.imageInfo.token;
+        const data = clipboard.copyType === CopyType.NORMAL ? imageClipboardData(clipboard) : null;
         if (raw.length > 0) {
-            event.clipboardData.setData('text/html', raw);
+            event.clipboardData.setData('text/html', data?.html ?? '');
             event.clipboardData.setData('text/plain', raw);
+        }
+        if (data && clipboard.muya.options.clipboardWriteImage) {
+            // Chromium commits DataTransfer only after all copy listeners have returned.
+            setTimeout(() => {
+                void clipboard.muya.options.clipboardWriteImage?.(data).catch(() => false);
+            }, 0);
         }
         return;
     }

@@ -5,7 +5,7 @@ import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
 import { SelectionDirection } from '../../selection/types';
-import { tryPasteUrl } from '../pasteUrl';
+import { getUrlPaste } from '../pasteUrl';
 import { PasteType } from '../types';
 
 vi.mock('../../utils/prism/index', () => ({
@@ -146,7 +146,7 @@ describe('paste URL over selected text (#2029)', () => {
         const muya = bootMuya(`${source}\n`);
         const block = contentBlocks(muya).find(block => block.blockName !== 'language-input')!;
         stubSelection(muya, block, start, end);
-        expect(tryPasteUrl(muya.editor.clipboard, block, url, PasteType.NORMAL)).toBe(false);
+        expect(getUrlPaste(muya.editor.clipboard, block, url, PasteType.NORMAL)).toBeNull();
     });
 
     it('creates a link inside one table cell', async () => {
@@ -159,7 +159,7 @@ describe('paste URL over selected text (#2029)', () => {
         const muya = bootMuya('[bar][ref]\n\n[ref]: https://old.com\n');
         const block = contentBlocks(muya)[0];
         stubSelection(muya, block, 1, 4);
-        expect(tryPasteUrl(muya.editor.clipboard, block, 'https://home.com', PasteType.NORMAL)).toBe(false);
+        expect(getUrlPaste(muya.editor.clipboard, block, 'https://home.com', PasteType.NORMAL)).toBeNull();
     });
 
     it('does not handle a table rectangle or cross-block selection', () => {
@@ -167,14 +167,14 @@ describe('paste URL over selected text (#2029)', () => {
         const block = contentBlocks(muya)[0];
         stubSelection(muya, block, 4, 7);
         vi.spyOn(muya.editor.selection.table, 'hasSelection', 'get').mockReturnValue(true);
-        expect(tryPasteUrl(muya.editor.clipboard, block, 'https://home.com', PasteType.NORMAL)).toBe(false);
+        expect(getUrlPaste(muya.editor.clipboard, block, 'https://home.com', PasteType.NORMAL)).toBeNull();
         vi.restoreAllMocks();
         const selection = muya.editor.selection.getTextSelection()!;
         muya.editor.selection.getTextSelection = () => ({
             ...selection,
             isSelectionInSameBlock: false,
         });
-        expect(tryPasteUrl(muya.editor.clipboard, block, 'https://home.com', PasteType.NORMAL)).toBe(false);
+        expect(getUrlPaste(muya.editor.clipboard, block, 'https://home.com', PasteType.NORMAL)).toBeNull();
     });
 
     it('plain-text paste still replaces the selection', async () => {

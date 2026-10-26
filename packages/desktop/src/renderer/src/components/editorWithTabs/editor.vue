@@ -128,7 +128,7 @@ import { SpellcheckerLanguageCommand } from '@/commands'
 import { SpellChecker } from '@/spellchecker'
 import { isMac, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
-import { guessClipboardFilePath } from '@/util/clipboard'
+import { guessClipboardFilePath, copyImageToClipboard, readImagePng, clipboardImagePath } from '@/util/clipboard'
 import { dataURLToFile } from '@/util/dataURLToFile'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
 import {
@@ -1682,6 +1682,9 @@ onMounted(() => {
     // Read the OS clipboard's plain text for "Paste as Plain Text" (execCommand('paste') no longer fires).
     clipboardText: () => window.electron.clipboard.readText(),
     clipboardWriteText: window.electron.clipboard.writeText,
+    documentId: () => currentFile.value?.pathname || currentFile.value?.id || '',
+    clipboardWriteImage: (data) => copyImageToClipboard(() => readImagePng(data.src), data),
+    clipboardImageAction: (src) => imageAction(clipboardImagePath(src), null),
     fetchLinkHtml: (url) => window.electron.fetchLinkHtml(url),
     // Clipboard and drag-drop handlers read these callbacks from engine options, separately from ImageEditTool.
     imageAction: muyaImageAction,

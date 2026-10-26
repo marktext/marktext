@@ -1,5 +1,6 @@
 import type Content from '../block/base/content';
 import type { Token } from '../inlineRenderer/types';
+import type { ITextSelectionState } from '../selection/types';
 import type Clipboard from './index';
 import { tokenizer } from '../inlineRenderer/lexer';
 import { createTextSelectionState } from '../selection/state';
@@ -59,35 +60,46 @@ function escapeLabel(tokens: Token[], text: string, start: number, end: number):
     return label;
 }
 
-export function tryPasteUrl(clipboard: Clipboard, block: Content, text: string, pasteType: PasteType): boolean {
+interface IUrlPaste {
+    start: number;
+    end: number;
+    link: string;
+    selection: ITextSelectionState;
+}
+
+export function getUrlPaste(clipboard: Clipboard, block: Content, text: string, pasteType: PasteType): IUrlPaste | null {
     const url = singleHttpUrl(text);
     if (pasteType !== PasteType.NORMAL || !url)
-        return false;
+        return null;
     const allowedBlocks = ['paragraph.content', 'atxheading.content', 'setextheading.content', 'table.cell.content'];
     if (!allowedBlocks.includes(block.blockName))
-        return false;
+        return null;
     if (clipboard.selection.table.hasSelection)
-        return false;
+        return null;
     const cursor = block.getCursor();
     if (!cursor || !cursor.isSelectionInSameBlock || cursor.isCollapsed)
-        return false;
+        return null;
     const start = cursor.start.offset;
     const end = cursor.end.offset;
     if (!block.text.slice(start, end).trim() || /[\r\n]/.test(block.text.slice(start, end)))
-        return false;
+        return null;
     const tokens = tokenizer(block.text, {
         hasBeginRules: /^(?:paragraph|atxheading)\.content$/.test(block.blockName),
         labels: clipboard.muya.editor.inlineRenderer.labels,
         options: clipboard.muya.options,
     });
     if (!safeSelection(tokens, start, end))
-        return false;
+        return null;
     const label = escapeLabel(tokens, block.text, start, end);
     // Escaping delimiters keeps URL parentheses and backslashes out of Markdown syntax.
     const destination = url.replace(/[\\()<>]/g, '\\$&').replace(/\|/g, '%7C');
     const link = `[${label}](${destination})`;
-    clipboard.muya.editor.history.cutoff(createTextSelectionState(cursor.anchor, cursor.focus));
+    return { start, end, link, selection: createTextSelectionState(cursor.anchor, cursor.focus) };
+}
+
+export function pasteUrl(clipboard: Clipboard, block: Content, data: IUrlPaste): void {
+    const { start, end, link, selection } = data;
+    clipboard.muya.editor.history.cutoff(selection);
     block.text = block.text.slice(0, start) + link + block.text.slice(end);
     block.setCursor(start + link.length, start + link.length, true);
-    return true;
 }
