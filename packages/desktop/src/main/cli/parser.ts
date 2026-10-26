@@ -1,5 +1,17 @@
 import arg from 'arg'
 import path from 'path'
+import { fileURLToPath } from 'url'
+
+// Desktop entries launched with `%U` (PCManFM, for example) pass file:// URIs
+// instead of paths. A URI Node can't map to a local path is kept as given.
+const fileUriToPath = (argument: string): string => {
+  if (!argument.startsWith('file://')) return argument
+  try {
+    return fileURLToPath(argument)
+  } catch {
+    return argument
+  }
+}
 
 export const userArguments = (
   argv: string[],
@@ -47,7 +59,9 @@ const parseArgs = (argv: string[] | null = null, permissive: boolean = true) => 
     '-v': '--verbose',
     '--version': Boolean
   } satisfies arg.Spec
-  return arg(spec, { argv, permissive })
+  const args = arg(spec, { argv, permissive })
+  args._ = args._.map(fileUriToPath)
+  return args
 }
 
 export type ParsedArgs = ReturnType<typeof parseArgs>

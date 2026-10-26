@@ -1,3 +1,6 @@
+import { tmpdir } from 'os'
+import path from 'path'
+import { pathToFileURL } from 'url'
 import { describe, expect, it } from 'vitest'
 import parseArgs, { userArguments } from 'main_renderer/cli/parser'
 
@@ -21,5 +24,13 @@ describe('CLI parser', () => {
 
     expect(args['--read-only']).toBe(true)
     expect(args._).toEqual(['note.md'])
+  })
+  it('turns file:// URIs from desktop entries into paths (#5843)', () => {
+    const pathname = path.join(tmpdir(), 'My Notes', 'café.md')
+
+    expect(parseArgs([pathToFileURL(pathname).href, 'note.md'])._).toEqual([pathname, 'note.md'])
+  })
+  it.skipIf(process.platform === 'win32')('keeps a file:// URI with a remote host as given', () => {
+    expect(parseArgs(['file://host/note.md'])._).toEqual(['file://host/note.md'])
   })
 })
