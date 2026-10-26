@@ -647,9 +647,9 @@
     "image": {
       "title": "Immagini",
       "actions": {
-        "upload": "Caricala nel cloud",
-        "folder": "Copiala nella cartella predefinita",
-        "path": "Usala da un percorso (path) assoluto"
+        "upload": "Carica l’immagine nel cloud",
+        "folder": "Copia l’immagine nella cartella predefinita",
+        "path": "Usa l’immagine da un percorso (path) assoluto"
       },
       "folderSetting": {
         "title": "Impostazione cartella",
