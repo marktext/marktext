@@ -39,7 +39,7 @@ export const it = {
         'HTML Block': 'Blocco HTML',
         'Code Block': 'Blocco di codice',
         'Quote Block': 'Citazione',
-        'Order List': 'Elenco numerato',
+        'Order List': 'Elenco ordinato',
         'Bullet List': 'Elenco puntato',
         'To-do List': 'Elenco attività',
         'Vega Chart': 'Grafico Vega',
