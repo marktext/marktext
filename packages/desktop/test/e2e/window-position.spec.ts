@@ -64,7 +64,13 @@ test.describe('Restored editor window bounds', () => {
           }
         }, { oversized, titleBarStyle })
 
-        expect(result.actual).toEqual(result.expected)
+        expect(result.actual).toMatchObject({ x: result.expected.x, y: result.expected.y })
+        // Under Xvfb, screen-sized windows can be reduced by one pixel per axis.
+        const maxShrink = process.platform === 'linux' && oversized ? 1 : 0
+        for (const dimension of ['width', 'height'] as const) {
+          expect(result.actual[dimension]).toBeGreaterThanOrEqual(result.expected[dimension] - maxShrink)
+          expect(result.actual[dimension]).toBeLessThanOrEqual(result.expected[dimension])
+        }
         expect(result.actual.x + result.actual.width).toBeLessThanOrEqual(result.area.x + result.area.width)
         expect(result.actual.y + result.actual.height).toBeLessThanOrEqual(result.area.y + result.area.height)
       })
