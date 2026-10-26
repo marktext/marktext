@@ -116,6 +116,7 @@ import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
+import { MIN_EDITOR_WIDTH } from '@/util/editorLayout'
 import Toc from '../sideBar/toc.vue'
 import IconTooltip from '@/components/iconTooltip/index.vue'
 import bus from '@/bus'
@@ -139,7 +140,6 @@ const visible = computed(() => docked.value || hovering.value)
 const toggleLabel = computed(() => t(docked.value ? 'sideBar.toc.collapse' : 'sideBar.toc.expand'))
 const MIN_WIDTH = 180
 const MAX_WIDTH = 600
-const MIN_EDITOR_WIDTH = 320
 const WIDTH_STORAGE_KEY = 'outline-width'
 const normalizeWidth = (value: string | null): number => {
   const width = Number(value)

@@ -48,6 +48,7 @@ const sourceCodeContainer = ref<HTMLDivElement | null>(null)
 const editor = shallowRef<CodeMirror.Editor | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
+let resizeObserver: ResizeObserver | undefined
 
 const {
   theme,
@@ -457,6 +458,17 @@ onMounted(() => {
   tabId.value = id
   updateSelectionWordCount(codeMirrorInstance)
 
+  // Pane resizing rewraps lines without triggering CodeMirror's window-resize listener.
+  let measuredWidth = 0
+  resizeObserver = new ResizeObserver(([entry]) => {
+    const width = entry.contentRect.width
+    if (width <= 0 || width === measuredWidth) return
+    measuredWidth = width
+    codeMirrorInstance.refresh()
+    updateActiveHeadingFromScroll()
+  })
+  resizeObserver.observe(codeMirrorInstance.getWrapperElement())
+
   listenChange(codeMirrorInstance)
   registerSourceView(async () => {
     preferencesStore.SET_MODE({ type: 'sourceCode', checked: false })
@@ -466,6 +478,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
   registerSourceView(null)
   if (editor.value) {
     saveContent(editor.value)
