@@ -11,6 +11,7 @@ import { registerI18nHandlers } from './i18n'
 import { registerDialogHandlers } from './dialog'
 import { registerDiagramHandlers } from './diagram'
 import { registerLinkHtmlHandler } from './linkHtml'
+import { registerImageClipboardHandlers } from './clipboardImage'
 
 export const registerSandboxIpcHandlers = (): void => {
   registerBootInfo()
@@ -26,4 +27,5 @@ export const registerSandboxIpcHandlers = (): void => {
   registerDialogHandlers()
   registerDiagramHandlers()
   registerLinkHtmlHandler()
+  registerImageClipboardHandlers()
 }

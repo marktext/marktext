@@ -7,7 +7,8 @@ import type {
   IpcMainEventChannels,
   BootInfo,
   PlantumlFetchResult,
-  SaveDialogRequest
+  SaveDialogRequest,
+  ClipboardImageWriteOptions
 } from '@shared/types/ipc'
 import type { MenuTemplate, MenuPopupPosition } from '@shared/types/menu'
 import type { SerializedStat } from '@shared/types/files'
@@ -16,7 +17,6 @@ declare global {
   const MARKTEXT_VERSION: string
   const MARKTEXT_VERSION_STRING: string
   const __static: string
-
 
   interface ElectronIpcRenderer {
     send<K extends keyof IpcSendChannels>(channel: K, ...args: IpcSendChannels[K]): void
@@ -49,7 +49,10 @@ declare global {
     writeText(text: string): Promise<boolean>
     readText(): Promise<string>
     guessFilePath(): Promise<string | null>
-    writeImage(png: Uint8Array): Promise<boolean>
+    writeImage(png: Uint8Array, options?: ClipboardImageWriteOptions): Promise<boolean>
+    beginImageCopy(marker?: string): Promise<number | null>
+    cancelImageCopy(ticket: number): Promise<void>
+    readImageSource(src: string): Promise<PlantumlFetchResult>
   }
 
   interface ElectronDialogAPI {

@@ -203,6 +203,13 @@ Enforced by ESLint + Prettier. Run `pnpm run lint` and `pnpm run typecheck` befo
 - IPC channels are typed via the contract in `packages/desktop/src/shared/types/ipc.ts`
 - The renderer is fully sandboxed — every IPC and Node access goes through `window.electron.*` / `window.fileUtils.*` etc. (typed in `packages/desktop/src/types/global.d.ts`)
 
+### Conditions and operation handlers
+
+- Keep conditions and logical expressions free of state-changing operations. Determine whether an operation applies with a pure query or prepared data, then execute it explicitly in the corresponding branch.
+- Do not combine mutation and dispatch in a helper that returns a boolean meaning "handled" or "not handled". Operation handlers should return `void` / `Promise<void>`; keep their applicability checks separate.
+- Avoid patterns such as `if (writeSelectedImage(...))`, `if (await tryPasteImage(...))`, or `condition && performOperation()`. Put the operation in the branch body instead.
+- External APIs may report success or failure. Capture that result in a variable before checking it; do not hide the API call inside the condition.
+
 ### Comments
 
 Follow `.github/COMMENTING-GUIDELINES.md` for every comment you write. The core rule: a comment must describe what isn't obvious from the code — rationale, units, invariants, ownership, the abstraction a caller needs — never restate the code or echo the words already in the name. Before finishing any change, review the comments you added or touched against that document, and delete any that only repeat the code. Prefer self-explanatory names over comments; when a comment is genuinely needed, keep it short and complete and place it next to the code it describes.

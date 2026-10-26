@@ -3,7 +3,7 @@ import type { PlantumlFetchResult } from '@shared/types/ipc'
 export const TIMEOUT_MS = 15_000
 export const MAX_BYTES = 20 * 1024 * 1024
 
-/** `net.fetch`, narrowed to what fetching a rendered diagram needs. */
+/** `net.fetch`, narrowed to the image retrieval surface. */
 export type FetchLike = (url: string, init: RequestInit) => Promise<Response>
 
 /** The body, or `null` once it has gone past the cap — at which point it stops being read. */
@@ -40,14 +40,11 @@ const readCapped = async(body: ReadableStream<Uint8Array> | null): Promise<Uint8
   return data
 }
 
-/**
- * Retrieve a rendered diagram. The URL must already have been composed by
- * `buildPlantumlUrl`: this function does not decide what may be reached, only
- * what may come back.
- */
-export const fetchPlantumlImage = async(
+export const fetchImage = async(
   url: string,
-  fetchImpl: FetchLike
+  fetchImpl: FetchLike,
+  redirect: RequestRedirect,
+  allowGenericContentType = false
 ): Promise<PlantumlFetchResult> => {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
@@ -55,17 +52,18 @@ export const fetchPlantumlImage = async(
   try {
     const response = await fetchImpl(url, {
       signal: controller.signal,
-      // The URL was checked against the configured server; a redirect would
-      // reach a host that check never saw — a render server could use one to
-      // probe the loopback interface or an intranet the renderer cannot.
-      redirect: 'error',
-      // Rendering a diagram has no use for the session's cookies.
+      redirect,
+      // A document can name an arbitrary host; do not attach session credentials.
       credentials: 'omit'
     })
     if (!response.ok) return { ok: false, error: `HTTP ${response.status}` }
 
     const mime = response.headers.get('content-type') ?? ''
-    if (!mime.startsWith('image/')) return { ok: false, error: `Unexpected content type ${mime}` }
+    const mediaType = mime.split(';')[0].trim().toLowerCase()
+    const generic = mediaType === '' || mediaType === 'application/octet-stream'
+    if (!mediaType.startsWith('image/') && !(allowGenericContentType && generic)) {
+      return { ok: false, error: `Unexpected content type ${mime}` }
+    }
 
     // Only a courtesy: a chunked response declares no length at all, which is
     // why the body is counted as it arrives rather than after.
@@ -77,8 +75,12 @@ export const fetchPlantumlImage = async(
     const data = await readCapped(response.body)
     if (!data) return { ok: false, error: 'Response too large' }
 
-    return { ok: true, mime, data }
+    return { ok: true, mime: generic ? 'application/octet-stream' : mime, data }
   } finally {
     clearTimeout(timer)
   }
 }
+
+// Diagram URLs are restricted to the configured server, including after redirects.
+export const fetchPlantumlImage = (url: string, fetchImpl: FetchLike): Promise<PlantumlFetchResult> =>
+  fetchImage(url, fetchImpl, 'error')

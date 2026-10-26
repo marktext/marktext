@@ -1,3 +1,4 @@
+import type { IClipboardImageCopy } from './clipboard/image';
 import type { TState } from './state/types';
 
 export enum ChangeSource {
@@ -78,6 +79,12 @@ export interface IMuyaOptions {
      */
     clipboardText?: () => Promise<string>;
     clipboardWriteText?: (text: string) => Promise<boolean>;
+    /** Stable document identity, including unsaved tabs, for preserving copied image references. */
+    documentId?: () => string;
+    /** Called after the copy event commits its text/HTML fallback to the OS clipboard. */
+    clipboardWriteImage?: (data: IClipboardImageCopy) => Promise<boolean>;
+    /** Persist a different document's absolute image URL using the target's insert preferences. */
+    clipboardImageAction?: (src: string) => Promise<string>;
     /**
      * Fetch HTML for pasted HTTP(S) links when the host can bypass browser
      * CSP/CORS restrictions. Muya parses the title and falls back to the URL

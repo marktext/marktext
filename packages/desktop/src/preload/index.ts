@@ -17,7 +17,8 @@ import type {
   IpcSyncChannels,
   IpcMainEventChannels,
   BootInfo,
-  SaveDialogRequest
+  SaveDialogRequest,
+  ClipboardImageWriteOptions
 } from '@shared/types/ipc'
 
 type RendererEventListener<K extends keyof IpcMainEventChannels> = (
@@ -79,7 +80,13 @@ const clipboardAPI = {
   writeText: (text: string) => invoke('mt::clipboard::write-text', text),
   readText: () => invoke('mt::clipboard::read-text'),
   guessFilePath: () => invoke('mt::clipboard::guess-file-path'),
-  writeImage: (png: Uint8Array) => invoke('mt::clipboard::write-image', png)
+  writeImage: (
+    png: Uint8Array,
+    options?: ClipboardImageWriteOptions
+  ) => invoke('mt::clipboard::write-image', png, options),
+  beginImageCopy: (marker?: string) => invoke('mt::clipboard::begin-image-copy', marker),
+  cancelImageCopy: (ticket: number) => invoke('mt::clipboard::cancel-image-copy', ticket),
+  readImageSource: (src: string) => invoke('mt::clipboard::read-image-source', src)
 }
 
 const webFrameAPI = {
