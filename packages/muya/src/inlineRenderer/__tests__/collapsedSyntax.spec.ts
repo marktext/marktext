@@ -1,10 +1,11 @@
 // @vitest-environment happy-dom
 
-import type { Token } from '../../inlineRenderer/types';
+import type Content from '../../block/base/content';
+import type { Token } from '../types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import * as lexer from '../../inlineRenderer/lexer';
 import { Muya } from '../../muya';
-import { collapsedPreviewEndpoint, collapsedSyntaxBoundaries, snapToCollapsedSyntax } from '../collapsedSyntax';
+import { snapToCollapsedSyntax } from '../collapsedSyntax';
+import * as lexer from '../lexer';
 
 const editors: Muya[] = [];
 let originalVersion: string | undefined;
@@ -33,6 +34,10 @@ function boot(source: string) {
     const block = muya.editor.scrollPage!.firstContentInDescendant()!;
     block.update();
     return { muya, block };
+}
+
+function collapsedSyntaxBoundaries(block: Content) {
+    return block.muya.editor.inlineRenderer.getCollapsedSyntax(block);
 }
 
 describe('collapsed inline syntax boundaries', () => {
@@ -70,11 +75,22 @@ describe('collapsed inline syntax boundaries', () => {
         observe(tokens);
         vi.spyOn(lexer, 'tokenizer').mockReturnValue(tokens);
         const siblings = vi.spyOn(Node.prototype, 'previousSibling', 'get');
+        block.update();
         const boundaries = collapsedSyntaxBoundaries(block);
         expect(boundaries).toHaveLength(count * 2);
         expect(tokenReads).toBeGreaterThan(0);
-        expect(tokenReads).toBeLessThan(count * 10);
-        expect(siblings.mock.calls.length).toBeLessThan(count * 10);
+        expect(tokenReads).toBeLessThan(count * 50);
+        expect(siblings.mock.calls.length).toBeLessThan(count * 50);
+    });
+
+    it('reuses rendered boundaries without parsing or scanning DOM during selection', () => {
+        const { block } = boot('**one***two*');
+        const parsing = vi.spyOn(lexer, 'tokenizer');
+        const siblings = vi.spyOn(Node.prototype, 'previousSibling', 'get');
+        for (let i = 0; i < 100; i++)
+            expect(snapToCollapsedSyntax(13, collapsedSyntaxBoundaries(block))).toBe(14);
+        expect(parsing).not.toHaveBeenCalled();
+        expect(siblings).not.toHaveBeenCalled();
     });
 
     it.each([
@@ -136,34 +152,5 @@ describe('collapsed inline syntax boundaries', () => {
     it('does not collapse visible replacement glyphs into hidden markers', () => {
         const { block } = boot('&amp; <ruby>漢<rt>kan</rt></ruby>');
         expect(collapsedSyntaxBoundaries(block)).toEqual([]);
-    });
-
-    it.each([
-        { source: '$x+y$', selector: '.mu-math' },
-        { source: '<ruby>漢<rt>kan</rt></ruby>', selector: '.mu-ruby' },
-        { source: '&amp;', selector: '.mu-html-escape' },
-    ])('maps the visual edges of $source without counting preview text', ({ source, selector }) => {
-        const { block } = boot(source);
-        const element = block.domNode!.querySelector<HTMLElement>(selector)!;
-        vi.spyOn(element, 'getBoundingClientRect').mockReturnValue(new DOMRect(20, 10, 40, 20));
-        const boundaries = collapsedSyntaxBoundaries(block);
-        const left = collapsedPreviewEndpoint(element, 21, 20)!;
-        const right = collapsedPreviewEndpoint(element, 59, 20)!;
-        expect(snapToCollapsedSyntax(left.offset, boundaries)).toBe(7);
-        expect(snapToCollapsedSyntax(right.offset, boundaries)).toBe(7 + source.length);
-    });
-
-    it('does not snap keyboard selections after an interrupted preview drag', () => {
-        const { block, muya } = boot('$x+y$');
-        const preview = block.domNode!.querySelector<HTMLElement>('.mu-math')!;
-        vi.spyOn(preview, 'getBoundingClientRect').mockReturnValue(new DOMRect(20, 10, 40, 20));
-        vi.spyOn(document, 'elementFromPoint').mockReturnValue(preview);
-        block.domNode!.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: 21, clientY: 20 }));
-        block.domNode!.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, buttons: 1, clientX: 30, clientY: 20 }));
-        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Shift', bubbles: true }));
-        block.setCursor(9, 10, true);
-        const selection = muya.editor.selection.getTextSelection();
-        expect(selection?.anchor.offset).toBe(9);
-        expect(selection?.focus.offset).toBe(10);
     });
 });

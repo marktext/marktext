@@ -1,11 +1,14 @@
+import type Content from '../block/base/content';
 import type Format from '../block/base/format';
 import type ParagraphContent from '../block/content/paragraphContent';
 import type { Muya } from '../muya';
 import type { IRenderCursor } from '../selection/types';
 import type { IParagraphState, TState } from '../state/types';
+import type { ICollapsedBoundary } from './collapsedSyntax';
 import type { IHighlight, Labels } from './types';
 import { prepareReadingLinks } from '../editor/readOnly';
 import logger from '../utils/logger';
+import { collapsedSyntaxBoundaries } from './collapsedSyntax';
 import { tokenizer } from './lexer';
 import Renderer from './renderer';
 import { beginRules } from './rules';
@@ -16,9 +19,14 @@ class InlineRenderer {
     public labels: Labels = new Map();
     public renderer: Renderer;
     private _labelsState: readonly TState[] | null = null;
+    private _collapsedSyntax = new WeakMap<Content, readonly ICollapsedBoundary[]>();
 
     constructor(public muya: Muya) {
         this.renderer = new Renderer(muya, this);
+    }
+
+    getCollapsedSyntax(block: Content): readonly ICollapsedBoundary[] {
+        return this._collapsedSyntax.get(block) ?? [];
     }
 
     private _tokenizer(block: Format, highlights: IHighlight[]) {
@@ -71,6 +79,7 @@ class InlineRenderer {
         const renderCursor = !this.muya.isReadOnly && cursor?.block === block ? cursor : {};
         const html = this.renderer.output(tokens, block, renderCursor);
         domNode!.innerHTML = html;
+        this._collapsedSyntax.set(block, collapsedSyntaxBoundaries(domNode!, tokens));
 
         if (this.muya.isReadOnly)
             prepareReadingLinks(domNode!);

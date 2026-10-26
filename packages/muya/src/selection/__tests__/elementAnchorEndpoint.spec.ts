@@ -3,7 +3,7 @@
 import type Content from '../../block/base/content';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
-import { getNodeAndOffset, resolveEndpoint } from '../dom';
+import { resolveEndpoint } from '../dom';
 
 // Regression (#5239): a browser reports a child index, not a character offset,
 // when the caret is anchored to an element.
@@ -60,18 +60,5 @@ describe('resolveEndpoint — element-anchored caret', () => {
         const resolved = resolveEndpoint(textNode, 2);
 
         expect(resolved?.offset).toBe(2);
-    });
-
-    it.each([
-        { source: '$x+y$', selector: '.mu-math', expected: 4 },
-        { source: '<ruby>漢<rt>kan</rt></ruby>', selector: '.mu-ruby', expected: 26 },
-    ])('round-trips an element boundary after the $selector preview', ({ source, selector, expected }) => {
-        const content = firstContent(bootMuya(source));
-        content.update();
-        const element = content.domNode!.querySelector<HTMLElement>(selector)!;
-        const endpoint = getNodeAndOffset(element, expected - (selector === '.mu-math' ? 1 : 0));
-        expect(endpoint.node).toBe(element);
-        expect(endpoint.offset).toBe(element.childNodes.length);
-        expect(resolveEndpoint(element, endpoint.offset)?.offset).toBe(expected);
     });
 });

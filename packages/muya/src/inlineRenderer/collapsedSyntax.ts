@@ -1,11 +1,8 @@
-import type Content from '../block/base/content';
-import type { Token } from '../inlineRenderer/types';
-import type { IAnchorFocusInfo } from './types';
+import type { Token } from './types';
 import { CLASS_NAMES } from '../config';
-import { tokenizer } from '../inlineRenderer/lexer';
-import { getTextContent, resolveEndpoint } from './dom';
+import { getTextContent } from '../selection/dom';
 
-interface ICollapsedBoundary {
+export interface ICollapsedBoundary {
     start: number;
     end: number;
     offset: number;
@@ -59,13 +56,11 @@ function hiddenSourceRanges(dom: HTMLElement): ICollapsedBoundary[] {
     return ranges;
 }
 
-/** Snapshot before a drag reveals markers; source and preview DOM have different lengths. */
-export function collapsedSyntaxBoundaries(block: Content): ICollapsedBoundary[] {
-    const ranges = block.domNode ? hiddenSourceRanges(block.domNode) : [];
+/** Reuse the render's tokens so mouse selection never needs to parse the document. */
+export function collapsedSyntaxBoundaries(dom: HTMLElement, tokens: Token[]): ICollapsedBoundary[] {
+    const ranges = hiddenSourceRanges(dom);
     if (!ranges.length)
         return ranges;
-    const { options, editor: { inlineRenderer } } = block.muya;
-    const tokens = tokenizer(block.text, { labels: inlineRenderer.labels, options });
     let index = 0;
     const visit = (tokens: Token[]) => {
         for (const token of tokens) {
@@ -97,31 +92,4 @@ export function snapToCollapsedSyntax(offset: number, boundaries: readonly IColl
     }
     const boundary = boundaries[left];
     return boundary && offset >= boundary.start ? boundary.offset : offset;
-}
-
-/** A rendered replacement has no editable source positions between its two visual edges. */
-export function collapsedPreviewEndpoint(target: Element | null, x: number, y: number): IAnchorFocusInfo | null {
-    const content = target?.closest('span.mu-content');
-    if (!content)
-        return null;
-    for (const element of content.querySelectorAll<HTMLElement>(`.${CLASS_NAMES.MU_HIDE}, .${CLASS_NAMES.MU_INLINE_IMAGE}`)) {
-        if (!element.matches(PREVIEWS) && !element.querySelector(PREVIEWS))
-            continue;
-        const preview = element.classList.contains(CLASS_NAMES.MU_IMAGE_MARKED_TEXT) ? element.nextElementSibling : element;
-        if (!preview)
-            continue;
-        const rect = preview.getBoundingClientRect();
-        // Emoji glyphs sit to the left of their zero-width source span.
-        const style = element.dataset.emoji ? getComputedStyle(element) : null;
-        const left = rect.left - (style ? Number.parseFloat(style.marginLeft) : 0);
-        const top = rect.top - (style ? Number.parseFloat(style.fontSize) : 0);
-        if (x < left - 2 || x > rect.right + 2 || y < top || y > rect.bottom)
-            continue;
-        const start = resolveEndpoint(element, 0);
-        if (!start)
-            continue;
-        const end = start.offset + getTextContent(element, [CLASS_NAMES.MU_MATH_RENDER, CLASS_NAMES.MU_RUBY_RENDER]).length;
-        return { ...start, offset: x < (left + rect.right) / 2 ? start.offset : end };
-    }
-    return null;
 }

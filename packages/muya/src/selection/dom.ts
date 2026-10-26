@@ -35,23 +35,6 @@ export function resolveEndpoint(node: Node, offset: number): IAnchorFocusInfo | 
     if (!block?.isContent() || !block.outMostBlock)
         return null;
 
-    const element = node instanceof Element ? node : node.parentElement;
-    const imageWrapper = element?.closest<HTMLElement>(`.${CLASS_NAMES.MU_INLINE_IMAGE}`);
-    if (imageWrapper) {
-        const image = imageWrapper.querySelector('img');
-        const range = contentDOM.ownerDocument.createRange();
-        if (image) {
-            range.selectNode(image);
-            range.collapse(false);
-        }
-        const afterImage = image && range.comparePoint(node, getLegalOffset(node, offset)) >= 0;
-        return {
-            block,
-            path: block.path,
-            offset: getOffsetOfParagraph(imageWrapper, contentDOM) + (afterImage ? imageWrapper.dataset.raw?.length ?? 0 : 0),
-        };
-    }
-
     // The extra line a trailing break paints has no offset of its own — a caret
     // inside the span would read as the end of the line above (#3203).
     const trailingLineEnd = contentDOM.lastElementChild;
@@ -69,7 +52,7 @@ export function resolveEndpoint(node: Node, offset: number): IAnchorFocusInfo | 
     // A selection anchored to an element carries a child index in `offset`,
     // not a character offset (#5239).
     const base = getOffsetOfParagraph(node, contentDOM);
-    const within = node.nodeType === Node.TEXT_NODE ? offset : textLengthBeforeChild(node, offset);
+    const within = node === contentDOM ? textLengthBeforeChild(contentDOM, offset) : offset;
 
     return {
         offset: base + within,
@@ -100,11 +83,6 @@ function caretAt(doc: Document, x: number, y: number): { node: Node; offset: num
     const range = doc.caretRangeFromPoint?.(x, y);
 
     return range ? { node: range.startContainer, offset: range.startOffset } : null;
-}
-
-export function endpointAtPoint(doc: Document, x: number, y: number): IAnchorFocusInfo | null {
-    const caret = caretAt(doc, x, y);
-    return caret ? resolveEndpoint(caret.node, caret.offset) : null;
 }
 
 export function lineAtPoint(
@@ -242,13 +220,6 @@ export function getNodeAndOffset(
             node,
             offset,
         };
-    }
-
-    if (node instanceof HTMLElement && node.classList.contains(CLASS_NAMES.MU_HIDE)
-        && (node.classList.contains(CLASS_NAMES.MU_MATH) || node.classList.contains(CLASS_NAMES.MU_RUBY))
-        && offset === getTextContent(node, [CLASS_NAMES.MU_MATH_RENDER, CLASS_NAMES.MU_RUBY_RENDER]).length) {
-        // A backward range must include the visible preview after its hidden source.
-        return { node, offset: node.childNodes.length };
     }
 
     const childNodes = node.childNodes;

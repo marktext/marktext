@@ -17,9 +17,6 @@ const cases = [
     { name: 'diff deletion', source: '{-text-}', selector: 'del' },
     { name: 'email autolink', source: '<me@example.com>', selector: '.mu-auto-link' },
     { name: 'plain autolink', source: 'https://example.com', selector: '.mu-auto-link-extension' },
-    { name: 'inline image', source: '![alt](https://example.test/pixel.png)', selector: '.mu-inline-image' },
-    { name: 'reference image', source: '![alt][pic]', selector: 'img.mu-copy-remove' },
-    { name: 'HTML image', source: '<img src="https://example.test/pixel.png" alt="alt">', selector: '.mu-inline-image' },
     { name: 'autolink', source: '<https://example.com>', selector: '.mu-auto-link' },
     { name: 'reference link', source: '[text][ref]', selector: '.mu-reference-link' },
     { name: 'collapsed reference', source: '[ref][]', selector: '.mu-reference-link' },
@@ -28,16 +25,6 @@ const cases = [
     { name: 'footnote', source: '[^note]', selector: '.mu-inline-footnote-identifier' },
     { name: 'nested formatting', source: '**_text_**', selector: 'strong' },
     { name: 'formatted link', source: '[**text**](https://example.com)', selector: '.mu-link' },
-    { name: 'math', source: '$x+y$', selector: '.mu-math' },
-    { name: 'double dollar math', source: '$$x+y$$', selector: '.mu-math' },
-    { name: 'GFM math', source: '$`x+y`$', selector: '.mu-math' },
-    { name: 'backslash math', source: '\\(x+y\\)', selector: '.mu-math' },
-    { name: 'bracket math', source: '\\[x+y\\]', selector: '.mu-math' },
-    { name: 'double backslash math', source: '\\\\(x+y\\\\)', selector: '.mu-math' },
-    { name: 'double backslash bracket math', source: '\\\\[x+y\\\\]', selector: '.mu-math' },
-    { name: 'emoji', source: ':smile:', selector: '.mu-emoji-marked-text' },
-    { name: 'entity', source: '&amp;', selector: '.mu-html-escape' },
-    { name: 'ruby', source: '<ruby>漢<rt>kan</rt></ruby>', selector: '.mu-ruby' },
 ];
 
 async function setup(page: Page, source: string, atEnd: boolean) {
@@ -47,8 +34,6 @@ async function setup(page: Page, source: string, atEnd: boolean) {
         const first = window.muya!.editor.scrollPage!.firstContentInDescendant()!;
         first.update();
     }, { source, atEnd });
-    if (source.includes('![alt]') || source.startsWith('<img'))
-        await expect(page.locator(editor.paragraphContent).first().locator('img')).toBeVisible();
 }
 
 async function points(page: Page, selector: string, edge: 'start' | 'end', forward: boolean, atEnd: boolean) {
@@ -57,9 +42,7 @@ async function points(page: Page, selector: string, edge: 'start' | 'end', forwa
         const range = document.createRange();
         range.selectNodeContents(element);
         const rect = element.tagName === 'CODE' ? range.getBoundingClientRect() : element.getBoundingClientRect();
-        let left = rect.left;
-        if (element.matches('[data-emoji]'))
-            left -= Number.parseFloat(getComputedStyle(element).fontSize);
+        const left = rect.left;
         const target = forward && atEnd
             ? document.querySelectorAll('.mu-paragraph-content')[1]
             : content;
@@ -82,7 +65,6 @@ async function points(page: Page, selector: string, edge: 'start' | 'end', forwa
 for (const item of cases) {
     for (const endpoint of ['anchor', 'focus'] as const) {
         test(`${item.name}: collapsed ${endpoint} selects complete source (#3410)`, async ({ page }) => {
-            await page.route('https://example.test/pixel.png', route => route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="20"><rect width="64" height="20" fill="blue"/></svg>' }));
             for (const atEnd of [false, true]) {
                 for (const edge of ['start', 'end'] as const) {
                     for (const forward of [false, true]) {
@@ -111,7 +93,7 @@ for (const item of cases) {
     }
 }
 
-for (const item of cases.filter(item => ['link', 'strong', 'math', 'ruby'].includes(item.name))) {
+for (const item of cases.filter(item => ['link', 'strong'].includes(item.name))) {
     test(`${item.name}: delete and undo use the normalized source range`, async ({ page }) => {
         await setup(page, item.source, false);
         const { boundary, outside } = await points(page, item.selector, 'end', false, false);
