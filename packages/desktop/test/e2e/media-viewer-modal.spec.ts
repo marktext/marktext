@@ -109,7 +109,7 @@ test.describe('media viewer is modal to the keyboard', () => {
     await openViewer(page)
 
     const controls = await page.evaluate(
-      () => document.querySelectorAll('.image-viewer .icon-close, .media-viewer-toolbar button').length
+      () => document.querySelectorAll('.image-viewer .icon-close:not(:disabled), .media-viewer-toolbar button:not(:disabled)').length
     )
     expect(controls).toBeGreaterThan(1)
 
@@ -128,7 +128,8 @@ test.describe('media viewer is modal to the keyboard', () => {
       expect(where.inside).toBe(true)
       seen.add(where.label)
     }
-    expect(seen.size).toBe(controls)
+    // Loading the preview can enable Copy during the cycle.
+    expect(seen.size).toBeGreaterThanOrEqual(controls)
 
     await expectNoRendererErrors(app)
   })

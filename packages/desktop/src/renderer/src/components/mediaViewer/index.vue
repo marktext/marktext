@@ -99,21 +99,24 @@
               <PictureIcon />
             </button>
           </el-tooltip>
-          <el-tooltip
-            :content="copied ? t('editor.mediaViewer.copied') : t('editor.mediaViewer.copyImage')"
-            v-bind="TOOLTIP"
-          >
-            <button
-              type="button"
-              :class="{ 'is-done': copied }"
-              :aria-label="copied ? t('editor.mediaViewer.copied') : t('editor.mediaViewer.copyImage')"
-              @click="copy"
-            >
-              <CheckIcon v-if="copied" />
-              <CopyIcon v-else />
-            </button>
-          </el-tooltip>
         </template>
+        <el-tooltip
+          :content="copied ? t('editor.mediaViewer.copied') : t('editor.mediaViewer.copyImage')"
+          v-bind="TOOLTIP"
+        >
+          <button
+            type="button"
+            :class="{ 'is-done': copied }"
+            :disabled="copying || (!diagram && !imageReady)"
+            :aria-label="
+              copied ? t('editor.mediaViewer.copied') : t('editor.mediaViewer.copyImage')
+            "
+            @click="copy"
+          >
+            <CheckIcon v-if="copied" />
+            <CopyIcon v-else />
+          </button>
+        </el-tooltip>
       </div>
       <div
         ref="stageRef"
@@ -123,7 +126,9 @@
         class="visually-hidden"
         role="status"
         aria-live="polite"
-      >{{ copied ? t('editor.mediaViewer.copied') : '' }}</span>
+      >{{
+        copied ? t('editor.mediaViewer.copied') : ''
+      }}</span>
     </div>
   </Teleport>
 </template>
@@ -149,6 +154,7 @@ import {
   type ExportFormat
 } from '@/util/diagramExport'
 import notice from '@/services/notification'
+import { copyImageToClipboard, readImagePng } from '@/util/clipboard'
 
 const PAN_STEP = 40
 const PAN_STEP_FAST = 160
@@ -179,6 +185,9 @@ const stageRef = ref<HTMLElement | null>(null)
 const zoomPercent = computed(() => `${Math.round(scale.value * 100)}%`)
 
 const diagram = ref<DiagramSource | null>(null)
+const imageSource = ref('')
+const imageReady = ref(false)
+const copying = ref(false)
 const copied = ref(false)
 const touched = ref(false)
 
@@ -206,6 +215,10 @@ const fitIfUntouched = () => {
 const actualSize = () => controller?.actualSize()
 
 const clearStage = () => {
+  ++copyRequest
+  imageSource.value = ''
+  imageReady.value = false
+  copying.value = false
   controller?.destroy()
   controller = null
   diagram.value = null
@@ -214,8 +227,7 @@ const clearStage = () => {
   if (stageRef.value) stageRef.value.innerHTML = ''
 }
 
-const reason = (error: unknown): string =>
-  error instanceof Error ? error.message : String(error)
+const reason = (error: unknown): string => (error instanceof Error ? error.message : String(error))
 
 const canvasBackground = (): string =>
   getComputedStyle(document.body).getPropertyValue('--editorBgColor').trim() || '#ffffff'
@@ -231,7 +243,8 @@ const save = async (format: ExportFormat) => {
       defaultPath: `${source.type}-diagram.${image.extension}`,
       filters: [
         {
-          name: image.extension === 'svg' ? 'Scalable Vector Graphics' : 'Portable Network Graphics',
+          name:
+            image.extension === 'svg' ? 'Scalable Vector Graphics' : 'Portable Network Graphics',
           extensions: [image.extension]
         }
       ]
@@ -266,22 +279,22 @@ const save = async (format: ExportFormat) => {
 
 const copy = async () => {
   const source = diagram.value
-  if (!source) return
+  const src = imageSource.value
+  if (!source && !src) return
 
   const request = ++copyRequest
+  const isCurrent = () => visible.value && request === copyRequest
+  copying.value = true
 
   try {
-    const image = await exportDiagram(source, 'png', canvasBackground())
-    // Exports take as long as the diagram is complex, so they can finish out of
-    // order. Whoever the reader asked last owns the clipboard.
-    if (request !== copyRequest) return
-
-    const written = await window.electron.clipboard.writeImage(image.data)
+    const written = await copyImageToClipboard(
+      async () =>
+        source ? (await exportDiagram(source, 'png', canvasBackground())).data : readImagePng(src),
+      undefined,
+      isCurrent
+    )
+    if (!isCurrent()) return
     if (!written) throw new Error('The clipboard rejected the image')
-
-    // The button this would tick may by now belong to a different diagram — or
-    // to none.
-    if (diagram.value !== source) return
 
     // The cursor is already on the button, so confirm there rather than in a
     // notification the reader has to look away for.
@@ -291,12 +304,15 @@ const copy = async () => {
       copied.value = false
     }, COPIED_FEEDBACK_MS)
   } catch (error) {
+    if (!isCurrent()) return
     notice
       .notify({
         type: 'error',
         message: t('editor.mediaViewer.copyFailed', { error: reason(error) })
       })
       .catch(() => {})
+  } finally {
+    if (isCurrent()) copying.value = false
   }
 }
 
@@ -305,6 +321,7 @@ const CONTROLS = '.icon-close, .media-viewer-toolbar button'
 
 const moveFocus = (delta: number) => {
   const controls = [...(rootRef.value?.querySelectorAll<HTMLElement>(CONTROLS) ?? [])]
+    .filter((control) => !control.matches(':disabled'))
   if (!controls.length) return
 
   const at = controls.indexOf(document.activeElement as HTMLElement)
@@ -418,10 +435,20 @@ const open = async (
 const openImage = (url: string) =>
   open((stage) => {
     const img = document.createElement('img')
+    imageSource.value = url
+    img.addEventListener(
+      'load',
+      () => {
+        if (stageRef.value?.contains(img)) {
+          imageReady.value = true
+          fitIfUntouched()
+        }
+      },
+      { once: true }
+    )
     img.src = url
     img.style.cssText = 'user-select:none;display:block;'
     img.draggable = false
-    img.addEventListener('load', fitIfUntouched, { once: true })
     stage.appendChild(img)
     return img
   }, t('editor.mediaViewer.title'))
@@ -549,6 +576,10 @@ defineExpose({ openImage, openDiagram, close })
   }
   & button:hover {
     background: rgba(255, 255, 255, 0.15);
+  }
+  & button:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
   & button > svg {
     width: 16px;

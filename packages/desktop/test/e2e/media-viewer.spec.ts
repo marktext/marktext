@@ -88,7 +88,7 @@ test.describe('media viewer controls', () => {
   test('the toolbar offers zoom out, a zoom readout, zoom in and fit', async() => {
     await openViewer(page)
 
-    await expect(page.locator('.media-viewer-toolbar button')).toHaveCount(4)
+    await expect(page.locator('.media-viewer-toolbar button')).toHaveCount(5)
     expect(await zoomLabel(page)).toBe('100%')
 
     await expectNoRendererErrors(app)
@@ -164,7 +164,7 @@ test.describe('media viewer controls', () => {
 
     const controls = page.locator('.media-viewer-toolbar button')
     const count = await controls.count()
-    expect(count).toBe(4)
+    expect(count).toBe(5)
 
     for (let i = 0; i < count; i++) {
       await controls.nth(i).hover()

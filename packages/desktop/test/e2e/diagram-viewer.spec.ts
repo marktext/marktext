@@ -278,17 +278,14 @@ test.describe('diagram viewer', () => {
     await expectNoRendererErrors(app)
   })
 
-  test('closing the viewer drops the export controls again', async() => {
+  test('closing the viewer removes diagram save controls and disables image copying', async() => {
     await openDiagram(page)
     await expect(page.locator('.media-viewer-toolbar button')).toHaveCount(7)
     await closeViewer(page)
 
-    // The viewer is shared with images, which have nothing to export.
-    const buttons = await page.evaluate(() => {
-      const el = document.querySelector('.image-viewer') as HTMLElement | null
-      return el ? el.querySelectorAll('.media-viewer-toolbar button').length : -1
-    })
-    expect(buttons).toBe(4)
+    const controls = page.locator('.media-viewer-toolbar button')
+    await expect(controls).toHaveCount(5)
+    await expect(controls.last()).toBeDisabled()
   })
 
   test('copying confirms on the button, not behind the overlay', async() => {
