@@ -26,12 +26,8 @@ The editor is the core element that hosts the realtime preview editor called Muy
 
 #### Editor shortcuts
 
-The desktop main process owns command shortcuts. `mt::keybindings-response` sends a complete active map, including custom bindings and empty strings for unbound commands. The command-center store retains this snapshot before descriptions finish loading and reapplies it after language changes or dynamic command registration. Language notifications wait for translated resources to load; registered command descriptions are then refreshed alongside static commands, while custom descriptions without a translation mapping are preserved. Menu accelerators and the renderer therefore use the same command IDs.
+The desktop main process handles command shortcuts. Muya menus display the active desktop bindings, including custom overrides and unbound commands.
 
-`renderer/src/util/muyaShortcuts.ts` maps Muya action names to desktop command IDs. Register `InlineFormatToolbar` and `ParagraphQuickInsertMenu` with `keyboardShortcuts: false` and a `getShortcut(action)` callback; register `ParagraphFrontMenu` with the callback. The flag disables built-in command handling while retaining clicks, slash-menu navigation and toolbar visibility handling. Standalone Muya consumers can omit the options to retain their defaults.
+Set `keyboardShortcuts: false` on `InlineFormatToolbar` and `ParagraphQuickInsertMenu`, and provide `getShortcut(action)` to both and `ParagraphFrontMenu`. Empty results hide the hint. Call `muya.refreshShortcutHints()` when bindings change. Clicks and slash-menu navigation remain enabled; standalone consumers can omit these options to retain defaults.
 
-Once a provider is supplied, an empty string or `undefined` hides the hint without falling back to Muya's bundled shortcuts. After changing the provider's backing data, call `muya.refreshShortcutHints()` to repaint visible menus without changing the document, selection or slash search. Add new action mappings and tests when adding menu actions that have desktop commands. Actions without a registered desktop command have no shortcut hint.
-
-Muya cancels native `format*` beforeinput events inside its editor so browser rich-text shortcuts cannot mutate the DOM outside the document model after rebinding or unbinding a command. Plain-text editing and input controls outside the editor retain their normal behavior.
-
-The recorder and Electron window dispatcher share the vendored `common/localShortcut` module. Its README documents layout handling and shifted symbol compatibility; retain its MIT notice in generated third-party notices when changing the module or packaging.
+Recording, conflict checks and dispatch share `common/localShortcut`. See its README for layout handling and retain its MIT notice when packaging.
