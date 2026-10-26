@@ -26,7 +26,7 @@ The editor is the core element that hosts the realtime preview editor called Muy
 
 #### Editor shortcuts
 
-The desktop main process owns command shortcuts. `mt::keybindings-response` sends a complete active map, including custom bindings and empty strings for unbound commands. The command-center store retains this snapshot before descriptions finish loading and reapplies it after language changes or dynamic command registration. Menu accelerators and the renderer therefore use the same command IDs.
+The desktop main process owns command shortcuts. `mt::keybindings-response` sends a complete active map, including custom bindings and empty strings for unbound commands. The command-center store retains this snapshot before descriptions finish loading and reapplies it after language changes or dynamic command registration. Language notifications wait for translated resources to load; registered command descriptions are then refreshed alongside static commands, while custom descriptions without a translation mapping are preserved. Menu accelerators and the renderer therefore use the same command IDs.
 
 `renderer/src/util/muyaShortcuts.ts` maps Muya action names to desktop command IDs. Register `InlineFormatToolbar` and `ParagraphQuickInsertMenu` with `keyboardShortcuts: false` and a `getShortcut(action)` callback; register `ParagraphFrontMenu` with the callback. The flag disables built-in command handling while retaining clicks, slash-menu navigation and toolbar visibility handling. Standalone Muya consumers can omit the options to retain their defaults.
 

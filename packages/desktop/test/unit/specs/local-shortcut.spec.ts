@@ -26,18 +26,67 @@ describe.each(['darwin', 'win32', 'linux'])('shared recording and matching on %s
   const primary = platform === 'darwin' ? 'Command' : 'Ctrl'
   const flags = platform === 'darwin' ? { metaKey: true } : { ctrlKey: true }
 
+  it.each(['?', 'ß'])(
+    'preserves German literal-symbol bindings when the event reports %s',
+    (key) => {
+      const mapper = new KeyboardMapper(platform)
+      mapper.setKeyboardLayout(
+        { name: 'German' },
+        {
+          KeyA: { value: 'a', withShift: 'A' },
+          KeyS: { value: 's', withShift: 'S' },
+          KeyD: { value: 'd', withShift: 'D' },
+          KeyF: { value: 'f', withShift: 'F' },
+          Minus: { value: 'ß', withShift: '?' }
+        }
+      )
+      const event = mapper.normalize(input({ ...flags, key, code: 'Minus', shiftKey: true }))!
+      const literal = toKeyEvent(`${primary}+?`, platform)
+      const recorded = acceleratorFromKeyEvent(event, platform)
+      expect(equalKeyEvents(event, literal)).toBe(true)
+      expect(isValidAccelerator(recorded, platform)).toBe(true)
+      expect(equalKeyEvents(event, toKeyEvent(recorded, platform))).toBe(true)
+      expect(
+        equalKeyEvents(
+          mapper.normalizeBinding(literal),
+          mapper.normalizeBinding(toKeyEvent(recorded, platform))
+        )
+      ).toBe(true)
+      expect(
+        equalKeyEvents(
+          mapper.normalize(input({ ...flags, key: 'A', code: 'KeyA', shiftKey: true }))!,
+          toKeyEvent(`${primary}+A`, platform)
+        )
+      ).toBe(false)
+      expect(mapper.normalize(input({ key: '?', code: 'Minus', shiftKey: true }))).toMatchObject({
+        key: '?',
+        ctrl: false,
+        meta: false,
+        shift: false
+      })
+    }
+  )
+
   it('detects literal-symbol conflicts with explicitly shifted chords', () => {
     const mapper = new KeyboardMapper(platform)
-    for (const [symbol, base] of [['Plus', '='], ['&', '7'], ['?', '/']]) {
-      expect(equalKeyEvents(
-        mapper.normalizeBinding(toKeyEvent(`${primary}+${symbol}`, platform)),
-        mapper.normalizeBinding(toKeyEvent(`${primary}+Shift+${base}`, platform))
-      )).toBe(true)
+    for (const [symbol, base] of [
+      ['Plus', '='],
+      ['&', '7'],
+      ['?', '/']
+    ]) {
+      expect(
+        equalKeyEvents(
+          mapper.normalizeBinding(toKeyEvent(`${primary}+${symbol}`, platform)),
+          mapper.normalizeBinding(toKeyEvent(`${primary}+Shift+${base}`, platform))
+        )
+      ).toBe(true)
     }
-    expect(equalKeyEvents(
-      mapper.normalizeBinding(toKeyEvent(`${primary}+=`, platform)),
-      mapper.normalizeBinding(toKeyEvent(`${primary}+Shift+=`, platform))
-    )).toBe(false)
+    expect(
+      equalKeyEvents(
+        mapper.normalizeBinding(toKeyEvent(`${primary}+=`, platform)),
+        mapper.normalizeBinding(toKeyEvent(`${primary}+Shift+=`, platform))
+      )
+    ).toBe(false)
   })
 
   it.each([

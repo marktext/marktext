@@ -6,6 +6,7 @@ import log from 'electron-log'
 import bus from '../bus'
 import { isMac } from '@/util'
 import { acceleratorToTokens } from '@/util/accelerator'
+import getCommandDescriptionById from '@/commands/descriptions'
 
 import staticCommands, {
   RootCommand,
@@ -48,6 +49,10 @@ export const useCommandCenterStore = defineStore('commandCenter', () => {
 
   async function refreshCommands(): Promise<void> {
     const commands = await getCommandsWithDescriptions()
+    for (const command of registeredCommands.values()) {
+      const description = getCommandDescriptionById(command.id)
+      if (description !== command.id) command.description = description
+    }
     rootCommand.value.subcommands = [
       ...commands.filter((entry) => !registeredCommands.has(entry.id)),
       ...registeredCommands.values()

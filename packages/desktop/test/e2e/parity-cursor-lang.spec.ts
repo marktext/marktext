@@ -108,7 +108,7 @@ test.describe('Parity G7 — WYSIWYG -> source caret sync', () => {
 
 test.describe('Parity G8 — language switch refreshes inline hints', () => {
   test('G8: an empty paragraph\'s quick-insert hint updates on language change', async() => {
-    const { app, page } = await launchWithMarkdown('\n')
+    const { app, page } = await launchWithMarkdown('\n', { preferences: { language: 'en' } })
     await waitForMenuReady(app)
 
     const hintFor = (): Promise<string | null> =>
@@ -127,7 +127,7 @@ test.describe('Parity G8 — language switch refreshes inline hints', () => {
     // locale from the event payload, not from the still-stale `language.value`.
     await sendIpcToRenderer(app, 'language-changed', 'zh-CN')
     await sendIpcToRenderer(app, 'mt::user-preference', { language: 'zh-CN' })
-    await page.waitForTimeout(400)
+    await expect.poll(hintFor).not.toBe(enHint)
 
     const zhHint = await hintFor()
     expect(zhHint).toBeTruthy()

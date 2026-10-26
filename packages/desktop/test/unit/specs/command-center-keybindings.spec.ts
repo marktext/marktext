@@ -5,11 +5,13 @@ const mocks = vi.hoisted(() => ({
   ipc: new Map<string, (...args: unknown[]) => void>(),
   bus: new Map<string, (...args: unknown[]) => unknown>(),
   send: vi.fn(),
-  descriptions: vi.fn(async() => [{ id: 'format.strong', description: 'Bold' }])
+  descriptions: vi.fn(async() => [{ id: 'format.strong', description: 'Bold' }]),
+  commandDescription: vi.fn((id: string) => id)
 }))
 vi.mock('@/store/editor', () => ({ useEditorStore: () => ({ currentFile: null }) }))
 vi.mock('electron-log', () => ({ default: { error: vi.fn() } }))
 vi.mock('@/util', () => ({ isMac: true }))
+vi.mock('@/commands/descriptions', () => ({ default: mocks.commandDescription }))
 vi.mock('@/bus', () => ({
   default: {
     on: (event: string, handler: (...args: unknown[]) => unknown) => mocks.bus.set(event, handler)
@@ -29,6 +31,7 @@ beforeEach(() => {
   mocks.ipc.clear()
   mocks.bus.clear()
   mocks.send.mockClear()
+  mocks.commandDescription.mockImplementation((id) => id)
   mocks.descriptions.mockImplementation(async() => [{ id: 'format.strong', description: 'Bold' }])
   Object.defineProperty(window, 'electron', {
     configurable: true,
@@ -83,5 +86,41 @@ describe('command-center active keybindings', () => {
       store.rootCommand.subcommands.find((entry) => entry.id === 'custom.command')?.shortcut
     ).toEqual(['F9'])
     expect(store.getAccelerator('format.strong')).toBe('F8')
+  })
+
+  it('retranslates registered commands without losing custom descriptions, bindings or execution', async() => {
+    let language = 'en'
+    const translations: Record<string, Record<string, string>> = {
+      en: { 'file.quick-open': 'Quick Open', 'file.change-encoding': 'Change Encoding' },
+      zh: { 'file.quick-open': '快速打开', 'file.change-encoding': '更改编码' }
+    }
+    mocks.commandDescription.mockImplementation((id) => translations[language][id] ?? id)
+    const store = useCommandCenterStore()
+    await store.LISTEN_COMMAND_CENTER_BUS()
+    const execute = vi.fn()
+    store.UPDATE_KEYBINDINGS({ 'file.quick-open': 'Command+P', 'file.change-encoding': '' })
+    store.REGISTER_COMMAND({ id: 'file.quick-open', description: 'Quick Open', execute })
+    store.REGISTER_COMMAND({ id: 'file.change-encoding', description: 'Change Encoding' })
+    store.REGISTER_COMMAND({ id: 'custom.command', description: 'Custom description' })
+    language = 'zh'
+    await mocks.bus.get('language-changed')!()
+    const commands = store.rootCommand.subcommands
+    expect(commands.find((entry) => entry.id === 'file.quick-open')).toMatchObject({
+      description: '快速打开',
+      shortcut: ['⌘', 'P'],
+      execute
+    })
+    expect(commands.find((entry) => entry.id === 'file.change-encoding')).toMatchObject({
+      description: '更改编码',
+      shortcut: []
+    })
+    expect(commands.find((entry) => entry.id === 'custom.command')?.description).toBe(
+      'Custom description'
+    )
+    mocks.bus.get('cmd::execute')!('file.quick-open')
+    expect(execute).toHaveBeenCalledOnce()
+    language = 'en'
+    await mocks.bus.get('language-changed')!()
+    expect(commands.find((entry) => entry.id === 'file.quick-open')?.description).toBe('Quick Open')
   })
 })

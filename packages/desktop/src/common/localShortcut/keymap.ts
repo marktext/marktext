@@ -48,6 +48,12 @@ const MODIFIERS = new Set(['ctrl', 'alt', 'shift', 'cmd', 'super'])
 const isCharacter = (key: string): boolean => key.length === 1
 const isASCII = (key: string): boolean => isCharacter(key) && key.charCodeAt(0) <= 127
 const isLatin = (key: string): boolean => isCharacter(key) && key.charCodeAt(0) <= 0x024f
+const isUncasedCharacter = (key: string): boolean =>
+  isCharacter(key) && key.toUpperCase() === key.toLowerCase()
+
+// Case-bearing bases such as ß can produce punctuation; recording that symbol keeps the accelerator valid.
+const symbolShortcutKey = (base: string, shifted: string): string =>
+  isUncasedCharacter(base) ? base : shifted
 
 // Adapted from @hfelix/electron-localshortcut 4.0.1 / atom-keymap; see LICENSE.
 export class KeyboardMapper {
@@ -69,10 +75,14 @@ export class KeyboardMapper {
         value &&
         withShift === event.key &&
         value !== withShift &&
-        value.toUpperCase() === value.toLowerCase()
+        !!withShift &&
+        isUncasedCharacter(withShift)
     )
     const base = characters?.value
-    return base ? { ...event, key: base, shift: true } : event
+    const shifted = characters?.withShift
+    return base && shifted
+      ? { ...event, key: symbolShortcutKey(base, shifted), shift: true }
+      : event
   }
 
   normalize(event: KeyboardInput): KeyEvent | null {
@@ -141,10 +151,10 @@ export class KeyboardMapper {
       base &&
       shifted &&
       base !== shifted &&
-      base.toUpperCase() === base.toLowerCase() &&
-      (key === base || key === shifted)
+      isUncasedCharacter(shifted) &&
+      (key === base || key === shifted || event.key === base)
     ) {
-      key = base
+      key = symbolShortcutKey(base, shifted)
       shiftedKey = shifted
     }
 
