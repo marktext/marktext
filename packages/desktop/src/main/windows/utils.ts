@@ -51,32 +51,37 @@ export interface WindowStateLike {
 export const ensureWindowPosition = (
   windowState: WindowStateLike
 ): { x: number; y: number; width: number; height: number } => {
-  // "workArea" doesn't work on Linux
-  const { bounds, workArea } = screen.getPrimaryDisplay()
-  const screenArea = isLinux ? bounds : workArea
+  const displays = screen.getAllDisplays()
 
   let { x, y, width, height } = windowState
-  let center: boolean
-  if (x === undefined || y === undefined) {
-    center = true
 
-    if (screenArea.width < width) width = screenArea.width
-    if (screenArea.height < height) height = screenArea.height
-  } else {
-    center = !screen
-      .getAllDisplays()
-      .map(
+  const savedX = x
+  const savedY = y
+  const savedDisplay =
+    savedX === undefined || savedY === undefined
+      ? undefined
+      : displays.find(
         (display) =>
-          x! >= display.bounds.x &&
-          x! <= display.bounds.x + display.bounds.width &&
-          y! >= display.bounds.y &&
-          y! <= display.bounds.y + display.bounds.height
+          // Shared edges belong to the neighbouring display.
+          savedX >= display.bounds.x &&
+            savedX < display.bounds.x + display.bounds.width &&
+            savedY >= display.bounds.y &&
+            savedY < display.bounds.y + display.bounds.height
       )
-      .some((display) => display)
-  }
-  if (center) {
+  const targetDisplay = savedDisplay ?? screen.getPrimaryDisplay()
+
+  // "workArea" doesn't work on Linux
+  const screenArea = isLinux ? targetDisplay.bounds : targetDisplay.workArea
+
+  if (screenArea.width < width) width = screenArea.width
+  if (screenArea.height < height) height = screenArea.height
+
+  if (savedX === undefined || savedY === undefined || savedDisplay === undefined) {
     x = Math.ceil(screenArea.x + (screenArea.width - width) / 2)
     y = Math.ceil(screenArea.y + (screenArea.height - height) / 2)
+  } else {
+    x = Math.min(Math.max(savedX, screenArea.x), screenArea.x + screenArea.width - width)
+    y = Math.min(Math.max(savedY, screenArea.y), screenArea.y + screenArea.height - height)
   }
   return {
     x: x as number,
