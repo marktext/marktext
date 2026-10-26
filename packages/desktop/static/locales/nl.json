@@ -271,6 +271,7 @@
       "expand": "Inhoudsopgave uitklappen",
       "collapse": "Inhoudsopgave inklappen",
       "empty": "Geen koppen",
+      "resize": "Breedte van inhoudsopgave aanpassen",
       "title": "Inhoudsopgave",
       "expandAll": "Alles uitklappen",
       "collapseAll": "Alles inklappen"
@@ -541,6 +542,9 @@
       "sidebar": {
         "title": "Zijbalk",
         "wrapTextInToc": "Tekstterugloop in inhoudsopgave",
+        "tocPosition": "Positie van de inhoudsopgave",
+        "tocLeft": "Links",
+        "tocRight": "Rechts",
         "showOpenedFiles": "Geopende bestanden tonen",
         "autoReveal": "Actief bestand tonen in de zijbalk",
         "openFilesInPreviewMode": "Bestanden in de zijbalk openen in voorbeeldtabbladen. Bewerken of dubbelklikken houdt het tabblad open.",

@@ -271,6 +271,7 @@
       "expand": "Expandir tabla de contenido",
       "collapse": "Contraer tabla de contenido",
       "empty": "Sin encabezados",
+      "resize": "Cambiar el ancho de la tabla de contenido",
       "title": "Tabla de Contenidos",
       "expandAll": "Expandir todo",
       "collapseAll": "Contraer todo"
@@ -541,6 +542,9 @@
       "sidebar": {
         "title": "Barra Lateral",
         "wrapTextInToc": "Ajustar texto en tabla de contenidos",
+        "tocPosition": "Posición de la tabla de contenido",
+        "tocLeft": "Izquierda",
+        "tocRight": "Derecha",
         "showOpenedFiles": "Mostrar archivos abiertos",
         "autoReveal": "Mostrar el archivo activo en la barra lateral",
         "openFilesInPreviewMode": "Abrir archivos de la barra lateral en pestañas de vista previa. Al editar o hacer doble clic se conserva la pestaña.",

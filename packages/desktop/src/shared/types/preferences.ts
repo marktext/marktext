@@ -9,6 +9,7 @@ export interface IUserPreferences {
   openFolderInNewWindow?: boolean
   hideScrollbar?: boolean
   tocVisibility?: boolean
+  tocPosition?: 'left' | 'right'
   sidebarColumn?: number
   fileSortBy?: string
   fileSortOrder?: string

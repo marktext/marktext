@@ -110,6 +110,11 @@
   width: 12px;
 }
 
+.document-body .editor-component::-webkit-scrollbar:vertical,
+.document-body .source-code::-webkit-scrollbar:vertical {
+  width: 8px;
+}
+
 ::-webkit-scrollbar-thumb {
   background: var(--editorColor30);
 }

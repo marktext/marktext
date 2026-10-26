@@ -271,6 +271,7 @@
       "expand": "目次を展開",
       "collapse": "目次を折りたたむ",
       "empty": "見出しがありません",
+      "resize": "目次の幅を変更",
       "title": "目次",
       "expandAll": "すべて展開",
       "collapseAll": "すべて折りたたむ"
@@ -541,6 +542,9 @@
       "sidebar": {
         "title": "サイドバー",
         "wrapTextInToc": "目次でテキストを折り返し",
+        "tocPosition": "目次の位置",
+        "tocLeft": "左側",
+        "tocRight": "右側",
         "showOpenedFiles": "開いているファイルを表示",
         "autoReveal": "サイドバーで現在のファイルを表示",
         "openFilesInPreviewMode": "サイドバーのファイルをプレビュータブで開きます。編集またはダブルクリックするとタブが保持されます。",

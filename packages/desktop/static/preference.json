@@ -7,6 +7,7 @@
   "zoom": 1.0,
   "hideScrollbar": false,
   "wordWrapInToc": false,
+  "tocPosition": "left",
   "fileSortBy": "created",
   "fileSortOrder": "asc",
   "defaultOpenMode": "edit",
@@ -79,6 +80,7 @@
   "spellcheckerNoUnderline": false,
   "spellcheckerLanguage": "en-US",
 
+  "tocVisibility": true,
   "sideBarVisibility": false,
   "tabBarVisibility": false,
   "sourceCodeModeEnabled": false,

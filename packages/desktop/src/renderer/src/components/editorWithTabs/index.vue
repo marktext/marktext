@@ -71,7 +71,12 @@ const { effectiveSideBarWidth } = storeToRefs(useLayoutStore())
 .document-body {
   flex: 1;
   min-width: 0;
+  container-type: inline-size;
   height: 100%;
   overflow: hidden;
+}
+.container:has(.is-resizing) {
+  cursor: col-resize;
+  user-select: none;
 }
 </style>
