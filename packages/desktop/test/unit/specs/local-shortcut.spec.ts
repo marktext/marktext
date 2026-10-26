@@ -227,6 +227,32 @@ it('retains dead-key and numpad mapping', () => {
   expect(mapper.normalize(input({ key: '1', code: 'Numpad1', ctrlKey: true }))?.key).toBe('num1')
 })
 
+it.each(['darwin', 'win32'])(
+  'retains dead-key fallback with incomplete layout data on %s',
+  (platform) => {
+    const mapper = new KeyboardMapper(platform)
+    mapper.setKeyboardLayout(
+      { id: 'dead-key-layout' },
+      {
+        BracketLeft: { value: '[', withShift: '{', withAltGr: '“' }
+      }
+    )
+    const primary = platform === 'darwin' ? 'Command' : 'Ctrl'
+    const event = mapper.normalize(
+      input({
+        key: 'Dead',
+        code: 'BracketLeft',
+        shiftKey: true,
+        altKey: true,
+        ctrlKey: platform === 'win32',
+        metaKey: platform === 'darwin',
+        getModifierState: (modifier) => modifier === 'AltGraph'
+      })
+    )!
+    expect(equalKeyEvents(event, toKeyEvent(`${primary}+Alt+{`, platform))).toBe(true)
+  }
+)
+
 function fakeWindow() {
   const contents = new EventEmitter()
   const win = { webContents: contents, isDestroyed: () => false } as unknown as BrowserWindow

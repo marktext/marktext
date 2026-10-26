@@ -95,10 +95,12 @@ export class KeyboardMapper {
     let characters = this.keymap[code]
 
     if (key === 'Dead' && !isLinux && characters) {
-      if (altKey && shiftKey) key = characters.withShiftAltGr ?? key
-      else if (altKey) key = characters.withAltGr ?? key
-      else if (shiftKey) key = characters.withShift ?? key
-      else key = characters.value ?? key
+      key =
+        (altKey && shiftKey ? characters.withShiftAltGr : null) ??
+        (altKey ? characters.withAltGr : null) ??
+        (shiftKey ? characters.withShift : null) ??
+        characters.value ??
+        key
     }
     if (/^Numpad[0-9]$/.test(code)) key = `num${code.slice(-1)}`
     key = KEY_NAMES[code] ?? key
