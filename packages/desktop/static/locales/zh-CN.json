@@ -273,6 +273,7 @@
       "expand": "展开目录",
       "collapse": "收起目录",
       "empty": "暂无标题",
+      "resize": "调整目录宽度",
       "title": "目录",
       "expandAll": "全部展开",
       "collapseAll": "全部折叠"
@@ -545,6 +546,9 @@
       "sidebar": {
         "title": "侧边栏",
         "wrapTextInToc": "在目录中换行文本",
+        "tocPosition": "目录位置",
+        "tocLeft": "左侧",
+        "tocRight": "右侧",
         "showOpenedFiles": "显示已打开文件",
         "autoReveal": "在侧边栏中定位当前文件",
         "openFilesInPreviewMode": "单击侧栏文件时复用预览标签页；编辑或双击后保留该标签页",
@@ -1044,6 +1048,11 @@
     "unexpectedError": "意外的拼写检查器错误"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "保存文档以使用相对图片目录",
+      "saveMessage": "保存文档后，图片将存入配置的相对目录。取消保存将把图片存入全局图片目录。",
+      "failed": "图片插入失败"
+    },
     "insertTable": {
       "title": "插入表格",
       "rows": "行",

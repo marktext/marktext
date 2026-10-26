@@ -37,6 +37,7 @@
     <p
       v-else
       class="outline-empty"
+      role="status"
     >
       {{ t('sideBar.toc.empty') }}
     </p>
@@ -255,9 +256,11 @@ const handleClick = (data: { slug?: unknown }): void => {
 }
 
 .outline-empty {
-  padding: 0 12px;
+  margin: auto 0;
+  padding: 24px 12px;
+  font-size: 13px;
+  text-align: center;
   color: var(--sideBarColor);
-  opacity: 0.65;
 }
 
 .side-bar-toc .el-tree-node {

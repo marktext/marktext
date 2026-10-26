@@ -27,6 +27,7 @@ export interface PreferencesState {
   windowOpacity: number
   hideScrollbar: boolean
   wordWrapInToc: boolean
+  tocPosition: 'left' | 'right'
   fileSortBy: FileSortBy | string
   fileSortOrder: FileSortOrder | string
   defaultOpenMode: 'edit' | 'read'
@@ -154,6 +155,7 @@ export const usePreferencesStore = defineStore('preferences', {
     windowOpacity: 100,
     hideScrollbar: false,
     wordWrapInToc: false,
+    tocPosition: 'left',
     fileSortBy: 'created',
     fileSortOrder: 'asc',
     defaultOpenMode: 'edit',

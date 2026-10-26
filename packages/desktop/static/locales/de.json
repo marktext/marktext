@@ -273,6 +273,7 @@
       "expand": "Inhaltsverzeichnis aufklappen",
       "collapse": "Inhaltsverzeichnis zuklappen",
       "empty": "Keine Überschriften",
+      "resize": "Breite des Inhaltsverzeichnisses ändern",
       "title": "Inhaltsverzeichnis",
       "expandAll": "Alle ausklappen",
       "collapseAll": "Alle einklappen"
@@ -545,6 +546,9 @@
       "sidebar": {
         "title": "Seitenleiste",
         "wrapTextInToc": "Text im Inhaltsverzeichnis umbrechen",
+        "tocPosition": "Position des Inhaltsverzeichnisses",
+        "tocLeft": "Links",
+        "tocRight": "Rechts",
         "showOpenedFiles": "Geöffnete Dateien anzeigen",
         "autoReveal": "Aktive Datei in der Seitenleiste anzeigen",
         "openFilesInPreviewMode": "Sidebar-Dateien in Vorschauregistern öffnen. Bearbeiten oder Doppelklicken behält das Register bei.",
@@ -1044,6 +1048,11 @@
     "unexpectedError": "Unerwarteter Rechtschreibprüfungsfehler"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "Dokument speichern, um ein relatives Bildverzeichnis zu verwenden",
+      "saveMessage": "Wenn Sie das Dokument speichern, wird das Bild im konfigurierten relativen Verzeichnis gespeichert. Wenn Sie abbrechen, wird das Bild im globalen Bildverzeichnis gespeichert.",
+      "failed": "Das Bild konnte nicht eingefügt werden"
+    },
     "export": {
       "error": "Export-Fehler",
       "errorExporting": "Fehler beim Exportieren der {type}-Datei",

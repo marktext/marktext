@@ -273,6 +273,7 @@
       "expand": "Expand table of contents",
       "collapse": "Collapse table of contents",
       "empty": "No headings",
+      "resize": "Resize table of contents",
       "title": "Table Of Contents",
       "expandAll": "Expand all",
       "collapseAll": "Collapse all"
@@ -545,6 +546,9 @@
       "sidebar": {
         "title": "Sidebar",
         "wrapTextInToc": "Wrap text in table of contents",
+        "tocPosition": "Table of contents position",
+        "tocLeft": "Left",
+        "tocRight": "Right",
         "showOpenedFiles": "Show opened files",
         "autoReveal": "Reveal the active file in the sidebar",
         "openFilesInPreviewMode": "Open sidebar files in preview tabs. Editing or double-clicking keeps the tab open.",
@@ -1044,6 +1048,11 @@
     "unexpectedError": "Unexpected spellchecker error"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "Save document to use a relative image directory",
+      "saveMessage": "Saving the document will store the image in the configured relative directory. Canceling will store the image in the global image directory.",
+      "failed": "Could not insert the image"
+    },
     "export": {
       "error": "Export error",
       "errorExporting": "Error exporting {type} file",

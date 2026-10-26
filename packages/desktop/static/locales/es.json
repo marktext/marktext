@@ -273,6 +273,7 @@
       "expand": "Expandir tabla de contenido",
       "collapse": "Contraer tabla de contenido",
       "empty": "Sin encabezados",
+      "resize": "Cambiar el ancho de la tabla de contenido",
       "title": "Tabla de Contenidos",
       "expandAll": "Expandir todo",
       "collapseAll": "Contraer todo"
@@ -545,6 +546,9 @@
       "sidebar": {
         "title": "Barra Lateral",
         "wrapTextInToc": "Ajustar texto en tabla de contenidos",
+        "tocPosition": "Posición de la tabla de contenido",
+        "tocLeft": "Izquierda",
+        "tocRight": "Derecha",
         "showOpenedFiles": "Mostrar archivos abiertos",
         "autoReveal": "Mostrar el archivo activo en la barra lateral",
         "openFilesInPreviewMode": "Abrir archivos de la barra lateral en pestañas de vista previa. Al editar o hacer doble clic se conserva la pestaña.",
@@ -1044,6 +1048,11 @@
     "unexpectedError": "Error inesperado del corrector ortográfico"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "Guarda el documento para usar un directorio relativo de imágenes",
+      "saveMessage": "Al guardar el documento, la imagen se almacenará en el directorio relativo configurado. Si cancelas, la imagen se almacenará en el directorio global de imágenes.",
+      "failed": "No se pudo insertar la imagen"
+    },
     "export": {
       "error": "Error de exportación",
       "errorExporting": "Error al exportar archivo {type}",

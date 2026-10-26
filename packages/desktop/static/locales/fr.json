@@ -273,6 +273,7 @@
       "expand": "Développer la table des matières",
       "collapse": "Réduire la table des matières",
       "empty": "Aucun titre",
+      "resize": "Redimensionner la table des matières",
       "title": "Table des matières",
       "expandAll": "Tout développer",
       "collapseAll": "Tout réduire"
@@ -545,6 +546,9 @@
       "sidebar": {
         "title": "Barre latérale",
         "wrapTextInToc": "Retour à la ligne dans la table des matières",
+        "tocPosition": "Position de la table des matières",
+        "tocLeft": "À gauche",
+        "tocRight": "À droite",
         "showOpenedFiles": "Afficher les fichiers ouverts",
         "autoReveal": "Afficher le fichier actif dans la barre latérale",
         "openFilesInPreviewMode": "Ouvrir les fichiers de la barre latérale dans des onglets d’aperçu. La modification ou le double-clic conserve l’onglet.",
@@ -1044,6 +1048,11 @@
     "unexpectedError": "Erreur inattendue du correcteur orthographique"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "Enregistrer le document pour utiliser un dossier relatif pour les images",
+      "saveMessage": "Si vous enregistrez le document, l’image sera stockée dans le dossier relatif configuré. Si vous annulez, l’image sera stockée dans le dossier global des images.",
+      "failed": "Impossible d’insérer l’image"
+    },
     "export": {
       "error": "Erreur d'exportation",
       "errorExporting": "Erreur lors de l'exportation du fichier {type}",

@@ -49,6 +49,11 @@
     "type": "boolean",
     "default": false
   },
+  "tocPosition": {
+    "description": "General--The side of the editor where the table of contents is docked.",
+    "enum": ["left", "right"],
+    "default": "left"
+  },
   "fileSortBy": {
     "description": "General--Sort files in opened folder by created time, modified time and title.",
     "enum": ["modified", "created", "title"],

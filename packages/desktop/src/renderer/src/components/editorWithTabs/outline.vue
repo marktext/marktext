@@ -1,9 +1,9 @@
 <template>
   <aside
-    v-show="hasHeadings"
     ref="outlineRef"
     class="document-outline"
-    :class="{ 'is-expanded': docked, 'is-floating': !docked, 'is-visible': visible }"
+    :class="{ 'is-expanded': docked, 'is-floating': !docked, 'is-visible': visible, 'is-right': onRight, 'is-resizing': resizing }"
+    :style="{ '--outline-width': `${width}px` }"
     :aria-label="t('sideBar.toc.title')"
     @focusin="enter"
     @focusout="handleFocusOut"
@@ -11,7 +11,7 @@
   >
     <icon-tooltip
       :content="toggleLabel"
-      placement="right"
+      :placement="onRight ? 'left' : 'right'"
     >
       <span class="outline-toggle-anchor">
         <button
@@ -26,6 +26,7 @@
           @click="toggle"
         >
           <svg
+            :class="{ 'points-right': docked && onRight }"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -52,8 +53,16 @@
       @mouseenter="enter"
       @mouseleave="leave"
     >
+      <span
+        v-if="docked"
+        class="outline-title"
+        :title="t('sideBar.toc.title')"
+      >{{ t('sideBar.toc.title') }}</span>
       <icon-tooltip :content="bulkLabel">
-        <span class="outline-bulk-anchor">
+        <span
+          v-show="hasHeadings"
+          class="outline-bulk-anchor"
+        >
           <button
             class="plain-button outline-bulk-toggle"
             type="button"
@@ -80,16 +89,34 @@
         :visible="visible"
       />
     </div>
+    <div
+      v-if="docked"
+      class="outline-resizer"
+      role="separator"
+      tabindex="0"
+      :aria-label="t('sideBar.toc.resize')"
+      aria-orientation="vertical"
+      :aria-valuemin="MIN_WIDTH"
+      :aria-valuemax="maximumWidth"
+      :aria-valuenow="width"
+      @pointerdown.prevent="startResize"
+      @pointermove="resize"
+      @pointerup="finishResize"
+      @pointercancel="finishResize"
+      @lostpointercapture="finishResize"
+      @keydown="resizeWithKeyboard"
+    />
   </aside>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
+import { MIN_EDITOR_WIDTH } from '@/util/editorLayout'
 import Toc from '../sideBar/toc.vue'
 import IconTooltip from '@/components/iconTooltip/index.vue'
 import bus from '@/bus'
@@ -106,19 +133,30 @@ const tocRef = ref<InstanceType<typeof Toc> | null>(null)
 const bulkLabel = computed(() => t(tocRef.value?.allCollapsed
   ? 'sideBar.toc.expandAll'
   : 'sideBar.toc.collapseAll'))
-const compact = ref(true)
 const hovering = ref(false)
-const docked = computed(() => showToc.value && !compact.value)
-const visible = computed(() => hasHeadings.value && (docked.value || hovering.value))
+const docked = showToc
+const onRight = computed(() => preferencesStore.tocPosition === 'right')
+const visible = computed(() => docked.value || hovering.value)
 const toggleLabel = computed(() => t(docked.value ? 'sideBar.toc.collapse' : 'sideBar.toc.expand'))
+const MIN_WIDTH = 180
+const MAX_WIDTH = 600
+const WIDTH_STORAGE_KEY = 'outline-width'
+const normalizeWidth = (value: string | null): number => {
+  const width = Number(value)
+  return Number.isFinite(width) && width > 0 ? Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, width)) : 220
+}
+const preferredWidth = ref(normalizeWidth(localStorage.getItem(WIDTH_STORAGE_KEY)))
+const containerWidth = ref(window.innerWidth)
+const maximumWidth = computed(() => Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, containerWidth.value - MIN_EDITOR_WIDTH)))
+const width = computed(() => Math.min(preferredWidth.value, maximumWidth.value))
+const resizing = ref(false)
+let dragStart: { x: number; width: number; direction: number } | undefined
 let observer: ResizeObserver | undefined
-let observedColumn: HTMLElement | null = null
 let closeTimer: ReturnType<typeof setTimeout> | undefined
-watch(hasHeadings, (hasHeadings) => {
-  if (!hasHeadings) {
-    clearTimeout(closeTimer)
-    hovering.value = false
-  }
+watch(showToc, () => {
+  clearTimeout(closeTimer)
+  hovering.value = false
+  finishResize()
 })
 
 const enter = (): void => {
@@ -138,12 +176,7 @@ const handleFocusOut = (event: FocusEvent): void => {
   if (!outlineRef.value?.contains(event.relatedTarget as Node | null)) leave()
 }
 const toggle = (): void => {
-  if (compact.value) {
-    enter()
-  } else {
-    hovering.value = false
-    layoutStore.TOGGLE_LAYOUT_ENTRY('showToc')
-  }
+  layoutStore.TOGGLE_LAYOUT_ENTRY('showToc')
 }
 
 const setAllExpanded = (expanded: unknown): void => {
@@ -153,28 +186,43 @@ const setAllExpanded = (expanded: unknown): void => {
   tocRef.value.setAllExpanded(expanded)
 }
 
-const updateDocking = (): void => {
-  const container = outlineRef.value?.parentElement
-  if (!container) return
-  const selector = preferencesStore.sourceCode ? '.source-code .CodeMirror' : '.editor-wrapper:not(.source) .mu-container'
-  const column = container.querySelector<HTMLElement>(selector)
-  if (column !== observedColumn) {
-    if (observedColumn) observer?.unobserve(observedColumn)
-    observedColumn = column
-    if (column) observer?.observe(column)
-  }
-  // Measure the actual column so px, ch, percentage widths and themes all
-  // reserve enough room for the 220px outline plus a 24px gap.
-  compact.value = !column || column.getBoundingClientRect().left - container.getBoundingClientRect().left < 244
+const setWidth = (value: number): void => {
+  preferredWidth.value = Math.max(MIN_WIDTH, Math.min(maximumWidth.value, value))
 }
-watch([hasHeadings, () => editorStore.currentFile?.id, () => preferencesStore.sourceCode], () => nextTick(updateDocking), { flush: 'post' })
+const startResize = (event: PointerEvent): void => {
+  if (event.button !== 0 || !event.isPrimary) return
+  dragStart = { x: event.clientX, width: width.value, direction: onRight.value ? -1 : 1 }
+  resizing.value = true
+  ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+}
+const resize = (event: PointerEvent): void => {
+  if (!dragStart) return
+  setWidth(dragStart.width + (event.clientX - dragStart.x) * dragStart.direction)
+}
+const finishResize = (): void => {
+  if (!dragStart) return
+  dragStart = undefined
+  resizing.value = false
+  localStorage.setItem(WIDTH_STORAGE_KEY, String(preferredWidth.value))
+}
+const resizeWithKeyboard = (event: KeyboardEvent): void => {
+  const direction = onRight.value ? -1 : 1
+  if (event.key === 'ArrowLeft') setWidth(width.value - 10 * direction)
+  else if (event.key === 'ArrowRight') setWidth(width.value + 10 * direction)
+  else if (event.key === 'Home') setWidth(MIN_WIDTH)
+  else if (event.key === 'End') setWidth(maximumWidth.value)
+  else return
+  event.preventDefault()
+  localStorage.setItem(WIDTH_STORAGE_KEY, String(preferredWidth.value))
+}
+watch(onRight, finishResize)
 onMounted(() => {
   bus.on('outline:set-all-expanded', setAllExpanded)
   const container = outlineRef.value?.parentElement
   if (!container) return
-  observer = new ResizeObserver(updateDocking)
+  containerWidth.value = container.clientWidth
+  observer = new ResizeObserver(() => { containerWidth.value = container.clientWidth })
   observer.observe(container)
-  nextTick(updateDocking)
 })
 onBeforeUnmount(() => {
   bus.off('outline:set-all-expanded', setAllExpanded)
@@ -192,13 +240,29 @@ onBeforeUnmount(() => {
   width: 48px;
   height: 100%;
   color: var(--sideBarColor);
+  box-sizing: border-box;
+}
+.document-outline.is-right {
+  inset: 0 0 0 auto;
+  order: 1;
 }
 .document-outline.is-expanded {
-  width: 220px;
+  position: relative;
+  inset: auto;
+  flex: 0 0 var(--outline-width);
+  width: var(--outline-width);
+  border-right: 1px solid var(--itemBgColor);
+}
+.document-outline.is-expanded.is-right {
+  border-right: 0;
+  border-left: 1px solid var(--itemBgColor);
 }
 .outline-toggle-anchor {
   display: block;
   width: 48px;
+}
+.is-right .outline-toggle-anchor {
+  margin-left: auto;
 }
 .outline-toggle {
   pointer-events: auto;
@@ -220,11 +284,55 @@ onBeforeUnmount(() => {
   width: 20px;
   height: 20px;
 }
+.outline-toggle svg.points-right {
+  transform: rotate(180deg);
+}
+.outline-title {
+  position: absolute;
+  top: 0;
+  left: 48px;
+  right: 48px;
+  height: 32px;
+  line-height: 32px;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.outline-resizer {
+  position: absolute;
+  inset: 0 0 0 auto;
+  z-index: 2;
+  box-sizing: border-box;
+  width: 3px;
+  cursor: col-resize;
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-app-region: no-drag;
+}
+.is-right .outline-resizer {
+  inset: 0 auto 0 0;
+}
+.outline-resizer:hover,
+.outline-resizer:focus-visible,
+.is-resizing .outline-resizer {
+  border-right: 2px solid var(--iconColor);
+}
+.is-right .outline-resizer:hover,
+.is-right .outline-resizer:focus-visible,
+.is-right.is-resizing .outline-resizer {
+  border-right: 0;
+  border-left: 2px solid var(--iconColor);
+}
 .outline-bulk-anchor {
   position: absolute;
   top: 0;
   right: 8px;
   opacity: 0;
+}
+.is-right .outline-bulk-anchor {
+  left: 8px;
+  right: auto;
 }
 .document-outline:hover .outline-bulk-anchor,
 .document-outline:focus-within .outline-bulk-anchor {
@@ -256,7 +364,7 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 24px auto 16px 0;
   box-sizing: border-box;
-  width: 220px;
+  width: var(--outline-width);
   padding: 40px 8px 12px;
   background: var(--editorBgColor);
   border-radius: 8px;
@@ -265,6 +373,15 @@ onBeforeUnmount(() => {
   transform: translateX(-8px);
   transition: opacity 180ms ease, transform 180ms ease, visibility 180ms;
   pointer-events: none;
+}
+.is-expanded .outline-body {
+  width: 100%;
+  border-radius: 0;
+}
+.is-right .outline-body {
+  left: auto;
+  right: 0;
+  transform: translateX(8px);
 }
 .is-visible .outline-body {
   opacity: 1;

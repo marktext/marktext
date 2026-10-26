@@ -37,7 +37,15 @@ export interface RecentDocument {
   isDirectory: boolean
 }
 
+export type SaveDocumentResult =
+  | { status: 'saved'; pathname: string; filename: string; savedMarkdown: string }
+  | { status: 'canceled' | 'failed' }
+
 export interface IpcInvokeChannels {
+  'mt::response-file-save': {
+    args: IpcSendChannels['mt::response-file-save']
+    ret: SaveDocumentResult
+  }
   'mt::get-recently-used-documents': { args: []; ret: RecentDocument[] }
   'mt::project-remove-root': { args: [key: string]; ret: boolean }
   'mt::project-retry-root': { args: [key: string]; ret: boolean }

@@ -16,7 +16,7 @@ const resize = async(width: number): Promise<void> => {
 }
 
 test.beforeAll(async() => {
-  const launched = await launchWithMarkdown(markdown)
+  const launched = await launchWithMarkdown(markdown, { preferences: { language: 'en', sideBarVisibility: true } })
   app = launched.app
   page = launched.page
   await waitForEditor(page)
@@ -54,11 +54,13 @@ test('switching files refreshes the outline without replacing the file tree', as
   await expect(page.locator('.side-bar-toc .el-tree-node__label')).toHaveCount(45)
 })
 
-test('adding and removing the first heading leaves the centered document in place', async() => {
+test('adding and removing the first heading preserves the pane and its empty state', async() => {
   const win = await app.browserWindow(page)
   await win.evaluate(window => window.webContents.send('mt::new-untitled-tab', true, 'Plain paragraph'))
   const outline = page.locator('.document-outline')
-  await expect(outline).toBeHidden()
+  await expect(outline).toHaveClass(/is-expanded/)
+  await expect(page.locator('.outline-empty')).toHaveText('No headings')
+  await expect(page.locator('.outline-bulk-toggle')).toBeHidden()
   const column = page.locator('.mu-container')
   const geometry = () => column.evaluate(el => {
     const { x, width } = el.getBoundingClientRect()
@@ -70,10 +72,12 @@ test('adding and removing the first heading leaves the centered document in plac
   await page.keyboard.type('# First heading')
   await expect(outline).toBeVisible()
   await expect(outline).toHaveClass(/is-expanded/)
+  await expect(page.locator('.outline-empty')).toBeHidden()
   expect(await geometry()).toEqual(before)
   await page.keyboard.press('ControlOrMeta+a')
   await page.keyboard.press('Backspace')
-  await expect(outline).toBeHidden()
+  await expect(outline).toHaveClass(/is-expanded/)
+  await expect(page.locator('.outline-empty')).toBeVisible()
   expect(await geometry()).toEqual(before)
   await page.locator('.editor-tabs li').filter({ hasText: 'note.md' }).click()
   await expect(outline).toHaveClass(/is-expanded/)
@@ -83,7 +87,8 @@ test('menu toggles only the outline and persists the choice', async() => {
   const before = await page.locator('.document-body').boundingBox()
   await clickMenuById(app, 'tocMenuItem')
   await expect(page.locator('.document-outline')).not.toHaveClass(/is-expanded/)
-  expect(await page.locator('.document-body').boundingBox()).toEqual(before)
+  const after = await page.locator('.document-body').boundingBox()
+  expect(before && after && Math.round(after.width - before.width)).toBe(220)
   await expect(page.locator('.side-bar')).toBeVisible()
   await expect.poll(() => app.evaluate(({ Menu }) => Menu.getApplicationMenu()?.getMenuItemById('tocMenuItem')?.checked)).toBe(false)
   const userData = await app.evaluate(({ app }) => app.getPath('userData'))
@@ -92,11 +97,14 @@ test('menu toggles only the outline and persists the choice', async() => {
   await expect(page.locator('.document-outline')).toHaveClass(/is-expanded/)
 })
 
-test('narrow windows use a hover overlay without shifting the document', async() => {
+test('narrow windows stay docked and explicit collapse keeps the hover overlay', async() => {
   await resize(850)
   const outline = page.locator('.document-outline')
   const body = page.locator('.document-body')
   await page.mouse.move(800, 100)
+  await expect(outline).toHaveClass(/is-expanded/)
+  await expect(outline).toHaveClass(/is-visible/)
+  await clickMenuById(app, 'tocMenuItem')
   await expect(outline).toHaveClass(/is-floating/)
   await expect(outline).not.toHaveClass(/is-visible/)
   await expect.poll(() => outline.evaluate(el => el.getBoundingClientRect().width)).toBe(48)
@@ -116,6 +124,8 @@ test('narrow windows use a hover overlay without shifting the document', async()
   await expect(outline).toHaveClass(/is-visible/)
   await page.locator('.outline-toggle').press('Escape')
   await expect(outline).not.toHaveClass(/is-visible/)
+  await page.locator('.outline-toggle').press('Enter')
+  await expect(outline).toHaveClass(/is-expanded/)
   await resize(1600)
   await expect(outline).toHaveClass(/is-expanded/)
 })

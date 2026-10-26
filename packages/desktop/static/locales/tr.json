@@ -273,6 +273,7 @@
       "expand": "İçindekileri genişlet",
       "collapse": "İçindekileri daralt",
       "empty": "Başlık yok",
+      "resize": "İçindekiler genişliğini ayarla",
       "title": "İçindekiler",
       "expandAll": "Tümünü genişlet",
       "collapseAll": "Tümünü daralt"
@@ -545,6 +546,9 @@
       "sidebar": {
         "title": "Kenar Çubuğu",
         "wrapTextInToc": "İçindekilerde metni kaydır",
+        "tocPosition": "İçindekilerin konumu",
+        "tocLeft": "Sol",
+        "tocRight": "Sağ",
         "showOpenedFiles": "Açık dosyaları göster",
         "autoReveal": "Etkin dosyayı kenar çubuğunda göster",
         "openFilesInPreviewMode": "Kenar çubuğu dosyalarını önizleme sekmelerinde açar. Düzenleme veya çift tıklama sekmeyi korur.",
@@ -1044,6 +1048,11 @@
     "unexpectedError": "Beklenmeyen yazım denetleyici hatası"
   },
   "editor": {
+    "imageDrop": {
+      "saveTitle": "Göreli resim klasörünü kullanmak için belgeyi kaydedin",
+      "saveMessage": "Belgeyi kaydettiğinizde resim, yapılandırılan göreli klasöre kaydedilir. İptal ederseniz resim, genel resim klasörüne kaydedilir.",
+      "failed": "Resim eklenemedi"
+    },
     "export": {
       "error": "Dışa aktarma hatası",
       "errorExporting": "{type} dosyası dışa aktarılırken hata",

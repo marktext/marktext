@@ -17,6 +17,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | windowOpacity          | Number  | `100`         | The opacity of the main window in percent (Windows and macOS). Range `20`–`100`.                                                  |
 | hideScrollbar          | Boolean | `false`       | Whether to hide scrollbars.                                                                                                       |
 | wordWrapInToc          | Boolean | `false`       | Whether to enable word wrap in the table of contents.                                                                             |
+| tocPosition            | String  | `left`        | Dock the table of contents to the `left` or `right` of the editor.                                                                |
 | fileSortBy             | String  | `created`     | Sort files in the opened folder. Optional values: `created`, `modified`, `title`.                                                 |
 | fileSortOrder          | String  | `asc`         | Sort order for files in opened folders: `asc` (ascending) or `desc` (descending).                                                 |
 | startUpAction          | String  | `restoreAll`  | The action when MarkText launches. Optional values: `folder`, `openLastFolder`, `blank`, `restoreAll`.                            |
@@ -114,12 +115,12 @@ These settings include internal schema entries and additional persisted state. M
 
 The View menu's Show Table of Contents control updates `tocVisibility`; it has no separate Preferences control.
 
-| Key                   | Type    | Default | Description                                                           |
-| --------------------- | ------- | ------- | --------------------------------------------------------------------- |
-| tocVisibility         | Boolean | `true`  | Expand the independent document outline when space allows.            |
-| sideBarVisibility     | Boolean | `false` | Initial visibility of the sidebar. Overridden by the menu / shortcut. |
-| tabBarVisibility      | Boolean | `false` | Initial visibility of the tab bar. Overridden by the menu / shortcut. |
-| sourceCodeModeEnabled | Boolean | `false` | Initial source-code mode state. Overridden by the menu / shortcut.    |
+| Key                   | Type    | Default | Description                                                                                                     |
+| --------------------- | ------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| tocVisibility         | Boolean | `true`  | Expand the document outline as a separate column. When collapsed, its icon reveals a floating preview on hover. |
+| sideBarVisibility     | Boolean | `false` | Initial visibility of the sidebar. Overridden by the menu / shortcut.                                           |
+| tabBarVisibility      | Boolean | `false` | Initial visibility of the tab bar. Overridden by the menu / shortcut.                                           |
+| sourceCodeModeEnabled | Boolean | `false` | Initial source-code mode state. Overridden by the menu / shortcut.                                              |
 
 ##### General (internal)
 

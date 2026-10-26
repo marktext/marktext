@@ -16,6 +16,7 @@ export interface IUserPreferences {
   hideScrollbar?: boolean
   windowOpacity?: number
   tocVisibility?: boolean
+  tocPosition?: 'left' | 'right'
   sidebarColumn?: number
   fileSortBy?: string
   fileSortOrder?: string
