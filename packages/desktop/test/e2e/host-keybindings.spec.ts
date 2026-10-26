@@ -286,4 +286,22 @@ test.describe('host-owned keybindings', () => {
     )
     expect(JSON.parse(readFileSync(join(stored, 'keybindings.json'), 'utf8'))).toEqual({})
   })
+
+  test('Preferences rejects a shifted chord equivalent to a literal-symbol binding', async() => {
+    await saveBindings(page, { 'format.emphasis': `${primary}+Plus` })
+    const settingsWindow = app.waitForEvent('window')
+    await app.evaluate(({ ipcMain }) => ipcMain.emit('app-create-settings-window'))
+    const settings = await settingsWindow
+    await settings.getByText('Keybindings', { exact: true }).click()
+    const bold = settings.locator('.el-table__row').filter({
+      has: settings.getByText('Bold', { exact: true })
+    })
+    await bold.getByRole('button', { name: 'Edit', exact: true }).click()
+    const recorder = settings.locator('.input-textbox')
+    await expect(recorder).toBeFocused()
+    await recorder.press(`${isMac ? 'Meta' : 'Control'}+Shift+Equal`)
+    await recorder.press('Enter')
+    await expect(settings.getByText('Shortcut in use', { exact: true })).toBeVisible()
+    await expect(bold).toContainText(`${primary}+B`)
+  })
 })

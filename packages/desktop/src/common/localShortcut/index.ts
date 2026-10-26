@@ -4,14 +4,13 @@ import {
   acceleratorFromKeyEvent,
   equalKeyEvents,
   isValidKeyBinding,
-  KeyboardMapper,
   type KeyboardInput,
   type KeyboardLayout,
   type KeyboardMap,
   type KeyEvent
 } from './keymap'
+import { keyboardMapper as mapper } from './mapper'
 
-const mapper = new KeyboardMapper(process.platform)
 
 export const setKeyboardLayout = (
   layout: KeyboardLayout | null,

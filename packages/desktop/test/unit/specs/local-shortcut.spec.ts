@@ -26,6 +26,20 @@ describe.each(['darwin', 'win32', 'linux'])('shared recording and matching on %s
   const primary = platform === 'darwin' ? 'Command' : 'Ctrl'
   const flags = platform === 'darwin' ? { metaKey: true } : { ctrlKey: true }
 
+  it('detects literal-symbol conflicts with explicitly shifted chords', () => {
+    const mapper = new KeyboardMapper(platform)
+    for (const [symbol, base] of [['Plus', '='], ['&', '7'], ['?', '/']]) {
+      expect(equalKeyEvents(
+        mapper.normalizeBinding(toKeyEvent(`${primary}+${symbol}`, platform)),
+        mapper.normalizeBinding(toKeyEvent(`${primary}+Shift+${base}`, platform))
+      )).toBe(true)
+    }
+    expect(equalKeyEvents(
+      mapper.normalizeBinding(toKeyEvent(`${primary}+=`, platform)),
+      mapper.normalizeBinding(toKeyEvent(`${primary}+Shift+=`, platform))
+    )).toBe(false)
+  })
+
   it.each([
     ['7', 'Digit7'],
     ['/', 'Slash'],

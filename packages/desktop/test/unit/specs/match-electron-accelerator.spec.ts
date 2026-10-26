@@ -133,6 +133,13 @@ describe('Match combination for modifier and key', () => {
   )
 })
 
+it('detects literal-symbol aliases when checking shifted-chord conflicts', () => {
+  expect(isEqualAccelerator('Ctrl+Plus', 'Ctrl+Shift+=')).toBe(true)
+  expect(isEqualAccelerator('Ctrl+&', 'Ctrl+Shift+7')).toBe(true)
+  expect(isEqualAccelerator('Ctrl+?', 'Ctrl+Shift+/')).toBe(true)
+  expect(isEqualAccelerator('Ctrl+=', 'Ctrl+Shift+=')).toBe(false)
+})
+
 describe('Match non-character keys', () => {
   nonCharacterKeys.forEach((nonCharacterKey) =>
     it(`Should match ${nonCharacterKey}`, () => {

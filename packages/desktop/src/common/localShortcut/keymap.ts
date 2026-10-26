@@ -61,6 +61,20 @@ export class KeyboardMapper {
     this.layoutName = layout?.name || layout?.layout || layout?.id || 'us-default'
   }
 
+  /** Literal symbols can imply Shift on the active layout, so conflict checks must expand them. */
+  normalizeBinding(event: KeyEvent): KeyEvent {
+    if (!event.key || event.shift || (!event.ctrl && !event.meta)) return event
+    const characters = Object.values(this.keymap).find(
+      ({ value, withShift }) =>
+        value &&
+        withShift === event.key &&
+        value !== withShift &&
+        value.toUpperCase() === value.toLowerCase()
+    )
+    const base = characters?.value
+    return base ? { ...event, key: base, shift: true } : event
+  }
+
   normalize(event: KeyboardInput): KeyEvent | null {
     if (event.type !== 'keydown') return null
     const isMac = this.platform === 'darwin'

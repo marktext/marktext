@@ -9,6 +9,8 @@ The recorder and Electron window dispatcher share `KeyboardMapper`. Keeping them
 in one source module prevents shifted digit/punctuation recordings from becoming
 unreachable runtime accelerators (#4863). Platform and keyboard-layout inputs are
 explicit on the mapper so compatibility can be tested without changing the OS.
+Conflict checks use the same active mapper and recognize literal symbols such as
+`Ctrl+Plus` as equivalent to their explicit Shift chord on the current layout.
 
 The adapter retains layout-aware AltGr, dead-key, numpad, non-Latin and macOS
 Dvorak-QWERTY-Command handling. It adds strict TypeScript boundaries, preserves
