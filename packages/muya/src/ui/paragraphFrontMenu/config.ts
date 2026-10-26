@@ -23,7 +23,7 @@ export const FRONT_MENU = [
         icon: copyIcon,
         label: 'duplicate',
         text: 'Duplicate',
-        shortCut: isOsx ? '⌘⌥D' : isWin ? 'Ctrl+Alt+D' : 'Ctrl+Shift+E',
+        shortCut: isOsx ? '⇧⌘E' : isWin ? 'Ctrl+Alt+D' : 'Ctrl+Shift+E',
     },
     {
         icon: newIcon,

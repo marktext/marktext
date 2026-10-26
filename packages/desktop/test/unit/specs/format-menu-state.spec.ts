@@ -306,7 +306,7 @@ describe('menu template accelerators match the platform keybinding tables (Parag
 
     expect(isEqualAccelerator(accel(keybindingsDarwin, 'paragraph.heading-1'), 'Command+1')).toBe(true)
     expect(keybindingsWindows.get('paragraph.heading-1')).toBe('')
-    expect(isEqualAccelerator(accel(keybindingsDarwin, 'edit.duplicate'), 'Command+Option+D')).toBe(true)
+    expect(isEqualAccelerator(accel(keybindingsDarwin, 'edit.duplicate'), 'Shift+Command+E')).toBe(true)
     expect(isEqualAccelerator(accel(keybindingsLinux, 'edit.duplicate'), 'Ctrl+Shift+E')).toBe(true)
     expect(isEqualAccelerator(accel(keybindingsLinux, 'edit.find-next'), 'F3')).toBe(true)
     expect(isEqualAccelerator(accel(keybindingsDarwin, 'edit.find-next'), 'Cmd+G')).toBe(true)
