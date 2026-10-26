@@ -253,6 +253,15 @@ input.el-input__inner {
   box-shadow: 0 0 0 1px var(--themeColor) inset;
 }
 
+.input-focus-border:has(> input:focus):not(.error) {
+  border-color: var(--themeColor);
+}
+
+.mu-image-selector .input-container input:focus,
+.mu-table-picker .footer input:focus {
+  box-shadow: 0 0 0 1px var(--themeColor) inset;
+}
+
 .el-input-number.is-controls-right span.el-input-number__decrease,
 .el-input-number.is-controls-right span.el-input-number__increase {
   background: var(--buttonBgColor);

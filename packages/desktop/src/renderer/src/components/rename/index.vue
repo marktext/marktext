@@ -9,7 +9,7 @@
     >
       <template #title>
         <div class="search-wrapper">
-          <div class="input-wrapper">
+          <div class="input-wrapper input-focus-border">
             <input
               ref="search"
               v-model="tempName"
@@ -109,6 +109,8 @@ onBeforeUnmount(() => {
   & .input-wrapper {
     display: flex;
     width: 100%;
+    border: 1px solid var(--inputBgColor);
+    border-radius: 3px;
     & input {
       background: transparent;
     }

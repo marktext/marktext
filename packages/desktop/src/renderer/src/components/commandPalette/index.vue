@@ -10,7 +10,7 @@
     >
       <template #title>
         <div class="search-wrapper">
-          <div class="input-wrapper">
+          <div class="input-wrapper input-focus-border">
             <input
               ref="searchInput"
               v-model="query"

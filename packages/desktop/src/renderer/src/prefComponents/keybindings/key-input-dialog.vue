@@ -15,7 +15,7 @@
     >
       <template #title>
         <div class="key-input-wrapper">
-          <div class="input-wrapper">
+          <div class="input-wrapper input-focus-border">
             <input
               ref="inputTextbox"
               v-model="keybindingInputValue"
