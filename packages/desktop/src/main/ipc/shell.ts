@@ -1,6 +1,8 @@
-import { ipcMain, shell, clipboard, nativeImage } from 'electron'
+import { ipcMain, shell, clipboard } from 'electron'
 import log from 'electron-log'
 import * as plist from 'plist'
+import type { ClipboardImageWriteOptions } from '@shared/types/ipc'
+import { writeClipboardImage } from './clipboardImage'
 
 export const registerShellHandlers = (): void => {
   ipcMain.handle('mt::shell::open-external', async(_e, url: string) => {
@@ -39,17 +41,17 @@ export const registerShellHandlers = (): void => {
       return false
     }
   })
-  ipcMain.handle('mt::clipboard::write-image', (_e, png: Uint8Array) => {
-    try {
-      const image = nativeImage.createFromBuffer(Buffer.from(png))
-      if (image.isEmpty()) return false
-      clipboard.writeImage(image)
-      return true
-    } catch (err) {
-      log.error('clipboard.writeImage failed:', err)
-      return false
+  ipcMain.handle(
+    'mt::clipboard::write-image',
+    (event, png: Uint8Array, options?: ClipboardImageWriteOptions) => {
+      try {
+        return writeClipboardImage(event.sender.id, png, options)
+      } catch (err) {
+        log.error('clipboard.writeImage failed:', err)
+        return false
+      }
     }
-  })
+  )
 
   ipcMain.handle('mt::clipboard::read-text', () => {
     try {

@@ -29,6 +29,12 @@ export interface SaveDialogRequest {
   filters?: Array<{ name: string; extensions: string[] }>
 }
 
+export interface ClipboardImageWriteOptions {
+  ticket: number
+  text?: string
+  html?: string
+}
+
 export type PlantumlFetchResult =
   { ok: true; mime: string; data: Uint8Array } | { ok: false; error: string }
 
@@ -56,7 +62,13 @@ export interface IpcInvokeChannels {
   'mt::clipboard::guess-file-path': { args: []; ret: string | null }
   'mt::clipboard::read-text': { args: []; ret: string }
   'mt::link::fetch-html': { args: [url: string]; ret: string }
-  'mt::clipboard::write-image': { args: [png: Uint8Array]; ret: boolean }
+  'mt::clipboard::write-image': {
+    args: [png: Uint8Array, options?: ClipboardImageWriteOptions]
+    ret: boolean
+  }
+  'mt::clipboard::begin-image-copy': { args: [marker?: string]; ret: number | null }
+  'mt::clipboard::cancel-image-copy': { args: [ticket: number]; ret: void }
+  'mt::clipboard::read-image-source': { args: [src: string]; ret: PlantumlFetchResult }
   'mt::cmd::exists': { args: [name: string]; ret: boolean }
   'mt::diagram::fetch-plantuml': {
     args: [server: string, encoded: string, format: 'svg' | 'png']
@@ -106,7 +118,6 @@ export interface IpcInvokeChannels {
   // no need to pass windowId. Payload is the editor+project+layout snapshot.
   'update-buffer-state': { args: [payload: unknown]; ret: boolean }
 }
-
 
 export interface IpcSendChannels {
   'mt::cmd-add-folder': []
@@ -229,12 +240,10 @@ export interface IpcSendChannels {
   'window-toggle-always-on-top': [windowId: number]
 }
 
-
 export interface IpcSyncChannels {
   'mt::boot-info': { args: []; ret: BootInfo }
   'mt::paths::is-same-sync': { args: [a: string, b: string]; ret: boolean }
 }
-
 
 export interface IpcMainEventChannels {
   'mt::discard-and-close-window': [tabIds: string[]]
@@ -317,7 +326,6 @@ export interface IpcMainEventChannels {
   'settings::change-tab': [tab: string]
 }
 
-
 /**
  * Snapshot of the active OS keyboard layout, returned by
  * `mt::keybinding-get-keyboard-info`. Mirrors the runtime shape produced
@@ -342,7 +350,6 @@ export interface BootInfo {
   isUpdatable: boolean
   MARKDOWN_INCLUSIONS: string[]
 }
-
 
 export type InvokeArgs<K extends keyof IpcInvokeChannels> = IpcInvokeChannels[K]['args']
 export type InvokeRet<K extends keyof IpcInvokeChannels> = IpcInvokeChannels[K]['ret']

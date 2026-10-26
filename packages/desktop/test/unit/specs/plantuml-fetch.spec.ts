@@ -48,6 +48,15 @@ describe('fetchPlantumlImage', () => {
     expect(result.ok).toBe(false)
   })
 
+  it.each([undefined, 'application/octet-stream'])(
+    'keeps strict content type validation for PlantUML when the type is %s', async(contentType) => {
+      const fetchImpl = vi.fn<FetchLike>(async() => new Response(new Uint8Array([1, 2, 3]), {
+        headers: contentType ? { 'content-type': contentType } : {}
+      }))
+      expect((await fetchPlantumlImage(URL, fetchImpl)).ok).toBe(false)
+    }
+  )
+
   it('refuses a response that declares itself too large', async() => {
     const fetchImpl = vi.fn(async() =>
       respond('x', {
