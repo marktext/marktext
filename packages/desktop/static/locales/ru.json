@@ -777,7 +777,9 @@
       "importCustomThemes": "Импорт пользовательских тем",
       "importTheme": "Импортировать тему",
       "openFolder": "Открыть папку",
-      "openThemesFolder": "Открыть папку тем"
+      "openThemesFolder": "Открыть папку тем",
+      "customThemes": "Custom Themes",
+      "importFailed": "Could not import the theme."
     },
     "keybindings": {
       "title": "Горячие клавиши",

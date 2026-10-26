@@ -1,6 +1,7 @@
 import { type MenuItemConstructorOptions } from 'electron'
 import * as actions from '../actions/theme'
 import { t } from '../../i18n'
+import { listCustomThemes } from '../../themes'
 import type Preference from '../../preferences'
 
 // [i18nLabelKey, themeId] for each selectable theme. The menu label is
@@ -94,6 +95,28 @@ export default function(userPreference: Preference): MenuItemConstructorOptions 
       submenu: DARK_THEMES.map(themeRadio)
     }
   )
+
+  // Append user-imported custom themes (read from <userData>/themes).
+  const customThemes = listCustomThemes()
+  if (customThemes.length > 0) {
+    submenu.push(
+      { type: 'separator' },
+      {
+        label: t('preferences.theme.customThemes'),
+        enabled: false
+      },
+      ...customThemes.map((customTheme) => ({
+        label: customTheme.name,
+        type: 'radio' as const,
+        id: customTheme.id,
+        enabled: isThemeSelectionEnabled,
+        checked: theme === customTheme.id,
+        click() {
+          actions.selectTheme(customTheme.id)
+        }
+      }))
+    )
+  }
 
   return {
     label: t('menu.theme.theme'),

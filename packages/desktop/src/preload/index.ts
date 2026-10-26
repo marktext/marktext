@@ -236,6 +236,12 @@ const diagramAPI = {
     invoke('mt::diagram::fetch-plantuml', server, encoded, format)
 }
 
+const themesAPI = {
+  listCustom: () => invoke('mt::themes::list-custom'),
+  importCustom: () => invoke('mt::themes::import-custom'),
+  openFolder: () => invoke('mt::themes::open-folder')
+}
+
 const electronAPI = {
   ipcRenderer: ipcWrapper,
   shell: shellAPI,
@@ -290,6 +296,7 @@ try {
   contextBridge.exposeInMainWorld('uploader', uploaderAPI)
   contextBridge.exposeInMainWorld('fonts', fontsAPI)
   contextBridge.exposeInMainWorld('diagram', diagramAPI)
+  contextBridge.exposeInMainWorld('themes', themesAPI)
 } catch (error) {
   console.error(error)
 }
