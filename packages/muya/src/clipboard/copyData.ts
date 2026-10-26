@@ -405,18 +405,19 @@ export function writeClipboardData(
     const { html, text } = clipboard.getClipboardData();
 
     // Preserve the system clipboard when there is nothing to copy (#3130).
+    if (text.length === 0)
+        return;
+
     switch (copyType) {
-        case CopyType.NORMAL: {
-            if (text.length === 0)
-                return;
+        case CopyType.NORMAL:
+        case CopyType.COPY_AS_MARKDOWN:
+        case CopyType.COPY_CODE_CONTENT: {
             event.clipboardData.setData('text/html', '');
             event.clipboardData.setData('text/plain', text);
             break;
         }
 
         case CopyType.COPY_AS_HTML: {
-            if (text.length === 0)
-                return;
             event.clipboardData.setData('text/html', '');
             event.clipboardData.setData(
                 'text/plain',
@@ -429,25 +430,7 @@ export function writeClipboardData(
         }
 
         case CopyType.COPY_AS_RICH: {
-            if (text.length === 0)
-                return;
             event.clipboardData.setData('text/html', html);
-            event.clipboardData.setData('text/plain', text);
-            break;
-        }
-
-        case CopyType.COPY_AS_MARKDOWN: {
-            if (text.length === 0)
-                return;
-            event.clipboardData.setData('text/html', '');
-            event.clipboardData.setData('text/plain', text);
-            break;
-        }
-
-        case CopyType.COPY_CODE_CONTENT: {
-            if (text.length === 0)
-                return;
-            event.clipboardData.setData('text/html', '');
             event.clipboardData.setData('text/plain', text);
             break;
         }
