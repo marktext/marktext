@@ -87,8 +87,19 @@ describe('asynchronous block targets', () => {
 
     it('does not fall through to text paste when an image lookup outlives its target', async () => {
         const lookup = deferred<string>();
-        const { muya } = boot({ clipboardFilePath: () => lookup.promise });
-        const done = pastePlainText(muya.editor.clipboard, 'stale paste');
+        const clipboardFilePath = vi.fn(() => lookup.promise);
+        const { muya } = boot({ clipboardFilePath });
+        const event = {
+            preventDefault() {},
+            stopPropagation() {},
+            clipboardData: {
+                getData: (format: string) => format === 'text/plain' ? 'stale paste' : '',
+                files: [],
+                items: [],
+            },
+        } as unknown as ClipboardEvent;
+        const done = muya.editor.clipboard.pasteHandler(event);
+        expect(clipboardFilePath).toHaveBeenCalledOnce();
         muya.setContent('replacement');
         lookup.resolve('/pending.png');
         await done;
