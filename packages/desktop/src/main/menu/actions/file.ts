@@ -296,7 +296,7 @@ const saveDocument = async(
   const managed = getManagedOwner(e.sender)
   if (managed) {
     try {
-      await managed.host.requestCheckpoint(managed.windowId)
+      await managed.host.checkpointForSave(managed.windowId)
       const result = await managed.host.saveDocument(managed.windowId, id, saveAs)
       if (result.status !== 'saved') return result
       return { status: 'saved', pathname: result.document.resource.kind === 'file' ? result.document.resource.location.path : '', filename: result.document.title, savedMarkdown: result.savedMarkdown }

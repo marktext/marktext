@@ -55,6 +55,7 @@ export interface PreparedSessionWindow {
   rememberPaths?: string[]
 }
 interface PendingCheckpoint {
+  requirePersisted: boolean
   transactionId: string
   resolve(snapshot: WindowSnapshot): void
   reject(error: Error): void
@@ -325,7 +326,11 @@ export class SessionHost {
     )
     for (const window of prepared) await this.attachPrepared(window)
     for (const window of prepared) this.startupWindowIds.add(window.snapshot.id)
-    this.startupActiveId = prepared.some(window => window.snapshot.id === previous.session.activeWindowId) ? previous.session.activeWindowId : null
+    this.startupActiveId = prepared.some(
+      (window) => window.snapshot.id === previous.session.activeWindowId
+    )
+      ? previous.session.activeWindowId
+      : null
     for (const window of prepared) create(window)
   }
 
@@ -504,7 +509,14 @@ export class SessionHost {
       contents.push({ documentId: document.id, markdown: '' })
     }
     snapshot.activeDocumentId = snapshot.documents[0].id
-    return { snapshot, contents, restoreGeometry: false, statuses: [], openable: true, rememberPaths: files }
+    return {
+      snapshot,
+      contents,
+      restoreGeometry: false,
+      statuses: [],
+      openable: true,
+      rememberPaths: files
+    }
   }
 
   private async prepareExplicitWorkspace(
@@ -544,7 +556,7 @@ export class SessionHost {
         log.warn(error)
       }
     }
-    prepared.rememberPaths = [...workspace.roots.map(root => root.location.path), ...files]
+    prepared.rememberPaths = [...workspace.roots.map((root) => root.location.path), ...files]
     return prepared
   }
 
@@ -583,7 +595,8 @@ export class SessionHost {
       if (document.resource.kind === 'file' && !document.resource.pendingCreation)
         editor.addToOpenedFiles(document.resource.location.path)
     }
-    for (const pathname of prepared.rememberPaths ?? []) this.accessor.menu.addRecentlyUsedDocument(pathname)
+    for (const pathname of prepared.rememberPaths ?? [])
+      this.accessor.menu.addRecentlyUsedDocument(pathname)
     const updateGeometry = (): void => {
       if (native.isDestroyed() || !this.owner().getWindow(id)) return
       const geometry = captureWindowGeometry(native, displays(), primary())
@@ -683,7 +696,11 @@ export class SessionHost {
               document.resource.kind === 'file' && document.resource.location.key === location.key
           )
         if (existing) {
-          this.native(id).webContents.send('mt::switch-tab-by-file_path', existing.resource.kind === 'file' ? existing.resource.location.path : pathname, options)
+          this.native(id).webContents.send(
+            'mt::switch-tab-by-file_path',
+            existing.resource.kind === 'file' ? existing.resource.location.path : pathname,
+            options
+          )
           return
         }
         const loaded = await this.readDocument(pathname, options)
@@ -736,10 +753,13 @@ export class SessionHost {
   ): Promise<DocumentSnapshot> {
     const snapshot = this.owner().getWindow(windowId)
     if (!snapshot) throw new Error('Unknown window')
-    const maximum = snapshot.documents.reduce((maximum, document) => {
-      const match = /^Untitled-(\d+)$/.exec(document.title)
-      return Math.max(maximum, match ? Number(match[1]) : 0)
-    }, this.untitledNumbers.get(windowId) ?? 0)
+    const maximum = snapshot.documents.reduce(
+      (maximum, document) => {
+        const match = /^Untitled-(\d+)$/.exec(document.title)
+        return Math.max(maximum, match ? Number(match[1]) : 0)
+      },
+      this.untitledNumbers.get(windowId) ?? 0
+    )
     this.untitledNumbers.set(windowId, maximum + 1)
     const document = this.blankDocument(markdown, title || `Untitled-${maximum + 1}`)
     const result = await this.owner().addDocument(windowId, document, markdown)
@@ -801,22 +821,41 @@ export class SessionHost {
   }
 
   requestCheckpoint(windowId: string, transactionId = createStateId()): Promise<WindowSnapshot> {
+    return this.enqueueCheckpoint(windowId, transactionId, true)
+  }
+
+  /** Manual file saves can use validated live text when recovery storage is unavailable. */
+  checkpointForSave(windowId: string): Promise<WindowSnapshot> {
+    return this.enqueueCheckpoint(windowId, createStateId(), false)
+  }
+
+  private enqueueCheckpoint(
+    windowId: string,
+    transactionId: string,
+    requirePersisted: boolean
+  ): Promise<WindowSnapshot> {
     const result = (this.checkpointQueues.get(windowId) ?? Promise.resolve())
       .catch(() => {})
-      .then(() => this.checkpointNow(windowId, transactionId))
+      .then(() => this.checkpointNow(windowId, transactionId, requirePersisted))
     this.checkpointQueues.set(windowId, result)
     return result
   }
 
-  private async checkpointNow(windowId: string, transactionId: string): Promise<WindowSnapshot> {
+  private async checkpointNow(
+    windowId: string,
+    transactionId: string,
+    requirePersisted: boolean
+  ): Promise<WindowSnapshot> {
     this.geometryWriters.get(windowId)?.flush()
     if (!this.rendererReady.has(windowId) || this.rendererUnavailable.has(windowId)) {
       const context = this.contexts.get(windowId)
       if (!context) throw new Error('Missing renderer context')
       const result = await this.owner().flush(windowId, context.contextToken)
       const snapshot = this.owner().getWindow(windowId)
-      if (result.status !== 'persisted' || !snapshot)
-        throw new Error('Initial checkpoint unavailable')
+      const accepted =
+        result.status === 'persisted' ||
+        (!requirePersisted && result.reason === 'storage-unavailable')
+      if (!accepted || !snapshot) throw new Error('Initial checkpoint unavailable')
       return snapshot
     }
     const existing = this.waiting.get(windowId)
@@ -830,7 +869,7 @@ export class SessionHost {
         void this.owner().cancelCloseCheckpoint(windowId, transactionId)
         reject(new Error('The editor did not finish its recovery checkpoint'))
       }, 10000)
-      this.waiting.set(windowId, { transactionId, resolve, reject, timeout })
+      this.waiting.set(windowId, { transactionId, resolve, reject, timeout, requirePersisted })
       this.native(windowId).webContents.send('mt::state::prepare-close', {
         contextToken: context.contextToken,
         transactionId
@@ -972,7 +1011,7 @@ export class SessionHost {
       if (result.status === 'cancelled') return { status: 'canceled' }
       if (result.status !== 'persisted') {
         this.report(new Error('Recovery metadata unavailable after save'), windowId)
-        return { status: 'failed' }
+        if (result.reason !== 'storage-unavailable') return { status: 'failed' }
       }
       const saved = this.owner().getDocument(documentId)
       this.statuses.set(
@@ -994,7 +1033,11 @@ export class SessionHost {
       this.native(windowId).webContents.send('mt::state::document-saved', response)
       return response
     } catch (error) {
-      this.native(windowId).webContents.send('mt::tab-save-failure', documentId, error instanceof Error ? error.message : String(error))
+      this.native(windowId).webContents.send(
+        'mt::tab-save-failure',
+        documentId,
+        error instanceof Error ? error.message : String(error)
+      )
       this.report(error, windowId)
       return { status: 'failed' }
     } finally {
@@ -1247,7 +1290,10 @@ export class SessionHost {
         this.rendererReady.add(owner.windowId)
         const editor = this.editors.get(owner.windowId)
         if (editor?.browserWindow && !editor.browserWindow.isVisible()) editor.bringToFront()
-        if (this.startupWindowIds.size && [...this.startupWindowIds].every(id => this.rendererReady.has(id))) {
+        if (
+          this.startupWindowIds.size &&
+          [...this.startupWindowIds].every((id) => this.rendererReady.has(id))
+        ) {
           if (this.startupActiveId) this.editors.get(this.startupActiveId)?.bringToFront()
           this.startupWindowIds.clear()
           this.startupActiveId = null
@@ -1317,7 +1363,10 @@ export class SessionHost {
           this.waiting.delete(id)
           await this.owner().cancelCloseCheckpoint(id, pending.transactionId)
           const snapshot = this.owner().getWindow(id)
-          if (result.status === 'persisted' && snapshot) pending.resolve(snapshot)
+          const accepted =
+            result.status === 'persisted' ||
+            (!pending.requirePersisted && result.reason === 'storage-unavailable')
+          if (accepted && snapshot) pending.resolve(snapshot)
           else pending.reject(new Error('Final checkpoint was not persisted'))
         }
         return result

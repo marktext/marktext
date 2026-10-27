@@ -294,7 +294,12 @@ class WindowSession {
     this.pendingRestoreId = active?.id ?? null
     await nextTick()
     await this.restoreActiveView()
-    if (initialized.startupWarning) notice.notify({ title: t('sideBar.tree.unavailableFolder'), type: 'warning', message: initialized.startupWarning })
+    if (initialized.startupWarning)
+      notice.notify({
+        title: t('sideBar.tree.unavailableFolder'),
+        type: 'warning',
+        message: initialized.startupWarning
+      })
     if (initialized.persistenceAvailable === false)
       this.failure(new Error('Recovery storage unavailable'))
     this.schedule()
@@ -482,7 +487,11 @@ class WindowSession {
 
   private async save(id: string, saveAs = false): Promise<SaveDocumentResult> {
     const checkpoint = await this.flush()
-    if (checkpoint.status !== 'persisted' || !this.context) return { status: 'failed' }
+    if (
+      !this.context ||
+      (checkpoint.status !== 'persisted' && checkpoint.reason !== 'storage-unavailable')
+    )
+      return { status: 'failed' }
     const result = await window.electron.ipcRenderer.invoke(
       'mt::state::save-document',
       this.context.contextToken,

@@ -735,3 +735,60 @@ test('external reload stays clean and deleting the disk file retains recoverable
     rmSync(directory, { recursive: true, force: true })
   }
 })
+
+for (const route of ['renderer', 'native-adapter'] as const) {
+  test(`manual Save remains available with read-only damaged recovery metadata: ${route}`, async() => {
+    const directory = mkdtempSync(join(tmpdir(), 'mt-session-manual-save-'))
+    const destination = join(directory, 'manual-save.md')
+    const { app, page } = await launchElectron([], {
+      userDataDir: directory,
+      preferences: { language: 'en' },
+      suppressErrorDialog: true,
+      userDataFiles: { 'state/application-state.json': '{protected damaged metadata' }
+    })
+    try {
+      await page
+        .getByRole('textbox', { name: 'Document', exact: true })
+        .fill('Manually saved despite unavailable recovery')
+      await app.evaluate(({ dialog }, destination) => {
+        dialog.showSaveDialog = async() => ({ canceled: false, filePath: destination })
+      }, destination)
+      if (route === 'renderer') await sendIpcToRenderer(app, 'mt::editor-ask-file-save-as')
+      else {
+        const result = await page.evaluate(async() => {
+          const root = document.querySelector('#app') as Element & {
+            __vue_app__: {
+              config: {
+                globalProperties: { $pinia: { _s: Map<string, { currentFile: { id: string } }> } }
+              }
+            }
+          }
+          const id =
+            root.__vue_app__.config.globalProperties.$pinia._s.get('editor')!.currentFile.id
+          return window.electron.ipcRenderer.invoke(
+            'mt::response-file-save',
+            id,
+            'ignored',
+            '/ignored.md',
+            'untrusted body',
+            {},
+            ''
+          )
+        })
+        expect(result.status).toBe('saved')
+      }
+      await expect.poll(() => existsSync(destination)).toBe(true)
+      expect(readFileSync(destination, 'utf8').trim()).toBe(
+        'Manually saved despite unavailable recovery'
+      )
+      expect(readFileSync(join(directory, 'state', 'application-state.json'), 'utf8')).toBe(
+        '{protected damaged metadata'
+      )
+      await expect(page.locator('.tabs-container > li.unsaved')).toHaveCount(0)
+      await expectNoRendererErrors(app)
+    } finally {
+      await stop(app)
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+}

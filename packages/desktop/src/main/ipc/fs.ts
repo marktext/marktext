@@ -52,7 +52,8 @@ export const registerFsHandlers = (): void => {
   ipcMain.handle('mt::fs::move', (event, src: string, dest: string) => {
     const owner = getManagedOwner(event.sender)
     const move = () => fs.move(src, dest, { overwrite: false })
-    return owner ? owner.host.moveResource(owner.windowId, src, dest, move) : move()
+    if (owner) return owner.host.moveResource(owner.windowId, src, dest, move)
+    return move()
   })
   ipcMain.handle('mt::fs::stat', async(_e, p: string) => serializeStat(await fs.stat(p)))
 
