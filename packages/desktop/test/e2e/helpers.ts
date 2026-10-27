@@ -103,6 +103,13 @@ export const launchElectron = async(
     env,
     timeout: 30000
   })
+  // Fixture cleanup must not wait for save prompts. Test user-driven shutdown
+  // through BrowserWindow.close() or app.quit() instead of app.close().
+  const closeApp = app.close.bind(app)
+  app.close = async() => {
+    await app.evaluate(({ app }) => app.exit(0)).catch(() => {})
+    await closeApp()
+  }
   if (options.suppressErrorDialog) await installRendererErrorCounter(app)
   const page = await app.firstWindow()
   await page.waitForLoadState('domcontentloaded')
