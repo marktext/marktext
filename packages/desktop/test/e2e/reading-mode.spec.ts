@@ -363,7 +363,11 @@ test('native selection and copying retain Markdown and rich HTML while reading',
     await page.keyboard.press(process.platform === 'darwin' ? 'Meta+c' : 'Control+c')
     await expect.poll(() => app.evaluate(({ clipboard }) => clipboard.readText())).toContain('**bold**')
     await sendIpcToRenderer(app, 'mt::editor-edit-action', 'copyAsRich')
-    await expect.poll(() => app.evaluate(({ clipboard }) => clipboard.readHTML())).toContain('<strong>bold</strong>')
+    await expect.poll(() => app.evaluate(async({ clipboard }) => {
+      const items = await clipboard.read()
+      const item = items.find((entry) => entry.types.includes('text/html'))
+      return item ? (await item.getType('text/html')).text() : ''
+    })).toContain('<strong>bold</strong>')
     expect(readFileSync(filePath, 'utf8')).toBe('**bold** and [link](https://example.com)\n')
     await expect(page.locator('.tabs-container li.unsaved')).toHaveCount(0)
   } finally {

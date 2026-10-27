@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
+import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { launchElectron } from './helpers'
 
 test.describe('media IPC bridge', () => {
@@ -78,6 +82,31 @@ test.describe('media IPC bridge', () => {
     })
 
     expect(written).toBe(true)
-    expect(await app.evaluate(({ clipboard }) => !clipboard.readImage().isEmpty())).toBe(true)
+    expect(await app.evaluate(({ clipboard }) => clipboard.has('image/png'))).toBe(true)
+  })
+
+  test('Unicode text round-trips through the clipboard bridge', async() => {
+    const text = 'MarkText 剪贴板 📝'
+    expect(await page.evaluate((value) => window.electron.clipboard.writeText(value), text)).toBe(
+      true
+    )
+    expect(await page.evaluate(() => window.electron.clipboard.readText())).toBe(text)
+  })
+
+  test('native copied files retain Unicode, spaces and URL characters', async() => {
+    const dir = mkdtempSync(join(tmpdir(), 'marktext-clipboard-'))
+    const file = join(dir, '图片 #1.png')
+    writeFileSync(file, '')
+    try {
+      await app.evaluate(
+        ({ clipboard, ClipboardItem }, uri) =>
+          clipboard.write([new ClipboardItem({ 'text/uri-list': uri })]),
+        pathToFileURL(file).href
+      )
+      expect(await page.evaluate(() => window.electron.clipboard.guessFilePath())).toBe(file)
+    } finally {
+      await app.evaluate(({ clipboard }) => clipboard.clear())
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })

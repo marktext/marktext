@@ -25,7 +25,6 @@ declare module 'codemirror/lib/*'
 declare module 'codemirror/mode/*'
 declare module 'codemirror/addon/*'
 declare module 'electron-window-state'
-declare module 'plist'
 declare module 'webfontloader'
 
 declare module '@marktext/file-icons' {

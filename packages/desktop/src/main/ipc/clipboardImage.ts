@@ -2,57 +2,82 @@ import { createHash } from 'node:crypto'
 import { readFile, stat } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { extname } from 'node:path'
-import { clipboard, ipcMain, nativeImage, net } from 'electron'
+import { clipboard, ClipboardItem, ipcMain, nativeImage, net } from 'electron'
 import type { ClipboardImageWriteOptions, PlantumlFetchResult } from '@shared/types/ipc'
 import { fetchImage, MAX_BYTES } from './plantumlFetch'
 
 let requestId = 0
 let pending: { id: number; owner: number; fingerprint: string } | null = null
+let clipboardQueue = Promise.resolve()
+
+// Native reads yield to other IPC handlers; keep ticket operations in arrival order.
+const withClipboard = <T>(operation: () => Promise<T>): Promise<T> => {
+  const result = clipboardQueue.then(operation)
+  clipboardQueue = result.then(
+    () => {},
+    () => {}
+  )
+  return result
+}
 
 // A newer bitmap-only copy need not change the clipboard's plain text.
-const clipboardFingerprint = (): string => {
+const clipboardFingerprint = async(items: Electron.ClipboardItem[]): Promise<string> => {
   const hash = createHash('sha256')
-  for (const format of clipboard.availableFormats().sort()) {
-    hash.update(format)
-    hash.update(clipboard.readBuffer(format))
+  for (const item of items) {
+    for (const format of [...item.types].sort()) {
+      hash.update(format)
+      const data = await item.getType(format)
+      hash.update(
+        data instanceof Blob ? new Uint8Array(await data.arrayBuffer()) : JSON.stringify(data)
+      )
+    }
   }
   return hash.digest('hex')
 }
 
-export const beginImageCopy = (owner: number, marker?: string): number | null => {
-  if (marker && !clipboard.readHTML().includes(`data-marktext-copy="${marker}"`)) return null
-  const id = ++requestId
-  pending = { id, owner, fingerprint: clipboardFingerprint() }
-  return id
-}
+export const beginImageCopy = (owner: number, marker?: string): Promise<number | null> =>
+  withClipboard(async() => {
+    const items = await clipboard.read()
+    if (marker) {
+      const item = items.find((entry) => entry.types.includes('text/html'))
+      const html = item ? await (await item.getType('text/html')).text() : ''
+      if (!html.includes(`data-marktext-copy="${marker}"`)) return null
+    }
+    const id = ++requestId
+    pending = { id, owner, fingerprint: await clipboardFingerprint(items) }
+    return id
+  })
 
-export const cancelImageCopy = (owner: number, ticket: number): void => {
-  if (pending?.id === ticket && pending.owner === owner) pending = null
-}
+export const cancelImageCopy = (owner: number, ticket: number): Promise<void> =>
+  withClipboard(async() => {
+    if (pending?.id === ticket && pending.owner === owner) pending = null
+  })
 
 export const writeClipboardImage = (
   owner: number,
   png: Uint8Array,
   options?: ClipboardImageWriteOptions
-): boolean => {
-  if (options?.ticket !== undefined) {
-    if (
-      pending?.id !== options.ticket ||
-      pending.owner !== owner ||
-      pending.fingerprint !== clipboardFingerprint()
-    )
-      return false
-  }
-  const image = nativeImage.createFromBuffer(Buffer.from(png))
-  if (image.isEmpty()) return false
-  pending = null
-  if (options?.text !== undefined || options?.html !== undefined) {
-    clipboard.write({ image, text: options.text, html: options.html })
-  } else {
-    clipboard.writeImage(image)
-  }
-  return true
-}
+): Promise<boolean> =>
+  withClipboard(async() => {
+    if (options?.ticket !== undefined) {
+      if (
+        pending?.id !== options.ticket ||
+        pending.owner !== owner ||
+        pending.fingerprint !== (await clipboardFingerprint(await clipboard.read()))
+      )
+        return false
+    }
+    const image = nativeImage.createFromBuffer(Buffer.from(png))
+    if (image.isEmpty()) return false
+    pending = null
+    const data: Record<string, Blob | string> = {
+      'image/png': new Blob([new Uint8Array(image.toPNG())], { type: 'image/png' })
+    }
+    if (options?.text !== undefined) data['text/plain'] = options.text
+    if (options?.html !== undefined) data['text/html'] = options.html
+    await clipboard.write([new ClipboardItem(data)])
+    return true
+  })
 
 export const readClipboardImageSource = async(src: string): Promise<PlantumlFetchResult> => {
   try {

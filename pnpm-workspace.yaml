@@ -9,6 +9,8 @@ packages:
 overrides:
   postcss: '8.5.29'
   'esbuild@>=0.27.0 <0.28.1': '0.28.1'
+  # Electron 45 needs an ABI mapping newer than rebuild's locked dependency.
+  '@electron/rebuild>node-abi': '4.40.0'
 
 allowBuilds:
   ced: true

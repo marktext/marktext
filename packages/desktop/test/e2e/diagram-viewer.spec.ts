@@ -599,7 +599,7 @@ test.describe('diagram viewer', () => {
 
     await page.locator('.media-viewer-toolbar button').nth(6).click()
     await expect
-      .poll(() => app.evaluate(({ clipboard }) => !clipboard.readImage().isEmpty()), {
+      .poll(() => app.evaluate(({ clipboard }) => clipboard.has('image/png')), {
         timeout: 20000
       })
       .toBe(true)

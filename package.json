@@ -6,7 +6,7 @@
   "homepage": "https://github.com/marktext/marktext",
   "packageManager": "pnpm@10.33.4",
   "engines": {
-    "node": ">=20.19.0",
+    "node": ">=22.12.0",
     "pnpm": ">=10"
   },
   "scripts": {
@@ -54,7 +54,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^8.0.7",
     "@eslint/js": "^10.0.1",
-    "electron": "~42.1.0",
+    "electron": "~45.0.0",
     "eslint": "^10.12.0",
     "eslint-plugin-html": "^8.2.1",
     "eslint-plugin-i18n-json": "^4.0.1",

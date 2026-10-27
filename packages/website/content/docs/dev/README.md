@@ -10,7 +10,7 @@ Run the commands below from the repository root. Desktop scripts proxy to `packa
 
 - Python 3 for native dependency builds; release CI selects Python 3.12
 
-- Node.js (`>=20.19.0`) — the PR build CI uses Node 22.21.1, the release CI uses Node 24.14.1
+- Node.js (`>=22.12.0`) — the PR build CI uses Node 22.21.1, the release CI uses Node 24.14.1
 
 - pnpm `>=10`; use the version pinned in the root `package.json` (`packageManager`).
 

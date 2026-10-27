@@ -15,7 +15,7 @@ After installing, MarkText registers itself as a handler for `.md`, `.markdown`,
 
 ## macOS
 
-The current application requires macOS 12 (Monterey) or later; see [supported platforms](FAQ.md#what-are-the-supported-platforms).
+The current application requires macOS 13 (Ventura) or later; see [supported platforms](FAQ.md#what-are-the-supported-platforms).
 
 | Artifact                            | When to choose                    |
 | ----------------------------------- | --------------------------------- |
