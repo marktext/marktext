@@ -16,7 +16,9 @@ const resize = async(width: number): Promise<void> => {
 }
 
 test.beforeAll(async() => {
-  const launched = await launchWithMarkdown(markdown, { preferences: { language: 'en', sideBarVisibility: true } })
+  const launched = await launchWithMarkdown(markdown, {
+    preferences: { language: 'en', sideBarVisibility: true, tabBarVisibility: true }
+  })
   app = launched.app
   page = launched.page
   await waitForEditor(page)

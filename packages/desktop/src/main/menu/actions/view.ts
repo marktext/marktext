@@ -13,12 +13,6 @@ const toggleTypeMode = (win: Win, type: string): void => {
   }
 }
 
-const setLayout = (win: Win, type: string, value: unknown): void => {
-  if (win && win.webContents) {
-    win.webContents.send('mt::set-view-layout', { [type]: value })
-  }
-}
-
 const toggleLayout = (win: Win, type: string): void => {
   if (win && win.webContents) {
     win.webContents.send('mt::toggle-view-layout-entry', type)
@@ -57,10 +51,6 @@ export const toggleSidebar = (win: Win): void => {
 
 export const toggleTabBar = (win: Win): void => {
   toggleLayout(win, 'showTabBar')
-}
-
-export const showTabBar = (win: Win): void => {
-  setLayout(win, 'showTabBar', true)
 }
 
 export const showTableOfContents = (win: Win): void => {

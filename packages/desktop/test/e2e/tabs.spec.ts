@@ -289,7 +289,9 @@ test.describe('Tab management', () => {
   // the user can't see which tab they're on. Runs in its own app because it
   // opens many tabs to force horizontal overflow.
   test('Switching to an overflowed tab scrolls it into view', async() => {
-    const launch = await launchWithMarkdown('# overflow base\n')
+    const launch = await launchWithMarkdown('# overflow base\n', {
+      preferences: { tabBarVisibility: true }
+    })
     const sApp = launch.app
     const sPage = launch.page
     try {
