@@ -28,27 +28,9 @@ import BlockQuote from '../../commonMark/blockQuote';
 import OrderList from '../../commonMark/orderList';
 import TaskList from '../../gfm/taskList';
 import { convertGithubAlert } from '../../githubAlerts';
+import { moveListItems } from '../../listOperations';
+import { convertIndentedParagraphs } from '../../paragraphIndentation';
 import { ScrollPage } from '../../scrollPage';
-
-type TListBlock = BulletList | OrderList | TaskList;
-
-// Markdown continues a list only while items keep the same bullet or ordered
-// delimiter.
-function listMarker(list: TListBlock): string {
-    return 'delimiter' in list.meta ? list.meta.delimiter : list.meta.marker;
-}
-
-// Unordered lists return undefined; ordered task lists also require rebasing when split.
-function orderedListStart(list: TListBlock): number | undefined {
-    if (list instanceof OrderList)
-        return list.meta.start;
-
-    if (list.blockName !== 'task-list')
-        return undefined;
-
-    const { meta } = list as TaskList;
-    return meta.ordered ? meta.start : undefined;
-}
 
 enum UnindentType {
     INDENT,
@@ -63,10 +45,6 @@ function isListBlock(block: Nullable<Parent>): block is Parent {
     return block?.blockName === 'bullet-list'
         || block?.blockName === 'order-list'
         || block?.blockName === 'task-list';
-}
-
-function holdsItemKind(list: Parent, listItem: Parent) {
-    return (list.blockName === 'task-list') === (listItem.blockName === 'task-list-item');
 }
 
 const debug = logger('paragraph:content');
@@ -799,8 +777,6 @@ class ParagraphContent extends Format {
 
         const { start, end } = cursor;
 
-        const cursorParagraphOffset = listItem.offset(parent);
-
         if (type === UnindentType.REPLACEMENT) {
             const paragraph = parent.clone() as Paragraph;
             listParent.insertBefore(paragraph, list);
@@ -813,187 +789,18 @@ class ParagraphContent extends Format {
             this._placeCursorIn(paragraph, start.offset, end.offset);
         }
         else if (type === UnindentType.INDENT) {
-            const listAsList = list as TListBlock;
-            const newListItem = this._insertOutdentedListItem(listItem, listParent, listAsList);
-
-            // Only remaining sibling items belong in the nested list.
-            if (
-                listItem.next
-                && newListItem.lastChild!.blockName !== list.blockName
-            ) {
-                const state = {
-                    name: list.blockName,
-                    meta: { ...listAsList.meta },
-                    children: [],
-                };
-                const childList = ScrollPage.loadBlock(state.name).create(
-                    this.muya,
-                    state,
-                );
-                newListItem.append(childList, ChangeSource.User);
-            }
-
-            if (listItem.next) {
-                const offset = list.offset(listItem);
-
-                list.forEachAt(offset + 1, undefined, (node) => {
-                    if (node.isParent()) {
-                        (newListItem.lastChild as Parent).append(
-                            node.clone() as Parent,
-                            ChangeSource.User,
-                        );
-                    }
-                    node.remove();
-                });
-            }
-
-            if (list.next) {
-                const offset = listParent.offset(list);
-                listParent.forEachAt(offset + 1, undefined, (node) => {
-                    if (node.isParent()) {
-                        // Blocks that followed the nested list are the list
-                        // item's own trailing content (paragraphs etc.), not
-                        // list items — putting them inside a list block
-                        // corrupts the state and the next composed op crashes
-                        // ot-json1 (#4899). Append them to the item itself.
-                        newListItem.append(node.clone() as Parent, ChangeSource.User);
-                    }
-                    node.remove();
-                });
-            }
-
-            if (listItem.isOnlyChild())
-                list.remove();
-            else
-                listItem.remove();
-
-            if (newListItem == null) {
-                debug.error('newListItem is null');
-                return;
-            }
-
-            this._placeCursorIn(
-                newListItem.find(cursorParagraphOffset) as Parent,
-                start.offset,
-                end.offset,
-            );
+            const replacements = moveListItems([listItem], 'outdent');
+            replacements?.get(this)?.setCursor(start.offset, end.offset, true);
         }
-    }
-
-    // Outdenting into a list of another kind requires rebuilding its item shape.
-    private _insertOutdentedListItem(listItem: Parent, parentItem: Parent, nestedList: TListBlock): Parent {
-        const outerList = parentItem.parent as TListBlock;
-
-        if (listItem.blockName === parentItem.blockName) {
-            const newListItem = listItem.clone() as Parent;
-            outerList.insertAfter(newListItem, parentItem);
-
-            return newListItem;
-        }
-
-        const { muya } = this;
-        const container = outerList.parent!;
-
-        let tailList: Parent | null = null;
-        if (parentItem.next) {
-            const offset = outerList.offset(parentItem);
-            const tailItems: Parent[] = [];
-            outerList.forEachAt(offset + 1, undefined, node => tailItems.push(node as Parent));
-            const outerStart = orderedListStart(outerList);
-            const meta = outerStart !== undefined
-                ? { ...outerList.meta, start: outerStart + offset + 1 }
-                : { ...outerList.meta };
-            tailList = ScrollPage.loadBlock(outerList.blockName).create(muya, {
-                name: outerList.blockName,
-                meta,
-                children: tailItems.map(node => node.getState()),
-            });
-            tailItems.forEach(node => node.remove());
-        }
-
-        const following = outerList.next as Nullable<TListBlock>;
-        if (
-            !tailList
-            && following?.blockName === nestedList.blockName
-            && orderedListStart(nestedList) === undefined
-            && listMarker(following) === listMarker(nestedList)
-        ) {
-            const newListItem = listItem.clone() as Parent;
-            following.insertBefore(newListItem, following.firstChild as Parent);
-
-            return newListItem;
-        }
-
-        // With the same marker the new list is still part of the outer
-        // markdown list, so it shares that list's looseness.
-        const loose = listMarker(outerList) === listMarker(nestedList)
-            ? outerList.meta.loose
-            : nestedList.meta.loose;
-        const nestedStart = orderedListStart(nestedList);
-        const meta = nestedStart !== undefined
-            ? { ...nestedList.meta, loose, start: nestedStart + nestedList.offset(listItem) }
-            : { ...nestedList.meta, loose };
-        const newList: Parent = ScrollPage.loadBlock(nestedList.blockName).create(muya, {
-            name: nestedList.blockName,
-            meta,
-            children: [listItem.getState()],
-        });
-        container.insertAfter(newList, outerList);
-        if (tailList)
-            container.insertAfter(tailList, newList);
-
-        return newList.firstChild as Parent;
-    }
-
-    // A sublist of the other item kind that shares the marker is still the same
-    // markdown list, so a new list placed after it must share its looseness to
-    // reopen unchanged.
-    private _indentedListMeta(list: TListBlock, previousChild: Nullable<Parent>) {
-        const meta = { ...list.meta };
-        if (isListBlock(previousChild)) {
-            const sublist = previousChild as TListBlock;
-            if (listMarker(sublist) === listMarker(list))
-                meta.loose = sublist.meta.loose;
-        }
-
-        return meta;
     }
 
     private _indentListItem() {
-        const { parent, muya } = this;
-        const listItem = parent?.parent;
-        const list = listItem?.parent;
-        const prevListItem = listItem?.prev;
-        const { start, end } = this.getCursor()!;
-
-        if (parent == null || listItem == null || list == null)
+        const listItem = this.parent?.parent;
+        const cursor = this.getCursor();
+        if (!listItem || !cursor)
             return;
-
-        const offset = listItem.offset(parent);
-
-        // Join the previous item's trailing sublist only when it holds this
-        // item's kind; a task item never goes into a bullet list or the other
-        // way round (#5349).
-        let newList = prevListItem?.lastChild as Nullable<Parent>;
-
-        if (!isListBlock(newList) || !holdsItemKind(newList, listItem)) {
-            const state = {
-                name: list.blockName,
-                meta: this._indentedListMeta(list as TListBlock, newList),
-                children: [listItem.getState()],
-            };
-            newList = ScrollPage.loadBlock(state.name).create(muya, state);
-            prevListItem!.append(newList as Parent, ChangeSource.User);
-        }
-        else {
-            (newList as Parent).append(listItem.clone() as Parent, ChangeSource.User);
-        }
-
-        listItem.remove();
-
-        const matched = ((newList as Parent).lastChild as Parent).find(offset) as Parent | undefined;
-        const cursorBlock = matched?.firstContentInDescendant();
-        cursorBlock?.setCursor(start.offset, end.offset, true);
+        const replacements = moveListItems([listItem], 'indent');
+        replacements?.get(this)?.setCursor(cursor.start.offset, cursor.end.offset, true);
     }
 
     private _checkCursorAtEndFormat(): Nullable<{ offset: number }> {
@@ -1046,9 +853,16 @@ class ParagraphContent extends Format {
 
         if (event.shiftKey) {
             const unindentType = this._getUnindentType();
+            const lineStart = start.offset === 0 ? 0 : this.text.lastIndexOf('\n', start.offset - 1) + 1;
+            const isInLeadingWhitespace = /^[ \t]*$/.test(this.text.slice(lineStart, start.offset));
 
-            if (unindentType != null)
+            if (unindentType != null) {
                 this._unindentListItem(unindentType);
+            }
+            else if (!this.isCollapsed || isInLeadingWhitespace) {
+                this.insertTab(true);
+                convertIndentedParagraphs([this], this.getCursor()!);
+            }
 
             return;
         }
@@ -1073,6 +887,7 @@ class ParagraphContent extends Format {
             return;
 
         this.insertTab();
+        convertIndentedParagraphs([this], this.getCursor()!);
     }
 }
 

@@ -20,7 +20,7 @@ import {
     isKeyboardEvent,
     isMouseEvent,
 } from '../../utils';
-import { tabText } from '../../utils/tab';
+import { editTab } from '../../utils/tab';
 import { isFoldableHeading } from '../commonMark/atxHeading/foldSection';
 import { revealBlock } from '../folding';
 
@@ -827,20 +827,14 @@ class Content extends TreeNode {
         return { text, needRender };
     }
 
-    protected insertTab() {
-        const { muya, text } = this;
-        const tabCharacter = tabText(muya.options.tabSize);
-        const { start, end } = this.getCursor()!;
-
-        if (this.isCollapsed) {
-            this.text
-                = text.substring(0, start.offset)
-                    + tabCharacter
-                    + text.substring(end.offset);
-            const offset = start.offset + tabCharacter.length;
-
-            this.setCursor(offset, offset, true);
-        }
+    protected insertTab(unindent = false) {
+        const cursor = this.getCursor();
+        if (!cursor)
+            return;
+        const edit = editTab(this.text, cursor.anchor.offset, cursor.focus.offset, this.muya.options.tabSize, unindent);
+        if (edit.text !== this.text)
+            this.text = edit.text;
+        this.setCursor(edit.anchor, edit.focus, true);
     }
 
     // Replace only if the word at the cursor still matches `word`; return whether it was applied.
