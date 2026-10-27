@@ -212,6 +212,80 @@ describe('startup planning without filesystem or Electron effects', () => {
     ).toMatchObject([{ kind: 'empty', layout: { outline: { position: 'left' } } }])
   })
 
+  it('does not resurrect a closed tab from an unreferenced saved marker', () => {
+    const saved = document('closed')
+    const marker: RecoveryRecord = {
+      schemaVersion: 1,
+      status: 'saved',
+      ownerWindowId: 'a',
+      documentId: saved.id,
+      contentRevision: 1,
+      updatedAtMs: 1,
+      document: saved
+    }
+    expect(
+      buildStartupPlan({
+        state: state(window('a', [])),
+        preferences,
+        recoveryRecords: new Map([['a', [marker]]])
+      })
+    ).toMatchObject([{ kind: 'restore', snapshot: { documents: [] } }])
+  })
+
+  it('keeps newer metadata reading state without rewriting the unchanged recovery body', () => {
+    const dirty = document('dirty', true)
+    dirty.view = {
+      contentSha256: 'a'.repeat(64),
+      sourceSelection: null,
+      muyaSelection: null,
+      sourceScrollTopPx: 200,
+      renderedScrollTopPx: 100,
+      collapsedOutlineKeys: ['heading']
+    }
+    const snapshot = window('a', [dirty])
+    snapshot.updatedAtMs = 20
+    const marker: RecoveryRecord = {
+      schemaVersion: 1,
+      status: 'dirty',
+      ownerWindowId: 'a',
+      documentId: dirty.id,
+      contentRevision: 1,
+      updatedAtMs: 10,
+      document: { ...dirty, view: null },
+      markdown: 'Draft',
+      contentSha256: 'a'.repeat(64),
+      baseline: null
+    }
+    expect(
+      buildStartupPlan({
+        state: state(snapshot),
+        preferences,
+        recoveryRecords: new Map([['a', [marker]]])
+      })
+    ).toMatchObject([{ kind: 'restore', snapshot: { documents: [{ view: dirty.view }] } }])
+  })
+
+  it('uses a saved marker to complete an interrupted Save As of a known document', () => {
+    const dirty = document('dirty', true)
+    const saved = { ...document(dirty.id), title: 'Saved As.md' }
+    const marker: RecoveryRecord = {
+      schemaVersion: 1,
+      status: 'saved',
+      ownerWindowId: 'a',
+      documentId: dirty.id,
+      contentRevision: 1,
+      updatedAtMs: 2,
+      document: saved
+    }
+    expect(
+      buildStartupPlan({
+        state: state(window('a', [dirty])),
+        preferences,
+        recoveryRecords: new Map([['a', [marker]]])
+      })
+    ).toMatchObject([{ kind: 'restore', snapshot: { documents: [saved] } }])
+  })
+
   for (const action of [
     'restoreAll',
     'restoreLastWindow',

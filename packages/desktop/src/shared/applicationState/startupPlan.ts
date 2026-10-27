@@ -62,13 +62,26 @@ const mergeRecovery = (
   for (const record of records) {
     if (record.ownerWindowId !== window.id) continue
     const existing = documents.get(record.documentId)
+    if (record.status === 'saved' && !existing) continue
     if (
       existing?.content.kind === 'recovery' &&
       existing.content.contentRevision > record.contentRevision
     )
       continue
     if (record.status === 'discarded') documents.delete(record.documentId)
-    else documents.set(record.documentId, structuredClone(record.document))
+    else {
+      const recovered = structuredClone(record.document)
+      if (
+        record.status === 'dirty' &&
+        existing?.content.kind === 'recovery' &&
+        existing.content.contentRevision === record.contentRevision &&
+        record.updatedAtMs <= window.updatedAtMs
+      ) {
+        recovered.view = structuredClone(existing.view)
+        recovered.readOnly = existing.readOnly
+      }
+      documents.set(record.documentId, recovered)
+    }
   }
   snapshot.documents = [...documents.values()]
   if (!documents.has(snapshot.activeDocumentId ?? ''))
