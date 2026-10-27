@@ -185,7 +185,7 @@ test('a failed save leaves the modified document and window open', async() => {
   await mockDialogs(app, 0, savePath)
   await closeWindow(app)
 
-  await expect(page.getByText('Keep this window open and save your documents before quitting.')).toBeVisible()
+  await expect(page.locator('.editor-notifications')).toContainText(/encod|represent/i)
   expect(page.isClosed()).toBe(false)
   expect(readFileSync(filePath, 'utf8')).toBe(original)
   expect((await readTabs(page))[0]).toMatchObject({ isSaved: false })

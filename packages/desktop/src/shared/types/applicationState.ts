@@ -240,6 +240,7 @@ export interface RuntimeWindowContext {
 
 export interface RendererDocumentCheckpoint {
   id: DocumentId
+  acceptedDiskSha256?: Sha256
   content: DocumentContentState
   readOnly: boolean
   saveFormat: SaveFormatState

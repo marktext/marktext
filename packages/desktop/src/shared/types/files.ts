@@ -68,6 +68,7 @@ export interface IFileState {
   // Transient navigation state; deliberately excluded from buffered tab state.
   isPreview: boolean
   modeChanging?: boolean
+  acceptedDiskSha256?: string
   diskMissing?: boolean
   diskConflict?: boolean
   // A named CLI buffer can be unmodified while its target does not exist yet.

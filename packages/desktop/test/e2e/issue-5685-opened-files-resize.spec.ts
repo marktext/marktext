@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { _electron, type ElectronApplication, type Page } from 'playwright'
 import * as path from 'node:path'
+import { readFileSync } from 'node:fs'
 import { clickMenuById, getElectronPath, launchWithMarkdown, openProjectFolder, sendIpcToRenderer, waitForEditor } from './helpers'
 
 const rowSelector = '.side-bar .opened-files-list .opened-file'
@@ -50,6 +51,8 @@ const addTabs = async(app: ElectronApplication, page: Page, total: number): Prom
     await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, `body ${i}\n`)
   }
   await expect.poll(() => rowCount(page), { timeout: 5000 }).toBeGreaterThanOrEqual(total)
+  const titles = await page.locator('.tabs-container > li').evaluateAll(elements => elements.map(element => element.getAttribute('aria-label')))
+  expect(new Set(titles).size).toBe(titles.length)
 }
 
 const toggleOpenedFiles = (page: Page): Promise<void> =>
@@ -63,6 +66,7 @@ test.describe('#5685 sidebar opened files resize', () => {
   test.beforeEach(async() => {
     const launched = await launchWithMarkdown('# Doc\n')
     app = launched.app
+    await app.evaluate(({ dialog }) => { dialog.showMessageBox = async() => ({ response: 1, checkboxChecked: false }) })
     page = launched.page
     documentPath = launched.filePath
     await openProjectFolder(app, page, path.dirname(launched.filePath), launched.filePath)
@@ -70,7 +74,10 @@ test.describe('#5685 sidebar opened files resize', () => {
   })
 
   test.afterEach(async() => {
-    if (app) await app.close()
+    if (app) {
+      await app.evaluate(({ app }) => app.exit(0)).catch(() => {})
+      await app.close()
+    }
   })
 
   test('the resize handle only appears with more than four rows', async() => {
@@ -249,17 +256,17 @@ test.describe('#5685 sidebar opened files resize', () => {
     await addTabs(app, page, 7)
     await dragHandleBy(page, 56)
     const userData = await app.evaluate(({ app: electronApp }) => electronApp.getPath('userData'))
+    await expect.poll(() => JSON.parse(readFileSync(path.join(userData, 'state', 'application-state.json'), 'utf8')).session.windows[0].layout.sidebar.openedFiles.preferredHeightPx).toBe(168)
     await app.close()
     const projectRoot = path.resolve(__dirname, '../..')
     app = await _electron.launch({
       executablePath: getElectronPath(),
-      args: [projectRoot, '--user-data-dir', userData, documentPath],
+      args: [projectRoot, '--user-data-dir', userData],
       cwd: projectRoot
     })
     page = await app.firstWindow()
     await waitForEditor(page)
-    await openProjectFolder(app, page, path.dirname(documentPath), documentPath)
-    await addTabs(app, page, 7)
+    await expect.poll(() => rowCount(page)).toBe(7)
     await expect.poll(() => listHeight(page)).toBe(168)
   })
 
@@ -293,6 +300,8 @@ test.describe('#5685 sidebar opened files resize', () => {
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 + 56)
     await page.mouse.up()
     expect(await listHeight(page)).toBe(140)
-    expect(await page.evaluate(() => localStorage.getItem('side-bar-opened-files-height'))).toBe('140')
+    expect(await page.evaluate(() => localStorage.getItem('side-bar-opened-files-height'))).toBeNull()
+    const userData = await app.evaluate(({ app }) => app.getPath('userData'))
+    await expect.poll(() => JSON.parse(readFileSync(path.join(userData, 'state', 'application-state.json'), 'utf8')).session.windows[0].layout.sidebar.openedFiles.preferredHeightPx).toBe(140)
   })
 })

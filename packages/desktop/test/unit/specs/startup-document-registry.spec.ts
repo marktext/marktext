@@ -338,3 +338,40 @@ describe('document identity and content lifecycle', () => {
     expect(() => registry.close(snapshot.id)).toThrow(/unsaved/i)
   })
 })
+
+it('keeps the accepted external baseline when reload and undo happen before the next checkpoint', () => {
+  const { registry, snapshot, windowId } = registration(true)
+  const baseline = {
+    exists: true as const,
+    rawSha256: contentSha256('External'),
+    sizeBytes: 8,
+    mtimeMs: 20
+  }
+  registry.observeDisk(
+    snapshot.id,
+    { ...snapshot, content: { kind: 'disk', baseline } },
+    'External'
+  )
+  registry.apply([
+    registry.prepare(windowId, {
+      ...metadata(snapshot),
+      content: { kind: 'recovery', contentRevision: 0 },
+      acceptedDiskSha256: baseline.rawSha256
+    })
+  ])
+  expect(registry.get(snapshot.id).content.kind).toBe('recovery')
+  expect(registry.baseline(snapshot.id)).toEqual(baseline)
+  expect(registry.pendingRecords(30)).toMatchObject([
+    { status: 'dirty', markdown: 'Original', baseline }
+  ])
+  const record = registry.pendingRecords(30)[0]
+  registry.settle(record)
+  registry.apply([
+    registry.prepare(windowId, {
+      ...metadata(snapshot),
+      content: { kind: 'recovery', contentRevision: 0 },
+      acceptedDiskSha256: baseline.rawSha256
+    })
+  ])
+  expect(registry.pendingRecords(40)).toEqual([])
+})

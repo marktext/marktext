@@ -192,11 +192,25 @@ export class DocumentRegistry {
       snapshot.resource = structuredClone(current.saved.snapshot.resource)
       entry.baseline = structuredClone(current.saved.snapshot.content.baseline)
     }
+    const observed = current.saved?.snapshot.content
+    const acceptsObserved =
+      observed?.kind === 'disk' &&
+      observed.baseline.exists &&
+      metadata.acceptedDiskSha256 === observed.baseline.rawSha256
+    const baselineChanged =
+      acceptsObserved && JSON.stringify(entry.baseline) !== JSON.stringify(observed.baseline)
+    if (acceptsObserved) entry.baseline = structuredClone(observed.baseline)
     entry.snapshot = snapshot
     entry.markdown = markdown
     entry.revision = revision
     entry.generation++
-    if (snapshot.content.kind === 'recovery' && (changed || revision !== current.revision || current.snapshot.content.kind !== 'recovery'))
+    if (
+      snapshot.content.kind === 'recovery' &&
+      (changed ||
+        baselineChanged ||
+        revision !== current.revision ||
+        current.snapshot.content.kind !== 'recovery')
+    )
       entry.pending = 'dirty'
     else if (
       snapshot.content.kind !== 'recovery' &&
@@ -244,13 +258,24 @@ export class DocumentRegistry {
     current.generation++
   }
 
-  relocate(id: string, location: Extract<DocumentSnapshot['resource'], { kind: 'file' }>['location'], title: string): void {
+  relocate(
+    id: string,
+    location: Extract<DocumentSnapshot['resource'], { kind: 'file' }>['location'],
+    title: string
+  ): void {
     const entry = this.entry(id)
-    if (entry.snapshot.resource.kind !== 'file') throw new Error('Cannot relocate an untitled document')
+    if (entry.snapshot.resource.kind !== 'file')
+      throw new Error('Cannot relocate an untitled document')
     const resource = { ...entry.snapshot.resource, location: structuredClone(location) }
     entry.snapshot = checkedDocument({ ...entry.snapshot, resource, title })
-    if (entry.saved) entry.saved.snapshot = checkedDocument({ ...entry.saved.snapshot, resource, title })
-    entry.pending = entry.snapshot.content.kind === 'recovery' ? 'dirty' : entry.snapshot.content.kind === 'disk' ? 'saved' : 'discarded'
+    if (entry.saved)
+      entry.saved.snapshot = checkedDocument({ ...entry.saved.snapshot, resource, title })
+    entry.pending =
+      entry.snapshot.content.kind === 'recovery'
+        ? 'dirty'
+        : entry.snapshot.content.kind === 'disk'
+          ? 'saved'
+          : 'discarded'
     entry.generation++
   }
 
@@ -262,7 +287,8 @@ export class DocumentRegistry {
       entry.pending = 'dirty'
     } else {
       const saved = checkedDocument(snapshot)
-      if (saved.id !== id || saved.content.kind !== 'disk') throw new Error('Invalid observed disk document')
+      if (saved.id !== id || saved.content.kind !== 'disk')
+        throw new Error('Invalid observed disk document')
       entry.saved = { snapshot: saved, textHash: contentSha256(markdown) }
       if (entry.markdown === markdown && sameFormat(entry.snapshot.saveFormat, saved.saveFormat)) {
         entry.snapshot.content = saved.content
@@ -361,7 +387,10 @@ export class DocumentRegistry {
       throw new Error('Cannot release unsaved window contents')
     for (const [id, entry] of entries) {
       if (entry.pending === null) this.entries.delete(id)
-      else { entry.closed = true; entry.markdown = '' }
+      else {
+        entry.closed = true
+        entry.markdown = ''
+      }
     }
   }
 }

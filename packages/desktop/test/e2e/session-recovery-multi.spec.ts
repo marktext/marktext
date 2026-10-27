@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import type { ElectronApplication, Page } from 'playwright'
@@ -487,12 +487,165 @@ test('moving a sidebar folder keeps dirty document identity and saves to its new
 
 test('an unavailable configured startup folder explains the fallback and opens a blank document', async() => {
   const directory = mkdtempSync(join(tmpdir(), 'mt-session-unavailable-folder-'))
-  const { app, page } = await launchElectron([], { userDataDir: directory, preferences: { language: 'en', startUpAction: 'folder', defaultDirectoryToOpen: join(directory, 'missing') }, suppressErrorDialog: true })
+  const { app, page } = await launchElectron([], {
+    userDataDir: directory,
+    preferences: {
+      language: 'en',
+      startUpAction: 'folder',
+      defaultDirectoryToOpen: join(directory, 'missing')
+    },
+    suppressErrorDialog: true
+  })
   try {
-    await expect(page.getByText(`Folder unavailable: ${join(directory, 'missing')}`, { exact: true })).toBeVisible()
+    await expect(
+      page.getByText(`Folder unavailable: ${join(directory, 'missing')}`, { exact: true })
+    ).toBeVisible()
     expect(state(directory).session.windows).toHaveLength(1)
     expect(state(directory).session.windows[0].workspace).toBeNull()
     expect((await getMarkdownContent(page, app)).trim()).toBe('')
     await expectNoRendererErrors(app)
-  } finally { await stop(app); rmSync(directory, { recursive: true, force: true }) }
+  } finally {
+    await stop(app)
+    rmSync(directory, { recursive: true, force: true })
+  }
+})
+
+test('two windows on the same workspace restore their own draft, document identity and layout', async() => {
+  const directory = mkdtempSync(join(tmpdir(), 'mt-session-shared-workspace-'))
+  const root = join(directory, 'workspace')
+  mkdirSync(root)
+  const file = join(root, 'shared.md')
+  writeFileSync(file, 'Original shared disk text')
+  let running: ElectronApplication | null = null
+  try {
+    const first = await launchElectron([root, file], {
+      userDataDir: directory,
+      preferences: { language: 'en' },
+      suppressErrorDialog: true
+    })
+    running = first.app
+    await first.page
+      .getByRole('textbox', { name: 'Document', exact: true })
+      .fill('Window A private draft')
+    await sendIpcToRenderer(first.app, 'mt::set-view-layout', {
+      showSideBar: true,
+      sideBarWidth: 340
+    })
+    await expect
+      .poll(() => state(directory).session.windows[0].documents[0].content.kind)
+      .toBe('recovery')
+    const next = first.app.waitForEvent('window')
+    await first.app.evaluate(({ app }, root) => {
+      const argv = ['marktext', '--new-window', root]
+      app.emit('second-instance', {}, argv, '/', { argv })
+    }, root)
+    const second = await next
+    await expect(second.getByRole('textbox', { name: 'Document', exact: true })).toContainText(
+      'Original shared disk text'
+    )
+    await second
+      .getByRole('textbox', { name: 'Document', exact: true })
+      .fill('Window B private draft')
+    await second.evaluate(() => {
+      const root = document.querySelector('#app') as Element & {
+        __vue_app__: {
+          config: {
+            globalProperties: { $pinia: { _s: Map<string, { SET_LAYOUT(value: unknown): void }> } }
+          }
+        }
+      }
+      root.__vue_app__.config.globalProperties.$pinia._s
+        .get('layout')!
+        .SET_LAYOUT({ showSideBar: false, sideBarWidth: 280 })
+    })
+    await expect
+      .poll(
+        () =>
+          state(directory).session.windows.filter(
+            (window: { documents: Array<{ content: { kind: string } }> }) =>
+              window.documents.some((document) => document.content.kind === 'recovery')
+          ).length
+      )
+      .toBe(2)
+    const before = state(directory).session.windows
+    expect(before[0].workspace.id).toBe(before[1].workspace.id)
+    expect(before[0].documents[0].id).not.toBe(before[1].documents[0].id)
+    await stop(first.app)
+    running = null
+    const restored = await launchElectron([], { userDataDir: directory, suppressErrorDialog: true })
+    running = restored.app
+    await expect.poll(() => restored.app.windows().length).toBe(2)
+    const text = await Promise.all(
+      restored.app
+        .windows()
+        .map((page) => page.getByRole('textbox', { name: 'Document', exact: true }).innerText())
+    )
+    expect(text.map((value) => value.trim()).sort()).toEqual([
+      'Window A private draft',
+      'Window B private draft'
+    ])
+    const after = state(directory).session.windows
+    for (const window of before) {
+      const current = after.find((item: { id: string }) => item.id === window.id)
+      expect(current.documents.map((document: { id: string }) => document.id)).toEqual(
+        window.documents.map((document: { id: string }) => document.id)
+      )
+      expect(current.layout).toEqual(window.layout)
+    }
+    await expectNoRendererErrors(restored.app)
+  } finally {
+    if (running) await stop(running)
+    rmSync(directory, { recursive: true, force: true })
+  }
+})
+
+test('ten normal startup, edit, save or discard and quit cycles do not accumulate recovery bodies', async() => {
+  test.setTimeout(90000)
+  const directory = mkdtempSync(join(tmpdir(), 'mt-session-ten-cycles-'))
+  let running: ElectronApplication | null = null
+  try {
+    for (let cycle = 0; cycle < 10; cycle++) {
+      const launched = await launchElectron([], {
+        userDataDir: directory,
+        preferences: cycle === 0 ? { language: 'en', startUpAction: 'blank' } : undefined,
+        suppressErrorDialog: true
+      })
+      running = launched.app
+      await launched.page
+        .getByRole('textbox', { name: 'Document', exact: true })
+        .fill(`Cycle ${cycle} edited body`)
+      await launched.app.evaluate(
+        ({ dialog }, { cycle, directory }) => {
+          dialog.showMessageBox = async() => ({
+            response: cycle % 2 === 0 ? 0 : 1,
+            checkboxChecked: false
+          })
+          dialog.showSaveDialog = async() => ({
+            canceled: false,
+            filePath: `${directory}/saved-${cycle}.md`
+          })
+        },
+        { cycle, directory }
+      )
+      const closed = launched.app.waitForEvent('close')
+      await launched.app.evaluate(({ app }) => app.quit())
+      await closed
+      running = null
+      expect(state(directory).session.lifecycle).toBe('closed')
+      expect(state(directory).session.windows).toHaveLength(1)
+      expect(
+        readdirSync(join(directory, 'recovery'), { recursive: true }).filter((file) =>
+          String(file).endsWith('.json')
+        )
+      ).toEqual([])
+      expect(readdirSync(join(directory, 'state'))).toEqual(['application-state.json'])
+      if (cycle % 2 === 0)
+        expect(readFileSync(join(directory, `saved-${cycle}.md`), 'utf8').trim()).toBe(
+          `Cycle ${cycle} edited body`
+        )
+    }
+  } finally {
+    if (running) await stop(running)
+    rmSync(directory, { recursive: true, force: true })
+  }
 })

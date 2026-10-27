@@ -130,6 +130,8 @@ class EditorWindow extends BaseWindow {
       winOptions.icon = path.join(process.cwd(), 'static', 'logo-96px.png')
     }
 
+    if (this._accessor.sessionHost) winOptions.show = false
+
     const {
       titleBarStyle,
       theme,
@@ -326,6 +328,12 @@ class EditorWindow extends BaseWindow {
     }, 0)
 
     return win
+  }
+
+  override bringToFront(): void {
+    const host = this._accessor.sessionHost
+    if (host && this.sessionStateId && !host.isRendererInitialized(this.sessionStateId)) return
+    super.bringToFront()
   }
 
   openTab(filePath: string, options: FileOpenOptions = {}, selected: boolean = true): void {

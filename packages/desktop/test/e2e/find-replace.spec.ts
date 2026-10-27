@@ -129,11 +129,7 @@ const seedDocClean = async(
   await closeAndReset(page)
   await setSourceMarkdown(page, app, markdown)
   await page.waitForTimeout(400)
-  const tabId = await page.evaluate(
-    () => document.querySelector('.editor-tabs li.active')?.getAttribute('data-id') ?? null
-  )
-  if (!tabId) throw new Error('could not resolve the active tab id')
-  await sendIpcToRenderer(app, 'mt::tab-saved', tabId)
+  await sendIpcToRenderer(app, 'mt::editor-ask-file-save')
   await expect.poll(() => isTabDirty(page)).toBe(false)
 }
 

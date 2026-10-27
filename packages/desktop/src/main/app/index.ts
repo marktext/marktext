@@ -448,8 +448,8 @@ class App {
     this._openPathList(this._openFilesCache, false)
   }
 
-  /** When openFilesInSameWindow is true, discard all but the first directory and open its files together. */
-  private _openPathList(pathsToOpen: PathInfo[], openFilesInSameWindow: boolean = false): void {
+  /** CLI --new-window groups the explicit targets in one fresh window. */
+  private _openPathList(pathsToOpen: PathInfo[], forceNewWindow: boolean = false): void {
     const { _windowManager } = this
     const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
 
@@ -470,7 +470,7 @@ class App {
     }
 
     for (const window of _windowManager.windows.values()) {
-      if (window.type === WindowType.EDITOR) {
+      if (!forceNewWindow && window.type === WindowType.EDITOR) {
         for (const root of (window as EditorWindow).projectRoots.roots) {
           for (const directory of directorySet) {
             if (resolveExistingPath(directory) === root.key) {
@@ -490,7 +490,7 @@ class App {
     }))
     const filesToOpen = Array.from(fileSet)
 
-    if (openFilesInSameWindow) {
+    if (forceNewWindow) {
       if (directoriesToOpen.length) {
         directoriesToOpen[0].fileList.push(...filesToOpen)
         directoriesToOpen.length = 1
@@ -500,7 +500,7 @@ class App {
       filesToOpen.length = 0
     }
 
-    if (!openFilesInSameWindow && !openFilesInNewWindow) {
+    if (!forceNewWindow && !openFilesInNewWindow) {
       const isFirstWindow = _windowManager.getActiveEditorId() === null
 
       for (let i = 0; i < directoriesToOpen.length; ++i) {

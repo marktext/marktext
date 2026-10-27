@@ -228,11 +228,9 @@ class WindowSession {
     // Preference watchers can rebuild Muya blocks; load the document after those updates.
     await nextTick()
     if (preserve) {
+      const restoring = this.project.restoringSession
       if (initialized.projectRoots) this.project.APPLY_ROOTS(initialized.projectRoots)
-      this.project.RESTORE_PROJECT_VIEW(
-        initialized.snapshot.workspace,
-        initialized.snapshot.projectView
-      )
+      this.project.restoringSession = restoring
       this.initializing = false
       window.electron.ipcRenderer.send('mt::window-initialized')
       window.electron.ipcRenderer.send('mt::project-renderer-ready')
@@ -409,6 +407,7 @@ class WindowSession {
       })
       return {
         id: file.id,
+        acceptedDiskSha256: file.acceptedDiskSha256,
         content: { kind: 'recovery' as const, contentRevision: observed.revision },
         saveFormat,
         readOnly: file.readOnly,

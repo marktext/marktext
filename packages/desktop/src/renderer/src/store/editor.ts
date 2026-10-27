@@ -76,6 +76,7 @@ interface FileChangePayload {
     encoding?: IFileState['encoding']
     markdown: string
     filename: string
+    rawBaseline?: { exists: boolean; rawSha256?: string }
   }
 }
 
@@ -482,6 +483,7 @@ export const useEditorStore = defineStore('editor', {
 
       Object.assign(tab, newFileState)
       tab.readOnly = readOnly
+      tab.acceptedDiskSha256 = data.rawBaseline?.rawSha256
       tab.diskMissing = false
       tab.diskConflict = false
       tab.id = oldId
@@ -1248,6 +1250,8 @@ export const useEditorStore = defineStore('editor', {
     },
 
     CLOSE_TABS(tabIdList: string[]): void {
+      const session = getSessionActions()
+      if (session) { void session.close(tabIdList).catch(console.error); return }
       if (!tabIdList || tabIdList.length === 0) return
 
       let tabIndex = 0
@@ -1764,7 +1768,7 @@ export const useEditorStore = defineStore('editor', {
       markdown = adjustTrailingNewlines(markdown, trimTrailingNewline)
       tab.markdown = markdown
 
-      if (oldMarkdown.length === 0 && markdown.length === 1 && markdown[0] === '\n') {
+      if (!getSessionActions() && oldMarkdown.length === 0 && markdown.length === 1 && markdown[0] === '\n') {
         debouncedSendBufferedState()
         return
       }
@@ -1778,6 +1782,16 @@ export const useEditorStore = defineStore('editor', {
       if (id === this.currentFile?.id && toc && !equal(toc, this.listToc)) {
         this.listToc = toc
         this.toc = listToTree<TocItem>(toc)
+      }
+
+      if (getSessionActions()) {
+        if (markdown !== oldMarkdown) {
+          tab.isPreview = false
+          tab.isSaved = false
+          if (pathname && autoSave && !tab.modeChanging) this.HANDLE_AUTO_SAVE(tab)
+        }
+        debouncedSendBufferedState()
+        return
       }
 
       const lastEditIndex = tab.history.lastEditIndex

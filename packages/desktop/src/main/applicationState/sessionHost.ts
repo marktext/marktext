@@ -1,5 +1,5 @@
 import { app, BrowserWindow, dialog, ipcMain, screen, type WebContents } from 'electron'
-import { readFile, stat, rename } from 'node:fs/promises'
+import { readFile, stat, rename, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import log from 'electron-log'
 import debounce from 'lodash/debounce'
@@ -52,6 +52,7 @@ export interface PreparedSessionWindow {
   restoreGeometry: boolean
   statuses: NonNullable<WindowInitialization['documentStatuses']>
   openable: boolean
+  rememberPaths?: string[]
 }
 interface PendingCheckpoint {
   transactionId: string
@@ -82,12 +83,15 @@ export class SessionHost {
   private quitAllowed = false
   private quitting = false
   private startupWarning: string | undefined
+  private startupActiveId: string | null = null
+  private readonly startupWindowIds = new Set<string>()
   private tabClosePending = false
   private startQueue: Promise<void> = Promise.resolve()
   private readonly fileQueues = new Map<string, Promise<void>>()
   private readonly checkpointQueues = new Map<string, Promise<WindowSnapshot>>()
   private readonly previewRequests = new Map<string, number>()
   private readonly previews = new Map<string, string>()
+  private readonly untitledNumbers = new Map<string, number>()
 
   constructor(private readonly accessor: Accessor) {
     this.metadata = new ApplicationStateStore(app.getPath('userData'))
@@ -127,6 +131,7 @@ export class SessionHost {
         this.checkpointQueues.delete(id)
         this.previews.delete(id)
         this.previewRequests.delete(id)
+        this.untitledNumbers.delete(id)
       }
     })
     this.registerIpc()
@@ -263,10 +268,13 @@ export class SessionHost {
     let configuredWorkspace: WindowSnapshot['workspace'] = null
     try {
       if (
+        preferences.startUpAction === 'folder' &&
         preferences.defaultDirectoryToOpen &&
         (await stat(preferences.defaultDirectoryToOpen)).isDirectory()
-      )
+      ) {
+        await readdir(preferences.defaultDirectoryToOpen)
         configuredWorkspace = createWorkspaceDescriptor([preferences.defaultDirectoryToOpen])
+      }
     } catch (error) {
       log.warn(error)
     }
@@ -316,20 +324,13 @@ export class SessionHost {
       log.warn('Recovery cleanup will be retried', error)
     )
     for (const window of prepared) await this.attachPrepared(window)
+    for (const window of prepared) this.startupWindowIds.add(window.snapshot.id)
+    this.startupActiveId = prepared.some(window => window.snapshot.id === previous.session.activeWindowId) ? previous.session.activeWindowId : null
     for (const window of prepared) create(window)
-    const active = previous.session.activeWindowId
-    const preferred = active ? this.editors.get(active)?.browserWindow : undefined
-    if (preferred) {
-      const ready = [...this.editors.values()].map((editor) => {
-        const native = editor.browserWindow
-        return !native || native.isVisible()
-          ? Promise.resolve()
-          : new Promise<void>((resolve) => native.once('ready-to-show', () => resolve()))
-      })
-      void Promise.all(ready).then(() => {
-        if (!preferred.isDestroyed()) preferred.focus()
-      })
-    }
+  }
+
+  isRendererInitialized(windowId: string): boolean {
+    return this.rendererReady.has(windowId)
   }
 
   private async preparePlan(
@@ -348,6 +349,7 @@ export class SessionHost {
       const prepared = workspace
         ? await this.prepareExplicitWorkspace(workspace, files, options)
         : await this.prepareNewWindow(null, files, [], options)
+      prepared.rememberPaths = [...folders, ...files]
       return prepared
     }
     if (plan.kind === 'empty') {
@@ -364,6 +366,7 @@ export class SessionHost {
           plan.files.map((file) => [file.location.path, { readOnly: file.readOnly }])
         )
       )
+      prepared.rememberPaths = []
       prepared.snapshot.workspace = plan.workspace
       prepared.snapshot.layout = plan.layout
       prepared.snapshot.projectView = plan.projectView
@@ -501,7 +504,7 @@ export class SessionHost {
       contents.push({ documentId: document.id, markdown: '' })
     }
     snapshot.activeDocumentId = snapshot.documents[0].id
-    return { snapshot, contents, restoreGeometry: false, statuses: [], openable: true }
+    return { snapshot, contents, restoreGeometry: false, statuses: [], openable: true, rememberPaths: files }
   }
 
   private async prepareExplicitWorkspace(
@@ -541,6 +544,7 @@ export class SessionHost {
         log.warn(error)
       }
     }
+    prepared.rememberPaths = [...workspace.roots.map(root => root.location.path), ...files]
     return prepared
   }
 
@@ -579,6 +583,7 @@ export class SessionHost {
       if (document.resource.kind === 'file' && !document.resource.pendingCreation)
         editor.addToOpenedFiles(document.resource.location.path)
     }
+    for (const pathname of prepared.rememberPaths ?? []) this.accessor.menu.addRecentlyUsedDocument(pathname)
     const updateGeometry = (): void => {
       if (native.isDestroyed() || !this.owner().getWindow(id)) return
       const geometry = captureWindowGeometry(native, displays(), primary())
@@ -678,7 +683,7 @@ export class SessionHost {
               document.resource.kind === 'file' && document.resource.location.key === location.key
           )
         if (existing) {
-          this.native(id).webContents.send('mt::switch-tab-by-file_path', pathname, options)
+          this.native(id).webContents.send('mt::switch-tab-by-file_path', existing.resource.kind === 'file' ? existing.resource.location.path : pathname, options)
           return
         }
         const loaded = await this.readDocument(pathname, options)
@@ -731,10 +736,12 @@ export class SessionHost {
   ): Promise<DocumentSnapshot> {
     const snapshot = this.owner().getWindow(windowId)
     if (!snapshot) throw new Error('Unknown window')
-    const document = this.blankDocument(
-      markdown,
-      title || `Untitled-${snapshot.documents.length + 1}`
-    )
+    const maximum = snapshot.documents.reduce((maximum, document) => {
+      const match = /^Untitled-(\d+)$/.exec(document.title)
+      return Math.max(maximum, match ? Number(match[1]) : 0)
+    }, this.untitledNumbers.get(windowId) ?? 0)
+    this.untitledNumbers.set(windowId, maximum + 1)
+    const document = this.blankDocument(markdown, title || `Untitled-${maximum + 1}`)
     const result = await this.owner().addDocument(windowId, document, markdown)
     if (result.status !== 'persisted')
       this.report(new Error('Recovery storage unavailable'), windowId)
@@ -987,6 +994,7 @@ export class SessionHost {
       this.native(windowId).webContents.send('mt::state::document-saved', response)
       return response
     } catch (error) {
+      this.native(windowId).webContents.send('mt::tab-save-failure', documentId, error instanceof Error ? error.message : String(error))
       this.report(error, windowId)
       return { status: 'failed' }
     } finally {
@@ -1235,7 +1243,16 @@ export class SessionHost {
     }
     ipcMain.on('mt::window-initialized', (event) => {
       const owner = getManagedOwner(event.sender)
-      if (owner?.host === this) this.rendererReady.add(owner.windowId)
+      if (owner?.host === this) {
+        this.rendererReady.add(owner.windowId)
+        const editor = this.editors.get(owner.windowId)
+        if (editor?.browserWindow && !editor.browserWindow.isVisible()) editor.bringToFront()
+        if (this.startupWindowIds.size && [...this.startupWindowIds].every(id => this.rendererReady.has(id))) {
+          if (this.startupActiveId) this.editors.get(this.startupActiveId)?.bringToFront()
+          this.startupWindowIds.clear()
+          this.startupActiveId = null
+        }
+      }
     })
     ipcMain.handle('mt::state::get-window-initialization', (event) =>
       this.initialization(editorFor(event.sender))
