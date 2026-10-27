@@ -1,4 +1,6 @@
+import fixtures from '../../../src/utils/marked/__tests__/fixtures/gfm-autolink-precedence.json' with { type: 'json' };
 import { expect, test } from '../fixtures/muya';
+import { editor } from '../helpers/selectors';
 
 /**
  * Public `MarkdownToHtml` static-export class. Host exposes it on
@@ -25,6 +27,35 @@ $$a \\ne b$$
 `;
 
 test.describe('export / MarkdownToHtml', () => {
+    for (const fixture of fixtures.filter(fixture => fixture.checkEditor)) {
+        test(`editor and export follow GFM URL boundaries: ${fixture.markdown}`, async ({ page }) => {
+            const result = await page.evaluate(async ({ markdown, html, selector }) => {
+                window.muya!.setContent(markdown);
+                window.muya!.setReadOnly(true);
+                const exportHtml = await new window.MarkdownToHtml!(markdown).generate();
+                const parser = new DOMParser();
+                const expectedParagraph = parser.parseFromString(html, 'text/html').querySelector('p')!;
+                const exportParagraph = parser.parseFromString(exportHtml, 'text/html').querySelector('article p')!;
+                const editorParagraph = document.querySelector(selector)!.cloneNode(true) as HTMLElement;
+                editorParagraph.querySelectorAll('.mu-remove, .mu-hide').forEach(marker => marker.remove());
+                const summarize = (root: Element) => ({
+                    text: root.textContent,
+                    links: [...root.querySelectorAll('[href]')].map(link => ({
+                        href: link.getAttribute('href'),
+                        text: link.textContent,
+                    })),
+                    formats: [...root.querySelectorAll('strong, em, del, code')].map(element => ({
+                        tag: element.tagName.toLowerCase(),
+                        text: element.textContent,
+                    })),
+                });
+                return { expected: summarize(expectedParagraph), exported: summarize(exportParagraph), editor: summarize(editorParagraph) };
+            }, { ...fixture, selector: editor.paragraphContent });
+            expect(result.exported).toEqual(result.expected);
+            expect(result.editor).toEqual(result.expected);
+        });
+    }
+
     test('window.MarkdownToHtml is exposed by the host', async ({ page }) => {
         const isClass = await page.evaluate(() => typeof window.MarkdownToHtml === 'function');
         expect(isClass).toBe(true);

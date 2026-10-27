@@ -3,10 +3,10 @@ import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import Prism from 'prismjs';
 import compactNestedLists from './compactNestedLists';
-import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import emojiExtension from './extensions/emoji';
 import footnoteExtension from './extensions/footnote';
 import githubAlertsExtension from './extensions/githubAlerts';
+import inlineDelimitersExtension from './extensions/inlineDelimiters';
 import inlineDiffExtension from './extensions/inlineDiff';
 import markExtension from './extensions/mark';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
@@ -54,8 +54,7 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
 
-    // Keep CJK emphasis flanking consistent with clipboard and export rendering (#4307).
-    marked.use(cjkEmStrongExtension());
+    marked.use(inlineDelimitersExtension());
 
     marked.use(emojiExtension({ isRenderEmoji: true }));
 

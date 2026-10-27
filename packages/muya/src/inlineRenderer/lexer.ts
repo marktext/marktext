@@ -1,4 +1,4 @@
-import type { IEmphasisSpan } from './emphasis';
+import type { IDelimiterSpan } from './delimiters';
 import type { BeginRules, InlineRules } from './rules';
 import type {
     CodeEmojiMathToken,
@@ -10,7 +10,7 @@ import type {
 import escapeCharactersMap from '../config/escapeCharacter';
 import { escapeHTML, isLengthEven } from '../utils';
 import { validEmoji } from '../utils/emoji';
-import { scanEmphasisSpans } from './emphasis';
+import { scanDelimiterSpans } from './delimiters';
 import { parseSrcAndTitle } from './linkDestination';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
 import { applySearchHighlights } from './searchHighlights';
@@ -37,12 +37,13 @@ interface ILexState {
     pending: string;
     pendingStartPos: number;
     tokens: Token[];
-    emphasisSpans: Map<number, IEmphasisSpan> | null;
+    delimiterSpans: Map<number, IDelimiterSpan> | null;
     basePos: number;
     inlineRules: InlineRules;
     labels: Labels;
     options: ITokenizerFacOptions;
     top: boolean;
+    allowAutolinks: boolean;
     superSubScript: boolean;
     footnote: boolean;
     texMathDollars: boolean;
@@ -211,33 +212,33 @@ function tryBacklash(state: ILexState): boolean {
     return true;
 }
 
-function tryStrongEm(state: ILexState): boolean {
-    if (state.src[0] !== '*' && state.src[0] !== '_')
+function tryDelimiterSpan(state: ILexState): boolean {
+    if (state.src[0] !== '*' && state.src[0] !== '_' && state.src[0] !== '~')
         return false;
 
-    state.emphasisSpans ??= scanEmphasisSpans(
+    state.delimiterSpans ??= scanDelimiterSpans(
         state.originSrc,
         state.basePos,
         state.inlineRules,
         state.labels,
         state.options,
-        state.top,
+        state.allowAutolinks,
     );
 
-    const span = state.emphasisSpans.get(state.pos);
+    const span = state.delimiterSpans.get(state.pos);
     if (!span)
         return false;
 
     const length = span.end - span.start;
     const raw = state.src.substring(0, length);
-    const marker = raw.substring(0, span.markerLen);
-    const inner = raw.substring(span.markerLen, length - span.markerLen);
+    const marker = raw.substring(0, span.markerLength);
+    const inner = raw.substring(span.markerLength, length - span.markerLength);
     const backlash = /(\\*)$/.exec(inner)![1];
     const content = inner.substring(0, inner.length - backlash.length);
 
     pushPending(state);
     state.tokens.push({
-        type: span.markerLen === 2 ? 'strong' : 'em',
+        type: raw[0] === '~' ? 'del' : span.markerLength === 2 ? 'strong' : 'em',
         raw,
         range: {
             start: state.pos,
@@ -249,11 +250,12 @@ function tryStrongEm(state: ILexState): boolean {
             content,
             null,
             state.inlineRules,
-            state.pos + span.markerLen,
+            state.pos + span.markerLength,
             false,
             state.labels,
             state.options,
-            state.emphasisSpans,
+            state.delimiterSpans,
+            state.allowAutolinks,
         ),
         backlash,
     });
@@ -263,12 +265,11 @@ function tryStrongEm(state: ILexState): boolean {
     return true;
 }
 
-// emoji | inline_code | del | mark | inline_math
 // `inline_math_gfm` goes first: both math forms open on `$`, and the dollar
 // rule would otherwise swallow `` $`e=mc^2`$ `` whole, backticks and all.
 // It carries its own marker shape but produces an ordinary `inline_math` token.
 function tryChunks(state: ILexState): boolean {
-    const chunks = ['inline_math_gfm', 'inline_code', 'del', 'mark', 'inline_diff', 'emoji', 'inline_math'] as const;
+    const chunks = ['inline_math_gfm', 'inline_code', 'mark', 'inline_diff', 'emoji', 'inline_math'] as const;
 
     for (const rule of chunks) {
         if (rule === 'inline_math' && !state.texMathDollars)
@@ -303,7 +304,7 @@ function tryChunks(state: ILexState): boolean {
                 end: state.pos + to[0].length,
             };
             const marker = to[1];
-            if (rule === 'del' || rule === 'mark') {
+            if (rule === 'mark') {
                 state.tokens.push({
                     type: rule,
                     raw: to[0],
@@ -318,6 +319,8 @@ function tryChunks(state: ILexState): boolean {
                         false,
                         state.labels,
                         state.options,
+                        null,
+                        state.allowAutolinks,
                     ),
                     backlash: to[3],
                 });
@@ -589,8 +592,8 @@ function tryAutoLinkExtension(state: ILexState): boolean {
     const autoLinkExtTo = matchExtendedAutoLink(
         state.inlineRules.auto_link_extension,
         state.originSrc,
-        state.pos,
-        state.top,
+        state.pos - state.basePos,
+        state.allowAutolinks,
     );
     if (!autoLinkExtTo)
         return false;
@@ -795,7 +798,7 @@ function tryTailHeader(state: ILexState): boolean {
 const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryBackslashMath,
     tryBacklash,
-    tryStrongEm,
+    tryDelimiterSpan,
     tryChunks,
     trySuperSubScript,
     tryFootnote,
@@ -812,7 +815,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryTailHeader,
 ];
 
-function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, emphasisSpans: Map<number, IEmphasisSpan> | null = null) {
+function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, delimiterSpans: Map<number, IDelimiterSpan> | null = null, allowAutolinks = top) {
     const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = options;
     const state: ILexState = {
         originSrc: src,
@@ -821,12 +824,13 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         pending: '',
         pendingStartPos: pos,
         tokens: [],
-        emphasisSpans,
+        delimiterSpans,
         basePos: pos,
         inlineRules,
         labels,
         options,
         top,
+        allowAutolinks,
         superSubScript,
         footnote,
         texMathDollars,

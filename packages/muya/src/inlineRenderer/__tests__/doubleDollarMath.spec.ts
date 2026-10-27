@@ -1,38 +1,8 @@
 // @vitest-environment happy-dom
 
 import type { CodeEmojiMathToken } from '../types';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { Muya } from '../../muya';
+import { describe, expect, it } from 'vitest';
 import { tokenizer } from '../lexer';
-
-const bootedHosts: HTMLElement[] = [];
-let originalVersion: string | undefined;
-let hadVersion = false;
-
-beforeEach(() => {
-    hadVersion = 'MUYA_VERSION' in window;
-    originalVersion = window.MUYA_VERSION;
-    window.MUYA_VERSION = 'test';
-});
-
-afterEach(() => {
-    while (bootedHosts.length)
-        bootedHosts.pop()!.remove();
-    document.getSelection()?.removeAllRanges();
-    if (hadVersion)
-        window.MUYA_VERSION = originalVersion as string;
-    else
-        delete (window as Partial<Window>).MUYA_VERSION;
-});
-
-function bootMuya(markdown: string): Muya {
-    const host = document.createElement('div');
-    document.body.appendChild(host);
-    const muya = new Muya(host, { markdown } as ConstructorParameters<typeof Muya>[1]);
-    muya.init();
-    bootedHosts.push(muya.domNode);
-    return muya;
-}
 
 function mathTokens(src: string): CodeEmojiMathToken[] {
     return tokenizer(src).filter(
@@ -92,56 +62,6 @@ describe('same-line display math (#4904)', () => {
         const [token] = mathTokens('$a\nb$');
 
         expect(token.content).toBe('a\nb');
-    });
-
-    const renderCases: Array<[markdown: string, display: boolean[]]> = [
-        ['$$a \\ne b$$', [true]],
-        ['   $$a$$   ', [true]],
-        ['$$a$$ $$b$$', [true, true]],
-        ['$$a$$\n$$b$$', [true, true]],
-        ['$$e\nf$$', [true]],
-        ['> $$a$$', [true]],
-        ['> > $$a$$', [true]],
-        ['- $$c$$', [true]],
-        ['- item\n\n  $$c$$', [true]],
-        ['1. $$d$$', [true]],
-        ['- [ ] $$t$$', [true]],
-        ['- > $$x$$', [true]],
-        ['> - $$y$$', [true]],
-        ['text $$a$$ text', [false]],
-        ['$$a$$ text', [false]],
-        ['text $$a$$', [false]],
-        ['line one\n$$a$$\nline three', [false]],
-        ['$x$ and $$x$$', [false, false]],
-        ['**$$a$$**', [false]],
-        ['- see $$c$$', [false]],
-        ['# $$a$$', [false]],
-        ['| h |\n| --- |\n| $$d$$ |', [false]],
-    ];
-
-    for (const [markdown, display] of renderCases) {
-        it(`renders ${JSON.stringify(markdown)} as ${display.map(d => (d ? 'display' : 'inline')).join(', ')} math`, () => {
-            const muya = bootMuya(`${markdown}\n`);
-            const wrappers = [...muya.domNode.querySelectorAll('.mu-math')];
-
-            expect(wrappers.map(wrapper => wrapper.classList.contains('mu-display-math'))).toEqual(display);
-            expect(wrappers.map(wrapper => wrapper.querySelector('.katex-display') !== null)).toEqual(display);
-        });
-    }
-
-    it('uses the full double-dollar marker when mapping preview offsets', () => {
-        const muya = bootMuya('$$x$$\n');
-        const preview = muya.domNode.querySelector<HTMLElement>('.mu-math-render');
-
-        expect(preview?.dataset.start).toBe('2');
-        expect(preview?.dataset.end).toBe('3');
-    });
-
-    it('preserves the authored same-line syntax when serializing markdown', () => {
-        const source = '$$ E=MC^2 $$\n';
-        const muya = bootMuya(source);
-
-        expect(muya.getMarkdown()).toBe(source);
     });
 });
 

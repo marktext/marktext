@@ -57,8 +57,6 @@ export type CommonMarkRules = typeof commonMarkRules;
 
 export const gfmRules = {
     emoji: /^(:)([a-z_\d+-]+)\1/,
-    // eslint-disable-next-line regexp/no-super-linear-backtracking
-    del: /^(~{2})(?=\S)([\s\S]*?\S)(\\*)\1/, // can nest
     auto_link:
     /^<(?:([a-z][a-z\d+.\-]{1,31}:[^ <>]*)|([\w.!#$%&'*+/=?^`{|}~-]+@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*))>/i,
     // (extended www autolink|extended url autolink|extended email autolink) the email regexp is the same as auto_link.

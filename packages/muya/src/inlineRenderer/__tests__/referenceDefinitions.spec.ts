@@ -7,6 +7,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import InlineRenderer from '..';
 import { EditTransactions } from '../../editor/transactions';
 import JSONState from '../../state';
+import { MarkdownToState } from '../../state/markdownToState';
+import ExportMarkdown from '../../state/stateToMarkdown';
+import { getClipBoardHtml } from '../../utils/marked/getClipboardHtml';
+import { getHighlightHtml } from '../../utils/marked/getHighlightHtml';
 
 function makeRenderer(blocks: TState[]) {
     const muya = {
@@ -30,6 +34,29 @@ function makeRenderer(blocks: TState[]) {
 afterEach(() => vi.restoreAllMocks());
 
 describe('reference definition collection cache', () => {
+    it('preserves duplicate definitions through round-trips while resolving the first one', () => {
+        const markdown = '[link][ref]\n\n[REF]: https://first.example "First"\n[ref]: https://second.example "Second"\n';
+        const parser = new MarkdownToState({ frontMatter: false, texMathDollars: false });
+        const states = parser.generate(markdown);
+        const output = new ExportMarkdown().generate(states);
+
+        expect(output).toContain('[REF]: https://first.example "First"');
+        expect(output).toContain('[ref]: https://second.example "Second"');
+
+        for (const blocks of [states, parser.generate(output)]) {
+            const { renderer } = makeRenderer(blocks);
+            expect(renderer.collectReferenceDefinitions().get('ref')).toEqual({
+                href: 'https://first.example',
+                title: 'First',
+            });
+        }
+
+        for (const render of [getClipBoardHtml, getHighlightHtml]) {
+            expect(render(output)).toContain('<a href="https://first.example" title="First">link</a>');
+            expect(render(output)).not.toContain('https://second.example');
+        }
+    });
+
     it('scans each immutable document snapshot once', () => {
         const { renderer } = makeRenderer([
             { name: 'paragraph', text: '[ref]: https://first.example' },
@@ -95,16 +122,16 @@ describe('reference definition collection cache', () => {
             { name: 'paragraph', text: '[ref]: https://last.example' },
         ]);
         renderer.collectReferenceDefinitions();
-        expect(renderer.labels.get('ref')?.href).toBe('https://last.example');
+        expect(renderer.labels.get('ref')?.href).toBe('https://nested.example');
         const revision = jsonState.revision;
         const scan = vi.spyOn(renderer, 'getLabelInfo');
         jsonState.apply(null);
         renderer.collectReferenceDefinitions();
         expect(scan).not.toHaveBeenCalled();
         expect(jsonState.revision).toBe(revision);
-        jsonState.apply(json1.removeOp([1]));
+        jsonState.apply(json1.removeOp([0]));
         renderer.collectReferenceDefinitions();
-        expect(renderer.labels.get('ref')?.href).toBe('https://nested.example');
+        expect(renderer.labels.get('ref')?.href).toBe('https://last.example');
         jsonState.apply(json1.removeOp([0]));
         renderer.collectReferenceDefinitions();
         expect(renderer.labels.size).toBe(0);

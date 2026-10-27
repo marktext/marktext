@@ -1,0 +1,142 @@
+[
+    {
+        "markdown": "**https://example.com/path**text",
+        "html": "<p>**<a href=\"https://example.com/path**text\">https://example.com/path**text</a></p>\n",
+        "checkEditor": true
+    },
+    {
+        "markdown": "*https://example.com/path*text",
+        "html": "<p>*<a href=\"https://example.com/path*text\">https://example.com/path*text</a></p>\n",
+        "checkEditor": true
+    },
+    {
+        "markdown": "~~https://example.com/path~~text",
+        "html": "<p>~~<a href=\"https://example.com/path~~text\">https://example.com/path~~text</a></p>\n",
+        "checkEditor": true
+    },
+    {
+        "markdown": "**https://example.com/path**text*em*",
+        "html": "<p>*<em><a href=\"https://example.com/path**text*em\">https://example.com/path**text*em</a></em></p>\n"
+    },
+    {
+        "markdown": "**https://example.com/path**text\\*a*",
+        "html": "<p>*<em><a href=\"https://example.com/path**text%5C*a\">https://example.com/path**text\\*a</a></em></p>\n"
+    },
+    {
+        "markdown": "**https://example.com/path**text`*a*`",
+        "html": "<p>**<a href=\"https://example.com/path**text%60*a*%60\">https://example.com/path**text`*a*`</a></p>\n",
+        "checkEditor": true
+    },
+    {
+        "markdown": "**https://example.com/path**text[a *b*](/next)",
+        "html": "<p>**<a href=\"https://example.com/path**text%5Ba\">https://example.com/path**text[a</a> <em>b</em>](/next)</p>\n"
+    },
+    {
+        "markdown": "**https://example.com/path**&#x61;",
+        "html": "<p>**<a href=\"https://example.com/path**&amp;#x61\">https://example.com/path**&amp;#x61</a>;</p>\n"
+    },
+    {
+        "markdown": "**https://example.com/path***em*",
+        "html": "<p>*<em><a href=\"https://example.com/path***em\">https://example.com/path***em</a></em></p>\n"
+    },
+    {
+        "markdown": "**https://example.com/path**https://other.example/a*b*c",
+        "html": "<p>**<a href=\"https://example.com/path**https://other.example/a*b*c\">https://example.com/path**https://other.example/a*b*c</a></p>\n"
+    },
+    {
+        "markdown": "**www.example.com/path**text",
+        "html": "<p>**<a href=\"http://www.example.com/path**text\">www.example.com/path**text</a></p>\n"
+    },
+    {
+        "markdown": "**foo@example.com**text",
+        "html": "<p><strong><a href=\"mailto:foo@example.com\">foo@example.com</a></strong>text</p>\n"
+    },
+    {
+        "markdown": "**https://example.com/a*b*c**text",
+        "html": "<p>**<a href=\"https://example.com/a*b*c**text\">https://example.com/a*b*c**text</a></p>\n"
+    },
+    {
+        "markdown": "https://example.com/a*b*c",
+        "html": "<p><a href=\"https://example.com/a*b*c\">https://example.com/a*b*c</a></p>\n",
+        "checkEditor": true
+    },
+    {
+        "markdown": "https://example.com/a**b**c",
+        "html": "<p><a href=\"https://example.com/a**b**c\">https://example.com/a**b**c</a></p>\n"
+    },
+    {
+        "markdown": "a*https://example.com/path**text",
+        "html": "<p>a*<a href=\"https://example.com/path**text\">https://example.com/path**text</a></p>\n"
+    },
+    {
+        "markdown": "*https://example.com/path**text",
+        "html": "<p>*<a href=\"https://example.com/path**text\">https://example.com/path**text</a></p>\n"
+    },
+    {
+        "markdown": "**https://example.com/a`b**text`",
+        "html": "<p>**<a href=\"https://example.com/a%60b**text%60\">https://example.com/a`b**text`</a></p>\n"
+    },
+    {
+        "markdown": "**https://example.com/a\\**text",
+        "html": "<p>**<a href=\"https://example.com/a%5C**text\">https://example.com/a\\**text</a></p>\n"
+    },
+    {
+        "markdown": "**https://example.com/a\\*b*c**text",
+        "html": "<p>**<a href=\"https://example.com/a%5C*b*c**text\">https://example.com/a\\*b*c**text</a></p>\n"
+    },
+    {
+        "markdown": "prefix * unmatched https://example.com/a*b*c",
+        "html": "<p>prefix * unmatched <a href=\"https://example.com/a*b*c\">https://example.com/a*b*c</a></p>\n"
+    },
+    {
+        "markdown": "**<https://example.com/path**text>",
+        "html": "<p>**<a href=\"https://example.com/path**text\">https://example.com/path**text</a></p>\n"
+    },
+    {
+        "markdown": "**[link](https://example.com/path**text)",
+        "html": "<p>**<a href=\"https://example.com/path**text\">link</a></p>\n"
+    },
+    {
+        "markdown": "**`https://example.com/path**text`",
+        "html": "<p>**<code>https://example.com/path**text</code></p>\n"
+    },
+    {
+        "markdown": "[**https://example.com/path**text](/outer)",
+        "html": "<p><a href=\"/outer\"><strong>https://example.com/path</strong>text</a></p>\n"
+    },
+    {
+        "markdown": "**https://example.com/path** text",
+        "html": "<p><strong><a href=\"https://example.com/path\">https://example.com/path</a></strong> text</p>\n",
+        "checkEditor": true
+    },
+    {
+        "markdown": "*https://example.com/path* text",
+        "html": "<p><em><a href=\"https://example.com/path\">https://example.com/path</a></em> text</p>\n",
+        "checkEditor": true
+    },
+    {
+        "markdown": "~~https://example.com/path~~ text",
+        "html": "<p><del><a href=\"https://example.com/path\">https://example.com/path</a></del> text</p>\n",
+        "checkEditor": true
+    },
+    {
+        "markdown": "[**https://example.com/path**](https://example.com/path)text",
+        "html": "<p><a href=\"https://example.com/path\"><strong>https://example.com/path</strong></a>text</p>\n",
+        "checkEditor": true
+    },
+    {
+        "markdown": "https://example.com/path",
+        "html": "<p><a href=\"https://example.com/path\">https://example.com/path</a></p>\n",
+        "checkEditor": true
+    },
+    {
+        "markdown": "<https://example.com/a*b*c>",
+        "html": "<p><a href=\"https://example.com/a*b*c\">https://example.com/a*b*c</a></p>\n",
+        "checkEditor": true
+    },
+    {
+        "markdown": "**https://example.com/path**text[a *b*](https://example.com/next)",
+        "html": "<p>**<a href=\"https://example.com/path**text%5Ba\">https://example.com/path**text[a</a> <em>b</em>](<a href=\"https://example.com/next\">https://example.com/next</a>)</p>\n",
+        "checkEditor": true
+    }
+]

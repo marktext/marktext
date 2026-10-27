@@ -1,0 +1,50 @@
+[
+    {
+        "markdown": "*~~a*~~",
+        "html": "<p><em>~~a</em>~~</p>\n"
+    },
+    {
+        "markdown": "~~a~",
+        "html": "<p>~~a~</p>\n"
+    },
+    {
+        "markdown": "~a~~",
+        "html": "<p>~a~~</p>\n"
+    },
+    {
+        "markdown": "x ~~~a~~~",
+        "html": "<p>x ~~~a~~~</p>\n"
+    },
+    {
+        "markdown": "*~~b~~*",
+        "html": "<p><em><del>b</del></em></p>\n"
+    },
+    {
+        "markdown": "a~~b~~c",
+        "html": "<p>a<del>b</del>c</p>\n"
+    },
+    {
+        "markdown": "~_a~_",
+        "html": "<p><del>_a</del>_</p>\n"
+    },
+    {
+        "markdown": "b_~_*..~*",
+        "html": "<p>b_<del>_*..</del>*</p>\n"
+    },
+    {
+        "markdown": "~~*a~~*",
+        "html": "<p><del>*a</del>*</p>\n"
+    },
+    {
+        "markdown": "~~a **b~~ c**",
+        "html": "<p><del>a **b</del> c**</p>\n"
+    },
+    {
+        "markdown": "~a~",
+        "html": "<p><del>a</del></p>\n"
+    },
+    {
+        "markdown": "~~a ~~b~~ c~~",
+        "html": "<p><del>a <del>b</del> c</del></p>\n"
+    }
+]

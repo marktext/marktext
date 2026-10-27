@@ -7,7 +7,9 @@ import cms from 'commonmark-spec';
 
 import { describe, expect, it } from 'vitest';
 import { escapeHTML } from '../../utils';
-import { scanEmphasisSpans } from '../emphasis';
+import autolinkFixtures from '../../utils/marked/__tests__/fixtures/gfm-autolink-precedence.json';
+import gfmFixtures from '../../utils/marked/__tests__/fixtures/gfm-delimiter-regressions.json';
+import { scanDelimiterSpans } from '../delimiters';
 import { tokenizer } from '../lexer';
 import { inlineRules } from '../rules';
 
@@ -53,6 +55,12 @@ function renderTokens(tokens: Token[]): string {
             case 'auto_link':
                 html += `<a href="${escapeHTML(token.href)}">${escapeHTML(token.raw.replace(/^<|>$/g, ''))}</a>`;
                 break;
+
+            case 'auto_link_extension': {
+                const href = token.www ? `http://${token.www}` : token.url || `mailto:${token.email}`;
+                html += `<a href="${escapeHTML(encodeURI(href))}">${escapeHTML(token.raw)}</a>`;
+                break;
+            }
 
             case 'backlash':
                 html += escapeHTML(token.raw.replace(/^\\/, ''));
@@ -167,16 +175,16 @@ describe('delimiter runs spent from both ends', () => {
             for (let i = 1 + Math.floor(random() * 14); i > 0; i--)
                 src += alphabet[Math.floor(random() * alphabet.length)];
 
-            const found = [...scanEmphasisSpans(src, 0, inlineRules, new Map(), OPTIONS, true).values()]
+            const found = [...scanDelimiterSpans(src, 0, inlineRules, new Map(), OPTIONS, true).values()]
                 .sort((a, b) => a.start - b.start || b.end - a.end);
 
             for (const [i, span] of found.entries()) {
-                const opener = src.slice(span.start, span.start + span.markerLen);
+                const opener = src.slice(span.start, span.start + span.markerLength);
                 if (
                     span.start < 0
                     || span.end > src.length
-                    || span.end - span.start < 2 * span.markerLen
-                    || opener !== src.slice(span.end - span.markerLen, span.end)
+                    || span.end - span.start < 2 * span.markerLength
+                    || opener !== src.slice(span.end - span.markerLength, span.end)
                 ) {
                     broken.push(`${JSON.stringify(src)} — malformed [${span.start},${span.end})`);
                 }
@@ -184,8 +192,8 @@ describe('delimiter runs spent from both ends', () => {
                 for (const other of found.slice(i + 1)) {
                     const disjoint = other.start >= span.end;
                     const nested
-                        = other.start >= span.start + span.markerLen
-                            && other.end <= span.end - span.markerLen;
+                        = other.start >= span.start + span.markerLength
+                            && other.end <= span.end - span.markerLength;
                     if (!disjoint && !nested) {
                         broken.push(
                             `${JSON.stringify(src)} — [${span.start},${span.end}) vs [${other.start},${other.end})`,
@@ -243,8 +251,8 @@ describe('constructs that outrank emphasis', () => {
     });
 
     it.each([
-        ['*www.x.com/a*b*c*', '<em>www.x.com/a*b*c</em>'],
-        ['~~www.x.com/a*b*c~~', '<del>www.x.com/a<em>b</em>c</del>'],
+        ['*www.x.com/a*b*c*', '<em><a href="http://www.x.com/a*b*c">www.x.com/a*b*c</a></em>'],
+        ['~~www.x.com/a*b*c~~', '<del><a href="http://www.x.com/a*b*c">www.x.com/a*b*c</a></del>'],
     ])('%s', (markdown, expected) => {
         expect(renderInline(markdown)).toBe(expected);
     });
@@ -253,5 +261,15 @@ describe('constructs that outrank emphasis', () => {
 describe('one scan for the whole tree', () => {
     it('does not re-decide a nested run out of context', () => {
         expect(renderInline('*_b.__*')).toBe('<em>_b.__</em>');
+    });
+});
+
+describe('GFM URL boundaries shared with clipboard and export', () => {
+    it.each(gfmFixtures)('$markdown retains GFM delimiter precedence', ({ markdown, html }) => {
+        expect(`<p>${renderInline(markdown)}</p>\n`).toBe(html);
+    });
+
+    it.each(autolinkFixtures.filter(fixture => fixture.checkEditor))('$markdown', ({ markdown, html }) => {
+        expect(`<p>${renderInline(markdown)}</p>\n`).toBe(html);
     });
 });

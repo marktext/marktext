@@ -1,10 +1,10 @@
+import type { IDelimiterRun, IDelimiterSpan } from '../utils/delimiters';
 import type { InlineRules } from './rules';
 import type { ITokenizerFacOptions, Labels } from './types';
+import { codePointBefore, codePointCharAt, pairDelimiters } from '../utils/delimiters';
 import { BACKSLASH_MATH_RULES, linkValidateRules } from './rules';
 import {
     CJK_REG,
-    codePointBefore,
-    codePointCharAt,
     matchAt,
     matchBracketed,
     matchExtendedAutoLink,
@@ -13,31 +13,14 @@ import {
     UNICODE_WHITESPACE_REG,
 } from './utils';
 
-export interface IEmphasisSpan {
-    start: number;
-    end: number;
-    markerLen: number;
-}
-
-interface IDelimiterRun {
-    char: string;
-    length: number;
-    left: number;
-    right: number;
-    canOpen: boolean;
-    canClose: boolean;
-}
+export type { IDelimiterSpan } from '../utils/delimiters';
 
 interface IScanContext {
     rules: InlineRules;
     labels: Labels;
     options: ITokenizerFacOptions;
-    top: boolean;
-    mayAutoLink: boolean;
-}
-
-function unspent(run: IDelimiterRun) {
-    return run.right - run.left;
+    allowAutolinks: boolean;
+    scanAutolinks: boolean;
 }
 
 function isWhitespace(char: string) {
@@ -64,8 +47,8 @@ function isAsciiAlphanumeric(code: number) {
     );
 }
 
-function lengthOf(to: RegExpExecArray | null) {
-    return to?.[0].length ?? 0;
+function lengthOf(match: RegExpExecArray | null) {
+    return match?.[0].length ?? 0;
 }
 
 function backslashMathLength(src: string, index: number, { rules, options }: IScanContext) {
@@ -89,15 +72,15 @@ function dollarMathLength(src: string, index: number, { rules, options }: IScanC
 }
 
 function autoLinkLength(src: string, index: number, context: IScanContext) {
-    if (!context.mayAutoLink || !isAsciiAlphanumeric(src.charCodeAt(index)))
+    if (!context.scanAutolinks || !isAsciiAlphanumeric(src.charCodeAt(index)))
         return 0;
 
     return lengthOf(
-        matchExtendedAutoLink(context.rules.auto_link_extension, src, index, context.top),
+        matchExtendedAutoLink(context.rules.auto_link_extension, src, index, context.allowAutolinks),
     );
 }
 
-function inertRunLength(src: string, index: number, context: IScanContext): number {
+function protectedLength(src: string, index: number, context: IScanContext): number {
     const { rules, labels } = context;
 
     switch (src[index]) {
@@ -135,10 +118,15 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
     while (i < src.length) {
         const char = src[i];
 
-        if (char === '*' || char === '_') {
+        if (char === '*' || char === '_' || char === '~') {
             let length = 1;
             while (src[i + length] === char)
                 length++;
+
+            if (char === '~' && (length > 2 || (length === 1 && context.options.superSubScript))) {
+                i += length;
+                continue;
+            }
 
             const before = charBefore(src, i);
             const after = charAfter(src, i + length);
@@ -154,88 +142,36 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
                 length,
                 left: i,
                 right: i + length,
-                canOpen: leftFlanking && (char === '*' || isBoundary(before)),
-                canClose: rightFlanking && (char === '*' || isBoundary(after)),
+                canOpen: leftFlanking && (char !== '_' || isBoundary(before)),
+                canClose: rightFlanking && (char !== '_' || isBoundary(after)),
             });
             i += length;
             continue;
         }
 
-        const inert = inertRunLength(src, i, context);
-        i += inert > 0 ? inert : 1;
+        const skipLength = protectedLength(src, i, context);
+        i += skipLength > 0 ? skipLength : 1;
     }
 
     return runs;
 }
 
-function violatesRuleOfThree(opener: IDelimiterRun, closer: IDelimiterRun) {
-    if (!opener.canClose && !closer.canOpen)
-        return false;
-
-    if ((opener.length + closer.length) % 3 !== 0)
-        return false;
-
-    return opener.length % 3 !== 0 || closer.length % 3 !== 0;
-}
-
-function canPair(opener: IDelimiterRun, closer: IDelimiterRun) {
-    return (
-        opener.char === closer.char
-        && unspent(opener) > 0
-        && !violatesRuleOfThree(opener, closer)
-    );
-}
-
-export function scanEmphasisSpans(
+export function scanDelimiterSpans(
     src: string,
-    base: number,
+    offset: number,
     rules: InlineRules,
     labels: Labels,
     options: ITokenizerFacOptions,
-    top: boolean,
-): Map<number, IEmphasisSpan> {
+    allowAutolinks: boolean,
+): Map<number, IDelimiterSpan> {
     const runs = collectRuns(src, {
         rules,
         labels,
         options,
-        top,
-        mayAutoLink:
-            top
+        allowAutolinks,
+        scanAutolinks:
+            allowAutolinks
             && (src.includes('www.') || src.includes('http') || src.includes('@')),
     });
-    const spans = new Map<number, IEmphasisSpan>();
-    const openers: number[] = [];
-
-    for (let i = 0; i < runs.length; i++) {
-        const closer = runs[i];
-
-        while (closer.canClose && unspent(closer) > 0) {
-            let top = openers.length - 1;
-            while (top >= 0 && !canPair(runs[openers[top]], closer))
-                top--;
-
-            if (top < 0)
-                break;
-
-            const opener = runs[openers[top]];
-            openers.length = top + 1;
-
-            const markerLen = unspent(opener) >= 2 && unspent(closer) >= 2 ? 2 : 1;
-            opener.right -= markerLen;
-            closer.left += markerLen;
-            spans.set(base + opener.right, {
-                start: base + opener.right,
-                end: base + closer.left,
-                markerLen,
-            });
-
-            if (unspent(opener) === 0)
-                openers.pop();
-        }
-
-        if (closer.canOpen && unspent(closer) > 0)
-            openers.push(i);
-    }
-
-    return spans;
+    return pairDelimiters(runs, offset);
 }
