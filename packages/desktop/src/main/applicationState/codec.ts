@@ -261,7 +261,7 @@ export const parseDocument = (value: unknown): DocumentSnapshot | null => {
   }
 }
 
-const windowSnapshot = (value: unknown): WindowSnapshot | null => {
+export const parseWindowSnapshot = (value: unknown): WindowSnapshot | null => {
   if (
     !object(value) ||
     !validIdentity(value.id) ||
@@ -326,7 +326,7 @@ export const parseApplicationState = (input: unknown): ApplicationState => {
   const seen = new Set<string>()
   const windows: WindowSnapshot[] = []
   for (const item of windowValues) {
-    const entry = windowSnapshot(item)
+    const entry = parseWindowSnapshot(item)
     if (entry && !seen.has(entry.id)) {
       seen.add(entry.id)
       windows.push(entry)
@@ -388,7 +388,7 @@ export const parseApplicationState = (input: unknown): ApplicationState => {
       activeWindowId: windows.some((window) => window.id === session.activeWindowId)
         ? (session.activeWindowId as string)
         : (windows[0]?.id ?? null),
-      lastWindow: windows.length === 0 ? windowSnapshot(session.lastWindow) : null
+      lastWindow: windows.length === 0 ? parseWindowSnapshot(session.lastWindow) : null
     },
     recentWorkspaces,
     lastActiveWorkspaceId: recentWorkspaces.some(
