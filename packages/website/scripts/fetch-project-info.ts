@@ -1,7 +1,10 @@
+import { getReleaseDownloads } from '../src/lib/downloads'
+
 const REPOSITORY_API = 'https://api.github.com/repos/marktext/marktext'
 
 export type ProjectInfo = {
   releaseVersion?: string
+  releaseAssets?: string[]
   githubStars?: number
   contributors?: number
 }
@@ -34,17 +37,30 @@ async function getStars(signal: AbortSignal, fetcher: typeof fetch): Promise<num
   return repository.stargazers_count
 }
 
-async function getRelease(signal: AbortSignal, fetcher: typeof fetch): Promise<string> {
+async function getRelease(
+  signal: AbortSignal,
+  fetcher: typeof fetch
+): Promise<{ releaseVersion: string; releaseAssets: string[] }> {
   const release = await readGitHub('/releases/latest', signal, fetcher)
   if (
     typeof release !== 'object' ||
     release === null ||
     !('tag_name' in release) ||
     typeof release.tag_name !== 'string' ||
-    !release.tag_name.trim()
+    !release.tag_name.trim() ||
+    !('assets' in release) ||
+    !Array.isArray(release.assets)
   )
     throw new Error('Invalid GitHub release')
-  return release.tag_name
+  const releaseAssets = release.assets.flatMap((asset: unknown) =>
+    typeof asset === 'object' && asset !== null && 'name' in asset && typeof asset.name === 'string'
+      ? [asset.name]
+      : []
+  )
+  if (!getReleaseDownloads(release.tag_name, releaseAssets).length) {
+    throw new Error('GitHub release has no supported downloads')
+  }
+  return { releaseVersion: release.tag_name, releaseAssets }
 }
 
 async function getContributors(signal: AbortSignal, fetcher: typeof fetch): Promise<number> {
@@ -73,7 +89,8 @@ export async function getProjectInfo(
     getContributors(signal, fetcher)
   ])
   return {
-    releaseVersion: release.status === 'fulfilled' ? release.value : undefined,
+    releaseVersion: release.status === 'fulfilled' ? release.value.releaseVersion : undefined,
+    releaseAssets: release.status === 'fulfilled' ? release.value.releaseAssets : undefined,
     githubStars: stars.status === 'fulfilled' ? stars.value : undefined,
     contributors: contributors.status === 'fulfilled' ? contributors.value : undefined
   }

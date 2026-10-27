@@ -15,7 +15,10 @@ const snapshot = { ...PROJECT_INFO }
 for (const key of ['releaseVersion', 'githubStars', 'contributors'] as const) {
   if (info[key] === undefined) console.warn(`GitHub ${key} unavailable; keeping snapshot`)
 }
-snapshot.releaseVersion = info.releaseVersion ?? snapshot.releaseVersion
+if (info.releaseVersion && info.releaseAssets) {
+  snapshot.releaseVersion = info.releaseVersion
+  snapshot.releaseAssets = info.releaseAssets
+}
 snapshot.githubStars = info.githubStars ?? snapshot.githubStars
 snapshot.contributors = info.contributors ?? snapshot.contributors
 

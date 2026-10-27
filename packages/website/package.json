@@ -13,6 +13,7 @@
     "lint": "eslint . --max-warnings 0",
     "type-check": "tsc --noEmit",
     "test:project-info": "tsx --tsconfig scripts/tsconfig.test.json --test scripts/project-info.test.tsx",
+    "test:downloads": "tsx --tsconfig scripts/tsconfig.test.json --test scripts/downloads.test.tsx",
     "test:markdown": "tsx --test scripts/markdown.test.ts",
     "cf:build": "opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare populateCache local",
     "cf:preview": "opennextjs-cloudflare preview",
