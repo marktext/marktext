@@ -117,8 +117,9 @@
       <template #children>
         <cur-select
           :description="t('preferences.editor.fileRepresentation.tabWidth')"
+          :notes="t('preferences.editor.fileRepresentation.tabInputNotes')"
           :value="tabSize"
-          :options="tabSizeOptions"
+          :options="getTabSizeOptions()"
           :on-change="(value) => onSelectChange('tabSize', value)"
         />
         <cur-select
@@ -202,7 +203,7 @@ import CurSelect from '../common/select/index.vue'
 import Bool from '../common/bool/index.vue'
 import TextBox from '../common/textBox/index.vue'
 import {
-  tabSizeOptions,
+  getTabSizeOptions,
   getEndOfLineOptions,
   getTextDirectionOptions,
   getTrimTrailingNewlineOptions,

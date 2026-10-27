@@ -8,6 +8,7 @@ import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBa
 import multilineBlockquoteExtension from './extensions/multilineBlockquote';
 import fm from './frontMatter';
 import { DEFAULT_OPTIONS } from './options';
+import { restoreCodeTabs } from './restoreCodeTabs';
 import walkTokens from './walkTokens';
 
 export function lexBlock(
@@ -75,6 +76,8 @@ export function lexBlock(
     m.use(githubAlertsExtension(options.githubAlerts === true));
     const lexer = new m.Lexer(m.defaults);
     const parsed = lexer.blockTokens(src);
+    if (src.includes('\t'))
+        restoreCodeTabs(parsed, src);
     tokens.push(...parsed);
     tokens = compatibleTaskList(tokens as Token[]);
     if (options.githubAlerts)

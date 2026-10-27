@@ -454,7 +454,7 @@
         "bulletListMarker": "Sırasız listede kullanılan işaret",
         "orderListDelimiter": "Sıralı listede kullanılan ayraç",
         "preferHeadingStyle": "MarkText'te tercih edilen başlık stili",
-        "tabSize": "Sekmeyi x boşlukla değiştir",
+        "tabSize": "Tab tuşu girdisi",
         "listIndentation": "Liste girintisini seçin",
         "frontmatterType": "Ön bilgi türü",
         "superSubScript": "Pandoc'un markdown uzantısı üst simge ve alt simgeyi etkinleştir",
@@ -611,7 +611,8 @@
       },
       "fileRepresentation": {
         "title": "Dosya Gösterimi",
-        "tabWidth": "Sekme genişliği",
+        "tabWidth": "Tab tuşu girdisi",
+        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
         "lineSeparator": "Satır ayırıcı",
         "defaultEncoding": "Varsayılan kodlama",
         "autoDetectEncoding": "Kodlamayı otomatik algıla",

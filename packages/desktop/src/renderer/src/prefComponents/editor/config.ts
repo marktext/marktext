@@ -2,22 +2,26 @@ import { ENCODING_NAME_MAP } from 'common/encoding'
 import { t } from '../../i18n'
 import type { PrefSelectOption } from '../common/types'
 
-export const tabSizeOptions: PrefSelectOption<number>[] = [
+export const getTabSizeOptions = (): PrefSelectOption<number | 'tab'>[] => [
   {
-    label: '1',
+    label: t('preferences.markdown.lists.listIndentation.oneSpace'),
     value: 1
   },
   {
-    label: '2',
+    label: t('preferences.markdown.lists.listIndentation.twoSpaces'),
     value: 2
   },
   {
-    label: '3',
+    label: t('preferences.markdown.lists.listIndentation.threeSpaces'),
     value: 3
   },
   {
-    label: '4',
+    label: t('preferences.markdown.lists.listIndentation.fourSpaces'),
     value: 4
+  },
+  {
+    label: t('preferences.markdown.lists.listIndentation.tab'),
+    value: 'tab'
   }
 ]
 

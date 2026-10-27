@@ -14,6 +14,7 @@ import { adjustOffset, escapeHTML, firstGraphemeLength, firstWordOfInfo, lastGra
 import { computeLineCount, repositionLineNumberSpans, syncLineNumbersSpans } from '../../../utils/codeBlockLineNumbers';
 import { getHighlightHtml, MARKER_HASH } from '../../../utils/highlightHTML';
 import prism, { loadedLanguages, transformAliasToOrigin, walkTokens } from '../../../utils/prism/index';
+import { tabText } from '../../../utils/tab';
 import Content from '../../base/content';
 import { ScrollPage } from '../../scrollPage';
 
@@ -275,7 +276,7 @@ class CodeBlockContent extends Content {
             return;
         }
 
-        const { tabSize } = this.muya.options;
+        const indentation = tabText(this.muya.options.tabSize);
         const { start } = this.getCursor()!;
         const { text } = this;
         const autoIndent = checkAutoIndent(text, start.offset);
@@ -284,14 +285,14 @@ class CodeBlockContent extends Content {
         this.text
             = `${text.substring(0, start.offset)
             }\n${
-                autoIndent ? `${indent + ' '.repeat(tabSize)}\n` : ''
+                autoIndent ? `${indent + indentation}\n` : ''
             }${indent
             }${text.substring(start.offset)}`;
 
         let offset = start.offset + 1 + indent.length;
 
         if (autoIndent)
-            offset += tabSize;
+            offset += indentation.length;
 
         this.setCursor(offset, offset, true);
     }

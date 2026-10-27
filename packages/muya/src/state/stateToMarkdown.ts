@@ -22,7 +22,7 @@ import type {
 /* eslint-disable no-fallthrough */
 import { deepClone } from '../utils';
 import { githubAlertMarker } from '../utils/githubAlerts';
-
+import { indentationWidth, indentToTabStop, indentWithTabs, removeIndent } from '../utils/indentation';
 import logger from '../utils/logger';
 import stringWidth from '../utils/stringWidth';
 import { BlockBoundaryResolver } from './blockBoundary';
@@ -69,7 +69,11 @@ export default class ExportMarkdown {
         this._isLooseParentList = true;
 
         this._listIndentation = 'number';
-        if (listIndentation === 'dfm') {
+        if (listIndentation === 'tab') {
+            this._listIndentation = 'tab';
+            this._listIndentationCount = 4;
+        }
+        else if (listIndentation === 'dfm') {
             this._listIndentation = 'dfm';
             this._listIndentationCount = 4;
         }
@@ -632,7 +636,9 @@ export default class ExportMarkdown {
             itemMarker = '- ';
         }
 
-        const newIndent = indent + ' '.repeat(itemMarker.length);
+        const layout = this._listItemIndent(indent, itemMarker);
+        indent = layout.indent;
+        const { newIndent, container, contentColumn } = layout;
 
         // Additional nesting indentation beyond the parent item’s content column;
         // CommonMark already permits nesting at that column.
@@ -642,11 +648,6 @@ export default class ExportMarkdown {
             listIndent = ' '.repeat(Math.max(0, 4 - itemMarker.length));
         else if (listIndentation === 'number')
             listIndent = ' '.repeat(this._listIndentationCount - 1);
-
-        // TODO: Indent subsequent paragraphs by one tab. - not important
-        //  Problem: "convertStatesToMarkdown" use "indent" in spaces to indent elements. How should
-        //  we integrate tabs in block quotes and subsequent paragraphs and how to combine with spaces?
-        //  I don't know how to combine tabs and spaces and it seems not specified, so work for another day.
 
         if (name === 'task-list-item')
             itemMarker += state.meta.checked ? '[x] ' : '[ ] ';
@@ -659,6 +660,28 @@ export default class ExportMarkdown {
         if (startsWithIndentedHeading(children[0]))
             return `${indent}${itemMarker.trimEnd()}\n${content}`;
 
-        return `${indent}${itemMarker}${content.substring(newIndent.length)}`;
+        const firstContent = content.startsWith(newIndent)
+            ? content.slice(newIndent.length)
+            : removeIndent(content.slice(container.length), contentColumn, indentationWidth(container));
+        return `${indent}${itemMarker}${firstContent}`;
+    }
+
+    private _listItemIndent(indent: string, itemMarker: string) {
+        const quoteEnd = indent.lastIndexOf('>');
+        const container = quoteEnd < 0 ? '' : `${indent.slice(0, quoteEnd + 1)} `;
+        const startColumn = indentationWidth(container);
+        if (this._listIndentation === 'tab') {
+            const prefix = indent.slice(container.length);
+            // Marked restarts tab columns after each "> "; satisfy that origin too.
+            const quotePadding = container && prefix ? Math.max(0, 2 - startColumn % 4) : 0;
+            indent = container + (container
+                ? indentWithTabs(indentationWidth(prefix, startColumn) + quotePadding, startColumn)
+                : indentToTabStop(prefix));
+        }
+        const contentColumn = indentationWidth(indent + itemMarker) - startColumn;
+        const newIndent = this._listIndentation === 'tab'
+            ? container + indentWithTabs(contentColumn, startColumn)
+            : indent + ' '.repeat(itemMarker.length);
+        return { indent, newIndent, container, contentColumn };
     }
 }

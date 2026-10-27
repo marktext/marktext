@@ -455,7 +455,7 @@
         "bulletListMarker": "Die Markierung in Aufzählungslisten",
         "orderListDelimiter": "Das Trennzeichen in geordneten Listen",
         "preferHeadingStyle": "Der bevorzugte Überschriften-Stil in MarkText",
-        "tabSize": "Tab durch x Leerzeichen ersetzen",
+        "tabSize": "Eingabe mit der Tabulatortaste",
         "listIndentation": "Einrückung der Liste auswählen",
         "frontmatterType": "Der Frontmatter-Typ",
         "superSubScript": "Pandocs Markdown-Erweiterung für hoch- und tiefgestellte Zeichen aktivieren",
@@ -611,7 +611,8 @@
       },
       "fileRepresentation": {
         "title": "Dateidarstellung",
-        "tabWidth": "Tab-Breite",
+        "tabWidth": "Eingabe mit der Tabulatortaste",
+        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
         "lineSeparator": "Zeilentrenner",
         "defaultEncoding": "Standard-Kodierung",
         "autoDetectEncoding": "Kodierung automatisch erkennen",

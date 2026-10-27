@@ -453,7 +453,7 @@
         "bulletListMarker": "Marcatore di elenchi puntati",
         "orderListDelimiter": "Delimitatore di elenchi ordinati",
         "preferHeadingStyle": "Stile preferito delle intestazioni in MarkText",
-        "tabSize": "Sostituisci il carattere di tabulazione con ‘n’ spazi",
+        "tabSize": "Inserimento con il tasto Tab",
         "listIndentation": "Seleziona l’entità di rientro dell’elenco",
         "frontmatterType": "Tipo di Front Matter",
         "superSubScript": "Abilita l’estensione Pandoc per creare apici e pedici in Markdown",
@@ -611,7 +611,8 @@
       },
       "fileRepresentation": {
         "title": "Rappresentazione del file",
-        "tabWidth": "Larghezza tabulazione",
+        "tabWidth": "Inserimento con il tasto Tab",
+        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
         "lineSeparator": "Separatore di linea",
         "defaultEncoding": "Codifica predefinita",
         "autoDetectEncoding": "Rilevamento automatico della codifica",

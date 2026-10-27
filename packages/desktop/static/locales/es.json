@@ -455,7 +455,7 @@
         "bulletListMarker": "El marcador usado en lista de viñetas",
         "orderListDelimiter": "El delimitador usado en lista ordenada",
         "preferHeadingStyle": "El estilo de encabezado preferido en MarkText",
-        "tabSize": "Reemplazar la tabulación con x espacios",
+        "tabSize": "Entrada de la tecla Tab",
         "listIndentation": "Seleccionar la sangría de lista",
         "frontmatterType": "El tipo de frontmatter",
         "superSubScript": "Habilitar extensión markdown de pandoc superíndice y subíndice",
@@ -611,7 +611,8 @@
       },
       "fileRepresentation": {
         "title": "Representación de Archivo",
-        "tabWidth": "Ancho de tabulación",
+        "tabWidth": "Entrada de la tecla Tab",
+        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
         "lineSeparator": "Separador de línea",
         "defaultEncoding": "Codificación predeterminada",
         "autoDetectEncoding": "Detectar codificación automáticamente",

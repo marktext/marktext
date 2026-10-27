@@ -360,3 +360,7 @@ body {
     visibility: visible;
     opacity: 1;
 }
+
+.mu-editor .mu-content {
+    tab-size: 4;
+}

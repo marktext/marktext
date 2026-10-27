@@ -25,6 +25,7 @@ import { ChangeSource } from '../types';
 import { deepClone, hasPick, isHTMLElement } from '../utils';
 import { getBlock } from '../utils/dom';
 import logger from '../utils/logger';
+import { isTabKey } from '../utils/tab';
 import { attachDragDropImageHandlers } from './dragDropImage';
 import { attachLinkMouseHandlers } from './linkMouseEvents';
 import { EditTransactions } from './transactions';
@@ -436,7 +437,7 @@ export class Editor {
                 ? this._inputSelection
                 : this.selection.getSelectionState();
             try {
-                this.transact(() => eventHandler(event), false, selection);
+                this.transact(() => eventHandler(event), isTabKey(event), selection);
             }
             finally {
                 if (event.type === 'compositionend')

@@ -996,23 +996,6 @@ class ParagraphContent extends Format {
         cursorBlock?.setCursor(start.offset, end.offset, true);
     }
 
-    protected override insertTab() {
-        const { muya, text } = this;
-        const { tabSize } = muya.options;
-        const tabCharacter = String.fromCharCode(32).repeat(tabSize);
-        const { start, end } = this.getCursor()!;
-
-        if (this.isCollapsed) {
-            this.text
-                = text.substring(0, start.offset)
-                    + tabCharacter
-                    + text.substring(end.offset);
-            const offset = start.offset + tabCharacter.length;
-
-            this.setCursor(offset, offset, true);
-        }
-    }
-
     private _checkCursorAtEndFormat(): Nullable<{ offset: number }> {
         const { offset } = this.getCursor()!.start;
         const { muya, text } = this;
@@ -1085,6 +1068,9 @@ class ParagraphContent extends Format {
             this._indentListItem();
             return;
         }
+
+        if (this.isCollapsed && isListItemBlock(this.parent?.parent))
+            return;
 
         this.insertTab();
     }

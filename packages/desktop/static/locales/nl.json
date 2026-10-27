@@ -454,7 +454,7 @@
         "bulletListMarker": "Het teken voor opsommingslijsten",
         "orderListDelimiter": "Het scheidingsteken voor genummerde lijsten",
         "preferHeadingStyle": "De voorkeursstijl voor koppen",
-        "tabSize": "Tab vervangen door x spaties",
+        "tabSize": "Invoer met de Tab-toets",
         "listIndentation": "Inspringkeuze voor lijsten",
         "frontmatterType": "Het type Front Matter",
         "superSubScript": "Pandoc superscript en subscript inschakelen",
@@ -611,7 +611,8 @@
       },
       "fileRepresentation": {
         "title": "Bestandsweergave",
-        "tabWidth": "Tabbreedte",
+        "tabWidth": "Invoer met de Tab-toets",
+        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
         "lineSeparator": "Regelscheidingsteken",
         "defaultEncoding": "Standaardcodering",
         "autoDetectEncoding": "Codering automatisch detecteren",
