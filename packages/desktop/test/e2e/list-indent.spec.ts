@@ -28,12 +28,7 @@ import {
 // preference store, so it is intentionally not duplicated here.
 // ---------------------------------------------------------------------------
 
-// Place the caret inside the Nth (0-based) `span.mu-paragraph-content` in the
-// editor and commit it to the engine's model the same way helpers.ts does for
-// the first paragraph: collapse the range to the end of the span, fire a
-// selectionchange, then a synthetic keyup on the editor root so the engine
-// updates its `activeContentBlock` (it derives that from click/keyup events).
-const placeCaretInContentSpan = async(page: Page, index: number): Promise<void> => {
+const placeCaretAtContentStart = async(page: Page, index: number): Promise<void> => {
   await page.evaluate((idx) => {
     const root = document.querySelector('.editor-component') as HTMLElement | null
     if (!root) return
@@ -43,14 +38,15 @@ const placeCaretInContentSpan = async(page: Page, index: number): Promise<void> 
     if (!target) return
     const range = document.createRange()
     range.selectNodeContents(target)
-    range.collapse(false)
+    range.collapse(true)
     const sel = window.getSelection()
     if (!sel) return
     sel.removeAllRanges()
     sel.addRange(range)
     document.dispatchEvent(new Event('selectionchange'))
+    // Muya updates its active block on click/keyup; selectionchange alone is insufficient.
     root.dispatchEvent(
-      new KeyboardEvent('keyup', { key: 'ArrowRight', bubbles: true, cancelable: true })
+      new KeyboardEvent('keyup', { key: 'ArrowLeft', bubbles: true, cancelable: true })
     )
   }, index)
   await page.waitForTimeout(150)
@@ -109,7 +105,7 @@ test.describe('List Tab/Shift-Tab nesting (items 30, 42)', () => {
     // Put the caret in the SECOND list item (index 1 of the content spans),
     // then press Tab. The engine indents item two into a nested ul inside the
     // first li.
-    await placeCaretInContentSpan(page, 1)
+    await placeCaretAtContentStart(page, 1)
     await page.keyboard.press('Tab')
 
     await page.waitForSelector('.editor-component ul li ul li', {
@@ -124,7 +120,7 @@ test.describe('List Tab/Shift-Tab nesting (items 30, 42)', () => {
     const nestedMd = (await getMarkdownContent(page, app)).replace(/\n+$/, '')
     expect(nestedMd).toBe('- item one\n  - item two')
 
-    await placeCaretInContentSpan(page, 1)
+    await placeCaretAtContentStart(page, 1)
     await page.keyboard.press('Shift+Tab')
 
     await page.waitForFunction(
@@ -154,7 +150,7 @@ test.describe('List Tab/Shift-Tab nesting (items 30, 42)', () => {
 
     // Caret in the FIRST item; Tab must NOT create a nested list (the engine's
     // _canIndentListItem requires a previous sibling list-item).
-    await placeCaretInContentSpan(page, 0)
+    await placeCaretAtContentStart(page, 0)
     await page.keyboard.press('Tab')
     await page.waitForTimeout(300)
 
@@ -173,7 +169,7 @@ test.describe('List Tab/Shift-Tab nesting (items 30, 42)', () => {
       { timeout: 5000 }
     )
 
-    await placeCaretInContentSpan(page, 1)
+    await placeCaretAtContentStart(page, 1)
     await page.keyboard.press('Tab')
 
     await page.waitForSelector('.editor-component ol li ol li', {
