@@ -126,12 +126,25 @@ const portsFor = (id: string): ViewPorts => ({
   source: source?.documentId() === id ? source.view : undefined,
   rendered: rendered?.documentId() === id ? rendered.view : undefined
 })
-export const captureDocumentView = (
+export const captureDocumentView = async(
   id: string,
   markdown: string,
-  collapsedOutlineKeys: string[]
-): Promise<DocumentViewState> =>
-  adapter.capture(markdown, { ...portsFor(id), collapsedOutlineKeys })
+  collapsedOutlineKeys: string[],
+  previous: DocumentViewState | null = null
+): Promise<DocumentViewState> => {
+  const ports = portsFor(id)
+  const captured = await adapter.capture(markdown, { ...ports, collapsedOutlineKeys })
+  if (previous?.contentSha256 === captured.contentSha256) {
+    if (!ports.source) {
+      captured.sourceSelection = previous.sourceSelection ? JSON.parse(JSON.stringify(previous.sourceSelection)) : null
+      captured.sourceScrollTopPx = previous.sourceScrollTopPx
+    } else {
+      captured.muyaSelection = previous.muyaSelection ? JSON.parse(JSON.stringify(previous.muyaSelection)) : null
+      captured.renderedScrollTopPx = previous.renderedScrollTopPx
+    }
+  }
+  return captured
+}
 export const isDocumentViewReady = (id: string, markdown: string): boolean => {
   const ports = portsFor(id)
   return ports.source

@@ -27,6 +27,7 @@ import { matchSupportedLanguage } from 'common/i18n'
 import { getNativeThemeSource, isDarkApplicationTheme } from './nativeTheme'
 import type Accessor from './accessor'
 import type WindowManager from './windowManager'
+import type { PreparedSessionWindow } from '../applicationState/sessionHost'
 
 interface CliArgs {
   _: string[]
@@ -202,7 +203,7 @@ class App {
 
     // We should NOT restore the previous buffer or open a folder if the user just wants to double click to open a file
     let isRestorePathway = false
-    if (_openFilesCache.length === 0) {
+    if (_openFilesCache.length === 0 && !this._accessor.sessionHost) {
       if (startUpAction === 'restoreAll') {
         isRestorePathway = true
       } else if (startUpAction === 'folder' && defaultDirectoryToOpen) {
@@ -325,6 +326,12 @@ class App {
     }
 
     const createWindow = (): void => {
+      const host = this._accessor.sessionHost
+      if (host) {
+        const paths = _openFilesCache.splice(0)
+        void host.start(paths, prepared => this._createEditorWindow(null, [], [], {}, null, {}, prepared)).catch(error => host.report(error))
+        return
+      }
       if (isRestorePathway) {
         const bufferStores = editorBufferStore.getAll()
         const bufferStoreList = Object.values(bufferStores) as Array<{
@@ -402,10 +409,11 @@ class App {
     markdownList: string[] = [],
     options: Partial<BrowserWindowConstructorOptions> = {},
     bufferStoreInfo: { id: string; filePath: string | null } | null = null,
-    fileOptions: Record<string, FileOpenOptions> = {}
+    fileOptions: Record<string, FileOpenOptions> = {},
+    preparedSession?: PreparedSessionWindow
   ): EditorWindow {
-    const editor = new EditorWindow(this._accessor)
-    if (rootDirectory) {
+    const editor = new EditorWindow(this._accessor, preparedSession)
+    if (rootDirectory && !this._accessor.sessionHost) {
       this._accessor.preferences.setItems({ lastOpenedFolder: rootDirectory })
     }
     editor.createWindow(

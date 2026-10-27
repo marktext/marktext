@@ -134,7 +134,14 @@
       </template>
     </compound>
 
-    <compound>
+    <recovery-settings
+      v-if="recoveryEnabled && recoveryPreferences"
+      :value="recoveryPreferences"
+      :update="updateRecoveryPreferences"
+      :choose-directory="chooseRecoveryDirectory"
+      @persisted="acceptRecoveryPreferences"
+    />
+    <compound v-if="!recoveryEnabled">
       <template #head>
         <h6 class="title">
           {{ t('preferences.general.startup.title') }}
@@ -242,7 +249,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import RecoverySettings from './recoverySettings.vue'
+import { isSessionRecoveryEnabled } from '@/services/sessionActions'
+import type { UserPreferences, RecoveryPreferences } from '@shared/types/applicationState'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
@@ -266,6 +276,16 @@ import {
 
 const { t } = useI18n()
 const preferenceStore = usePreferencesStore()
+const recoveryEnabled = isSessionRecoveryEnabled()
+const recoveryPreferences = ref<UserPreferences | null>(null)
+const acceptRecoveryPreferences = (preferences: UserPreferences): void => {
+  recoveryPreferences.value = preferences
+  preferenceStore.SET_USER_PREFERENCE({ ...preferences })
+}
+const updateRecoveryPreferences = (patch: Partial<RecoveryPreferences>) => window.electron.ipcRenderer.invoke('mt::preferences::update', patch)
+const chooseRecoveryDirectory = () => window.electron.ipcRenderer.invoke('mt::preferences::choose-directory')
+let stopRecoveryPreferences: (() => void) | undefined
+onUnmounted(() => stopRecoveryPreferences?.())
 
 const {
   defaultOpenMode,
@@ -315,6 +335,10 @@ const probePandoc = async (): Promise<void> => {
 }
 
 onMounted(async () => {
+  if (recoveryEnabled) {
+    acceptRecoveryPreferences(await window.electron.ipcRenderer.invoke('mt::preferences::get'))
+    stopRecoveryPreferences = window.electron.ipcRenderer.on('mt::preferences::changed', (_event, preferences) => acceptRecoveryPreferences(preferences))
+  }
   await probePandoc()
 })
 

@@ -13,6 +13,7 @@ import { WindowType } from '../windows/base'
 import type { WindowTypeValue } from '../windows/base'
 import type EditorWindow from '../windows/editor'
 import type { ProjectRootWatch } from '@shared/types/project'
+import { getManagedOwner } from '../applicationState/sessionHostAccess'
 
 class WindowActivityList {
   // Oldest             Newest
@@ -324,6 +325,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     })
 
     ipcMain.on('mt::close-window', (e) => {
+      if (getManagedOwner(e.sender)) return
       const win = BrowserWindow.fromWebContents(e.sender)
       this.editorBufferStore.handleClose(
         (win as unknown as { restoreBufferId?: string })?.restoreBufferId,

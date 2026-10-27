@@ -53,6 +53,7 @@ export interface LaunchResult {
 }
 
 export interface LaunchOptions {
+  userDataDir?: string
   // When true, sets MARKTEXT_ERROR_INTERACTION=1 in the launch env so
   // src/main/exceptionHandler.ts suppresses the modal "Unexpected error"
   // dialog. Only crash-guard specs that explicitly call expectNoRendererErrors
@@ -76,7 +77,7 @@ export const launchElectron = async(
   const executablePath = getElectronPath()
   // Pass project root as entry so Electron reads package.json and getAppPath() returns project root.
   // Passing out/main/index.js directly bypasses package.json and breaks __static path resolution.
-  const userDataDir = trackTempDir(getTempPath())
+  const userDataDir = options.userDataDir ?? trackTempDir(getTempPath())
   if (options.preferences) {
     fs.mkdirSync(userDataDir, { recursive: true })
     fs.writeFileSync(
@@ -88,6 +89,7 @@ export const launchElectron = async(
   if (options.userDataFiles) {
     fs.mkdirSync(userDataDir, { recursive: true })
     for (const [fileName, content] of Object.entries(options.userDataFiles)) {
+      fs.mkdirSync(path.dirname(path.join(userDataDir, fileName)), { recursive: true })
       fs.writeFileSync(path.join(userDataDir, fileName), content, 'utf-8')
     }
   }

@@ -1,3 +1,5 @@
+import type { ProjectRootsSnapshot } from './project'
+
 export type WindowStateId = string
 export type SessionId = string
 export type WorkspaceId = string
@@ -259,12 +261,14 @@ export interface WindowCheckpointRequest {
   documents: RendererDocumentCheckpoint[]
   activeDocumentId: DocumentId | null
   dirtyContents: DirtyContentUpdate[]
+  previewDocumentId?: DocumentId | null
 }
 
 export interface PersistReceipt {
   metadataRevision: number
   sequence: number
   recoveryRevisions: Array<{ documentId: DocumentId; contentRevision: number }>
+  documents?: DocumentSnapshot[]
 }
 
 export type PersistenceFailure =
@@ -284,7 +288,22 @@ export interface WindowInitialization {
   snapshot: WindowSnapshot
   // Runtime text also includes clean documents whose revisions survived a renderer reload.
   documentContents: DirtyContentUpdate[]
+  projectRoots?: ProjectRootsSnapshot
+  persistenceAvailable?: boolean
+  documentStatuses?: Array<{ documentId: string; diskMissing: boolean; diskConflict: boolean }>
 }
+
+export interface ManagedDocumentPayload {
+  document: DocumentSnapshot
+  markdown: string
+  contentRevision: number
+  selected: boolean
+  options?: { preview?: boolean; requestId?: number; anchor?: string }
+}
+
+export type ManagedSaveResult =
+  | { status: 'saved'; document: DocumentSnapshot; savedMarkdown: string; savedFormat: SaveFormatState; metadataRevision: number }
+  | { status: 'canceled' | 'failed' }
 
 export type PreferenceUpdateResult =
   | { status: 'persisted'; preferences: UserPreferences }
@@ -300,7 +319,7 @@ export interface StateIpcInvokeChannels {
     ret: WindowInitialization
   }
   'mt::state::register-untitled': {
-    args: [request: { contextToken: string; title: string }]
+    args: [request: { contextToken: string; title: string; markdown?: string; selected?: boolean }]
     ret: RegisterUntitledResult
   }
   'mt::state::checkpoint': {
@@ -313,9 +332,16 @@ export interface StateIpcInvokeChannels {
     args: [patch: UserPreferencesPatch]
     ret: PreferenceUpdateResult
   }
+  'mt::preferences::choose-directory': { args: []; ret: string | null }
+  'mt::state::save-document': { args: [contextToken: string, documentId: string, saveAs: boolean]; ret: ManagedSaveResult }
+  'mt::state::close-documents': { args: [contextToken: string, documentIds: string[]]; ret: { status: 'closed' | 'canceled' | 'failed' } }
 }
 
 export interface StateIpcMainEvents {
+  'mt::state::document-relocated': [document: DocumentSnapshot, metadataRevision: number]
+  'mt::state::document-opened': [payload: ManagedDocumentPayload]
+  'mt::state::documents-ended': [documentIds: string[]]
+  'mt::state::document-saved': [result: Extract<ManagedSaveResult, { status: 'saved' }>]
   'mt::preferences::changed': [preferences: UserPreferences]
   'mt::state::prepare-close': [request: { contextToken: string; transactionId: string }]
   'mt::state::context-changed': [initialization: WindowInitialization]

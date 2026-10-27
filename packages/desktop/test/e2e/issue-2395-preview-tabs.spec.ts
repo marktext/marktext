@@ -3,7 +3,7 @@ import type { ElectronApplication, Page } from 'playwright'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import { clickMenuById, launchElectron, openProjectFolder, typeIntoEditor } from './helpers'
+import { clickMenuById, launchElectron, openProjectFolder, typeIntoEditor, sendIpcToRenderer } from './helpers'
 
 const tabFor = (page: Page, filename: string) =>
   page.locator(`.tabs-container > li[title$="${filename}"]`)
@@ -32,6 +32,7 @@ test.describe('Issue #2395 sidebar preview tabs', () => {
     })
     app = launched.app
     page = launched.page
+    await sendIpcToRenderer(app, 'mt::set-view-layout', { showSideBar: true, showTabBar: true })
     await openProjectFolder(app, page, projectDir, path.join(projectDir, 'alpha.md'))
   }
 

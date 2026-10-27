@@ -47,7 +47,9 @@ export type SaveDocumentResult =
   | { status: 'saved'; pathname: string; filename: string; savedMarkdown: string }
   | { status: 'canceled' | 'failed' }
 
-export interface IpcInvokeChannels {
+import type { StateIpcInvokeChannels, StateIpcMainEvents } from './applicationState'
+
+export interface IpcInvokeChannels extends StateIpcInvokeChannels {
   'mt::response-file-save': {
     args: IpcSendChannels['mt::response-file-save']
     ret: SaveDocumentResult
@@ -245,7 +247,7 @@ export interface IpcSyncChannels {
   'mt::paths::is-same-sync': { args: [a: string, b: string]; ret: boolean }
 }
 
-export interface IpcMainEventChannels {
+export interface IpcMainEventChannels extends StateIpcMainEvents {
   'mt::discard-and-close-window': [tabIds: string[]]
   'mt::finish-close-window': []
   'mt::toggle-read-only': []

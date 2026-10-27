@@ -56,6 +56,10 @@ export class ProjectRoots {
 
   constructor(private _effects: RootEffects) {}
 
+  snapshot(): ProjectRootsSnapshot {
+    return { revision: this._revision, reason: 'restore', roots: this.roots.map(root => ({ ...root })) }
+  }
+
   private _publish(reason: ProjectRootsSnapshot['reason'], targetKey?: string): void {
     this._effects.publish({
       revision: ++this._revision,

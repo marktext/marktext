@@ -20,6 +20,22 @@ afterEach(() => {
 })
 
 describe('application metadata storage', () => {
+  it('repairs duplicate document identities across windows without dropping other windows', async() => {
+    const store = new ApplicationStateStore(await profile())
+    const first = windowSnapshot()
+    const second = windowSnapshot()
+    const document = dirtyRecord(first.id).document
+    first.documents = [document]
+    first.activeDocumentId = document.id
+    second.documents = [structuredClone(document)]
+    second.activeDocumentId = document.id
+    await store.write(applicationState([first, second]))
+    const loaded = (await store.load()).value
+    expect(loaded.session.windows).toHaveLength(2)
+    expect(loaded.session.windows[0]?.documents).toHaveLength(1)
+    expect(loaded.session.windows[1]?.documents).toEqual([])
+    expect(loaded.session.windows[1]?.activeDocumentId).toBeNull()
+  })
   it('captures the requested snapshot before the caller mutates it during queued IO', async() => {
     const store = new ApplicationStateStore(await profile())
     const state = applicationState([windowSnapshot()])
@@ -36,7 +52,10 @@ describe('application metadata storage', () => {
     const path = join(directory, 'state', 'application-state.json')
     await mkdir(path, { recursive: true })
     const store = new ApplicationStateStore(directory)
-    expect(await store.load()).toMatchObject({ status: 'read-only-defaulted', reason: 'unreadable' })
+    expect(await store.load()).toMatchObject({
+      status: 'read-only-defaulted',
+      reason: 'unreadable'
+    })
     await expect(store.write(applicationState())).rejects.toThrow(/read.only/i)
     expect((await stat(path)).isDirectory()).toBe(true)
   })
@@ -116,11 +135,30 @@ describe('application metadata storage', () => {
     const editorWindow = { ...windowSnapshot(), markdown: 'accidental body' }
     const state = applicationState([editorWindow])
     await store.write(state)
-    expect(await readFile(join(directory, 'state', 'application-state.json'), 'utf8')).not.toContain('accidental body')
+    expect(
+      await readFile(join(directory, 'state', 'application-state.json'), 'utf8')
+    ).not.toContain('accidental body')
   })
 })
 
 describe('latest document recovery storage', () => {
+  it('preserves a dirty named record with a missing original baseline as invalid data', async() => {
+    const directory = await profile()
+    const record = dirtyRecord()
+    record.document.resource = {
+      kind: 'file',
+      location: createFileLocation(join(directory, 'named.md')),
+      pendingCreation: false
+    }
+    const path = join(directory, 'recovery', record.ownerWindowId, `${record.documentId}.json`)
+    await mkdir(join(directory, 'recovery', record.ownerWindowId), { recursive: true })
+    const original = JSON.stringify(record)
+    await writeFile(path, original)
+    const store = new RecoveryStore(directory)
+    expect(await store.readWindow(record.ownerWindowId)).toEqual([])
+    await expect(store.write(record)).rejects.toThrow(/baseline/i)
+    expect(await readFile(path, 'utf8')).toBe(original)
+  })
   it('retains saved-path results across a restart until metadata makes cleanup safe', async() => {
     const directory = await profile()
     const store = new RecoveryStore(directory)
@@ -129,12 +167,24 @@ describe('latest document recovery storage', () => {
     const filePath = join(directory, 'saved.md')
     await writeFile(filePath, record.markdown)
     const saved: RecoveryRecord = {
-      schemaVersion: 1, status: 'saved', ownerWindowId: record.ownerWindowId,
-      documentId: record.documentId, contentRevision: 1, updatedAtMs: 20,
+      schemaVersion: 1,
+      status: 'saved',
+      ownerWindowId: record.ownerWindowId,
+      documentId: record.documentId,
+      contentRevision: 1,
+      updatedAtMs: 20,
       document: {
         ...record.document,
         resource: { kind: 'file', location: createFileLocation(filePath), pendingCreation: false },
-        content: { kind: 'disk', baseline: { exists: true, sizeBytes: Buffer.byteLength(record.markdown), mtimeMs: 20, rawSha256: contentSha256(record.markdown) } }
+        content: {
+          kind: 'disk',
+          baseline: {
+            exists: true,
+            sizeBytes: Buffer.byteLength(record.markdown),
+            mtimeMs: 20,
+            rawSha256: contentSha256(record.markdown)
+          }
+        }
       }
     }
     await store.write(saved)

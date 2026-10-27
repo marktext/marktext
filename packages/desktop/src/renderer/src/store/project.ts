@@ -231,7 +231,7 @@ export const useProjectStore = defineStore('project', () => {
     if (activeItem.value?.pathname && !FIND_ROOT(activeItem.value.pathname)) activeItem.value = {}
     if (snapshot.reason === 'replace' || snapshot.reason === 'remove') CLEAR_NAME_INPUT_STATE()
     if (['add', 'replace', 'reveal'].includes(snapshot.reason)) {
-      if (!useLayoutStore().managed) SHOW_FILES()
+      SHOW_FILES()
       nextTick(() => bus.emit('SIDEBAR::focus-root', snapshot.targetKey))
       if (snapshot.reason === 'reveal')
         notice.notify({

@@ -312,6 +312,27 @@ export class CheckpointService {
     })
   }
 
+  relocateDocument(windowId: string, documentId: string, location: Extract<DocumentSnapshot['resource'], { kind: 'file' }>['location'], title: string): Promise<PersistResult> {
+    const captured = structuredClone(location)
+    return this.enqueue(async() => {
+      if (!this.getWindow(windowId)?.documents.some(document => document.id === documentId) || this.saveQueues.has(documentId))
+        throw new Error('Document cannot be relocated while saving')
+      this.documents.relocate(documentId, captured, title)
+      this.refreshDocuments(windowId)
+      return this.persistResult(this.contexts.get(windowId)?.sequence ?? 0, windowId)
+    })
+  }
+
+  observeDisk(windowId: string, documentId: string, snapshot: DocumentSnapshot | null, markdown = ''): Promise<PersistResult> {
+    const captured = snapshot ? structuredClone(snapshot) : null
+    return this.enqueue(async() => {
+      if (!this.getWindow(windowId)?.documents.some(document => document.id === documentId)) return { status: 'failed', reason: 'invalid-data' }
+      this.documents.observeDisk(documentId, captured, markdown)
+      this.refreshDocuments(windowId)
+      return this.persistResult(this.contexts.get(windowId)?.sequence ?? 0, windowId)
+    })
+  }
+
   saveDocument(
     windowId: string,
     documentId: string,
@@ -407,6 +428,7 @@ export class CheckpointService {
       receipt: {
         metadataRevision: this.state.revision,
         sequence,
+        documents,
         recoveryRevisions: documents
           .filter((document) => document.content.kind === 'recovery')
           .map((document) => ({

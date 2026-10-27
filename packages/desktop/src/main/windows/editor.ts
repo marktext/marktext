@@ -16,6 +16,8 @@ import fs from 'fs'
 import { ProjectRoots, resolveExistingPath } from './projectRoots'
 import { readBufferedRoots } from '@shared/types/project'
 import { t } from '../i18n'
+import { createStateId } from '../applicationState/identity'
+import type { PreparedSessionWindow } from '../applicationState/sessionHost'
 
 type RawMarkdownDocument = Awaited<ReturnType<typeof loadMarkdownFile>>
 
@@ -66,10 +68,13 @@ class EditorWindow extends BaseWindow {
   private _pendingPreviewPaths: Map<string, number>
 
   public bufferStoreInfo: BufferStoreInfo | null
+  public readonly sessionStateId: string | null
+  public sessionReady: Promise<void> = Promise.resolve()
 
-  constructor(accessor: Accessor) {
+  constructor(accessor: Accessor, private preparedSession?: PreparedSessionWindow) {
     super(accessor)
     this.type = WindowType.EDITOR
+    this.sessionStateId = accessor.sessionHost ? preparedSession?.snapshot.id ?? createStateId() : null
 
     this._directoryToOpen = null
     this._filesToOpen = []
@@ -87,7 +92,7 @@ class EditorWindow extends BaseWindow {
       },
       unwatch: root => ipcMain.emit('watcher-unwatch-directory', this.browserWindow, root.pathname),
       remember: pathname => {
-        this._accessor.preferences.setItems({ lastOpenedFolder: pathname })
+        if (!this._accessor.sessionHost) this._accessor.preferences.setItems({ lastOpenedFolder: pathname })
         this._accessor.menu.addRecentlyUsedDocument(pathname)
       }
     })
@@ -110,12 +115,12 @@ class EditorWindow extends BaseWindow {
     const addBlankTab =
       !bufferStoreInfo && !rootDirectory && fileList.length === 0 && markdownList.length === 0
 
-    const mainWindowState = windowStateKeeper({
+    const mainWindowState = this._accessor.sessionHost ? null : windowStateKeeper({
       defaultWidth: 1200,
       defaultHeight: 800
     })
 
-    const { x, y, width, height } = ensureWindowPosition(mainWindowState)
+    const { x, y, width, height } = mainWindowState ? ensureWindowPosition(mainWindowState) : { x: undefined, y: undefined, width: 1200, height: 800 }
     const winOptions: BrowserWindowConstructorOptions = Object.assign(
       { x, y, width, height },
       editorWinOptions,
@@ -153,13 +158,28 @@ class EditorWindow extends BaseWindow {
 
     // Give every editor window a stable id for session buffer persistence.
     // We cant use win.id as it might collide with same IDs from closed windows
-    this.bufferStoreInfo = {
-      id: bufferStoreInfo ? bufferStoreInfo.id : editorBufferStore.getUnUsedBufferUUID(),
-      filePath: bufferStoreInfo ? bufferStoreInfo.filePath : null
+    if (!this._accessor.sessionHost) {
+      this.bufferStoreInfo = {
+        id: bufferStoreInfo ? bufferStoreInfo.id : editorBufferStore.getUnUsedBufferUUID(),
+        filePath: bufferStoreInfo ? bufferStoreInfo.filePath : null
+      }
+      Object.assign(win, { restoreBufferId: this.bufferStoreInfo.id, projectRoots: this.projectRoots })
+    } else {
+      Object.assign(win, { projectRoots: this.projectRoots })
     }
-    Object.assign(win, { restoreBufferId: this.bufferStoreInfo.id, projectRoots: this.projectRoots })
 
     this.id = win.id
+    const host = this._accessor.sessionHost
+    if (host) {
+      host.registerEditor(this)
+      const prepared = this.preparedSession ? Promise.resolve(this.preparedSession) : host.prepareNewWindow(rootDirectory, fileList, markdownList, fileOptions)
+      this.preparedSession = undefined
+      this.sessionReady = prepared.then(prepared => {
+        prepared.snapshot.id = this.sessionStateId!
+        return host.bindEditor(this, prepared)
+      })
+      void this.sessionReady.catch(error => host.report(error, this.sessionStateId ?? undefined))
+    }
 
     if (spellcheckerEnabled && !isOsx) {
       try {
@@ -184,20 +204,23 @@ class EditorWindow extends BaseWindow {
       const lineEnding = preferences.getPreferredEol()
       appMenu.updateLineEndingMenu(this.id!, lineEnding)
 
-      win!.webContents.send('mt::bootstrap-editor', {
-        addBlankTab,
-        markdownList: this.bufferStoreInfo!.filePath ? [] : this._markdownToOpen,
-        lineEnding,
-        sideBarVisibility: resolvedSideBarVisibility,
-        tabBarVisibility,
-        sourceCodeModeEnabled
-      })
+      if (!host) {
+        win!.webContents.send('mt::bootstrap-editor', {
+          addBlankTab,
+          markdownList: this.bufferStoreInfo!.filePath ? [] : this._markdownToOpen,
+          lineEnding,
+          sideBarVisibility: resolvedSideBarVisibility,
+          tabBarVisibility,
+          sourceCodeModeEnabled
+        })
 
-      if (this.bufferStoreInfo!.filePath) {
-        this._restoreAllState()
-      } else {
-        this._doOpenFilesToOpen()
-        this._markdownToOpen!.length = 0
+        if (this.bufferStoreInfo!.filePath) {
+          this._restoreAllState()
+        } else {
+          this._doOpenFilesToOpen()
+          this._markdownToOpen!.length = 0
+        }
+
       }
 
       win!.webContents.on('zoom-changed', (_event, zoomDirection) => {
@@ -219,6 +242,7 @@ class EditorWindow extends BaseWindow {
       if (reason === 'clean-exit') {
         return
       }
+      host?.rendererGone(this)
 
       const msg = `The renderer process has crashed unexpected or is killed (${reason}).`
       log.error(msg)
@@ -237,6 +261,7 @@ class EditorWindow extends BaseWindow {
       if (win!.id) {
         switch (response) {
           case 0:
+            if (host) return host.closeWindow(this)
             return this.destroy()
           case 1:
             return this.reload()
@@ -268,7 +293,9 @@ class EditorWindow extends BaseWindow {
       this.emit('window-close')
 
       event.preventDefault()
-      win!.webContents.send('mt::ask-for-close')
+      if (host) {
+        void host.closeWindow(this).catch(error => host.report(error, this.sessionStateId ?? undefined))
+      } else win!.webContents.send('mt::ask-for-close')
 
       // TODO: Close all watchers etc. Should we do this manually or listen to 'quit' event?
     })
@@ -284,12 +311,12 @@ class EditorWindow extends BaseWindow {
     win.loadURL(this._buildUrlString(this.id, env, preferences))
     win.setSheetOffset(TITLE_BAR_HEIGHT)
 
-    mainWindowState.manage(win)
+    mainWindowState?.manage(win)
 
     // Disable application menu shortcuts because we want to handle key bindings ourself.
     win.webContents.setIgnoreMenuShortcuts(true)
 
-    setTimeout(() => {
+    if (!host) setTimeout(() => {
       if (rootDirectory) {
         this.openFolder(rootDirectory)
       }
@@ -303,10 +330,19 @@ class EditorWindow extends BaseWindow {
 
   openTab(filePath: string, options: FileOpenOptions = {}, selected: boolean = true): void {
     if (this.lifecycle === WindowLifecycle.QUITTED) return
+    const host = this._accessor.sessionHost
+    if (host) {
+      void host.openFile(this, filePath, options, selected).catch(error => host.report(error, this.sessionStateId ?? undefined))
+      return
+    }
     this.openTabs([{ filePath, options, selected }])
   }
 
   cancelPendingPreview(requestId: number): void {
+    if (this._accessor.sessionHost && this.sessionStateId) {
+      this._accessor.sessionHost.cancelPreview(this.sessionStateId, requestId)
+      return
+    }
     if (requestId !== this._latestPreviewRequestId) return
 
     for (const [pathname, pendingId] of this._pendingPreviewPaths) {
@@ -338,6 +374,11 @@ class EditorWindow extends BaseWindow {
   openTabs(fileList: { filePath: string; selected: boolean; options: FileOpenOptions }[]): void {
     if (this.lifecycle === WindowLifecycle.QUITTED) return
 
+    const host = this._accessor.sessionHost
+    if (host) {
+      for (const file of fileList) this.openTab(file.filePath, file.options, file.selected)
+      return
+    }
     const { browserWindow } = this
     const { preferences } = this._accessor
     const eol = preferences.getPreferredEol()
@@ -413,6 +454,11 @@ class EditorWindow extends BaseWindow {
 
   openUntitledTab(selected: boolean = true, markdown: string = ''): void {
     if (this.lifecycle === WindowLifecycle.QUITTED) return
+    const host = this._accessor.sessionHost
+    if (host && this.sessionStateId) {
+      void this.sessionReady.then(() => host.newDocument(this.sessionStateId!, '', markdown, selected)).catch(error => host.report(error, this.sessionStateId ?? undefined))
+      return
+    }
 
     if (this.lifecycle === WindowLifecycle.READY) {
       const { browserWindow } = this
@@ -433,6 +479,11 @@ class EditorWindow extends BaseWindow {
 
   addFolder(pathname: string, replace = false): void {
     if (this.lifecycle !== WindowLifecycle.READY) return
+    const host = this._accessor.sessionHost
+    if (host) {
+      void host.changeFolder(this, pathname, replace).catch(error => host.report(error, this.sessionStateId ?? undefined))
+      return
+    }
     try {
       this.projectRoots.add(pathname, replace)
     } catch (error) {
@@ -497,6 +548,7 @@ class EditorWindow extends BaseWindow {
   }
 
   override reload(): void {
+    if (this._accessor.sessionHost) { super.reload(); return }
     const { id, browserWindow } = this
 
     ipcMain.emit('watcher-unwatch-all-by-id', id)

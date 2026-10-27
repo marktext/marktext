@@ -8,6 +8,8 @@ import { loadMenuCommands } from '../menu/actions'
 import { CommandManager, loadDefaultCommands } from '../commands'
 import type { AppEnvironment } from './env'
 import type AppPaths from './paths'
+import { SessionHost } from '../applicationState/sessionHost'
+import { sessionRecoveryEnabled } from '../applicationState/sessionHostAccess'
 
 class Accessor {
   public env: AppEnvironment
@@ -19,6 +21,7 @@ class Accessor {
   public keybindings: Keybindings
   public menu: AppMenu
   public windowManager: WindowManager
+  public sessionHost: SessionHost | null
 
   constructor(appEnvironment: AppEnvironment) {
     const userDataPath = appEnvironment.paths.userDataPath
@@ -36,6 +39,7 @@ class Accessor {
     this.keybindings = new Keybindings(this.commandManager, appEnvironment)
     this.menu = new AppMenu(this.preferences, this.keybindings, userDataPath)
     this.windowManager = new WindowManager(this.menu, this.preferences, this.editorBufferStore)
+    this.sessionHost = sessionRecoveryEnabled() ? new SessionHost(this) : null
   }
 
   private _loadCommands(): void {

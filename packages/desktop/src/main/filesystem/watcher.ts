@@ -6,6 +6,7 @@ import { exists } from 'common/filesystem'
 import { hasMarkdownExtension, checkPathExcludePattern } from 'common/filesystem/paths'
 import { getUniqueId } from '../utils'
 import { loadMarkdownFile } from '../filesystem/markdown'
+import { getManagedOwner } from '../applicationState/sessionHostAccess'
 import { isLinux, isOsx } from '../config'
 import type { BrowserWindow } from 'electron'
 import type { LineEnding } from '@shared/types/files'
@@ -291,6 +292,11 @@ class Watcher {
     let initialScan = true
     const emit: WatchEmit = (channel, payload) => {
       if (disposed || win.isDestroyed?.()) return
+      const managed = getManagedOwner(win.webContents)
+      if (channel === 'mt::update-file' && managed) {
+        void managed.host.observeFile(managed.windowId, payload as { type: string; change: { pathname: string; data?: Awaited<ReturnType<typeof loadMarkdownFile>> } })
+          .catch(error => managed.host.report(error, managed.windowId))
+      }
       win.webContents.send(channel, channel === 'mt::update-object-tree' && context
         ? { ...(payload as object), rootKey: context.rootKey, watchToken: context.watchToken }
         : payload)

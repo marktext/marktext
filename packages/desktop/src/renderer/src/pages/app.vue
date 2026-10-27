@@ -62,6 +62,8 @@ import { useCommandCenterStore } from '@/store/commandCenter'
 import { useProjectStore } from '@/store/project'
 import { useAutoUpdatesStore } from '@/store/autoUpdates'
 import { useNotificationStore } from '@/store/notification'
+import { isSessionRecoveryEnabled } from '@/services/sessionActions'
+import { startWindowSession } from '@/services/windowSession'
 
 const mainStore = useMainStore()
 const editorStore = useEditorStore()
@@ -178,7 +180,8 @@ const setupDragDropHandler = (): void => {
 }
 
 let stopSidebarContextMenu: (() => void) | undefined
-onUnmounted(() => stopSidebarContextMenu?.())
+let stopWindowSession: (() => void) | undefined
+onUnmounted(() => { stopSidebarContextMenu?.(); stopWindowSession?.() })
 
 onMounted(async () => {
   if (window.marktext?.initialState) {
@@ -225,6 +228,8 @@ onMounted(async () => {
   editorStore.LISTEN_FOR_STATE_REPLACE()
 
   notificationStore.listenForNotification()
+
+  if (isSessionRecoveryEnabled()) stopWindowSession = await startWindowSession()
 
   setupDragDropHandler()
 

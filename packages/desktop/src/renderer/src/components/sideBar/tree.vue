@@ -401,6 +401,8 @@ const revealPath = async (
   { force = false }: { force?: boolean } = {}
 ): Promise<void> => {
   if (!pathname) return
+  // Initial restoration keeps deliberate folds until the user navigates to another tab.
+  if (!force && layoutStore.managed && projectStore.restoringSession) return
   if (!force && !preferencesStore.autoRevealInSidebar) return
   const root = projectStore.FIND_ROOT(pathname)
   if (!root || root.status !== 'ready') return

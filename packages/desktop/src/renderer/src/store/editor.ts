@@ -1,3 +1,4 @@
+import { getSessionActions } from '@/services/sessionActions'
 import equal from 'deep-equal'
 import { prepareReading, applyReadOnly } from '../services/documentMode'
 import bus from '../bus'
@@ -642,6 +643,13 @@ export const useEditorStore = defineStore('editor', {
       this.flushActiveEditor()
       const file = this.currentFile
       if (!file.id) return
+      const session = getSessionActions()
+      if (session) {
+        const result = session.save(file.id)
+        if (waitForResult) return result
+        void result.catch(console.error)
+        return
+      }
       const args: IpcSendChannels['mt::response-file-save'] = [
         file.id,
         file.filename,
@@ -674,6 +682,8 @@ export const useEditorStore = defineStore('editor', {
       if (this.currentFile?.readOnly || this.currentFile?.modeChanging) return
       if (!this.currentFile) return
       this.flushActiveEditor()
+      const session = getSessionActions()
+      if (session) { void session.save(this.currentFile.id, true).catch(console.error); return }
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -777,8 +787,10 @@ export const useEditorStore = defineStore('editor', {
     },
 
     LISTEN_FOR_CLOSE(): void {
+      if (getSessionActions()) return
       const projectStore = useProjectStore()
       window.electron.ipcRenderer.on('mt::ask-for-close', () => {
+        if (getSessionActions()) return
         this.flushActiveEditor()
         sendBufferedState()
           .catch((err) => {
@@ -833,6 +845,8 @@ export const useEditorStore = defineStore('editor', {
     },
 
     ASK_FOR_SAVE_ALL(closeTabs: boolean): void {
+      const session = getSessionActions()
+      if (session) { void session.saveAll(closeTabs).catch(console.error); return }
       const { tabs } = this
       if (!closeTabs && tabs.some((tab) => tab.readOnly && !tab.isSaved)) {
         notice.notify({ title: t('readingMode.skipped'), showConfirm: false })
@@ -973,6 +987,7 @@ export const useEditorStore = defineStore('editor', {
         // flushed edit is attributed to that tab and not lost on switch (#2938).
         if (oldCurrentFile) {
           this.flushActiveEditor()
+          getSessionActions()?.captureView()
         }
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
         this.currentFile = currentFile
@@ -1099,6 +1114,8 @@ export const useEditorStore = defineStore('editor', {
     CLOSE_TAB(file: IFileState | null = null): void {
       const target = file ?? this.currentFile
       if (target === null) return
+      const session = getSessionActions()
+      if (session) { void session.close([target.id]).catch(console.error); return }
 
       if (target.isSaved) {
         this.FORCE_CLOSE_TAB(target)
@@ -1203,6 +1220,8 @@ export const useEditorStore = defineStore('editor', {
     },
 
     CLOSE_OTHER_TABS(file: IFileState): void {
+      const session = getSessionActions()
+      if (session) { void session.close(this.tabs.filter(tab => tab.id !== file.id).map(tab => tab.id)).catch(console.error); return }
       this.tabs
         .filter((f) => f.id !== file.id)
         .forEach((tab) => {
@@ -1211,6 +1230,8 @@ export const useEditorStore = defineStore('editor', {
     },
 
     CLOSE_SAVED_TABS(): void {
+      const session = getSessionActions()
+      if (session) { void session.close(this.tabs.filter(tab => tab.isSaved).map(tab => tab.id)).catch(console.error); return }
       this.tabs
         .filter((f) => f.isSaved)
         .forEach((tab) => {
@@ -1219,6 +1240,8 @@ export const useEditorStore = defineStore('editor', {
     },
 
     CLOSE_ALL_TABS(): void {
+      const session = getSessionActions()
+      if (session) { void session.close(this.tabs.map(tab => tab.id)).catch(console.error); return }
       this.tabs.slice().forEach((tab) => {
         this.CLOSE_TAB(tab)
       })
@@ -1482,6 +1505,8 @@ export const useEditorStore = defineStore('editor', {
       markdown?: string
       selected?: boolean
     }): void {
+      const session = getSessionActions()
+      if (session) { void session.create(markdownString ?? '', selected ?? true).catch(console.error); return }
       if (selected == null) {
         selected = true
       }
@@ -1802,6 +1827,8 @@ export const useEditorStore = defineStore('editor', {
 
         const tab = this.tabs.find((t) => t.id === id)
         if (tab && !tab.isSaved && !tab.readOnly && !tab.modeChanging && !tab.diskConflict) {
+          const session = getSessionActions()
+          if (session) { void session.save(id).catch(console.error); return }
           const defaultPath = getRootFolderFromState(projectStore)
           window.electron.ipcRenderer.send(
             'mt::response-file-save',
