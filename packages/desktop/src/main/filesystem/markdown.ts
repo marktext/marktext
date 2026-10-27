@@ -8,7 +8,7 @@ import { isDirectory2 } from 'common/filesystem'
 import { hasMarkdownExtension, isMarkdownFile } from 'common/filesystem/paths'
 import { normalizeAndResolvePath, writeFile } from '../filesystem'
 import { guessEncoding } from './encoding'
-import type { Encoding } from 'common/encoding'
+import { getEncodingName, type Encoding } from 'common/encoding'
 import type { LineEnding } from '@shared/types/files'
 
 interface MarkdownDocumentOptions {
@@ -43,6 +43,23 @@ const getLineEnding = (lineEnding: LineEnding): string => {
 
 const convertLineEndings = (text: string, lineEnding: LineEnding): string => {
   return text.replace(LINE_ENDING_REG, getLineEnding(lineEnding))
+}
+
+// These examples only explain a failed full-document check. Limiting them
+// must never determine whether a save is safe.
+const getUnrepresentableCharacterSample = (content: string, encoding: string): string[] => {
+  const checked = new Set<string>()
+  const sample: string[] = []
+  for (const character of content) {
+    if (checked.has(character)) continue
+    checked.add(character)
+    const encoded = iconv.encode(character, encoding)
+    if (iconv.decode(encoded, encoding, { stripBOM: false }) !== character) {
+      sample.push(character)
+      if (sample.length === 8) break
+    }
+  }
+  return sample
 }
 
 /**
@@ -126,11 +143,15 @@ export const writeMarkdownFile = (
   // iconv substitutes unrepresentable characters silently (#5614). Only strip
   // a BOM we requested so a leading U+FEFF in the document remains significant.
   if (iconv.decode(buffer, encoding, { stripBOM: !!isBom }) !== content) {
-    return Promise.reject(
-      new Error(
-        `Cannot save using "${encoding}" because some characters cannot be represented. Open the Command Palette, run "Change Encoding", select UTF-8, and save again.`
-      )
+    const sample = getUnrepresentableCharacterSample(content, encoding)
+    const examples = sample.length
+      ? ` (${sample.map(character => JSON.stringify(character)).join(', ')})`
+      : ''
+    const error = new Error(
+      `Cannot save using "${getEncodingName(options.encoding)}" because some characters${examples} cannot be represented. Open the Command Palette, run "Change Encoding", select UTF-8, and save again.`
     )
+    error.name = 'EncodingLossError'
+    return Promise.reject(error)
   }
 
   return writeFile(pathname, buffer, extension, undefined)

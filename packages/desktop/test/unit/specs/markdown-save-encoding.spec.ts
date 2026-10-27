@@ -44,10 +44,38 @@ describe('markdown saves preserve characters (#5614)', () => {
   it('does not create a file or its parent directory for a lossy save', async() => {
     pathname = path.join(directory, 'new', 'note.md')
 
-    await expect(writeMarkdownFile(pathname, '😀', options('cp1252'))).rejects.toThrow(/cp1252/)
+    await expect(writeMarkdownFile(pathname, '😀', options('cp1252'))).rejects.toThrow(/Windows 1252/)
 
     expect(existsSync(path.dirname(pathname))).toBe(false)
   })
+
+  it('names the encoding and distinct unsupported code points in the error', async() => {
+    const failure = writeMarkdownFile(pathname, 'Café 😀😀 漢字', options('cp1252'))
+
+    await expect(failure).rejects.toMatchObject({ name: 'EncodingLossError' })
+    await expect(failure).rejects.toThrow(
+      /Western \(Windows 1252\).*characters \("😀", "漢", "字"\)/
+    )
+  })
+
+  it('limits the error to eight distinct character examples', async() => {
+    const content = '😀'.repeat(20) + '😀😃😄😁😆😅🤣😂🙂'
+
+    await expect(writeMarkdownFile(pathname, content, options('cp1252'))).rejects.toThrow(
+      'characters ("😀", "😃", "😄", "😁", "😆", "😅", "🤣", "😂")'
+    )
+  })
+
+  it.each([1, 510, 1021])(
+    'rejects a single unsupported character at code point %i in a long document',
+    async(index) => {
+      const content = 'a'.repeat(index) + '😀' + 'a'.repeat(1023 - index)
+
+      await expect(writeMarkdownFile(pathname, content, options('cp1252'))).rejects.toThrow('"😀"')
+
+      expect(existsSync(pathname)).toBe(false)
+    }
+  )
 
   it.each([
     ['cp1252', 'Café ? ok'],
