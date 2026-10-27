@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
 import { getHighlightHtml } from '../../utils/marked/getHighlightHtml';
 
-const dollars: Array<[markdown: string, display: boolean[]]> = [
+const dollarCases: Array<[markdown: string, display: boolean[]]> = [
     ['$$a \\ne b$$', [true]],
     ['   $$a$$   ', [true]],
     ['$$a$$ $$b$$', [true, true]],
@@ -31,7 +31,7 @@ const dollars: Array<[markdown: string, display: boolean[]]> = [
     ['- a\n  - $$n$$', [true]],
 ];
 
-const backslashes: Array<[markdown: string, display: boolean[]]> = [
+const backslashCases: Array<[markdown: string, display: boolean[]]> = [
     ['\\[a\\]', [true]],
     ['\\[\nx\n\\]', [true]],
     ['   \\[a\\]   ', [true]],
@@ -83,8 +83,8 @@ function boot(markdown: string, options: Partial<IMuyaOptions>): Muya {
 
 // Centered display math requires a paragraph containing only formulas (#4904).
 for (const { name, options, cases, source } of [
-    { name: 'dollar', options: {}, cases: dollars, source: '$$x$$' },
-    { name: 'single-backslash', options: { texMathSingleBackslash: true }, cases: backslashes, source: '\\[x\\]' },
+    { name: 'dollar', options: {}, cases: dollarCases, source: '$$x$$' },
+    { name: 'single-backslash', options: { texMathSingleBackslash: true }, cases: backslashCases, source: '\\[x\\]' },
 ]) {
     describe(`${name} math display in editor and export`, () => {
         it.each(cases)('%s', (markdown, display) => {

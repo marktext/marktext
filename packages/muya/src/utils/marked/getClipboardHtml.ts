@@ -4,8 +4,8 @@ import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
 import { sanitize } from '../index';
 import footnoteExtension from './extensions/footnote';
 import githubAlertsExtension from './extensions/githubAlerts';
+import inlineDelimitersExtension from './extensions/inlineDelimiters';
 import inlineDiffExtension from './extensions/inlineDiff';
-import inlineEmphasisExtension from './extensions/inlineEmphasis';
 import markExtension from './extensions/mark';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
 import multilineBlockquoteExtension from './extensions/multilineBlockquote';
@@ -27,7 +27,7 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
 
-    marked.use(inlineEmphasisExtension());
+    marked.use(inlineDelimitersExtension());
 
     if (texMathDollars) {
         marked.use(

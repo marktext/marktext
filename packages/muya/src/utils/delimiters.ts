@@ -1,7 +1,7 @@
-export interface IEmphasisSpan {
+export interface IDelimiterSpan {
     start: number;
     end: number;
-    markerLen: number;
+    markerLength: number;
 }
 
 export interface IDelimiterRun {
@@ -41,7 +41,7 @@ export function codePointCharAt(s: string, i: number): string | undefined {
     return s.charAt(i);
 }
 
-function unspent(run: IDelimiterRun) {
+function remainingLength(run: IDelimiterRun) {
     return run.right - run.left;
 }
 
@@ -58,7 +58,7 @@ function violatesRuleOfThree(opener: IDelimiterRun, closer: IDelimiterRun) {
 function canPair(opener: IDelimiterRun, closer: IDelimiterRun) {
     return (
         opener.char === closer.char
-        && unspent(opener) > 0
+        && remainingLength(opener) > 0
         && (opener.char === '~'
             ? opener.length === closer.length
             : !violatesRuleOfThree(opener, closer))
@@ -66,14 +66,14 @@ function canPair(opener: IDelimiterRun, closer: IDelimiterRun) {
 }
 
 /** Consumes caller-owned run bounds; returned spans retain offsets in the original source. */
-export function pairEmphasisDelimiters(runs: IDelimiterRun[], base = 0): Map<number, IEmphasisSpan> {
-    const spans = new Map<number, IEmphasisSpan>();
+export function pairDelimiters(runs: IDelimiterRun[], offset = 0): Map<number, IDelimiterSpan> {
+    const spans = new Map<number, IDelimiterSpan>();
     const openers: number[] = [];
 
     for (let i = 0; i < runs.length; i++) {
         const closer = runs[i];
 
-        while (closer.canClose && unspent(closer) > 0) {
+        while (closer.canClose && remainingLength(closer) > 0) {
             let top = openers.length - 1;
             while (top >= 0 && !canPair(runs[openers[top]], closer))
                 top--;
@@ -84,21 +84,21 @@ export function pairEmphasisDelimiters(runs: IDelimiterRun[], base = 0): Map<num
             const opener = runs[openers[top]];
             openers.length = top + 1;
 
-            const markerLen = opener.char === '~' ? opener.length : unspent(opener) >= 2 && unspent(closer) >= 2 ? 2 : 1;
-            opener.right -= markerLen;
-            closer.left += markerLen;
+            const markerLength = opener.char === '~' ? opener.length : remainingLength(opener) >= 2 && remainingLength(closer) >= 2 ? 2 : 1;
+            opener.right -= markerLength;
+            closer.left += markerLength;
             const span = {
-                start: base + opener.right,
-                end: base + closer.left,
-                markerLen,
+                start: offset + opener.right,
+                end: offset + closer.left,
+                markerLength,
             };
             spans.set(span.start, span);
 
-            if (unspent(opener) === 0)
+            if (remainingLength(opener) === 0)
                 openers.pop();
         }
 
-        if (closer.canOpen && unspent(closer) > 0)
+        if (closer.canOpen && remainingLength(closer) > 0)
             openers.push(i);
     }
 

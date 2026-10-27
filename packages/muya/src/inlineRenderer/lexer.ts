@@ -1,4 +1,4 @@
-import type { IEmphasisSpan } from './emphasis';
+import type { IDelimiterSpan } from './delimiters';
 import type { BeginRules, InlineRules } from './rules';
 import type {
     CodeEmojiMathToken,
@@ -10,7 +10,7 @@ import type {
 import escapeCharactersMap from '../config/escapeCharacter';
 import { escapeHTML, isLengthEven } from '../utils';
 import { validEmoji } from '../utils/emoji';
-import { scanEmphasisSpans } from './emphasis';
+import { scanDelimiterSpans } from './delimiters';
 import { parseSrcAndTitle } from './linkDestination';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
 import { applySearchHighlights } from './searchHighlights';
@@ -37,13 +37,13 @@ interface ILexState {
     pending: string;
     pendingStartPos: number;
     tokens: Token[];
-    emphasisSpans: Map<number, IEmphasisSpan> | null;
+    delimiterSpans: Map<number, IDelimiterSpan> | null;
     basePos: number;
     inlineRules: InlineRules;
     labels: Labels;
     options: ITokenizerFacOptions;
     top: boolean;
-    mayAutoLink: boolean;
+    allowAutolinks: boolean;
     superSubScript: boolean;
     footnote: boolean;
     texMathDollars: boolean;
@@ -212,33 +212,33 @@ function tryBacklash(state: ILexState): boolean {
     return true;
 }
 
-function tryEmphasis(state: ILexState): boolean {
+function tryDelimiterSpan(state: ILexState): boolean {
     if (state.src[0] !== '*' && state.src[0] !== '_' && state.src[0] !== '~')
         return false;
 
-    state.emphasisSpans ??= scanEmphasisSpans(
+    state.delimiterSpans ??= scanDelimiterSpans(
         state.originSrc,
         state.basePos,
         state.inlineRules,
         state.labels,
         state.options,
-        state.mayAutoLink,
+        state.allowAutolinks,
     );
 
-    const span = state.emphasisSpans.get(state.pos);
+    const span = state.delimiterSpans.get(state.pos);
     if (!span)
         return false;
 
     const length = span.end - span.start;
     const raw = state.src.substring(0, length);
-    const marker = raw.substring(0, span.markerLen);
-    const inner = raw.substring(span.markerLen, length - span.markerLen);
+    const marker = raw.substring(0, span.markerLength);
+    const inner = raw.substring(span.markerLength, length - span.markerLength);
     const backlash = /(\\*)$/.exec(inner)![1];
     const content = inner.substring(0, inner.length - backlash.length);
 
     pushPending(state);
     state.tokens.push({
-        type: raw[0] === '~' ? 'del' : span.markerLen === 2 ? 'strong' : 'em',
+        type: raw[0] === '~' ? 'del' : span.markerLength === 2 ? 'strong' : 'em',
         raw,
         range: {
             start: state.pos,
@@ -250,12 +250,12 @@ function tryEmphasis(state: ILexState): boolean {
             content,
             null,
             state.inlineRules,
-            state.pos + span.markerLen,
+            state.pos + span.markerLength,
             false,
             state.labels,
             state.options,
-            state.emphasisSpans,
-            state.mayAutoLink,
+            state.delimiterSpans,
+            state.allowAutolinks,
         ),
         backlash,
     });
@@ -320,7 +320,7 @@ function tryChunks(state: ILexState): boolean {
                         state.labels,
                         state.options,
                         null,
-                        state.mayAutoLink,
+                        state.allowAutolinks,
                     ),
                     backlash: to[3],
                 });
@@ -593,7 +593,7 @@ function tryAutoLinkExtension(state: ILexState): boolean {
         state.inlineRules.auto_link_extension,
         state.originSrc,
         state.pos - state.basePos,
-        state.mayAutoLink,
+        state.allowAutolinks,
     );
     if (!autoLinkExtTo)
         return false;
@@ -798,7 +798,7 @@ function tryTailHeader(state: ILexState): boolean {
 const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryBackslashMath,
     tryBacklash,
-    tryEmphasis,
+    tryDelimiterSpan,
     tryChunks,
     trySuperSubScript,
     tryFootnote,
@@ -815,7 +815,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryTailHeader,
 ];
 
-function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, emphasisSpans: Map<number, IEmphasisSpan> | null = null, mayAutoLink = top) {
+function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, delimiterSpans: Map<number, IDelimiterSpan> | null = null, allowAutolinks = top) {
     const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = options;
     const state: ILexState = {
         originSrc: src,
@@ -824,13 +824,13 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         pending: '',
         pendingStartPos: pos,
         tokens: [],
-        emphasisSpans,
+        delimiterSpans,
         basePos: pos,
         inlineRules,
         labels,
         options,
         top,
-        mayAutoLink,
+        allowAutolinks,
         superSubScript,
         footnote,
         texMathDollars,

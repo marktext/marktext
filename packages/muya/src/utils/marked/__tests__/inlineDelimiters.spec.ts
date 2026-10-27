@@ -4,11 +4,11 @@
 import cms from 'commonmark-spec';
 import { Marked } from 'marked';
 import { describe, expect, it } from 'vitest';
-import inlineEmphasisExtension from '../extensions/inlineEmphasis';
+import inlineDelimitersExtension from '../extensions/inlineDelimiters';
 import { getClipBoardHtml } from '../getClipboardHtml';
 import { getHighlightHtml } from '../getHighlightHtml';
 import regressions from './fixtures/emphasis-context-regressions.json';
-import gfmRegressions from './fixtures/gfm-emphasis-regressions.json';
+import gfmRegressions from './fixtures/gfm-delimiter-regressions.json';
 
 interface ISpecExample {
     markdown: string;
@@ -36,7 +36,7 @@ const CASES = [
     ['**a*b*c', '**a<em>b</em>c'],
 ] as const;
 
-describe('marked emphasis with CJK boundaries', () => {
+describe('marked inline delimiters with CJK boundaries', () => {
     it('loads every CommonMark 0.31 emphasis example', () => {
         expect(emphasisExamples).toHaveLength(132);
     });
@@ -64,13 +64,13 @@ describe('marked emphasis with CJK boundaries', () => {
     }
 
     it.each([false, true])('keeps upstream delimiter rules with gfm=%s', (gfm) => {
-        const marked = new Marked(inlineEmphasisExtension(), { gfm });
+        const marked = new Marked(inlineDelimitersExtension(), { gfm });
         for (const [markdown, expected] of CASES)
             expect(marked.parseInline(markdown), markdown).toBe(expected);
     });
 
     for (const gfm of [false, true]) {
-        const marked = new Marked(inlineEmphasisExtension(), { gfm });
+        const marked = new Marked(inlineDelimitersExtension(), { gfm });
         it.each(regressions)(`gfm=${gfm}: $markdown retains outer delimiter context`, ({ markdown, html }) => {
             expect(normalize(marked.parse(markdown) as string)).toBe(normalize(html));
         });
@@ -90,7 +90,7 @@ describe('marked emphasis with CJK boundaries', () => {
         const plain = new Marked();
         const before = plain.parse(markdown);
 
-        expect(new Marked(inlineEmphasisExtension()).parse(markdown)).toContain('<strong>');
+        expect(new Marked(inlineDelimitersExtension()).parse(markdown)).toContain('<strong>');
         expect(plain.parse(markdown)).toBe(before);
         expect(new Marked().parse(markdown)).toBe(before);
         expect(before).not.toContain('<strong>');

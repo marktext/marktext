@@ -6,8 +6,8 @@ import compactNestedLists from './compactNestedLists';
 import emojiExtension from './extensions/emoji';
 import footnoteExtension from './extensions/footnote';
 import githubAlertsExtension from './extensions/githubAlerts';
+import inlineDelimitersExtension from './extensions/inlineDelimiters';
 import inlineDiffExtension from './extensions/inlineDiff';
-import inlineEmphasisExtension from './extensions/inlineEmphasis';
 import markExtension from './extensions/mark';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
 import multilineBlockquoteExtension from './extensions/multilineBlockquote';
@@ -54,7 +54,7 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
 
-    marked.use(inlineEmphasisExtension());
+    marked.use(inlineDelimitersExtension());
 
     marked.use(emojiExtension({ isRenderEmoji: true }));
 

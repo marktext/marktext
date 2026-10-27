@@ -1,14 +1,14 @@
 import type { MarkedExtension, Token, Tokens } from 'marked';
-import type { IDelimiterRun, IEmphasisSpan } from '../../emphasis';
+import type { IDelimiterRun, IDelimiterSpan } from '../../delimiters';
 import { Lexer, Tokenizer } from 'marked';
-import { codePointBefore, codePointCharAt, pairEmphasisDelimiters } from '../../emphasis';
+import { codePointBefore, codePointCharAt, pairDelimiters } from '../../delimiters';
 
 // Deliberate CommonMark divergence: retain MarkText's CJK-adjacent emphasis (#4307).
 const CJK = '\\u3040-\\u30FF\\u3400-\\u4DBF\\u4E00-\\u9FFF\\uF900-\\uFAFF\\uAC00-\\uD7AF\\uFF66-\\uFF9D\\u{20000}-\\u{2A6DF}';
 const punctuation = new RegExp(`[\\p{P}\\p{S}${CJK}]`, 'u');
 const whitespace = /[\p{Zs}\t\n\f\r]/u;
 
-interface IBoundaries {
+interface IBoundaryChars {
     before: string;
     after: string;
 }
@@ -26,7 +26,7 @@ function flanking(char: string, before: string, after: string) {
     };
 }
 
-function collectRuns(src: string, boundaries: IBoundaries, gfm: boolean): IDelimiterRun[] {
+function collectRuns(src: string, boundaries: IBoundaryChars, gfm: boolean): IDelimiterRun[] {
     const runs: IDelimiterRun[] = [];
     let i = 0;
     while (i < src.length) {
@@ -92,7 +92,7 @@ function sliceText<ParserOutput, RendererOutput>(token: Tokens.Text, start: numb
     return { ...token, raw, text: token.escaped ? raw : decodeText(raw, lexer) };
 }
 
-function pairInlineTokens<ParserOutput, RendererOutput>(tokens: Token[], lexer: Lexer<ParserOutput, RendererOutput>, boundaries: IBoundaries, processed: WeakSet<Token[]>): void {
+function applyDelimiters<ParserOutput, RendererOutput>(tokens: Token[], lexer: Lexer<ParserOutput, RendererOutput>, boundaries: IBoundaryChars, processed: WeakSet<Token[]>): void {
     if (processed.has(tokens))
         return;
     processed.add(tokens);
@@ -105,7 +105,7 @@ function pairInlineTokens<ParserOutput, RendererOutput>(tokens: Token[], lexer: 
     // Only actual parsed tokens shield delimiters; Marked's preliminary HTML/link mask also matches invalid syntax.
     // GFM autolinks retain interior delimiters as part of their destination (§6.9).
     const masked = tokens.map(token => isPlainText(token) ? token.raw : token.raw.replace(/[*_~]/g, '+')).join('');
-    const spans = pairEmphasisDelimiters(collectRuns(masked, boundaries, gfm));
+    const spans = pairDelimiters(collectRuns(masked, boundaries, gfm));
     if (!spans.size)
         return;
 
@@ -119,20 +119,20 @@ function pairInlineTokens<ParserOutput, RendererOutput>(tokens: Token[], lexer: 
     let rangeIndex = 0;
     let spanIndex = 0;
 
-    const group = (start: number, end: number): Token[] => {
+    const buildTokens = (start: number, end: number): Token[] => {
         const result: Token[] = [];
         processed.add(result);
         let pos = start;
         while (pos < end) {
-            const span: IEmphasisSpan | undefined = spans.get(pos);
+            const span: IDelimiterSpan | undefined = spans.get(pos);
             if (span) {
-                const innerStart = pos + span.markerLen;
-                const innerEnd = span.end - span.markerLen;
+                const innerStart = pos + span.markerLength;
+                const innerEnd = span.end - span.markerLength;
                 result.push({
-                    type: source[pos] === '~' ? 'del' : span.markerLen === 2 ? 'strong' : 'em',
+                    type: source[pos] === '~' ? 'del' : span.markerLength === 2 ? 'strong' : 'em',
                     raw: source.slice(pos, span.end),
                     text: source.slice(innerStart, innerEnd),
-                    tokens: group(innerStart, innerEnd),
+                    tokens: buildTokens(innerStart, innerEnd),
                 });
                 pos = span.end;
                 continue;
@@ -153,16 +153,16 @@ function pairInlineTokens<ParserOutput, RendererOutput>(tokens: Token[], lexer: 
         return result;
     };
 
-    const grouped = group(0, source.length);
+    const formattedTokens = buildTokens(0, source.length);
     tokens.length = 0;
-    for (const token of grouped)
+    for (const token of formattedTokens)
         tokens.push(token);
 }
 
-export default function inlineEmphasisExtension(): MarkedExtension {
-    const boundaries = new WeakMap<Lexer<unknown, unknown>, IBoundaries>();
+export default function inlineDelimitersExtension(): MarkedExtension {
+    const boundaries = new WeakMap<Lexer<unknown, unknown>, IBoundaryChars>();
     const processed = new WeakSet<Token[]>();
-    const inLinkLabel = <T, ParserOutput, RendererOutput>(lexer: Lexer<ParserOutput, RendererOutput>, tokenize: () => T): T => {
+    const withLabelEdges = <T, ParserOutput, RendererOutput>(lexer: Lexer<ParserOutput, RendererOutput>, tokenize: () => T): T => {
         const previous = boundaries.get(lexer);
         // Brackets still determine flanking at label edges, even though pairing cannot cross the link.
         boundaries.set(lexer, { before: '[', after: ']' });
@@ -182,12 +182,12 @@ export default function inlineEmphasisExtension(): MarkedExtension {
             link(src) {
                 if (src[0] !== '[' && !src.startsWith('!['))
                     return undefined;
-                return inLinkLabel(this.lexer, () => Tokenizer.prototype.link.call(this, src));
+                return withLabelEdges(this.lexer, () => Tokenizer.prototype.link.call(this, src));
             },
             reflink(src, links) {
                 if (src[0] !== '[' && !src.startsWith('!['))
                     return undefined;
-                return inLinkLabel(this.lexer, () => Tokenizer.prototype.reflink.call(this, src, links));
+                return withLabelEdges(this.lexer, () => Tokenizer.prototype.reflink.call(this, src, links));
             },
             emStrong(this: Tokenizer) {
                 return this.options.pedantic ? false : undefined;
@@ -201,7 +201,7 @@ export default function inlineEmphasisExtension(): MarkedExtension {
                 if (this.options.pedantic)
                     return tokens;
                 const lexer = new Lexer(this.options);
-                const visit = (scope: Token[], edges: IBoundaries = { before: '\n', after: '\n' }) => {
+                const visit = (scope: Token[], edges: IBoundaryChars = { before: '\n', after: '\n' }) => {
                     if (processed.has(scope))
                         return;
                     for (const token of scope) {
@@ -219,7 +219,7 @@ export default function inlineEmphasisExtension(): MarkedExtension {
                                 : undefined);
                         }
                     }
-                    pairInlineTokens(scope, lexer, edges, processed);
+                    applyDelimiters(scope, lexer, edges, processed);
                 };
                 // Extensions may lex new inline scopes in their own processAllTokens hooks.
                 visit(tokens);
@@ -235,7 +235,7 @@ export default function inlineEmphasisExtension(): MarkedExtension {
                         boundaries.delete(lexer);
                         const parsed = inlineTokens(source, tokens);
                         if (!options?.pedantic)
-                            pairInlineTokens(parsed, lexer, edges, processed);
+                            applyDelimiters(parsed, lexer, edges, processed);
                         return parsed;
                     };
                     return block ? lexer.lex(source) : lexer.inlineTokens(source);

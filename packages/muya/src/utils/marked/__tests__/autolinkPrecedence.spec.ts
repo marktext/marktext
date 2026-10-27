@@ -2,10 +2,10 @@
 
 import { Marked } from 'marked';
 import { describe, expect, it } from 'vitest';
-import inlineEmphasisExtension from '../extensions/inlineEmphasis';
+import inlineDelimitersExtension from '../extensions/inlineDelimiters';
 import { getClipBoardHtml } from '../getClipboardHtml';
 import { getHighlightHtml } from '../getHighlightHtml';
-import fixtures from './fixtures/gfm-autolink-emphasis.json';
+import fixtures from './fixtures/gfm-autolink-precedence.json';
 
 const URL = 'https://example.com/path';
 
@@ -38,7 +38,7 @@ describe('gfm autolink precedence over emphasis', () => {
     });
 
     it('keeps bare URLs as text when the GFM extension is disabled', () => {
-        const marked = new Marked(inlineEmphasisExtension(), { gfm: false });
+        const marked = new Marked(inlineDelimitersExtension(), { gfm: false });
         expect(marked.parse(`**${URL}**text`)).toBe(`<p><strong>${URL}</strong>text</p>\n`);
     });
 });

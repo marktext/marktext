@@ -2,17 +2,17 @@
     {
         "markdown": "**https://example.com/path**text",
         "html": "<p>**<a href=\"https://example.com/path**text\">https://example.com/path**text</a></p>\n",
-        "editor": true
+        "checkEditor": true
     },
     {
         "markdown": "*https://example.com/path*text",
         "html": "<p>*<a href=\"https://example.com/path*text\">https://example.com/path*text</a></p>\n",
-        "editor": true
+        "checkEditor": true
     },
     {
         "markdown": "~~https://example.com/path~~text",
         "html": "<p>~~<a href=\"https://example.com/path~~text\">https://example.com/path~~text</a></p>\n",
-        "editor": true
+        "checkEditor": true
     },
     {
         "markdown": "**https://example.com/path**text*em*",
@@ -25,7 +25,7 @@
     {
         "markdown": "**https://example.com/path**text`*a*`",
         "html": "<p>**<a href=\"https://example.com/path**text%60*a*%60\">https://example.com/path**text`*a*`</a></p>\n",
-        "editor": true
+        "checkEditor": true
     },
     {
         "markdown": "**https://example.com/path**text[a *b*](/next)",
@@ -58,7 +58,7 @@
     {
         "markdown": "https://example.com/a*b*c",
         "html": "<p><a href=\"https://example.com/a*b*c\">https://example.com/a*b*c</a></p>\n",
-        "editor": true
+        "checkEditor": true
     },
     {
         "markdown": "https://example.com/a**b**c",
@@ -107,36 +107,36 @@
     {
         "markdown": "**https://example.com/path** text",
         "html": "<p><strong><a href=\"https://example.com/path\">https://example.com/path</a></strong> text</p>\n",
-        "editor": true
+        "checkEditor": true
     },
     {
         "markdown": "*https://example.com/path* text",
         "html": "<p><em><a href=\"https://example.com/path\">https://example.com/path</a></em> text</p>\n",
-        "editor": true
+        "checkEditor": true
     },
     {
         "markdown": "~~https://example.com/path~~ text",
         "html": "<p><del><a href=\"https://example.com/path\">https://example.com/path</a></del> text</p>\n",
-        "editor": true
+        "checkEditor": true
     },
     {
         "markdown": "[**https://example.com/path**](https://example.com/path)text",
         "html": "<p><a href=\"https://example.com/path\"><strong>https://example.com/path</strong></a>text</p>\n",
-        "editor": true
+        "checkEditor": true
     },
     {
         "markdown": "https://example.com/path",
         "html": "<p><a href=\"https://example.com/path\">https://example.com/path</a></p>\n",
-        "editor": true
+        "checkEditor": true
     },
     {
         "markdown": "<https://example.com/a*b*c>",
         "html": "<p><a href=\"https://example.com/a*b*c\">https://example.com/a*b*c</a></p>\n",
-        "editor": true
+        "checkEditor": true
     },
     {
         "markdown": "**https://example.com/path**text[a *b*](https://example.com/next)",
         "html": "<p>**<a href=\"https://example.com/path**text%5Ba\">https://example.com/path**text[a</a> <em>b</em>](<a href=\"https://example.com/next\">https://example.com/next</a>)</p>\n",
-        "editor": true
+        "checkEditor": true
     }
 ]

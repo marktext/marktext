@@ -7,9 +7,9 @@ import cms from 'commonmark-spec';
 
 import { describe, expect, it } from 'vitest';
 import { escapeHTML } from '../../utils';
-import autolinkFixtures from '../../utils/marked/__tests__/fixtures/gfm-autolink-emphasis.json';
-import gfmFixtures from '../../utils/marked/__tests__/fixtures/gfm-emphasis-regressions.json';
-import { scanEmphasisSpans } from '../emphasis';
+import autolinkFixtures from '../../utils/marked/__tests__/fixtures/gfm-autolink-precedence.json';
+import gfmFixtures from '../../utils/marked/__tests__/fixtures/gfm-delimiter-regressions.json';
+import { scanDelimiterSpans } from '../delimiters';
 import { tokenizer } from '../lexer';
 import { inlineRules } from '../rules';
 
@@ -175,16 +175,16 @@ describe('delimiter runs spent from both ends', () => {
             for (let i = 1 + Math.floor(random() * 14); i > 0; i--)
                 src += alphabet[Math.floor(random() * alphabet.length)];
 
-            const found = [...scanEmphasisSpans(src, 0, inlineRules, new Map(), OPTIONS, true).values()]
+            const found = [...scanDelimiterSpans(src, 0, inlineRules, new Map(), OPTIONS, true).values()]
                 .sort((a, b) => a.start - b.start || b.end - a.end);
 
             for (const [i, span] of found.entries()) {
-                const opener = src.slice(span.start, span.start + span.markerLen);
+                const opener = src.slice(span.start, span.start + span.markerLength);
                 if (
                     span.start < 0
                     || span.end > src.length
-                    || span.end - span.start < 2 * span.markerLen
-                    || opener !== src.slice(span.end - span.markerLen, span.end)
+                    || span.end - span.start < 2 * span.markerLength
+                    || opener !== src.slice(span.end - span.markerLength, span.end)
                 ) {
                     broken.push(`${JSON.stringify(src)} — malformed [${span.start},${span.end})`);
                 }
@@ -192,8 +192,8 @@ describe('delimiter runs spent from both ends', () => {
                 for (const other of found.slice(i + 1)) {
                     const disjoint = other.start >= span.end;
                     const nested
-                        = other.start >= span.start + span.markerLen
-                            && other.end <= span.end - span.markerLen;
+                        = other.start >= span.start + span.markerLength
+                            && other.end <= span.end - span.markerLength;
                     if (!disjoint && !nested) {
                         broken.push(
                             `${JSON.stringify(src)} — [${span.start},${span.end}) vs [${other.start},${other.end})`,
@@ -269,7 +269,7 @@ describe('GFM URL boundaries shared with clipboard and export', () => {
         expect(`<p>${renderInline(markdown)}</p>\n`).toBe(html);
     });
 
-    it.each(autolinkFixtures.filter(fixture => fixture.editor))('$markdown', ({ markdown, html }) => {
+    it.each(autolinkFixtures.filter(fixture => fixture.checkEditor))('$markdown', ({ markdown, html }) => {
         expect(`<p>${renderInline(markdown)}</p>\n`).toBe(html);
     });
 });

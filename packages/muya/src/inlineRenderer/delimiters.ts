@@ -1,7 +1,7 @@
-import type { IDelimiterRun, IEmphasisSpan } from '../utils/emphasis';
+import type { IDelimiterRun, IDelimiterSpan } from '../utils/delimiters';
 import type { InlineRules } from './rules';
 import type { ITokenizerFacOptions, Labels } from './types';
-import { codePointBefore, codePointCharAt, pairEmphasisDelimiters } from '../utils/emphasis';
+import { codePointBefore, codePointCharAt, pairDelimiters } from '../utils/delimiters';
 import { BACKSLASH_MATH_RULES, linkValidateRules } from './rules';
 import {
     CJK_REG,
@@ -13,14 +13,14 @@ import {
     UNICODE_WHITESPACE_REG,
 } from './utils';
 
-export type { IEmphasisSpan } from '../utils/emphasis';
+export type { IDelimiterSpan } from '../utils/delimiters';
 
 interface IScanContext {
     rules: InlineRules;
     labels: Labels;
     options: ITokenizerFacOptions;
-    top: boolean;
-    mayAutoLink: boolean;
+    allowAutolinks: boolean;
+    scanAutolinks: boolean;
 }
 
 function isWhitespace(char: string) {
@@ -47,8 +47,8 @@ function isAsciiAlphanumeric(code: number) {
     );
 }
 
-function lengthOf(to: RegExpExecArray | null) {
-    return to?.[0].length ?? 0;
+function lengthOf(match: RegExpExecArray | null) {
+    return match?.[0].length ?? 0;
 }
 
 function backslashMathLength(src: string, index: number, { rules, options }: IScanContext) {
@@ -72,15 +72,15 @@ function dollarMathLength(src: string, index: number, { rules, options }: IScanC
 }
 
 function autoLinkLength(src: string, index: number, context: IScanContext) {
-    if (!context.mayAutoLink || !isAsciiAlphanumeric(src.charCodeAt(index)))
+    if (!context.scanAutolinks || !isAsciiAlphanumeric(src.charCodeAt(index)))
         return 0;
 
     return lengthOf(
-        matchExtendedAutoLink(context.rules.auto_link_extension, src, index, context.top),
+        matchExtendedAutoLink(context.rules.auto_link_extension, src, index, context.allowAutolinks),
     );
 }
 
-function inertRunLength(src: string, index: number, context: IScanContext): number {
+function protectedLength(src: string, index: number, context: IScanContext): number {
     const { rules, labels } = context;
 
     switch (src[index]) {
@@ -149,29 +149,29 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
             continue;
         }
 
-        const inert = inertRunLength(src, i, context);
-        i += inert > 0 ? inert : 1;
+        const skipLength = protectedLength(src, i, context);
+        i += skipLength > 0 ? skipLength : 1;
     }
 
     return runs;
 }
 
-export function scanEmphasisSpans(
+export function scanDelimiterSpans(
     src: string,
-    base: number,
+    offset: number,
     rules: InlineRules,
     labels: Labels,
     options: ITokenizerFacOptions,
-    top: boolean,
-): Map<number, IEmphasisSpan> {
+    allowAutolinks: boolean,
+): Map<number, IDelimiterSpan> {
     const runs = collectRuns(src, {
         rules,
         labels,
         options,
-        top,
-        mayAutoLink:
-            top
+        allowAutolinks,
+        scanAutolinks:
+            allowAutolinks
             && (src.includes('www.') || src.includes('http') || src.includes('@')),
     });
-    return pairEmphasisDelimiters(runs, base);
+    return pairDelimiters(runs, offset);
 }
