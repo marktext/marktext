@@ -49,8 +49,9 @@ const windowHeight = (app: ElectronApplication): Promise<number> =>
 const addTabs = async(app: ElectronApplication, page: Page, total: number): Promise<void> => {
   for (let i = await rowCount(page); i < total; i++) {
     await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, `body ${i}\n`)
+    await expect.poll(() => rowCount(page)).toBe(i + 1)
   }
-  await expect.poll(() => rowCount(page), { timeout: 5000 }).toBeGreaterThanOrEqual(total)
+  await expect.poll(() => rowCount(page)).toBe(total)
   const titles = await page.locator('.tabs-container > li').evaluateAll(elements => elements.map(element => element.getAttribute('aria-label')))
   expect(new Set(titles).size).toBe(titles.length)
 }
