@@ -26,12 +26,10 @@ const typeOf = (value: unknown): string => {
   return typeof value
 }
 
-// Only the key this change adds is held to the sync rules: the file and the schema have
+// Only the keys added since are held to the sync rules: the file and the schema have
 // drifted on their own for a while, and repairing that is not this change's business.
-const KEY = 'showPandocConvert'
-
-describe('static/preference.json stays in sync with the preference schema', () => {
-  it('lists the switch this change declares, so it is not dropped on restart', () => {
+describe.each(['showPandocConvert', 'fancyLists'])('static/preference.json stays in sync with the preference schema for %s', (KEY) => {
+  it('lists the switch, so it is not dropped on restart', () => {
     expect(defaults, `add ${KEY} to static/preference.json`).toHaveProperty(KEY)
   })
 

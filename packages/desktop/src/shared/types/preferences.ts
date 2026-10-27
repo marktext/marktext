@@ -47,6 +47,7 @@ export interface IUserPreferences {
   texMathGfm?: boolean
   texMathSingleBackslash?: boolean
   texMathDoubleBackslash?: boolean
+  fancyLists?: boolean
   highlightSyntax?: boolean
   inlineDiff?: boolean
   multilineBlockquote?: boolean

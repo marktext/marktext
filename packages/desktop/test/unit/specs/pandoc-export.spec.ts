@@ -193,6 +193,20 @@ describe('pandoc export', () => {
     ).toBe('markdown-tex_math_dollars+tex_math_double_backslash')
   })
 
+  // pandoc's `gfm` takes `+fancy_lists` but folds an indented `A.` item into its parent.
+  it('reads fancy lists with the gfm-shaped markdown reader', () => {
+    const extensions: PandocReaderExtensions = {
+      gfm: EXTENSIONS.gfm,
+      markdown: new Map([...EXTENSIONS.markdown, ['fancy_lists', true]])
+    }
+    const reader = getPandocReader({ superSubScript: false, fancyLists: true }, extensions)
+    expect(reader).toBe('markdown-superscript-subscript-smart-fenced_divs')
+    expect(getPandocReader({ superSubScript: false, texMathSingleBackslash: true }, extensions)).toContain(
+      '-fancy_lists'
+    )
+    expect(getPandocReader({ superSubScript: false, fancyLists: true })).toBe('markdown')
+  })
+
   // pandoc ships no `zh`/`zh-CN`/`zh-TW`, and an unresolvable `lang` warns on every export (#5379).
   it('spells the Chinese region as the script subtag pandoc carries', () => {
     expect(getPandocLanguage('zh-CN')).toBe('zh-Hans')

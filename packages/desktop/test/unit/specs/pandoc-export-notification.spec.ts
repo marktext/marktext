@@ -92,7 +92,8 @@ const EXPORT_PAYLOAD = {
   texMathDollars: true,
   texMathGfm: false,
   texMathSingleBackslash: false,
-  texMathDoubleBackslash: false
+  texMathDoubleBackslash: false,
+  fancyLists: false
 }
 
 const exportWith = async(
@@ -241,6 +242,11 @@ describe('mt::response-pandoc-export notifications', () => {
     toFile.mockClear()
     await exportWith('docx', { texMathGfm: true })
     expect(optionsOfLastExport().reader).toBe('gfm-footnotes+tex_math_gfm')
+
+    // Only `markdown` nests a fancy-list outline.
+    toFile.mockClear()
+    await exportWith('docx', { fancyLists: true })
+    expect(optionsOfLastExport().reader).toBe('markdown')
   })
 
   // EPUB takes `title` for its title page; `lang` must be the app's, not the spawn locale.
