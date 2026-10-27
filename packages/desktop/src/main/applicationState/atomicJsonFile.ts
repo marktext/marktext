@@ -73,11 +73,12 @@ export class AtomicJsonFile<T> {
     return this.enqueue(() => this.read())
   }
 
-  write(value: T): Promise<void> {
+  async write(value: T): Promise<void> {
+    // Capture this request before earlier writes or initialization can yield control.
+    const serialized = JSON.stringify(this.parse(value))
     return this.enqueue(async() => {
       if (!this.initialized) await this.read()
       if (this.protectedReason) throw new Error(`State file is read-only: ${this.protectedReason}`)
-      const serialized = JSON.stringify(this.parse(value))
       await mkdir(path.dirname(this.pathname), { recursive: true })
       if (this.hooks.beforeReplace) await this.hooks.beforeReplace(this.pathname, serialized)
       await writeFileAtomic(this.pathname, serialized, { encoding: 'utf8', mode: 0o600 })

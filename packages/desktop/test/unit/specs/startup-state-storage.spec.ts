@@ -20,6 +20,17 @@ afterEach(() => {
 })
 
 describe('application metadata storage', () => {
+  it('captures the requested snapshot before the caller mutates it during queued IO', async() => {
+    const store = new ApplicationStateStore(await profile())
+    const state = applicationState([windowSnapshot()])
+    const requested = structuredClone(state)
+    const written = store.write(state)
+    state.session.windows = []
+    state.revision = 99
+    await written
+    expect(await store.load()).toEqual({ status: 'loaded', value: requested })
+  })
+
   it('protects an unreadable state path without preventing in-memory defaults', async() => {
     const directory = await profile()
     const path = join(directory, 'state', 'application-state.json')
