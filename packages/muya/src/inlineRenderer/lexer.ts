@@ -43,6 +43,7 @@ interface ILexState {
     labels: Labels;
     options: ITokenizerFacOptions;
     top: boolean;
+    mayAutoLink: boolean;
     superSubScript: boolean;
     footnote: boolean;
     texMathDollars: boolean;
@@ -211,8 +212,8 @@ function tryBacklash(state: ILexState): boolean {
     return true;
 }
 
-function tryStrongEm(state: ILexState): boolean {
-    if (state.src[0] !== '*' && state.src[0] !== '_')
+function tryEmphasis(state: ILexState): boolean {
+    if (state.src[0] !== '*' && state.src[0] !== '_' && state.src[0] !== '~')
         return false;
 
     state.emphasisSpans ??= scanEmphasisSpans(
@@ -221,7 +222,7 @@ function tryStrongEm(state: ILexState): boolean {
         state.inlineRules,
         state.labels,
         state.options,
-        state.top,
+        state.mayAutoLink,
     );
 
     const span = state.emphasisSpans.get(state.pos);
@@ -237,7 +238,7 @@ function tryStrongEm(state: ILexState): boolean {
 
     pushPending(state);
     state.tokens.push({
-        type: span.markerLen === 2 ? 'strong' : 'em',
+        type: raw[0] === '~' ? 'del' : span.markerLen === 2 ? 'strong' : 'em',
         raw,
         range: {
             start: state.pos,
@@ -254,6 +255,7 @@ function tryStrongEm(state: ILexState): boolean {
             state.labels,
             state.options,
             state.emphasisSpans,
+            state.mayAutoLink,
         ),
         backlash,
     });
@@ -263,12 +265,11 @@ function tryStrongEm(state: ILexState): boolean {
     return true;
 }
 
-// emoji | inline_code | del | mark | inline_math
 // `inline_math_gfm` goes first: both math forms open on `$`, and the dollar
 // rule would otherwise swallow `` $`e=mc^2`$ `` whole, backticks and all.
 // It carries its own marker shape but produces an ordinary `inline_math` token.
 function tryChunks(state: ILexState): boolean {
-    const chunks = ['inline_math_gfm', 'inline_code', 'del', 'mark', 'inline_diff', 'emoji', 'inline_math'] as const;
+    const chunks = ['inline_math_gfm', 'inline_code', 'mark', 'inline_diff', 'emoji', 'inline_math'] as const;
 
     for (const rule of chunks) {
         if (rule === 'inline_math' && !state.texMathDollars)
@@ -303,7 +304,7 @@ function tryChunks(state: ILexState): boolean {
                 end: state.pos + to[0].length,
             };
             const marker = to[1];
-            if (rule === 'del' || rule === 'mark') {
+            if (rule === 'mark') {
                 state.tokens.push({
                     type: rule,
                     raw: to[0],
@@ -318,6 +319,8 @@ function tryChunks(state: ILexState): boolean {
                         false,
                         state.labels,
                         state.options,
+                        null,
+                        state.mayAutoLink,
                     ),
                     backlash: to[3],
                 });
@@ -589,8 +592,8 @@ function tryAutoLinkExtension(state: ILexState): boolean {
     const autoLinkExtTo = matchExtendedAutoLink(
         state.inlineRules.auto_link_extension,
         state.originSrc,
-        state.pos,
-        state.top,
+        state.pos - state.basePos,
+        state.mayAutoLink,
     );
     if (!autoLinkExtTo)
         return false;
@@ -795,7 +798,7 @@ function tryTailHeader(state: ILexState): boolean {
 const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryBackslashMath,
     tryBacklash,
-    tryStrongEm,
+    tryEmphasis,
     tryChunks,
     trySuperSubScript,
     tryFootnote,
@@ -812,7 +815,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryTailHeader,
 ];
 
-function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, emphasisSpans: Map<number, IEmphasisSpan> | null = null) {
+function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, emphasisSpans: Map<number, IEmphasisSpan> | null = null, mayAutoLink = top) {
     const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = options;
     const state: ILexState = {
         originSrc: src,
@@ -827,6 +830,7 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         labels,
         options,
         top,
+        mayAutoLink,
         superSubScript,
         footnote,
         texMathDollars,

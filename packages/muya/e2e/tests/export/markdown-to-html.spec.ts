@@ -1,4 +1,6 @@
+import fixtures from '../../../src/utils/marked/__tests__/fixtures/gfm-autolink-emphasis.json' with { type: 'json' };
 import { expect, test } from '../fixtures/muya';
+import { editor } from '../helpers/selectors';
 
 /**
  * Public `MarkdownToHtml` static-export class. Host exposes it on
@@ -25,23 +27,34 @@ $$a \\ne b$$
 `;
 
 test.describe('export / MarkdownToHtml', () => {
-    test('formatted bare URLs keep adjacent text out of the link target', async ({ page }) => {
-        const result = await page.evaluate(async () => {
-            const html = await new window.MarkdownToHtml!('**https://example.com/path**text').generate();
-            const document = new DOMParser().parseFromString(html, 'text/html');
-            const strong = document.querySelector('article strong');
-            return {
-                href: strong?.querySelector('a')?.getAttribute('href'),
-                label: strong?.textContent,
-                tail: strong?.nextSibling?.textContent,
-            };
+    for (const fixture of fixtures.filter(fixture => fixture.editor)) {
+        test(`editor and export follow GFM URL boundaries: ${fixture.markdown}`, async ({ page }) => {
+            const result = await page.evaluate(async ({ markdown, html, selector }) => {
+                window.muya!.setContent(markdown);
+                window.muya!.setReadOnly(true);
+                const exported = await new window.MarkdownToHtml!(markdown).generate();
+                const parser = new DOMParser();
+                const expected = parser.parseFromString(html, 'text/html').querySelector('p')!;
+                const actual = parser.parseFromString(exported, 'text/html').querySelector('article p')!;
+                const edited = document.querySelector(selector)!.cloneNode(true) as HTMLElement;
+                edited.querySelectorAll('.mu-remove, .mu-hide').forEach(marker => marker.remove());
+                const summarize = (root: Element) => ({
+                    text: root.textContent,
+                    links: [...root.querySelectorAll('[href]')].map(link => ({
+                        href: link.getAttribute('href'),
+                        text: link.textContent,
+                    })),
+                    formats: [...root.querySelectorAll('strong, em, del, code')].map(element => ({
+                        tag: element.tagName.toLowerCase(),
+                        text: element.textContent,
+                    })),
+                });
+                return { expected: summarize(expected), exported: summarize(actual), editor: summarize(edited) };
+            }, { ...fixture, selector: editor.paragraphContent });
+            expect(result.exported).toEqual(result.expected);
+            expect(result.editor).toEqual(result.expected);
         });
-        expect(result).toEqual({
-            href: 'https://example.com/path',
-            label: 'https://example.com/path',
-            tail: 'text',
-        });
-    });
+    }
 
     test('window.MarkdownToHtml is exposed by the host', async ({ page }) => {
         const isClass = await page.evaluate(() => typeof window.MarkdownToHtml === 'function');

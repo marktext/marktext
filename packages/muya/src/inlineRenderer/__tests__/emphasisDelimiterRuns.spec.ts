@@ -7,6 +7,8 @@ import cms from 'commonmark-spec';
 
 import { describe, expect, it } from 'vitest';
 import { escapeHTML } from '../../utils';
+import autolinkFixtures from '../../utils/marked/__tests__/fixtures/gfm-autolink-emphasis.json';
+import gfmFixtures from '../../utils/marked/__tests__/fixtures/gfm-emphasis-regressions.json';
 import { scanEmphasisSpans } from '../emphasis';
 import { tokenizer } from '../lexer';
 import { inlineRules } from '../rules';
@@ -53,6 +55,12 @@ function renderTokens(tokens: Token[]): string {
             case 'auto_link':
                 html += `<a href="${escapeHTML(token.href)}">${escapeHTML(token.raw.replace(/^<|>$/g, ''))}</a>`;
                 break;
+
+            case 'auto_link_extension': {
+                const href = token.www ? `http://${token.www}` : token.url || `mailto:${token.email}`;
+                html += `<a href="${escapeHTML(encodeURI(href))}">${escapeHTML(token.raw)}</a>`;
+                break;
+            }
 
             case 'backlash':
                 html += escapeHTML(token.raw.replace(/^\\/, ''));
@@ -243,8 +251,8 @@ describe('constructs that outrank emphasis', () => {
     });
 
     it.each([
-        ['*www.x.com/a*b*c*', '<em>www.x.com/a*b*c</em>'],
-        ['~~www.x.com/a*b*c~~', '<del>www.x.com/a<em>b</em>c</del>'],
+        ['*www.x.com/a*b*c*', '<em><a href="http://www.x.com/a*b*c">www.x.com/a*b*c</a></em>'],
+        ['~~www.x.com/a*b*c~~', '<del><a href="http://www.x.com/a*b*c">www.x.com/a*b*c</a></del>'],
     ])('%s', (markdown, expected) => {
         expect(renderInline(markdown)).toBe(expected);
     });
@@ -253,5 +261,15 @@ describe('constructs that outrank emphasis', () => {
 describe('one scan for the whole tree', () => {
     it('does not re-decide a nested run out of context', () => {
         expect(renderInline('*_b.__*')).toBe('<em>_b.__</em>');
+    });
+});
+
+describe('GFM URL boundaries shared with clipboard and export', () => {
+    it.each(gfmFixtures)('$markdown retains GFM delimiter precedence', ({ markdown, html }) => {
+        expect(`<p>${renderInline(markdown)}</p>\n`).toBe(html);
+    });
+
+    it.each(autolinkFixtures.filter(fixture => fixture.editor))('$markdown', ({ markdown, html }) => {
+        expect(`<p>${renderInline(markdown)}</p>\n`).toBe(html);
     });
 });

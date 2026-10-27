@@ -118,10 +118,15 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
     while (i < src.length) {
         const char = src[i];
 
-        if (char === '*' || char === '_') {
+        if (char === '*' || char === '_' || char === '~') {
             let length = 1;
             while (src[i + length] === char)
                 length++;
+
+            if (char === '~' && (length > 2 || (length === 1 && context.options.superSubScript))) {
+                i += length;
+                continue;
+            }
 
             const before = charBefore(src, i);
             const after = charAfter(src, i + length);
@@ -137,8 +142,8 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
                 length,
                 left: i,
                 right: i + length,
-                canOpen: leftFlanking && (char === '*' || isBoundary(before)),
-                canClose: rightFlanking && (char === '*' || isBoundary(after)),
+                canOpen: leftFlanking && (char !== '_' || isBoundary(before)),
+                canClose: rightFlanking && (char !== '_' || isBoundary(after)),
             });
             i += length;
             continue;

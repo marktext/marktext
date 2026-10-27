@@ -1,5 +1,5 @@
-import type { MarkedExtension, MarkedOptions, Token, Tokens } from 'marked';
-import type { IDelimiterPairingOptions, IDelimiterRun, IEmphasisSpan } from '../../emphasis';
+import type { MarkedExtension, Token, Tokens } from 'marked';
+import type { IDelimiterRun, IEmphasisSpan } from '../../emphasis';
 import { Lexer, Tokenizer } from 'marked';
 import { codePointBefore, codePointCharAt, pairEmphasisDelimiters } from '../../emphasis';
 
@@ -7,8 +7,6 @@ import { codePointBefore, codePointCharAt, pairEmphasisDelimiters } from '../../
 const CJK = '\\u3040-\\u30FF\\u3400-\\u4DBF\\u4E00-\\u9FFF\\uF900-\\uFAFF\\uAC00-\\uD7AF\\uFF66-\\uFF9D\\u{20000}-\\u{2A6DF}';
 const punctuation = new RegExp(`[\\p{P}\\p{S}${CJK}]`, 'u');
 const whitespace = /[\p{Zs}\t\n\f\r]/u;
-
-type TRelex = (source: string, limits: ReadonlyMap<number, number>, edges: IBoundaries) => Token[];
 
 interface IBoundaries {
     before: string;
@@ -68,10 +66,6 @@ function isPlainText(token: Token): token is Tokens.Text {
     return token.type === 'text' && !token.tokens;
 }
 
-function isBareUrl(token: Token): token is Tokens.Link {
-    return token.type === 'link' && token.autolink === true && !token.raw.startsWith('<');
-}
-
 function decodeText<ParserOutput, RendererOutput>(raw: string, lexer: Lexer<ParserOutput, RendererOutput>): string {
     // Reuse Marked's character-reference decoding without recognizing new syntax in a text fragment.
     const inRawBlock = lexer.state.inRawBlock;
@@ -98,48 +92,7 @@ function sliceText<ParserOutput, RendererOutput>(token: Tokens.Text, start: numb
     return { ...token, raw, text: token.escaped ? raw : decodeText(raw, lexer) };
 }
 
-function maskCodeAndEscapes<ParserOutput, RendererOutput>(source: string, lexer: Lexer<ParserOutput, RendererOutput>): string {
-    const rules = lexer.options.tokenizer!.rules.inline;
-    let masked = '';
-    let index = 0;
-    while (index < source.length) {
-        const char = source[index];
-        const match = char === '\\' ? rules.escape.exec(source.slice(index)) : char === '`' ? rules.code.exec(source.slice(index)) : null;
-        if (match) {
-            masked += match[0].replace(/[*_~]/g, '+');
-            index += match[0].length;
-        }
-        else {
-            masked += char;
-            index++;
-        }
-    }
-    return masked;
-}
-
-function bareUrlPrecedence<ParserOutput, RendererOutput>(ranges: ITokenRange[], source: string, lexer: Lexer<ParserOutput, RendererOutput>) {
-    const urls = ranges.filter(range => isBareUrl(range.token)).map(({ start, end }) => ({ start, end }));
-    const containingUrl = (pos: number) => urls.find(url => url.start <= pos && pos < url.end);
-    const limits = new Map<number, number>();
-    const options: IDelimiterPairingOptions = {
-        // Interior URL markers can close existing formatting, but cannot independently open formatting.
-        mayOpen: run => !containingUrl(run.left),
-        onPair(span) {
-            const url = containingUrl(span.end - span.markerLen);
-            if (!url || span.start >= url.start)
-                return;
-            url.end = span.end - span.markerLen;
-            limits.set(url.start, url.end);
-            // Text after the closing run is outside the URL and may begin another bare link.
-            const next = Tokenizer.prototype.url.call(lexer.options.tokenizer!, source.slice(span.end));
-            if (next)
-                urls.push({ start: span.end, end: span.end + next.raw.length });
-        },
-    };
-    return { options, limits };
-}
-
-function pairInlineTokens<ParserOutput, RendererOutput>(tokens: Token[], lexer: Lexer<ParserOutput, RendererOutput>, boundaries: IBoundaries, processed: WeakSet<Token[]>, relex: TRelex): void {
+function pairInlineTokens<ParserOutput, RendererOutput>(tokens: Token[], lexer: Lexer<ParserOutput, RendererOutput>, boundaries: IBoundaries, processed: WeakSet<Token[]>): void {
     if (processed.has(tokens))
         return;
     processed.add(tokens);
@@ -150,10 +103,11 @@ function pairInlineTokens<ParserOutput, RendererOutput>(tokens: Token[], lexer: 
 
     const source = tokens.map(token => token.raw).join('');
     // Only actual parsed tokens shield delimiters; Marked's preliminary HTML/link mask also matches invalid syntax.
-    let masked = tokens.map(token => isPlainText(token) || isBareUrl(token) ? token.raw : token.raw.replace(/[*_~`\\]/g, '+')).join('');
-    // A prospective bare URL can contain higher-priority code or escapes that the initial URL token swallowed.
-    if (tokens.some(isBareUrl))
-        masked = maskCodeAndEscapes(masked, lexer);
+    // GFM autolinks retain interior delimiters as part of their destination (§6.9).
+    const masked = tokens.map(token => isPlainText(token) ? token.raw : token.raw.replace(/[*_~]/g, '+')).join('');
+    const spans = pairEmphasisDelimiters(collectRuns(masked, boundaries, gfm));
+    if (!spans.size)
+        return;
 
     let offset = 0;
     const ranges: ITokenRange[] = tokens.map((token) => {
@@ -161,18 +115,6 @@ function pairInlineTokens<ParserOutput, RendererOutput>(tokens: Token[], lexer: 
         offset += token.raw.length;
         return { token, start, end: offset };
     });
-    const precedence = bareUrlPrecedence(ranges, source, lexer);
-    const spans = pairEmphasisDelimiters(collectRuns(masked, boundaries, gfm), 0, precedence.options);
-    if (precedence.limits.size) {
-        // Re-lex the narrowed URLs so their former tails can become escapes, code or other inline syntax.
-        const replayed = relex(source, precedence.limits, boundaries);
-        tokens.length = 0;
-        for (const token of replayed)
-            tokens.push(token);
-        return;
-    }
-    if (!spans.size)
-        return;
     const starts = [...spans.keys()].sort((a, b) => a - b);
     let rangeIndex = 0;
     let spanIndex = 0;
@@ -235,57 +177,6 @@ export default function inlineEmphasisExtension(): MarkedExtension {
         }
     };
 
-    const createLexer = <ParserOutput, RendererOutput>(options: MarkedOptions<ParserOutput, RendererOutput>, limitedSource?: string, limits: ReadonlyMap<number, number> = new Map()): Lexer<ParserOutput, RendererOutput> => {
-        let activeSource = '';
-        const tokenizer = Object.assign(new Tokenizer<ParserOutput, RendererOutput>(), options.tokenizer);
-        tokenizer.url = function (src) {
-            const end = activeSource === limitedSource ? limits.get(activeSource.length - src.length) : undefined;
-            const input = end === undefined ? src : src.slice(0, end - (activeSource.length - src.length));
-            return Tokenizer.prototype.url.call(this, input);
-        };
-        const lexer = new Lexer({ ...options, tokenizer });
-        const inlineTokens = lexer.inlineTokens.bind(lexer);
-        lexer.inlineTokens = (source, tokens = []) => {
-            const edges = boundaries.get(lexer) ?? { before: '\n', after: '\n' };
-            const state = { ...lexer.state };
-            const previousSource = activeSource;
-            const original = options.tokenizer;
-            const originalState = original && { lexer: original.lexer, rules: original.rules, options: original.options };
-            activeSource = source;
-            boundaries.delete(lexer);
-            try {
-                // Marked's use() wrappers close over the original tokenizer, even when its methods are cloned.
-                if (original)
-                    Object.assign(original, { lexer, rules: tokenizer.rules, options: lexer.options });
-                const parsed = inlineTokens(source, tokens);
-                const relex: TRelex = (text, cuts, edges) => {
-                    const merged = new Map(text === limitedSource ? limits : []);
-                    for (const [start, end] of cuts)
-                        merged.set(start, Math.min(end, merged.get(start) ?? end));
-                    return replayInline(options, lexer, text, merged, edges, state);
-                };
-                if (!options.pedantic)
-                    pairInlineTokens(parsed, lexer, edges, processed, relex);
-                return parsed;
-            }
-            finally {
-                if (original && originalState)
-                    Object.assign(original, originalState);
-                activeSource = previousSource;
-            }
-        };
-        return lexer;
-    };
-
-    function replayInline<ParserOutput, RendererOutput>(options: MarkedOptions<ParserOutput, RendererOutput>, lexer: Lexer<ParserOutput, RendererOutput>, source: string, limits: ReadonlyMap<number, number>, edges: IBoundaries, state?: Lexer<ParserOutput, RendererOutput>['state']): Token[] {
-        const replay = createLexer(options, source, limits);
-        if (state)
-            replay.state = { ...state };
-        replay.tokens.links = lexer.tokens.links;
-        boundaries.set(replay, edges);
-        return replay.inlineTokens(source);
-    }
-
     return {
         tokenizer: {
             link(src) {
@@ -309,10 +200,7 @@ export default function inlineEmphasisExtension(): MarkedExtension {
             processAllTokens(tokens) {
                 if (this.options.pedantic)
                     return tokens;
-                const lexer = createLexer(this.options);
-                if ('links' in tokens)
-                    lexer.tokens.links = tokens.links;
-                const relex: TRelex = (source, limits, edges) => replayInline(this.options, lexer, source, limits, edges);
+                const lexer = new Lexer(this.options);
                 const visit = (scope: Token[], edges: IBoundaries = { before: '\n', after: '\n' }) => {
                     if (processed.has(scope))
                         return;
@@ -331,7 +219,7 @@ export default function inlineEmphasisExtension(): MarkedExtension {
                                 : undefined);
                         }
                     }
-                    pairInlineTokens(scope, lexer, edges, processed, relex);
+                    pairInlineTokens(scope, lexer, edges, processed);
                 };
                 // Extensions may lex new inline scopes in their own processAllTokens hooks.
                 visit(tokens);
@@ -340,7 +228,16 @@ export default function inlineEmphasisExtension(): MarkedExtension {
             provideLexer() {
                 const block = this.block;
                 return (source, options) => {
-                    const lexer = createLexer(options ?? {});
+                    const lexer = new Lexer(options);
+                    const inlineTokens = lexer.inlineTokens.bind(lexer);
+                    lexer.inlineTokens = (source, tokens = []) => {
+                        const edges = boundaries.get(lexer) ?? { before: '\n', after: '\n' };
+                        boundaries.delete(lexer);
+                        const parsed = inlineTokens(source, tokens);
+                        if (!options?.pedantic)
+                            pairInlineTokens(parsed, lexer, edges, processed);
+                        return parsed;
+                    };
                     return block ? lexer.lex(source) : lexer.inlineTokens(source);
                 };
             },
