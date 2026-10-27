@@ -2,6 +2,7 @@ import type { ILexOption } from './types';
 import { Marked } from 'marked';
 import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
 import { sanitize } from '../index';
+import fancyListsHtmlExtension from './extensions/fancyListsHtml';
 import footnoteExtension from './extensions/footnote';
 import githubAlertsExtension from './extensions/githubAlerts';
 import inlineDelimitersExtension from './extensions/inlineDelimiters';
@@ -16,7 +17,7 @@ import walkTokens from './walkTokens';
 
 export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote }
+    const { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote, fancyLists }
         = options;
     let html = '';
 
@@ -79,6 +80,9 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
 
     if (footnote)
         marked.use(footnoteExtension());
+
+    if (fancyLists)
+        marked.use(fancyListsHtmlExtension());
 
     if (frontMatter) {
         const { token, src: newSrc } = fm(src);

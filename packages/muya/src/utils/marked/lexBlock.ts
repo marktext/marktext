@@ -2,6 +2,7 @@ import type { Token } from 'marked';
 import type { IFrontmatterToken, ILexOption, TLexedToken } from './types';
 import { Marked } from 'marked';
 import compatibleTaskList from './compatibleTaskList';
+import fancyListsExtension, { endListItemsAtFancyMarkers } from './extensions/fancyLists';
 import footnoteExtension from './extensions/footnote';
 import githubAlertsExtension, { normalizeGithubAlertTokens } from './extensions/githubAlerts';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
@@ -16,7 +17,7 @@ export function lexBlock(
     options: ILexOption = DEFAULT_OPTIONS,
 ): TLexedToken[] {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, frontMatter, footnote, multilineBlockquote } = options;
+    const { texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, frontMatter, footnote, multilineBlockquote, fancyLists } = options;
     let tokens: (Token | IFrontmatterToken)[] = [];
 
     // Per-call Marked instances prevent enabled extensions leaking into later calls.
@@ -64,6 +65,9 @@ export function lexBlock(
 
     m.use(multilineBlockquoteExtension(multilineBlockquote === true));
 
+    if (fancyLists)
+        m.use(fancyListsExtension());
+
     if (frontMatter) {
         const { token, src: newSrc } = fm(src);
         if (token) {
@@ -75,6 +79,8 @@ export function lexBlock(
     // Lexer must receive this instance’s defaults to see its registered extensions.
     m.use(githubAlertsExtension(options.githubAlerts === true));
     const lexer = new m.Lexer(m.defaults);
+    if (fancyLists)
+        endListItemsAtFancyMarkers(lexer);
     const parsed = lexer.blockTokens(src);
     if (src.includes('\t'))
         restoreCodeTabs(parsed, src);

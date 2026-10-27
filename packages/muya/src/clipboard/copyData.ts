@@ -36,6 +36,11 @@ function firstAlertBodyContent(container: Parent) {
     return first?.blockName === 'language-input' ? first.nextContentInContext() : first;
 }
 
+// Same list separators as a save, so a paste reads back the same lists.
+function clipboardMarkdown(clipboard: Clipboard, states: TState[]) {
+    return new StateToMarkdown({ fancyLists: clipboard.muya.options.fancyLists }).generate(states);
+}
+
 function buildHtmlOptions(options: Muya['options']) {
     const {
         footnote,
@@ -49,9 +54,10 @@ function buildHtmlOptions(options: Muya['options']) {
         inlineDiff,
         multilineBlockquote,
         githubAlerts,
+        fancyLists,
     } = options;
 
-    return { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote, githubAlerts };
+    return { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote, githubAlerts, fancyLists };
 }
 
 // A single selected cell copies literal text; larger rectangles copy GFM table Markdown.
@@ -69,7 +75,7 @@ function getTableSelectionClipboardData(
         return { html: '', text: state.children[0].children[0].text };
     }
 
-    const text = new StateToMarkdown().generate([state]);
+    const text = clipboardMarkdown(clipboard, [state]);
     const html = getClipBoardHtml(text, buildHtmlOptions(clipboard.muya.options));
 
     return { html, text };
@@ -352,7 +358,7 @@ export function getClipboardData(clipboard: Clipboard): IClipboardPayload {
         const forward = anchorBlock === first && anchor.offset === 0 && focusBlock === last && focus.offset === last.text.length;
         const backward = focusBlock === first && focus.offset === 0 && anchorBlock === last && anchor.offset === last.text.length;
         if (forward || backward) {
-            const text = new StateToMarkdown().generate([container.getState()]);
+            const text = clipboardMarkdown(clipboard, [container.getState()]);
             return { text, html: getClipBoardHtml(text, options) };
         }
     }
@@ -370,7 +376,7 @@ export function getClipboardData(clipboard: Clipboard): IClipboardPayload {
 
     const copyState = collectCopyState(order);
 
-    const text = new StateToMarkdown().generate(copyState);
+    const text = clipboardMarkdown(clipboard, copyState);
     const html = getClipBoardHtml(text, options);
 
     return { html, text };

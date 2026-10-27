@@ -40,7 +40,7 @@ class OrderList extends ListBlock {
         this.tagName = 'ol';
         this.meta = meta;
         this.attributes = { start: String(meta.start) };
-        this.datasets = { delimiter: meta.delimiter };
+        this.datasets = { delimiter: meta.delimiter, ...(meta.style ? { style: meta.style } : {}) };
         this.classList = [CLASS_NAMES.MU_ORDER_LIST];
         this.createDomNode();
         this.setLoose(meta.loose);

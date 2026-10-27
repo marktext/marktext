@@ -1,4 +1,5 @@
 import type { GithubAlertType } from '../utils/githubAlerts';
+import type { ListDelimiter, ListStyle } from '../utils/listMarker';
 
 export interface IParagraphState {
     name: 'paragraph';
@@ -91,7 +92,8 @@ export interface IOrderListState {
     meta: {
         start: number;
         loose: boolean;
-        delimiter: string; // "." | ")";
+        delimiter: ListDelimiter;
+        style?: ListStyle; // Absent means decimal.
         sourceMarkers?: string[]; // Original item markers for no-edit source round-trips.
     };
     children: IListItemState[];
@@ -149,7 +151,8 @@ export interface ITaskListMetaUnordered {
 export interface ITaskListMetaOrdered {
     ordered: true;
     start: number;
-    delimiter: string; // "." | ")";
+    delimiter: ListDelimiter;
+    style?: ListStyle; // Absent means decimal.
     loose: boolean;
     sourceMarkers?: string[]; // Original item markers for no-edit source round-trips.
 }
@@ -265,8 +268,10 @@ export function isAnyListState(s: TState): s is IOrderListState | IBulletListSta
     return s.name === 'order-list' || s.name === 'bullet-list' || s.name === 'task-list';
 }
 
-export function markdownListMarker(list: IOrderListState | IBulletListState | ITaskListState): string {
-    return 'delimiter' in list.meta ? `ordered:${list.meta.delimiter}` : `bullet:${list.meta.marker}`;
+export function markdownListMarker(list: Pick<IOrderListState | IBulletListState | ITaskListState, 'meta'>): string {
+    return 'delimiter' in list.meta
+        ? `ordered:${list.meta.style ?? 'decimal'}${list.meta.delimiter}`
+        : `bullet:${list.meta.marker}`;
 }
 
 export interface ITurnoverOptions {
