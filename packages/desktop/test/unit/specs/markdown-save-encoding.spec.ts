@@ -34,7 +34,7 @@ describe('markdown saves preserve characters (#5614)', () => {
       writeFileSync(pathname, original)
 
       await expect(writeMarkdownFile(pathname, 'Café 😀 ok', options(encoding))).rejects.toThrow(
-        /UTF-8/
+        /Command Palette.*"Change Encoding".*UTF-8/
       )
 
       expect(readFileSync(pathname)).toEqual(original)

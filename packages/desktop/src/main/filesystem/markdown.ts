@@ -128,7 +128,7 @@ export const writeMarkdownFile = (
   if (iconv.decode(buffer, encoding, { stripBOM: !!isBom }) !== content) {
     return Promise.reject(
       new Error(
-        `Cannot save using "${encoding}" because some characters cannot be represented. Change the file encoding to UTF-8 and save again.`
+        `Cannot save using "${encoding}" because some characters cannot be represented. Open the Command Palette, run "Change Encoding", select UTF-8, and save again.`
       )
     )
   }
