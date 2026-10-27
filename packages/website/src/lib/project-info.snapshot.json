@@ -1,5 +1,36 @@
 {
   "releaseVersion": "v0.23.0",
   "githubStars": 62931,
-  "contributors": 199
+  "contributors": 199,
+  "releaseAssets": [
+    "builder-debug.yml",
+    "latest-linux-arm64.yml",
+    "latest-linux.yml",
+    "latest-mac.yml",
+    "latest.yml",
+    "marktext-linux-0.23.0.AppImage",
+    "marktext-linux-0.23.0.deb",
+    "marktext-linux-0.23.0.rpm",
+    "marktext-linux-0.23.0.snap",
+    "marktext-linux-0.23.0.tar.gz",
+    "marktext-linux-arm64-0.23.0.AppImage",
+    "marktext-linux-arm64-0.23.0.deb",
+    "marktext-linux-arm64-0.23.0.rpm",
+    "marktext-linux-arm64-0.23.0.tar.gz",
+    "marktext-mac-arm64-0.23.0.dmg",
+    "marktext-mac-arm64-0.23.0.dmg.blockmap",
+    "marktext-mac-arm64-0.23.0.zip",
+    "marktext-mac-arm64-0.23.0.zip.blockmap",
+    "marktext-mac-x64-0.23.0.dmg",
+    "marktext-mac-x64-0.23.0.dmg.blockmap",
+    "marktext-mac-x64-0.23.0.zip",
+    "marktext-mac-x64-0.23.0.zip.blockmap",
+    "marktext-win-arm64-0.23.0-setup.exe",
+    "marktext-win-arm64-0.23.0-setup.exe.blockmap",
+    "marktext-win-arm64-0.23.0.zip",
+    "marktext-win-x64-0.23.0-setup.exe",
+    "marktext-win-x64-0.23.0-setup.exe.blockmap",
+    "marktext-win-x64-0.23.0.zip",
+    "SHA256SUMS.txt"
+  ]
 }

@@ -40,7 +40,11 @@ export default function Nav({ home = true }: { home?: boolean }) {
         <a className="icon-btn" href={DOWNLOAD.repo} {...EXT_LINK} aria-label="GitHub">
           <GitHubIcon />
         </a>
-        <a className="btn btn-primary" href={DOWNLOAD.releases} {...EXT_LINK}>
+        <a
+          className="btn btn-primary"
+          href={home ? hash(SECTIONS.download) : DOWNLOAD.releases}
+          {...(home ? {} : EXT_LINK)}
+        >
           Download
         </a>
       </div>

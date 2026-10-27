@@ -4,10 +4,11 @@ import { useRef } from 'react'
 import { DOWNLOAD } from '@/lib/downloads'
 import { PROJECT_INFO } from '@/lib/project-info'
 import { EXT_LINK } from '@/lib/links'
-import { revealClass } from '@/lib/sections'
+import { SECTIONS, hash, revealClass } from '@/lib/sections'
 import { useTilt } from '@/hooks/useTilt'
 import MockWindow from './MockWindow'
-import { CheckIcon, DownloadIcon, GitHubIcon } from './Icons'
+import DownloadButton from './DownloadButton'
+import { CheckIcon, GitHubIcon } from './Icons'
 
 export default function Hero() {
   const { releaseVersion, githubStars } = PROJECT_INFO
@@ -28,13 +29,17 @@ export default function Hero() {
           Realtime preview, beautiful typography, and zero distractions.
         </p>
         <div className={revealClass('d3', 'hero-cta')}>
-          <a className="btn btn-primary btn-lg" href={DOWNLOAD.releases} {...EXT_LINK}>
-            <DownloadIcon />
-            Download for free
-          </a>
+          <DownloadButton />
           <a className="btn btn-ghost btn-lg" href={DOWNLOAD.repo} {...EXT_LINK}>
             <GitHubIcon />
             Star on GitHub
+          </a>
+        </div>
+        <div className={revealClass('d3', 'hero-download-links')}>
+          <a href={hash(SECTIONS.download)}>Other platforms and downloads</a>
+          <span aria-hidden="true">·</span>
+          <a href={`${DOWNLOAD.releases}/tag/${PROJECT_INFO.releaseVersion}`} {...EXT_LINK}>
+            Release notes
           </a>
         </div>
         <div className={revealClass('d4', 'hero-note')}>

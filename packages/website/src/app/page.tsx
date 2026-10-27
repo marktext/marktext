@@ -1,3 +1,5 @@
+import './downloads.css'
+
 import Download from '@/components/Download'
 import Extensions from '@/components/Extensions'
 import FocusExport from '@/components/FocusExport'

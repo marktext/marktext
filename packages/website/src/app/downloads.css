@@ -1,0 +1,296 @@
+.hero-download {
+  min-width: 238px;
+  justify-content: center;
+}
+.hero-download-links,
+.download-footer-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.hero-download-links {
+  margin-top: 18px;
+}
+.hero-download-links a,
+.download-footer-links a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--border-2);
+}
+.hero-download-links a:hover,
+.download-footer-links a:hover {
+  color: var(--text);
+  text-decoration-color: currentColor;
+}
+.download-section,
+.download-card {
+  scroll-margin-top: 110px;
+}
+.download-heading {
+  text-align: center;
+}
+.download-heading h2 {
+  font-size: clamp(32px, 4.4vw, 56px);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+.download-heading > p {
+  margin: 18px auto 0;
+  max-width: 52ch;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+.download-version {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.download-version .tag {
+  padding: 4px 9px;
+  border: 1px solid var(--border-2);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text);
+}
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 40px;
+}
+.download-card {
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+}
+.download-card--current {
+  border-color: color-mix(in srgb, var(--a1) 60%, var(--border));
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--a1) 8%, transparent), transparent 65%),
+    var(--panel);
+}
+.download-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  margin-bottom: 18px;
+}
+.download-card-top > svg {
+  width: 36px;
+  height: 36px;
+}
+.download-os-badge {
+  padding: 5px 10px;
+  border: 1px solid color-mix(in srgb, var(--a1) 35%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--a1) 10%, transparent);
+  font-size: 11px;
+  font-weight: 500;
+}
+.download-card h3 {
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.download-description {
+  margin-top: 8px;
+  min-height: 40px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+.download-primary {
+  margin-top: 20px;
+}
+.download-format-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.download-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.download-choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 12px 7px;
+  border: 1px solid color-mix(in srgb, var(--a1) 40%, var(--border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--a1) 12%, transparent);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.download-choice:hover {
+  border-color: var(--a1);
+  background: color-mix(in srgb, var(--a1) 22%, transparent);
+}
+.download-choice > svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+.download-choice--recommended {
+  border-color: transparent;
+  background: var(--grad);
+  color: #fff;
+}
+.download-choice--recommended:hover {
+  background: var(--grad);
+  filter: brightness(1.1);
+}
+.download-other {
+  margin-top: 34px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+.download-other h4 {
+  margin-bottom: 14px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.download-other table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.download-other th,
+.download-other td {
+  padding: 11px 3px;
+  text-align: center;
+  vertical-align: top;
+}
+.download-other th:first-child {
+  padding-left: 0;
+  text-align: left;
+}
+.download-other thead th {
+  padding-top: 0;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-2);
+}
+.download-other tbody tr {
+  border-top: 1px solid var(--border);
+}
+.download-other tbody th {
+  font-weight: 500;
+}
+.download-other th small {
+  display: block;
+  margin-top: 4px;
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--text-2);
+}
+.download-other td a {
+  padding-block: 6px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--a1) 55%, transparent);
+}
+.download-other td a:hover {
+  text-decoration-color: currentColor;
+}
+.download-other td > span {
+  color: var(--muted);
+}
+.download-help {
+  margin: 28px auto 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.download-help details {
+  max-width: 720px;
+  margin: 0 auto 28px;
+}
+.download-help summary {
+  display: list-item;
+  width: fit-content;
+  margin-inline: auto;
+  cursor: pointer;
+}
+.download-help details > div {
+  margin-top: 16px;
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  text-align: left;
+  line-height: 1.7;
+}
+.download-help details p + p {
+  margin-top: 10px;
+}
+.download-footer-links {
+  gap: 24px;
+}
+.download-homebrew {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  line-height: 2;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.download-homebrew code {
+  overflow-wrap: anywhere;
+}
+.download-section a:focus-visible,
+.download-section summary:focus-visible,
+.hero-download:focus-visible,
+.hero-download-links a:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 5px;
+}
+@media (max-width: 1000px) {
+  .download-card {
+    padding: 22px 18px;
+  }
+  .download-grid {
+    gap: 12px;
+  }
+  .download-choice {
+    font-size: 11px;
+  }
+}
+@media (max-width: 800px) {
+  .download-grid {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+    margin-inline: auto;
+    gap: 18px;
+  }
+  .download-card {
+    padding: 28px;
+  }
+  .download-description {
+    min-height: 0;
+  }
+  .download-choice {
+    font-size: 13px;
+  }
+}
