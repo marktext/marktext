@@ -612,7 +612,7 @@
       "fileRepresentation": {
         "title": "Rappresentazione dei file",
         "tabWidth": "Inserimento con il tasto Tab",
-        "tabInputNotes": "Scegli tra spazi e un vero carattere di tabulazione. Le tabulazioni esistenti usano arresti di tabulazione ogni quattro colonne. Negli elenchi e nelle tabelle, il tasto Tab regola il livello di annidamento o passa da una cella all’altra.",
+        "tabInputNotes": "Scegli tra spazi e un vero carattere di tabulazione (Tab). Le tabulazioni esistenti simulano le vere tabulazioni utilizzando 1-4 spazi. Negli elenchi e nelle tabelle invece, il tasto Tab regola, rispettivamente, il livello di nidificazione e consente il passaggio da una cella all’altra.",
         "lineSeparator": "Separatore di linea",
         "defaultEncoding": "Codifica predefinita",
         "autoDetectEncoding": "Rilevamento automatico della codifica",
