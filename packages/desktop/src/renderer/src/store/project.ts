@@ -198,7 +198,7 @@ export const useProjectStore = defineStore('project', () => {
   function SHOW_FILES(scheduleBufferUpdate = true): void {
     const layoutStore = useLayoutStore()
     layoutStore.SET_LAYOUT(
-      { rightColumn: 'files', showSideBar: true, showTabBar: true },
+      { rightColumn: 'files', showSideBar: true },
       { scheduleBufferUpdate }
     )
     layoutStore.DISPATCH_LAYOUT_MENU_ITEMS()

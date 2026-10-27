@@ -1492,8 +1492,6 @@ export const useEditorStore = defineStore('editor', {
         selected = true
       }
 
-      this.SHOW_TAB_VIEW(false)
-
       const preferencesStore = usePreferencesStore()
       const { defaultEncoding, endOfLine } = preferencesStore
       const fileState = getBlankFileState(
@@ -1563,17 +1561,11 @@ export const useEditorStore = defineStore('editor', {
       const preview =
         (openIntent?.preview ?? requestedPreviewMode) && preferencesStore.openFilesInPreviewMode
 
-      let keepTabBarState = false
       if (currentFile) {
         const { isSaved, pathname: cfPath } = currentFile
         if (isSaved && !cfPath) {
-          keepTabBarState = true
           this.FORCE_CLOSE_TAB(currentFile)
         }
-      }
-
-      if (!keepTabBarState && !preview) {
-        this.SHOW_TAB_VIEW(false)
       }
 
       const { markdown, isMixedLineEndings } = markdownDocument
@@ -1662,15 +1654,6 @@ export const useEditorStore = defineStore('editor', {
             })
           })
         }
-      }
-    },
-
-    SHOW_TAB_VIEW(always: boolean): void {
-      const { tabs } = this
-      const layoutStore = useLayoutStore()
-      if (always || tabs.length === 1) {
-        layoutStore.SET_LAYOUT({ showTabBar: true })
-        layoutStore.DISPATCH_LAYOUT_MENU_ITEMS()
       }
     },
 
