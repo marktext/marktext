@@ -3,7 +3,7 @@ import type { ElectronApplication, Page } from 'playwright'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import { clickMenuById, launchElectron, openProjectFolder, typeIntoEditor, sendIpcToRenderer } from './helpers'
+import { clickMenuById, delaySessionStateWrites, launchElectron, openProjectFolder, typeIntoEditor, sendIpcToRenderer } from './helpers'
 
 const tabFor = (page: Page, filename: string) =>
   page.locator(`.tabs-container > li[title$="${filename}"]`)
@@ -15,7 +15,7 @@ test.describe('Issue #2395 sidebar preview tabs', () => {
   let page: Page
   let projectDir: string
 
-  const launchProject = async(preferences: Record<string, unknown> = {}): Promise<void> => {
+  const launchProject = async(preferences: Record<string, unknown> = {}, metadataDelayMs = 0): Promise<void> => {
     projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'marktext-preview-'))
     for (const name of ['alpha', 'beta', 'gamma']) {
       fs.writeFileSync(path.join(projectDir, `${name}.md`), `# ${name}\n`, 'utf-8')
@@ -30,6 +30,7 @@ test.describe('Issue #2395 sidebar preview tabs', () => {
     })
     app = launched.app
     page = launched.page
+    if (metadataDelayMs) await delaySessionStateWrites(app, metadataDelayMs)
     await sendIpcToRenderer(app, 'mt::set-view-layout', { showSideBar: true, showTabBar: true })
     await openProjectFolder(app, page, projectDir, path.join(projectDir, 'alpha.md'))
   }
@@ -53,6 +54,13 @@ test.describe('Issue #2395 sidebar preview tabs', () => {
 
     await page.locator('.side-bar-file[title$="gamma.md"]').click()
     await expect(tabFor(page, 'gamma.md')).toHaveClass(/preview/)
+    await expect.poll(() => tabCount(page)).toBe(1)
+  })
+
+  test('a click while the new workspace state is being committed still opens its preview', async() => {
+    await launchProject({}, 150)
+    await page.locator('.side-bar-file[title$="alpha.md"]').click()
+    await expect(tabFor(page, 'alpha.md')).toHaveClass(/preview/)
     await expect.poll(() => tabCount(page)).toBe(1)
   })
 

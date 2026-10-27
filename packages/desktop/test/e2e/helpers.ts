@@ -252,6 +252,20 @@ export const waitForEditor = async(page: Page, timeout = 15000): Promise<void> =
   )
 }
 
+export const delaySessionStateWrites = async(app: ElectronApplication, delayMs: number): Promise<void> => {
+  await app.evaluate((_, milliseconds) => {
+    const filesystem = process.getBuiltinModule('fs') as typeof fs
+    const rename = filesystem.rename
+    filesystem.rename = ((source, target, callback) => {
+      if (String(target).endsWith('application-state.json')) {
+        setTimeout(() => rename(source, target, callback), milliseconds)
+      } else {
+        rename(source, target, callback)
+      }
+    }) as typeof rename
+  }, delayMs)
+}
+
 /**
  * Opens `root` as the project folder of the running window and waits until
  * `marker` (a markdown file inside `root`) appears in the tree.

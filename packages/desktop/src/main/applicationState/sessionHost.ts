@@ -88,7 +88,7 @@ export class SessionHost {
   private readonly startupWindowIds = new Set<string>()
   private tabClosePending = false
   private startQueue: Promise<void> = Promise.resolve()
-  private readonly fileQueues = new Map<string, Promise<void>>()
+  private readonly windowOperations = new Map<string, Promise<unknown>>()
   private readonly checkpointQueues = new Map<string, Promise<WindowSnapshot>>()
   private readonly previewRequests = new Map<string, number>()
   private readonly previews = new Map<string, string>()
@@ -128,7 +128,7 @@ export class SessionHost {
         this.statuses.delete(id)
         this.geometryWriters.get(id)?.cancel()
         this.geometryWriters.delete(id)
-        this.fileQueues.delete(id)
+        this.windowOperations.delete(id)
         this.checkpointQueues.delete(id)
         this.previews.delete(id)
         this.previewRequests.delete(id)
@@ -668,6 +668,15 @@ export class SessionHost {
     return window
   }
 
+  // Root contexts and document membership must reach the renderer before the next operation checkpoints them.
+  private enqueueWindowOperation<T>(id: string, operation: () => Promise<T>): Promise<T> {
+    const result = (this.windowOperations.get(id) ?? Promise.resolve())
+      .catch(() => {})
+      .then(operation)
+    this.windowOperations.set(id, result)
+    return result
+  }
+
   openFile(
     editor: EditorWindow,
     pathname: string,
@@ -677,79 +686,86 @@ export class SessionHost {
     const id = editor.sessionStateId
     if (!id) return Promise.resolve()
     if (typeof options.requestId === 'number') this.previewRequests.set(id, options.requestId)
-    const result = (this.fileQueues.get(id) ?? Promise.resolve())
-      .catch(() => {})
-      .then(async() => {
-        await editor.sessionReady
-        const obsolete = () =>
-          options.preview &&
+    return this.enqueueWindowOperation(id, async() => {
+      await editor.sessionReady
+      const obsolete = () =>
+        options.preview &&
           typeof options.requestId === 'number' &&
           this.previewRequests.get(id) !== options.requestId
-        if (obsolete()) return
-        await this.requestCheckpoint(id)
-        if (obsolete()) return
-        const location = createFileLocation(pathname)
-        const existing = this.owner()
-          .getWindow(id)
-          ?.documents.find(
-            (document) =>
-              document.resource.kind === 'file' && document.resource.location.key === location.key
-          )
-        if (existing) {
-          this.native(id).webContents.send(
-            'mt::switch-tab-by-file_path',
-            existing.resource.kind === 'file' ? existing.resource.location.path : pathname,
-            options
-          )
-          return
-        }
-        const loaded = await this.readDocument(pathname, options)
-        if (obsolete()) return
-        await this.requestCheckpoint(id)
-        if (obsolete()) return
-        const snapshot = this.owner().getWindow(id)!
-        const preview = options.preview && this.accessor.preferences.getAll().openFilesInPreviewMode
-        const retire = snapshot.documents.filter(
+      if (obsolete()) return
+      await this.requestCheckpoint(id)
+      if (obsolete()) return
+      const location = createFileLocation(pathname)
+      const existing = this.owner()
+        .getWindow(id)
+        ?.documents.find(
           (document) =>
-            (preview &&
+            document.resource.kind === 'file' && document.resource.location.key === location.key
+        )
+      if (existing) {
+        this.native(id).webContents.send(
+          'mt::switch-tab-by-file_path',
+          existing.resource.kind === 'file' ? existing.resource.location.path : pathname,
+          options
+        )
+        return
+      }
+      const loaded = await this.readDocument(pathname, options)
+      if (obsolete()) return
+      await this.requestCheckpoint(id)
+      if (obsolete()) return
+      const snapshot = this.owner().getWindow(id)!
+      const preview = options.preview && this.accessor.preferences.getAll().openFilesInPreviewMode
+      const retire = snapshot.documents.filter(
+        (document) =>
+          (preview &&
               this.previews.get(id) === document.id &&
               document.content.kind === 'disk') ||
             (selected &&
               document.id === snapshot.activeDocumentId &&
               document.resource.kind === 'untitled' &&
               document.content.kind === 'empty')
-        )
-        for (const document of retire) await this.endDocument(id, document.id, false, false)
-        const result = await this.owner().addDocument(id, loaded.document, loaded.content.markdown)
-        if (result.status !== 'persisted')
-          this.report(new Error('Recovery storage unavailable'), id)
-        if (preview) this.previews.set(id, loaded.document.id)
-        if (loaded.document.resource.kind === 'file' && !loaded.document.resource.pendingCreation)
-          editor.addToOpenedFiles(pathname)
-        this.accessor.menu.addRecentlyUsedDocument(pathname)
-        const payload: ManagedDocumentPayload = {
-          document: loaded.document,
-          markdown: loaded.content.markdown,
-          contentRevision: 0,
-          selected,
-          options,
-          replacedDocumentIds: retire.map((document) => document.id)
-        }
-        this.native(id).webContents.send('mt::state::document-opened', payload)
-      })
-    this.fileQueues.set(id, result)
-    return result
+      )
+      for (const document of retire) await this.endDocument(id, document.id, false, false)
+      const result = await this.owner().addDocument(id, loaded.document, loaded.content.markdown)
+      if (result.status !== 'persisted')
+        this.report(new Error('Recovery storage unavailable'), id)
+      if (preview) this.previews.set(id, loaded.document.id)
+      if (loaded.document.resource.kind === 'file' && !loaded.document.resource.pendingCreation)
+        editor.addToOpenedFiles(pathname)
+      this.accessor.menu.addRecentlyUsedDocument(pathname)
+      const payload: ManagedDocumentPayload = {
+        document: loaded.document,
+        markdown: loaded.content.markdown,
+        contentRevision: 0,
+        selected,
+        options,
+        replacedDocumentIds: retire.map((document) => document.id)
+      }
+      this.native(id).webContents.send('mt::state::document-opened', payload)
+    })
   }
 
   cancelPreview(windowId: string, requestId: number): void {
     if (this.previewRequests.get(windowId) === requestId) this.previewRequests.delete(windowId)
   }
 
-  async newDocument(
+  newDocument(
     windowId: string,
     title: string,
     markdown = '',
     selected = true
+  ): Promise<DocumentSnapshot> {
+    return this.enqueueWindowOperation(windowId, () =>
+      this.registerDocument(windowId, title, markdown, selected)
+    )
+  }
+
+  private async registerDocument(
+    windowId: string,
+    title: string,
+    markdown: string,
+    selected: boolean
   ): Promise<DocumentSnapshot> {
     const snapshot = this.owner().getWindow(windowId)
     if (!snapshot) throw new Error('Unknown window')
@@ -778,18 +794,22 @@ export class SessionHost {
     await editor.sessionReady
     const id = editor.sessionStateId
     if (!id) return
-    await this.requestCheckpoint(id)
-    editor.projectRoots.add(pathname, replace)
-    await this.synchronizeRoots(editor)
+    await this.enqueueWindowOperation(id, async() => {
+      await this.requestCheckpoint(id)
+      editor.projectRoots.add(pathname, replace)
+      await this.synchronizeRoots(editor)
+    })
   }
 
   async removeRoot(editor: EditorWindow, key: string): Promise<boolean> {
     await editor.sessionReady
-    if (!editor.projectRoots.roots.some((root) => root.key === key)) return false
-    await this.requestCheckpoint(editor.sessionStateId!)
-    editor.projectRoots.remove(key)
-    await this.synchronizeRoots(editor)
-    return true
+    return this.enqueueWindowOperation(editor.sessionStateId!, async() => {
+      if (!editor.projectRoots.roots.some((root) => root.key === key)) return false
+      await this.requestCheckpoint(editor.sessionStateId!)
+      editor.projectRoots.remove(key)
+      await this.synchronizeRoots(editor)
+      return true
+    })
   }
 
   private async synchronizeRoots(editor: EditorWindow): Promise<void> {
@@ -1050,7 +1070,18 @@ export class SessionHost {
     }
   }
 
-  async moveResource(
+  moveResource(
+    windowId: string,
+    source: string,
+    target: string,
+    move: () => Promise<void>
+  ): Promise<void> {
+    return this.enqueueWindowOperation(windowId, () =>
+      this.moveResourceNow(windowId, source, target, move)
+    )
+  }
+
+  private async moveResourceNow(
     windowId: string,
     source: string,
     target: string,

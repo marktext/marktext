@@ -77,7 +77,7 @@ class WindowSession {
     }
     const finishRename = (): void => {
       void nextTick().then(() => {
-        if (document.activeElement?.closest('input.rename')) return
+        if (this.project.renameCache) return
         const file = this.editor.tabs.find((file) => file.id === this.deferredSelection)
         this.deferredSelection = null
         if (file && this.project.activeItem?.pathname === file.pathname) {
@@ -91,8 +91,9 @@ class WindowSession {
         }
       })
     }
-    document.addEventListener('focusout', finishRename, true)
-    this.stops.push(() => document.removeEventListener('focusout', finishRename, true))
+    this.stops.push(watch(() => this.project.renameCache, (pathname) => {
+      if (!pathname) finishRename()
+    }))
     this.stops.push(
       ipc.on('mt::state::document-opened', (_event, payload) => this.openDocument(payload))
     )
@@ -311,6 +312,10 @@ class WindowSession {
       return
     }
     if (this.editor.tabs.some((file) => file.id === payload.document.id)) return
+    const renaming = !!this.project.renameCache
+    const nameInput = document.activeElement instanceof HTMLInputElement &&
+      document.activeElement.matches('input.rename') ? document.activeElement : null
+    const selection = nameInput ? [nameInput.selectionStart, nameInput.selectionEnd] as const : null
     for (const id of payload.replacedDocumentIds ?? []) {
       const replaced = this.editor.tabs.find((file) => file.id === id)
       if (replaced) this.editor.FORCE_CLOSE_TAB(replaced)
@@ -323,7 +328,7 @@ class WindowSession {
       (intent?.preview ?? options.preview ?? false) && this.preferences.openFilesInPreviewMode
     if (typeof options.requestId === 'number')
       this.editor.SETTLE_SIDEBAR_OPEN(options.requestId, file.pathname)
-    if (payload.selected && !document.activeElement?.closest('input.rename'))
+    if (payload.selected && !renaming)
       this.editor.UPDATE_CURRENT_FILE(file)
     else {
       if (payload.selected) this.deferredSelection = file.id
@@ -331,9 +336,14 @@ class WindowSession {
       this.editor.updateTabIdToIndex()
     }
     const focus = this.editor.TAKE_OPEN_INTENT(file.pathname)
-    if (focus === true) bus.emit('editor-focus')
-    else if (focus === false && !document.activeElement?.closest('input.rename'))
+    if (focus === true && !renaming) bus.emit('editor-focus')
+    else if (focus === false && !renaming)
       bus.emit('SIDEBAR::focus-tree')
+    // Retiring the previous preview can synchronously restore its editor caret.
+    if (nameInput?.isConnected && selection) {
+      nameInput.focus({ preventScroll: true })
+      nameInput.setSelectionRange(selection[0], selection[1])
+    }
     if (options.anchor) this.editor.SCROLL_TO_ANCHOR(options.anchor)
     this.schedule()
   }
