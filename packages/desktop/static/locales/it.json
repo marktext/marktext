@@ -3,12 +3,12 @@
     "counter": {
       "words": "Parole",
       "characters": "Caratteri",
+      "charactersNoSpaces": "Caratteri (senza spazi)",
+      "charactersWithSpaces": "Caratteri (spazi inclusi)",
       "paragraphs": "Paragrafi",
       "allCharacters": "Tutti i caratteri",
       "document": "Documento",
-      "documentSelection": "Testo selezionato nel documento",
-      "charactersNoSpaces": "Caratteri (senza spazi)",
-      "charactersWithSpaces": "Caratteri (con spazi)"
+      "documentSelection": "Documento/Selezione"
     },
     "file": {
       "file": "File",
@@ -17,7 +17,7 @@
       "openFile": "Apri file…",
       "openFolder": "Apri cartella…",
       "openRecent": "Documenti recenti",
-      "openRecentMore": "Cerca nei recenti…",
+      "openRecentMore": "Cerca nei documenti recenti…",
       "clearRecentlyUsed": "Svuota elenco dei file recenti",
       "save": "Salva",
       "saveAs": "Salva con nome…",
@@ -45,7 +45,7 @@
       "paste": "Incolla",
       "copyAsRich": "Copia come RTF",
       "copyAsHtml": "Copia come HTML",
-      "pasteAsPlainText": "Incolla in formato testo",
+      "pasteAsPlainText": "Incolla in formato Testo",
       "selectAll": "Seleziona tutto",
       "duplicate": "Duplica",
       "createParagraph": "Crea paragrafo",
@@ -91,7 +91,7 @@
       "zoomOut": "Zoom -",
       "resetZoom": "Valori predefiniti di Zoom",
       "fullScreen": "Schermo intero",
-      "bringAllToFront": "Porta in primo piano",
+      "bringAllToFront": "Porta tutto in primo piano",
       "alwaysOnTop": "Sempre in primo piano"
     },
     "help": {
@@ -144,12 +144,12 @@
       "inlineCode": "Codice in linea",
       "inlineMath": "Matematica in linea",
       "hyperlink": "Collegamento ipertestuale",
-      "clearFormat": "Azzera la formattazione"
+      "clearFormat": "Ripulisci formato"
     },
     "theme": {
       "theme": "&Tema",
       "dark": "Scuro",
-      "followThemDisabled": "Non si può selezionare uno dei temi sottostanti se si segue il tema di sistema",
+      "followThemDisabled": "Quando si segue il tema di sistema, la selezione dei temi sottostanti è disabilitata",
       "lightThemes": "— Temi Chiari —",
       "darkThemes": "— Temi Scuri —",
       "ayuDark": "Ayu scuro",
@@ -193,11 +193,11 @@
     "paste": "Incolla",
     "copyAsRich": "Copia come RTF",
     "copyAsHtml": "Copia come HTML",
-    "pasteAsPlainText": "Incolla in formato testo",
+    "pasteAsPlainText": "Incolla in formato Testo",
     "lookUp": "Cerca \"{selection}\"",
     "insertParagraphBefore": "Inserisci paragrafo prima",
     "insertParagraphAfter": "Inserisci paragrafo dopo",
-    "spelling": "Controllo ortografico…",
+    "spelling": "Controllo ortografico",
     "changeLanguage": "Cambia lingua…",
     "addToDictionary": "Aggiungi al dizionario",
     "editDictionary": "Modifica il dizionario…",
@@ -214,7 +214,7 @@
     },
     "tabs": {
       "close": "Chiudi",
-      "closeOthers": "Chiudi altre",
+      "closeOthers": "Chiudi le altre schede",
       "closeSavedTabs": "Chiudi le schede salvate",
       "closeAllTabs": "Chiudi tutte le schede",
       "rename": "Rinomina",
@@ -232,40 +232,40 @@
     "replaceAll": "Sostituisci tutto",
     "replaceSingle": "Sostituzione singola",
     "invalidRegex": "\"{pattern}\": espressione regolare non valida",
-    "regexMatchEmpty": "\"{pattern}\": espressione regolare che corrisponde a una stringa vuota",
+    "regexMatchEmpty": "\"{pattern}\": espressione regolare corrispondente a una stringa vuota",
     "searchResultInfo": "{matchCount} corrispondenze in {fileCount} file",
     "searchLimited": "Ricerca limitata ai primi {count} risultati"
   },
   "sideBar": {
     "search": {
-      "backToFiles": "Torna ai file",
-      "searchInFolder": "Cerca in cartella…",
+      "backToFiles": "Ritorna ai file",
+      "searchInFolder": "Cerca nella cartella…",
       "noFolderOpen": "Nessuna cartella aperta",
       "noResultsFound": "Nessun risultato trovato",
       "cancel": "Annulla",
-      "openFolder": "Apri cartella",
+      "openFolder": "Aggiungi cartella…",
       "showMoreMatches": "Mostra più corrispondenze",
-      "noSearchableFolders": "Nessuna cartella disponibile per la ricerca",
-      "partialSearch": "Non è stato possibile cercare in talune cartelle",
-      "searchInFolders": "Trova nella cartella"
+      "searchInFolders": "Cerca nella cartella",
+      "partialSearch": "Non è stato possibile cercare in talune cartelle.",
+      "noSearchableFolders": "Nessuna cartella disponibile per la ricerca."
     },
     "tree": {
       "openedFiles": "File aperti",
+      "resizeOpenedFiles": "Ridimensiona l’elenco dei file aperti",
       "saveAll": "Salva tutti",
       "closeAll": "Chiudi tutti",
       "emptyProject": "Progetto vuoto",
       "createFile": "Crea file",
       "openFolder": "Apri cartella",
-      "fileOutsideFolders": "Questo file non si trova in una cartella aggiunta",
-      "folderAlreadyAdded": "Questa cartella è già stata aggiunta",
-      "loadingFolder": "Caricamento della cartella…",
       "noFolders": "Nessuna cartella aggiunta",
-      "overlappingFolder": "Questa cartella si sovrappone a una cartella esistente. Rimuovere prima la cartella esistente",
       "removeFolder": "Rimuovi dalla barra laterale",
-      "resizeOpenedFiles": "Ridimensiona l’elenco dei file aperti",
       "retryFolder": "Riprova",
-      "sessionSaveFailed": "Impossibile salvare la sessione",
-      "unavailableFolder": "Cartella non disponibile"
+      "loadingFolder": "Caricamento della cartella…",
+      "unavailableFolder": "Cartella non disponibile",
+      "overlappingFolder": "Questa cartella si sovrappone a una cartella già esistente. Bisogna prima rimuovere quella già esistente.",
+      "folderAlreadyAdded": "Questa cartella è già stata aggiunta",
+      "fileOutsideFolders": "Questo file non è presente in una cartella aggiunta.",
+      "sessionSaveFailed": "Impossibile salvare la sessione"
     },
     "toc": {
       "expand": "Espandi sommario",
@@ -285,7 +285,7 @@
   "titleBar": {
     "applicationMenu": "Menu applicazione",
     "minimize": "Riduci a icona",
-    "maximize": "Massimizza",
+    "maximize": "Ingrandisci",
     "restore": "Ripristina",
     "close": "Chiudi",
     "documentStatistics": {
@@ -294,7 +294,7 @@
       "created": "Creato",
       "lastModified": "Modificato",
       "unavailable": "Non disponibile",
-      "open": "Apri statistiche del documento"
+      "open": "Apri statistiche sul documento"
     }
   },
   "commandPalette": {
@@ -302,14 +302,14 @@
     "placeholders": {
       "selectOption": "Seleziona un’opzione",
       "searchFileToOpen": "Cerca il file da aprire",
-      "selectLanguage": "Seleziona un’altra lingua",
-      "searchRecentFilesAndFolders": "Cerca file e cartelle recenti"
+      "searchRecentFilesAndFolders": "Cerca file e cartelle recenti",
+      "selectLanguage": "Seleziona un’altra lingua"
     },
     "recentlyOpened": "aperti di recente",
     "fileResults": "risultati dei file",
     "folders": "cartelle",
     "files": "file",
-    "removeFromRecent": "Rimuovi dai recenti",
+    "removeFromRecent": "Rimuovi dagli aperti di recente",
     "noResults": "Nessun risultato corrispondente",
     "noRecentFiles": "Nessun file o cartella recente"
   },
@@ -341,7 +341,7 @@
     },
     "headerFooter": {
       "allowStyled": "Consenti testo formattato",
-      "customizeStyle": "Stile personalizzato",
+      "customizeStyle": "Formattazione personalizzata",
       "fontSize": "Dimensione caratteri",
       "footerType": "Tipo di piè di pagina",
       "headerType": "Tipo di intestazione",
@@ -352,12 +352,12 @@
       "mainHeaderText": "Testo principale dell’intestazione",
       "rightFooterText": "Testo del piè di pagina a destra",
       "rightHeaderText": "Testo dell’intestazione a destra",
-      "description": "Qualora siano stati definiti intestazione e/o piè di pagina, il testo relativo compare in tutte le pagine."
+      "description": "Se sono stati definiti intestazione e/o piè di pagina, il loro testo compare in tutte le pagine."
     },
     "toc": {
       "description": "Per mostrare il sommario nel documento esportato, inserire [TOC] in una riga a sé stante nel corpo del documento. Il sommario apparirà a tale livello.",
-      "includeTopHeading": "Include l’intestazione principale",
-      "includeTopHeadingDetail": "Include i dettagli dell’intestazione principale",
+      "includeTopHeading": "Include l’intestazione principale (H1)",
+      "includeTopHeadingDetail": "Include nel sommario tutte le intestazioni principali (H1)",
       "label": "Sommario",
       "title": "Sommario"
     },
@@ -390,16 +390,16 @@
     }
   },
   "recent": {
-    "noTabsOpen": "Nessuna scheda aperta",
+    "noTabsOpen": "Non ci sono schede aperte",
     "newFile": "Nuovo file"
   },
   "import": {
     "title": "Importa o apri",
-    "description": "Rilascia qui il tuo materiale per importarlo in MarkText"
+    "description": "Rilascia qui il materiale per importarlo in MarkText"
   },
   "preferences": {
     "title": "Preferenze",
-    "learnMore": "Scopri di più su {name}",
+    "learnMore": "Scopri di più su: {name}",
     "search": {
       "placeholder": "Cerca preferenze…",
       "categories": {
@@ -419,11 +419,12 @@
         "autoSaveDelay": "Ritardo (in ms) nel salvataggio dei file dopo una modifica",
         "titleBarStyle": "Stile della barra del titolo (Windows e Linux solamente)",
         "openFilesInNewWindow": "Apri i file in una nuova finestra",
-        "openFolderInNewWindow": "Apri la cartella in una nuova finestra tramite menu",
+        "openFilesInPreviewMode": "Apri i file della barra laterale in schede di anteprima",
+        "openFolderInNewWindow": "Apri da menu la cartella in una nuova finestra",
         "zoom": "Livello di zoom (valori: 0.5~2.0)",
         "hideScrollbar": "Nascondi la barra di scorrimento (Sì/No)",
         "wordWrapInToc": "Consenti di andare a caporiga nel sommario (Sì/No)",
-        "fileSortBy": "Ordinamento dei file nella cartella aperta per data di creazione, data di modifica, per nome",
+        "fileSortBy": "Ordinamento dei file nella cartella aperta per data di creazione, data di modifica e per nome",
         "startUpAction": "Azione da compiere all’avvio di MarkText: aprire il contenuto modificato più di recente, aprire la cartella specificata o aprire una pagina vuota",
         "restoreLayoutState": "All’avvio ripristinare lo stato precedente dell’editor",
         "defaultDirectoryToOpen": "Cartella di avvio predefinita da aprire quando startUp=folder",
@@ -434,14 +435,14 @@
         "wrapCodeBlocks": "Consente il ritorno a capo automatico all’interno di blocchi di codice",
         "editorLineWidth": "Ampiezza massima dell’area dell’editor. Valori consentiti: stringa vuota o suffissi ‘ch’ (carattere), ‘px’ (pixel), ‘%’ (percentuale)",
         "codeFontSize": "Dimensione caratteri dei blocchi di codice (valori: 12~18)",
-        "codeFontFamily": "Famiglia di caratteri usati nei blocchi di codice",
+        "codeFontFamily": "Famiglia di caratteri per il codice. Si usa sia per il codice in linea che per i blocchi di codice",
         "codeBlockLineNumbers": "Mostra numerazione delle linee (Sì/No)",
         "sourceCodeLineNumbers": "Visualizza i numeri di linea in modalità codice-sorgente",
         "trimUnnecessaryCodeBlockEmptyLines": "Rimuove eventuali linee vuote iniziali e finali dai blocchi di codice",
         "autoPairBracket": "Gestione automatica delle parentesi durante le modifiche",
         "autoPairMarkdownSyntax": "Completamento automatico della sintassi Markdown",
         "autoPairQuote": "Completamento automatico delle virgolette",
-        "endOfLine": "Tipo di carattere usato alla fine di ciascuna riga per andare a capo. Il valore predefinito è ‘default’ e dipende dal sistema operativo",
+        "endOfLine": "Carattere usato alla fine di ciascuna riga per andare a capo. Il valore predefinito è ‘default’ e dipende dal sistema operativo",
         "defaultEncoding": "Codifica predefinita del file",
         "autoGuessEncoding": "Quando si apre un file, cerca di individuarne automaticamente la codifica",
         "trimTrailingNewline": "Opzione di rimozione del carattere di fine riga",
@@ -468,9 +469,9 @@
         "githubAlerts": "Alert GitHub",
         "isHtmlEnabled": "Abilita il rendering HTML",
         "softNewlineAsSpace": "Tratta come spazi i caratteri di fine riga ‘morbidi’ (soft newlines)",
-        "sequenceTheme": "Tema del diagramma di sequenza",
-        "mermaidLightTheme": "Tema Mermaid per i temi chiari di MarkText",
-        "mermaidDarkTheme": "Tema Mermaid per i temi scuri di MarkText",
+        "sequenceTheme": "Tema del diagramma js-Sequence",
+        "mermaidLightTheme": "Tema Mermaid per temi chiari MarkText",
+        "mermaidDarkTheme": "Tema Mermaid per temi scuri MarkText",
         "plantumlServer": "URL del server PlantUML",
         "theme": "Seleziona il tema da usare in MarkText",
         "followSystemTheme": "Segui il tema di sistema",
@@ -482,12 +483,11 @@
         "imageInsertAction": "Comportamento predefinito dopo l’inserimento di un’immagine proveniente da una cartella locale",
         "imagePreferRelativeDirectory": "Preferire una cartella relativa per le immagini (Sì/No)",
         "imageRelativeDirectoryBase": "Cartella relativa in cui vengono copiate le immagini",
-        "imageRelativeDirectoryName": "Nome della cartella relativa delle immagini",
+        "imageRelativeDirectoryName": "Nome della ‘cartella relativa’ delle immagini",
         "autoNormalizeLineEndings": "Normalizzazione automatica dei fine riga all’apertura dei file. Disabilitando questa opzione, i file vengono aperti così come sono.",
         "fileSortOrder": "Ordinamento ascendente o discendente dei file nelle cartelle aperte",
         "openedFilesInSidebar": "Mostra i file aperti nella barra laterale (Sì/No)",
-        "showPandocConvert": "Mostra il menu di conversione Pandoc. È richiesta l’installazione di Pandoc.",
-        "openFilesInPreviewMode": "Apri i file della barra laterale in schede di anteprima"
+        "showPandocConvert": "Mostra il menu di conversione Pandoc. È richiesta l’installazione di Pandoc."
       }
     },
     "categories": {
@@ -513,7 +513,7 @@
           "custom": "Personalizzato",
           "native": "Nativo"
         },
-        "requiresRestart": "Richiede il riavvio",
+        "requiresRestart": "Richiede il riavvio.",
         "hideScrollbars": "Nascondi le barre di scorrimento",
         "openFilesInNewWindow": "Apri i file in una nuova finestra",
         "openFoldersInNewWindow": "Apri le cartelle in una nuova finestra",
@@ -526,7 +526,7 @@
         "restorePreviousState": "Ritorno dell’editor allo stato precedente",
         "openBlankState": "Apertura di una schermata vuota",
         "openDefaultDirectory": "Apertura della cartella predefinita",
-        "openLastFolder": "Ripristina la cartella aperta",
+        "openLastFolder": "Ripristino dell’ultima cartella aperta",
         "restoreAll": "Ripristino di tutte le cartelle e dei file aperti",
         "selectFolder": "Seleziona una cartella",
         "openBlankPage": "Apertura di una pagina vuota"
@@ -541,14 +541,15 @@
       },
       "sidebar": {
         "title": "Barra laterale",
-        "wrapTextInToc": "Vai a capo nel Sommario",
+        "wrapTextInToc": "Vai a capo nel sommario",
         "tocPosition": "Posizione del sommario",
         "tocLeft": "Sinistra",
         "tocRight": "Destra",
         "showOpenedFiles": "Mostra i file aperti",
-        "autoReveal": "Mostra il file attivo",
+        "autoReveal": "Mostra il file attivo nella barra laterale",
+        "openFilesInPreviewMode": "Apri i file della barra laterale in schede di anteprima. La modifica o il doppio clic mantiene aperta la scheda",
         "excludePatterns": "Pattern di esclusione",
-        "excludePatternsNotes": "Informazioni sul pattern di esclusione",
+        "excludePatternsNotes": "Informazioni sul pattern di esclusione.",
         "fileSortBy": {
           "title": "File ordinati per",
           "creationTime": "Orario di creazione",
@@ -561,8 +562,7 @@
           "zToA": "Z → A",
           "oldestFirst": "Prima il meno recente",
           "newestFirst": "Prima il più recente"
-        },
-        "openFilesInPreviewMode": "Apri i file della barra laterale in schede di anteprima. La modifica o il doppio clic mantiene aperta la scheda"
+        }
       },
       "misc": {
         "title": "Varie",
@@ -580,7 +580,7 @@
           "portuguese": "Português",
           "turkish": "Türkçe",
           "russian": "Русский",
-          "italian": "Italiano (beta2)"
+          "italian": "Italiano"
         }
       }
     },
@@ -592,7 +592,7 @@
         "lineHeight": "Altezza riga",
         "fontFamily": "Famiglia di caratteri",
         "maxWidth": "Larghezza massima",
-        "maxWidthNotes": "Larghezza massima del contenuto dell’editor. Inserire un numero seguito da: px (pixel), ch (caratteri) o % (percentuale) Per esempio: 800px, 80ch o 60%. Se vuoto, viene usata la larghezza predefinita.",
+        "maxWidthNotes": "Larghezza massima del contenuto dell’editor. Inserire un numero seguito da: px (pixel), ch (caratteri) o % (percentuale). Per esempio: 800px, 80ch o 60%. Se la casella rimane vuota, viene usata la larghezza predefinita.",
         "maxWidthInvalid": "Inserisci un numero seguito da px, ch o %. Per esempio: 800px.",
         "codeFontFamily": "Famiglia di caratteri per la rappresentazione di codice",
         "codeFontFamilyNotes": "Si applica sia al codice in linea che a blocchi di codice."
@@ -606,22 +606,22 @@
       "writingBehavior": {
         "title": "Comportamento in scrittura",
         "autoCloseBrackets": "Chiusura automatica delle parentesi",
-        "autoCompleteMarkdown": "Autocompletamento Markdown",
+        "autoCompleteMarkdown": "Completamento automatico Markdown",
         "autoCloseQuotes": "Chiusura automatica delle virgolette"
       },
       "fileRepresentation": {
-        "title": "Rappresentazione del file",
+        "title": "Rappresentazione dei file",
         "tabWidth": "Inserimento con il tasto Tab",
-        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
+        "tabInputNotes": "Scegli tra spazi e un vero carattere di tabulazione (Tab). Le tabulazioni esistenti simulano le vere tabulazioni utilizzando 1-4 spazi. Negli elenchi e nelle tabelle invece, il tasto Tab regola, rispettivamente, il livello di nidificazione e consente il passaggio da una cella all’altra.",
         "lineSeparator": "Separatore di linea",
         "defaultEncoding": "Codifica predefinita",
         "autoDetectEncoding": "Rilevamento automatico della codifica",
         "trailingNewlines": {
           "title": "Caratteri di fine riga",
-          "doNothing": "Non fare nulla",
-          "ensureOne": "Mantieni una riga finale vuota",
+          "doNothing": "Non fa nulla",
+          "ensureOne": "Mantiene una riga finale vuota",
           "preserve": "Conserva tutti",
-          "trimAll": "Rimuovi tutti"
+          "trimAll": "Rimuove tutti"
         },
         "endOfLine": {
           "default": "Predefinito",
@@ -636,8 +636,8 @@
           "ltr": "Sinistra → Destra",
           "rtl": "Destra → Sinistra"
         },
-        "hideQuickInsertHint": "Nascondi il suggerimento per l’inserimento rapido",
-        "hideLinkPopup": "Nascondi il pop-up del link",
+        "hideQuickInsertHint": "Nasconde il suggerimento per l’inserimento rapido",
+        "hideLinkPopup": "Nasconde il pop-up del link",
         "autoCheck": "Controllo automatico",
         "autoNormalizeLineEndings": "All’apertura converte automaticamente i caratteri di fine riga in LF",
         "wrapCodeBlocks": "Nei blocchi di codice è possibile andare a capo (word wrap)",
@@ -645,23 +645,23 @@
       }
     },
     "image": {
-      "title": "Immagine",
+      "title": "Immagini",
       "actions": {
-        "upload": "Carica nel cloud",
-        "folder": "Copia nella cartella",
-        "path": "Usa un percorso (path) assoluto"
+        "upload": "Carica l’immagine nel cloud",
+        "folder": "Copia l’immagine nella cartella predefinita",
+        "path": "Usa l’immagine da un percorso (path) assoluto"
       },
       "folderSetting": {
         "title": "Impostazione cartella",
         "globalFolder": "Cartella globale per le immagini",
         "open": "Apri",
         "showInFolder": "Mostra nella cartella",
-        "preferRelative": "Preferenza per una cartella relativa",
-        "relativeCopyLocation": "Copia l’immagine relativamente a",
-        "copyRelativeToFile": "Relativa al file",
-        "copyRelativeToFolder": "Relativa alla cartella",
+        "preferRelative": "Preferenza per una destinazione ‘relativa’ delle immagini",
+        "relativeCopyLocation": "Copia l’immagine relativamente",
+        "copyRelativeToFile": "Al file",
+        "copyRelativeToFolder": "Alla cartella-principale (root) del progetto",
         "relativeFolderName": "Nome della cartella relativa",
-        "filenameNote": "Il nome del file verrà generato automaticamente"
+        "filenameNote": "Generazione automatica del nome del file."
       },
       "uploader": {
         "title": "Caricatore di immagini",
@@ -675,7 +675,7 @@
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Scegli il metodo di installazione:",
         "retestPicgo": "Riprova",
-        "lastDetectionTime": "Ultimo orario di rilevamento",
+        "lastDetectionTime": "Ultimo rilevamento",
         "picgoDetection": "Rilevamento di PicGo",
         "usageGuide": {
           "title": "Guida rapida di PicGo",
@@ -702,7 +702,7 @@
         "pleaseInstall": "Installare, prego…",
         "scriptPath": "Percorso (path) dello script"
       },
-      "defaultBehavior": "Comportamento predefinito dopo aver incollato o trascinato l’immagine in MarkText"
+      "defaultBehavior": "Comportamento predefinito dopo aver incollato o trascinato un’immagine in MarkText"
     },
     "markdown": {
       "title": "Markdown",
@@ -710,13 +710,13 @@
         "title": "Estensioni",
         "superSubScript": "Apice/Pedice",
         "footnote": "Nota a piè di pagina",
-        "footnoteNotes": "Informazioni sulle Note a piè di pagina",
-        "texMathDollars": "Espressione matematica TeX con $ e $$",
-        "texMathGfm": "Espressione matematica TeX di GitHub ($`…`$ e ```math)",
+        "footnoteNotes": "Informazioni sulle Note a piè di pagina.",
+        "texMathDollars": "Espressioni matematiche TeX con: $ e $$",
+        "texMathGfm": "Espressioni matematiche TeX tipo GitHub: ($`…`$ e ```math)",
         "texMathSingleBackslash": "Delimitatori di espressione matematica TeX con singola barra rovesciata",
         "texMathDoubleBackslash": "Delimitatori di espressione matematica TeX con doppia barra rovesciata",
         "highlightSyntax": "Evidenziazione (==testo==)",
-        "inlineDiff": "‘diff’ in linea ({+ … +})",
+        "inlineDiff": "diff (differenze) in linea ({+ … +})",
         "multilineBlockquote": "Citazione multilinea (>>>)",
         "githubAlerts": "Abilitazione degli Alert GitHub",
         "frontmatterType": {
@@ -728,15 +728,15 @@
       "diagrams": {
         "title": "Diagrammi",
         "sequenceTheme": {
-          "title": "Tema Sequenza",
+          "title": "Tema js-Sequence",
           "handDrawn": "Disegnato a mano",
           "simple": "Semplice"
         },
         "mermaidLightTheme": {
-          "title": "Tema Mermaid per i temi chiari di MarkText"
+          "title": "Tema Mermaid per temi chiari MarkText"
         },
         "mermaidDarkTheme": {
-          "title": "Tema Mermaid per i temi scuri di MarkText"
+          "title": "Tema Mermaid per temi scuri MarkText"
         },
         "plantumlServer": {
           "title": "URL del server PlantUML"
@@ -744,7 +744,7 @@
       },
       "misc": {
         "preferHeadingStyle": {
-          "title": "Preferenze dello Stile delle intestazioni",
+          "title": "Preferenze di stile delle intestazioni",
           "atx": "Stile ATX",
           "setext": "Stile Setext"
         },
@@ -774,7 +774,7 @@
     "theme": {
       "title": "Tema",
       "followSystemTheme": "Segui il tema di sistema",
-      "followSystemNote": "Se si segue il tema di sistema, viene impedito l’accesso al sottostante elenco di temi alternativi. Bisogna disattivare questa opzione per poter cambiare tema liberamente.",
+      "followSystemNote": "Se si segue il tema di sistema, viene impedito l’accesso al sottostante elenco di temi alternativi. Disattivare tale opzione per poter cambiare tema liberamente.",
       "modeThemes": "Selezione tema",
       "lightModeTheme": "Tema chiaro",
       "darkModeTheme": "Tema scuro",
@@ -786,7 +786,7 @@
     },
     "keybindings": {
       "title": "Combinazione di tasti",
-      "description": "Personalizza scorciatoie da tastiera",
+      "description": "Personalizza le scorciatoie da tastiera",
       "save": "Salva",
       "restoreDefaults": "Ripristina i valori predefiniti",
       "debugOptions": "Opzioni di debug",
@@ -816,10 +816,10 @@
       "autoDetectLanguage": "Rileva automaticamente lingua",
       "customDictionary": {
         "delete": "Elimina",
-        "description": "Aggiunta di lemmi personalizzati al dizionario personale",
+        "description": "Aggiunta di lemmi al dizionario personale",
         "noWordsAvailable": "Nessun lemma disponibile",
         "options": "Opzioni",
-        "title": "Dizionario personalizzato",
+        "title": "Dizionario personale",
         "word": "Lemma"
       },
       "defaultLanguage": "Lingua predefinita",
@@ -938,7 +938,7 @@
       "sourceCodeMode": "Modalità codice sorgente",
       "typewriterMode": "Modalità macchina da scrivere",
       "focusMode": "Modalità focalizzata",
-      "toggleSourceCodeMode": "Attiva/disattiva modalitè codice sorgente",
+      "toggleSourceCodeMode": "Attiva/disattiva modalità codice sorgente",
       "toggleTypewriterMode": "Attiva/disattiva modalità macchina da scrivere",
       "toggleFocusMode": "Attiva/disattiva modalità focalizzata",
       "toggleSidebar": "Attiva/disattiva barra laterale",
@@ -1028,8 +1028,8 @@
       "errorLoadingTabTitle": "Errore durante il caricamento di una scheda",
       "errorLoadingTabMessage": "Errore durante il caricamento delle modifiche al file per l’impossibilità di reperire la scheda",
       "mixedLineEndingsNormalized": "\"{name}\" ha i caratteri di fine riga di tipo misto che vengono automaticamente ricondotti a {lineEnding}",
-      "imageDeletionUrlTitle": "URL dell’immagine da cancellare",
-      "imageDeletionUrlMessage": "Fare clic per copiare negli ‘Appunti’ l’URL dell’immagine da cancellare {url}",
+      "imageDeletionUrlTitle": "URL dell’immagine da eliminare",
+      "imageDeletionUrlMessage": "Fare clic per copiare negli ‘Appunti’ l’URL dell’immagine da eliminare {url}",
       "errorWhileSaving": "Errore durante il salvataggio: {msg}",
       "exportSuccessTitle": "Esportazione riuscita",
       "exportSuccessMessage": "Esportazione di \"{name}\" riuscita!",
@@ -1082,35 +1082,35 @@
     },
     "sourceCode": {
       "cursorNullComment": "Commento: cursore nullo",
-      "imageStructureDeletedComment": "Commento: Struttura dell’immagine cancellata"
+      "imageStructureDeletedComment": "Commento: struttura dell’immagine cancellata"
     },
     "spellcheck": {
       "disabledError": "Errore: controllo ortografico disabilitato",
-      "errorSwitchingLanguage": "Il cambio della lingua del correttore ortografico in: {languageCode} ha provocato un errore",
+      "errorSwitchingLanguage": "Il cambio di lingua del correttore ortografico in: {languageCode} ha provocato un errore",
       "languageMissing": "Il correttore ortografico per la lingua {languageCode} è assente",
       "switchError": "Errore nel passaggio al correttore ortografico per {languageCode}: {error}",
       "title": "Correzione ortografica"
     },
     "tabs": {
       "close": "Chiudi {name}",
-      "preview": "{name}, scheda di anteprima"
+      "preview": "Scheda di anteprima di {name}"
     }
   },
   "readingMode": {
-    "title": "Modalità a sola lettura",
-    "edit": "Modalità modifica",
-    "lock": "Attiva la modalità a sola lettura",
+    "title": "Modalità Lettura",
+    "edit": "Modalità Modifica",
+    "lock": "Attiva la modalità lettura",
     "unlock": "Passa alla modalità modifica",
     "defaultMode": "Modalità predefinita per i file aperti",
-    "defaultNote": "Si applica ai file esistenti aperti da questo momento in poi. I nuovi documenti restano invece modificabili.",
-    "unsaved": "La modalità a sola lettura è attiva. Le modifiche non salvate vengono comunque conservate. Il salvataggio automatico è sospeso.",
+    "defaultNote": "Si applica a tutti i file già esistenti aperti a partire da questo momento. Restano modificabili tutti i nuovi file.",
+    "unsaved": "La modalità lettura è attiva. Le modifiche non salvate vengono comunque conservate. Il salvataggio automatico è sospeso.",
     "failed": "Impossibile cambiare la modalità del documento",
     "closeSave": "Passa alla modalità modifica e salva",
     "exportSource": "Scegli una destinazione di esportazione diversa dal file di origine.",
-    "unavailable": "Non disponibile in modalità a sola lettura.",
+    "unavailable": "Non disponibile in modalità lettura.",
     "skipped": "I documenti a sola lettura con modifiche non salvate sono stati ignorati.",
     "viewImage": "Visualizza immagine",
     "copyLink": "Copia indirizzo del link",
-    "resumed": "La modalità modifica è attiva. Il salvataggio automatico è ripartito."
+    "resumed": "La modalità modifica è attiva. Il salvataggio automatico è ripreso."
   }
 }
