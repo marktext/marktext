@@ -4,7 +4,7 @@ MarkText is built from the pnpm workspace at the repository root. Compiling the 
 
 ## Prerequisites
 
-- Node.js `>=20.19.0` and pnpm `>=10`. Use the pnpm version pinned by `packageManager` in the root `package.json`.
+- Node.js `>=22.12.0` and pnpm `>=10`. Use the pnpm version pinned by `packageManager` in the root `package.json`.
 - Python 3 and a C++ toolchain for native dependencies. Release CI selects Python 3.12.
 - Build on the target operating system: Linux, macOS or Windows. The release workflow builds x64 and arm64 on native runners.
 

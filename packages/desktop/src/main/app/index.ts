@@ -599,11 +599,13 @@ class App {
           // Persist screenshot bitmaps and pass a file path: Chromium no longer supports programmatic paste.
           let savedPath = ''
           try {
-            const image = clipboard.readImage()
+            const items = await clipboard.read()
+            const item = items.find((entry) => entry.types.includes('image/png'))
             // `screencapture` leaves the clipboard untouched when the user
             // cancels (Esc); skip so we don't insert a stale/empty image.
-            if (!image.isEmpty()) {
-              const bufferImage = image.toPNG()
+            if (item) {
+              const blob = await item.getType('image/png')
+              const bufferImage = Buffer.from(await blob.arrayBuffer())
               await fsPromises.writeFile(screenshotFileName, bufferImage)
               savedPath = screenshotFileName
             }

@@ -42,9 +42,7 @@ const readClipboard = (app: ElectronApplication): Promise<string> =>
   app.evaluate(({ clipboard }) => clipboard.readText())
 
 const writeClipboard = (app: ElectronApplication, text: string): Promise<void> =>
-  app.evaluate(({ clipboard }, value) => {
-    clipboard.writeText(value)
-  }, text)
+  app.evaluate(({ clipboard }, value) => clipboard.writeText(value), text)
 
 test.describe('Heading hover-to-copy anchor affordance (item 241)', () => {
   let app: ElectronApplication

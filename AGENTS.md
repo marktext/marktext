@@ -15,8 +15,8 @@ MarkText is a WYSIWYG markdown editor built on Electron + Vue 3. It supports Com
 | Layer              | Technology                                                 |
 | ------------------ | ---------------------------------------------------------- |
 | Language           | TypeScript 5.9 (strict mode)                               |
-| Desktop shell      | Electron 42                                                |
-| Build system       | electron-vite 5                                            |
+| Desktop shell      | Electron 45                                                |
+| Build system       | electron-vite 6                                            |
 | Packaging          | electron-builder 26                                        |
 | Frontend framework | Vue 3                                                      |
 | State management   | Pinia 3                                                    |
@@ -26,7 +26,7 @@ MarkText is a WYSIWYG markdown editor built on Electron + Vue 3. It supports Com
 | E2E tests          | Playwright                                                 |
 | Package manager    | pnpm >=10 workspace (`packageManager: pnpm@10.33.4`)       |
 | Repo layout        | pnpm monorepo — see Directory Structure                    |
-| Node.js minimum    | >=20.19.0 (PR CI: Node 22.21.1 · release CI: Node 24.14.1) |
+| Node.js minimum    | >=22.12.0 (PR CI: Node 22.21.1 · release CI: Node 24.14.1) |
 
 ## Directory Structure
 

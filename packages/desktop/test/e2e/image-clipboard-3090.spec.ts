@@ -14,6 +14,8 @@ import {
   waitForMenuReady
 } from './helpers'
 
+import { backupClipboard, restoreClipboard, readClipboardState } from './clipboardHelpers'
+
 const rawImage = '<img src="assets/source.png" alt="sample" title="caption" width="48" height="48" data-align="right">'
 const modifier = process.platform === 'darwin' ? 'Meta' : 'Control'
 
@@ -43,7 +45,7 @@ test.describe('image clipboard interoperability (#3090)', () => {
   const copySelected = async() => {
     await page.locator('.editor-component .mu-image-success img').first().click()
     await page.keyboard.press(`${modifier}+c`)
-    await expect.poll(() => app.evaluate(({ clipboard }) => !clipboard.readImage().isEmpty())).toBe(true)
+    await expect.poll(() => app.evaluate(({ clipboard }) => clipboard.has('image/png'))).toBe(true)
   }
 
   test.beforeAll(async() => {
@@ -81,11 +83,8 @@ test.describe('image clipboard interoperability (#3090)', () => {
     page = launched.page
     await waitForEditor(page)
     await waitForMenuReady(app)
-    await app.evaluate(({ clipboard }) => {
-      const state = globalThis as typeof globalThis & { imageClipboardBackup?: Array<[string, Uint8Array]> }
-      state.imageClipboardBackup = clipboard.availableFormats().map(format => [format, clipboard.readBuffer(format)])
-      clipboard.clear()
-    })
+    await backupClipboard(app)
+    await app.evaluate(({ clipboard }) => clipboard.clear())
   })
 
   test.beforeEach(async() => {
@@ -101,11 +100,7 @@ test.describe('image clipboard interoperability (#3090)', () => {
 
   test.afterAll(async() => {
     if (app) {
-      await app.evaluate(({ clipboard }) => {
-        const state = globalThis as typeof globalThis & { imageClipboardBackup?: Array<[string, Uint8Array]> }
-        clipboard.clear()
-        for (const [format, bytes] of state.imageClipboardBackup ?? []) clipboard.writeBuffer(format, Buffer.from(bytes))
-      })
+      await restoreClipboard(app)
       await app.close()
     }
     if (server) await new Promise<void>(done => server.close(() => done()))
@@ -114,9 +109,7 @@ test.describe('image clipboard interoperability (#3090)', () => {
 
   test('Cmd/Ctrl+C writes Markdown, real HTML and bitmap together', async() => {
     await copySelected()
-    const copied = await app.evaluate(({ clipboard }) => ({
-      text: clipboard.readText(), html: clipboard.readHTML(), formats: clipboard.availableFormats(), size: clipboard.readImage().getSize()
-    }))
+    const copied = await readClipboardState(app)
     expect(copied.text).toBe(rawImage)
     expect(copied.html).toContain('data-marktext-image')
     expect(copied.formats).toEqual(expect.arrayContaining(['text/plain', 'text/html', 'image/png']))
@@ -211,8 +204,12 @@ test.describe('image clipboard interoperability (#3090)', () => {
   }
 
   test('external clipboard image and text still use the image insertion preferences', async() => {
-    await app.evaluate(({ clipboard, nativeImage }, pathname) => {
-      clipboard.write({ text: 'external label', image: nativeImage.createFromPath(pathname) })
+    await app.evaluate(({ clipboard, ClipboardItem, nativeImage }, pathname) => {
+      const image = nativeImage.createFromPath(pathname)
+      return clipboard.write([new ClipboardItem({
+        'text/plain': 'external label',
+        'image/png': new Blob([new Uint8Array(image.toPNG())], { type: 'image/png' })
+      })])
     }, join(fixture, 'source/assets/source.png'))
     await page.locator('.mu-paragraph-content').filter({ hasText: 'target' }).click()
     await page.keyboard.press(`${modifier}+v`)

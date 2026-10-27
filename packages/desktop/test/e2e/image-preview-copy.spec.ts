@@ -6,6 +6,8 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { expectNoRendererErrors, launchWithMarkdown, setSourceMarkdown } from './helpers'
 
+import { backupClipboard, restoreClipboard, readClipboardState } from './clipboardHelpers'
+
 const modifier = process.platform === 'darwin' ? 'Meta' : 'Control'
 
 test.describe('image preview copying', () => {
@@ -55,10 +57,8 @@ test.describe('image preview copying', () => {
     })
     app = launched.app
     page = launched.page
-    await app.evaluate(({ clipboard }) => {
-      const state = globalThis as typeof globalThis & { previewClipboardBackup?: Array<[string, Uint8Array]> }
-      state.previewClipboardBackup = clipboard.availableFormats().map(format => [format, clipboard.readBuffer(format)])
-    })
+    await backupClipboard(app)
+    await app.evaluate(({ clipboard }) => clipboard.clear())
   })
 
   test.beforeEach(async() => {
@@ -72,11 +72,7 @@ test.describe('image preview copying', () => {
 
   test.afterAll(async() => {
     if (app) {
-      await app.evaluate(({ clipboard }) => {
-        const state = globalThis as typeof globalThis & { previewClipboardBackup?: Array<[string, Uint8Array]> }
-        clipboard.clear()
-        for (const [format, bytes] of state.previewClipboardBackup ?? []) clipboard.writeBuffer(format, Buffer.from(bytes))
-      })
+      await restoreClipboard(app)
       await app.close()
     }
     if (server) await new Promise<void>(done => server.close(() => done()))
@@ -86,8 +82,8 @@ test.describe('image preview copying', () => {
   test('copies the natural-size bitmap and pastes it as a new external image', async() => {
     await openPreview()
     await copyPreview()
-    expect(await app.evaluate(({ clipboard }) => ({ text: clipboard.readText(), size: clipboard.readImage().getSize() })))
-      .toEqual({ text: '', size: { width: 96, height: 96 } })
+    expect(await readClipboardState(app))
+      .toMatchObject({ text: '', size: { width: 96, height: 96 } })
     await page.keyboard.press('Escape')
     await page.locator('.mu-paragraph-content').filter({ hasText: 'target' }).click()
     await page.keyboard.press(`${modifier}+v`)
@@ -99,7 +95,7 @@ test.describe('image preview copying', () => {
       await setSourceMarkdown(page, app, `![remote](${serverUrl}/${source})\n`)
       await openPreview()
       await copyPreview()
-      expect(await app.evaluate(({ clipboard }) => clipboard.readImage().getSize())).toEqual({ width: 96, height: 96 })
+      expect((await readClipboardState(app)).size).toEqual({ width: 96, height: 96 })
       await page.keyboard.press('Escape')
     })
   }
@@ -108,12 +104,8 @@ test.describe('image preview copying', () => {
     await setSourceMarkdown(page, app, `![remote](${serverUrl}/redirect.svg)\n`)
     await openPreview()
     await copyPreview()
-    const copied = await app.evaluate(({ clipboard }) => {
-      const image = clipboard.readImage()
-      const bitmap = image.toBitmap()
-      return { size: image.getSize(), firstAlpha: bitmap[3], lastAlpha: bitmap[bitmap.length - 1] }
-    })
-    expect(copied).toEqual({ size: { width: 120, height: 80 }, firstAlpha: 255, lastAlpha: 0 })
+    const copied = await readClipboardState(app)
+    expect(copied).toMatchObject({ size: { width: 120, height: 80 }, firstAlpha: 255, lastAlpha: 0 })
     await page.keyboard.press('Escape')
   })
 })

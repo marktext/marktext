@@ -72,7 +72,7 @@ const handleError = async(title: string, error: Error, type: ErrorType): Promise
 
     switch (response) {
       case 1: {
-        clipboard.writeText(`${title}\n${stack}`)
+        await clipboard.writeText(`${title}\n${stack}`)
         break
       }
       // The Report button is disabled because stack-only reports flooded the tracker without reproduction steps (#5356).

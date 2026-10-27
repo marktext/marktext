@@ -14,7 +14,7 @@ pnpm run perf:inspect-brk
 
 This forwards `--inspect-brk=5858` to Electron. Open `chrome://inspect`, configure `localhost:5858`, attach to the main process and start recording before resuming execution. Use `pnpm run perf:inspect` to launch without the initial pause.
 
-Both scripts run `electron-vite preview`, which rebuilds by default in electron-vite 5. To reuse a specific build:
+Both scripts run `electron-vite preview`, which rebuilds by default in electron-vite 6. To reuse a specific build:
 
 ```sh
 pnpm run build:unpack
