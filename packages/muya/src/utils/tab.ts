@@ -1,9 +1,18 @@
+import { isOsx } from '../config';
+
 export function tabText(tabSize: number | 'tab'): string {
     return tabSize === 'tab' ? '\t' : ' '.repeat(tabSize);
 }
 
 export function isTabKey(event: Event): event is KeyboardEvent {
     return event instanceof KeyboardEvent && event.type === 'keydown' && event.key === 'Tab';
+}
+
+export function isIndentShortcut(event: Event, osx = isOsx): event is KeyboardEvent {
+    return event instanceof KeyboardEvent && event.type === 'keydown'
+        && !event.defaultPrevented && !event.shiftKey && !event.altKey
+        && (osx ? event.metaKey && !event.ctrlKey : event.ctrlKey && !event.metaKey)
+        && (event.key === '[' || event.key === ']');
 }
 
 export function editTab(text: string, anchor: number, focus: number, tabSize: number | 'tab', unindent = false, forceLines = false) {
@@ -29,7 +38,7 @@ export function editTab(text: string, anchor: number, focus: number, tabSize: nu
             if (remove)
                 changes.push({ offset, remove, insert: '' });
         }
-        else if (line.length) {
+        else if (line.length || start === end) {
             changes.push({ offset, remove: 0, insert: tabText(tabSize) });
         }
         offset += line.length + 1;

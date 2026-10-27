@@ -25,10 +25,10 @@ import { ChangeSource } from '../types';
 import { deepClone, hasPick, isHTMLElement } from '../utils';
 import { getBlock } from '../utils/dom';
 import logger from '../utils/logger';
-import { isTabKey } from '../utils/tab';
+import { isIndentShortcut, isTabKey } from '../utils/tab';
 import { attachDragDropImageHandlers } from './dragDropImage';
 import { attachLinkMouseHandlers } from './linkMouseEvents';
-import { handleTabSelection, shouldHandleTabSelection } from './tab';
+import { handleIndentShortcut, handleTabSelection, shouldHandleIndentation } from './tab';
 import { EditTransactions } from './transactions';
 
 const debug = logger('editor:');
@@ -385,8 +385,11 @@ export class Editor {
                 return;
             }
 
-            if (isTabKey(event) && !this._isComposing && !event.isComposing && shouldHandleTabSelection(selectionResult)) {
-                handleTabSelection(this._muya, event, selectionResult);
+            if (selectionResult && shouldHandleIndentation(event, selectionResult, this._isComposing)) {
+                if (isIndentShortcut(event))
+                    handleIndentShortcut(this._muya, event, selectionResult);
+                else
+                    handleTabSelection(this._muya, event, selectionResult);
                 return;
             }
 
@@ -443,7 +446,7 @@ export class Editor {
                 ? this._inputSelection
                 : this.selection.getSelectionState();
             try {
-                this.transact(() => eventHandler(event), isTabKey(event), selection);
+                this.transact(() => eventHandler(event), isTabKey(event) || isIndentShortcut(event), selection);
             }
             finally {
                 if (event.type === 'compositionend')

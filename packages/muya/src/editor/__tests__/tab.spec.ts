@@ -99,10 +99,10 @@ describe('real tab input', () => {
         expect(muya.getMarkdown()).toBe('```text\n\t{\n\t\t\n\t}\n```\n');
     });
 
-    it('does not insert whitespace into the first list item', () => {
+    it('does not insert whitespace at the start of the first list item', () => {
         const muya = boot('- a\n- b\n');
         const block = content(muya, 'a');
-        select(muya, block, 1);
+        select(muya, block, 0);
         tab(block);
         expect(muya.getMarkdown()).toBe('- a\n- b\n');
     });

@@ -2,10 +2,12 @@
 import type Content from '../../block/base/content';
 import type Parent from '../../block/base/parent';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { isOsx } from '../../config';
 import { Muya } from '../../muya';
 import { createTextSelectionState } from '../../selection/state';
 import { MarkdownToState } from '../../state/markdownToState';
 import { isAnyListState } from '../../state/types';
+import { isIndentShortcut } from '../../utils/tab';
 
 const editors: Muya[] = [];
 
@@ -42,6 +44,19 @@ function select(muya: Muya, a: Content, anchor: number, b = a, focus = anchor) {
 
 function tab(block: Content, shiftKey = false) {
     const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true });
+    block.domNode!.dispatchEvent(event);
+    return event;
+}
+
+function indentShortcut(block: Content, unindent = false, options: KeyboardEventInit = {}) {
+    const event = new KeyboardEvent('keydown', {
+        key: unindent ? '[' : ']',
+        ctrlKey: !isOsx,
+        metaKey: isOsx,
+        bubbles: true,
+        cancelable: true,
+        ...options,
+    });
     block.domNode!.dispatchEvent(event);
     return event;
 }
@@ -210,7 +225,7 @@ describe('selection indentation', () => {
     it.each([false, true])('inherits adjacent sublist looseness for a selected item: %s', (selected) => {
         const muya = boot('- a\n  - [ ] b\n\n- c\n');
         const block = content(muya, 'c');
-        select(muya, block, selected ? 0 : 1, block, 1);
+        select(muya, block, 0, block, selected ? 1 : 0);
         tab(block);
         const outer = muya.getState()[0];
         if (!isAnyListState(outer))
@@ -386,5 +401,170 @@ describe('selection indentation', () => {
         expect(muya.getMarkdown()).toBe(markdown);
         muya.redo();
         expect(muya.getMarkdown()).toBe('- a\n- b\n- c\n  - d\n');
+    });
+});
+
+describe('fixed indentation shortcuts and list body input', () => {
+    it.each([
+        '- alpha\n- bravo\n',
+        '1. alpha\n2. bravo\n',
+        '- [ ] alpha\n- [x] bravo\n',
+    ])('inserts a real Tab in a list body without moving the item: %s', (markdown) => {
+        const muya = boot(markdown, 'tab');
+        const block = content(muya, 'bravo');
+        select(muya, block, 2);
+        tab(block);
+        expect(block.text).toBe('br\tavo');
+        expect(muya.getMarkdown()).toBe(markdown.replace('bravo', 'br\tavo'));
+        expect(muya.editor.selection.getTextSelection()!.anchor.offset).toBe(3);
+        expect(new MarkdownToState(muya.options).generate(muya.getMarkdown())).toEqual(muya.getState());
+        muya.undo();
+        expect(muya.getMarkdown()).toBe(markdown);
+        muya.redo();
+        expect(muya.getMarkdown()).toBe(markdown.replace('bravo', 'br\tavo'));
+    });
+
+    it.each([2, 4, 'tab'] as const)('inserts %s input at the end of the first list item', (tabSize) => {
+        const muya = boot('- alpha\n', tabSize);
+        const block = content(muya, 'alpha');
+        select(muya, block, 5);
+        tab(block);
+        expect(block.text).toBe(`alpha${tabSize === 'tab' ? '\t' : ' '.repeat(tabSize)}`);
+        expect(muya.getState()[0].name).toBe('bullet-list');
+    });
+
+    it('moves a list item from a body caret and restores the offset through outdent and undo', () => {
+        const muya = boot('- alpha\n- bravo\n');
+        const block = content(muya, 'bravo');
+        select(muya, block, 3);
+        indentShortcut(block);
+        expect(muya.getMarkdown()).toBe('- alpha\n  - bravo\n');
+        expect(muya.editor.selection.getTextSelection()!.anchor.offset).toBe(3);
+        indentShortcut(content(muya, 'bravo'), true);
+        expect(muya.getMarkdown()).toBe('- alpha\n- bravo\n');
+        expect(muya.editor.selection.getTextSelection()!.anchor.offset).toBe(3);
+        muya.undo();
+        expect(muya.getMarkdown()).toBe('- alpha\n  - bravo\n');
+        muya.undo();
+        expect(muya.getMarkdown()).toBe('- alpha\n- bravo\n');
+    });
+
+    it('moves a collapsed item-start caret rather than excluding the item', () => {
+        const muya = boot('- alpha\n- bravo\n');
+        const block = content(muya, 'bravo');
+        select(muya, block, 0);
+        indentShortcut(block);
+        expect(muya.getMarkdown()).toBe('- alpha\n  - bravo\n');
+        expect(muya.editor.selection.getTextSelection()!.anchor.offset).toBe(0);
+    });
+
+    it('moves a backward list selection while keeping the excluded final item', () => {
+        const muya = boot('- a\n- b\n- c\n- d\n');
+        const b = content(muya, 'b');
+        const d = content(muya, 'd');
+        select(muya, d, 0, b, 0);
+        indentShortcut(b);
+        expect(muya.getMarkdown()).toBe('- a\n  - b\n  - c\n- d\n');
+        const selection = muya.editor.selection.getTextSelection()!;
+        expect(selection.anchor.block.text).toBe('d');
+        expect(selection.focus.block.text).toBe('b');
+        indentShortcut(selection.focus.block, true);
+        expect(muya.getMarkdown()).toBe('- a\n- b\n- c\n- d\n');
+    });
+
+    it('indents a paragraph line instead of replacing its single-line selection', () => {
+        const muya = boot('hello world\n');
+        const block = content(muya, 'hello world');
+        select(muya, block, 11, block, 6);
+        indentShortcut(block);
+        expect(block.text).toBe('  hello world');
+        expect(block.getCursor()!.anchor.offset).toBe(13);
+        expect(block.getCursor()!.focus.offset).toBe(8);
+        indentShortcut(block, true);
+        expect(block.text).toBe('hello world');
+    });
+
+    it('indents a paragraph caret at zero and converts at four columns in separate undo steps', () => {
+        const muya = boot('hello\n');
+        const block = content(muya, 'hello');
+        select(muya, block, 0);
+        indentShortcut(block);
+        expect(muya.getState()).toEqual([{ name: 'paragraph', text: '  hello' }]);
+        indentShortcut(block);
+        expect(muya.getState()).toEqual([{
+            name: 'code-block',
+            meta: { type: 'indented', lang: '' },
+            text: 'hello',
+        }]);
+        muya.undo();
+        expect(muya.getState()).toEqual([{ name: 'paragraph', text: '  hello' }]);
+        muya.undo();
+        expect(muya.getState()).toEqual([{ name: 'paragraph', text: 'hello' }]);
+    });
+
+    it('indents code at a mid-line caret and skips HTML completion', () => {
+        const muya = boot('```html\ndiv\nspan\n```\n');
+        const block = content(muya, 'div\nspan');
+        select(muya, block, 3);
+        indentShortcut(block);
+        expect(block.text).toBe('  div\nspan');
+        expect(block.getCursor()!.anchor.offset).toBe(5);
+        indentShortcut(block, true);
+        expect(block.text).toBe('div\nspan');
+        expect(block.getCursor()!.anchor.offset).toBe(3);
+    });
+
+    it('indents code inside a list without changing the list hierarchy', () => {
+        const muya = boot('- a\n- b\n\n  ```text\n  one\n  ```\n');
+        const block = content(muya, 'one');
+        select(muya, block, 2);
+        indentShortcut(block);
+        expect(block.text).toBe('  one');
+        const list = muya.getState()[0];
+        expect(isAnyListState(list) && list.children).toHaveLength(2);
+        expect(block.getCursor()!.anchor.offset).toBe(4);
+    });
+
+    it.each(['', '```text\n\n```\n'])('indents an empty caret line in %j', (markdown) => {
+        const muya = boot(markdown);
+        const block = muya.editor.scrollPage!.lastContentInDescendant()!;
+        select(muya, block, 0);
+        indentShortcut(block);
+        expect(block.text).toBe('  ');
+        indentShortcut(block, true);
+        expect(block.text).toBe('');
+    });
+
+    it('leaves tables and mixed block selections unchanged', () => {
+        const muya = boot('| a | b |\n| --- | --- |\n| 1 | 2 |\n');
+        const block = content(muya, '1');
+        select(muya, block, 0);
+        const before = muya.getMarkdown();
+        indentShortcut(block);
+        expect(muya.getMarkdown()).toBe(before);
+        expect(muya.editor.selection.getTextSelection()!.anchor.block.text).toBe('1');
+        muya.setContent('hello\n\n# title\n');
+        const first = content(muya, 'hello');
+        select(muya, first, 0, content(muya, '# title'), 7);
+        indentShortcut(first);
+        expect(muya.getMarkdown()).toBe('hello\n\n# title\n');
+    });
+
+    it('does not change text during composition', () => {
+        const muya = boot('hello\n');
+        const block = content(muya, 'hello');
+        select(muya, block, 0);
+        indentShortcut(block, false, { isComposing: true });
+        expect(block.text).toBe('hello');
+    });
+
+    it.each([false, true])('matches only the platform modifier without Shift or Alt (macOS: %s)', (osx) => {
+        const chord = { ctrlKey: !osx, metaKey: osx };
+        for (const key of ['[', ']']) {
+            expect(isIndentShortcut(new KeyboardEvent('keydown', { key, ...chord }), osx)).toBe(true);
+            for (const extra of [{ shiftKey: true }, { altKey: true }, { ctrlKey: true, metaKey: true }, { ctrlKey: osx, metaKey: !osx }])
+                expect(isIndentShortcut(new KeyboardEvent('keydown', { key, ...chord, ...extra }), osx)).toBe(false);
+            expect(isIndentShortcut(new KeyboardEvent('keyup', { key, ...chord }), osx)).toBe(false);
+        }
     });
 });
