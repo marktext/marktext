@@ -2,7 +2,7 @@
 
 import { Marked } from 'marked';
 import { describe, expect, it } from 'vitest';
-import cjkEmStrongExtension from '../extensions/cjkEmStrong';
+import inlineEmphasisExtension from '../extensions/inlineEmphasis';
 import { getClipBoardHtml } from '../getClipboardHtml';
 import { getHighlightHtml } from '../getHighlightHtml';
 
@@ -59,7 +59,7 @@ describe('emphasis precedence over bare URL autolinking', () => {
     }
 
     it('keeps bare URLs as text when the GFM extension is disabled', () => {
-        const marked = new Marked(cjkEmStrongExtension(), { gfm: false });
+        const marked = new Marked(inlineEmphasisExtension(), { gfm: false });
         expect(marked.parse(`**${URL}**text`)).toBe(`<p><strong>${URL}</strong>text</p>\n`);
     });
 });

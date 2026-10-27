@@ -22,6 +22,32 @@ export interface IDelimiterPairingOptions {
     onPair?: (span: Readonly<IEmphasisSpan>) => void;
 }
 
+/** Reads a full code point before a UTF-16 offset; empty at the start. */
+export function codePointBefore(s: string, i: number): string {
+    if (i <= 0)
+        return '';
+    const lastUnit = s.charCodeAt(i - 1);
+    if (lastUnit >= 0xDC00 && lastUnit <= 0xDFFF && i >= 2) {
+        const prevUnit = s.charCodeAt(i - 2);
+        if (prevUnit >= 0xD800 && prevUnit <= 0xDBFF)
+            return s.slice(i - 2, i);
+    }
+    return s.charAt(i - 1);
+}
+
+/** Reads a full code point at a UTF-16 offset; undefined past the end. */
+export function codePointCharAt(s: string, i: number): string | undefined {
+    if (i >= s.length)
+        return undefined;
+    const unit = s.charCodeAt(i);
+    if (unit >= 0xD800 && unit <= 0xDBFF && i + 1 < s.length) {
+        const next = s.charCodeAt(i + 1);
+        if (next >= 0xDC00 && next <= 0xDFFF)
+            return s.slice(i, i + 2);
+    }
+    return s.charAt(i);
+}
+
 function unspent(run: IDelimiterRun) {
     return run.right - run.left;
 }

@@ -99,37 +99,6 @@ export const UNICODE_WHITESPACE_REG = /^\s/;
 // eslint-disable-next-line regexp/no-obscure-range
 export const CJK_REG = /[぀-ヿ㐀-䶿一-鿿豈-﫿가-힯ｦ-ﾝ]|[\uD840-\uD87F][\uDC00-\uDFFF]/;
 
-// The Unicode code point ending at `i` as a 1- or 2-char string, or '' at the
-// start of the string. Bracket indexing / charAt return a single UTF-16 code
-// unit, splitting a non-BMP code point into raw surrogate halves that never
-// match PUNCTUATION_REG / CJK_REG / UNICODE_WHITESPACE_REG. Reading the full
-// code point keeps CJK_REG's surrogate-pair branch live for Ext-B ideographs.
-export function codePointBefore(s: string, i: number): string {
-    if (i <= 0)
-        return '';
-    const lastUnit = s.charCodeAt(i - 1);
-    if (lastUnit >= 0xDC00 && lastUnit <= 0xDFFF && i >= 2) {
-        const prevUnit = s.charCodeAt(i - 2);
-        if (prevUnit >= 0xD800 && prevUnit <= 0xDBFF)
-            return s.slice(i - 2, i);
-    }
-    return s.charAt(i - 1);
-}
-
-// Same idea forwards: the code point starting at `i`, or undefined past the
-// end of the string.
-export function codePointCharAt(s: string, i: number): string | undefined {
-    if (i >= s.length)
-        return undefined;
-    const unit = s.charCodeAt(i);
-    if (unit >= 0xD800 && unit <= 0xDBFF && i + 1 < s.length) {
-        const next = s.charCodeAt(i + 1);
-        if (next >= 0xDC00 && next <= 0xDFFF)
-            return s.slice(i, i + 2);
-    }
-    return s.charAt(i);
-}
-
 function validWidthAndHeight(value: string) {
     if (!/^\d+$/.test(value))
         return '';

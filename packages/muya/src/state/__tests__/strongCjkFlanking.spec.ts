@@ -5,35 +5,8 @@ import { describe, expect, it } from 'vitest';
 import { tokenizer } from '../../inlineRenderer/lexer';
 import { renderToStaticHTML } from '../renderToStaticHTML';
 
-// Regression coverage ported from marktext#4307 (legacy desktop spec
-// `test/unit/specs/markdown-strong-cjk.spec.ts`). Strong emphasis (`**…**`)
-// whose `**` delimiters sit directly against a CJK character should still be
-// recognised, even when the emphasised content begins/ends with a punctuation
-// character (a quote, bracket, or paren).
-//
-// THE ENGINE GAP, AND HOW IT IS NOW CLOSED:
-//   muya tokenises inline markdown through TWO paths, and CommonMark's
-//   emphasis "flanking" rule denies bold in both for CJK-bounded runs. The
-//   spec classifies every character as whitespace, (Unicode) punctuation, or
-//   "other"; CJK ideographs and Hangul are "other". For a left-flanking `**`
-//   run, clause (2b) requires the character *before* the run to be whitespace
-//   or punctuation whenever the character *after* the run is punctuation. In
-//   `例子例子**"加粗"**例子例子` the char after the opening `**` is `"`
-//   (punctuation) and the char before it is `子` (a CJK ideograph → "other"),
-//   so the run is not left-flanking and the `**` stays literal.
-//
-//   Legacy marktext (muyajs) shipped a custom inline tokenizer whose
-//   flanking helpers treat CJK as punctuation. We restore that, additively,
-//   in both of muya's paths:
-//     - Static / export path  — marked, via the `cjkEmStrong` tokenizer
-//       override registered in `getHighlightHtml` / `getClipboardHtml`.
-//     - Live editor path       — muya's own inline lexer, via the CJK widening
-//       `isBoundary` applies in `inlineRenderer/emphasis.ts`.
-//
-//   The widening is additive: it never bolds anything CommonMark accepts as
-//   non-emphasis, so the CommonMark / GFM conformance suites are unaffected.
-//
-//   See marktext/marktext#4307.
+// #4307: CJK-adjacent emphasis must work in both the live editor and Marked
+// exports, including when the emphasized content starts or ends in punctuation.
 
 const STATIC_OPTIONS = {
     footnote: false,

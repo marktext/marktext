@@ -2,10 +2,10 @@ import type { ILexOption } from './types';
 import { Marked } from 'marked';
 import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
 import { sanitize } from '../index';
-import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import footnoteExtension from './extensions/footnote';
 import githubAlertsExtension from './extensions/githubAlerts';
 import inlineDiffExtension from './extensions/inlineDiff';
+import inlineEmphasisExtension from './extensions/inlineEmphasis';
 import markExtension from './extensions/mark';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
 import multilineBlockquoteExtension from './extensions/multilineBlockquote';
@@ -27,9 +27,7 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
 
-    // CJK-as-punctuation emphasis flanking (marktext/marktext#4307); keeps the
-    // clipboard HTML consistent with the static / export render path.
-    marked.use(cjkEmStrongExtension());
+    marked.use(inlineEmphasisExtension());
 
     if (texMathDollars) {
         marked.use(

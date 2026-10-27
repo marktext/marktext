@@ -4,7 +4,7 @@
 import cms from 'commonmark-spec';
 import { Marked } from 'marked';
 import { describe, expect, it } from 'vitest';
-import cjkEmStrongExtension from '../extensions/cjkEmStrong';
+import inlineEmphasisExtension from '../extensions/inlineEmphasis';
 import { getClipBoardHtml } from '../getClipboardHtml';
 import { getHighlightHtml } from '../getHighlightHtml';
 import regressions from './fixtures/emphasis-context-regressions.json';
@@ -64,13 +64,13 @@ describe('marked emphasis with CJK boundaries', () => {
     }
 
     it.each([false, true])('keeps upstream delimiter rules with gfm=%s', (gfm) => {
-        const marked = new Marked(cjkEmStrongExtension(), { gfm });
+        const marked = new Marked(inlineEmphasisExtension(), { gfm });
         for (const [markdown, expected] of CASES)
             expect(marked.parseInline(markdown), markdown).toBe(expected);
     });
 
     for (const gfm of [false, true]) {
-        const marked = new Marked(cjkEmStrongExtension(), { gfm });
+        const marked = new Marked(inlineEmphasisExtension(), { gfm });
         it.each(regressions)(`gfm=${gfm}: $markdown retains outer delimiter context`, ({ markdown, html }) => {
             expect(normalize(marked.parse(markdown) as string)).toBe(normalize(html));
         });
@@ -90,7 +90,7 @@ describe('marked emphasis with CJK boundaries', () => {
         const plain = new Marked();
         const before = plain.parse(markdown);
 
-        expect(new Marked(cjkEmStrongExtension()).parse(markdown)).toContain('<strong>');
+        expect(new Marked(inlineEmphasisExtension()).parse(markdown)).toContain('<strong>');
         expect(plain.parse(markdown)).toBe(before);
         expect(new Marked().parse(markdown)).toBe(before);
         expect(before).not.toContain('<strong>');

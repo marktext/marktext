@@ -1,12 +1,10 @@
 import type { IDelimiterRun, IEmphasisSpan } from '../utils/emphasis';
 import type { InlineRules } from './rules';
 import type { ITokenizerFacOptions, Labels } from './types';
-import { pairEmphasisDelimiters } from '../utils/emphasis';
+import { codePointBefore, codePointCharAt, pairEmphasisDelimiters } from '../utils/emphasis';
 import { BACKSLASH_MATH_RULES, linkValidateRules } from './rules';
 import {
     CJK_REG,
-    codePointBefore,
-    codePointCharAt,
     matchAt,
     matchBracketed,
     matchExtendedAutoLink,
