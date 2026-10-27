@@ -133,7 +133,7 @@ test.describe('#528 reveal active file in the side bar', () => {
 
   test.beforeAll(async() => {
     const launched = await launchElectron(undefined, {
-      preferences: { openFilesInPreviewMode: false, sideBarVisibility: true, restoreLayoutState: true }
+      preferences: { openFilesInPreviewMode: false, sideBarVisibility: true, restoreLayoutState: true, tabBarVisibility: true }
     })
     app = launched.app
     page = launched.page
@@ -193,7 +193,8 @@ test.describe('#528 reveal with autoRevealInSidebar turned off', () => {
         sideBarVisibility: true,
         restoreLayoutState: true,
         autoRevealInSidebar: false,
-        openFilesInPreviewMode: false
+        openFilesInPreviewMode: false,
+        tabBarVisibility: true
       }
     })
     app = launched.app
