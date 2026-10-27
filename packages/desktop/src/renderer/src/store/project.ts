@@ -273,14 +273,14 @@ export const useProjectStore = defineStore('project', () => {
       )
     ].slice(0, STATE_LIMITS.collapsedPathsPerRoot)
 
+  const matchesWorkspaceRoot = (root: RootView, descriptor: WorkspaceDescriptor['roots'][number]): boolean =>
+    window.path.normalize(root.key) === window.path.normalize(descriptor.location.canonicalPath) ||
+    window.path.normalize(root.pathname) === window.path.normalize(descriptor.location.path)
+
   function CAPTURE_PROJECT_VIEW(workspace: WorkspaceDescriptor | null): ProjectViewState {
     return {
       roots: (workspace?.roots ?? []).map((descriptor) => {
-        const root = roots.value.find(
-          (root) =>
-            window.path.normalize(root.pathname) ===
-            window.path.normalize(descriptor.location.canonicalPath)
-        )
+        const root = roots.value.find(root => matchesWorkspaceRoot(root, descriptor))
         return {
           rootId: descriptor.id,
           collapsedPaths: root ? safeCollapsedPaths(collectCollapsed(root)) : []
@@ -294,11 +294,7 @@ export const useProjectStore = defineStore('project', () => {
     state: ProjectViewState
   ): void {
     for (const root of roots.value) {
-      const descriptor = workspace?.roots.find(
-        (item) =>
-          window.path.normalize(item.location.canonicalPath) ===
-          window.path.normalize(root.pathname)
-      )
+      const descriptor = workspace?.roots.find(item => matchesWorkspaceRoot(root, item))
       const entry = descriptor
         ? state.roots.find((entry) => entry.rootId === descriptor.id)
         : undefined

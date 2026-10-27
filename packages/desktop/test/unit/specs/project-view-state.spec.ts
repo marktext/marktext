@@ -56,6 +56,14 @@ const addDirectory = (pathname: string) =>
     change: { pathname }
   })
 describe('workspace-root view state', () => {
+  it('matches a displayed alias through the native canonical root key', () => {
+    const store = useProjectStore()
+    store.APPLY_ROOTS({ revision: 1, reason: 'restore', roots: [{ key: '/a', pathname: '/alias-a', watchToken: 'alias', status: 'loading' }] })
+    store.SET_FOLDER_COLLAPSED(store.roots[0].tree, true)
+    expect(store.CAPTURE_PROJECT_VIEW(workspace).roots[0].collapsedPaths).toEqual([''])
+    store.RESTORE_PROJECT_VIEW(workspace, { roots: [{ rootId: 'a-id', collapsedPaths: [] }] })
+    expect(store.roots[0].tree.isCollapsed).toBe(false)
+  })
   it('rebuilds lazy file trees with the intended root and descendant folds', () => {
     const first = initialize()
     addDirectory('/a/notes')
