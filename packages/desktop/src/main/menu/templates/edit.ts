@@ -6,6 +6,21 @@ import { t } from '../../i18n'
 import type Keybindings from '../../keyboard/shortcutHandler'
 
 export default function(keybindings: Keybindings): MenuItemConstructorOptions {
+  // Native separators ignore command visibility on Windows/Linux (#5884).
+  const screenshotItems: MenuItemConstructorOptions[] = isOsx
+    ? [
+      {
+        label: t('menu.edit.screenshot'),
+        id: 'screenshot',
+        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_SCREENSHOT) ?? undefined,
+        click(_menuItem, browserWindow) {
+          actions.screenshot(browserWindow as BrowserWindow | undefined)
+        }
+      },
+      { type: 'separator' }
+    ]
+    : []
+
   return {
     label: t('menu.edit.edit'),
     submenu: [
@@ -162,21 +177,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       {
         type: 'separator'
       },
-      {
-        label: t('menu.edit.screenshot'),
-        id: 'screenshot',
-        visible: isOsx,
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_SCREENSHOT) ?? undefined,
-        click(_menuItem, browserWindow) {
-          actions.screenshot(browserWindow as BrowserWindow | undefined)
-        }
-      },
-      {
-        // Screenshot is macOS-only; hide its trailing separator too so
-        // Windows/Linux don't show a doubled divider here (#2997).
-        type: 'separator',
-        visible: isOsx
-      },
+      ...screenshotItems,
       {
         // TODO: Remove this menu entry and add it to the command palette (#1408).
         label: t('menu.edit.lineEnding'),
