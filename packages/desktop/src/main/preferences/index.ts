@@ -1,19 +1,12 @@
-import fs from 'fs'
-import path from 'path'
-import Store, { type Schema } from 'electron-store'
 import { BrowserWindow, ipcMain, nativeTheme } from 'electron'
 import log from 'electron-log'
 import { isWindows } from '../config'
-import { hasSameKeys } from '../utils'
 import { onInternalChannel } from '../utils/internalIpc'
 import { TypedEmitter } from '@shared/types/typedEmitter'
 import type { IUserPreferences } from '@shared/types/preferences'
-import schema from './schema.json'
+import { PreferenceFile } from './preferenceFile'
+import type { PreferenceUpdateResult, UserPreferences } from '@shared/types/applicationState'
 
-const PREFERENCES_FILE_NAME = 'preferences'
-
-// The Preference class extends EventEmitter but does not currently emit any
-// events itself — keep the event map empty until concrete events are added.
 type PreferenceEvents = Record<string, unknown[]>
 
 interface AppPaths {
@@ -23,120 +16,40 @@ interface AppPaths {
 class Preference extends TypedEmitter<PreferenceEvents> {
   public readonly preferencesPath: string
   public readonly hasPreferencesFile: boolean
-  public readonly store: Store<IUserPreferences>
-  public readonly staticPath: string
+  private readonly file: PreferenceFile
 
-  /** Throws when preference validation fails. */
   constructor(paths: AppPaths) {
-    // TODO: Preferences should not loaded if global.MARKTEXT_SAFE_MODE is set.
     super()
-
-    const { preferencesPath } = paths
-    this.preferencesPath = preferencesPath
-    this.hasPreferencesFile = fs.existsSync(
-      path.join(this.preferencesPath, `./${PREFERENCES_FILE_NAME}.json`)
-    )
-    this.store = new Store<IUserPreferences>({
-      schema: schema as unknown as Schema<IUserPreferences>,
-      name: PREFERENCES_FILE_NAME,
-      migrations: {
-        '0.18.6': (store) => {
-          if (store.get('startUpAction') === 'lastState') {
-            store.set('startUpAction', 'openLastFolder')
-          }
-        }
-      },
-      beforeEachMigration: (_store, context) => {
-        log.info(`Preferences migration: ${context.fromVersion} -> ${context.toVersion}`)
-      }
-    })
-
-    this.staticPath = path.join(global.__static, 'preference.json')
-    this.init()
-  }
-
-  init = (): void => {
-    let defaultSettings: Record<string, unknown> | null = null
-    try {
-      defaultSettings = JSON.parse(fs.readFileSync(this.staticPath, { encoding: 'utf8' }) || '{}')
-
-      if (nativeTheme.shouldUseDarkColors) {
-        defaultSettings!.theme = 'dark'
-      }
-
-      // Detect the first-start locale after app readiness; app.getLocale() is empty before then.
-      if (!this.hasPreferencesFile) {
-        delete defaultSettings!.language
-      }
-    } catch (err) {
-      log.error(err)
-    }
-
-    if (!defaultSettings) {
-      throw new Error('Can not load static preference.json file')
-    }
-
-    // Use file existence: electron-store reports a nonzero size even on the first load.
-    if (!this.hasPreferencesFile) {
-      this.store.set(defaultSettings)
-    } else {
-      // Because `this.getAll()` will return a plainObject, so we can not use `hasOwnProperty` method
-      // const plainObject = () => Object.create(null)
-      const userSetting = this.getAll() as Record<string, unknown>
-      const requiresUpdate = !hasSameKeys(defaultSettings, userSetting)
-      const userSettingKeys = Object.keys(userSetting)
-      const defaultSettingKeys = Object.keys(defaultSettings)
-
-      if (requiresUpdate) {
-        // TODO(fxha): For performance reasons, we should try to replace 'electron-store' because
-        //   it does multiple blocking I/O calls when changing entries. There is no transaction or
-        //   async I/O available. The core reason we changed to it was JSON scheme validation.
-
-        for (const key of userSettingKeys) {
-          if (!defaultSettingKeys.includes(key)) {
-            delete userSetting[key]
-            this.store.delete(key)
-          }
-        }
-
-        let addedNewEntries = false
-        for (const key in defaultSettings) {
-          if (!userSettingKeys.includes(key)) {
-            addedNewEntries = true
-            userSetting[key] = defaultSettings[key]
-          }
-        }
-        if (addedNewEntries) {
-          this.store.set(userSetting)
-        }
-      }
-    }
-
+    this.preferencesPath = paths.preferencesPath
+    this.file = new PreferenceFile(paths.preferencesPath, { dark: nativeTheme.shouldUseDarkColors })
+    this.hasPreferencesFile = this.file.exists
+    if (this.file.readOnly) log.warn('Preferences are unavailable; using read-only defaults')
     this._listenForIpcMain()
   }
 
-  getAll(): IUserPreferences {
-    return this.store.store as IUserPreferences
+  getAll(): IUserPreferences & UserPreferences {
+    return this.file.get()
+  }
+
+  update(patch: unknown): PreferenceUpdateResult {
+    const result = this.file.update(patch)
+    if (result.status === 'persisted') {
+      ipcMain.emit('broadcast-preferences-changed', { ...(patch as Record<string, unknown>) })
+    }
+    return result
   }
 
   setItem(key: string, value: unknown): void {
-    this.store.set(key, value)
-    ipcMain.emit('broadcast-preferences-changed', { [key]: value })
+    this.setItems({ [key]: value })
   }
 
   getItem<T = unknown>(key: string): T {
-    return this.store.get(key) as T
+    return this.file.get()[key] as T
   }
 
   setItems(settings: Record<string, unknown> | null | undefined): void {
-    if (!settings) {
-      log.error('Cannot change settings without entires: object is undefined or null.')
-      return
-    }
-
-    Object.keys(settings).forEach((key) => {
-      this.setItem(key, settings[key])
-    })
+    const result = this.update(settings)
+    if (result.status === 'failed') log.warn(`Cannot persist preferences: ${result.reason}`)
   }
 
   getPreferredEol(): 'lf' | 'crlf' {
