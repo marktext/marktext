@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { readFileSync } from 'node:fs'
 import type { Page } from 'playwright'
 import {
   launchWithMarkdown,
@@ -159,20 +160,14 @@ test.describe('Parity PG15 — undo back to on-disk content restores the saved i
   // dirty tab read as clean (risking data loss on close-without-save). The
   // monotonic content-keyed id keeps the divergent document dirty.
   test('G6: a divergent re-edit at the saved undo depth stays dirty', async() => {
-    const { app, page } = await launchWithMarkdown('A\n')
+    const { app, page, filePath } = await launchWithMarkdown('A\n')
     await waitForMenuReady(app)
 
-    // Edit to A + B, then mark the tab saved at this state (same IPC channel the
-    // main process sends after a real save: records the current synthetic id as
-    // `lastSavedHistoryId` and clears the dirty flag).
     await placeCaretInEditor(page)
     await typeIntoEditor(page, ' B')
     await page.waitForTimeout(500)
-    const tabId = await page.evaluate(
-      () => document.querySelector('.editor-tabs li.active')?.getAttribute('data-id') ?? null
-    )
-    expect(tabId).toBeTruthy()
-    await sendIpcToRenderer(app, 'mt::tab-saved', tabId)
+    await sendIpcToRenderer(app, 'mt::editor-ask-file-save')
+    await expect.poll(() => readFileSync(filePath, 'utf8')).toContain('B')
     await expect
       .poll(() => page.evaluate(() => !!document.querySelector('.editor-tabs li.unsaved')))
       .toBe(false)
@@ -197,11 +192,6 @@ test.describe('Parity PG15 — undo back to on-disk content restores the saved i
 
 const isTabDirty = (page: Page): Promise<boolean> =>
   page.evaluate(() => !!document.querySelector('.editor-tabs li.unsaved'))
-
-const activeTabId = (page: Page): Promise<string | null> =>
-  page.evaluate(
-    () => document.querySelector('.editor-tabs li.active')?.getAttribute('data-id') ?? null
-  )
 
 // Read the live WYSIWYG document text WITHOUT toggling source mode. Toggling
 // into/out of source mode (as getMarkdownContent does) pushes extra
@@ -276,13 +266,8 @@ test.describe('Item 248 — a real source-mode keystroke dirties the tab dot', (
 })
 
 test.describe('Item 256 — save -> clean -> edit -> dirty -> undo-to-saved cycle', () => {
-  // A focused save/clean/edit/dirty loop. The G6 test only USES mt::tab-saved as
-  // a setup step; there is no standalone assertion that a real save clears the
-  // dot, that a fresh edit re-marks it, and that undoing back to the saved state
-  // clears it again. This exercises the full content-keyed synthetic-history
-  // round trip the save indicator relies on.
   test('a save clears the dot, a new edit re-marks it, and undo-to-saved clears it', async() => {
-    const { app, page } = await launchWithMarkdown('hello world\n')
+    const { app, page, filePath } = await launchWithMarkdown('hello world\n')
     await waitForMenuReady(app)
 
     expect(await isTabDirty(page)).toBe(false)
@@ -307,11 +292,9 @@ test.describe('Item 256 — save -> clean -> edit -> dirty -> undo-to-saved cycl
     // engine's exact rendered form.
     const savedText = await wysiwygText(page)
 
-    // 2) Real save (same IPC the main process sends after writing to disk):
-    //    records the current synthetic id as lastSavedHistoryId and clears dirty.
-    const tabId = await activeTabId(page)
-    expect(tabId).toBeTruthy()
-    await sendIpcToRenderer(app, 'mt::tab-saved', tabId)
+    // The main-process disk baseline must agree with the renderer's save state.
+    await sendIpcToRenderer(app, 'mt::editor-ask-file-save')
+    await expect.poll(() => readFileSync(filePath, 'utf8')).toContain('EXTRA')
     await expect.poll(() => isTabDirty(page)).toBe(false)
 
     await placeCaretInEditor(page)
