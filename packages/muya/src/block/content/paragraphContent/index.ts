@@ -878,12 +878,12 @@ class ParagraphContent extends Format {
             }
         }
 
-        if (this._canIndentListItem()) {
+        if (start.offset === 0 && this._canIndentListItem()) {
             this._indentListItem();
             return;
         }
 
-        if (this.isCollapsed && isListItemBlock(this.parent?.parent))
+        if (this.isCollapsed && start.offset === 0 && isListItemBlock(this.parent?.parent))
             return;
 
         this.insertTab();

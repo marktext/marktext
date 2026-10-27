@@ -62,7 +62,7 @@ function contentByText(muya: Muya, text: string): Content {
 function indent(muya: Muya, text: string): void {
     const content = contentByText(muya, text);
     muya.editor.activeContentBlock = content;
-    content.setCursor(text.length, text.length, true);
+    content.setCursor(0, 0, true);
     const event = {
         preventDefault: vi.fn(),
         stopPropagation: vi.fn(),
@@ -179,7 +179,7 @@ describe('paragraphContent — Tab into a sublist of the other item kind (#5349)
 
         const active = muya.editor.activeContentBlock!;
         expect(active.text).toBe('c');
-        expect(active.getCursor()!.start.offset).toBe(1);
+        expect(active.getCursor()!.start.offset).toBe(0);
 
         indent(muya, 'd');
         const state = muya.editor.jsonState.getState();
