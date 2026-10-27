@@ -45,6 +45,7 @@
 </template>
 
 <script setup lang="ts">
+import { documentViewChanged } from '@/services/documentViewState'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
@@ -120,6 +121,7 @@ watch(() => currentFile.value?.id, () => {
 const onCollapse = (data: { key?: string }): void => {
   if (restoringTree || !currentFile.value || !data.key) return
   currentFile.value.tocCollapsedKeys = [...new Set(collapsedKeys.value).add(data.key)]
+  documentViewChanged()
 }
 
 const onExpand = (data: { key?: string }): void => {
@@ -127,6 +129,7 @@ const onExpand = (data: { key?: string }): void => {
   const next = new Set(collapsedKeys.value)
   next.delete(data.key)
   currentFile.value.tocCollapsedKeys = [...next]
+  documentViewChanged()
 }
 
 const branchKeys = computed(() => {
@@ -147,6 +150,7 @@ const allCollapsed = computed(() => keyedToc.value.every(node =>
 const setAllExpanded = (expanded: boolean): void => {
   if (!currentFile.value || !canToggleAll.value) return
   currentFile.value.tocCollapsedKeys = expanded ? [] : [...branchKeys.value]
+  documentViewChanged()
 }
 const toggleAll = (): void => setAllExpanded(allCollapsed.value)
 

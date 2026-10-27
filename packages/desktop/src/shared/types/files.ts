@@ -4,6 +4,8 @@
 // commits. Until then, these are intentionally open structures — better an
 // imperfect surface than a placeholder that's wrong.
 
+import type { DocumentViewState } from './applicationState'
+
 export type LineEnding = 'lf' | 'crlf'
 
 export interface SerializedStat {
@@ -87,6 +89,7 @@ export interface IFileState {
   scrollTop: number
   // View state for this open tab; deliberately excluded from buffered persistence.
   tocCollapsedKeys?: string[]
+  viewState?: DocumentViewState | null
   muyaIndexCursor: unknown
   notifications: FileNotification[]
   lastSavedHistoryId?: number
