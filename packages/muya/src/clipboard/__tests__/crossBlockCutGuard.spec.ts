@@ -47,4 +47,29 @@ describe('shouldCrossBlockCut (#3491)', () => {
         expect(shouldCrossBlockCut('ArrowDown', false, false)).toBe(false);
         expect(shouldCrossBlockCut('Shift', false, false)).toBe(false);
     });
+
+    it.each([
+        'Home',
+        'End',
+        'PageUp',
+        'PageDown',
+        ...Array.from({ length: 12 }, (_, i) => `F${i + 1}`),
+        'NumLock',
+        'ScrollLock',
+        'Pause',
+        'Insert',
+        'Escape',
+        'Tab',
+        'ContextMenu',
+        'Unidentified',
+        'Dead',
+        'Process',
+        '',
+    ])('does NOT cut on the non-editing key %j (#5900)', (key) => {
+        expect(shouldCrossBlockCut(key, false, false)).toBe(false);
+    });
+
+    it.each(['Enter', ' ', 'é', '中', '😀'])('cuts on the editing key %j', (key) => {
+        expect(shouldCrossBlockCut(key, false, false)).toBe(true);
+    });
 });

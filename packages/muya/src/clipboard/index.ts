@@ -10,15 +10,13 @@ import { pastePlainText, pasteSelection } from './paste';
 import { pasteImageSrc } from './pasteImage';
 import { CopyType, PasteType } from './types';
 
-// Modifier shortcuts such as Ctrl+C must never delete a cross-block selection (#3491).
+// Only editing keys may replace the selection; unknown hardware/navigation keys
+// must stay harmless (#5900), as must modifier shortcuts such as Ctrl+C (#3491).
 export function shouldCrossBlockCut(key: string, metaKey: boolean, ctrlKey: boolean): boolean {
-    if (/Alt|Option|Meta|Shift|CapsLock|ArrowUp|ArrowDown|ArrowLeft|ArrowRight/.test(key))
-        return false;
-
     if (metaKey || ctrlKey)
         return false;
 
-    return true;
+    return key === 'Backspace' || key === 'Delete' || key === 'Enter' || Array.from(key).length === 1;
 }
 
 const FOREIGN_INPUT_TYPES = new Set([
