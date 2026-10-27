@@ -4,6 +4,7 @@ import type Parent from '../../block/base/parent';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../muya';
 import { createTextSelectionState } from '../../selection/state';
+import { isAnyListState } from '../../state/types';
 
 const editors: Muya[] = [];
 
@@ -53,6 +54,37 @@ afterEach(() => {
     document.getSelection()?.removeAllRanges();
 });
 describe('selection indentation', () => {
+    it.each([false, true])('inherits adjacent sublist looseness for a selected item: %s', (selected) => {
+        const muya = boot('- a\n  - [ ] b\n\n- c\n');
+        const block = content(muya, 'c');
+        select(muya, block, selected ? 0 : 1, block, 1);
+        tab(block);
+        const outer = muya.getState()[0];
+        if (!isAnyListState(outer))
+            throw new Error('Expected a list');
+        const sublists = outer.children[0].children.filter(isAnyListState);
+        expect(sublists.map(list => list.meta.loose)).toEqual([false, false]);
+    });
+
+    it.each([false, true])('appends the remaining tail to an existing sublist for a selected item: %s', (selected) => {
+        const markdown = '- a\n  - b\n    - c\n  - d\n';
+        const muya = boot(markdown);
+        const block = content(muya, 'b');
+        select(muya, block, selected ? 0 : 1, block, 1);
+        tab(block, true);
+        expect(muya.getMarkdown()).toBe('- a\n- b\n  - c\n  - d\n');
+        muya.undo();
+        expect(muya.getMarkdown()).toBe(markdown);
+    });
+
+    it('keeps caret outdent to a paragraph when the nested list begins the item', () => {
+        const muya = boot('- - b\n');
+        const block = content(muya, 'b');
+        select(muya, block, 1);
+        tab(block, true);
+        expect(muya.getMarkdown()).toBe('- b\n');
+    });
+
     it('replaces a backward single-line selection with the input indentation', () => {
         const muya = boot('hello world\n');
         const block = content(muya, 'hello world');
