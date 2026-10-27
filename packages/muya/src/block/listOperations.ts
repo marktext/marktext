@@ -1,18 +1,43 @@
 import type { IBulletListState, IOrderListState, ITaskListState } from '../state/types';
 import type Content from './base/content';
 import type Parent from './base/parent';
-import { isAnyListState } from '../state/types';
+import { isAnyListState, markdownListMarker } from '../state/types';
 import { ChangeSource } from '../types';
+import { outlineLevel } from '../utils/listMarker';
+import ListBlock from './base/list';
 import { ScrollPage } from './scrollPage';
 
 type TListState = IBulletListState | IOrderListState | ITaskListState;
 
-function listMarker(state: TListState): string {
-    return 'delimiter' in state.meta ? state.meta.delimiter : state.meta.marker;
-}
-
 function listMetaAt(state: TListState, index: number) {
     return { ...state.meta, ...('start' in state.meta ? { start: state.meta.start + index } : {}) };
+}
+
+// Pandoc reads an ordered list nested in an item only when it starts at one.
+function nestedListMeta(list: Parent, meta: TListState['meta']): TListState['meta'] {
+    return 'start' in meta && list.muya.options.fancyLists ? { ...meta, start: 1 } : meta;
+}
+
+// Under an upper-roman outermost list (an outline) a new sublist takes the
+// outline marker for its depth; elsewhere it keeps the parent list's marker.
+function sublistMeta(list: Parent, state: TListState): TListState['meta'] {
+    const meta = { ...nestedListMeta(list, state.meta) };
+    let root = list;
+    let depth = 1;
+    while (root.parent?.parent instanceof ListBlock) {
+        root = root.parent.parent;
+        depth++;
+    }
+    if ('delimiter' in meta && root instanceof ListBlock && 'style' in root.meta && root.meta.style === 'upper-roman') {
+        const { style, delimiter } = outlineLevel(depth);
+        meta.delimiter = delimiter;
+        if (style === 'decimal')
+            delete meta.style;
+        else
+            meta.style = style;
+    }
+
+    return meta;
 }
 
 function indentItems(items: Parent[], previous: Parent, state: TListState, replacements: Map<Content, Content>): void {
@@ -21,13 +46,14 @@ function indentItems(items: Parent[], previous: Parent, state: TListState, repla
     // Task items require task-list owners even when Markdown markers match (#5349).
     if (!previousState || !isAnyListState(previousState)
         || (previousState.name === 'task-list') !== (items[0].blockName === 'task-list-item')) {
+        const meta = sublistMeta(previous.parent!, state);
         // Adjacent lists with the same Markdown marker share their looseness.
-        const loose = previousState && isAnyListState(previousState) && listMarker(previousState) === listMarker(state)
+        const loose = previousState && isAnyListState(previousState) && markdownListMarker(previousState) === markdownListMarker({ meta })
             ? previousState.meta.loose
-            : state.meta.loose;
+            : meta.loose;
         target = ScrollPage.loadBlock(state.name).create(previous.muya, {
             ...state,
-            meta: { ...state.meta, loose },
+            meta: { ...meta, loose },
             children: [],
         }) as Parent;
         previous.append(target, ChangeSource.User);
@@ -85,7 +111,7 @@ function liftItems(list: Parent, owner: Parent, clones: Parent[], firstIndex: nu
         ...state,
         meta: {
             ...listMetaAt(state, firstIndex),
-            loose: listMarker(outerState) === listMarker(state) ? outerState.meta.loose : state.meta.loose,
+            loose: markdownListMarker(outerState) === markdownListMarker(state) ? outerState.meta.loose : state.meta.loose,
         },
         children: [],
     }) as Parent;
@@ -131,10 +157,14 @@ export function moveListItems(items: Parent[], direction: 'indent' | 'outdent'):
             tail.push(next);
         if (tail.length) {
             let nested = last.lastChild as Parent | null;
-            if (nested?.blockName !== list.blockName) {
+            const nestedState = nested?.getState();
+            // Remaining items join the moved item's own sublist only if it continues their list.
+            const continuesList = nestedState && isAnyListState(nestedState) && nestedState.name === list.blockName
+                && markdownListMarker(nestedState) === markdownListMarker(listState);
+            if (!nested || !continuesList) {
                 nested = ScrollPage.loadBlock(list.blockName).create(list.muya, {
                     ...listState,
-                    meta: listMetaAt(listState, list.offset(tail[0])),
+                    meta: nestedListMeta(list, listMetaAt(listState, list.offset(tail[0]))),
                     children: [],
                 }) as Parent;
                 last.append(nested);
