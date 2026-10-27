@@ -1046,9 +1046,13 @@ class ParagraphContent extends Format {
 
         if (event.shiftKey) {
             const unindentType = this._getUnindentType();
+            const lineStart = start.offset === 0 ? 0 : this.text.lastIndexOf('\n', start.offset - 1) + 1;
+            const isInLeadingWhitespace = /^[ \t]*$/.test(this.text.slice(lineStart, start.offset));
 
             if (unindentType != null)
                 this._unindentListItem(unindentType);
+            else if (!this.isCollapsed || isInLeadingWhitespace)
+                this.insertTab(true);
 
             return;
         }

@@ -28,6 +28,7 @@ import logger from '../utils/logger';
 import { isTabKey } from '../utils/tab';
 import { attachDragDropImageHandlers } from './dragDropImage';
 import { attachLinkMouseHandlers } from './linkMouseEvents';
+import { handleTabSelection, shouldHandleTabSelection } from './tab';
 import { EditTransactions } from './transactions';
 
 const debug = logger('editor:');
@@ -381,6 +382,11 @@ export class Editor {
                 && event.target.classList.contains(CLASS_NAMES.MU_LANGUAGE_INPUT)
             ) {
                 (getBlock(event.target) as Content | undefined)?.setCursor(0, 0, true);
+                return;
+            }
+
+            if (isTabKey(event) && !this._isComposing && !event.isComposing && shouldHandleTabSelection(selectionResult)) {
+                handleTabSelection(this._muya, event, selectionResult);
                 return;
             }
 

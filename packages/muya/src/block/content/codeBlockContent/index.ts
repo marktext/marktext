@@ -300,6 +300,10 @@ class CodeBlockContent extends Content {
     override tabHandler(event: KeyboardEvent): void {
         event.preventDefault();
         const { start, end } = this.getCursor()!;
+        if (event.shiftKey || start.offset !== end.offset) {
+            this.insertTab(event.shiftKey);
+            return;
+        }
         const { _lang: lang, text } = this;
         const isMarkupCodeContent = /markup|html|xml|svg|mathml/.test(lang);
 
