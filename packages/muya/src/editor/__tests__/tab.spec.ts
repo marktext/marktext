@@ -53,6 +53,19 @@ afterEach(() => {
     document.getSelection()?.removeAllRanges();
 });
 describe('real tab input', () => {
+    it('preserves existing Makefile recipe tabs and inserts real tabs (#2114)', () => {
+        const markdown = '```makefile\nall: test.c\n\tgcc -Wall test.c\n```\n';
+        const muya = boot(markdown);
+        const block = content(muya, 'all: test.c\n\tgcc -Wall test.c');
+        expect(muya.getMarkdown()).toBe(markdown);
+        select(muya, block, block.text.length);
+        tab(block);
+        expect(block.text).toBe('all: test.c\n\tgcc -Wall test.c\t');
+        expect(muya.getMarkdown()).toBe('```makefile\nall: test.c\n\tgcc -Wall test.c\t\n```\n');
+        muya.undo();
+        expect(muya.getMarkdown()).toBe(markdown);
+    });
+
     it('inserts one real tab, preserves it on save and undoes in one step', () => {
         const muya = boot('hello\n');
         const block = content(muya, 'hello');

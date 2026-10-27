@@ -29,6 +29,7 @@ import OrderList from '../../commonMark/orderList';
 import TaskList from '../../gfm/taskList';
 import { convertGithubAlert } from '../../githubAlerts';
 import { moveListItems } from '../../listOperations';
+import { convertIndentedParagraphs } from '../../paragraphIndentation';
 import { ScrollPage } from '../../scrollPage';
 
 enum UnindentType {
@@ -855,10 +856,13 @@ class ParagraphContent extends Format {
             const lineStart = start.offset === 0 ? 0 : this.text.lastIndexOf('\n', start.offset - 1) + 1;
             const isInLeadingWhitespace = /^[ \t]*$/.test(this.text.slice(lineStart, start.offset));
 
-            if (unindentType != null)
+            if (unindentType != null) {
                 this._unindentListItem(unindentType);
-            else if (!this.isCollapsed || isInLeadingWhitespace)
+            }
+            else if (!this.isCollapsed || isInLeadingWhitespace) {
                 this.insertTab(true);
+                convertIndentedParagraphs([this], this.getCursor()!);
+            }
 
             return;
         }
@@ -883,6 +887,7 @@ class ParagraphContent extends Format {
             return;
 
         this.insertTab();
+        convertIndentedParagraphs([this], this.getCursor()!);
     }
 }
 

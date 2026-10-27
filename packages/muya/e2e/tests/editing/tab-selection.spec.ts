@@ -1,6 +1,38 @@
 import { expect, test } from '../fixtures/muya';
-import { getMarkdown } from '../helpers/api';
+import { getMarkdown, getState } from '../helpers/api';
 import { loadMarkdown } from '../helpers/keyboard';
+
+for (const tabSize of [4, 'tab'] as const) {
+    test(`paragraph indentation becomes code immediately with ${tabSize} input and survives reloading`, async ({ page }) => {
+        const markdown = 'one\n\n**two**\n';
+        await loadMarkdown(page, markdown);
+        await page.evaluate((tabSize) => {
+            const muya = window.muya!;
+            muya.setOptions({ tabSize });
+            const first = muya.editor.scrollPage!.firstChild!.firstContentInDescendant()!;
+            const last = muya.editor.scrollPage!.lastChild!.firstContentInDescendant()!;
+            muya.editor.selection.setSelection({
+                kind: 'text' as import('@muyajs/core').SelectionType.TEXT,
+                anchor: { path: last.path, offset: last.text.length },
+                focus: { path: first.path, offset: 0 },
+            });
+        }, tabSize);
+        await page.keyboard.press('Tab');
+        const expected = [{ name: 'code-block', meta: { type: 'indented', lang: '' }, text: 'one\n\n**two**' }];
+        await expect.poll(() => getState(page)).toEqual(expected);
+        await expect(page.locator('.mu-indented-code')).toHaveCount(1);
+        expect(await page.evaluate(() => {
+            const selection = window.muya!.editor.selection.getTextSelection()!;
+            return [selection.anchor.offset, selection.focus.offset];
+        })).toEqual([12, 0]);
+        await page.evaluate(() => window.muya!.undo());
+        await expect.poll(() => getMarkdown(page)).toBe(markdown);
+        await page.evaluate(() => window.muya!.redo());
+        await expect.poll(() => getState(page)).toEqual(expected);
+        await loadMarkdown(page, await getMarkdown(page));
+        await expect.poll(() => getState(page)).toEqual(expected);
+    });
+}
 
 test('selected code lines indent and outdent without running completion', async ({ page }) => {
     await loadMarkdown(page, '```text\none\ntwo\nthree\n```\n');

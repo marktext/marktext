@@ -3,6 +3,7 @@ import type Parent from '../block/base/parent';
 import type { Muya } from '../muya';
 import type { IAnchorFocusInfo, IResolvedTextSelection } from '../selection/types';
 import { moveListItems } from '../block/listOperations';
+import { convertIndentedParagraphs } from '../block/paragraphIndentation';
 import { createTextSelectionState } from '../selection/state';
 import { SelectionDirection } from '../selection/types';
 import { editTab } from '../utils/tab';
@@ -22,7 +23,7 @@ function indentParagraphs(muya: Muya, selection: IResolvedTextSelection, start: 
     const contents: Content[] = [];
     let current: Content | null = start.block;
     while (current) {
-        if (current.blockName !== 'paragraph.content')
+        if (current.blockName !== 'paragraph.content' || current.parent?.parent !== start.block.parent?.parent)
             return;
         contents.push(current);
         if (current === end.block)
@@ -50,6 +51,9 @@ function indentParagraphs(muya: Muya, selection: IResolvedTextSelection, start: 
         { ...selection.anchor, offset: anchorOffset },
         { ...selection.focus, offset: focusOffset },
     ));
+    const updated = muya.editor.selection.getTextSelection();
+    if (updated)
+        convertIndentedParagraphs(contents, updated);
 }
 
 function indentListSelection(muya: Muya, selection: IResolvedTextSelection, first: Parent, last: Parent, end: IAnchorFocusInfo, shift: boolean) {

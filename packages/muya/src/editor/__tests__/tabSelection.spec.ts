@@ -4,11 +4,12 @@ import type Parent from '../../block/base/parent';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../muya';
 import { createTextSelectionState } from '../../selection/state';
+import { MarkdownToState } from '../../state/markdownToState';
 import { isAnyListState } from '../../state/types';
 
 const editors: Muya[] = [];
 
-function boot(markdown: string, tabSize = 2) {
+function boot(markdown: string, tabSize: number | 'tab' = 2) {
     window.MUYA_VERSION = 'test';
     const host = document.createElement('div');
     document.body.append(host);
@@ -54,6 +55,158 @@ afterEach(() => {
     document.getSelection()?.removeAllRanges();
 });
 describe('selection indentation', () => {
+    it.each([4, 'tab'] as const)('converts a backward multiline paragraph selection to indented code with %s input', (tabSize) => {
+        const markdown = 'one\n**two**\n';
+        const muya = boot(markdown, tabSize);
+        const block = content(muya, 'one\n**two**');
+        select(muya, block, block.text.length, block, 0);
+        tab(block);
+        expect(muya.getState()).toEqual([{
+            name: 'code-block',
+            meta: { type: 'indented', lang: '' },
+            text: 'one\n**two**',
+        }]);
+        const selection = muya.editor.selection.getTextSelection()!;
+        expect(selection.anchor.block.text).toBe('one\n**two**');
+        expect(selection.anchor.offset).toBe(11);
+        expect(selection.focus.offset).toBe(0);
+        expect(new MarkdownToState(muya.options).generate(muya.getMarkdown())).toEqual(muya.getState());
+        muya.undo();
+        expect(muya.getMarkdown()).toBe(markdown);
+        expect(muya.editor.selection.getTextSelection()!.anchor.offset).toBe(11);
+        muya.redo();
+        expect(muya.getState()[0].name).toBe('code-block');
+    });
+
+    it('waits for four columns with two-space input', () => {
+        const muya = boot('one\ntwo\n');
+        const block = content(muya, 'one\ntwo');
+        select(muya, block, 0, block, block.text.length);
+        tab(block);
+        expect(muya.getState()).toEqual([{ name: 'paragraph', text: '  one\n  two' }]);
+        tab(block);
+        expect(muya.getState()).toEqual([{
+            name: 'code-block',
+            meta: { type: 'indented', lang: '' },
+            text: 'one\ntwo',
+        }]);
+        muya.undo();
+        expect(muya.getState()).toEqual([{ name: 'paragraph', text: '  one\n  two' }]);
+    });
+
+    it('joins indented paragraphs and preserves their blank line and code payload tabs', () => {
+        const muya = boot('before\n\none\t1\n\ntwo\t2\n\nafter\n', 'tab');
+        const one = content(muya, 'one\t1');
+        const two = content(muya, 'two\t2');
+        select(muya, one, 0, two, two.text.length);
+        tab(one);
+        expect(muya.getState()).toEqual([
+            { name: 'paragraph', text: 'before' },
+            { name: 'code-block', meta: { type: 'indented', lang: '' }, text: 'one\t1\n\ntwo\t2' },
+            { name: 'paragraph', text: 'after' },
+        ]);
+        expect(muya.editor.selection.getTextSelection()!.focus.offset).toBe(12);
+        expect(new MarkdownToState(muya.options).generate(muya.getMarkdown())).toEqual(muya.getState());
+    });
+
+    it('keeps indented continuation lines in their existing paragraph', () => {
+        const muya = boot('one\ntwo\nthree\n', 4);
+        const block = content(muya, 'one\ntwo\nthree');
+        select(muya, block, 4, block, block.text.length);
+        tab(block);
+        expect(muya.getState()).toEqual([{ name: 'paragraph', text: 'one\n    two\n    three' }]);
+        expect(new MarkdownToState(muya.options).generate(muya.getMarkdown())).toEqual(muya.getState());
+    });
+
+    it('splits a code prefix from an unindented tail and maps the excluded endpoint', () => {
+        const muya = boot('one\ntwo\nthree\n', 4);
+        const block = content(muya, 'one\ntwo\nthree');
+        select(muya, block, 0, block, 8);
+        tab(block);
+        expect(muya.getState()).toEqual([
+            { name: 'code-block', meta: { type: 'indented', lang: '' }, text: 'one\ntwo' },
+            { name: 'paragraph', text: 'three' },
+        ]);
+        const selection = muya.editor.selection.getTextSelection()!;
+        expect(selection.anchor.block.text).toBe('one\ntwo');
+        expect(selection.anchor.offset).toBe(0);
+        expect(selection.focus.block.text).toBe('three');
+        expect(selection.focus.offset).toBe(0);
+        expect(new MarkdownToState(muya.options).generate(muya.getMarkdown())).toEqual(muya.getState());
+    });
+
+    it('preserves an excluded final paragraph and its endpoint', () => {
+        const muya = boot('one\n\ntwo\n\nthree\n', 4);
+        const one = content(muya, 'one');
+        const three = content(muya, 'three');
+        select(muya, one, 0, three, 0);
+        tab(one);
+        expect(muya.getState()).toEqual([
+            { name: 'code-block', meta: { type: 'indented', lang: '' }, text: 'one\n\ntwo' },
+            { name: 'paragraph', text: 'three' },
+        ]);
+        expect(muya.editor.selection.getTextSelection()!.focus.block.text).toBe('three');
+        expect(muya.editor.selection.getTextSelection()!.focus.offset).toBe(0);
+    });
+
+    it('recognizes a non-interrupting ordered marker exposed after a code prefix', () => {
+        const muya = boot('one\n2. two\nthree\n', 4);
+        const block = content(muya, 'one\n2. two\nthree');
+        select(muya, block, 0, block, 4);
+        tab(block);
+        expect(muya.getState().map(state => state.name)).toEqual(['code-block', 'order-list']);
+        const selection = muya.editor.selection.getTextSelection()!;
+        expect(selection.focus.block.text).toBe('two\nthree');
+        expect(selection.focus.offset).toBe(0);
+        expect(new MarkdownToState(muya.options).generate(muya.getMarkdown())).toEqual(muya.getState());
+        muya.undo();
+        expect(muya.getState()).toEqual([{ name: 'paragraph', text: 'one\n2. two\nthree' }]);
+    });
+
+    it('keeps an endpoint at the end of a paragraph before the converted code', () => {
+        const muya = boot('one\ntwo\n\nthree\n', 4);
+        const first = content(muya, 'one\ntwo');
+        const last = content(muya, 'three');
+        select(muya, first, first.text.length, last, last.text.length);
+        tab(first);
+        expect(muya.getState().map(state => state.name)).toEqual(['paragraph', 'code-block']);
+        const selection = muya.editor.selection.getTextSelection()!;
+        expect(selection.anchor.block.text).toBe('one\n    two');
+        expect(selection.anchor.offset).toBe(11);
+        expect(selection.focus.block.text).toBe('three');
+        expect(selection.focus.offset).toBe(5);
+    });
+
+    it('preserves existing leading spaces and payload tabs beyond the structural four columns', () => {
+        const muya = boot('  one\t1\n two\t2\n', 'tab');
+        const block = content(muya, '  one\t1\n two\t2');
+        select(muya, block, 0, block, block.text.length);
+        tab(block);
+        expect(muya.getState()).toEqual([{
+            name: 'code-block',
+            meta: { type: 'indented', lang: '' },
+            text: '  one\t1\n two\t2',
+        }]);
+        expect(new MarkdownToState(muya.options).generate(muya.getMarkdown())).toEqual(muya.getState());
+    });
+
+    it('converts inside a quote without moving the paragraphs outside the container', () => {
+        const muya = boot('> one\n>\n> two\n', 4);
+        const one = content(muya, 'one');
+        const two = content(muya, 'two');
+        select(muya, one, 0, two, 3);
+        tab(one);
+        expect(muya.getState()).toEqual([{
+            name: 'block-quote',
+            children: [{
+                name: 'code-block',
+                meta: { type: 'indented', lang: '' },
+                text: 'one\n\ntwo',
+            }],
+        }]);
+        expect(new MarkdownToState(muya.options).generate(muya.getMarkdown())).toEqual(muya.getState());
+    });
+
     it.each([false, true])('inherits adjacent sublist looseness for a selected item: %s', (selected) => {
         const muya = boot('- a\n  - [ ] b\n\n- c\n');
         const block = content(muya, 'c');
@@ -122,6 +275,27 @@ describe('selection indentation', () => {
         select(muya, block, 4);
         tab(block, true);
         expect(block.text).toBe('div');
+    });
+
+    it('outdents Python past the previous line indentation (#2371)', () => {
+        const muya = boot('```python\ndef foo(x):\n    if x > 1:\n        return x\n```\n', 4);
+        const block = content(muya, 'def foo(x):\n    if x > 1:\n        return x');
+        select(muya, block, block.text.length);
+        tab(block, true);
+        expect(block.text).toBe('def foo(x):\n    if x > 1:\n    return x');
+        tab(block, true);
+        expect(block.text).toBe('def foo(x):\n    if x > 1:\nreturn x');
+    });
+
+    it.each([2, 4, 'tab'] as const)('uses %s input for multiline code indent and outdent (#2371, #3205)', (tabSize) => {
+        const muya = boot('```text\none\ntwo\n```\n', tabSize);
+        const block = content(muya, 'one\ntwo');
+        select(muya, block, 0, block, block.text.length);
+        tab(block);
+        const unit = tabSize === 'tab' ? '\t' : ' '.repeat(tabSize);
+        expect(block.text).toBe(`${unit}one\n${unit}two`);
+        tab(block, true);
+        expect(block.text).toBe('one\ntwo');
     });
 
     it.each([
