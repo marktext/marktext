@@ -192,15 +192,12 @@ export const useProjectStore = defineStore('project', () => {
     projectTree.value = createProjectRoot(pathname)
     activeItem.value = {}
     CLEAR_NAME_INPUT_STATE()
-    SHOW_FILES(scheduleBufferUpdate)
+    if (!useLayoutStore().managed) SHOW_FILES(scheduleBufferUpdate)
   }
 
   function SHOW_FILES(scheduleBufferUpdate = true): void {
     const layoutStore = useLayoutStore()
-    layoutStore.SET_LAYOUT(
-      { rightColumn: 'files', showSideBar: true },
-      { scheduleBufferUpdate }
-    )
+    layoutStore.SET_LAYOUT({ rightColumn: 'files', showSideBar: true }, { scheduleBufferUpdate })
     layoutStore.DISPATCH_LAYOUT_MENU_ITEMS()
     if (scheduleBufferUpdate) debouncedSendBufferedState()
   }
@@ -229,7 +226,7 @@ export const useProjectStore = defineStore('project', () => {
     if (activeItem.value?.pathname && !FIND_ROOT(activeItem.value.pathname)) activeItem.value = {}
     if (snapshot.reason === 'replace' || snapshot.reason === 'remove') CLEAR_NAME_INPUT_STATE()
     if (['add', 'replace', 'reveal'].includes(snapshot.reason)) {
-      SHOW_FILES()
+      if (!useLayoutStore().managed) SHOW_FILES()
       nextTick(() => bus.emit('SIDEBAR::focus-root', snapshot.targetKey))
       if (snapshot.reason === 'reveal')
         notice.notify({

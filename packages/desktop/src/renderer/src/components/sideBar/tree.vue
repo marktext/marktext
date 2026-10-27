@@ -243,11 +243,8 @@ const { t } = useI18n()
 const props = defineProps<{ tabs?: TabDescriptor[] }>()
 
 const depth = 0
-// Switching views remounts the tree; persist section expansion across those
-// remounts and app restarts (#2421).
 const SHOW_OPENED_FILES_KEY = 'side-bar-show-opened-files'
 const readSectionExpanded = (key: string): boolean => localStorage.getItem(key) !== 'false'
-const showOpenedFiles = ref(readSectionExpanded(SHOW_OPENED_FILES_KEY))
 
 const input = ref<HTMLInputElement | null>(null)
 const treeWrapper = ref<HTMLDivElement | null>(null)
@@ -259,6 +256,16 @@ provide(TREE_ROW_REGISTRY_KEY, rowRegistry)
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
 const layoutStore = useLayoutStore()
+const legacyOpenedFiles = ref(
+  layoutStore.managed ? true : readSectionExpanded(SHOW_OPENED_FILES_KEY)
+)
+const showOpenedFiles = computed({
+  get: () => (layoutStore.managed ? layoutStore.openedFilesExpanded : legacyOpenedFiles.value),
+  set: (expanded) => {
+    if (layoutStore.managed) layoutStore.SET_OPENED_FILES({ expanded })
+    else legacyOpenedFiles.value = expanded
+  }
+})
 const preferencesStore = usePreferencesStore()
 
 const { roots, createCache } = storeToRefs(projectStore)
@@ -287,10 +294,25 @@ const {
   handleResizeMove,
   handleResizeEnd,
   handleResizeKeydown
-} = useOpenedFilesResize(tabCount, computed(() =>
-  openedFilesInSidebar.value && showOpenedFiles.value &&
-  layoutStore.showSideBar && layoutStore.rightColumn === 'files'
-))
+} = useOpenedFilesResize(
+  tabCount,
+  computed(
+    () =>
+      openedFilesInSidebar.value &&
+      showOpenedFiles.value &&
+      layoutStore.showSideBar &&
+      layoutStore.rightColumn === 'files'
+  ),
+  layoutStore.managed
+    ? {
+        preferredHeight: computed({
+          get: () => layoutStore.openedFilesHeight,
+          set: (preferredHeightPx) => layoutStore.SET_OPENED_FILES({ preferredHeightPx })
+        }),
+        persist: (preferredHeightPx) => layoutStore.SET_OPENED_FILES({ preferredHeightPx })
+      }
+    : undefined
+)
 
 const saveAll = (isClose: boolean): void => {
   editorStore.ASK_FOR_SAVE_ALL(isClose)
@@ -344,7 +366,8 @@ const focusRoot = (key: unknown): void => {
 
 const toggleOpenedFiles = (): void => {
   showOpenedFiles.value = !showOpenedFiles.value
-  localStorage.setItem(SHOW_OPENED_FILES_KEY, String(showOpenedFiles.value))
+  if (!layoutStore.managed)
+    localStorage.setItem(SHOW_OPENED_FILES_KEY, String(showOpenedFiles.value))
 }
 
 const findRow = (pathname: string): HTMLElement | undefined => {
