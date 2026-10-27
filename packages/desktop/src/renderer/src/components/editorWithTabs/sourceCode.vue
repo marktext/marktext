@@ -15,6 +15,7 @@ import {
 import { ref, shallowRef, markRaw, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
+import { registerSourceViewState, documentViewChanged } from '@/services/documentViewState'
 import {
   findMarkdownHeadingLine,
   getMarkdownHeadingLines,
@@ -49,6 +50,7 @@ const editor = shallowRef<CodeMirror.Editor | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
 let resizeObserver: ResizeObserver | undefined
+let releaseViewState: (() => void) | undefined
 
 const {
   theme,
@@ -469,6 +471,9 @@ onMounted(() => {
   })
   resizeObserver.observe(codeMirrorInstance.getWrapperElement())
 
+  releaseViewState = registerSourceViewState({ documentId: () => tabId.value, view: codeMirrorInstance })
+  codeMirrorInstance.on('scroll', documentViewChanged)
+  codeMirrorInstance.on('cursorActivity', documentViewChanged)
   listenChange(codeMirrorInstance)
   registerSourceView(async () => {
     preferencesStore.SET_MODE({ type: 'sourceCode', checked: false })
@@ -478,6 +483,9 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  releaseViewState?.()
+  editor.value?.off('scroll', documentViewChanged)
+  editor.value?.off('cursorActivity', documentViewChanged)
   resizeObserver?.disconnect()
   registerSourceView(null)
   if (editor.value) {
