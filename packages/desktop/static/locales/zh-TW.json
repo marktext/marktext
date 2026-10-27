@@ -455,7 +455,7 @@
         "bulletListMarker": "項目符號清單中使用的標記",
         "orderListDelimiter": "有序清單中使用的分隔符",
         "preferHeadingStyle": "MarkText 中的首選標題樣式",
-        "tabSize": "用 x 個空格替換製表符",
+        "tabSize": "Tab 鍵輸入",
         "listIndentation": "選擇清單的縮排",
         "frontmatterType": "前言類型",
         "superSubScript": "啟用 Pandoc 的 Markdown 擴充功能上標和下標",
@@ -611,7 +611,8 @@
       },
       "fileRepresentation": {
         "title": "檔案表示",
-        "tabWidth": "Tab 寬度",
+        "tabWidth": "Tab 鍵輸入",
+        "tabInputNotes": "選擇插入空格或真正的定位字元。已有定位字元按四欄定位點顯示。清單和表格中的 Tab 用於調整層級或切換儲存格。",
         "lineSeparator": "行分隔符",
         "defaultEncoding": "預設編碼",
         "autoDetectEncoding": "自動偵測編碼",

@@ -22,9 +22,9 @@ export interface IMuyaOptions {
     autoPairQuote: boolean;
     bulletListMarker: string;
     orderListDelimiter: string;
-    tabSize: number;
+    tabSize: number | 'tab';
     codeBlockLineNumbers: boolean;
-    listIndentation: number;
+    listIndentation: number | 'dfm' | 'tab';
     frontMatter: boolean;
     frontmatterType: string; // '-' | '+' | ';' | '{';
     mermaidTheme: string;

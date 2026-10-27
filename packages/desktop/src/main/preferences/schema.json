@@ -257,8 +257,8 @@
     "default": "atx"
   },
   "tabSize": {
-    "description": "Markdown--Replace the tab with x spaces",
-    "type": "number",
+    "description": "Editor--Tab key input (tab width, spaces, indentation)",
+    "anyOf": [{ "type": "number" }, { "const": "tab" }],
     "default": 4
   },
   "listIndentation": {

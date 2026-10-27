@@ -442,50 +442,8 @@ sep
         expect(roundTrip(md, 'dfm')).toBe(md);
     });
 
-    // Characterization test, NOT a spec for desired behavior.
-    //
-    // The desktop preferences UI offers a `'tab'` option for list indentation
-    // (prefComponents/markdown/config.ts), but neither this engine nor the
-    // legacy muyajs engine ever implemented it. stateToMarkdown's constructor
-    // only branches on `'dfm'` and `typeof === 'number'`; any other value
-    // (including `'tab'`) falls through to the `else` and yields a 1-space
-    // indent (_listIndentationCount = 1). The TODO in stateToMarkdown.ts
-    // (mirrored verbatim from muyajs/lib/utils/exportMarkdown.js) records why:
-    // the serializer builds every indent out of spaces, and the author left
-    // mixing real tabs with those space-based indents (blockquote prefixes,
-    // subsequent-paragraph alignment) as "work for another day".
-    //
-    // This test pins that degraded-to-1-space behavior so it can't change
-    // silently. If `'tab'` ever gets a real implementation, this assertion
-    // SHOULD fail — replace it with the proper tab-indent fixture then.
-    it('treats the unimplemented \'tab\' option as a 1-space indent', () => {
-        const md = `start
-
-- foo
-- foo
-  - foo
-  - foo
-    - foo
-    - foo
-      - foo
-  - foo
-- foo
-
-sep
-
-1. foo
-2. foo
-   1. foo
-   2. foo
-      1. foo
-   3. foo
-3. foo
-   20. foo
-       141. foo
-            1. foo
-`;
-        expect(roundTrip(md, 'tab')).toBe(md);
-        expect(roundTrip(md, 'tab')).toBe(roundTrip(md, 1));
+    it('serializes the tab option using real tab characters', () => {
+        expect(roundTrip('- a\n  - b\n    - c\n', 'tab')).toBe('- a\n\t- b\n\t\t- c\n');
     });
 });
 

@@ -20,6 +20,7 @@ import {
     isKeyboardEvent,
     isMouseEvent,
 } from '../../utils';
+import { tabText } from '../../utils/tab';
 import { isFoldableHeading } from '../commonMark/atxHeading/foldSection';
 import { revealBlock } from '../folding';
 
@@ -828,8 +829,7 @@ class Content extends TreeNode {
 
     protected insertTab() {
         const { muya, text } = this;
-        const { tabSize } = muya.options;
-        const tabCharacter = String.fromCharCode(32).repeat(tabSize);
+        const tabCharacter = tabText(muya.options.tabSize);
         const { start, end } = this.getCursor()!;
 
         if (this.isCollapsed) {

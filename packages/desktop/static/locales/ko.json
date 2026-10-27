@@ -455,7 +455,7 @@
         "bulletListMarker": "글머리 기호 목록에서 사용되는 마커",
         "orderListDelimiter": "순서가 있는 목록에서 사용되는 구분자",
         "preferHeadingStyle": "MarkText에서 선호하는 제목 스타일",
-        "tabSize": "탭을 x개의 공백으로 바꾸기",
+        "tabSize": "Tab 키 입력",
         "listIndentation": "목록의 들여쓰기 선택",
         "frontmatterType": "프론트매터 유형",
         "superSubScript": "Pandoc의 마크다운 확장 위첨자와 아래첨자 활성화",
@@ -611,7 +611,8 @@
       },
       "fileRepresentation": {
         "title": "파일 표현",
-        "tabWidth": "탭 너비",
+        "tabWidth": "Tab 키 입력",
+        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
         "lineSeparator": "줄 구분자",
         "defaultEncoding": "기본 인코딩",
         "autoDetectEncoding": "인코딩 자동 감지",

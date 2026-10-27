@@ -38,7 +38,7 @@ export interface IUserPreferences {
   bulletListMarker?: '-' | '*' | '+'
   orderListDelimiter?: '.' | ')'
   preferHeadingStyle?: 'atx' | 'setext'
-  tabSize?: number
+  tabSize?: number | 'tab'
   listIndentation?: number | string
   frontmatterType?: '-' | ';' | '+' | '{'
   superSubScript?: boolean

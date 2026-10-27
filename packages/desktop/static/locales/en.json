@@ -454,7 +454,7 @@
         "bulletListMarker": "The marker used in bullet list",
         "orderListDelimiter": "The delimiter used in order list",
         "preferHeadingStyle": "The preferred heading style in MarkText",
-        "tabSize": "Replace the tab with x spaces",
+        "tabSize": "Tab key input",
         "listIndentation": "Select the indent of list",
         "frontmatterType": "The frontmatter type",
         "superSubScript": "Enable pandoc's markdown extension superscript and subscript",
@@ -611,7 +611,8 @@
       },
       "fileRepresentation": {
         "title": "File Representation",
-        "tabWidth": "Tab width",
+        "tabWidth": "Tab key input",
+        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
         "lineSeparator": "Line separator",
         "defaultEncoding": "Default encoding",
         "autoDetectEncoding": "Auto detect encoding",

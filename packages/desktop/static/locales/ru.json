@@ -454,7 +454,7 @@
         "bulletListMarker": "Маркер маркированного списка",
         "orderListDelimiter": "Разделитель нумерованного списка",
         "preferHeadingStyle": "Предпочитаемый стиль заголовков в MarkText",
-        "tabSize": "Заменять табуляцию на x пробелов",
+        "tabSize": "Ввод клавишей Tab",
         "listIndentation": "Выберите отступ списка",
         "frontmatterType": "Тип front matter",
         "superSubScript": "Включить расширения markdown pandoc: верхний и нижний индекс",
@@ -611,7 +611,8 @@
       },
       "fileRepresentation": {
         "title": "Представление файла",
-        "tabWidth": "Ширина табуляции",
+        "tabWidth": "Ввод клавишей Tab",
+        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
         "lineSeparator": "Разделитель строк",
         "defaultEncoding": "Кодировка по умолчанию",
         "autoDetectEncoding": "Автоопределение кодировки",

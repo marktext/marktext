@@ -71,7 +71,7 @@ export interface PreferencesState {
   bulletListMarker: BulletListMarker | string
   orderListDelimiter: OrderListDelimiter | string
   preferHeadingStyle: PreferHeadingStyle | string
-  tabSize: number
+  tabSize: number | 'tab'
   listIndentation: number
   frontmatterType: FrontmatterType | string
   superSubScript: boolean

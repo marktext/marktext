@@ -455,7 +455,7 @@
         "bulletListMarker": "箇条書きリストで使用されるマーカー",
         "orderListDelimiter": "順序付きリストで使用される区切り文字",
         "preferHeadingStyle": "MarkText で優先される見出しスタイル",
-        "tabSize": "タブを x個 のスペースに置き換える",
+        "tabSize": "Tab キーの入力",
         "listIndentation": "リストのインデントを選択",
         "frontmatterType": "フロントマターのタイプ",
         "superSubScript": "Pandoc の markdown 拡張上付き文字と下付き文字を有効にする",
@@ -611,7 +611,8 @@
       },
       "fileRepresentation": {
         "title": "ファイルの表示形式",
-        "tabWidth": "タブ幅",
+        "tabWidth": "Tab キーの入力",
+        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
         "lineSeparator": "行区切り文字",
         "defaultEncoding": "デフォルトエンコーディング",
         "autoDetectEncoding": "エンコーディングを自動検出",
