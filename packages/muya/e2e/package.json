@@ -21,9 +21,9 @@
         "intl-segmenter-polyfill": "^0.4.4"
     },
     "devDependencies": {
-        "@axe-core/playwright": "^4.13.0",
-        "@playwright/test": "^1.64.0",
-        "@types/node": "^26.6.4",
-        "vite": "^8.3.4"
+        "@axe-core/playwright": "^4.14.0",
+        "@playwright/test": "^1.64.1",
+        "@types/node": "^26.6.5",
+        "vite": "^8.3.5"
     }
 }

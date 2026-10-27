@@ -20,15 +20,15 @@
     "cf:deploy": "opennextjs-cloudflare deploy"
   },
   "dependencies": {
-    "flowchart.js": "^1.18.0",
+    "flowchart.js": "^1.18.1",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "hast-util-to-string": "^3.0.1",
-    "mermaid": "^12.1.0",
-    "next": "15.5.27",
+    "mermaid": "^12.2.0",
+    "next": "15.5.28",
     "plantuml-encoder": "^1.4.0",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-pretty-code": "^0.14.5",
     "rehype-raw": "^7.0.0",
@@ -41,22 +41,22 @@
     "remark-rehype": "^11.1.2",
     "shiki": "^4.5.0",
     "unified": "^11.0.5",
-    "unist-util-visit": "^5.1.0",
+    "unist-util-visit": "^5.2.0",
     "vega": "^6.4.0",
     "vega-embed": "^7.3.0",
     "vega-lite": "^6.5.0"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.20.9",
+    "@opennextjs/cloudflare": "^1.20.13",
     "@tailwindcss/postcss": "^4.3.3",
-    "@types/node": "^26.6.4",
+    "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "eslint": "^10.12.0",
-    "eslint-config-next": "^16.4.0",
+    "eslint": "^10.13.0",
+    "eslint-config-next": "^16.4.3",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
-    "wrangler": "^4.148.0"
+    "wrangler": "^4.153.0"
   }
 }
