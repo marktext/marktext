@@ -8,6 +8,7 @@ export const backupClipboard = (app: ElectronApplication): Promise<void> =>
     const items = await clipboard.read()
     state.clipboardBackup = []
     for (const item of items) {
+      if (item.types.length === 0) continue
       const data: ClipboardSnapshot[number] = {}
       for (const type of item.types) data[type] = await item.getType(type)
       state.clipboardBackup.push(data)

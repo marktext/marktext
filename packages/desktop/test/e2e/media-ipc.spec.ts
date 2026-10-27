@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { launchElectron } from './helpers'
+import { backupClipboard, restoreClipboard } from './clipboardHelpers'
 
 test.describe('media IPC bridge', () => {
   let app: ElectronApplication
@@ -91,6 +92,13 @@ test.describe('media IPC bridge', () => {
       true
     )
     expect(await page.evaluate(() => window.electron.clipboard.readText())).toBe(text)
+  })
+
+  test('an empty clipboard can be backed up and restored', async() => {
+    await app.evaluate(({ clipboard }) => clipboard.clear())
+    await backupClipboard(app)
+    await restoreClipboard(app)
+    expect(await page.evaluate(() => window.electron.clipboard.readText())).toBe('')
   })
 
   test('native copied files retain Unicode, spaces and URL characters', async() => {

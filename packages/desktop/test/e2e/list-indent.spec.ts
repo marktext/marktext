@@ -28,11 +28,8 @@ import {
 // preference store, so it is intentionally not duplicated here.
 // ---------------------------------------------------------------------------
 
-// Place the caret inside the Nth (0-based) `span.mu-paragraph-content` in the
-// editor and commit it to the engine's model the same way helpers.ts does for
-// the first paragraph: collapse the range to the end of the span, fire a
-// selectionchange, then a synthetic keyup on the editor root so the engine
-// updates its `activeContentBlock` (it derives that from click/keyup events).
+// Structural list indentation requires a caret at the item's start;
+// Tab inside its text inserts whitespace (#2994).
 const placeCaretInContentSpan = async(page: Page, index: number): Promise<void> => {
   await page.evaluate((idx) => {
     const root = document.querySelector('.editor-component') as HTMLElement | null
@@ -43,7 +40,7 @@ const placeCaretInContentSpan = async(page: Page, index: number): Promise<void> 
     if (!target) return
     const range = document.createRange()
     range.selectNodeContents(target)
-    range.collapse(false)
+    range.collapse(true)
     const sel = window.getSelection()
     if (!sel) return
     sel.removeAllRanges()
