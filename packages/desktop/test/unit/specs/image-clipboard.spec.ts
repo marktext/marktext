@@ -42,30 +42,115 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
+const deferred = <T>() => {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>((finish) => {
+    resolve = finish
+  })
+  return { promise, resolve }
+}
+
 describe('native image clipboard transactions', () => {
-  it('keeps the newest ticket when native reads complete asynchronously', async() => {
-    let finishRead: (items: Awaited<ReturnType<typeof electron.clipboard.read>>) => void = () => {}
-    const delayedRead = new Promise<Awaited<ReturnType<typeof electron.clipboard.read>>>((resolve) => {
-      finishRead = resolve
+  it('lets a newer copy finish while an older clipboard read is still pending', async() => {
+    const readStarted = deferred<void>()
+    const oldRead = deferred<Awaited<ReturnType<typeof electron.clipboard.read>>>()
+    const read = vi.spyOn(electron.clipboard, 'read').mockImplementationOnce(() => {
+      readStarted.resolve()
+      return oldRead.promise
     })
-    const read = vi.spyOn(electron.clipboard, 'read').mockReturnValueOnce(delayedRead)
     try {
       const olderRequest = beginImageCopy(1)
-      const newerRequest = beginImageCopy(2)
-      await Promise.resolve()
-      finishRead([])
-      const [older, newer] = await Promise.all([olderRequest, newerRequest])
-      expect(await writeClipboardImage(1, new Uint8Array([1]), { ticket: older as number })).toBe(false)
-      expect(await writeClipboardImage(2, new Uint8Array([1]), { ticket: newer as number })).toBe(true)
+      await readStarted.promise
+      const newer = (await beginImageCopy(2)) as number
+      oldRead.resolve([])
+      expect(await olderRequest).toBeNull()
+      expect(await writeClipboardImage(2, new Uint8Array([1]), { ticket: newer })).toBe(true)
     } finally {
+      oldRead.resolve([])
       read.mockRestore()
+    }
+  })
+
+  it('cancels a copy while its clipboard fingerprint is being read', async() => {
+    state.formats.set('image/png', 'original image')
+    const ticket = (await beginImageCopy(1)) as number
+    const readStarted = deferred<void>()
+    const imageData = deferred<Blob>()
+    const read = vi.spyOn(electron.clipboard, 'read').mockResolvedValueOnce([
+      {
+        types: ['image/png'],
+        getType: () => {
+          readStarted.resolve()
+          return imageData.promise
+        }
+      }
+    ])
+    try {
+      const write = writeClipboardImage(1, new Uint8Array([1]), { ticket })
+      await readStarted.promise
+      cancelImageCopy(1, ticket)
+      imageData.resolve(new Blob(['original image']))
+      expect(await write).toBe(false)
+      expect(electron.clipboard.write).not.toHaveBeenCalled()
+      expect(state.formats.get('image/png')).toBe('original image')
+    } finally {
+      imageData.resolve(new Blob(['original image']))
+      read.mockRestore()
+    }
+  })
+
+  it('rejects a write superseded while its fingerprint is being read', async() => {
+    const ticket = (await beginImageCopy(1)) as number
+    const readStarted = deferred<void>()
+    const oldRead = deferred<Awaited<ReturnType<typeof electron.clipboard.read>>>()
+    const read = vi.spyOn(electron.clipboard, 'read').mockImplementationOnce(() => {
+      readStarted.resolve()
+      return oldRead.promise
+    })
+    try {
+      const olderWrite = writeClipboardImage(1, new Uint8Array([1]), { ticket })
+      await readStarted.promise
+      const newer = (await beginImageCopy(2)) as number
+      oldRead.resolve([])
+      expect(await olderWrite).toBe(false)
+      expect(await writeClipboardImage(2, new Uint8Array([1]), { ticket: newer })).toBe(true)
+      expect(electron.clipboard.write).toHaveBeenCalledOnce()
+    } finally {
+      oldRead.resolve([])
+      read.mockRestore()
+    }
+  })
+
+  it('captures the next clipboard baseline after an issued native write finishes', async() => {
+    const writeStarted = deferred<void>()
+    const writeFinished = deferred<void>()
+    electron.clipboard.write.mockImplementationOnce(async() => {
+      writeStarted.resolve()
+      await writeFinished.promise
+      state.formats.set('text/plain', 'previous copy')
+    })
+    try {
+      const firstWrite = writeClipboardImage(1, new Uint8Array([1]))
+      await writeStarted.promise
+      const nextRequest = beginImageCopy(2)
+      writeFinished.resolve()
+      expect(await firstWrite).toBe(true)
+      const ticket = (await nextRequest) as number
+      expect(
+        await writeClipboardImage(2, new Uint8Array([1]), { ticket, text: 'newer copy' })
+      ).toBe(true)
+      expect(state.formats.get('text/plain')).toBe('newer copy')
+    } finally {
+      writeFinished.resolve()
     }
   })
 
   it('allows later copies after a native write rejects', async() => {
     electron.clipboard.write.mockRejectedValueOnce(new Error('Clipboard unavailable'))
-    await expect(writeClipboardImage(1, new Uint8Array([1]))).rejects.toThrow('Clipboard unavailable')
-    const ticket = await beginImageCopy(1) as number
+    await expect(writeClipboardImage(1, new Uint8Array([1]))).rejects.toThrow(
+      'Clipboard unavailable'
+    )
+    const ticket = (await beginImageCopy(1)) as number
     expect(await writeClipboardImage(1, new Uint8Array([1]), { ticket })).toBe(true)
   })
 

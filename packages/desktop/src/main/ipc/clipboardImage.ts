@@ -6,16 +6,35 @@ import { clipboard, ClipboardItem, ipcMain, nativeImage, net } from 'electron'
 import type { ClipboardImageWriteOptions, PlantumlFetchResult } from '@shared/types/ipc'
 import { fetchImage, MAX_BYTES } from './plantumlFetch'
 
-let requestId = 0
-let pending: { id: number; owner: number; fingerprint: string } | null = null
-let clipboardQueue = Promise.resolve()
+interface ImageCopyRequest {
+  ticket: number
+  owner: number
+  // A ticket becomes usable only after its clipboard baseline has been captured.
+  fingerprint: string | null
+}
 
-// Native reads yield to other IPC handlers; keep ticket operations in arrival order.
-const withClipboard = <T>(operation: () => Promise<T>): Promise<T> => {
-  const result = clipboardQueue.then(operation)
-  clipboardQueue = result.then(
-    () => {},
-    () => {}
+let nextTicket = 0
+let activeImageCopy: ImageCopyRequest | null = null
+let imageWriteFinished = Promise.resolve()
+
+// Native writes cannot be cancelled once issued; newer copies must finish after them.
+const commitImageCopy = (
+  request: ImageCopyRequest,
+  item: Electron.ClipboardItem
+): Promise<boolean> => {
+  const result = imageWriteFinished.then(async() => {
+    if (activeImageCopy !== request) return false
+    try {
+      await clipboard.write([item])
+      return true
+    } finally {
+      if (activeImageCopy === request) activeImageCopy = null
+    }
+  })
+  // Preserve the rejection for this caller without blocking later writes.
+  imageWriteFinished = result.then(
+    () => undefined,
+    () => undefined
   )
   return result
 }
@@ -35,49 +54,67 @@ const clipboardFingerprint = async(items: Electron.ClipboardItem[]): Promise<str
   return hash.digest('hex')
 }
 
-export const beginImageCopy = (owner: number, marker?: string): Promise<number | null> =>
-  withClipboard(async() => {
+export const beginImageCopy = async(owner: number, marker?: string): Promise<number | null> => {
+  const request: ImageCopyRequest = { ticket: ++nextTicket, owner, fingerprint: null }
+  activeImageCopy = request
+  try {
+    // A write already in flight must settle before capturing the next clipboard baseline.
+    await imageWriteFinished
+    if (activeImageCopy !== request) return null
     const items = await clipboard.read()
+    if (activeImageCopy !== request) return null
     if (marker) {
       const item = items.find((entry) => entry.types.includes('text/html'))
       const html = item ? await (await item.getType('text/html')).text() : ''
-      if (!html.includes(`data-marktext-copy="${marker}"`)) return null
+      if (activeImageCopy !== request || !html.includes(`data-marktext-copy="${marker}"`))
+        return null
     }
-    const id = ++requestId
-    pending = { id, owner, fingerprint: await clipboardFingerprint(items) }
-    return id
-  })
+    const fingerprint = await clipboardFingerprint(items)
+    if (activeImageCopy !== request) return null
+    request.fingerprint = fingerprint
+    return request.ticket
+  } finally {
+    if (activeImageCopy === request && request.fingerprint === null) activeImageCopy = null
+  }
+}
 
-export const cancelImageCopy = (owner: number, ticket: number): Promise<void> =>
-  withClipboard(async() => {
-    if (pending?.id === ticket && pending.owner === owner) pending = null
-  })
+export const cancelImageCopy = (owner: number, ticket: number): void => {
+  if (activeImageCopy?.ticket === ticket && activeImageCopy.owner === owner) activeImageCopy = null
+}
 
-export const writeClipboardImage = (
+export const writeClipboardImage = async(
   owner: number,
   png: Uint8Array,
   options?: ClipboardImageWriteOptions
-): Promise<boolean> =>
-  withClipboard(async() => {
-    if (options?.ticket !== undefined) {
-      if (
-        pending?.id !== options.ticket ||
-        pending.owner !== owner ||
-        pending.fingerprint !== (await clipboardFingerprint(await clipboard.read()))
-      )
-        return false
-    }
-    const image = nativeImage.createFromBuffer(Buffer.from(png))
-    if (image.isEmpty()) return false
-    pending = null
-    const data: Record<string, Blob | string> = {
-      'image/png': new Blob([new Uint8Array(image.toPNG())], { type: 'image/png' })
-    }
-    if (options?.text !== undefined) data['text/plain'] = options.text
-    if (options?.html !== undefined) data['text/html'] = options.html
-    await clipboard.write([new ClipboardItem(data)])
-    return true
-  })
+): Promise<boolean> => {
+  const image = nativeImage.createFromBuffer(Buffer.from(png))
+  if (image.isEmpty()) return false
+
+  let request = activeImageCopy
+  if (options?.ticket !== undefined) {
+    if (
+      !request ||
+      request.ticket !== options.ticket ||
+      request.owner !== owner ||
+      request.fingerprint === null
+    )
+      return false
+    await imageWriteFinished
+    if (activeImageCopy !== request) return false
+    const fingerprint = await clipboardFingerprint(await clipboard.read())
+    if (activeImageCopy !== request || request.fingerprint !== fingerprint) return false
+  } else {
+    request = { ticket: ++nextTicket, owner, fingerprint: null }
+    activeImageCopy = request
+  }
+
+  const data: Record<string, Blob | string> = {
+    'image/png': new Blob([new Uint8Array(image.toPNG())], { type: 'image/png' })
+  }
+  if (options?.text !== undefined) data['text/plain'] = options.text
+  if (options?.html !== undefined) data['text/html'] = options.html
+  return commitImageCopy(request, new ClipboardItem(data))
+}
 
 export const readClipboardImageSource = async(src: string): Promise<PlantumlFetchResult> => {
   try {
