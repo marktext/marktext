@@ -10,6 +10,9 @@ function countNewlines(source: string, start = 0, end = source.length): number {
 
 // Marked expands code tabs while parsing lists. Restore the payload from source;
 // structural indentation is consumed, not stored in the document model.
+// TODO: Remove this file and its lexBlock hook after upgrading Marked and passing
+// state/__tests__/tabIndentation.spec.ts without this workaround, for both fenced
+// and indented code. Upstream fenced-code fix: https://github.com/markedjs/marked/pull/4129
 export function restoreCodeTabs(tokens: Token[], source: string, original = source.split('\n'), parentColumn = 0, startColumn = 0): void {
     let offset = 0;
     let line = 0;
