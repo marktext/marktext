@@ -46,6 +46,7 @@ class App {
   private _openFilesTimer: ReturnType<typeof setTimeout> | null
   private _windowManager: WindowManager
   private _themeListenerRegistered: boolean
+  private _initialArgumentsConsumed = false
 
   constructor(accessor: Accessor, args: Partial<CliArgs>) {
     this._accessor = accessor
@@ -122,7 +123,8 @@ class App {
       // On OS X it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
       if (this._windowManager.windowCount === 0) {
-        this.ready()
+        if (this._accessor.sessionHost) this._createEditorWindow()
+        else this.ready()
       }
     })
 
@@ -187,7 +189,7 @@ class App {
     const lightModeTheme = preferences.getItem<string>('lightModeTheme')
     const darkModeTheme = preferences.getItem<string>('darkModeTheme')
 
-    if (args._.length) {
+    if (!this._initialArgumentsConsumed && args._.length) {
       const readOnly = args['--read-only'] === true
       for (const pathname of args._) {
         if (pathname.startsWith('--')) {
@@ -200,6 +202,8 @@ class App {
         }
       }
     }
+
+    this._initialArgumentsConsumed = true
 
     // We should NOT restore the previous buffer or open a folder if the user just wants to double click to open a file
     let isRestorePathway = false

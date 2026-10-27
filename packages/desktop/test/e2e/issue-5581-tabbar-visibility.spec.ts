@@ -29,10 +29,9 @@ test.describe('Issue #5581 tab bar visibility', () => {
     for (const filename of ['first.md', 'second.md']) {
       writeFileSync(path.join(directory, filename), `# ${filename}\n`)
     }
-    const launched = await launchElectron([path.join(directory, 'first.md')], {
+    const launched = await launchElectron([path.join(directory, 'first.md')], { windowLayout: { showTabBar: true },
       preferences: {
         language: 'en',
-        tabBarVisibility: true,
         restoreLayoutState: true,
         openFilesInNewWindow: false,
         openFilesInPreviewMode: false

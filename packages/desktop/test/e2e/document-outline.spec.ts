@@ -16,8 +16,8 @@ const resize = async(width: number): Promise<void> => {
 }
 
 test.beforeAll(async() => {
-  const launched = await launchWithMarkdown(markdown, {
-    preferences: { language: 'en', sideBarVisibility: true, tabBarVisibility: true }
+  const launched = await launchWithMarkdown(markdown, { windowLayout: { showSideBar: true, showTabBar: true },
+    preferences: { language: 'en',}
   })
   app = launched.app
   page = launched.page
@@ -94,7 +94,7 @@ test('menu toggles only the outline and persists the choice', async() => {
   await expect(page.locator('.side-bar')).toBeVisible()
   await expect.poll(() => app.evaluate(({ Menu }) => Menu.getApplicationMenu()?.getMenuItemById('tocMenuItem')?.checked)).toBe(false)
   const userData = await app.evaluate(({ app }) => app.getPath('userData'))
-  await expect.poll(async() => JSON.parse(await readFile(join(userData, 'preferences.json'), 'utf8')).tocVisibility).toBe(false)
+  await expect.poll(async() => JSON.parse(await readFile(join(userData, 'state', 'application-state.json'), 'utf8')).session.windows[0].layout.outline.visible).toBe(false)
   await clickMenuById(app, 'tocMenuItem')
   await expect(page.locator('.document-outline')).toHaveClass(/is-expanded/)
 })

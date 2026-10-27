@@ -542,7 +542,7 @@
       "sidebar": {
         "title": "Sidebar",
         "wrapTextInToc": "Wrap text in table of contents",
-        "tocPosition": "Table of contents position",
+        "tocPosition": "Default table of contents position",
         "tocLeft": "Left",
         "tocRight": "Right",
         "showOpenedFiles": "Show opened files",

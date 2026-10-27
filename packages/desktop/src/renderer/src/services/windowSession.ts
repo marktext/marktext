@@ -54,6 +54,8 @@ class WindowSession {
   private initialization: WindowInitialization | null = null
   private sequence = 0
   private initializing = true
+  private interactionEpoch = 0
+  private deferredSelection: string | null = null
   private queue: Promise<unknown> = Promise.resolve()
   private readonly observed = new Map<string, ObservedContent>()
   private readonly serverRevision = new Map<string, number>()
@@ -66,6 +68,31 @@ class WindowSession {
 
   async start(): Promise<void> {
     const ipc = window.electron.ipcRenderer
+    const interacted = (): void => {
+      this.interactionEpoch++
+    }
+    for (const name of ['pointerdown', 'keydown', 'beforeinput']) {
+      document.addEventListener(name, interacted, true)
+      this.stops.push(() => document.removeEventListener(name, interacted, true))
+    }
+    const finishRename = (): void => {
+      void nextTick().then(() => {
+        if (document.activeElement?.closest('input.rename')) return
+        const file = this.editor.tabs.find((file) => file.id === this.deferredSelection)
+        this.deferredSelection = null
+        if (file && this.project.activeItem?.pathname === file.pathname) {
+          this.editor.SET_OPEN_INTENT(file.pathname, false, file.isPreview)
+          this.editor.UPDATE_CURRENT_FILE(file)
+          void nextTick().then(() => {
+            this.editor.DISCARD_OPEN_INTENT(file.pathname)
+            if (!document.activeElement?.closest('.editor-component'))
+              bus.emit('SIDEBAR::focus-tree')
+          })
+        }
+      })
+    }
+    document.addEventListener('focusout', finishRename, true)
+    this.stops.push(() => document.removeEventListener('focusout', finishRename, true))
     this.stops.push(
       ipc.on('mt::state::document-opened', (_event, payload) => this.openDocument(payload))
     )
@@ -198,6 +225,21 @@ class WindowSession {
     this.context = initialized.context
     this.sequence = 0
     this.preferences.SET_USER_PREFERENCE({ ...initialized.preferences })
+    // Preference watchers can rebuild Muya blocks; load the document after those updates.
+    await nextTick()
+    if (preserve) {
+      if (initialized.projectRoots) this.project.APPLY_ROOTS(initialized.projectRoots)
+      this.project.RESTORE_PROJECT_VIEW(
+        initialized.snapshot.workspace,
+        initialized.snapshot.projectView
+      )
+      this.initializing = false
+      window.electron.ipcRenderer.send('mt::window-initialized')
+      window.electron.ipcRenderer.send('mt::project-renderer-ready')
+      for (const payload of this.pendingOpens.splice(0)) this.openDocument(payload)
+      this.schedule()
+      return
+    }
     const previous = new Map(this.editor.tabs.map((file) => [file.id, file]))
     const files = initialized.snapshot.documents.flatMap((document) => {
       const body = initialized.documentContents.find((body) => body.documentId === document.id)
@@ -254,6 +296,7 @@ class WindowSession {
     this.pendingRestoreId = active?.id ?? null
     await nextTick()
     await this.restoreActiveView()
+    if (initialized.startupWarning) notice.notify({ title: t('sideBar.tree.unavailableFolder'), type: 'warning', message: initialized.startupWarning })
     if (initialized.persistenceAvailable === false)
       this.failure(new Error('Recovery storage unavailable'))
     this.schedule()
@@ -265,6 +308,11 @@ class WindowSession {
       return
     }
     if (this.editor.tabs.some((file) => file.id === payload.document.id)) return
+    for (const id of payload.replacedDocumentIds ?? []) {
+      const replaced = this.editor.tabs.find((file) => file.id === id)
+      if (replaced) this.editor.FORCE_CLOSE_TAB(replaced)
+      this.observed.delete(id)
+    }
     const file = this.file(payload)
     const options = payload.options ?? {}
     const intent = this.editor.PEEK_OPEN_INTENT(file.pathname)
@@ -272,14 +320,17 @@ class WindowSession {
       (intent?.preview ?? options.preview ?? false) && this.preferences.openFilesInPreviewMode
     if (typeof options.requestId === 'number')
       this.editor.SETTLE_SIDEBAR_OPEN(options.requestId, file.pathname)
-    if (payload.selected) this.editor.UPDATE_CURRENT_FILE(file)
+    if (payload.selected && !document.activeElement?.closest('input.rename'))
+      this.editor.UPDATE_CURRENT_FILE(file)
     else {
+      if (payload.selected) this.deferredSelection = file.id
       this.editor.tabs.push(file)
       this.editor.updateTabIdToIndex()
     }
     const focus = this.editor.TAKE_OPEN_INTENT(file.pathname)
     if (focus === true) bus.emit('editor-focus')
-    else if (focus === false) bus.emit('SIDEBAR::focus-tree')
+    else if (focus === false && !document.activeElement?.closest('input.rename'))
+      bus.emit('SIDEBAR::focus-tree')
     if (options.anchor) this.editor.SCROLL_TO_ANCHOR(options.anchor)
     this.schedule()
   }
@@ -305,12 +356,16 @@ class WindowSession {
       return
     const id = file.id
     const markdown = file.markdown
+    const epoch = this.interactionEpoch
     this.pendingRestoreId = null
     const keys = await restoreDocumentView(
       id,
       markdown,
       file.viewState ?? null,
-      () => this.editor.currentFile?.id === id && this.editor.currentFile.markdown === markdown,
+      () =>
+        this.editor.currentFile?.id === id &&
+        this.editor.currentFile.markdown === markdown &&
+        this.interactionEpoch === epoch,
       true
     )
     if (this.editor.currentFile?.id === id && file.markdown === markdown)
@@ -375,7 +430,13 @@ class WindowSession {
     }
     const result = await window.electron.ipcRenderer.invoke('mt::state::checkpoint', request)
     if (result.status !== 'persisted') {
-      if (result.reason !== 'stale-context' || request.contextToken === this.context.contextToken)
+      const sameDocuments =
+        documents.length === this.editor.tabs.length &&
+        documents.every((document) => this.editor.tabs.some((file) => file.id === document.id))
+      if (
+        sameDocuments &&
+        (result.reason !== 'stale-context' || request.contextToken === this.context.contextToken)
+      )
         this.failure(new Error(result.reason))
       return result
     }

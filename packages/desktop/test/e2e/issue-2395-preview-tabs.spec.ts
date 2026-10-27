@@ -21,10 +21,8 @@ test.describe('Issue #2395 sidebar preview tabs', () => {
       fs.writeFileSync(path.join(projectDir, `${name}.md`), `# ${name}\n`, 'utf-8')
     }
 
-    const launched = await launchElectron([], {
+    const launched = await launchElectron([], { windowLayout: { showSideBar: true, showTabBar: true },
       preferences: {
-        sideBarVisibility: true,
-        tabBarVisibility: true,
         openFilesInPreviewMode: true,
         autoRevealInSidebar: true,
         ...preferences

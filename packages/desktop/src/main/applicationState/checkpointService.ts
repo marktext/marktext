@@ -1,3 +1,4 @@
+import { rememberWindowContext } from '@shared/applicationState/workspaceRecents'
 import type {
   ApplicationState,
   ApplicationStateStorage,
@@ -74,6 +75,14 @@ export class CheckpointService {
 
   getDocument(id: string): DocumentSnapshot {
     return this.documents.get(id)
+  }
+
+  hasPendingSave(documentId: string): boolean {
+    return this.saveQueues.has(documentId)
+  }
+
+  async settlePendingSaves(documentIds: string[]): Promise<void> {
+    await Promise.allSettled(documentIds.map((id) => this.saveQueues.get(id)))
   }
 
   savedDocuments(): Map<string, DocumentSnapshot> {
@@ -312,10 +321,18 @@ export class CheckpointService {
     })
   }
 
-  relocateDocument(windowId: string, documentId: string, location: Extract<DocumentSnapshot['resource'], { kind: 'file' }>['location'], title: string): Promise<PersistResult> {
+  relocateDocument(
+    windowId: string,
+    documentId: string,
+    location: Extract<DocumentSnapshot['resource'], { kind: 'file' }>['location'],
+    title: string
+  ): Promise<PersistResult> {
     const captured = structuredClone(location)
     return this.enqueue(async() => {
-      if (!this.getWindow(windowId)?.documents.some(document => document.id === documentId) || this.saveQueues.has(documentId))
+      if (
+        !this.getWindow(windowId)?.documents.some((document) => document.id === documentId) ||
+        this.saveQueues.has(documentId)
+      )
         throw new Error('Document cannot be relocated while saving')
       this.documents.relocate(documentId, captured, title)
       this.refreshDocuments(windowId)
@@ -323,10 +340,16 @@ export class CheckpointService {
     })
   }
 
-  observeDisk(windowId: string, documentId: string, snapshot: DocumentSnapshot | null, markdown = ''): Promise<PersistResult> {
+  observeDisk(
+    windowId: string,
+    documentId: string,
+    snapshot: DocumentSnapshot | null,
+    markdown = ''
+  ): Promise<PersistResult> {
     const captured = snapshot ? structuredClone(snapshot) : null
     return this.enqueue(async() => {
-      if (!this.getWindow(windowId)?.documents.some(document => document.id === documentId)) return { status: 'failed', reason: 'invalid-data' }
+      if (!this.getWindow(windowId)?.documents.some((document) => document.id === documentId))
+        return { status: 'failed', reason: 'invalid-data' }
       this.documents.observeDisk(documentId, captured, markdown)
       this.refreshDocuments(windowId)
       return this.persistResult(this.contexts.get(windowId)?.sequence ?? 0, windowId)
@@ -449,8 +472,31 @@ export class CheckpointService {
     for (const record of ended) recordsById.set(record.documentId, record)
     const records = [...recordsById.values()]
     for (const record of records) await this.recovery.write(record)
+    const savedDocuments = this.documents.savedDocuments()
+    let remembered = structuredClone(candidate)
+    for (const window of this.state.session.windows) {
+      if (!candidate.session.windows.some((current) => current.id === window.id))
+        remembered = rememberWindowContext(remembered, window, { savedDocuments })
+    }
+    const windows = [...candidate.session.windows].sort(
+      (a, b) =>
+        Number(a.id === candidate.session.activeWindowId) -
+        Number(b.id === candidate.session.activeWindowId)
+    )
+    for (const window of windows)
+      remembered = rememberWindowContext(remembered, window, { savedDocuments })
+    if (candidate.session.lastWindow)
+      remembered = rememberWindowContext(
+        {
+          ...remembered,
+          session: { ...remembered.session, activeWindowId: candidate.session.lastWindow.id }
+        },
+        candidate.session.lastWindow,
+        { savedDocuments }
+      )
+    remembered.session = candidate.session
     const next = {
-      ...structuredClone(candidate),
+      ...remembered,
       revision: this.state.revision + 1,
       updatedAtMs: this.now()
     }

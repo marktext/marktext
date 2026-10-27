@@ -542,7 +542,7 @@
       "sidebar": {
         "title": "側邊欄",
         "wrapTextInToc": "在目錄中換行文字",
-        "tocPosition": "目錄位置",
+        "tocPosition": "預設大綱位置",
         "tocLeft": "左側",
         "tocRight": "右側",
         "showOpenedFiles": "顯示已開啟的檔案",

@@ -13,4 +13,4 @@ export const setSessionActions = (value: SessionActions | null): void => {
   actions = value
 }
 export const isSessionRecoveryEnabled = (): boolean =>
-  window.electron?.process?.env?.MARKTEXT_SESSION_RECOVERY === '1'
+  window.electron?.process?.env?.MARKTEXT_SESSION_RECOVERY !== '0'

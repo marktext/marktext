@@ -373,6 +373,8 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     ipcMain.handle('mt::project-remove-root', (event, key: string) => {
       const win = BrowserWindow.fromWebContents(event.sender)
       const editor = win && this.get(win.id) as EditorWindow | undefined
+      const owner = getManagedOwner(event.sender)
+      if (editor && owner) return owner.host.removeRoot(editor, key)
       return editor?.projectRoots?.remove(key) ?? false
     })
     ipcMain.handle('mt::project-retry-root', (event, key: string) => {

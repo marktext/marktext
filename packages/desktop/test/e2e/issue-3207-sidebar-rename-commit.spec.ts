@@ -21,7 +21,7 @@ test.describe('Sidebar name input commits on click-away (#3207)', () => {
     fs.writeFileSync(path.join(projectDir, 'third.md'), '# Third\n', 'utf-8')
     fs.mkdirSync(path.join(projectDir, 'docs'))
 
-    const launched = await launchElectron([projectDir])
+    const launched = await launchElectron([projectDir], { windowLayout: { showSideBar: true } })
     app = launched.app
     page = launched.page
     await expect

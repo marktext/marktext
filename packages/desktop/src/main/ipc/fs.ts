@@ -1,4 +1,5 @@
 import fs from 'fs-extra'
+import { getManagedOwner } from '../applicationState/sessionHostAccess'
 import { type Stats } from 'fs'
 import { ipcMain } from 'electron'
 import {
@@ -48,9 +49,11 @@ export const registerFsHandlers = (): void => {
   ipcMain.handle('mt::fs::output-file', (_e, p: string, data: unknown) =>
     fs.outputFile(p, toBuffer(data) as string | NodeJS.ArrayBufferView)
   )
-  ipcMain.handle('mt::fs::move', (_e, src: string, dest: string) =>
-    fs.move(src, dest, { overwrite: false })
-  )
+  ipcMain.handle('mt::fs::move', (event, src: string, dest: string) => {
+    const owner = getManagedOwner(event.sender)
+    const move = () => fs.move(src, dest, { overwrite: false })
+    return owner ? owner.host.moveResource(owner.windowId, src, dest, move) : move()
+  })
   ipcMain.handle('mt::fs::stat', async(_e, p: string) => serializeStat(await fs.stat(p)))
 
   ipcMain.handle('mt::fs::write-file', (_e, p: string, data: unknown) =>

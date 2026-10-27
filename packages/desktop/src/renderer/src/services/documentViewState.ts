@@ -10,6 +10,7 @@ type SourceView = Pick<
 interface RenderedView {
   engine: Pick<Muya, 'getMarkdown' | 'getSelectionState' | 'setSelection' | 'setCursorByOffset'>
   container: HTMLElement
+  refreshToc?(): void
 }
 interface ViewPorts {
   source?: SourceView
@@ -66,6 +67,7 @@ export class DocumentViewAdapter {
     const matching =
       enabled && state !== null && state.contentSha256 === (await this.hash(markdown))
     if (ports.isCurrent && !ports.isCurrent()) return []
+    const focused = document.activeElement instanceof HTMLElement ? document.activeElement : null
     const source = ports.source
     if (source) {
       const selection = enabled ? state?.sourceSelection : null
@@ -87,8 +89,16 @@ export class DocumentViewAdapter {
       }
       if (!restored)
         engine.setCursorByOffset({ anchor: { line: 0, ch: 0 }, focus: { line: 0, ch: 0 } })
+      ports.rendered.refreshToc?.()
       container.scrollTop = enabled ? nonnegative(state?.renderedScrollTopPx ?? 0) : 0
     }
+    if (
+      focused &&
+      focused !== document.body &&
+      focused.isConnected &&
+      !ports.rendered?.container.contains(focused)
+    )
+      focused.focus({ preventScroll: true })
     return matching && state ? keys(state.collapsedOutlineKeys) : []
   }
 }
@@ -136,10 +146,14 @@ export const captureDocumentView = async(
   const captured = await adapter.capture(markdown, { ...ports, collapsedOutlineKeys })
   if (previous?.contentSha256 === captured.contentSha256) {
     if (!ports.source) {
-      captured.sourceSelection = previous.sourceSelection ? JSON.parse(JSON.stringify(previous.sourceSelection)) : null
+      captured.sourceSelection = previous.sourceSelection
+        ? JSON.parse(JSON.stringify(previous.sourceSelection))
+        : null
       captured.sourceScrollTopPx = previous.sourceScrollTopPx
     } else {
-      captured.muyaSelection = previous.muyaSelection ? JSON.parse(JSON.stringify(previous.muyaSelection)) : null
+      captured.muyaSelection = previous.muyaSelection
+        ? JSON.parse(JSON.stringify(previous.muyaSelection))
+        : null
       captured.renderedScrollTopPx = previous.renderedScrollTopPx
     }
   }

@@ -290,6 +290,7 @@ export interface WindowInitialization {
   documentContents: DirtyContentUpdate[]
   projectRoots?: ProjectRootsSnapshot
   persistenceAvailable?: boolean
+  startupWarning?: string
   documentStatuses?: Array<{ documentId: string; diskMissing: boolean; diskConflict: boolean }>
 }
 
@@ -299,6 +300,7 @@ export interface ManagedDocumentPayload {
   contentRevision: number
   selected: boolean
   options?: { preview?: boolean; requestId?: number; anchor?: string }
+  replacedDocumentIds?: DocumentId[]
 }
 
 export type ManagedSaveResult =

@@ -28,7 +28,7 @@ test.describe('Sidebar tree focus scope', () => {
     fs.writeFileSync(path.join(projectDir, 'gamma.md'), '# Gamma\n', 'utf-8')
     fs.writeFileSync(path.join(projectDir, 'delta.md'), '# Delta\n', 'utf-8')
 
-    const launched = await launchElectron([projectDir])
+    const launched = await launchElectron([projectDir], { windowLayout: { showSideBar: true } })
     app = launched.app
     page = launched.page
     await expect

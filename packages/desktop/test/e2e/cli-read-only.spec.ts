@@ -3,6 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import {
+  getMarkdownContent,
   launchElectron,
   launchWithMarkdown,
   sendIpcToRenderer,
@@ -17,13 +18,11 @@ test('--read-only opens every CLI file in reading mode without writing', async()
   const secondPath = path.join(directory, 'second.md')
   writeFileSync(firstPath, 'first\n')
   writeFileSync(secondPath, 'second\n')
-  const { app, page } = await launchElectron(['--read-only', firstPath, secondPath], {
+  const { app, page } = await launchElectron(['--read-only', firstPath, secondPath], { windowLayout: { showTabBar: true },
     preferences: {
       autoSave: true,
       autoSaveDelay: 1000,
-      openFilesInNewWindow: false,
-      tabBarVisibility: true
-    }
+      openFilesInNewWindow: false,}
   })
   try {
     await waitForEditor(page)
@@ -60,8 +59,8 @@ test('--read-only opens every CLI file in reading mode without writing', async()
 })
 
 test('--read-only locks an existing writable tab without dropping its dirty buffer', async() => {
-  const { app, page, filePath } = await launchWithMarkdown('original\n', {
-    preferences: { tabBarVisibility: true }
+  const { app, page, filePath } = await launchWithMarkdown('original\n', { windowLayout: { showTabBar: true },
+    preferences: {}
   })
   try {
     await typeIntoEditor(page, ' retained edit')
@@ -128,7 +127,8 @@ test('--read-only does not create a named buffer for a missing file', async() =>
   })
   try {
     await waitForMenuReady(app)
-    await expect(page.locator('.tabs-container > li')).toHaveCount(0)
+    await expect(page.locator('.tabs-container > li')).toHaveCount(1)
+    expect((await getMarkdownContent(page, app)).trim()).toBe('')
     expect(existsSync(missingPath)).toBe(false)
   } finally {
     await app.evaluate(({ app }) => app.exit(0)).catch(() => {})

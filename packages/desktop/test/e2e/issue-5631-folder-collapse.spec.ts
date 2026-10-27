@@ -22,7 +22,7 @@ test.describe('#5631 folder collapse state survives a sidebar view switch', () =
     fs.mkdirSync(path.join(projectDir, 'sub', 'nested'), { recursive: true })
     fs.writeFileSync(path.join(projectDir, 'sub', 'nested', 'note.md'), '# Note\n', 'utf-8')
 
-    const launched = await launchElectron([projectDir], { preferences: { language: 'en' } })
+    const launched = await launchElectron([projectDir], { windowLayout: { showSideBar: true }, preferences: { language: 'en' } })
     app = launched.app
     page = launched.page
     // Opening a directory can attach to a window other than the first one.

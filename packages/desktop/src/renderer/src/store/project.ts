@@ -293,12 +293,20 @@ export const useProjectStore = defineStore('project', () => {
     workspace: WorkspaceDescriptor | null,
     state: ProjectViewState
   ): void {
+    restoringSession.value = false
     for (const root of roots.value) {
       const descriptor = workspace?.roots.find(item => matchesWorkspaceRoot(root, item))
       const entry = descriptor
         ? state.roots.find((entry) => entry.rootId === descriptor.id)
         : undefined
-      root.collapsedPaths = new Set(safeCollapsedPaths(entry?.collapsedPaths ?? []))
+      if (!entry) {
+        visitFolders(root.tree, folder => { folder.isCollapsed = folder !== root.tree })
+        root.collapsedPaths = new Set(collectCollapsed(root))
+        root.restoring = false
+        continue
+      }
+      restoringSession.value = true
+      root.collapsedPaths = new Set(safeCollapsedPaths(entry.collapsedPaths))
       root.restoring = true
       visitFolders(root.tree, (folder) => {
         folder.isCollapsed = root.collapsedPaths.has(
@@ -371,8 +379,11 @@ export const useProjectStore = defineStore('project', () => {
           String(preferencesStore.fileSortOrder)
         )
         if (isMarkdown && newFileNameCache.value && pathname === newFileNameCache.value) {
-          const fileState = getFileStateFromData(data as Record<string, unknown>)
-          editorStore.UPDATE_CURRENT_FILE(fileState)
+          if (useLayoutStore().managed) window.electron.ipcRenderer.send('mt::open-file', pathname, {})
+          else {
+            const fileState = getFileStateFromData(data as Record<string, unknown>)
+            editorStore.UPDATE_CURRENT_FILE(fileState)
+          }
           newFileNameCache.value = ''
         }
         break

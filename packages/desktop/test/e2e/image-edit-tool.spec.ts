@@ -165,11 +165,15 @@ test('choosing a local image hides the selector after closing and reopening all 
     }
   })
   try {
-    // Removing the final tab unmounts the editor; creating another mounts it in the same renderer.
     for (let cycle = 0; cycle < 2; cycle++) {
+      const currentId = () => page.evaluate(() => {
+        const root = document.querySelector('#app') as Element & { __vue_app__: { config: { globalProperties: { $pinia: { _s: Map<string, { currentFile?: { id: string } }> } } } } }
+        return root.__vue_app__.config.globalProperties.$pinia._s.get('editor')?.currentFile?.id
+      })
+      const before = await currentId()
       await sendIpcToRenderer(app, 'mt::editor-close-tab')
-      await expect(page.locator('.editor-component')).toHaveCount(0)
-      await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, '')
+      await expect.poll(currentId).not.toBe(before)
+      await expect.poll(currentId).toBeTruthy()
       await expect(page.locator('.editor-component')).toHaveCount(1)
     }
     await app.evaluate(({ dialog }, selected) => {

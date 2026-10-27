@@ -53,6 +53,7 @@ export interface LaunchResult {
 }
 
 export interface LaunchOptions {
+  windowLayout?: { showSideBar?: boolean; showTabBar?: boolean }
   userDataDir?: string
   // When true, sets MARKTEXT_ERROR_INTERACTION=1 in the launch env so
   // src/main/exceptionHandler.ts suppresses the modal "Unexpected error"
@@ -116,6 +117,17 @@ export const launchElectron = async(
   const page = await app.firstWindow()
   await page.waitForLoadState('domcontentloaded')
   await new Promise((resolve) => setTimeout(resolve, 500))
+  if (options.windowLayout) {
+    await page.waitForFunction(() => {
+      const root = document.querySelector('#app') as Element & {
+        __vue_app__?: {
+          config: { globalProperties: { $pinia: { _s: Map<string, { currentFile?: unknown }> } } }
+        }
+      }
+      return !!root?.__vue_app__?.config.globalProperties.$pinia._s.get('editor')?.currentFile
+    })
+    await sendIpcToRenderer(app, 'mt::set-view-layout', options.windowLayout)
+  }
   return { app, page }
 }
 
@@ -164,7 +176,9 @@ export const clearRendererErrors = async(app: ElectronApplication): Promise<void
 export const expectNoRendererErrors = async(app: ElectronApplication): Promise<void> => {
   const errors = await getRendererErrors(app)
   if (errors.length > 0) {
-    const summary = errors.map((e) => `- ${e.name ?? 'Error'}: ${e.message}\n${e.stack ?? ''}`).join('\n\n')
+    const summary = errors
+      .map((e) => `- ${e.name ?? 'Error'}: ${e.message}\n${e.stack ?? ''}`)
+      .join('\n\n')
     throw new Error(`Expected no renderer errors, captured ${errors.length}:\n\n${summary}`)
   }
   expect(errors.length).toBe(0)
@@ -282,8 +296,7 @@ export const enterSourceMode = async(page: Page, app: ElectronApplication): Prom
   await page.waitForFunction(
     () => {
       const cm = document.querySelector('.source-code .CodeMirror') as
-        | (Element & { CodeMirror?: unknown })
-        | null
+        (Element & { CodeMirror?: unknown }) | null
       return cm && cm.CodeMirror
     },
     null,
@@ -300,18 +313,14 @@ export const exitSourceMode = async(page: Page, app: ElectronApplication): Promi
   })
 }
 
-export const getMarkdownContent = async(
-  page: Page,
-  app: ElectronApplication
-): Promise<string> => {
+export const getMarkdownContent = async(page: Page, app: ElectronApplication): Promise<string> => {
   const wasInSource = await page.evaluate(
     () => !!document.querySelector('.source-code .CodeMirror')
   )
   if (!wasInSource) await enterSourceMode(page, app)
   const value = await page.evaluate(() => {
     const cm = document.querySelector('.source-code .CodeMirror') as
-      | (Element & { CodeMirror?: { getValue(): string } })
-      | null
+      (Element & { CodeMirror?: { getValue(): string } }) | null
     return cm && cm.CodeMirror ? cm.CodeMirror.getValue() : ''
   })
   if (!wasInSource) await exitSourceMode(page, app)
@@ -378,8 +387,7 @@ export const setSourceMarkdown = async(
   await enterSourceMode(page, app)
   await page.evaluate((value) => {
     const cm = document.querySelector('.source-code .CodeMirror') as
-      | (Element & { CodeMirror?: { setValue(v: string): void } })
-      | null
+      (Element & { CodeMirror?: { setValue(v: string): void } }) | null
     if (cm && cm.CodeMirror) cm.CodeMirror.setValue(value)
   }, markdown)
   await exitSourceMode(page, app)
@@ -434,7 +442,7 @@ export const sendIpcToRenderer = async(
 
 export const makeRoomForOutline = async(app: ElectronApplication, page: Page): Promise<void> => {
   const window = await app.browserWindow(page)
-  await window.evaluate(window => {
+  await window.evaluate((window) => {
     const [, height] = window.getContentSize()
     window.setContentSize(1600, height)
   })

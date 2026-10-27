@@ -226,7 +226,7 @@ test.describe('Find bar — option toggles re-run the search (items 185, 186, 18
   let page: Page
 
   test.beforeAll(async() => {
-    const launched = await launchWithMarkdown('placeholder\n')
+    const launched = await launchWithMarkdown('placeholder\n', { preferences: { language: 'en' } })
     app = launched.app
     page = launched.page
     await focusEditor(page)
@@ -315,7 +315,7 @@ test.describe('Find bar — replace single / all dirty the tab (items 153, 183, 
   let page: Page
 
   test.beforeAll(async() => {
-    const launched = await launchWithMarkdown('placeholder\n')
+    const launched = await launchWithMarkdown('placeholder\n', { preferences: { language: 'en' } })
     app = launched.app
     page = launched.page
     await focusEditor(page)

@@ -11,6 +11,7 @@ import { t } from '../i18n'
 import { documentWrites } from '../filesystem/documentWrites'
 import { createDefaultLayout } from '@shared/applicationState/defaults'
 import {
+  buildWorkspacePlan,
   buildStartupPlan,
   type StartupWindowPlan,
   type ExplicitTarget
@@ -62,7 +63,7 @@ const displays = () =>
   screen.getAllDisplays().map((display) => ({ id: String(display.id), workArea: display.workArea }))
 const primary = () => String(screen.getPrimaryDisplay().id)
 
-/** Connects the new state owner to native windows; the production entry is switched in part 10. */
+/** Owns native editor lifetimes and checkpoints within the current application session. */
 export class SessionHost {
   private readonly metadata: ApplicationStateStore
   private readonly recovery: RecoveryStore
@@ -79,6 +80,8 @@ export class SessionHost {
   private readonly rendererUnavailable = new Set<string>()
   private readonly coordinator: CloseCoordinator
   private quitAllowed = false
+  private quitting = false
+  private startupWarning: string | undefined
   private tabClosePending = false
   private startQueue: Promise<void> = Promise.resolve()
   private readonly fileQueues = new Map<string, Promise<void>>()
@@ -130,6 +133,8 @@ export class SessionHost {
     app.on('before-quit', (event) => {
       if (this.quitAllowed || !this.service) return
       event.preventDefault()
+      if (this.quitting) return
+      this.quitting = true
       void this.coordinator
         .quit()
         .then(() => {
@@ -139,6 +144,9 @@ export class SessionHost {
           }
         })
         .catch((error) => this.report(error))
+        .finally(() => {
+          this.quitting = false
+        })
     })
   }
 
@@ -262,6 +270,8 @@ export class SessionHost {
     } catch (error) {
       log.warn(error)
     }
+    if (!paths.length && preferences.startUpAction === 'folder' && !configuredWorkspace)
+      this.startupWarning = `${t('sideBar.tree.unavailableFolder')}: ${preferences.defaultDirectoryToOpen}`
     const targets: ExplicitTarget[] = paths.flatMap((item): ExplicitTarget[] => {
       if (!item.isDir) return [{ kind: 'file', pathname: item.path, readOnly: !!item.readOnly }]
       const workspace = createWorkspaceDescriptor([item.path])
@@ -273,7 +283,7 @@ export class SessionHost {
       configuredWorkspace,
       request: targets.length ? { kind: 'explicit' as const, targets } : undefined
     }
-    const selected = buildStartupPlan(input).slice(0, 1)
+    const selected = buildStartupPlan(input)
     for (const plan of selected) {
       if (plan.kind === 'restore') {
         try {
@@ -284,9 +294,13 @@ export class SessionHost {
         }
       }
     }
-    const plans = buildStartupPlan({ ...input, recoveryRecords: this.records }).slice(0, 1)
+    const plans = buildStartupPlan({ ...input, recoveryRecords: this.records })
     const prepared: PreparedSessionWindow[] = []
-    for (const plan of plans) prepared.push(await this.preparePlan(plan, paths))
+    for (const plan of plans) {
+      const window = await this.preparePlan(plan, paths)
+      if (window.openable) prepared.push(window)
+    }
+    if (!prepared.length) prepared.push(await this.prepareNewWindow(null, [], []))
     this.records.clear()
     const runtime: ApplicationState = {
       ...previous,
@@ -303,6 +317,19 @@ export class SessionHost {
     )
     for (const window of prepared) await this.attachPrepared(window)
     for (const window of prepared) create(window)
+    const active = previous.session.activeWindowId
+    const preferred = active ? this.editors.get(active)?.browserWindow : undefined
+    if (preferred) {
+      const ready = [...this.editors.values()].map((editor) => {
+        const native = editor.browserWindow
+        return !native || native.isVisible()
+          ? Promise.resolve()
+          : new Promise<void>((resolve) => native.once('ready-to-show', () => resolve()))
+      })
+      void Promise.all(ready).then(() => {
+        if (!preferred.isDestroyed()) preferred.focus()
+      })
+    }
   }
 
   private async preparePlan(
@@ -317,8 +344,10 @@ export class SessionHost {
         target.kind === 'file' ? [target.pathname] : []
       )
       const options = Object.fromEntries(paths.map((item) => [item.path, item]))
-      const prepared = await this.prepareNewWindow(null, files, [], options)
-      if (folders.length) prepared.snapshot.workspace = createWorkspaceDescriptor(folders)
+      const workspace = createWorkspaceDescriptor(folders)
+      const prepared = workspace
+        ? await this.prepareExplicitWorkspace(workspace, files, options)
+        : await this.prepareNewWindow(null, files, [], options)
       return prepared
     }
     if (plan.kind === 'empty') {
@@ -437,8 +466,11 @@ export class SessionHost {
     markdown: string[],
     options: Record<string, FileOpenOptions> = {}
   ): Promise<PreparedSessionWindow> {
+    if (root) {
+      const workspace = createWorkspaceDescriptor([root])
+      if (workspace) return this.prepareExplicitWorkspace(workspace, files, options)
+    }
     const snapshot = this.blankWindow()
-    if (root) snapshot.workspace = createWorkspaceDescriptor([root])
     const contents: RegisteredDocumentContent[] = []
     for (const pathname of files) {
       try {
@@ -470,6 +502,46 @@ export class SessionHost {
     }
     snapshot.activeDocumentId = snapshot.documents[0].id
     return { snapshot, contents, restoreGeometry: false, statuses: [], openable: true }
+  }
+
+  private async prepareExplicitWorkspace(
+    workspace: NonNullable<WindowSnapshot['workspace']>,
+    files: string[],
+    options: Record<string, FileOpenOptions>
+  ): Promise<PreparedSessionWindow> {
+    const plan = buildWorkspacePlan(
+      workspace,
+      this.service?.getState() ?? (await this.loaded),
+      this.accessor.preferences.getAll()
+    )
+    const prepared = await this.preparePlan(plan, [])
+    for (const pathname of files) {
+      try {
+        const loaded = await this.readDocument(pathname, options[pathname])
+        const existing = prepared.snapshot.documents.find(
+          (document) =>
+            document.resource.kind === 'file' &&
+            loaded.document.resource.kind === 'file' &&
+            document.resource.location.key === loaded.document.resource.location.key
+        )
+        if (existing) {
+          prepared.snapshot.activeDocumentId = existing.id
+          continue
+        }
+        prepared.snapshot.documents = prepared.snapshot.documents.filter(
+          (document) => document.content.kind !== 'empty' || document.resource.kind !== 'untitled'
+        )
+        prepared.contents = prepared.contents.filter((content) =>
+          prepared.snapshot.documents.some((document) => document.id === content.documentId)
+        )
+        prepared.snapshot.documents.push(loaded.document)
+        prepared.contents.push(loaded.content)
+        prepared.snapshot.activeDocumentId = loaded.document.id
+      } catch (error) {
+        log.warn(error)
+      }
+    }
+    return prepared
   }
 
   private async attachPrepared(prepared: PreparedSessionWindow): Promise<void> {
@@ -529,7 +601,7 @@ export class SessionHost {
     native.on('maximize', scheduleGeometry)
     native.on('unmaximize', scheduleGeometry)
     native.on('focus', () => {
-      if (!this.owner().getWindow(id)) return
+      if (this.quitting || !this.owner().getWindow(id)) return
       void this.owner()
         .commitState((state) => ({
           ...state,
@@ -563,7 +635,8 @@ export class SessionHost {
       preferences: this.accessor.preferences.getAll(),
       projectRoots: editor.projectRoots.snapshot(),
       documentStatuses: this.statuses.get(id),
-      persistenceAvailable: result.status === 'persisted'
+      persistenceAvailable: result.status === 'persisted',
+      startupWarning: this.startupWarning
     }
   }
 
@@ -610,6 +683,8 @@ export class SessionHost {
         }
         const loaded = await this.readDocument(pathname, options)
         if (obsolete()) return
+        await this.requestCheckpoint(id)
+        if (obsolete()) return
         const snapshot = this.owner().getWindow(id)!
         const preview = options.preview && this.accessor.preferences.getAll().openFilesInPreviewMode
         const retire = snapshot.documents.filter(
@@ -622,7 +697,7 @@ export class SessionHost {
               document.resource.kind === 'untitled' &&
               document.content.kind === 'empty')
         )
-        for (const document of retire) await this.endDocument(id, document.id, false)
+        for (const document of retire) await this.endDocument(id, document.id, false, false)
         const result = await this.owner().addDocument(id, loaded.document, loaded.content.markdown)
         if (result.status !== 'persisted')
           this.report(new Error('Recovery storage unavailable'), id)
@@ -635,7 +710,8 @@ export class SessionHost {
           markdown: loaded.content.markdown,
           contentRevision: 0,
           selected,
-          options
+          options,
+          replacedDocumentIds: retire.map((document) => document.id)
         }
         this.native(id).webContents.send('mt::state::document-opened', payload)
       })
@@ -677,10 +753,23 @@ export class SessionHost {
     if (!id) return
     await this.requestCheckpoint(id)
     editor.projectRoots.add(pathname, replace)
+    await this.synchronizeRoots(editor)
+  }
+
+  async removeRoot(editor: EditorWindow, key: string): Promise<boolean> {
+    await editor.sessionReady
+    if (!editor.projectRoots.roots.some((root) => root.key === key)) return false
+    await this.requestCheckpoint(editor.sessionStateId!)
+    editor.projectRoots.remove(key)
+    await this.synchronizeRoots(editor)
+    return true
+  }
+
+  private async synchronizeRoots(editor: EditorWindow): Promise<void> {
+    const id = editor.sessionStateId!
     const workspace = createWorkspaceDescriptor(
       editor.projectRoots.roots.map((root) => root.pathname)
     )
-    if (!workspace) throw new Error('Missing workspace roots')
     await this.owner().commitState((state) => ({
       ...state,
       session: {
@@ -692,7 +781,7 @@ export class SessionHost {
               workspace,
               projectView: {
                 roots: window.projectView.roots.filter((view) =>
-                  workspace.roots.some((root) => root.id === view.rootId)
+                  workspace?.roots.some((root) => root.id === view.rootId)
                 )
               }
             }
@@ -910,6 +999,63 @@ export class SessionHost {
     }
   }
 
+  async moveResource(
+    windowId: string,
+    source: string,
+    target: string,
+    move: () => Promise<void>
+  ): Promise<void> {
+    const canonical = createFileLocation(source).canonicalPath
+    const affected =
+      this.owner()
+        .getWindow(windowId)
+        ?.documents.flatMap((document) => {
+          if (document.resource.kind !== 'file') return []
+          const relative = path.relative(canonical, document.resource.location.canonicalPath)
+          return relative === '' ||
+            (!relative.startsWith(`..${path.sep}`) &&
+              relative !== '..' &&
+              !path.isAbsolute(relative))
+            ? [{ document, destination: path.join(path.resolve(target), relative) }]
+            : []
+        }) ?? []
+    if (!affected.length) {
+      await move()
+      return
+    }
+    await this.requestCheckpoint(windowId)
+    if (affected.some(({ document }) => this.owner().hasPendingSave(document.id)))
+      throw new Error('Cannot move a document while saving')
+    const senderId = this.native(windowId).webContents.id
+    await documentWrites.withBlockedWrites(
+      senderId,
+      affected.map(({ document }) => document.id),
+      async() => {
+        if (affected.some(({ document }) => this.owner().hasPendingSave(document.id)))
+          throw new Error('Cannot move a document while saving')
+        await move()
+        await this.owner().settlePendingSaves(affected.map(({ document }) => document.id))
+        for (const { document, destination } of affected) {
+          const previous = document.resource.kind === 'file' ? document.resource.location.path : ''
+          const result = await this.owner().relocateDocument(
+            windowId,
+            document.id,
+            createFileLocation(destination),
+            path.basename(destination)
+          )
+          this.editors.get(windowId)?.changeOpenedFilePath(destination, previous)
+          this.native(windowId).webContents.send(
+            'mt::state::document-relocated',
+            this.owner().getDocument(document.id),
+            this.owner().getState().revision
+          )
+          if (result.status !== 'persisted')
+            this.report(new Error('Recovery metadata unavailable after move'), windowId)
+        }
+      }
+    )
+  }
+
   async renameDocument(windowId: string, documentId: string, destination: string): Promise<void> {
     await this.requestCheckpoint(windowId)
     const document = this.owner()
@@ -936,22 +1082,8 @@ export class SessionHost {
       })
       if (choice.response !== 0) return
     }
-    await rename(source, target)
-    const result = await this.owner().relocateDocument(
-      windowId,
-      documentId,
-      createFileLocation(target),
-      path.basename(target)
-    )
-    this.editors.get(windowId)?.changeOpenedFilePath(target, source)
+    await this.moveResource(windowId, source, target, () => rename(source, target))
     this.accessor.menu.addRecentlyUsedDocument(target)
-    this.native(windowId).webContents.send(
-      'mt::state::document-relocated',
-      this.owner().getDocument(documentId),
-      this.owner().getState().revision
-    )
-    if (result.status !== 'persisted')
-      this.report(new Error('Recovery metadata unavailable after rename'), windowId)
   }
 
   async moveDocument(windowId: string, documentId: string): Promise<void> {
@@ -967,7 +1099,12 @@ export class SessionHost {
       await this.renameDocument(windowId, documentId, result.filePath)
   }
 
-  private async endDocument(windowId: string, id: string, discard: boolean): Promise<void> {
+  private async endDocument(
+    windowId: string,
+    id: string,
+    discard: boolean,
+    notify = true
+  ): Promise<void> {
     const document = this.owner()
       .getWindow(windowId)
       ?.documents.find((document) => document.id === id)
@@ -979,7 +1116,7 @@ export class SessionHost {
     )
     if (document?.resource.kind === 'file')
       this.editors.get(windowId)?.removeFromOpenedFiles(document.resource.location.path)
-    this.native(windowId).webContents.send('mt::state::documents-ended', [id])
+    if (notify) this.native(windowId).webContents.send('mt::state::documents-ended', [id])
   }
 
   async observeFile(

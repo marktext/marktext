@@ -20,7 +20,15 @@ interface Rule {
   items?: Rule
   default?: unknown
 }
-const rules: Record<string, Rule> = schema
+const retiredWindowKeys = new Set([
+  'lastOpenedFolder',
+  'tocVisibility',
+  'sideBarVisibility',
+  'tabBarVisibility'
+])
+const rules: Record<string, Rule> = Object.fromEntries(
+  Object.entries(schema).filter(([key]) => !retiredWindowKeys.has(key))
+)
 const object = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value)
 const accepts = (value: unknown, rule: Rule): boolean => {
@@ -49,6 +57,7 @@ export const preferenceDefaults = (dark = false): UserPreferences & Record<strin
   for (const [key, rule] of Object.entries(rules))
     if ('default' in rule) defaults[key] = structuredClone(rule.default)
   Object.assign(defaults, structuredClone(bundled), RECOVERY_DEFAULTS, { language: '' })
+  for (const key of retiredWindowKeys) delete defaults[key]
   if (dark) defaults.theme = 'dark'
   return defaults as UserPreferences & Record<string, unknown>
 }

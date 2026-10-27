@@ -2,7 +2,7 @@ import type { WebContents } from 'electron'
 import type { SessionHost } from './sessionHost'
 
 const owners = new Map<number, { host: SessionHost; windowId: string }>()
-export const sessionRecoveryEnabled = (): boolean => process.env.MARKTEXT_SESSION_RECOVERY === '1'
+export const sessionRecoveryEnabled = (): boolean => process.env.MARKTEXT_SESSION_RECOVERY !== '0'
 export const registerManagedOwner = (
   sender: WebContents,
   host: SessionHost,

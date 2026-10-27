@@ -251,6 +251,10 @@ export const useLayoutStore = defineStore('layout', () => {
     }
   }
 
+  function SET_OUTLINE_POSITION(position: 'left' | 'right'): void {
+    outlinePositionValue.value = position
+  }
+
   function SET_OUTLINE_WIDTH(width: number): void {
     if (Number.isFinite(width)) outlineWidth.value = Math.max(180, Math.min(600, width))
   }
@@ -294,6 +298,7 @@ export const useLayoutStore = defineStore('layout', () => {
     INITIALIZE_WINDOW_LAYOUT,
     CAPTURE_WINDOW_LAYOUT,
     SET_OUTLINE_WIDTH,
+    SET_OUTLINE_POSITION,
     SET_OPENED_FILES,
     showToc,
     rightColumn,

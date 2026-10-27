@@ -28,8 +28,8 @@ test.describe('New File on a collapsed folder (#3439)', () => {
   test.beforeAll(async() => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'marktext-collapsed-folder-'))
     fs.mkdirSync(path.join(root, 'nested'))
-    const launched = await launchElectron([root], {
-      preferences: { sideBarVisibility: true, restoreLayoutState: true }
+    const launched = await launchElectron([root], { windowLayout: { showSideBar: true },
+      preferences: { restoreLayoutState: true }
     })
     app = launched.app
     page = launched.page

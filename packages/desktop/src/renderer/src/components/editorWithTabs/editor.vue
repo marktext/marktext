@@ -1782,7 +1782,7 @@ onMounted(() => {
   const container = getScrollContainer()!
   renderedDocumentId = currentFile.value?.id ?? null
   renderedMarkdown = currentFile.value?.markdown ?? ''
-  releaseViewState = registerRenderedViewState({ documentId: () => renderedDocumentId, markdown: () => renderedMarkdown, view: { engine: muya, container } })
+  releaseViewState = registerRenderedViewState({ documentId: () => renderedDocumentId, markdown: () => renderedMarkdown, view: { engine: muya, container, refreshToc: () => editorStore.UPDATE_TOC(muya.getTOC()) } })
   muya.on('selection-change', documentViewChanged)
 
   bus.on('language-changed', handleLanguageChanged)
@@ -1869,6 +1869,7 @@ onMounted(() => {
   editor.value.on(
     'heading-copy-link',
     async ({ key, onCopied }: { key: string; onCopied?: (ok: boolean) => void }) => {
+      editorStore.REFRESH_TOC(editor.value?.getTOC() ?? [])
       const ok = await editorStore.copyGithubSlug(key)
       onCopied?.(ok)
     }

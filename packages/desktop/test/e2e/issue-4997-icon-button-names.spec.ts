@@ -7,8 +7,6 @@ import { launchWithMarkdown, makeRoomForOutline, sendIpcToRenderer } from './hel
 // real built app the way a keyboard or screen reader user would.
 
 const PREFERENCES = {
-  sideBarVisibility: true,
-  tabBarVisibility: true,
   language: 'en',
   theme: 'light',
   followSystemTheme: false
@@ -37,7 +35,7 @@ test.describe('#4997 icon-only controls in the editor window', () => {
   let page: Page
 
   test.beforeAll(async() => {
-    const launched = await launchWithMarkdown('# Doc\n\nneedle\n', { preferences: PREFERENCES })
+    const launched = await launchWithMarkdown('# Doc\n\nneedle\n', { preferences: PREFERENCES, windowLayout: { showSideBar: true, showTabBar: true } })
     app = launched.app
     page = launched.page
     await makeRoomForOutline(app, page)
@@ -231,7 +229,7 @@ test.describe('#4997 form controls in the Preferences window', () => {
   let prefs: Page
 
   test.beforeAll(async() => {
-    const launched = await launchWithMarkdown('# Doc\n', { preferences: PREFERENCES })
+    const launched = await launchWithMarkdown('# Doc\n', { preferences: PREFERENCES, windowLayout: { showSideBar: true, showTabBar: true } })
     app = launched.app
     const opened = app.waitForEvent('window')
     await launched.page.getByRole('button', { name: 'Settings', exact: true }).click()

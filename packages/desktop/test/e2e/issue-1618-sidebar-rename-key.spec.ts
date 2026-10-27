@@ -21,7 +21,7 @@ test.describe('Sidebar rename shortcuts (#1618)', () => {
     fs.mkdirSync(path.join(projectDir, 'docs'))
     fs.writeFileSync(path.join(projectDir, 'docs', 'inner.md'), '# Inner\n', 'utf-8')
 
-    const launched = await launchElectron([projectDir])
+    const launched = await launchElectron([projectDir], { windowLayout: { showSideBar: true } })
     app = launched.app
     page = launched.page
     // Opening a directory can attach to a window other than the first one.

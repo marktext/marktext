@@ -34,8 +34,8 @@ test.beforeAll(async() => {
     `![remote](${origin}/image.svg)`,
     '```plantuml\nAlice -> Bob: hello\n```'
   ].join('\n\n'))
-  const launched = await launchElectron([document], {
-    preferences: { language: 'en', sideBarVisibility: true, plantumlServer: origin }
+  const launched = await launchElectron([document], { windowLayout: { showSideBar: true },
+    preferences: { language: 'en', plantumlServer: origin }
   })
   app = launched.app
   page = launched.page
