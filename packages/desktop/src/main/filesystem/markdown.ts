@@ -123,6 +123,15 @@ export const writeMarkdownFile = (
   }
 
   const buffer = iconv.encode(content, encoding, { addBOM: isBom })
+  // iconv substitutes unrepresentable characters silently (#5614). Only strip
+  // a BOM we requested so a leading U+FEFF in the document remains significant.
+  if (iconv.decode(buffer, encoding, { stripBOM: !!isBom }) !== content) {
+    return Promise.reject(
+      new Error(
+        `Cannot save using "${encoding}" because some characters cannot be represented. Change the file encoding to UTF-8 and save again.`
+      )
+    )
+  }
 
   return writeFile(pathname, buffer, extension, undefined)
 }
