@@ -1,6 +1,8 @@
 <template>
   <div class="pref-theme">
-    <h4>{{ t('preferences.theme.title') }}</h4>
+    <h4 v-if="!embedded">
+      {{ t('preferences.theme.title') }}
+    </h4>
     <Bool
       id="setting-followSystemTheme"
       class="follow-system-theme"
@@ -102,6 +104,8 @@
 </template>
 
 <script setup lang="ts">
+defineProps<{ embedded?: boolean }>()
+
 import { preferenceLabel } from '@/prefComponents/registry'
 
 import { ref, onMounted } from 'vue'

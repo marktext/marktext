@@ -1,6 +1,8 @@
 <template>
   <div class="pref-image">
-    <h4>{{ t('preferences.image.title') }}</h4>
+    <h4 v-if="!embedded">
+      {{ t('preferences.image.title') }}
+    </h4>
     <section class="image-ctrl">
       <div>{{ t('preferences.image.defaultBehavior') }}</div>
       <CurSelect
@@ -17,6 +19,8 @@
 </template>
 
 <script setup lang="ts">
+defineProps<{ embedded?: boolean }>()
+
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'

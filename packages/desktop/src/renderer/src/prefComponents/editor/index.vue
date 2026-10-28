@@ -1,7 +1,9 @@
 <template>
   <div class="pref-editor">
-    <h4>{{ t('preferences.editor.title') }}</h4>
-    <compound>
+    <h4 v-if="!embedded">
+      {{ t('preferences.editor.title') }}
+    </h4>
+    <compound v-if="show('typography')">
       <template #head>
         <h6 class="title">
           {{ t('preferences.editor.textEditor.title') }}
@@ -54,7 +56,7 @@
       </template>
     </compound>
 
-    <compound>
+    <compound v-if="show('code') || show('typography')">
       <template #head>
         <h6 class="title">
           {{ t('preferences.editor.codeBlock.title') }}
@@ -62,6 +64,7 @@
       </template>
       <template #children>
         <range
+          v-if="show('typography')"
           id="setting-codeFontSize"
           :description="preferenceLabel('codeFontSize')"
           :value="codeFontSize"
@@ -72,18 +75,21 @@
           :on-change="(value) => onSelectChange('codeFontSize', value)"
         />
         <bool
+          v-if="show('code')"
           id="setting-codeBlockLineNumbers"
           :description="preferenceLabel('codeBlockLineNumbers')"
           :bool="codeBlockLineNumbers"
           :on-change="(value) => onSelectChange('codeBlockLineNumbers', value)"
         />
         <bool
+          v-if="show('code')"
           id="setting-trimUnnecessaryCodeBlockEmptyLines"
           :description="preferenceLabel('trimUnnecessaryCodeBlockEmptyLines')"
           :bool="trimUnnecessaryCodeBlockEmptyLines"
           :on-change="(value) => onSelectChange('trimUnnecessaryCodeBlockEmptyLines', value)"
         />
         <bool
+          v-if="show('code')"
           id="setting-wrapCodeBlocks"
           :description="preferenceLabel('wrapCodeBlocks')"
           :bool="wrapCodeBlocks"
@@ -92,7 +98,7 @@
       </template>
     </compound>
 
-    <compound>
+    <compound v-if="show('writing')">
       <template #head>
         <h6 class="title">
           {{ t('preferences.editor.writingBehavior.title') }}
@@ -118,16 +124,6 @@
           :bool="autoPairQuote"
           :on-change="(value) => onSelectChange('autoPairQuote', value)"
         />
-      </template>
-    </compound>
-
-    <compound>
-      <template #head>
-        <h6 class="title">
-          {{ t('preferences.editor.fileRepresentation.title') }}
-        </h6>
-      </template>
-      <template #children>
         <cur-select
           id="setting-tabSize"
           :description="preferenceLabel('tabSize')"
@@ -136,6 +132,16 @@
           :options="getTabSizeOptions()"
           :on-change="(value) => onSelectChange('tabSize', value)"
         />
+      </template>
+    </compound>
+
+    <compound v-if="show('files')">
+      <template #head>
+        <h6 class="title">
+          {{ t('preferences.editor.fileRepresentation.title') }}
+        </h6>
+      </template>
+      <template #children>
         <cur-select
           id="setting-endOfLine"
           :description="preferenceLabel('endOfLine')"
@@ -173,7 +179,7 @@
       </template>
     </compound>
 
-    <compound>
+    <compound v-if="show('writing')">
       <template #head>
         <h6 class="title">
           {{ t('preferences.editor.misc.title') }}
@@ -237,6 +243,12 @@ import {
   getTrimTrailingNewlineOptions,
   getDefaultEncodingOptions
 } from './config'
+
+const props = withDefaults(defineProps<{ groups?: readonly string[]; embedded?: boolean }>(), {
+  groups: () => ['all'],
+  embedded: false
+})
+const show = (group: string): boolean => props.groups.includes('all') || props.groups.includes(group)
 
 const { t } = useI18n()
 const preferenceStore = usePreferencesStore()

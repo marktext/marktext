@@ -243,13 +243,13 @@ test.describe('#4997 form controls in the Preferences window', () => {
 
   // Element Plus's autocomplete also puts role="combobox" on a wrapper <div> it
   // gives no way to label; only the controls that take focus are checked.
-  const CATEGORIES = ['general', 'editor', 'markdown', 'spelling', 'theme', 'image', 'keybindings']
+  const CATEGORIES = ['general', 'appearance', 'editor', 'files', 'markdown', 'images', 'keybindings']
   for (const category of CATEGORIES) {
     test(`every focusable control on the ${category} page has a name`, async() => {
       await prefs.evaluate((c) => {
         window.location.hash = `#/preference/${c}`
       }, category)
-      await prefs.waitForSelector(`.pref-${category === 'spelling' ? 'spellchecker' : category}`)
+      await prefs.waitForSelector(`.pref-${category}`)
       // Element Plus renders the switch's native input at zero size, so only
       // controls inside a `display: none` subtree are skipped.
       const controls = prefs

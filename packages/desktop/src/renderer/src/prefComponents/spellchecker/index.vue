@@ -1,6 +1,8 @@
 <template>
   <div class="pref-spellchecker">
-    <h4>{{ t('preferences.spellchecker.title') }}</h4>
+    <h4 v-if="!embedded">
+      {{ t('preferences.spellchecker.title') }}
+    </h4>
     <compound>
       <template #head>
         <bool
@@ -92,6 +94,8 @@
 </template>
 
 <script setup lang="ts">
+defineProps<{ embedded?: boolean }>()
+
 import { preferenceLabel } from '@/prefComponents/registry'
 
 import log from 'electron-log'

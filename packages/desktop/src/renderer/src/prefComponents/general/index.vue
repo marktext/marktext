@@ -1,7 +1,10 @@
 <template>
   <div class="pref-general">
-    <h4>{{ t('preferences.general.title') }}</h4>
+    <h4 v-if="!embedded">
+      {{ t('preferences.general.title') }}
+    </h4>
     <cur-select
+      v-if="show('opening')"
       id="setting-defaultOpenMode"
       :description="preferenceLabel('defaultOpenMode')"
       :notes="preferenceNotes('defaultOpenMode')"
@@ -12,7 +15,7 @@
       ]"
       :on-change="(value) => onSelectChange('defaultOpenMode', value)"
     />
-    <compound>
+    <compound v-if="show('save')">
       <template #head>
         <h6 class="title">
           {{ t('preferences.general.autoSave.title') }}
@@ -38,7 +41,7 @@
       </template>
     </compound>
 
-    <compound>
+    <compound v-if="show('windowAppearance') || show('windowOpening')">
       <template #head>
         <h6 class="title">
           {{ t('preferences.general.window.title') }}
@@ -46,7 +49,7 @@
       </template>
       <template #children>
         <cur-select
-          v-if="!isMac"
+          v-if="!isMac && show('windowAppearance')"
           id="setting-titleBarStyle"
           :description="preferenceLabel('titleBarStyle')"
           :notes="preferenceNotes('titleBarStyle')"
@@ -55,24 +58,28 @@
           :on-change="(value) => onSelectChange('titleBarStyle', value)"
         />
         <bool
+          v-if="show('windowAppearance')"
           id="setting-hideScrollbar"
           :description="preferenceLabel('hideScrollbar')"
           :bool="hideScrollbar"
           :on-change="(value) => onSelectChange('hideScrollbar', value)"
         />
         <bool
+          v-if="show('windowOpening')"
           id="setting-openFilesInNewWindow"
           :description="preferenceLabel('openFilesInNewWindow')"
           :bool="openFilesInNewWindow"
           :on-change="(value) => onSelectChange('openFilesInNewWindow', value)"
         />
         <bool
+          v-if="show('windowOpening')"
           id="setting-openFolderInNewWindow"
           :description="preferenceLabel('openFolderInNewWindow')"
           :bool="openFolderInNewWindow"
           :on-change="(value) => onSelectChange('openFolderInNewWindow', value)"
         />
         <cur-select
+          v-if="show('windowAppearance')"
           id="setting-zoom"
           :description="preferenceLabel('zoom')"
           :value="zoom"
@@ -82,7 +89,7 @@
       </template>
     </compound>
 
-    <compound>
+    <compound v-if="show('navigation')">
       <template #head>
         <h6 class="title">
           {{ t('preferences.general.sidebar.title') }}
@@ -150,14 +157,14 @@
     </compound>
 
     <recovery-settings
-      v-if="recoveryPreferences"
+      v-if="show('recovery') && recoveryPreferences"
       :value="recoveryPreferences"
       :update="updateRecoveryPreferences"
       :choose-directory="chooseRecoveryDirectory"
       @persisted="acceptRecoveryPreferences"
     />
     <!-- Keep status readable independently of the disabled conversion switch. -->
-    <compound>
+    <compound v-if="show('pandoc')">
       <template #head>
         <h6 class="title">
           {{ t('preferences.general.pandoc.title') }}
@@ -186,7 +193,7 @@
       </template>
     </compound>
 
-    <compound>
+    <compound v-if="show('language')">
       <template #head>
         <h6 class="title">
           {{ t('preferences.general.misc.title') }}
@@ -231,6 +238,12 @@ import {
   getFileSortOrderOptions,
   getLanguageOptions
 } from './config'
+
+const props = withDefaults(defineProps<{ groups?: readonly string[]; embedded?: boolean }>(), {
+  groups: () => ['all'],
+  embedded: false
+})
+const show = (group: string): boolean => props.groups.includes('all') || props.groups.includes(group)
 
 const { t } = useI18n()
 const preferenceStore = usePreferencesStore()
@@ -291,9 +304,11 @@ const probePandoc = async (): Promise<void> => {
 }
 
 onMounted(async () => {
-  acceptRecoveryPreferences(await window.electron.ipcRenderer.invoke('mt::preferences::get'))
-  stopRecoveryPreferences = window.electron.ipcRenderer.on('mt::preferences::changed', (_event, preferences) => acceptRecoveryPreferences(preferences))
-  await probePandoc()
+  if (show('recovery') || show('navigation')) {
+    acceptRecoveryPreferences(await window.electron.ipcRenderer.invoke('mt::preferences::get'))
+    stopRecoveryPreferences = window.electron.ipcRenderer.on('mt::preferences::changed', (_event, preferences) => acceptRecoveryPreferences(preferences))
+  }
+  if (show('pandoc')) await probePandoc()
 })
 
 const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {

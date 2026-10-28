@@ -70,7 +70,7 @@ export default (
     spellingSubmenu.push({
       label: t('contextMenu.editDictionary'),
       click() {
-        ipcMain.emit('app-create-settings-window', 'spelling')
+        ipcMain.emit('app-create-settings-window', 'editor')
       }
     })
   }
