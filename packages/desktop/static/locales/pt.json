@@ -537,7 +537,6 @@
         "restoreLayoutState": "Restaurar a disposição das janelas",
         "restoreEditors": "Restaurar os arquivos abertos",
         "restoreViewState": "Restaurar as posições de leitura e seleções",
-        "defaults": "A posição do sumário e o modo de código-fonte são padrões para novos layouts. As janelas existentes mantêm seus próprios layouts.",
         "failure": "Não foi possível salvar as configurações. As configurações anteriores continuam em uso."
       },
       "pandoc": {

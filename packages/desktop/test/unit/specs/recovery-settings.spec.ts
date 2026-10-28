@@ -18,9 +18,10 @@ afterEach(() => {
 })
 const mount = (
   update: (patch: Partial<RecoveryPreferences>) => Promise<PreferenceUpdateResult>,
-  chooseDirectory = async(): Promise<string | null> => '/notes'
+  chooseDirectory = async(): Promise<string | null> => '/notes',
+  initial: Partial<RecoveryPreferences> = {}
 ) => {
-  const value = reactive({ ...RECOVERY_DEFAULTS })
+  const value = reactive({ ...RECOVERY_DEFAULTS, ...initial })
   const root = document.createElement('div')
   document.body.append(root)
   app = createApp({
@@ -62,17 +63,23 @@ describe('startup recovery settings', () => {
     expect(root.querySelector('.pref-compound-item h6.title')?.textContent).toBe('Startup Options')
     expect(root.querySelectorAll('.el-switch')).toHaveLength(3)
     expect(root.querySelector('select')).toBeNull()
+    expect(root.querySelector('.startup-directory')).toBeNull()
     await selectPolicy(root, 'Restore the last active window')
     expect(document.querySelectorAll('.el-select-dropdown__item')).toHaveLength(5)
     expect(value.startUpAction).toBe('restoreLastWindow')
     expect(update).toHaveBeenCalledExactlyOnceWith({ startUpAction: 'restoreLastWindow' })
+    expect(root.querySelector('.startup-directory')).toBeNull()
+    await selectPolicy(root, 'Open the selected folder')
+    expect(root.querySelector('.startup-directory .el-button')).not.toBeNull()
+    await selectPolicy(root, 'New blank document')
+    expect(root.querySelector('.startup-directory')).toBeNull()
   })
   it('updates the selected directory and folder policy together', async() => {
     const update = vi.fn(async(patch) => ({
       status: 'persisted' as const,
       preferences: { ...RECOVERY_DEFAULTS, ...patch } as UserPreferences
     }))
-    const { root } = mount(update)
+    const { root } = mount(update, async() => '/notes', { startUpAction: 'folder' })
     root.querySelector<HTMLButtonElement>('.startup-directory .el-button')?.click()
     await settle()
     expect(update).toHaveBeenCalledExactlyOnceWith({
@@ -109,10 +116,13 @@ describe('startup recovery settings', () => {
   })
   it('keeps the policy unchanged when directory selection is cancelled', async() => {
     const update = vi.fn()
-    const { root, value } = mount(update, async() => null)
+    const { root, value } = mount(update, async() => null, {
+      startUpAction: 'folder', defaultDirectoryToOpen: '/previous'
+    })
     root.querySelector<HTMLButtonElement>('.startup-directory .el-button')?.click()
     await settle()
     expect(update).not.toHaveBeenCalled()
-    expect(value.startUpAction).toBe('restoreAll')
+    expect(value.startUpAction).toBe('folder')
+    expect(value.defaultDirectoryToOpen).toBe('/previous')
   })
 })

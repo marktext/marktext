@@ -537,7 +537,6 @@
         "restoreLayoutState": "Restaurar la disposición de las ventanas",
         "restoreEditors": "Restaurar los archivos abiertos",
         "restoreViewState": "Restaurar las posiciones de lectura y las selecciones",
-        "defaults": "La posición del esquema y el modo de código fuente son valores predeterminados para los nuevos diseños. Las ventanas existentes conservan su propio diseño.",
         "failure": "No se pudo guardar la configuración. Se mantiene la configuración anterior."
       },
       "pandoc": {

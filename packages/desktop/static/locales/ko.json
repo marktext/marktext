@@ -537,7 +537,6 @@
         "restoreLayoutState": "창 레이아웃 복원",
         "restoreEditors": "열려 있던 파일 복원",
         "restoreViewState": "읽기 위치 및 선택 영역 복원",
-        "defaults": "개요 위치와 소스 모드는 새 레이아웃의 기본값입니다. 기존 창은 각자의 레이아웃을 유지합니다.",
         "failure": "설정을 저장하지 못했습니다. 이전 설정이 유지됩니다."
       },
       "pandoc": {

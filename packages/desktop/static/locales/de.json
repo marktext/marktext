@@ -537,7 +537,6 @@
         "restoreLayoutState": "Fensterlayout wiederherstellen",
         "restoreEditors": "Geöffnete Dateien wiederherstellen",
         "restoreViewState": "Lesepositionen und Auswahl wiederherstellen",
-        "defaults": "Die Position der Gliederung und der Quelltextmodus sind Vorgaben für neue Layouts. Bestehende Fenster behalten ihr eigenes Layout.",
         "failure": "Die Einstellungen konnten nicht gespeichert werden. Die bisherigen Einstellungen bleiben gültig."
       },
       "pandoc": {
