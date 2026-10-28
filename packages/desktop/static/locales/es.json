@@ -694,16 +694,22 @@
     },
     "theme": {
       "title": "Tema",
-      "followSystemTheme": "Seguir tema del sistema",
+      "followSystemTheme": "Seguir la apariencia del sistema",
       "followSystemNote": "Seguir el tema del sistema bloquea la lista de temas de abajo. Desactívalo para cambiar de tema libremente.",
       "modeThemes": "Selección de Tema",
       "lightModeTheme": "Tema de modo claro",
       "darkModeTheme": "Tema de modo oscuro",
       "customCss": "CSS Personalizado",
-      "importCustomThemes": "Importar temas personalizados",
-      "importTheme": "Importar Tema",
-      "openFolder": "Abrir Carpeta",
-      "openThemesFolder": "Abrir carpeta de temas"
+      "chooseTheme": "Elegir tema",
+      "chooseFor": "Elegir {name}",
+      "searchThemes": "Buscar temas",
+      "filterLabel": "Tipo de tema",
+      "filter": {
+        "all": "Todos",
+        "light": "Claro",
+        "dark": "Oscuro"
+      },
+      "noResults": "No hay temas que coincidan."
     },
     "keybindings": {
       "title": "Atajos de Teclado",

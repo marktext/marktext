@@ -694,16 +694,22 @@
     },
     "theme": {
       "title": "Design",
-      "followSystemTheme": "Systemdesign folgen",
+      "followSystemTheme": "Systemdarstellung folgen",
       "followSystemNote": "Wenn Sie dem Systemthema folgen, ist die Themenliste unten gesperrt. Deaktivieren Sie dies, um Themen frei zu wechseln.",
       "modeThemes": "Design-Auswahl",
       "lightModeTheme": "Helles Modus-Design",
       "darkModeTheme": "Dunkles Modus-Design",
       "customCss": "Benutzerdefiniertes CSS",
-      "importCustomThemes": "Benutzerdefinierte Designs importieren",
-      "importTheme": "Design importieren",
-      "openFolder": "Ordner öffnen",
-      "openThemesFolder": "Design-Ordner öffnen"
+      "chooseTheme": "Thema auswählen",
+      "chooseFor": "{name} auswählen",
+      "searchThemes": "Themen suchen",
+      "filterLabel": "Thementyp",
+      "filter": {
+        "all": "Alle",
+        "light": "Hell",
+        "dark": "Dunkel"
+      },
+      "noResults": "Keine passenden Themen gefunden."
     },
     "keybindings": {
       "title": "Tastenkürzel",

@@ -694,16 +694,22 @@
     },
     "theme": {
       "title": "テーマ",
-      "followSystemTheme": "システムのテーマに従う",
+      "followSystemTheme": "システムの外観に合わせる",
       "followSystemNote": "システムテーマに従っている間は、下のテーマ一覧を切り替えられません。オフにすると自由に切り替えられます。",
       "modeThemes": "テーマの選択",
       "lightModeTheme": "ライトモードのテーマ",
       "darkModeTheme": "ダークモードのテーマ",
       "customCss": "カスタム CSS",
-      "importCustomThemes": "カスタムテーマのインポート",
-      "importTheme": "テーマをインポート",
-      "openFolder": "フォルダーを開く",
-      "openThemesFolder": "テーマフォルダーを開く"
+      "chooseTheme": "テーマを選択",
+      "chooseFor": "{name}を選択",
+      "searchThemes": "テーマを検索",
+      "filterLabel": "テーマの種類",
+      "filter": {
+        "all": "すべて",
+        "light": "ライト",
+        "dark": "ダーク"
+      },
+      "noResults": "一致するテーマがありません。"
     },
     "keybindings": {
       "title": "キーバインド",

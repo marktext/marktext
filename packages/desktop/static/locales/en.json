@@ -694,16 +694,22 @@
     },
     "theme": {
       "title": "Theme",
-      "followSystemTheme": "Follow System Theme",
+      "followSystemTheme": "Follow system appearance",
       "followSystemNote": "Following the system locks the theme list below. Turn this off to switch themes freely.",
       "modeThemes": "Theme Selection",
       "lightModeTheme": "Light mode theme",
       "darkModeTheme": "Dark mode theme",
       "customCss": "Custom CSS",
-      "importCustomThemes": "Import custom themes",
-      "importTheme": "Import Theme",
-      "openFolder": "Open Folder",
-      "openThemesFolder": "Open themes folder"
+      "chooseTheme": "Choose theme",
+      "chooseFor": "Choose {name}",
+      "searchThemes": "Search themes",
+      "filterLabel": "Theme type",
+      "filter": {
+        "all": "All",
+        "light": "Light",
+        "dark": "Dark"
+      },
+      "noResults": "No themes match your search."
     },
     "keybindings": {
       "title": "Keybindings",

@@ -13,6 +13,11 @@ export const revealSetting = async(key: string): Promise<void> => {
     return fallback ? document.getElementById(settingTargetId(fallback)) : null
   }
   const highlight = (target: HTMLElement): void => {
+    let disclosure = target.closest('details')
+    while (disclosure) {
+      disclosure.open = true
+      disclosure = disclosure.parentElement?.closest('details') ?? null
+    }
     target.scrollIntoView({ block: 'center', behavior: 'smooth' })
     target.setAttribute('tabindex', '-1')
     target.focus({ preventScroll: true })

@@ -694,16 +694,22 @@
     },
     "theme": {
       "title": "테마",
-      "followSystemTheme": "시스템 테마 따르기",
+      "followSystemTheme": "시스템 모양 따르기",
       "followSystemNote": "시스템 테마를 따르는 동안에는 아래 테마 목록을 전환할 수 없습니다. 끄면 자유롭게 전환할 수 있습니다.",
       "modeThemes": "테마 선택",
       "lightModeTheme": "라이트 모드 테마",
       "darkModeTheme": "다크 모드 테마",
       "customCss": "사용자 정의 CSS",
-      "importCustomThemes": "사용자 정의 테마 가져오기",
-      "importTheme": "테마 가져오기",
-      "openFolder": "폴더 열기",
-      "openThemesFolder": "테마 폴더 열기"
+      "chooseTheme": "테마 선택",
+      "chooseFor": "{name} 선택",
+      "searchThemes": "테마 검색",
+      "filterLabel": "테마 유형",
+      "filter": {
+        "all": "전체",
+        "light": "밝게",
+        "dark": "어둡게"
+      },
+      "noResults": "일치하는 테마가 없습니다."
     },
     "keybindings": {
       "title": "키 바인딩",

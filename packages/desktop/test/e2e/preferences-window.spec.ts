@@ -106,6 +106,42 @@ test('shortcut conflict notices name and reveal the command occupying the bindin
   }
 })
 
+test('theme picker keeps fixed and system theme choices separate and preserves custom CSS', async() => {
+  const { app, page } = await launchWithMarkdown('# Theme choices\n', {
+    preferences: {
+      language: 'en', theme: 'light', followSystemTheme: false,
+      lightModeTheme: 'light', darkModeTheme: 'dark', customCss: '/* retained */'
+    }, suppressErrorDialog: true
+  })
+  try {
+    const settings = await openSettings(app, page)
+    await settings.getByRole('button', { name: 'Appearance', exact: true }).click()
+    await settings.locator('#setting-theme .selected-theme').click()
+    await expect(settings.locator('.theme-option')).toHaveCount(33)
+    await settings.getByRole('textbox', { name: 'Search themes', exact: true }).fill('Dracula')
+    await expect(settings.locator('.theme-option')).toHaveCount(1)
+    await settings.getByRole('button', { name: 'Dracula', exact: true }).click()
+    await expect.poll(async() => (await preferences(app)).theme).toBe('dracula')
+    await expect(page.locator('body')).toHaveClass(/dark/)
+    await settings.getByRole('switch', { name: 'Follow system appearance', exact: true }).locator('..').click()
+    await settings.locator('#setting-lightModeTheme .selected-theme').click()
+    await expect(settings.getByRole('button', { name: 'Dracula', exact: true })).toHaveCount(0)
+    await settings.getByRole('button', { name: 'Solarized Light', exact: true }).click()
+    await expect.poll(() => preferences(app)).toMatchObject({ lightModeTheme: 'solarized-light', darkModeTheme: 'dark' })
+    await settings.locator('#setting-darkModeTheme .selected-theme').click()
+    await expect(settings.getByRole('button', { name: 'Solarized Light', exact: true })).toHaveCount(0)
+    await settings.getByRole('button', { name: 'Nord', exact: true }).click()
+    await expect.poll(() => preferences(app)).toMatchObject({ lightModeTheme: 'solarized-light', darkModeTheme: 'nord' })
+    await settings.locator('.pref-sidebar input').fill('customCss')
+    await settings.locator('.pref-autocomplete li').first().click()
+    await expect(settings.locator('#setting-customCss')).toHaveAttribute('open', '')
+    await expect(settings.locator('.custom-css-input')).toHaveValue('/* retained */')
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
 test('file-tree rule tags retain glob commas when adding and reopening settings', async() => {
   const { app, page } = await launchWithMarkdown('# Exclusion rules\n', {
     preferences: { language: 'en', treePathExcludePatterns: ['**/{drafts,archive}/**'] },

@@ -694,16 +694,22 @@
     },
     "theme": {
       "title": "主题",
-      "followSystemTheme": "跟随系统主题",
+      "followSystemTheme": "跟随系统外观",
       "followSystemNote": "跟随系统主题时，下方主题列表不可切换。关闭后即可自由切换。",
       "modeThemes": "主题选择",
       "lightModeTheme": "浅色模式主题",
       "darkModeTheme": "深色模式主题",
       "customCss": "自定义 CSS",
-      "importCustomThemes": "导入自定义主题",
-      "importTheme": "导入主题",
-      "openFolder": "打开文件夹",
-      "openThemesFolder": "打开主题文件夹"
+      "chooseTheme": "选择主题",
+      "chooseFor": "选择{name}",
+      "searchThemes": "搜索主题",
+      "filterLabel": "主题类型",
+      "filter": {
+        "all": "全部",
+        "light": "浅色",
+        "dark": "深色"
+      },
+      "noResults": "没有匹配的主题。"
     },
     "keybindings": {
       "title": "快捷键",
