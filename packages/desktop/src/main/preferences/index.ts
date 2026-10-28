@@ -7,8 +7,24 @@ import { isWindows } from '../config'
 import { hasSameKeys } from '../utils'
 import { onInternalChannel } from '../utils/internalIpc'
 import { TypedEmitter } from '@shared/types/typedEmitter'
-import type { IUserPreferences } from '@shared/types/preferences'
+import type { UserPreferences } from '@shared/types/preferences'
 import schema from './schema.json'
+
+// Keep old startup values confined to electron-store until the new loader replaces it.
+interface LegacyStoredPreferences extends Partial<Omit<UserPreferences, 'startUpAction'>> {
+  startUpAction?: UserPreferences['startUpAction'] | 'lastState'
+  tocVisibility?: boolean
+  sidebarColumn?: number
+  imagePreferRelativePath?: boolean
+  imageFolderPath?: string
+  screenshotFolderPath?: string
+  imageBed?: { selected?: string; [key: string]: unknown }
+  imageBedAlias?: { [key: string]: unknown }
+  watcher?: { usePolling?: boolean; [key: string]: unknown }
+  lastOpenedFolder?: string
+  treePathExcludePatterns?: string[]
+  [key: string]: unknown
+}
 
 const PREFERENCES_FILE_NAME = 'preferences'
 
@@ -23,7 +39,7 @@ interface AppPaths {
 class Preference extends TypedEmitter<PreferenceEvents> {
   public readonly preferencesPath: string
   public readonly hasPreferencesFile: boolean
-  public readonly store: Store<IUserPreferences>
+  public readonly store: Store<LegacyStoredPreferences>
   public readonly staticPath: string
 
   /** Throws when preference validation fails. */
@@ -36,8 +52,8 @@ class Preference extends TypedEmitter<PreferenceEvents> {
     this.hasPreferencesFile = fs.existsSync(
       path.join(this.preferencesPath, `./${PREFERENCES_FILE_NAME}.json`)
     )
-    this.store = new Store<IUserPreferences>({
-      schema: schema as unknown as Schema<IUserPreferences>,
+    this.store = new Store<LegacyStoredPreferences>({
+      schema: schema as unknown as Schema<LegacyStoredPreferences>,
       name: PREFERENCES_FILE_NAME,
       migrations: {
         '0.18.6': (store) => {
@@ -115,8 +131,8 @@ class Preference extends TypedEmitter<PreferenceEvents> {
     this._listenForIpcMain()
   }
 
-  getAll(): IUserPreferences {
-    return this.store.store as IUserPreferences
+  getAll(): LegacyStoredPreferences {
+    return this.store.store as LegacyStoredPreferences
   }
 
   setItem(key: string, value: unknown): void {
