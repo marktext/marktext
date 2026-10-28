@@ -9,6 +9,7 @@ import type {
 } from '../types/applicationState'
 import type { DocumentViewState } from '../types/files'
 
+/** Optional verified disk snapshots retain saved formats while live documents are dirty. */
 export interface WorkspaceCaptureOptions {
   savedDocuments?: ReadonlyMap<string, DocumentSnapshot>
   limits?: Partial<PersistenceLimits>

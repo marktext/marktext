@@ -7,7 +7,8 @@ import {
   activateSessionWindow,
   closeSessionWindow,
   finishSession,
-  registerSessionWindow
+  getActiveSessionWindow,
+  updateSessionWindow
 } from '../../../src/shared/applicationState/session'
 import { buildStartupPlan } from '../../../src/shared/applicationState/startupPlan'
 import type {
@@ -97,21 +98,32 @@ describe('latest session membership', () => {
     expect(last.windows).toEqual([])
     expect(last.lastWindow?.id).toBe('b')
     expect(last.id).toBe(original.id)
-    const reopened = registerSessionWindow(last, window('c'))
-    expect(reopened.lastWindow).toBeNull()
-    expect(reopened.windows.map((entry) => entry.id)).toEqual(['c'])
   })
 
-  it('updates activation without duplicating or sharing the incoming window snapshot', () => {
+  it('updates a window without duplicating or sharing the incoming snapshot', () => {
     const snapshot = window('a')
-    let session = registerSessionWindow(state().session, snapshot)
-    session = registerSessionWindow(session, snapshot)
-    session = activateSessionWindow(session, 'a', 50)
+    const original = state(window('a'), window('b')).session
+    const session = updateSessionWindow(original, snapshot)
     snapshot.layout.sidebar.visible = true
-    expect(session.windows).toHaveLength(1)
+    expect(session.windows.map((entry) => entry.id)).toEqual(['a', 'b'])
     expect(session.windows[0].layout.sidebar.visible).toBe(false)
+  })
+
+  it('updates activation without mutating the previous session', () => {
+    const original = state(window('a'), window('b')).session
+    const session = activateSessionWindow(original, 'a', 50)
+    expect(original.windows[0].lastActivatedAtMs).toBe(1)
     expect(session.windows[0].lastActivatedAtMs).toBe(50)
     expect(session.activeWindowId).toBe('a')
+    expect(activateSessionWindow(original, 'missing', 50)).toBe(original)
+  })
+
+  it('uses the same active-window fallback for closing and startup planning', () => {
+    const first = window('a')
+    const latest = { ...window('b'), lastActivatedAtMs: 50 }
+    expect(getActiveSessionWindow([first, latest], 'a')).toBe(first)
+    expect(getActiveSessionWindow([first, latest], 'missing')).toBe(latest)
+    expect(getActiveSessionWindow([], null)).toBeNull()
   })
 })
 
@@ -340,7 +352,7 @@ describe('startup planning without filesystem or Electron effects', () => {
             })
             expect(plan).toHaveLength(1)
             if (plan[0].kind !== 'explicit')
-              expect(plan[0].layout.sidebar.visible).toBe(restoreLayoutState && action !== 'blank')
+              expect((plan[0].kind === 'restore' ? plan[0].snapshot.layout : plan[0].layout).sidebar.visible).toBe(restoreLayoutState && action !== 'blank')
             const entries =
               plan[0].kind === 'restore'
                 ? plan[0].snapshot.documents
