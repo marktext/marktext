@@ -1,7 +1,8 @@
-import type { MarkedExtension } from 'marked';
+import type { MarkedExtension, Tokens } from 'marked';
 import { Renderer } from 'marked';
 
-export default function compactNestedLists(): MarkedExtension {
+/** The callback adds trusted ordered-list attributes; nesting whitespace stays shared. */
+export default function compactNestedLists(orderedListAttributes?: (token: Tokens.List) => string): MarkedExtension {
     let listDepth = 0;
 
     return {
@@ -10,6 +11,7 @@ export default function compactNestedLists(): MarkedExtension {
                 const newline = listDepth > 0 ? '' : '\n';
                 const tag = token.ordered ? 'ol' : 'ul';
                 const start = token.ordered && token.start !== 1 ? ` start="${token.start}"` : '';
+                const attributes = token.ordered ? orderedListAttributes?.(token) ?? '' : '';
                 let body = '';
                 listDepth++;
                 try {
@@ -19,7 +21,7 @@ export default function compactNestedLists(): MarkedExtension {
                 finally {
                     listDepth--;
                 }
-                return `<${tag}${start}>${newline}${body}</${tag}>${newline}`;
+                return `<${tag}${start}${attributes}>${newline}${body}</${tag}>${newline}`;
             },
             listitem(item) {
                 const html = Renderer.prototype.listitem.call(this, item);

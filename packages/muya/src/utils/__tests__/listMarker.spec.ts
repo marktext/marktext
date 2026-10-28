@@ -67,6 +67,14 @@ describe('formatListMarker', () => {
 });
 
 describe('minSpacesAfterMarker', () => {
+    it('disambiguates a page number only after a lower-alpha period marker', () => {
+        expect(minSpacesAfterMarker(parseListMarker('p.')!, '5 items')).toBe(2);
+        expect(minSpacesAfterMarker(parseListMarker('p.')!, 'items')).toBe(1);
+        expect(minSpacesAfterMarker(parseListMarker('p)')!, '5 items')).toBe(1);
+        expect(minSpacesAfterMarker(parseListMarker('(p)')!, '5 items')).toBe(1);
+        expect(minSpacesAfterMarker({ value: 42, style: 'lower-alpha', delimiter: '.' }, '5 items')).toBe(2);
+    });
+
     it('asks for two spaces after a period marker that reads like an initial', () => {
         const spaces = (text: string, style?: Parameters<typeof parseListMarker>[1]) => {
             const marker = parseListMarker(text, style);

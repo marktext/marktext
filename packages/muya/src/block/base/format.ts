@@ -80,10 +80,13 @@ interface IFancyListPrefix {
 function matchFancyListPrefix(text: string, nested: boolean): IFancyListPrefix | null {
     const match = FANCY_LIST_PREFIX_REG.exec(text);
     const marker = match && parseListMarker(match[1]);
-    if (!match || !marker || match[2].length < minSpacesAfterMarker(marker) || (nested && marker.value !== 1))
+    if (!match || !marker)
+        return null;
+    const itemText = text.slice(match[0].length);
+    if (match[2].length < minSpacesAfterMarker(marker, itemText) || (nested && marker.value !== 1))
         return null;
 
-    return { marker, text: text.slice(match[0].length) };
+    return { marker, text: itemText };
 }
 
 function stripHardBreakMarker(line: string): string {

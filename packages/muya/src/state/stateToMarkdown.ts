@@ -644,7 +644,8 @@ export default class ExportMarkdown {
             itemMarker = marker ? `${marker} ` : '- ';
         }
         else if ('start' in listInfo) {
-            itemMarker = this._orderedItemMarker(listInfo);
+            const firstText = name === 'list-item' && children[0]?.name === 'paragraph' ? children[0].text : '';
+            itemMarker = this._orderedItemMarker(listInfo, firstText);
         }
         else {
             itemMarker = '- ';
@@ -681,7 +682,7 @@ export default class ExportMarkdown {
     }
 
     // The next item's marker with the spaces after it; advances the list's count.
-    private _orderedItemMarker(listInfo: Extract<TListMeta, { start: number }>): string {
+    private _orderedItemMarker(listInfo: Extract<TListMeta, { start: number }>, firstText: string): string {
         const style = listInfo.style ?? 'decimal';
         const preservedMarker = listInfo.sourceMarkers?.shift();
         // NOTE: GitHub and Bitbucket limit the list count to 99 but this is nowhere defined.
@@ -692,7 +693,7 @@ export default class ExportMarkdown {
         const orderMarker = (preservedMarker && parseListMarker(preservedMarker, style))
             || { value: n, style, delimiter: listInfo.delimiter };
 
-        return `${preservedMarker || formatListMarker(orderMarker)}${' '.repeat(minSpacesAfterMarker(orderMarker))}`;
+        return `${preservedMarker || formatListMarker(orderMarker)}${' '.repeat(minSpacesAfterMarker(orderMarker, firstText))}`;
     }
 
     private _listItemIndent(indent: string, itemMarker: string) {

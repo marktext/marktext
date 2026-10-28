@@ -132,11 +132,13 @@ export function formatListMarker({ value, style, delimiter }: IListMarker): stri
 // `B. Russell won` stays a paragraph.
 const INITIAL_LIKE_ROMAN = new Set([1, 5, 10, 50, 100, 500, 1000]);
 
-/** Fewest spaces pandoc accepts between this marker and the item text. */
-export function minSpacesAfterMarker({ value, style, delimiter }: IListMarker): 1 | 2 {
+/** Fewest spaces pandoc accepts; `text` disambiguates a following page number. */
+export function minSpacesAfterMarker({ value, style, delimiter }: IListMarker, text = ''): 1 | 2 {
     const initialLike = style === 'upper-alpha' || (style === 'upper-roman' && INITIAL_LIKE_ROMAN.has(value));
+    // A single space in `p. 5` denotes a page reference, including after alpha wraps.
+    const pageReference = style === 'lower-alpha' && writeAlpha(value) === 'p' && /^\d/.test(text);
 
-    return delimiter === '.' && initialLike ? 2 : 1;
+    return delimiter === '.' && (initialLike || pageReference) ? 2 : 1;
 }
 
 /**

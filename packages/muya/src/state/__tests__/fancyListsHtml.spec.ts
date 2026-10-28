@@ -9,13 +9,7 @@ const OUTLINE = 'I.  Introduction\n    A.  Background\n        1. Early work\n';
 
 const OUTLINE_HTML = [
     '<ol type="I" class="fancy-list-upper-roman">',
-    '<li>Introduction<ol type="A" class="fancy-list-upper-alpha">',
-    '<li>Background<ol type="1" class="fancy-list-decimal">',
-    '<li>Early work</li>',
-    '</ol>',
-    '</li>',
-    '</ol>',
-    '</li>',
+    '<li>Introduction<ol type="A" class="fancy-list-upper-alpha"><li>Background<ol type="1" class="fancy-list-decimal"><li>Early work</li></ol></li></ol></li>',
     '</ol>',
     '',
 ].join('\n');
@@ -33,11 +27,11 @@ describe('fancy lists in exported HTML', () => {
             '<li>one</li>',
             '<li>two</li>',
             '</ol>',
-            '<ol type="1" start="3" class="fancy-list-decimal-paren">',
+            '<ol start="3" type="1" class="fancy-list-decimal-paren">',
             '<li>three</li>',
             '<li>four</li>',
             '</ol>',
-            '<ol type="I" start="4" class="fancy-list-upper-roman">',
+            '<ol start="4" type="I" class="fancy-list-upper-roman">',
             '<li>four</li>',
             '</ol>',
             '',
@@ -64,6 +58,51 @@ describe('fancy lists in exported HTML', () => {
 
     it('copies the same lists to the clipboard', () => {
         expect(getSanitizeClipboardHtml(OUTLINE, { fancyLists: true })).toBe(OUTLINE_HTML);
+    });
+});
+
+describe.each([
+    ['HTML export', (markdown: string) => renderToStaticHTML(markdown, { fancyLists: true })],
+    ['clipboard HTML', (markdown: string) => getSanitizeClipboardHtml(markdown, { fancyLists: true })],
+] as const)('fancy lists in %s', (_name, render) => {
+    const bodyOf = (markdown: string) => new DOMParser().parseFromString(render(markdown), 'text/html').body;
+
+    it('preserves distinct paragraphs inside one loose item', () => {
+        const body = bodyOf('a. first\n\n   second\n\nb. third\n');
+        expect([...body.querySelectorAll('ol > li > p')].map(p => p.textContent)).toEqual(['first', 'second', 'third']);
+    });
+
+    it('renders checked and unchecked tasks without leaving literal markers', () => {
+        const body = bodyOf('(a) [ ] todo\n(b) [x] **done**\n(c) [X] upper\n');
+        const boxes = [...body.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')];
+        expect(boxes.map(box => box.checked)).toEqual([false, true, true]);
+        expect(boxes.every(box => box.disabled)).toBe(true);
+        expect(body.querySelector('strong')?.textContent).toBe('done');
+        expect(body.textContent).not.toMatch(/\[[ x]\]/i);
+    });
+
+    it('keeps paragraphs and inline markup in loose tasks', () => {
+        const body = bodyOf('a. [ ] **first**\n\n   second\n\nb. [x] last\n');
+        expect([...body.querySelectorAll('ol > li > p')].map(p => p.textContent?.trim())).toEqual(['first', 'second', 'last']);
+        expect(body.querySelector('strong')?.textContent).toBe('first');
+        expect([...body.querySelectorAll<HTMLInputElement>('input')].map(box => box.checked)).toEqual([false, true]);
+    });
+
+    it('renders tasks nested under another marker style', () => {
+        const body = bodyOf('- parent\n  (a) [x] done\n  (b) next\n');
+        expect(body.querySelector<HTMLInputElement>('ul > li > ol > li > input')?.checked).toBe(true);
+        expect(body.querySelector('ol')?.getAttribute('type')).toBe('a');
+    });
+
+    it('keeps empty task items', () => {
+        const body = bodyOf('(a) [ ]\n(b) [x]\n');
+        expect([...body.querySelectorAll<HTMLInputElement>('input')].map(box => box.checked)).toEqual([false, true]);
+    });
+
+    it('removes formatting newlines from mixed nested lists while retaining soft breaks', () => {
+        const body = bodyOf('1. parent\n   a. line A\n      line B\n      - child\n   b. next\n');
+        const nested = body.querySelector('ol ol')!;
+        expect(nested.innerHTML).toBe('<li>line A\nline B<ul><li>child</li></ul></li><li>next</li>');
     });
 });
 

@@ -62,6 +62,7 @@ describe('typing a fancy-list marker', () => {
         ['I.  x', 'I.  x\n'],
         ['A.  x', 'A.  x\n'],
         ['a. x', 'a. x\n'],
+        ['p.  5 items', 'p.  5 items\n'],
         ['i. x', 'i. x\n'],
         ['III. x', 'III. x\n'],
         ['(1) x', '(1) x\n'],
@@ -75,7 +76,7 @@ describe('typing a fancy-list marker', () => {
         expect(type(text)).toEqual(['order-list > list-item > paragraph', markdown]);
     });
 
-    it.each(['B. Russell won', 'C. elegans worms', 'V. Five', 'I. x', 'para\n(a) x', '#.x'])('keeps `%s` as text', (text) => {
+    it.each(['B. Russell won', 'C. elegans worms', 'V. Five', 'I. x', 'p. 5 items', 'para\n(a) x', '#.x'])('keeps `%s` as text', (text) => {
         expect(type(text)).toEqual(['paragraph', `${text}\n`]);
     });
 

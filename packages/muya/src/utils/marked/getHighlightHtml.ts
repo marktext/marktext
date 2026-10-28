@@ -48,9 +48,6 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
     // Use a fresh Marked instance; repeated use() chains walkTokens and corrupts repeated renders.
     const marked = new Marked(markedHighlight({ highlight }));
 
-    // Export's pre-wrap stylesheet exposes marked's list-wrapper newlines (#5767).
-    marked.use(compactNestedLists());
-
     marked.use({
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
@@ -112,6 +109,9 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
 
     if (fancyLists)
         marked.use(fancyListsHtmlExtension());
+    else
+        // Export's pre-wrap stylesheet exposes marked's list-wrapper newlines (#5767).
+        marked.use(compactNestedLists());
 
     let html = '';
 

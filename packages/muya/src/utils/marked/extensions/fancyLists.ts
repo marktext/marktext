@@ -1,6 +1,8 @@
 import type { Lexer, MarkedExtension, Tokens } from 'marked';
 import type { IListMarker, ListDelimiter, ListStyle } from '../../listMarker';
 import { minSpacesAfterMarker, parseListMarker } from '../../listMarker';
+import tokenizeListItems from '../tokenizeListItems';
+import { configureListTokenizer, listRulesOf } from './listTokenizerRules';
 
 // pandoc's `fancy_lists`: ordered lists marked `a.`, `IV)`, `(1)` and so on.
 // Lists that open with a decimal `1.` or `1)` marker stay with marked's own
@@ -20,8 +22,6 @@ interface IMarkerLine {
 
 const MARKER_LINE = /^( {0,3})(\((?:[A-Z\d]+|#)\)|(?:[A-Z\d]+|#)[.)])(?:([ \t]+)([^ \t\n][^\n]*)?)?$/i;
 const BULLET_OR_DECIMAL_START = /^ {0,3}(?:[*+-]|\d{1,9}[.)])(?:[ \t]|$)/;
-// pandoc reads `p. 5` as a page reference, not as item sixteen.
-const PAGE_REFERENCE = /^ {0,3}p\.[ \t]\d/;
 
 function expandLeadingTabs(line: string) {
     return line.replace(/^[ \t]+/, whitespace => whitespace.replace(/\t/g, '    '));
@@ -29,14 +29,14 @@ function expandLeadingTabs(line: string) {
 
 function readMarkerLine(line: string, continueStyle?: ListStyle): IMarkerLine | null {
     const match = MARKER_LINE.exec(expandLeadingTabs(line));
-    if (!match || PAGE_REFERENCE.test(line))
+    if (!match)
         return null;
     const [, lead, markerText, spaces = '', text = ''] = match;
     const marker = parseListMarker(markerText, continueStyle);
     if (!marker)
         return null;
     const gap = spaces.replace(/\t/g, '    ').length;
-    if (text && gap < minSpacesAfterMarker(marker))
+    if (text && gap < minSpacesAfterMarker(marker, text))
         return null;
     // Like marked: a blank first line or a code-indented text sits one column
     // past the marker.
@@ -60,40 +60,12 @@ function startsListItem(line: string, contentColumn: number) {
     return BULLET_OR_DECIMAL_START.test(line) || readMarkerLine(line) !== null;
 }
 
-// marked's built-in list tokenizer only calls `.test` on the regex that ends
-// an item at the next bullet. Overriding `test` lets a decimal or bullet item
-// end at a fancy marker too, as it does in pandoc.
-class ListItemStart extends RegExp {
-    constructor(private _contentColumn: number) {
-        super('');
-    }
-
-    override test(line: string) {
-        return startsListItem(line, this._contentColumn);
-    }
-}
-
-// The lexer constructor always sets `options.tokenizer`.
-function tokenizerOf(lexer: Lexer) {
-    return lexer.options.tokenizer!;
-}
-
 export function endListItemsAtFancyMarkers(lexer: Lexer) {
-    const tokenizer = tokenizerOf(lexer);
-    const { rules } = tokenizer;
-    tokenizer.rules = {
-        ...rules,
-        other: {
-            ...rules.other,
-            nextBulletRegex: (contentColumn: number) => new ListItemStart(contentColumn),
-            // pandoc continues a decimal list with `#.` items.
-            listItemRegex: (bullet: string) => rules.other.listItemRegex(bullet.replace('\\d{1,9}', '(?:\\d{1,9}|#)')),
-        },
-    };
+    configureListTokenizer(lexer, startsListItem);
 }
 
 function endsItem(lexer: Lexer, line: string, contentColumn: number) {
-    const { other } = tokenizerOf(lexer).rules;
+    const other = listRulesOf(lexer);
 
     return other.fencesBeginRegex(contentColumn).test(line)
         || other.headingBeginRegex(contentColumn).test(line)
@@ -105,7 +77,7 @@ function endsItem(lexer: Lexer, line: string, contentColumn: number) {
 
 // A lazy line continues a paragraph, so it cannot follow other block starts.
 function endsParagraph(lexer: Lexer, line: string, contentColumn: number) {
-    const { other } = tokenizerOf(lexer).rules;
+    const other = listRulesOf(lexer);
 
     return expandLeadingTabs(line).search(/\S/) >= 4
         || other.fencesBeginRegex(contentColumn).test(line)
@@ -171,7 +143,7 @@ function tokenizeFancyList(lexer: Lexer, src: string): IFancyListToken | undefin
     if (!lexer.state.top && value !== 1)
         return;
 
-    const { other } = tokenizerOf(lexer).rules;
+    const other = listRulesOf(lexer);
     const list: IFancyListToken = {
         type: 'list',
         raw: '',
@@ -205,14 +177,7 @@ function tokenizeFancyList(lexer: Lexer, src: string): IFancyListToken | undefin
     last.text = last.text.trimEnd();
     list.raw = list.raw.trimEnd();
 
-    for (const item of list.items) {
-        lexer.state.top = false;
-        item.tokens = lexer.blockTokens(item.text, []);
-        if (!list.loose)
-            list.loose = item.tokens.some(token => token.type === 'space' && other.anyLine.test(token.raw));
-    }
-    for (const item of list.items)
-        item.loose = list.loose;
+    tokenizeListItems(lexer, list);
 
     return list;
 }

@@ -27,28 +27,34 @@ const markdown = `- one
 - [ ] four
 `;
 
-test('tight nested lists export without blank lines between items (#5767)', async ({ page, browser }) => {
-    const html = await page.evaluate(async md => new window.MarkdownToHtml!(md).generate(), markdown);
+for (const fancyLists of [false, true]) {
+    test(`tight nested lists export without blank lines, fancyLists=${fancyLists} (#5767)`, async ({ page, browser }) => {
+        const source = fancyLists ? `${markdown}\nI.  outer\n    A.  inner\n        1. child\n    B.  next\nII. last\n` : markdown;
+        const html = await page.evaluate(async ({ markdown, fancyLists }) => {
+            window.__e2e!.rebuildMuya({ markdown, fancyLists });
+            return new window.MarkdownToHtml!(markdown, window.muya!).generate();
+        }, { markdown: source, fancyLists });
 
-    const context = await browser.newContext({ offline: true });
-    try {
-        const exported = await context.newPage();
-        await exported.setContent(html);
+        const context = await browser.newContext({ offline: true });
+        try {
+            const exported = await context.newPage();
+            await exported.setContent(html);
 
-        const itemTops = () => exported.evaluate(() =>
-            [...document.querySelectorAll('.markdown-body li')].map(li => Math.round(li.getBoundingClientRect().top)),
-        );
+            const itemTops = () => exported.evaluate(() =>
+                [...document.querySelectorAll('.markdown-body li')].map(li => Math.round(li.getBoundingClientRect().top)),
+            );
 
-        const actual = await itemTops();
-        await exported.addStyleTag({ content: '.markdown-body * { white-space: normal !important; }' });
-        const expected = await itemTops();
+            const actual = await itemTops();
+            await exported.addStyleTag({ content: '.markdown-body * { white-space: normal !important; }' });
+            const expected = await itemTops();
 
-        expect(actual).toEqual(expected);
-    }
-    finally {
-        await context.close();
-    }
-});
+            expect(actual).toEqual(expected);
+        }
+        finally {
+            await context.close();
+        }
+    });
+}
 
 test('raw HTML lists retain authored spaces in exports', async ({ page, browser }) => {
     const markdown = '<ul><li><span>A</span><ul style="display:inline"><li style="display:inline">B</li></ul> <span>C</span></li></ul>';

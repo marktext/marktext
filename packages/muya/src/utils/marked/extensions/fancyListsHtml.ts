@@ -3,6 +3,7 @@ import type { ListDelimiter, ListStyle } from '../../listMarker';
 import type { ListToken } from '../types';
 import { Lexer } from 'marked';
 import { toListDelimiter } from '../../listMarker';
+import compactNestedLists from '../compactNestedLists';
 import fancyListsExtension, { endListItemsAtFancyMarkers } from './fancyLists';
 
 type TCounterStyle = Exclude<ListStyle, 'default'>;
@@ -29,10 +30,18 @@ function decimalDelimiter(list: Tokens.List): ListDelimiter {
     return toListDelimiter(/^ *\d+([.)])/.exec(list.items[0].raw)?.[1] ?? '.');
 }
 
+function orderedListAttributes(token: Tokens.List): string {
+    const { style = 'decimal', delimiter = decimalDelimiter(token) } = token as ListToken;
+    const counter: TCounterStyle = style === 'default' ? 'decimal' : style;
+
+    return ` type="${TYPE_ATTRIBUTE[counter]}" class="fancy-list-${counter}${CLASS_SUFFIX[delimiter]}"`;
+}
+
 /** Pandoc fancy lists for marked's HTML renderer: `<ol type="I" class="…">`. */
 export default function fancyListsHtmlExtension(): MarkedExtension {
     return {
         ...fancyListsExtension(),
+        ...compactNestedLists(orderedListAttributes),
         hooks: {
             provideLexer() {
                 return (src, options) => {
@@ -41,18 +50,6 @@ export default function fancyListsHtmlExtension(): MarkedExtension {
 
                     return lexer.lex(src);
                 };
-            },
-        },
-        renderer: {
-            list(token) {
-                if (!token.ordered)
-                    return false;
-                const { style = 'decimal', delimiter = decimalDelimiter(token) } = token as ListToken;
-                const counter: TCounterStyle = style === 'default' ? 'decimal' : style;
-                const start = token.start === 1 ? '' : ` start="${token.start}"`;
-                const body = token.items.map(item => this.listitem(item)).join('');
-
-                return `<ol type="${TYPE_ATTRIBUTE[counter]}"${start} class="fancy-list-${counter}${CLASS_SUFFIX[delimiter]}">\n${body}</ol>\n`;
             },
         },
     };

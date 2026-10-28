@@ -107,6 +107,11 @@ const PARSE_CASES: IParseCase[] = [
     { name: 'a lenient numeral', markdown: 'IIII. x\n', outline: [{ list: 'upper-roman .', start: 4, items: [['x']] }] },
     { name: 'a page reference is text', markdown: 'p. 5 x\n', outline: ['p. 5 x'] },
     {
+        name: 'two spaces distinguish a p item from a page reference',
+        markdown: 'p.  5 items\nq. six\n',
+        outline: [{ list: 'lower-alpha .', start: 16, items: [['5 items'], ['six']] }],
+    },
+    {
         name: 'later items read in the first item style',
         markdown: 'i. a\nii. b\niii. c\niv. d\nv. e\n',
         outline: [{ list: 'lower-roman .', start: 1, items: [['a'], ['b'], ['c'], ['d'], ['e']] }],
@@ -284,6 +289,8 @@ const ROUND_TRIPS: Array<[name: string, markdown: string]> = [
     ['a nested # list', '#. one\n   #. nested\n#. two\n'],
     ['a # list after a lettered list', 'a. x\n\n<!-- -->\n\n#. y\n'],
     ['a lettered list after a # list', '#. x\nb. y\n'],
+    ['a p item starting with a number', 'p.  5 items\nq. six\n'],
+    ['a numeric p item in the middle of a list', 'o. prior\np.  5 items\nq. next\n'],
 ];
 
 describe('fancy lists: parsing', () => {
@@ -314,6 +321,17 @@ describe('fancy lists: option off', () => {
             { list: 'decimal )', start: 3, items: [['three']] },
         ]);
     });
+
+    it('does not leak fancy item boundaries or hash continuation into later parses', () => {
+        const markdown = '1. one\na. two\n';
+        expect(outline(toState(markdown))).toHaveLength(2);
+        expect(outline(toState(markdown, false))).toEqual([
+            { list: 'decimal .', start: 1, items: [['one\na. two']] },
+        ]);
+        expect(outline(toState('1. one\n#. two\n', false))).toEqual([
+            { list: 'decimal .', start: 1, items: [['one\n#. two']] },
+        ]);
+    });
 });
 
 describe('fancy lists: serialization', () => {
@@ -324,6 +342,12 @@ describe('fancy lists: serialization', () => {
     it('round-trips task items in a fancy list', () => {
         const markdown = '(a) [ ] foo\n(b) [x] bar\n';
         expect(toMarkdown(toState(markdown))).toBe(markdown);
+    });
+
+    it('does not add page-reference spacing before a task checkbox', () => {
+        const markdown = 'o. prior\np. [x] 5 items\nq. next\n';
+        expect(toMarkdown(toState(markdown))).toBe(markdown);
+        expect(outline(toState(toMarkdown(toState(markdown))))).toEqual(outline(toState(markdown)));
     });
 
     it('keeps adjacent decimal lists as before with the option off', () => {
@@ -340,6 +364,14 @@ describe('fancy lists: serialization', () => {
         const [list] = toState('I.  a\nII. b\nIII. c\nIV. d\n') as [IOrderListState];
         list.children.push({ name: 'list-item', children: [{ name: 'paragraph', text: 'e' }] });
         expect(toMarkdown([list])).toBe('I.  a\nII. b\nIII. c\nIV. d\nV.  e\n');
+    });
+
+    it('keeps numeric p items as lists after the original markers are discarded', () => {
+        const [list] = toState('o. prior\np.  5 items\n') as [IOrderListState];
+        list.children.push({ name: 'list-item', children: [{ name: 'paragraph', text: 'next' }] });
+        const markdown = toMarkdown([list]);
+        expect(markdown).toBe('o. prior\np.  5 items\nq. next\n');
+        expect(outline(toState(markdown))).toEqual(outline([list]));
     });
 
     it('keeps writing # markers in an edited # list', () => {
