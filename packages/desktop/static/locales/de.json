@@ -710,33 +710,25 @@
     },
     "keybindings": {
       "title": "Tastenkürzel",
-      "description": "Tastenkürzel anpassen",
-      "save": "Speichern",
+      "description": "Wähle zum Ändern eines Tastenkürzels die Tastenkombination aus und drücke dann die neue Kombination",
       "restoreDefaults": "Standardwerte wiederherstellen",
       "debugOptions": "Debug-Optionen",
       "dumpKeyboardInfo": "Tastatur-Informationen ausgeben",
       "failedToSave": "Speichern der Tastenkürzel fehlgeschlagen",
-      "keyInputDialog": {
-        "instructions": "Drücken Sie die Tastenkombination, die Sie zuweisen möchten",
-        "invalidKeybinding": "Ungültiges Tastenkürzel",
-        "placeholder": "Tasten drücken..."
-      },
-      "online": "Online",
+      "online": "Dokumentation der Tastenkürzel",
       "saveError": "Fehler beim Speichern der Tastenkürzel",
       "shortcutInUse": "Tastenkürzel wird verwendet",
       "shortcutInUseMessage": "{accelerator} ist bereits {commands} zugewiesen.",
-      "table": {
-        "description": "Beschreibung",
-        "edit": "Bearbeiten",
-        "keyCombination": "Tastenkombination",
-        "options": "Optionen",
-        "reset": "Zurücksetzen",
-        "unbind": "Aufheben"
-      },
       "windowAndNavigation": "Fenster und Navigation",
       "loadError": "Tastenkürzel konnten nicht geladen werden.",
       "reload": "Neu laden",
-      "viewConflict": "{name} anzeigen"
+      "viewConflict": "{name} anzeigen",
+      "editShortcut": "Tastenkürzel für {name} bearbeiten",
+      "unbound": "Nicht zugewiesen",
+      "recorder": {
+        "placeholder": "Tastenkombination drücken",
+        "invalidKeybinding": "Ungültiges Tastenkürzel"
+      }
     },
     "selectFont": "Schrift auswählen",
     "spellchecker": {

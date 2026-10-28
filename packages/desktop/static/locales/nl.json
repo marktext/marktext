@@ -710,33 +710,25 @@
     },
     "keybindings": {
       "title": "Sneltoetsen",
-      "description": "Sneltoetsen aanpassen",
-      "save": "Opslaan",
+      "description": "Selecteer de toetsencombinatie en druk op de nieuwe combinatie om een sneltoets te wijzigen",
       "restoreDefaults": "Standaardwaarden herstellen",
       "debugOptions": "Foutopsporingsopties",
       "dumpKeyboardInfo": "Toetsenbordinformatie exporteren",
       "failedToSave": "Opslaan van sneltoetsen mislukt",
-      "keyInputDialog": {
-        "instructions": "Druk de gewenste toetscombinatie in",
-        "invalidKeybinding": "Ongeldige toetscombinatie",
-        "placeholder": "Druk toetsen in..."
-      },
-      "online": "Online",
+      "online": "Documentatie over sneltoetsen",
       "saveError": "Fout bij opslaan sneltoetsen",
       "shortcutInUse": "Sneltoets in gebruik",
       "shortcutInUseMessage": "{accelerator} is al toegewezen aan {commands}.",
-      "table": {
-        "description": "Beschrijving",
-        "edit": "Bewerken",
-        "keyCombination": "Toetscombinatie",
-        "options": "Opties",
-        "reset": "Herstellen",
-        "unbind": "Loskoppelen"
-      },
       "windowAndNavigation": "Vensters en navigatie",
       "loadError": "Sneltoetsen konden niet worden geladen.",
       "reload": "Opnieuw laden",
-      "viewConflict": "{name} bekijken"
+      "viewConflict": "{name} bekijken",
+      "editShortcut": "Sneltoets voor {name} bewerken",
+      "unbound": "Niet toegewezen",
+      "recorder": {
+        "placeholder": "Druk op de toetsencombinatie",
+        "invalidKeybinding": "Ongeldige toetscombinatie"
+      }
     },
     "selectFont": "Lettertype selecteren",
     "spellchecker": {

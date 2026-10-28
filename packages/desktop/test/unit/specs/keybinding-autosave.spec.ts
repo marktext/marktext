@@ -50,6 +50,18 @@ describe('shared shortcut persistence and search data', () => {
     await store.resetAll()
     expect(save).toHaveBeenLastCalledWith(new Map())
   })
+  it('treats an equivalent default combination as unchanged', async() => {
+    const { store, save } = await boot()
+    expect(store.hasCustomBindings).toBe(true)
+    await store.change('file.save', 'Control+S')
+    expect(store.hasCustomBindings).toBe(false)
+    expect(store.commands.find(command => command.id === 'file.save')?.accelerator).toBe('Ctrl+S')
+    expect(save).toHaveBeenLastCalledWith(new Map())
+    await store.unbind('file.save')
+    expect(store.hasCustomBindings).toBe(true)
+    await store.resetAll()
+    expect(store.hasCustomBindings).toBe(false)
+  })
   it('rejects conflicts without saving and accepts a command’s own binding', async() => {
     const { store, save } = await boot()
     await store.change('file.save', 'Ctrl+O')

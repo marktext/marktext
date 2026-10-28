@@ -710,33 +710,25 @@
     },
     "keybindings": {
       "title": "快捷键",
-      "description": "自定义键盘快捷键",
-      "save": "保存",
+      "description": "要更改快捷键，请选中组合键，然后按下新的组合键",
       "restoreDefaults": "恢复默认",
       "debugOptions": "调试选项",
       "dumpKeyboardInfo": "转储键盘信息",
       "failedToSave": "保存快捷键失败",
-      "keyInputDialog": {
-        "instructions": "按下您要分配的组合键",
-        "invalidKeybinding": "无效的组合键",
-        "placeholder": "按键…"
-      },
-      "online": "在线",
+      "online": "快捷键文档",
       "saveError": "保存快捷键时出错",
       "shortcutInUse": "快捷键正在使用",
       "shortcutInUseMessage": "{accelerator} 已被“{commands}”使用。",
-      "table": {
-        "description": "描述",
-        "edit": "编辑",
-        "keyCombination": "组合键",
-        "options": "选项",
-        "reset": "重置",
-        "unbind": "解绑"
-      },
       "windowAndNavigation": "窗口与导航",
       "loadError": "无法加载快捷键。",
       "reload": "重新加载",
-      "viewConflict": "查看“{name}”"
+      "viewConflict": "查看“{name}”",
+      "editShortcut": "修改“{name}”的快捷键",
+      "unbound": "未绑定",
+      "recorder": {
+        "placeholder": "按下组合键",
+        "invalidKeybinding": "无效的组合键"
+      }
     },
     "selectFont": "选择字体",
     "spellchecker": {

@@ -710,33 +710,25 @@
     },
     "keybindings": {
       "title": "Keybindings",
-      "description": "Customize keyboard shortcuts",
-      "save": "Save",
+      "description": "To change a shortcut, select its key combination, then press the new key combination",
       "restoreDefaults": "Restore defaults",
       "debugOptions": "Debug Options",
       "dumpKeyboardInfo": "Dump Keyboard Info",
       "failedToSave": "Failed to save keybindings",
-      "keyInputDialog": {
-        "instructions": "Press the key combination you want to assign",
-        "invalidKeybinding": "Invalid key combination",
-        "placeholder": "Press keys..."
-      },
-      "online": "Online",
+      "online": "Keyboard shortcut documentation",
       "saveError": "Error saving keybindings",
       "shortcutInUse": "Shortcut in use",
       "shortcutInUseMessage": "{accelerator} is already assigned to {commands}.",
-      "table": {
-        "description": "Description",
-        "edit": "Edit",
-        "keyCombination": "Key Combination",
-        "options": "Options",
-        "reset": "Reset",
-        "unbind": "Unbind"
-      },
       "windowAndNavigation": "Window and navigation",
       "loadError": "Could not load keyboard shortcuts.",
       "reload": "Reload",
-      "viewConflict": "View {name}"
+      "viewConflict": "View {name}",
+      "editShortcut": "Edit shortcut for {name}",
+      "unbound": "Not assigned",
+      "recorder": {
+        "placeholder": "Press key combination",
+        "invalidKeybinding": "Invalid key combination"
+      }
     },
     "selectFont": "Select Font",
     "spellchecker": {

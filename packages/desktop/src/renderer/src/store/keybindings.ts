@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, shallowRef, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import log from 'electron-log'
 import { setKeyboardLayout } from 'common/localShortcut'
 import { i18n, t } from '@/i18n'
@@ -9,6 +9,7 @@ import KeybindingConfigurator, { type UiKeybinding } from '@/prefComponents/keyb
 export const useKeybindingsStore = defineStore('preference-keybindings', () => {
   const configurator = shallowRef<KeybindingConfigurator | null>(null)
   const commands = shallowRef<UiKeybinding[]>([])
+  const hasCustomBindings = computed(() => commands.value.some(command => command.accelerator !== command.defaultAccelerator))
   const loading = ref(false)
   const loadError = ref(false)
   const saving = ref(false)
@@ -94,5 +95,5 @@ export const useKeybindingsStore = defineStore('preference-keybindings', () => {
   const unbind = async(id: string): Promise<void> => { await change(id, '') }
   const resetAll = async(): Promise<void> => { await persist(current => current.resetAll()) }
 
-  return { commands, loading, loadError, saving, conflict, ensureLoaded, change, reset, unbind, resetAll }
+  return { commands, hasCustomBindings, loading, loadError, saving, conflict, ensureLoaded, change, reset, unbind, resetAll }
 })

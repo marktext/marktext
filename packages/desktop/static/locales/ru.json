@@ -710,33 +710,25 @@
     },
     "keybindings": {
       "title": "Горячие клавиши",
-      "description": "Настройте сочетания клавиш",
-      "save": "Сохранить",
+      "description": "Чтобы изменить сочетание клавиш, выберите его, затем нажмите новое сочетание",
       "restoreDefaults": "Восстановить значения по умолчанию",
       "debugOptions": "Параметры отладки",
       "dumpKeyboardInfo": "Выгрузить информацию о клавиатуре",
       "failedToSave": "Не удалось сохранить горячие клавиши",
-      "keyInputDialog": {
-        "instructions": "Нажмите сочетание клавиш, которое хотите назначить",
-        "invalidKeybinding": "Недопустимое сочетание клавиш",
-        "placeholder": "Нажмите клавиши..."
-      },
-      "online": "В сети",
+      "online": "Документация по сочетаниям клавиш",
       "saveError": "Ошибка при сохранении горячих клавиш",
       "shortcutInUse": "Сочетание уже используется",
       "shortcutInUseMessage": "{accelerator} уже назначено команде {commands}.",
-      "table": {
-        "description": "Описание",
-        "edit": "Изменить",
-        "keyCombination": "Сочетание клавиш",
-        "options": "Параметры",
-        "reset": "Сбросить",
-        "unbind": "Отвязать"
-      },
       "windowAndNavigation": "Окна и навигация",
       "loadError": "Не удалось загрузить сочетания клавиш.",
       "reload": "Загрузить заново",
-      "viewConflict": "Показать {name}"
+      "viewConflict": "Показать {name}",
+      "editShortcut": "Изменить сочетание клавиш для {name}",
+      "unbound": "Не назначено",
+      "recorder": {
+        "placeholder": "Нажмите сочетание клавиш",
+        "invalidKeybinding": "Недопустимое сочетание клавиш"
+      }
     },
     "selectFont": "Выбрать шрифт",
     "spellchecker": {

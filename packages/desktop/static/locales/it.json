@@ -710,33 +710,25 @@
     },
     "keybindings": {
       "title": "Combinazione di tasti",
-      "description": "Personalizza le scorciatoie da tastiera",
-      "save": "Salva",
+      "description": "Per modificare una scorciatoia, seleziona la combinazione di tasti e premi la nuova combinazione",
       "restoreDefaults": "Ripristina i valori predefiniti",
       "debugOptions": "Opzioni di debug",
       "dumpKeyboardInfo": "Scarica informazioni sulla tastiera",
       "failedToSave": "Salvataggio della combinazione di tasti non riuscito",
-      "keyInputDialog": {
-        "instructions": "Premere la combinazione di tasti che si vuole assegnare",
-        "invalidKeybinding": "Combinazione di tasti non valida",
-        "placeholder": "Premere i tasti…"
-      },
-      "online": "Online",
+      "online": "Documentazione delle scorciatoie da tastiera",
       "saveError": "Errore durante il salvataggio della combinazione di tasti",
       "shortcutInUse": "Scorciatoia già in uso",
       "shortcutInUseMessage": "{accelerator} è già assegnato a {commands}.",
-      "table": {
-        "description": "Descrizione",
-        "edit": "Modifica",
-        "keyCombination": "Combinazione di tasti",
-        "options": "Opzioni",
-        "reset": "Azzera",
-        "unbind": "Scollega la combinazione"
-      },
       "windowAndNavigation": "Finestre e navigazione",
       "loadError": "Impossibile caricare le scorciatoie da tastiera.",
       "reload": "Ricarica",
-      "viewConflict": "Visualizza {name}"
+      "viewConflict": "Visualizza {name}",
+      "editShortcut": "Modifica scorciatoia per {name}",
+      "unbound": "Non assegnata",
+      "recorder": {
+        "placeholder": "Premi la combinazione di tasti",
+        "invalidKeybinding": "Combinazione di tasti non valida"
+      }
     },
     "selectFont": "Selezione caratteri",
     "spellchecker": {

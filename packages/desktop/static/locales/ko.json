@@ -710,33 +710,25 @@
     },
     "keybindings": {
       "title": "키 바인딩",
-      "description": "키보드 단축키 사용자 정의",
-      "save": "저장",
+      "description": "단축키를 변경하려면 키 조합을 선택한 다음 새 키 조합을 누르세요",
       "restoreDefaults": "기본값 복원",
       "debugOptions": "디버그 옵션",
       "dumpKeyboardInfo": "키보드 정보 덤프",
       "failedToSave": "키 바인딩 저장 실패",
-      "keyInputDialog": {
-        "instructions": "할당하려는 키 조합을 누르세요",
-        "invalidKeybinding": "잘못된 키 조합",
-        "placeholder": "키를 누르세요..."
-      },
-      "online": "온라인",
+      "online": "키보드 단축키 문서",
       "saveError": "키 바인딩 저장 오류",
       "shortcutInUse": "사용 중인 단축키",
       "shortcutInUseMessage": "{accelerator}은(는) 이미 {commands}에 할당되어 있습니다.",
-      "table": {
-        "description": "설명",
-        "edit": "편집",
-        "keyCombination": "키 조합",
-        "options": "옵션",
-        "reset": "재설정",
-        "unbind": "바인딩 해제"
-      },
       "windowAndNavigation": "창 및 탐색",
       "loadError": "키보드 단축키를 불러오지 못했습니다.",
       "reload": "다시 불러오기",
-      "viewConflict": "{name} 보기"
+      "viewConflict": "{name} 보기",
+      "editShortcut": "{name} 단축키 수정",
+      "unbound": "할당되지 않음",
+      "recorder": {
+        "placeholder": "키 조합을 누르세요",
+        "invalidKeybinding": "잘못된 키 조합"
+      }
     },
     "selectFont": "글꼴 선택",
     "spellchecker": {

@@ -710,33 +710,25 @@
     },
     "keybindings": {
       "title": "Atalhos de Teclado",
-      "description": "Personalizar atalhos de teclado",
-      "save": "Salvar",
+      "description": "Para alterar um atalho, selecione a combinação de teclas e prima a nova combinação",
       "restoreDefaults": "Restaurar padrões",
       "debugOptions": "Opções de Debug",
       "dumpKeyboardInfo": "Despejar Informações do Teclado",
       "failedToSave": "Falha ao salvar atalhos de teclado",
-      "keyInputDialog": {
-        "instructions": "Pressione a combinação de teclas que deseja atribuir",
-        "invalidKeybinding": "Combinação de teclas inválida",
-        "placeholder": "Pressione teclas..."
-      },
-      "online": "Online",
+      "online": "Documentação dos atalhos de teclado",
       "saveError": "Erro ao salvar atalhos de teclado",
       "shortcutInUse": "Atalho em uso",
       "shortcutInUseMessage": "{accelerator} já está atribuído a {commands}.",
-      "table": {
-        "description": "Descrição",
-        "edit": "Editar",
-        "keyCombination": "Combinação de Teclas",
-        "options": "Opções",
-        "reset": "Resetar",
-        "unbind": "Desvincular"
-      },
       "windowAndNavigation": "Janelas e navegação",
       "loadError": "Não foi possível carregar os atalhos de teclado.",
       "reload": "Recarregar",
-      "viewConflict": "Ver {name}"
+      "viewConflict": "Ver {name}",
+      "editShortcut": "Editar atalho de {name}",
+      "unbound": "Não atribuído",
+      "recorder": {
+        "placeholder": "Prima a combinação de teclas",
+        "invalidKeybinding": "Combinação de teclas inválida"
+      }
     },
     "selectFont": "Selecionar Fonte",
     "spellchecker": {

@@ -710,33 +710,25 @@
     },
     "keybindings": {
       "title": "Kısayol Tuşları",
-      "description": "Klavye kısayollarını özelleştir",
-      "save": "Kaydet",
+      "description": "Kısayolu değiştirmek için tuş birleşimini seçin, ardından yeni tuş birleşimine basın",
       "restoreDefaults": "Varsayılanları geri yükle",
       "debugOptions": "Hata Ayıklama Seçenekleri",
       "dumpKeyboardInfo": "Klavye Bilgilerini Dök",
       "failedToSave": "Kısayol tuşları kaydedilemedi",
-      "keyInputDialog": {
-        "instructions": "Atamak istediğiniz tuş kombinasyonuna basın",
-        "invalidKeybinding": "Geçersiz tuş kombinasyonu",
-        "placeholder": "Tuşlara basın..."
-      },
-      "online": "Çevrimiçi",
+      "online": "Klavye kısayolları belgeleri",
       "saveError": "Kısayol tuşları kaydedilirken hata",
       "shortcutInUse": "Kısayol kullanımda",
       "shortcutInUseMessage": "{accelerator} zaten {commands} komutuna atanmış.",
-      "table": {
-        "description": "Açıklama",
-        "edit": "Düzenle",
-        "keyCombination": "Tuş Kombinasyonu",
-        "options": "Seçenekler",
-        "reset": "Sıfırla",
-        "unbind": "Bağlantıyı Kaldır"
-      },
       "windowAndNavigation": "Pencere ve gezinme",
       "loadError": "Klavye kısayolları yüklenemedi.",
       "reload": "Yeniden yükle",
-      "viewConflict": "{name} komutunu göster"
+      "viewConflict": "{name} komutunu göster",
+      "editShortcut": "{name} için kısayolu düzenle",
+      "unbound": "Atanmamış",
+      "recorder": {
+        "placeholder": "Tuş birleşimine basın",
+        "invalidKeybinding": "Geçersiz tuş kombinasyonu"
+      }
     },
     "selectFont": "Yazı Tipi Seç",
     "spellchecker": {

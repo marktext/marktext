@@ -710,33 +710,25 @@
     },
     "keybindings": {
       "title": "按鍵綁定",
-      "description": "自訂鍵盤快捷鍵",
-      "save": "儲存",
+      "description": "若要變更快捷鍵，請選取組合鍵，然後按下新的組合鍵",
       "restoreDefaults": "還原預設值",
       "debugOptions": "除錯選項",
       "dumpKeyboardInfo": "傾印鍵盤資訊",
       "failedToSave": "儲存按鍵綁定失敗",
-      "keyInputDialog": {
-        "instructions": "按下您要指派的按鍵組合",
-        "invalidKeybinding": "無效的按鍵組合",
-        "placeholder": "按下按鍵…"
-      },
-      "online": "線上",
+      "online": "快捷鍵文件",
       "saveError": "儲存按鍵綁定時發生錯誤",
       "shortcutInUse": "快捷鍵使用中",
       "shortcutInUseMessage": "{accelerator} 已被「{commands}」使用。",
-      "table": {
-        "description": "描述",
-        "edit": "編輯",
-        "keyCombination": "按鍵組合",
-        "options": "選項",
-        "reset": "重設",
-        "unbind": "解除綁定"
-      },
       "windowAndNavigation": "視窗與導覽",
       "loadError": "無法載入快捷鍵。",
       "reload": "重新載入",
-      "viewConflict": "檢視「{name}」"
+      "viewConflict": "檢視「{name}」",
+      "editShortcut": "修改「{name}」的快捷鍵",
+      "unbound": "未綁定",
+      "recorder": {
+        "placeholder": "按下組合鍵",
+        "invalidKeybinding": "無效的按鍵組合"
+      }
     },
     "selectFont": "選擇字型",
     "spellchecker": {

@@ -710,33 +710,25 @@
     },
     "keybindings": {
       "title": "Raccourcis clavier",
-      "description": "Personnaliser les raccourcis clavier",
-      "save": "Enregistrer",
+      "description": "Pour modifier un raccourci, sélectionnez sa combinaison de touches, puis appuyez sur la nouvelle combinaison",
       "restoreDefaults": "Restaurer les valeurs par défaut",
       "debugOptions": "Options de débogage",
       "dumpKeyboardInfo": "Vider les informations du clavier",
       "failedToSave": "Échec de l'enregistrement des raccourcis clavier",
-      "keyInputDialog": {
-        "instructions": "Appuyez sur la combinaison de touches que vous souhaitez assigner",
-        "invalidKeybinding": "Raccourci clavier invalide",
-        "placeholder": "Appuyez sur les touches..."
-      },
-      "online": "En ligne",
+      "online": "Documentation des raccourcis clavier",
       "saveError": "Erreur lors de l'enregistrement des raccourcis clavier",
       "shortcutInUse": "Raccourci en cours d'utilisation",
       "shortcutInUseMessage": "{accelerator} est déjà attribué à {commands}.",
-      "table": {
-        "description": "Description",
-        "edit": "Modifier",
-        "keyCombination": "Combinaison de touches",
-        "options": "Options",
-        "reset": "Réinitialiser",
-        "unbind": "Délier"
-      },
       "windowAndNavigation": "Fenêtres et navigation",
       "loadError": "Impossible de charger les raccourcis clavier.",
       "reload": "Recharger",
-      "viewConflict": "Voir {name}"
+      "viewConflict": "Voir {name}",
+      "editShortcut": "Modifier le raccourci de {name}",
+      "unbound": "Non attribué",
+      "recorder": {
+        "placeholder": "Appuyez sur la combinaison de touches",
+        "invalidKeybinding": "Raccourci clavier invalide"
+      }
     },
     "selectFont": "Sélectionner une police",
     "spellchecker": {

@@ -251,16 +251,15 @@ test.describe('host-owned keybindings', () => {
       name: 'Save', exact: true
     })).toHaveCount(0)
     const bold = settings
-      .locator('.el-table__row')
+      .locator('.shortcut-row')
       .filter({ has: settings.getByText('Bold', { exact: true }) })
-    await bold.getByRole('button', { name: 'Edit', exact: true }).click()
-    const recorder = settings.locator('.input-textbox')
+    await expect(settings.locator('.footer').getByRole('button', { name: 'Restore defaults', exact: true })).toBeDisabled()
+    await bold.getByRole('button', { name: 'Edit shortcut for Bold', exact: true }).click()
+    const recorder = settings.locator('.shortcut-recorder')
     await expect(recorder).toBeFocused()
     await recorder.press(`${isMac ? 'Meta' : 'Control'}+Shift+7`)
     const recorded = `${isMac ? 'shift+cmd' : 'ctrl+shift'}+7`
-    await expect(recorder).toHaveValue(recorded)
-    await recorder.press('Enter')
-    await expect(bold).toContainText(recorded)
+    await expect(bold.locator('.shortcut-accelerator')).toHaveText(label('7'))
     await expect(page.locator('.mu-format-picker .item.strong')).toHaveAttribute(
       'title',
       `Emphasize\n${label('7')}`
@@ -270,17 +269,41 @@ test.describe('host-owned keybindings', () => {
       JSON.parse(readFileSync(join(stored, 'keybindings.json'), 'utf8'))['format.strong']
     ).toBe(recorded)
 
-    await bold.getByRole('button', { name: 'Unbind', exact: true }).click()
+    await expect(settings.locator('.footer').getByRole('button', { name: 'Restore defaults', exact: true })).toBeEnabled()
+    await bold.getByRole('switch', { name: 'Bold', exact: true }).locator('..').click()
+    await expect(bold.getByRole('button', { name: 'Edit shortcut for Bold', exact: true })).toBeDisabled()
+    await expect(bold.locator('.shortcut-accelerator')).toHaveText(isMac ? '⌘B' : 'Ctrl+B')
     await expect(page.locator('.mu-format-picker .item.strong')).toHaveAttribute(
       'title',
       'Emphasize'
     )
-    await bold.getByRole('button', { name: 'Reset', exact: true }).click()
+    await bold.getByRole('switch', { name: 'Bold', exact: true }).locator('..').click()
     await expect(page.locator('.mu-format-picker .item.strong')).toHaveAttribute(
       'title',
       `Emphasize\n${isMac ? '⌘B' : 'Ctrl+B'}`
     )
     expect(JSON.parse(readFileSync(join(stored, 'keybindings.json'), 'utf8'))).toEqual({})
+    const restore = settings.locator('.footer').getByRole('button', { name: 'Restore defaults', exact: true })
+    await expect(restore).toBeDisabled()
+    await bold.getByRole('button', { name: 'Edit shortcut for Bold', exact: true }).click()
+    await recorder.press('Escape')
+    await expect(recorder).toHaveCount(0)
+    await expect(restore).toBeDisabled()
+    await bold.getByRole('button', { name: 'Edit shortcut for Bold', exact: true }).click()
+    await settings.getByRole('heading', { name: 'Keybindings', exact: true }).click()
+    await expect(recorder).toHaveCount(0)
+    await expect(restore).toBeDisabled()
+    await bold.getByRole('button', { name: 'Edit shortcut for Bold', exact: true }).click()
+    await recorder.press(`${isMac ? 'Meta' : 'Control'}+B`)
+    await expect(recorder).toHaveCount(0)
+    await expect(restore).toBeDisabled()
+    await bold.getByRole('button', { name: 'Edit shortcut for Bold', exact: true }).click()
+    await recorder.press(`${isMac ? 'Meta' : 'Control'}+Shift+7`)
+    await expect(restore).toBeEnabled()
+    await restore.click()
+    await expect(restore).toBeDisabled()
+    await expect(bold.getByRole('switch', { name: 'Bold', exact: true })).toBeChecked()
+    await expect(bold.locator('.shortcut-accelerator')).toHaveText(isMac ? '⌘B' : 'Ctrl+B')
   })
 
   test('Preferences rejects a shifted chord equivalent to a literal-symbol binding', async() => {
@@ -289,15 +312,14 @@ test.describe('host-owned keybindings', () => {
     await app.evaluate(({ ipcMain }) => ipcMain.emit('app-create-settings-window'))
     const settings = await settingsWindow
     await settings.getByRole('button', { name: 'Keyboard shortcuts', exact: true }).click()
-    const bold = settings.locator('.el-table__row').filter({
+    const bold = settings.locator('.shortcut-row').filter({
       has: settings.getByText('Bold', { exact: true })
     })
-    await bold.getByRole('button', { name: 'Edit', exact: true }).click()
-    const recorder = settings.locator('.input-textbox')
+    await bold.getByRole('button', { name: 'Edit shortcut for Bold', exact: true }).click()
+    const recorder = settings.locator('.shortcut-recorder')
     await expect(recorder).toBeFocused()
     await recorder.press(`${isMac ? 'Meta' : 'Control'}+Shift+Equal`)
-    await recorder.press('Enter')
     await expect(settings.getByText('Shortcut in use', { exact: true })).toBeVisible()
-    await expect(bold).toContainText(`${primary}+B`)
+    await expect(bold.locator('.shortcut-accelerator')).toHaveText(isMac ? '⌘B' : 'Ctrl+B')
   })
 })
