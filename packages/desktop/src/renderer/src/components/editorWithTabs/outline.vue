@@ -2,7 +2,13 @@
   <aside
     ref="outlineRef"
     class="document-outline"
-    :class="{ 'is-expanded': docked, 'is-floating': !docked, 'is-visible': visible, 'is-right': onRight, 'is-resizing': resizing }"
+    :class="{
+      'is-expanded': docked,
+      'is-floating': !docked,
+      'is-visible': visible,
+      'is-right': onRight,
+      'is-resizing': resizing
+    }"
     :style="{ '--outline-width': `${width}px` }"
     :aria-label="t('sideBar.toc.title')"
     @focusin="enter"
@@ -57,7 +63,9 @@
         v-if="docked"
         class="outline-title"
         :title="t('sideBar.toc.title')"
-      >{{ t('sideBar.toc.title') }}</span>
+      >{{
+        t('sideBar.toc.title')
+      }}</span>
       <icon-tooltip :content="bulkLabel">
         <span
           v-show="hasHeadings"
@@ -113,7 +121,6 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
 import { MIN_EDITOR_WIDTH } from '@/util/editorLayout'
@@ -125,17 +132,16 @@ const { t } = useI18n()
 const layoutStore = useLayoutStore()
 const { showToc } = storeToRefs(layoutStore)
 const editorStore = useEditorStore()
-const preferencesStore = usePreferencesStore()
 const hasHeadings = computed(() => editorStore.listToc.length > 0)
 const outlineRef = ref<HTMLElement | null>(null)
 const toggleRef = ref<HTMLButtonElement | null>(null)
 const tocRef = ref<InstanceType<typeof Toc> | null>(null)
-const bulkLabel = computed(() => t(tocRef.value?.allCollapsed
-  ? 'sideBar.toc.expandAll'
-  : 'sideBar.toc.collapseAll'))
+const bulkLabel = computed(() =>
+  t(tocRef.value?.allCollapsed ? 'sideBar.toc.expandAll' : 'sideBar.toc.collapseAll')
+)
 const hovering = ref(false)
 const docked = showToc
-const onRight = computed(() => preferencesStore.tocPosition === 'right')
+const onRight = computed(() => layoutStore.outlinePosition === 'right')
 const visible = computed(() => docked.value || hovering.value)
 const toggleLabel = computed(() => t(docked.value ? 'sideBar.toc.collapse' : 'sideBar.toc.expand'))
 const MIN_WIDTH = 180
@@ -145,9 +151,20 @@ const normalizeWidth = (value: string | null): number => {
   const width = Number(value)
   return Number.isFinite(width) && width > 0 ? Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, width)) : 220
 }
-const preferredWidth = ref(normalizeWidth(localStorage.getItem(WIDTH_STORAGE_KEY)))
+const legacyWidth = ref(
+  layoutStore.managed ? 220 : normalizeWidth(localStorage.getItem(WIDTH_STORAGE_KEY))
+)
+const preferredWidth = computed({
+  get: () => (layoutStore.managed ? layoutStore.outlineWidth : legacyWidth.value),
+  set: (value) => {
+    if (layoutStore.managed) layoutStore.SET_OUTLINE_WIDTH(value)
+    else legacyWidth.value = value
+  }
+})
 const containerWidth = ref(window.innerWidth)
-const maximumWidth = computed(() => Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, containerWidth.value - MIN_EDITOR_WIDTH)))
+const maximumWidth = computed(() =>
+  Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, containerWidth.value - MIN_EDITOR_WIDTH))
+)
 const width = computed(() => Math.min(preferredWidth.value, maximumWidth.value))
 const resizing = ref(false)
 let dragStart: { x: number; width: number; direction: number } | undefined
@@ -165,7 +182,9 @@ const enter = (): void => {
 }
 const leave = (): void => {
   clearTimeout(closeTimer)
-  closeTimer = setTimeout(() => { hovering.value = false }, 150)
+  closeTimer = setTimeout(() => {
+    hovering.value = false
+  }, 150)
 }
 const dismiss = (): void => {
   clearTimeout(closeTimer)
@@ -203,7 +222,7 @@ const finishResize = (): void => {
   if (!dragStart) return
   dragStart = undefined
   resizing.value = false
-  localStorage.setItem(WIDTH_STORAGE_KEY, String(preferredWidth.value))
+  if (!layoutStore.managed) localStorage.setItem(WIDTH_STORAGE_KEY, String(preferredWidth.value))
 }
 const resizeWithKeyboard = (event: KeyboardEvent): void => {
   const direction = onRight.value ? -1 : 1
@@ -213,7 +232,7 @@ const resizeWithKeyboard = (event: KeyboardEvent): void => {
   else if (event.key === 'End') setWidth(maximumWidth.value)
   else return
   event.preventDefault()
-  localStorage.setItem(WIDTH_STORAGE_KEY, String(preferredWidth.value))
+  if (!layoutStore.managed) localStorage.setItem(WIDTH_STORAGE_KEY, String(preferredWidth.value))
 }
 watch(onRight, finishResize)
 onMounted(() => {
@@ -221,7 +240,9 @@ onMounted(() => {
   const container = outlineRef.value?.parentElement
   if (!container) return
   containerWidth.value = container.clientWidth
-  observer = new ResizeObserver(() => { containerWidth.value = container.clientWidth })
+  observer = new ResizeObserver(() => {
+    containerWidth.value = container.clientWidth
+  })
   observer.observe(container)
 })
 onBeforeUnmount(() => {
@@ -371,7 +392,10 @@ onBeforeUnmount(() => {
   opacity: 0;
   visibility: hidden;
   transform: translateX(-8px);
-  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    visibility 180ms;
   pointer-events: none;
 }
 .is-expanded .outline-body {

@@ -1,8 +1,9 @@
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onScopeDispose } from 'vue'
 import { defineStore } from 'pinia'
 import bus from '../bus'
 import { usePreferencesStore } from './preferences'
 import { debouncedSendBufferedState } from './bufferedState'
+import type { WindowLayoutState } from '@shared/types/applicationState'
 import type { LayoutState } from '@shared/types/preferences'
 
 interface LayoutPartial {
@@ -48,21 +49,43 @@ const initialSideBarWidth = normalizeSideBarWidth(initialWidth)
 
 export const useLayoutStore = defineStore('layout', () => {
   const preferencesStore = usePreferencesStore()
-  const showToc = computed(() => preferencesStore.tocVisibility)
+  // Enabled by the session host after initialization; legacy windows keep their existing adapters.
+  const managed = ref(false)
+  const outlineVisible = ref(true)
+  const outlinePositionValue = ref<'left' | 'right'>('left')
+  const outlinePosition = computed(() =>
+    managed.value ? outlinePositionValue.value : preferencesStore.tocPosition
+  )
+  const outlineWidth = ref(220)
+  const openedFilesExpanded = ref(true)
+  const openedFilesHeight = ref(112)
+  let changed: (() => void) | undefined
+  const showToc = computed(() =>
+    managed.value ? outlineVisible.value : preferencesStore.tocVisibility
+  )
   const rightColumn = ref<LayoutState['rightColumn']>('files')
   const showSideBar = ref(false)
   const showTabBar = ref(false)
   const sideBarWidth = ref<number>(initialSideBarWidth)
+  const viewportWidth = ref(window.innerWidth)
+  const updateViewport = (): void => {
+    viewportWidth.value = window.innerWidth
+  }
+  window.addEventListener('resize', updateViewport)
+  onScopeDispose(() => window.removeEventListener('resize', updateViewport))
+  const sideBarMaximumWidth = computed(() =>
+    managed.value ? Math.max(220, viewportWidth.value - 320) : Infinity
+  )
 
   const effectiveSideBarWidth = computed<number>(() => {
-    return showSideBar.value ? Number(sideBarWidth.value) : 0
+    return showSideBar.value ? Math.min(Number(sideBarWidth.value), sideBarMaximumWidth.value) : 0
   })
 
   function SET_LAYOUT(
     layout: LayoutPartial,
     { scheduleBufferUpdate = true }: SetLayoutOptions = {}
   ): void {
-    if (layout.showSideBar !== undefined) {
+    if (layout.showSideBar !== undefined && !managed.value) {
       const { windowId } = window.marktext?.env ?? {}
       window.electron.ipcRenderer.send(
         'mt::update-sidebar-menu',
@@ -76,11 +99,13 @@ export const useLayoutStore = defineStore('layout', () => {
       })
     }
     // Older sessions could restore an outline page or an icon-only strip.
-    if (layout.rightColumn !== undefined) rightColumn.value = layout.rightColumn === 'search' ? 'search' : 'files'
+    if (layout.rightColumn !== undefined)
+      rightColumn.value = layout.rightColumn === 'search' ? 'search' : 'files'
     if (layout.showSideBar !== undefined) showSideBar.value = !!layout.showSideBar
     if (layout.showTabBar !== undefined) showTabBar.value = !!layout.showTabBar
-    if (layout.sideBarWidth !== undefined) sideBarWidth.value = layout.sideBarWidth as number
-    if (scheduleBufferUpdate) {
+    if (layout.sideBarWidth !== undefined)
+      sideBarWidth.value = normalizeSideBarWidth(layout.sideBarWidth)
+    if (scheduleBufferUpdate && !managed.value) {
       debouncedSendBufferedState()
     }
   }
@@ -112,18 +137,19 @@ export const useLayoutStore = defineStore('layout', () => {
 
   function TOGGLE_LAYOUT_ENTRY(entryName: 'showSideBar' | 'showTabBar' | 'showToc'): void {
     if (entryName === 'showToc') {
-      preferencesStore.SET_SINGLE_PREFERENCE({ type: 'tocVisibility', value: !showToc.value })
+      if (managed.value) outlineVisible.value = !showToc.value
+      else preferencesStore.SET_SINGLE_PREFERENCE({ type: 'tocVisibility', value: !showToc.value })
     } else if (entryName === 'showSideBar') {
       showSideBar.value = !showSideBar.value
-      const preferencesStore = usePreferencesStore()
-      preferencesStore.SET_SINGLE_PREFERENCE({
-        type: 'sideBarVisibility',
-        value: !!showSideBar.value
-      })
+      if (!managed.value)
+        preferencesStore.SET_SINGLE_PREFERENCE({
+          type: 'sideBarVisibility',
+          value: !!showSideBar.value
+        })
     } else if (entryName === 'showTabBar') {
       showTabBar.value = !showTabBar.value
     }
-    debouncedSendBufferedState()
+    if (!managed.value) debouncedSendBufferedState()
   }
 
   function SET_SIDE_BAR_WIDTH(
@@ -131,9 +157,9 @@ export const useLayoutStore = defineStore('layout', () => {
     { scheduleBufferUpdate = true }: SetLayoutOptions = {}
   ): void {
     const normalizedWidth = normalizeSideBarWidth(width)
-    localStorage.setItem('side-bar-width', String(normalizedWidth))
+    if (!managed.value) localStorage.setItem('side-bar-width', String(normalizedWidth))
     sideBarWidth.value = normalizedWidth
-    if (scheduleBufferUpdate) {
+    if (scheduleBufferUpdate && !managed.value) {
       debouncedSendBufferedState()
     }
   }
@@ -162,7 +188,12 @@ export const useLayoutStore = defineStore('layout', () => {
       TOGGLE_LAYOUT_ENTRY(name)
       const { windowId } = window.marktext?.env ?? {}
       window.electron.ipcRenderer.send('mt::view-layout-changed', Number(windowId), {
-        [name]: name === 'showSideBar' ? showSideBar.value : name === 'showToc' ? showToc.value : showTabBar.value
+        [name]:
+          name === 'showSideBar'
+            ? showSideBar.value
+            : name === 'showToc'
+              ? showToc.value
+              : showTabBar.value
       })
     })
   }
@@ -176,9 +207,94 @@ export const useLayoutStore = defineStore('layout', () => {
     })
   }
 
+  function INITIALIZE_WINDOW_LAYOUT(layout: WindowLayoutState, onChange?: () => void): void {
+    managed.value = false
+    const state = structuredClone(layout)
+    showSideBar.value = state.sidebar.visible
+    rightColumn.value = state.sidebar.activeView
+    sideBarWidth.value = normalizeSideBarWidth(state.sidebar.preferredWidthPx)
+    showTabBar.value = state.tabBar.visible
+    outlineVisible.value = state.outline.visible
+    outlinePositionValue.value = state.outline.position
+    outlineWidth.value = state.outline.preferredWidthPx
+    openedFilesExpanded.value = state.sidebar.openedFiles.expanded
+    openedFilesHeight.value = state.sidebar.openedFiles.preferredHeightPx
+    preferencesStore.SET_MODE({ type: 'sourceCode', checked: state.modes.sourceCode })
+    preferencesStore.SET_MODE({ type: 'focus', checked: state.modes.focus })
+    preferencesStore.SET_MODE({ type: 'typewriter', checked: state.modes.typewriter })
+    changed = onChange
+    managed.value = true
+  }
+
+  function CAPTURE_WINDOW_LAYOUT(): WindowLayoutState {
+    return {
+      sidebar: {
+        visible: showSideBar.value,
+        activeView: rightColumn.value,
+        preferredWidthPx: sideBarWidth.value,
+        openedFiles: {
+          expanded: openedFilesExpanded.value,
+          preferredHeightPx: openedFilesHeight.value
+        }
+      },
+      outline: {
+        visible: showToc.value,
+        position: outlinePosition.value,
+        preferredWidthPx: outlineWidth.value
+      },
+      tabBar: { visible: showTabBar.value },
+      modes: {
+        sourceCode: preferencesStore.sourceCode,
+        focus: preferencesStore.focus,
+        typewriter: preferencesStore.typewriter
+      }
+    }
+  }
+
+  function SET_OUTLINE_WIDTH(width: number): void {
+    if (Number.isFinite(width)) outlineWidth.value = Math.max(180, Math.min(600, width))
+  }
+
+  function SET_OPENED_FILES(value: { expanded?: boolean; preferredHeightPx?: number }): void {
+    if (value.expanded !== undefined) openedFilesExpanded.value = value.expanded
+    if (value.preferredHeightPx !== undefined && Number.isFinite(value.preferredHeightPx))
+      openedFilesHeight.value = Math.max(0, value.preferredHeightPx)
+  }
+
+  watch(
+    () => [
+      rightColumn.value,
+      showSideBar.value,
+      showTabBar.value,
+      sideBarWidth.value,
+      outlineVisible.value,
+      outlinePositionValue.value,
+      outlineWidth.value,
+      openedFilesExpanded.value,
+      openedFilesHeight.value,
+      preferencesStore.sourceCode,
+      preferencesStore.focus,
+      preferencesStore.typewriter
+    ],
+    () => {
+      if (managed.value) changed?.()
+    },
+    { flush: 'sync' }
+  )
+
   watch(showToc, DISPATCH_LAYOUT_MENU_ITEMS)
 
   return {
+    managed,
+    outlinePosition,
+    outlineWidth,
+    openedFilesExpanded,
+    openedFilesHeight,
+    sideBarMaximumWidth,
+    INITIALIZE_WINDOW_LAYOUT,
+    CAPTURE_WINDOW_LAYOUT,
+    SET_OUTLINE_WIDTH,
+    SET_OPENED_FILES,
     showToc,
     rightColumn,
     showSideBar,
