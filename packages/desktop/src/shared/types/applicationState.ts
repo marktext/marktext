@@ -1,14 +1,6 @@
 import type { ProjectRootsSnapshot } from './project'
 
 import type { PreferenceUpdateResult, UserPreferences, UserPreferencesPatch } from './preferences'
-export { RECOVERY_DEFAULTS } from './preferences'
-export type {
-  PreferenceUpdateResult,
-  RecoveryPreferences,
-  StartupAction,
-  UserPreferences,
-  UserPreferencesPatch
-} from './preferences'
 import type { DocumentViewState, DiskBaseline, SaveFormatState } from './files'
 export type {
   SourcePosition,

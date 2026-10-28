@@ -34,12 +34,8 @@ import type {
 import { ApplicationStateStore, RecoveryStore } from './storage'
 import { CheckpointService, type RegisteredDocumentContent } from './checkpointService'
 import { CloseCoordinator } from './closeCoordinator'
-import {
-  createStateId,
-  contentSha256,
-  createFileLocation,
-  createWorkspaceDescriptor
-} from './identity'
+import { createStateId, createFileLocation, createWorkspaceDescriptor } from './identity'
+import { contentSha256 } from 'common/filesystem'
 import { applyWindowGeometry, captureWindowGeometry } from './windowGeometry'
 import type { PreparedSessionWindow } from '@shared/types/applicationState'
 export type { PreparedSessionWindow } from '@shared/types/applicationState'

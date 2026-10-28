@@ -7,11 +7,11 @@ import { join } from 'node:path'
 import { CheckpointService } from '../../../src/main/applicationState/checkpointService'
 import { ApplicationStateStore, RecoveryStore } from '../../../src/main/applicationState/storage'
 import {
-  contentSha256,
   createFileLocation,
   createStateId,
   createWorkspaceDescriptor
 } from '../../../src/main/applicationState/identity'
+import { contentSha256 } from 'common/filesystem'
 import { applicationState, dirtyRecord, windowSnapshot } from '../fixtures/startupState'
 import type {
   DocumentSnapshot,

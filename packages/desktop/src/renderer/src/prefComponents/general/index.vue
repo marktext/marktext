@@ -252,7 +252,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import RecoverySettings from './recoverySettings.vue'
 import { isSessionRecoveryEnabled } from '@/util'
-import type { UserPreferences, RecoveryPreferences } from '@shared/types/applicationState'
+import type { UserPreferences, RecoveryPreferences } from '@shared/types/preferences'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'

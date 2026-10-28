@@ -13,7 +13,7 @@ import type {
   SourceSelection,
   SaveFormatState
 } from '@shared/types/applicationState'
-import { contentSha256 } from './identity'
+import { contentSha256 } from 'common/filesystem'
 
 type ObjectValue = Record<string, unknown>
 const object = (value: unknown): value is ObjectValue =>

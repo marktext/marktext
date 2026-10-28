@@ -16,7 +16,8 @@ import { parseWindowSnapshot } from './codec'
 import { DocumentRegistry } from './documentRegistry'
 import type { DocumentRegistration, RegisteredDocumentContent } from '@shared/types/applicationState'
 export type { RegisteredDocumentContent } from '@shared/types/applicationState'
-import { contentSha256, createStateId } from './identity'
+import { createStateId } from './identity'
+import { contentSha256 } from 'common/filesystem'
 
 interface RendererContext {
   token: string

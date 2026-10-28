@@ -58,7 +58,7 @@ import type {
   StartupAction,
   PreferenceUpdateResult,
   UserPreferences
-} from '@shared/types/applicationState'
+} from '@shared/types/preferences'
 
 const props = defineProps<{
   value: RecoveryPreferences
