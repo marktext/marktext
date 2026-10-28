@@ -13,6 +13,7 @@ interface RenderedView {
   container: HTMLElement
   refreshToc?(): void
 }
+/** Only the active editor is exposed; isCurrent guards asynchronous hash completion. */
 interface ViewPorts {
   source?: SourceView
   rendered?: RenderedView
@@ -102,6 +103,7 @@ export class DocumentViewAdapter {
   }
 }
 
+/** Teardown releases only its own editor binding, preserving a newer mounted view. */
 interface Binding<T> {
   documentId: () => string | null
   view: T
