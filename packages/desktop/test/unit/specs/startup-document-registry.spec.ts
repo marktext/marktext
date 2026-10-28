@@ -1,7 +1,8 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 import { DocumentRegistry } from '../../../src/main/applicationState/documentRegistry'
-import { createFileLocation, contentSha256 } from '../../../src/main/applicationState/identity'
+import { createFileLocation } from '../../../src/main/applicationState/identity'
+import { contentSha256 } from 'common/filesystem'
 import { dirtyRecord } from '../fixtures/startupState'
 import type {
   DocumentSnapshot,

@@ -7,7 +7,7 @@ import type {
   RendererDocumentCheckpoint
 } from '@shared/types/applicationState'
 import { parseDocument, validIdentity } from './codec'
-import { contentSha256 } from './identity'
+import { contentSha256 } from 'common/filesystem'
 
 interface SavedDocument {
   snapshot: DocumentSnapshot
