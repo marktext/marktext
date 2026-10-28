@@ -79,6 +79,23 @@ describe('document view adapters with reconstructed editors', () => {
     expect(state.sourceSelection).toEqual({ anchor: { line: 0, ch: 2 }, focus: { line: 0, ch: 5 } })
   })
 
+  it('treats a newline-only document as ready before the first edit', async() => {
+    const view = rendered('\n')
+    const release = registerRenderedViewState({
+      documentId: () => 'empty',
+      markdown: () => view.engine.getMarkdown(),
+      view
+    })
+    try {
+      expect(isDocumentViewReady('empty', '\n', 1)).toBe(true)
+      const source = sourceView(CodeMirror(document.body, { value: '\n' }))
+      const state = await adapter.capture('\n', { source, trimTrailingNewline: 1 })
+      expect(state.sourceSelection).not.toBeNull()
+    } finally {
+      release()
+    }
+  })
+
   it('captures and restores the outer source scroller without depending on CodeMirror scrolling', async() => {
     const first = sourceView(CodeMirror(document.body, { value: 'source' }))
     first.container.scrollTop = 480
