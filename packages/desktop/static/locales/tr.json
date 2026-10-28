@@ -457,7 +457,7 @@
         "recheck": "Yeniden Denetle"
       },
       "sidebar": {
-        "title": "Kenar Çubuğu",
+        "title": "Kenar çubuğu ve içindekiler",
         "wrapTextInToc": "İçindekilerde metni kaydır",
         "tocPosition": "İçindekilerin konumu",
         "tocLeft": "Sol",

@@ -457,7 +457,7 @@
         "recheck": "Controlla nuovamente"
       },
       "sidebar": {
-        "title": "Barra laterale",
+        "title": "Barra laterale e indice",
         "wrapTextInToc": "Vai a capo nel sommario",
         "tocPosition": "Posizione del sommario",
         "tocLeft": "Sinistra",

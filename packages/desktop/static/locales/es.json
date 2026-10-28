@@ -457,7 +457,7 @@
         "recheck": "Volver a comprobar"
       },
       "sidebar": {
-        "title": "Barra Lateral",
+        "title": "Barra lateral e índice",
         "wrapTextInToc": "Ajustar texto en tabla de contenidos",
         "tocPosition": "Posición de la tabla de contenido",
         "tocLeft": "Izquierda",

@@ -457,7 +457,7 @@
         "recheck": "Revérifier"
       },
       "sidebar": {
-        "title": "Barre latérale",
+        "title": "Barre latérale et table des matières",
         "wrapTextInToc": "Retour à la ligne dans la table des matières",
         "tocPosition": "Position de la table des matières",
         "tocLeft": "À gauche",

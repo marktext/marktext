@@ -457,7 +457,7 @@
         "recheck": "Erneut prüfen"
       },
       "sidebar": {
-        "title": "Seitenleiste",
+        "title": "Seitenleiste und Inhaltsverzeichnis",
         "wrapTextInToc": "Text im Inhaltsverzeichnis umbrechen",
         "tocPosition": "Position des Inhaltsverzeichnisses",
         "tocLeft": "Links",

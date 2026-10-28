@@ -457,7 +457,7 @@
         "recheck": "Verificar novamente"
       },
       "sidebar": {
-        "title": "Barra Lateral",
+        "title": "Barra lateral e índice",
         "wrapTextInToc": "Quebrar texto no índice",
         "tocPosition": "Posição do índice",
         "tocLeft": "Esquerda",

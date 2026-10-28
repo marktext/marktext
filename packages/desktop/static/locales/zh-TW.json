@@ -457,7 +457,7 @@
         "recheck": "重新檢測"
       },
       "sidebar": {
-        "title": "側邊欄",
+        "title": "側邊欄與目錄",
         "wrapTextInToc": "在目錄中換行文字",
         "tocPosition": "預設大綱位置",
         "tocLeft": "左側",

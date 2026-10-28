@@ -457,7 +457,7 @@
         "recheck": "重新检测"
       },
       "sidebar": {
-        "title": "侧边栏",
+        "title": "侧边栏和目录",
         "wrapTextInToc": "在目录中换行文本",
         "tocPosition": "默认大纲位置",
         "tocLeft": "左侧",

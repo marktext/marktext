@@ -457,7 +457,7 @@
         "recheck": "다시 확인"
       },
       "sidebar": {
-        "title": "사이드바",
+        "title": "사이드바 및 목차",
         "wrapTextInToc": "목차에서 텍스트 줄바꿈",
         "tocPosition": "목차 위치",
         "tocLeft": "왼쪽",

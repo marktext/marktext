@@ -457,7 +457,7 @@
         "recheck": "再検出"
       },
       "sidebar": {
-        "title": "サイドバー",
+        "title": "サイドバーと目次",
         "wrapTextInToc": "目次でテキストを折り返し",
         "tocPosition": "目次の位置",
         "tocLeft": "左側",

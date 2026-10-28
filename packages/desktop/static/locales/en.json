@@ -457,7 +457,7 @@
         "recheck": "Re-check"
       },
       "sidebar": {
-        "title": "Sidebar",
+        "title": "Sidebar and table of contents",
         "wrapTextInToc": "Wrap text in table of contents",
         "tocPosition": "Default table of contents position",
         "tocLeft": "Left",

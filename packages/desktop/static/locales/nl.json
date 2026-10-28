@@ -457,7 +457,7 @@
         "recheck": "Opnieuw controleren"
       },
       "sidebar": {
-        "title": "Zijbalk",
+        "title": "Zijbalk en inhoudsopgave",
         "wrapTextInToc": "Tekstterugloop in inhoudsopgave",
         "tocPosition": "Positie van de inhoudsopgave",
         "tocLeft": "Links",
