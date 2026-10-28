@@ -287,6 +287,14 @@ export const useLayoutStore = defineStore('layout', () => {
     { flush: 'sync' }
   )
 
+  watch(
+    () => preferencesStore.tocPosition,
+    (position) => {
+      if (managed.value) outlinePositionValue.value = position
+    },
+    { flush: 'sync' }
+  )
+
   watch(showToc, DISPATCH_LAYOUT_MENU_ITEMS)
 
   return {

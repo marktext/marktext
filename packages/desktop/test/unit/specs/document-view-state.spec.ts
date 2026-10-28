@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import CodeMirror from 'codemirror'
 import { Muya, SelectionType, type TSelectionState } from '@muyajs/core'
 import { createHash, webcrypto } from 'node:crypto'
-import { DocumentViewAdapter } from '@/services/documentViewState'
+import { DocumentViewAdapter, isDocumentViewReady, registerRenderedViewState } from '@/services/documentViewState'
 import type { DocumentViewState } from '../../../src/shared/types/files'
 
 const hash = async(text: string) => createHash('sha256').update(text).digest('hex')
@@ -29,6 +29,7 @@ const rendered = (markdown: string) => {
   engines.push(engine)
   return { engine, container: engine.domNode }
 }
+const sourceView = (editor: CodeMirror.Editor) => ({ editor, container: document.createElement('div') })
 const adapter = new DocumentViewAdapter(hash)
 describe('document view adapters with reconstructed editors', () => {
   it('hashes UTF-8 Markdown with the shared browser hashing utility', async() => {
@@ -42,16 +43,55 @@ describe('document view adapters with reconstructed editors', () => {
     const markdown = 'First line\nSecond line'
     const first = CodeMirror(document.body, { value: markdown })
     first.setSelection({ line: 1, ch: 6 }, { line: 0, ch: 2 })
-    const state = await adapter.capture(markdown, { source: first })
+    const state = await adapter.capture(markdown, { source: sourceView(first) })
     const second = CodeMirror(document.body, { value: markdown })
-    await adapter.restore(markdown, state, { source: second })
+    await adapter.restore(markdown, state, { source: sourceView(second) })
     expect(second.getCursor('anchor')).toEqual({ line: 1, ch: 6 })
     expect(second.getCursor('head')).toEqual({ line: 0, ch: 2 })
     state.sourceSelection = { anchor: { line: 999, ch: 999 }, focus: { line: -2, ch: -3 } }
-    await adapter.restore(markdown, state, { source: second })
+    await adapter.restore(markdown, state, { source: sourceView(second) })
     expect(second.getCursor('anchor')).toEqual({ line: 1, ch: 11 })
     expect(second.getCursor('head')).toEqual({ line: 0, ch: 0 })
   })
+  it('compares normalized rendered text without discarding trailing question marks', () => {
+    const view = rendered('Question?')
+    const release = registerRenderedViewState({
+      documentId: () => 'document',
+      markdown: () => view.engine.getMarkdown(),
+      view
+    })
+    try {
+      expect(isDocumentViewReady('document', 'Question?', 0)).toBe(true)
+      expect(isDocumentViewReady('document', 'Different?', 0)).toBe(false)
+      expect(isDocumentViewReady('another-document', 'Question?', 0)).toBe(false)
+    } finally {
+      release()
+    }
+  })
+
+  it('captures source selections using the same newline policy as the document', async() => {
+    const editor = CodeMirror(document.body, { value: 'Question?\n' })
+    editor.setSelection({ line: 0, ch: 2 }, { line: 0, ch: 5 })
+    const state = await adapter.capture('Question?', {
+      source: sourceView(editor),
+      trimTrailingNewline: 0
+    })
+    expect(state.sourceSelection).toEqual({ anchor: { line: 0, ch: 2 }, focus: { line: 0, ch: 5 } })
+  })
+
+  it('captures and restores the outer source scroller without depending on CodeMirror scrolling', async() => {
+    const first = sourceView(CodeMirror(document.body, { value: 'source' }))
+    first.container.scrollTop = 480
+    const state = await adapter.capture('source', { source: first })
+    expect(state.sourceScrollTopPx).toBe(480)
+    const second = sourceView(CodeMirror(document.body, { value: 'source' }))
+    await adapter.restore('source', state, { source: second })
+    expect(second.container.scrollTop).toBe(480)
+    expect(second.editor.getScrollInfo().top).toBe(0)
+    await adapter.restore('source', state, { source: second }, false)
+    expect(second.container.scrollTop).toBe(0)
+  })
+
   it('restores a real Muya selection after rebuilding its block tree', async() => {
     const markdown = 'Hello world\n'
     const first = rendered(markdown)
@@ -83,10 +123,10 @@ describe('document view adapters with reconstructed editors', () => {
   it('resets disabled view restoration and skips a restore whose document changed while hashing', async() => {
     const source = CodeMirror(document.body, { value: 'abcdef' })
     source.setSelection({ line: 0, ch: 2 }, { line: 0, ch: 4 })
-    const state = await adapter.capture('abcdef', { source })
-    await adapter.restore('abcdef', state, { source }, false)
+    const state = await adapter.capture('abcdef', { source: sourceView(source) })
+    await adapter.restore('abcdef', state, { source: sourceView(source) }, false)
     expect(source.getCursor()).toEqual({ line: 0, ch: 0 })
-    await adapter.restore('abcdef', state, { source, isCurrent: () => false })
+    await adapter.restore('abcdef', state, { source: sourceView(source), isCurrent: () => false })
     expect(source.getCursor()).toEqual({ line: 0, ch: 0 })
   })
   it('safely rejects an invalid Muya selection and retains independent scroll positions', async() => {

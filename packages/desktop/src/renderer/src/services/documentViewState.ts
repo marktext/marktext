@@ -1,26 +1,31 @@
 import type CodeMirror from 'codemirror'
 import type { Muya, TSelectionState } from '@muyajs/core'
-import type { DocumentViewState, SourcePosition } from '@shared/types/files'
+import type { DocumentViewState, SourcePosition, IFileState } from '@shared/types/files'
 import { STATE_LIMITS } from '@shared/types/applicationState'
 import { getHash } from '@/util/fileSystem'
+import { adjustTrailingNewlines } from '@/util/markdown'
 
-type SourceView = Pick<
-  CodeMirror.Editor,
-  'getValue' | 'getCursor' | 'setSelection' | 'lineCount' | 'getLine' | 'getScrollInfo' | 'scrollTo'
->
+interface SourceView {
+  editor: Pick<CodeMirror.Editor, 'getValue' | 'getCursor' | 'setSelection' | 'lineCount' | 'getLine'>
+  // CodeMirror renders full-height; its containing source pane owns scrolling.
+  container: HTMLElement
+}
 interface RenderedView {
   engine: Pick<Muya, 'getMarkdown' | 'getSelectionState' | 'setSelection' | 'setCursorByOffset'>
   container: HTMLElement
+  refreshToc?(): void
 }
 /** Only the active editor is exposed; isCurrent guards asynchronous hash completion. */
 interface ViewPorts {
   source?: SourceView
   rendered?: RenderedView
   collapsedOutlineKeys?: string[]
+  // Must match the policy used to normalize the tab Markdown.
+  trimTrailingNewline?: number
   isCurrent?: () => boolean
 }
 const nonnegative = (value: number): number => (Number.isFinite(value) ? Math.max(0, value) : 0)
-const position = (source: SourceView, value: SourcePosition): SourcePosition => {
+const position = (source: SourceView['editor'], value: SourcePosition): SourcePosition => {
   const line = Math.min(Math.floor(nonnegative(value.line)), source.lineCount() - 1)
   return { line, ch: Math.min(Math.floor(nonnegative(value.ch)), source.getLine(line).length) }
 }
@@ -37,11 +42,11 @@ export class DocumentViewAdapter {
   ) {}
 
   async capture(markdown: string, ports: ViewPorts): Promise<DocumentViewState> {
-    const source = ports.source
+    const source = ports.source?.editor
     const selection = !source ? (ports.rendered?.engine.getSelectionState() ?? null) : null
     const captured = {
       sourceSelection:
-        source?.getValue() === markdown
+        source && adjustTrailingNewlines(source.getValue(), ports.trimTrailingNewline ?? 2) === markdown
           ? {
             anchor: position(source, source.getCursor('anchor')),
             focus: position(source, source.getCursor('head'))
@@ -50,7 +55,7 @@ export class DocumentViewAdapter {
       muyaSelection: selection
         ? (JSON.parse(JSON.stringify(selection)) as DocumentViewState['muyaSelection'])
         : null,
-      sourceScrollTopPx: nonnegative(source?.getScrollInfo().top ?? 0),
+      sourceScrollTopPx: nonnegative(ports.source?.container.scrollTop ?? 0),
       renderedScrollTopPx: nonnegative(ports.rendered?.container.scrollTop ?? 0),
       collapsedOutlineKeys: keys(ports.collapsedOutlineKeys ?? [])
     }
@@ -66,13 +71,14 @@ export class DocumentViewAdapter {
     const matching =
       enabled && state !== null && state.contentSha256 === (await this._hash(markdown))
     if (ports.isCurrent && !ports.isCurrent()) return []
+    const focused = document.activeElement instanceof HTMLElement ? document.activeElement : null
     const source = ports.source
     if (source) {
       const selection = enabled ? state?.sourceSelection : null
-      const anchor = position(source, selection?.anchor ?? { line: 0, ch: 0 })
-      const focus = position(source, selection?.focus ?? { line: 0, ch: 0 })
-      source.setSelection(anchor, focus, { scroll: false })
-      source.scrollTo(null, enabled ? nonnegative(state?.sourceScrollTopPx ?? 0) : 0)
+      const anchor = position(source.editor, selection?.anchor ?? { line: 0, ch: 0 })
+      const focus = position(source.editor, selection?.focus ?? { line: 0, ch: 0 })
+      source.editor.setSelection(anchor, focus, { scroll: false })
+      source.container.scrollTop = enabled ? nonnegative(state?.sourceScrollTopPx ?? 0) : 0
     }
     if (ports.rendered) {
       const { engine, container } = ports.rendered
@@ -87,8 +93,16 @@ export class DocumentViewAdapter {
       }
       if (!restored)
         engine.setCursorByOffset({ anchor: { line: 0, ch: 0 }, focus: { line: 0, ch: 0 } })
+      ports.rendered.refreshToc?.()
       container.scrollTop = enabled ? nonnegative(state?.renderedScrollTopPx ?? 0) : 0
     }
+    if (
+      focused &&
+      focused !== document.body &&
+      focused.isConnected &&
+      !ports.rendered?.container.contains(focused)
+    )
+      focused.focus({ preventScroll: true })
     return matching && state ? keys(state.collapsedOutlineKeys) : []
   }
 }
@@ -127,17 +141,37 @@ const portsFor = (id: string): ViewPorts => ({
   source: source?.documentId() === id ? source.view : undefined,
   rendered: rendered?.documentId() === id ? rendered.view : undefined
 })
-export const captureDocumentView = (
-  id: string,
-  markdown: string,
-  collapsedOutlineKeys: string[]
-): Promise<DocumentViewState> =>
-  adapter.capture(markdown, { ...portsFor(id), collapsedOutlineKeys })
-export const isDocumentViewReady = (id: string, markdown: string): boolean => {
+export const captureDocumentView = async(
+  file: Pick<IFileState, 'id' | 'markdown' | 'trimTrailingNewline' | 'tocCollapsedKeys' | 'viewState'>
+): Promise<DocumentViewState> => {
+  const { id, markdown, trimTrailingNewline, tocCollapsedKeys = [], viewState: previous } = file
   const ports = portsFor(id)
-  return ports.source
-    ? ports.source.getValue() === markdown
-    : rendered?.documentId() === id && rendered.markdown() === markdown
+  const captured = await adapter.capture(markdown, {
+    ...ports,
+    collapsedOutlineKeys: tocCollapsedKeys,
+    trimTrailingNewline
+  })
+  if (previous?.contentSha256 === captured.contentSha256) {
+    if (!ports.source) {
+      captured.sourceSelection = previous.sourceSelection
+        ? JSON.parse(JSON.stringify(previous.sourceSelection))
+        : null
+      captured.sourceScrollTopPx = previous.sourceScrollTopPx
+    } else {
+      captured.muyaSelection = previous.muyaSelection
+        ? JSON.parse(JSON.stringify(previous.muyaSelection))
+        : null
+      captured.renderedScrollTopPx = previous.renderedScrollTopPx
+    }
+  }
+  return captured
+}
+export const isDocumentViewReady = (id: string, markdown: string, trimTrailingNewline = 2): boolean => {
+  const ports = portsFor(id)
+  const current = ports.source
+    ? ports.source.editor.getValue()
+    : rendered?.documentId() === id ? rendered.markdown() : null
+  return current !== null && adjustTrailingNewlines(current, trimTrailingNewline) === markdown
 }
 export const restoreDocumentView = (
   id: string,
