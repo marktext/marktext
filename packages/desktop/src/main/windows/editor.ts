@@ -31,10 +31,10 @@ class EditorWindow extends BaseWindow {
   public readonly sessionStateId: string
   public sessionReady: Promise<void> = Promise.resolve()
 
-  constructor(accessor: Accessor, private preparedSession?: PreparedSessionWindow) {
+  constructor(accessor: Accessor, private _preparedSession?: PreparedSessionWindow) {
     super(accessor)
     this.type = WindowType.EDITOR
-    this.sessionStateId = preparedSession?.snapshot.id ?? randomUUID()
+    this.sessionStateId = this._preparedSession?.snapshot.id ?? randomUUID()
 
     this.projectRoots = new ProjectRoots({
       publish: snapshot => this.browserWindow?.webContents.send('mt::project-roots-changed', snapshot),
@@ -88,10 +88,10 @@ class EditorWindow extends BaseWindow {
 
     this.id = win.id
     host.registerEditor(this)
-    const prepared = this.preparedSession
-      ? Promise.resolve(this.preparedSession)
+    const prepared = this._preparedSession
+      ? Promise.resolve(this._preparedSession)
       : host.prepareNewWindow(rootDirectory, fileList, markdownList, fileOptions)
-    this.preparedSession = undefined
+    this._preparedSession = undefined
     this.sessionReady = prepared.then(prepared => {
       prepared.snapshot.id = this.sessionStateId
       return host.bindEditor(this, prepared)

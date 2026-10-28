@@ -29,6 +29,7 @@ import notice from './notification'
 import bus from '../bus'
 import { t } from '@/i18n'
 
+/** Last locally captured content and its revision, retained until native persistence acknowledges it. */
 interface ObservedContent {
   markdown: string
   format: string
@@ -37,158 +38,159 @@ interface ObservedContent {
 }
 
 class WindowSession {
-  private readonly editor = useEditorStore()
-  private readonly layout = useLayoutStore()
-  private readonly preferences = usePreferencesStore()
-  private readonly project = useProjectStore()
-  private readonly main = useMainStore()
-  private context: RuntimeWindowContext | null = null
-  private initialization: WindowInitialization | null = null
-  private sequence = 0
-  private initializing = true
-  private interactionEpoch = 0
-  private deferredSelection: string | null = null
-  private queue: Promise<unknown> = Promise.resolve()
-  private readonly observed = new Map<string, ObservedContent>()
-  private readonly serverRevision = new Map<string, number>()
-  private readonly stops: Array<WatchStopHandle | (() => void)> = []
-  private pendingRestoreId: string | null = null
-  private readonly pendingOpens: ManagedDocumentPayload[] = []
-  private readonly schedule = debounce(() => {
-    void this.flush().catch((error) => this.failure(error))
+  private readonly _editor = useEditorStore()
+  private readonly _layout = useLayoutStore()
+  private readonly _preferences = usePreferencesStore()
+  private readonly _project = useProjectStore()
+  private readonly _main = useMainStore()
+  private _context: RuntimeWindowContext | null = null
+  private _workspace: WindowInitialization['snapshot']['workspace'] = null
+  private _sequence = 0
+  private _initializing = true
+  private _interactionEpoch = 0
+  private _deferredSelection: string | null = null
+  private _queue: Promise<unknown> = Promise.resolve()
+  private readonly _observed = new Map<string, ObservedContent>()
+  // Late save/checkpoint replies must not undo newer native resource updates.
+  private readonly _serverRevision = new Map<string, number>()
+  private readonly _stops: Array<WatchStopHandle | (() => void)> = []
+  private _pendingRestoreId: string | null = null
+  private readonly _pendingOpens: ManagedDocumentPayload[] = []
+  private readonly _schedule = debounce(() => {
+    void this._flush().catch((error) => this._failure(error))
   }, 250)
 
   async start(): Promise<void> {
     const ipc = window.electron.ipcRenderer
     const interacted = (): void => {
-      this.interactionEpoch++
+      this._interactionEpoch++
     }
     for (const name of ['pointerdown', 'keydown', 'beforeinput']) {
       document.addEventListener(name, interacted, true)
-      this.stops.push(() => document.removeEventListener(name, interacted, true))
+      this._stops.push(() => document.removeEventListener(name, interacted, true))
     }
     const finishRename = (): void => {
       void nextTick().then(() => {
-        if (this.project.renameCache) return
-        const file = this.editor.tabs.find((file) => file.id === this.deferredSelection)
-        this.deferredSelection = null
-        if (file && this.project.activeItem?.pathname === file.pathname) {
-          this.editor.SET_OPEN_INTENT(file.pathname, false, file.isPreview)
-          this.editor.UPDATE_CURRENT_FILE(file)
+        if (this._project.renameCache) return
+        const file = this._editor.tabs.find((file) => file.id === this._deferredSelection)
+        this._deferredSelection = null
+        if (file && this._project.activeItem?.pathname === file.pathname) {
+          this._editor.SET_OPEN_INTENT(file.pathname, false, file.isPreview)
+          this._editor.UPDATE_CURRENT_FILE(file)
           void nextTick().then(() => {
-            this.editor.DISCARD_OPEN_INTENT(file.pathname)
+            this._editor.DISCARD_OPEN_INTENT(file.pathname)
             if (!document.activeElement?.closest('.editor-component'))
               bus.emit('SIDEBAR::focus-tree')
           })
         }
       })
     }
-    this.stops.push(watch(() => this.project.renameCache, (pathname) => {
+    this._stops.push(watch(() => this._project.renameCache, (pathname) => {
       if (!pathname) finishRename()
     }))
-    this.stops.push(
-      ipc.on('mt::state::document-opened', (_event, payload) => this.openDocument(payload))
+    this._stops.push(
+      ipc.on('mt::state::document-opened', (_event, payload) => this._openDocument(payload))
     )
-    this.stops.push(
+    this._stops.push(
       ipc.on('mt::state::documents-ended', (_event, ids) => {
         for (const id of ids) {
-          const file = this.editor.tabs.find((file) => file.id === id)
-          if (file) this.editor.FORCE_CLOSE_TAB(file)
-          this.observed.delete(id)
+          const file = this._editor.tabs.find((file) => file.id === id)
+          if (file) this._editor.FORCE_CLOSE_TAB(file)
+          this._observed.delete(id)
         }
       })
     )
-    this.stops.push(ipc.on('mt::state::document-saved', (_event, result) => this.saved(result)))
-    this.stops.push(ipc.on('mt::tab-save-failure', (_event, id, message) => {
-      this.editor.pushTabNotification({
+    this._stops.push(ipc.on('mt::state::document-saved', (_event, result) => this._saved(result)))
+    this._stops.push(ipc.on('mt::tab-save-failure', (_event, id, message) => {
+      this._editor.pushTabNotification({
         tabId: id,
         msg: t('store.editor.errorWhileSaving', { msg: message }),
         style: 'crit'
       })
     }))
-    this.stops.push(
+    this._stops.push(
       ipc.on('mt::state::document-relocated', (_event, document, revision) => {
-        const file = this.editor.tabs.find((file) => file.id === document.id)
-        if (!file || (this.serverRevision.get(document.id) ?? -1) > revision) return
-        this.serverRevision.set(document.id, revision)
-        this.applyResource(file, document)
+        const file = this._editor.tabs.find((file) => file.id === document.id)
+        if (!file || (this._serverRevision.get(document.id) ?? -1) > revision) return
+        this._serverRevision.set(document.id, revision)
+        this._applyResource(file, document)
       })
     )
-    this.stops.push(
+    this._stops.push(
       ipc.on('mt::state::context-changed', (_event, initialized) => {
-        void this.applyInitialization(initialized, true).catch((error) => this.failure(error))
+        void this._applyInitialization(initialized, true).catch((error) => this._failure(error))
       })
     )
-    this.stops.push(
+    this._stops.push(
       ipc.on('mt::state::prepare-close', (_event, request) => {
-        if (request.contextToken !== this.context?.contextToken) return
-        void requestWindowCheckpoint(request.transactionId).catch((error) => this.failure(error))
+        if (request.contextToken !== this._context?.contextToken) return
+        void requestWindowCheckpoint(request.transactionId).catch((error) => this._failure(error))
       })
     )
     setSessionActions({
-      checkpoint: transactionId => this.flush(transactionId),
-      scheduleCheckpoint: () => { this.schedule() },
+      checkpoint: transactionId => this._flush(transactionId),
+      scheduleCheckpoint: () => { this._schedule() },
       captureView: () => {
-        void this.captureActiveView().catch((error) => this.failure(error))
+        void this._captureActiveView().catch((error) => this._failure(error))
       },
-      save: (id, saveAs = false) => this.save(id, saveAs),
+      save: (id, saveAs = false) => this._save(id, saveAs),
       create: async(markdown, selected) => {
-        if (!this.context) return
+        if (!this._context) return
         const result = await ipc.invoke('mt::state::register-untitled', {
-          contextToken: this.context.contextToken,
+          contextToken: this._context.contextToken,
           title: '',
           markdown,
           selected
         })
         if (result.status !== 'registered') throw new Error('New document was not registered')
       },
-      close: (ids) => this.close(ids),
+      close: (ids) => this._close(ids),
       saveAll: async(closeTabs) => {
-        if (closeTabs) await this.close(this.editor.tabs.map((file) => file.id))
+        if (closeTabs) await this._close(this._editor.tabs.map((file) => file.id))
         else
-          for (const file of this.editor.tabs.filter((file) => !file.readOnly && !file.isSaved))
-            await this.save(file.id)
+          for (const file of this._editor.tabs.filter((file) => !file.readOnly && !file.isSaved))
+            await this._save(file.id)
       }
     })
     onDocumentViewChange(() => {
-      if (!this.initializing) {
-        void this.restoreActiveView().catch((error) => this.failure(error))
-        this.schedule()
+      if (!this._initializing) {
+        void this._restoreActiveView().catch((error) => this._failure(error))
+        this._schedule()
       }
     })
     const initialized = await ipc.invoke('mt::state::get-window-initialization')
-    await this.applyInitialization(initialized)
-    for (const payload of this.pendingOpens.splice(0)) this.openDocument(payload)
-    this.stops.push(
+    await this._applyInitialization(initialized)
+    for (const payload of this._pendingOpens.splice(0)) this._openDocument(payload)
+    this._stops.push(
       watch(
         () =>
-          this.editor.tabs.map((file) => [
+          this._editor.tabs.map((file) => [
             file.id,
             file.markdown,
             JSON.stringify(getOptionsFromState(file)),
             file.readOnly
           ]),
-        () => this.schedule()
+        () => this._schedule()
       )
     )
-    this.stops.push(
+    this._stops.push(
       watch(
-        () => this.editor.currentFile?.id,
+        () => this._editor.currentFile?.id,
         () => {
-          if (!this.initializing) this.project.restoringSession = false
-          this.pendingRestoreId = this.editor.currentFile?.id ?? null
+          if (!this._initializing) this._project.restoringSession = false
+          this._pendingRestoreId = this._editor.currentFile?.id ?? null
           void nextTick()
-            .then(() => this.restoreActiveView())
-            .catch((error) => this.failure(error))
-          this.schedule()
+            .then(() => this._restoreActiveView())
+            .catch((error) => this._failure(error))
+          this._schedule()
         },
         { flush: 'post' }
       )
     )
-    await this.flush()
+    await this._flush()
   }
 
-  private file(payload: ManagedDocumentPayload): IFileState {
+  private _file(payload: ManagedDocumentPayload): IFileState {
     const { document, markdown } = payload
     const file = createDocumentState(
       {
@@ -207,7 +209,7 @@ class WindowSession {
     )
     file.viewState = deepClone(document.view)
     file.tocCollapsedKeys = [...(document.view?.collapsedOutlineKeys ?? [])]
-    this.observed.set(document.id, {
+    this._observed.set(document.id, {
       markdown,
       format: JSON.stringify(getOptionsFromState(file)),
       revision: payload.contentRevision,
@@ -216,40 +218,33 @@ class WindowSession {
     return file
   }
 
-  private async applyInitialization(
+  private async _applyInitialization(
     initialized: WindowInitialization,
     preserve = false
   ): Promise<void> {
-    this.initializing = true
-    this.schedule.cancel()
-    this.initialization = initialized
-    this.context = initialized.context
-    this.sequence = 0
-    this.preferences.SET_USER_PREFERENCE({ ...initialized.preferences })
+    this._initializing = true
+    this._schedule.cancel()
+    this._workspace = initialized.snapshot.workspace
+    this._context = initialized.context
+    this._sequence = 0
+    this._preferences.SET_USER_PREFERENCE({ ...initialized.preferences })
     // Preference watchers can rebuild Muya blocks; load the document after those updates.
     await nextTick()
     if (preserve) {
-      const restoring = this.project.restoringSession
-      if (initialized.projectRoots) this.project.APPLY_ROOTS(initialized.projectRoots)
-      this.project.restoringSession = restoring
-      this.initializing = false
+      const restoring = this._project.restoringSession
+      if (initialized.projectRoots) this._project.APPLY_ROOTS(initialized.projectRoots)
+      this._project.restoringSession = restoring
+      this._initializing = false
       window.electron.ipcRenderer.send('mt::window-initialized')
       window.electron.ipcRenderer.send('mt::project-renderer-ready')
-      for (const payload of this.pendingOpens.splice(0)) this.openDocument(payload)
-      this.schedule()
+      for (const payload of this._pendingOpens.splice(0)) this._openDocument(payload)
+      this._schedule()
       return
     }
-    const previous = new Map(this.editor.tabs.map((file) => [file.id, file]))
     const files = initialized.snapshot.documents.flatMap((document) => {
       const body = initialized.documentContents.find((body) => body.documentId === document.id)
       if (!body) return []
-      const existing = preserve ? previous.get(document.id) : undefined
-      if (existing) {
-        const observed = this.observed.get(document.id)
-        if (observed) observed.revision = Math.max(observed.revision, body.contentRevision)
-        return [existing]
-      }
-      const file = this.file({
+      const file = this._file({
         document,
         markdown: body.markdown,
         contentRevision: body.contentRevision,
@@ -264,37 +259,36 @@ class WindowSession {
       }
       return [file]
     })
-    if (!preserve)
-      this.layout.INITIALIZE_WINDOW_LAYOUT(initialized.snapshot.layout, () => this.schedule())
-    if (initialized.projectRoots) this.project.APPLY_ROOTS(initialized.projectRoots)
-    this.project.RESTORE_PROJECT_VIEW(
+    this._layout.INITIALIZE_WINDOW_LAYOUT(initialized.snapshot.layout, () => this._schedule())
+    if (initialized.projectRoots) this._project.APPLY_ROOTS(initialized.projectRoots)
+    this._project.RESTORE_PROJECT_VIEW(
       initialized.snapshot.workspace,
       initialized.snapshot.projectView
     )
-    const activeId = preserve ? this.editor.currentFile?.id : initialized.snapshot.activeDocumentId
-    this.editor.$patch((state) => {
+    const activeId = initialized.snapshot.activeDocumentId
+    this._editor.$patch((state) => {
       state.tabs = files
       state.currentFile = null
       state.tabIdToIndex = {}
       state.listToc = []
       state.toc = []
     })
-    this.editor.updateTabIdToIndex()
+    this._editor.updateTabIdToIndex()
     const active = files.find((file) => file.id === activeId) ?? files[0]
-    if (active) this.editor.UPDATE_CURRENT_FILE(active)
-    this.main.SET_INITIALIZED()
+    if (active) this._editor.UPDATE_CURRENT_FILE(active)
+    this._main.SET_INITIALIZED()
     window.electron.ipcRenderer.send('mt::window-initialized')
     window.electron.ipcRenderer.send('mt::project-renderer-ready')
-    this.layout.DISPATCH_LAYOUT_MENU_ITEMS()
-    this.preferences.DISPATCH_EDITOR_VIEW_STATE({
-      sourceCode: this.preferences.sourceCode,
-      focus: this.preferences.focus,
-      typewriter: this.preferences.typewriter
+    this._layout.DISPATCH_LAYOUT_MENU_ITEMS()
+    this._preferences.DISPATCH_EDITOR_VIEW_STATE({
+      sourceCode: this._preferences.sourceCode,
+      focus: this._preferences.focus,
+      typewriter: this._preferences.typewriter
     })
-    this.initializing = false
-    this.pendingRestoreId = active?.id ?? null
+    this._initializing = false
+    this._pendingRestoreId = active?.id ?? null
     await nextTick()
-    await this.restoreActiveView()
+    await this._restoreActiveView()
     if (initialized.startupWarning)
       notice.notify({
         title: t('sideBar.tree.unavailableFolder'),
@@ -302,40 +296,40 @@ class WindowSession {
         message: initialized.startupWarning
       })
     if (initialized.persistenceAvailable === false)
-      this.failure(new Error('Recovery storage unavailable'))
-    this.schedule()
+      this._failure(new Error('Recovery storage unavailable'))
+    this._schedule()
   }
 
-  private openDocument(payload: ManagedDocumentPayload): void {
-    if (this.initializing) {
-      this.pendingOpens.push(payload)
+  private _openDocument(payload: ManagedDocumentPayload): void {
+    if (this._initializing) {
+      this._pendingOpens.push(payload)
       return
     }
-    if (this.editor.tabs.some((file) => file.id === payload.document.id)) return
-    const renaming = !!this.project.renameCache
+    if (this._editor.tabs.some((file) => file.id === payload.document.id)) return
+    const renaming = !!this._project.renameCache
     const nameInput = document.activeElement instanceof HTMLInputElement &&
       document.activeElement.matches('input.rename') ? document.activeElement : null
     const selection = nameInput ? [nameInput.selectionStart, nameInput.selectionEnd] as const : null
     for (const id of payload.replacedDocumentIds ?? []) {
-      const replaced = this.editor.tabs.find((file) => file.id === id)
-      if (replaced) this.editor.FORCE_CLOSE_TAB(replaced)
-      this.observed.delete(id)
+      const replaced = this._editor.tabs.find((file) => file.id === id)
+      if (replaced) this._editor.FORCE_CLOSE_TAB(replaced)
+      this._observed.delete(id)
     }
-    const file = this.file(payload)
+    const file = this._file(payload)
     const options = payload.options ?? {}
-    const intent = this.editor.PEEK_OPEN_INTENT(file.pathname)
+    const intent = this._editor.PEEK_OPEN_INTENT(file.pathname)
     file.isPreview =
-      (intent?.preview ?? options.preview ?? false) && this.preferences.openFilesInPreviewMode
+      (intent?.preview ?? options.preview ?? false) && this._preferences.openFilesInPreviewMode
     if (typeof options.requestId === 'number')
-      this.editor.SETTLE_SIDEBAR_OPEN(options.requestId, file.pathname)
+      this._editor.SETTLE_SIDEBAR_OPEN(options.requestId, file.pathname)
     if (payload.selected && !renaming)
-      this.editor.UPDATE_CURRENT_FILE(file)
+      this._editor.UPDATE_CURRENT_FILE(file)
     else {
-      if (payload.selected) this.deferredSelection = file.id
-      this.editor.tabs.push(file)
-      this.editor.updateTabIdToIndex()
+      if (payload.selected) this._deferredSelection = file.id
+      this._editor.tabs.push(file)
+      this._editor.updateTabIdToIndex()
     }
-    const focus = this.editor.TAKE_OPEN_INTENT(file.pathname)
+    const focus = this._editor.TAKE_OPEN_INTENT(file.pathname)
     if (focus === true && !renaming) bus.emit('editor-focus')
     else if (focus === false && !renaming)
       bus.emit('SIDEBAR::focus-tree')
@@ -344,13 +338,13 @@ class WindowSession {
       nameInput.focus({ preventScroll: true })
       nameInput.setSelectionRange(selection[0], selection[1])
     }
-    if (options.anchor) this.editor.SCROLL_TO_ANCHOR(options.anchor)
-    this.schedule()
+    if (options.anchor) this._editor.SCROLL_TO_ANCHOR(options.anchor)
+    this._schedule()
   }
 
-  private async captureActiveView(): Promise<void> {
-    const file = this.editor.currentFile
-    if (!file || this.pendingRestoreId === file.id || !isDocumentViewReady(file.id, file.markdown))
+  private async _captureActiveView(): Promise<void> {
+    const file = this._editor.currentFile
+    if (!file || this._pendingRestoreId === file.id || !isDocumentViewReady(file.id, file.markdown))
       return
     const markdown = file.markdown
     const view = await captureDocumentView(
@@ -359,49 +353,49 @@ class WindowSession {
       file.tocCollapsedKeys ?? [],
       file.viewState ?? null
     )
-    if (this.editor.tabs.some((current) => current.id === file.id) && file.markdown === markdown)
+    if (this._editor.tabs.some((current) => current.id === file.id) && file.markdown === markdown)
       file.viewState = view
   }
 
-  private async restoreActiveView(): Promise<void> {
-    const file = this.editor.currentFile
-    if (!file || this.pendingRestoreId !== file.id || !isDocumentViewReady(file.id, file.markdown))
+  private async _restoreActiveView(): Promise<void> {
+    const file = this._editor.currentFile
+    if (!file || this._pendingRestoreId !== file.id || !isDocumentViewReady(file.id, file.markdown))
       return
     const id = file.id
     const markdown = file.markdown
-    const epoch = this.interactionEpoch
-    this.pendingRestoreId = null
+    const epoch = this._interactionEpoch
+    this._pendingRestoreId = null
     const keys = await restoreDocumentView(
       id,
       markdown,
       file.viewState ?? null,
       () =>
-        this.editor.currentFile?.id === id &&
-        this.editor.currentFile.markdown === markdown &&
-        this.interactionEpoch === epoch,
+        this._editor.currentFile?.id === id &&
+        this._editor.currentFile.markdown === markdown &&
+        this._interactionEpoch === epoch,
       true
     )
-    if (this.editor.currentFile?.id === id && file.markdown === markdown)
+    if (this._editor.currentFile?.id === id && file.markdown === markdown)
       file.tocCollapsedKeys = keys
   }
 
-  flush(transactionId: string | null = null): Promise<PersistResult> {
-    this.schedule.cancel()
-    const result = this.queue.catch(() => {}).then(() => this.checkpoint(transactionId))
-    this.queue = result
+  private _flush(transactionId: string | null = null): Promise<PersistResult> {
+    this._schedule.cancel()
+    const result = this._queue.catch(() => {}).then(() => this._checkpoint(transactionId))
+    this._queue = result
     return result
   }
 
-  private async checkpoint(transactionId: string | null): Promise<PersistResult> {
-    if (this.initializing || !this.context) return { status: 'failed', reason: 'stale-context' }
-    this.editor.flushActiveEditor()
-    await this.captureActiveView()
+  private async _checkpoint(transactionId: string | null): Promise<PersistResult> {
+    if (this._initializing || !this._context) return { status: 'failed', reason: 'stale-context' }
+    this._editor.flushActiveEditor()
+    await this._captureActiveView()
     const contents: WindowCheckpointRequest['dirtyContents'] = []
     const captured = new Map<string, { markdown: string; format: string; revision: number }>()
-    const documents = this.editor.tabs.map((file) => {
+    const documents = this._editor.tabs.map((file) => {
       const saveFormat = getOptionsFromState(file)
       const formatKey = JSON.stringify(saveFormat)
-      const observed = this.observed.get(file.id)
+      const observed = this._observed.get(file.id)
       if (!observed) throw new Error('Unknown document identity')
       if (file.markdown !== observed.markdown || formatKey !== observed.format) {
         observed.revision++
@@ -430,39 +424,39 @@ class WindowSession {
       }
     })
     const request: WindowCheckpointRequest = {
-      contextToken: this.context.contextToken,
-      sequence: ++this.sequence,
+      contextToken: this._context.contextToken,
+      sequence: ++this._sequence,
       closeTransactionId: transactionId,
-      layout: this.layout.CAPTURE_WINDOW_LAYOUT(),
-      projectView: this.project.CAPTURE_PROJECT_VIEW(
-        this.initialization?.snapshot.workspace ?? null
+      layout: this._layout.CAPTURE_WINDOW_LAYOUT(),
+      projectView: this._project.CAPTURE_PROJECT_VIEW(
+        this._workspace
       ),
       documents,
-      activeDocumentId: this.editor.currentFile?.id ?? null,
+      activeDocumentId: this._editor.currentFile?.id ?? null,
       dirtyContents: contents,
-      previewDocumentId: this.editor.tabs.find((file) => file.isPreview)?.id ?? null
+      previewDocumentId: this._editor.tabs.find((file) => file.isPreview)?.id ?? null
     }
     const result = await window.electron.ipcRenderer.invoke('mt::state::checkpoint', request)
     if (result.status !== 'persisted') {
       const sameDocuments =
-        documents.length === this.editor.tabs.length &&
-        documents.every((document) => this.editor.tabs.some((file) => file.id === document.id))
+        documents.length === this._editor.tabs.length &&
+        documents.every((document) => this._editor.tabs.some((file) => file.id === document.id))
       if (
         sameDocuments &&
-        (result.reason !== 'stale-context' || request.contextToken === this.context.contextToken)
+        (result.reason !== 'stale-context' || request.contextToken === this._context.contextToken)
       )
-        this.failure(new Error(result.reason))
+        this._failure(new Error(result.reason))
       return result
     }
     for (const document of result.receipt.documents ?? []) {
-      const file = this.editor.tabs.find((file) => file.id === document.id)
+      const file = this._editor.tabs.find((file) => file.id === document.id)
       const sent = captured.get(document.id)
-      const observed = this.observed.get(document.id)
+      const observed = this._observed.get(document.id)
       if (!file || !sent || !observed) continue
       if (observed.revision === sent.revision) observed.pending = false
-      if ((this.serverRevision.get(document.id) ?? -1) > result.receipt.metadataRevision) continue
-      this.serverRevision.set(document.id, result.receipt.metadataRevision)
-      this.applyResource(file, document)
+      if ((this._serverRevision.get(document.id) ?? -1) > result.receipt.metadataRevision) continue
+      this._serverRevision.set(document.id, result.receipt.metadataRevision)
+      this._applyResource(file, document)
       if (file.markdown === sent.markdown && JSON.stringify(getOptionsFromState(file)) === sent.format) {
         file.isSaved = document.content.kind !== 'recovery'
       }
@@ -470,19 +464,19 @@ class WindowSession {
     return result
   }
 
-  private applyResource(file: IFileState, document: DocumentSnapshot): void {
+  private _applyResource(file: IFileState, document: DocumentSnapshot): void {
     file.pathname = document.resource.kind === 'file' ? document.resource.location.path : ''
     file.filename = document.title
     file.isPendingCreation = document.resource.kind === 'file' && document.resource.pendingCreation
-    if (this.editor.currentFile?.id === file.id)
+    if (this._editor.currentFile?.id === file.id)
       window.DIRNAME = file.pathname ? window.path.dirname(file.pathname) : ''
   }
 
-  private saved(result: Extract<ManagedSaveResult, { status: 'saved' }>): void {
-    const file = this.editor.tabs.find((file) => file.id === result.document.id)
+  private _saved(result: Extract<ManagedSaveResult, { status: 'saved' }>): void {
+    const file = this._editor.tabs.find((file) => file.id === result.document.id)
     if (!file || result.document.resource.kind !== 'file') return
-    if ((this.serverRevision.get(file.id) ?? -1) > result.metadataRevision) return
-    this.serverRevision.set(file.id, result.metadataRevision)
+    if ((this._serverRevision.get(file.id) ?? -1) > result.metadataRevision) return
+    this._serverRevision.set(file.id, result.metadataRevision)
     file.pathname = result.document.resource.location.path
     file.filename = result.document.title
     file.isPendingCreation = false
@@ -491,25 +485,25 @@ class WindowSession {
     const baseline = { markdown: result.savedMarkdown, format: JSON.stringify(result.savedFormat) }
     file.isSaved =
       file.markdown === baseline.markdown && JSON.stringify(getOptionsFromState(file)) === baseline.format
-    if (this.editor.currentFile?.id === file.id) window.DIRNAME = window.path.dirname(file.pathname)
-    this.schedule()
+    if (this._editor.currentFile?.id === file.id) window.DIRNAME = window.path.dirname(file.pathname)
+    this._schedule()
   }
 
-  private async save(id: string, saveAs = false): Promise<SaveDocumentResult> {
-    const checkpoint = await this.flush()
+  private async _save(id: string, saveAs = false): Promise<SaveDocumentResult> {
+    const checkpoint = await this._flush()
     if (
-      !this.context ||
+      !this._context ||
       (checkpoint.status !== 'persisted' && checkpoint.reason !== 'storage-unavailable')
     )
       return { status: 'failed' }
     const result = await window.electron.ipcRenderer.invoke(
       'mt::state::save-document',
-      this.context.contextToken,
+      this._context.contextToken,
       id,
       saveAs
     )
     if (result.status !== 'saved') return result
-    this.saved(result)
+    this._saved(result)
     return {
       status: 'saved',
       pathname:
@@ -519,23 +513,23 @@ class WindowSession {
     }
   }
 
-  private async close(ids: string[]): Promise<void> {
-    if (!ids.length || !this.context) return
+  private async _close(ids: string[]): Promise<void> {
+    if (!ids.length || !this._context) return
     const result = await window.electron.ipcRenderer.invoke(
       'mt::state::close-documents',
-      this.context.contextToken,
+      this._context.contextToken,
       ids
     )
-    if (result.status === 'closed' && this.editor.tabs.length === 0) {
+    if (result.status === 'closed' && this._editor.tabs.length === 0) {
       await window.electron.ipcRenderer.invoke('mt::state::register-untitled', {
-        contextToken: this.context.contextToken,
+        contextToken: this._context.contextToken,
         title: '',
         selected: true
       })
     }
   }
 
-  private failure(error: unknown): void {
+  private _failure(error: unknown): void {
     console.error('Recovery operation did not complete', error)
     void notice.notify({
       title: t('sideBar.tree.sessionSaveFailed'),
@@ -545,8 +539,8 @@ class WindowSession {
   }
 
   dispose(): void {
-    this.schedule.cancel()
-    for (const stop of this.stops) stop()
+    this._schedule.cancel()
+    for (const stop of this._stops) stop()
     setSessionActions(null)
     onDocumentViewChange(null)
   }

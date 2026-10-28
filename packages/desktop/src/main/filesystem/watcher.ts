@@ -232,7 +232,7 @@ class Watcher {
 
   constructor(
     preferences: Preference,
-    private readonly onFileChange?: (win: BrowserWindow, change: FileWatchChange) => void
+    private readonly _onFileChange?: (win: BrowserWindow, change: FileWatchChange) => void
   ) {
     this._preferences = preferences
     this._ignoreChangeEvents = []
@@ -299,7 +299,7 @@ class Watcher {
     let initialScan = true
     const emit: WatchEmit = (channel, payload) => {
       if (disposed || win.isDestroyed?.()) return
-      if (channel === 'mt::update-file') this.onFileChange?.(win, payload as FileWatchChange)
+      if (channel === 'mt::update-file') this._onFileChange?.(win, payload as FileWatchChange)
       win.webContents.send(channel, channel === 'mt::update-object-tree' && context
         ? { ...(payload as object), rootKey: context.rootKey, watchToken: context.watchToken }
         : payload)

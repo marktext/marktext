@@ -93,7 +93,7 @@ describe('document identity and content lifecycle', () => {
     expect(registry.pendingRecords(10)).toMatchObject([
       { status: 'dirty', markdown: 'Original', contentRevision: 0 }
     ])
-    expect(() => registry.close(snapshot.id)).toThrow(/unsaved/i)
+    expect(() => registry.prepareClose(snapshot.id, false, 10)).toThrow(/unsaved/i)
   })
   it('protects ownership and rejects a clean claim without matching saved text', () => {
     const { registry, snapshot, windowId } = registration(true)

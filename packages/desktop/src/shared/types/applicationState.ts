@@ -283,6 +283,7 @@ export interface WindowInitialization {
   documentStatuses?: Array<{ documentId: string; diskMissing: boolean; diskConflict: boolean }>
 }
 
+/** Native document registration delivered before the renderer can edit or checkpoint it. */
 export interface ManagedDocumentPayload {
   document: DocumentSnapshot
   markdown: string
@@ -292,14 +293,17 @@ export interface ManagedDocumentPayload {
   replacedDocumentIds?: DocumentId[]
 }
 
+/** A successful disk save includes its captured text and format, even if newer edits remain. */
 export type ManagedSaveResult =
   | { status: 'saved'; document: DocumentSnapshot; savedMarkdown: string; savedFormat: SaveFormatState; metadataRevision: number }
   | { status: 'canceled' | 'failed' }
 
+/** Registration failure leaves renderer membership unchanged. */
 export type RegisterUntitledResult =
   | { status: 'registered'; document: DocumentSnapshot }
   | { status: 'failed'; reason: PersistenceFailure }
 
+/** Request/response operations; the native sender determines window ownership. */
 export interface StateIpcInvokeChannels {
   'mt::state::get-window-initialization': {
     args: []
@@ -313,7 +317,6 @@ export interface StateIpcInvokeChannels {
     args: [request: WindowCheckpointRequest]
     ret: PersistResult
   }
-  'mt::state::flush': { args: [contextToken: string]; ret: PersistResult }
   'mt::preferences::get': { args: []; ret: UserPreferences }
   'mt::preferences::update': {
     args: [patch: UserPreferencesPatch]
@@ -324,6 +327,7 @@ export interface StateIpcInvokeChannels {
   'mt::state::close-documents': { args: [contextToken: string, documentIds: string[]]; ret: { status: 'closed' | 'canceled' | 'failed' } }
 }
 
+/** Native state notifications; renderer revisions guard against out-of-order delivery. */
 export interface StateIpcMainEvents {
   'mt::state::document-relocated': [document: DocumentSnapshot, metadataRevision: number]
   'mt::state::document-opened': [payload: ManagedDocumentPayload]
@@ -372,11 +376,6 @@ export interface DocumentRecoveryStorage {
   remove(windowId: WindowStateId, documentId: DocumentId): Promise<void>
 }
 
-export interface WindowStateProvider {
-  get(windowId: WindowStateId): WindowSnapshot | null
-  update(snapshot: WindowSnapshot): void
-}
-
 /** Trusted loader observations; original and currently observed disk contents may differ. */
 export interface DocumentRegistration {
   contentRevision?: number
@@ -386,16 +385,20 @@ export interface DocumentRegistration {
   saved?: { snapshot: DocumentSnapshot; markdown: string }
 }
 
+/** Initial live text plus trusted observations for one registered editing instance. */
 export interface RegisteredDocumentContent extends DocumentRegistration {
   documentId: string
   markdown: string
 }
 
+/** Resolved native startup inputs, before creating or binding an Electron window. */
 export interface PreparedSessionWindow {
   snapshot: WindowSnapshot
   contents: RegisteredDocumentContent[]
   restoreGeometry: boolean
   statuses: NonNullable<WindowInitialization['documentStatuses']>
+  // False when every ordinary file disappeared and no workspace remains to open.
   openable: boolean
+  // Explicit user targets added to native recent items; restoration does not add entries.
   rememberPaths?: string[]
 }

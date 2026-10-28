@@ -1,5 +1,6 @@
 import { createDefaultLayout } from './defaults'
 import { getActiveSessionWindow } from './session'
+import { RecoveryStatus } from '../types/applicationState'
 import type {
   ApplicationState,
   DocumentSnapshot,
@@ -64,17 +65,17 @@ const mergeRecovery = (
   for (const record of records) {
     if (record.ownerWindowId !== window.id) continue
     const existing = documents.get(record.documentId)
-    if (record.status === 'saved' && !existing) continue
+    if (record.status === RecoveryStatus.SAVED && !existing) continue
     if (
       existing?.content.kind === 'recovery' &&
       existing.content.contentRevision > record.contentRevision
     )
       continue
-    if (record.status === 'discarded') documents.delete(record.documentId)
+    if (record.status === RecoveryStatus.DISCARDED) documents.delete(record.documentId)
     else {
       const recovered = structuredClone(record.document)
       if (
-        record.status === 'dirty' &&
+        record.status === RecoveryStatus.DIRTY &&
         existing?.content.kind === 'recovery' &&
         existing.content.contentRevision === record.contentRevision &&
         record.updatedAtMs <= window.updatedAtMs

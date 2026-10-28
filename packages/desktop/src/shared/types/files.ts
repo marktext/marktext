@@ -44,13 +44,15 @@ export interface FileSearchMatches {
   value: string
 }
 
-/** Canonical per-tab state shared by renderer stores, buffered persistence and IPC. */
+/** Live renderer tab state; recovery data is captured through window checkpoints. */
 export interface IFileState {
   readOnly: boolean
-  // Transient navigation state; deliberately excluded from buffered tab state.
+  // Preview navigation is transient and excluded from persisted sessions.
   isPreview: boolean
   modeChanging?: boolean
+  // Explicitly accepted raw disk version; advances conflict checks on the next checkpoint.
   acceptedDiskSha256?: string
+  // A conflict can survive deletion, so missing and conflicting are independent states.
   diskMissing?: boolean
   diskConflict?: boolean
   // A named CLI buffer can be unmodified while its target does not exist yet.
@@ -70,7 +72,7 @@ export interface IFileState {
   wordCount: FileWordCount
   searchMatches: FileSearchMatches
   scrollTop: number
-  // View state for this open tab; deliberately excluded from buffered persistence.
+  // Renderer-owned view state captured independently of document text.
   tocCollapsedKeys?: string[]
   viewState?: DocumentViewState | null
   muyaIndexCursor: unknown
@@ -87,8 +89,6 @@ export interface FileNotification {
   exclusiveType: string
   action: (status?: unknown) => void
 }
-
-export type ITab = IFileState
 
 export interface FileChangeDetail {
   pathname: string

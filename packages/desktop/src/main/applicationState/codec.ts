@@ -1,4 +1,4 @@
-import { RecoveryStatus } from '@shared/types/applicationState'
+import { RecoveryStatus, SessionLifecycle } from '@shared/types/applicationState'
 import path from 'node:path'
 import { createDefaultLayout } from '@shared/applicationState/defaults'
 import type {
@@ -390,7 +390,7 @@ export const parseApplicationState = (input: unknown): ApplicationState => {
     updatedAtMs: value.updatedAtMs,
     session: {
       id: session.id as string,
-      lifecycle: session.lifecycle === 'closed' ? 'closed' : 'running',
+      lifecycle: session.lifecycle === SessionLifecycle.CLOSED ? SessionLifecycle.CLOSED : SessionLifecycle.RUNNING,
       windows,
       activeWindowId: windows.some((window) => window.id === session.activeWindowId)
         ? (session.activeWindowId as string)

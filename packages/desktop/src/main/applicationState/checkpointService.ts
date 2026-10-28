@@ -1,4 +1,5 @@
 import { rememberWindowContext } from '@shared/applicationState/workspaceRecents'
+import { RecoveryStatus, SessionLifecycle } from '@shared/types/applicationState'
 import type {
   ApplicationState,
   ApplicationStateStorage,
@@ -397,7 +398,7 @@ export class CheckpointService {
       const candidate = structuredClone(transform(this.getState()))
       const previous = this._state
       const liveIds = new Set(candidate.session.windows.map((window) => window.id))
-      if (candidate.session.lifecycle === 'closed' && this._saveQueues.size > 0)
+      if (candidate.session.lifecycle === SessionLifecycle.CLOSED && this._saveQueues.size > 0)
         throw new Error('Cannot finish session with pending saves')
       for (const window of this._state.session.windows) {
         const retained = candidate.session.windows.find((entry) => entry.id === window.id)
@@ -493,7 +494,7 @@ export class CheckpointService {
     this._state = next
     for (const record of ended) this._documents.discard(record.documentId)
     for (const record of records) {
-      if (record.status !== 'dirty') {
+      if (record.status !== RecoveryStatus.DIRTY) {
         try {
           await this._recovery.remove(record.ownerWindowId, record.documentId)
         } catch (error) {

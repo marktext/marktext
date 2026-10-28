@@ -174,10 +174,6 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     return this._windows.get(this._activeWindowId)
   }
 
-  getActiveWindowId(): number | null {
-    return this._activeWindowId
-  }
-
   getActiveEditor(): BaseWindow | undefined {
     let win = this.getActiveWindow()
     if (win && win.type !== WindowType.EDITOR) {
