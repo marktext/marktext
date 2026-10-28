@@ -415,6 +415,7 @@
         "custom css": "Custom CSS"
       },
       "items": {
+        "treePathExcludePatterns": "File tree exclusion rules (glob patterns)",
         "autoSave": "Automatically save the content being edited",
         "autoSaveDelay": "The time in ms after a change that the file is saved",
         "titleBarStyle": "The title bar style (Windows and Linux system only)",
@@ -553,8 +554,16 @@
         "showOpenedFiles": "Show opened files",
         "autoReveal": "Reveal the active file in the sidebar",
         "openFilesInPreviewMode": "Open sidebar files in preview tabs. Editing or double-clicking keeps the tab open.",
-        "excludePatterns": "Exclude patterns",
-        "excludePatternsNotes": "Exclude patterns (Notes)",
+        "excludePatterns": "File tree exclusion rules",
+        "excludePatternsNotes": "Paths matching any glob rule are excluded from the file tree. Add one rule per entry; commas within a rule are preserved. Reopen the folder to fully apply changes.",
+        "patternLabel": "Exclusion rule {number}",
+        "removePatternLabel": "Remove exclusion rule {number}",
+        "removePattern": "Remove",
+        "newPattern": "New exclusion rule",
+        "patternExample": "For example: **/drafts/** or *.tmp",
+        "addPattern": "Add rule",
+        "patternSaveError": "Could not save exclusion rules. The saved rules have been kept. Please try again.",
+        "patternHelp": "Glob pattern syntax",
         "fileSortBy": {
           "title": "File Sort By",
           "creationTime": "Creation Time",

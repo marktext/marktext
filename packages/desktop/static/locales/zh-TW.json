@@ -415,6 +415,7 @@
         "custom css": "自訂 CSS"
       },
       "items": {
+        "treePathExcludePatterns": "檔案樹排除規則（glob 萬用字元）",
         "autoSave": "自動儲存正在編輯的內容",
         "autoSaveDelay": "檔案儲存前的延遲時間（毫秒）",
         "autoNormalizeLineEndings": "開啟檔案時自動將行尾標準化。停用時，檔案會以原樣開啟",
@@ -553,8 +554,16 @@
         "showOpenedFiles": "顯示已開啟的檔案",
         "autoReveal": "在側邊欄中定位目前檔案",
         "openFilesInPreviewMode": "按一下側邊欄檔案時重複使用預覽分頁；編輯或按兩下後保留該分頁",
-        "excludePatterns": "排除模式",
-        "excludePatternsNotes": "排除模式（備註）",
+        "excludePatterns": "檔案樹排除規則",
+        "excludePatternsNotes": "符合任意 glob 規則的路徑將從檔案樹中排除。每條規則單獨填寫，規則內的逗號會保留。重新開啟資料夾以完整套用變更。",
+        "patternLabel": "排除規則 {number}",
+        "removePatternLabel": "刪除排除規則 {number}",
+        "removePattern": "刪除",
+        "newPattern": "新增排除規則",
+        "patternExample": "例如：**/drafts/** 或 *.tmp",
+        "addPattern": "新增規則",
+        "patternSaveError": "無法儲存排除規則，已保留原有規則，請重試。",
+        "patternHelp": "glob 規則語法",
         "fileSortBy": {
           "title": "檔案排序方式",
           "creationTime": "建立時間",

@@ -36,6 +36,7 @@ export interface UserPreferences extends RecoveryPreferences {
   hideScrollbar: boolean
   wordWrapInToc: boolean
   tocPosition: 'left' | 'right'
+  treePathExcludePatterns: string[]
   fileSortBy: 'modified' | 'created' | 'title'
   fileSortOrder: 'asc' | 'desc'
   defaultOpenMode: 'edit' | 'read'

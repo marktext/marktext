@@ -111,12 +111,11 @@
           :on-change="(value) => onSelectChange('openFilesInPreviewMode', value)"
         />
 
-        <text-box
-          :description="t('preferences.general.sidebar.excludePatterns')"
-          :notes="t('preferences.general.sidebar.excludePatternsNotes')"
-          :input="projectPaths.join(',')"
-          :on-change="(value) => onSelectChange('treePathExcludePatterns', value.split(','))"
-          more="https://github.com/isaacs/minimatch"
+        <exclude-patterns
+          v-if="recoveryPreferences"
+          :value="recoveryPreferences.treePathExcludePatterns"
+          :update="updateExcludePatterns"
+          @persisted="acceptRecoveryPreferences"
         />
 
         <cur-select
@@ -192,6 +191,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import RecoverySettings from './recoverySettings.vue'
+import ExcludePatterns from './excludePatterns.vue'
 import type { UserPreferences, RecoveryPreferences } from '@shared/types/preferences'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
@@ -201,7 +201,6 @@ import Compound from '../common/compound/index.vue'
 import Range from '../common/range/index.vue'
 import CurSelect from '../common/select/index.vue'
 import Bool from '../common/bool/index.vue'
-import textBox from '../common/textBox/index.vue'
 import { pandocSwitchState } from './pandoc'
 import type { PandocCommandInfo } from '@shared/types/pandoc'
 import { isMac } from '@/util'
@@ -222,6 +221,7 @@ const acceptRecoveryPreferences = (preferences: UserPreferences): void => {
   preferenceStore.SET_USER_PREFERENCE({ ...preferences })
 }
 const updateRecoveryPreferences = (patch: Partial<RecoveryPreferences>) => window.electron.ipcRenderer.invoke('mt::preferences::update', patch)
+const updateExcludePatterns = (patch: Pick<UserPreferences, 'treePathExcludePatterns'>) => window.electron.ipcRenderer.invoke('mt::preferences::update', patch)
 const chooseRecoveryDirectory = () => window.electron.ipcRenderer.invoke('mt::preferences::choose-directory')
 let stopRecoveryPreferences: (() => void) | undefined
 onUnmounted(() => stopRecoveryPreferences?.())
@@ -233,7 +233,6 @@ const {
   titleBarStyle,
   openFilesInNewWindow,
   openFolderInNewWindow,
-  treePathExcludePatterns: projectPaths,
   zoom,
   hideScrollbar,
   wordWrapInToc,

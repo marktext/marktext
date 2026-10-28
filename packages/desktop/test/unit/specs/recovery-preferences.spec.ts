@@ -16,6 +16,22 @@ afterEach(() =>
 )
 
 describe('tolerant preference persistence', () => {
+  it('loads and saves file-tree rules without splitting commas or rewriting patterns', () => {
+    const directory = profile()
+    const patterns = ['**/{drafts,archive}/**', '*.tmp', ' leading space.md', '']
+    writeFileSync(join(directory, 'preferences.json'), JSON.stringify({
+      treePathExcludePatterns: patterns
+    }))
+    const file = new PreferenceFile(directory)
+    expect(file.get().treePathExcludePatterns).toEqual(patterns)
+    const next = [...patterns, '**/private/**']
+    expect(file.update({ treePathExcludePatterns: next }).status).toBe('persisted')
+    expect(new PreferenceFile(directory).get().treePathExcludePatterns).toEqual(next)
+    expect(file.update({ treePathExcludePatterns: ['valid', 42] }).status).toBe('failed')
+    expect(file.get().treePathExcludePatterns).toEqual(next)
+    expect(file.update({ treePathExcludePatterns: [] }).status).toBe('persisted')
+    expect(new PreferenceFile(directory).get().treePathExcludePatterns).toEqual([])
+  })
   it('uses safe defaults without writing on load', () => {
     const directory = profile()
     const file = new PreferenceFile(directory)
