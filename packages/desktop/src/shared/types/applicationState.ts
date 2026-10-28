@@ -338,3 +338,23 @@ export interface WindowStateProvider {
   get(windowId: WindowStateId): WindowSnapshot | null
   update(snapshot: WindowSnapshot): void
 }
+
+export interface DocumentRegistration {
+  contentRevision?: number
+  baseline?: DiskBaseline | null
+  saved?: { snapshot: DocumentSnapshot; markdown: string }
+}
+
+export interface RegisteredDocumentContent extends DocumentRegistration {
+  documentId: string
+  markdown: string
+}
+
+export interface PreparedSessionWindow {
+  snapshot: WindowSnapshot
+  contents: RegisteredDocumentContent[]
+  restoreGeometry: boolean
+  statuses: NonNullable<WindowInitialization['documentStatuses']>
+  openable: boolean
+  rememberPaths?: string[]
+}

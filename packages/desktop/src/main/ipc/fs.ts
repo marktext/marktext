@@ -1,7 +1,6 @@
 import fs from 'fs-extra'
-import { getManagedOwner } from '../applicationState/sessionHostAccess'
 import { type Stats } from 'fs'
-import { ipcMain } from 'electron'
+import { ipcMain, type WebContents } from 'electron'
 import {
   isFile as commonIsFile,
   isDirectory as commonIsDirectory,
@@ -36,7 +35,10 @@ const toBuffer = (data: unknown): unknown => {
   return data
 }
 
-export const registerFsHandlers = (): void => {
+export interface FileOperations {
+  move(sender: WebContents, src: string, dest: string, write: () => Promise<void>): Promise<void>
+}
+export const registerFsHandlers = (operations?: FileOperations): void => {
   ipcMain.handle('mt::fs::is-file', (_e, p: string) => commonIsFile(p))
   ipcMain.handle('mt::fs::is-directory', (_e, p: string) => commonIsDirectory(p))
   ipcMain.handle('mt::fs::empty-dir', (_e, p: string) => fs.emptyDir(p))
@@ -50,9 +52,8 @@ export const registerFsHandlers = (): void => {
     fs.outputFile(p, toBuffer(data) as string | NodeJS.ArrayBufferView)
   )
   ipcMain.handle('mt::fs::move', (event, src: string, dest: string) => {
-    const owner = getManagedOwner(event.sender)
     const move = () => fs.move(src, dest, { overwrite: false })
-    if (owner) return owner.host.moveResource(owner.windowId, src, dest, move)
+    if (operations) return operations.move(event.sender, src, dest, move)
     return move()
   })
   ipcMain.handle('mt::fs::stat', async(_e, p: string) => serializeStat(await fs.stat(p)))

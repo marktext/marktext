@@ -1,4 +1,3 @@
-import { getSessionActions } from '@/services/sessionActions'
 import equal from 'deep-equal'
 import { prepareReading, applyReadOnly } from '../services/documentMode'
 import bus from '../bus'
@@ -36,6 +35,21 @@ import type {
   TabOptions
 } from '@shared/types/files'
 import type { IpcMainEventChannels, IpcSendChannels, SaveDocumentResult } from '@shared/types/ipc'
+
+
+export interface SessionActions {
+  checkpoint(): Promise<unknown>
+  captureView(): void
+  save(id: string, saveAs?: boolean): Promise<SaveDocumentResult>
+  create(markdown: string, selected: boolean): Promise<void>
+  close(ids: string[]): Promise<void>
+  saveAll(closeTabs: boolean): Promise<void>
+}
+let actions: SessionActions | null = null
+export const getSessionActions = (): SessionActions | null => actions
+export const setSessionActions = (value: SessionActions | null): void => {
+  actions = value
+}
 
 
 interface TocItem extends ListItem {

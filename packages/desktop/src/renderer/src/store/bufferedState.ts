@@ -1,16 +1,10 @@
 import debounce from 'lodash/debounce'
-import { useEditorStore } from './editor'
+import { getSessionActions, useEditorStore } from './editor'
 import { useProjectStore } from './project'
 import { useLayoutStore } from './layout'
 
 const BUFFERED_STATE_DEBOUNCE_MS = 1000
 const BUFFERED_STATE_VERSION = 3
-let checkpointWriter: (() => Promise<unknown>) | null = null
-export const setCheckpointWriter = (writer: (() => Promise<unknown>) | null): void => {
-  debouncedSendBufferedState.cancel()
-  checkpointWriter = writer
-}
-
 interface StoreCache {
   editorStore: ReturnType<typeof useEditorStore> | null
   projectStore: ReturnType<typeof useProjectStore> | null
@@ -48,7 +42,8 @@ export const createBufferedState = (): Record<string, unknown> | null => {
 
 export const sendBufferedState = (): Promise<unknown> => {
   debouncedSendBufferedState.cancel()
-  if (checkpointWriter) return checkpointWriter()
+  const session = getSessionActions()
+  if (session) return session.checkpoint()
   const snapshot = createBufferedState()
   if (snapshot) {
     return window.electron.ipcRenderer.invoke('update-buffer-state', snapshot).then(result => {

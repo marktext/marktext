@@ -1,3 +1,4 @@
+import type { DocumentRegistration } from '@shared/types/applicationState'
 import type {
   DiskBaseline,
   DiscardedRecoveryRecord,
@@ -25,12 +26,6 @@ interface DocumentEntry {
   baseline: DiskBaseline | null
   pending: RecoveryRecord['status'] | null
   closed: boolean
-}
-
-export interface DocumentRegistration {
-  contentRevision?: number
-  baseline?: DiskBaseline | null
-  saved?: { snapshot: DocumentSnapshot; markdown: string }
 }
 
 export interface PreparedDocumentUpdate {

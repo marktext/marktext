@@ -13,7 +13,9 @@ import type {
   WindowSnapshot
 } from '@shared/types/applicationState'
 import { parseWindowSnapshot } from './codec'
-import { DocumentRegistry, type DocumentRegistration } from './documentRegistry'
+import { DocumentRegistry } from './documentRegistry'
+import type { DocumentRegistration, RegisteredDocumentContent } from '@shared/types/applicationState'
+export type { RegisteredDocumentContent } from '@shared/types/applicationState'
 import { contentSha256, createStateId } from './identity'
 
 interface RendererContext {
@@ -22,11 +24,6 @@ interface RendererContext {
   digest: string | null
   result: PersistResult | null
   closeTransactionId: string | null
-}
-
-export interface RegisteredDocumentContent extends DocumentRegistration {
-  documentId: string
-  markdown: string
 }
 
 export interface SaveCapture {

@@ -16,8 +16,8 @@ import fs from 'fs'
 import { ProjectRoots, resolveExistingPath } from './projectRoots'
 import { readBufferedRoots } from '@shared/types/project'
 import { t } from '../i18n'
-import { createStateId } from '../applicationState/identity'
-import type { PreparedSessionWindow } from '../applicationState/sessionHost'
+import { randomUUID } from 'node:crypto'
+import type { PreparedSessionWindow } from '@shared/types/applicationState'
 
 type RawMarkdownDocument = Awaited<ReturnType<typeof loadMarkdownFile>>
 
@@ -74,7 +74,7 @@ class EditorWindow extends BaseWindow {
   constructor(accessor: Accessor, private preparedSession?: PreparedSessionWindow) {
     super(accessor)
     this.type = WindowType.EDITOR
-    this.sessionStateId = accessor.sessionHost ? preparedSession?.snapshot.id ?? createStateId() : null
+    this.sessionStateId = accessor.sessionHost ? preparedSession?.snapshot.id ?? randomUUID() : null
 
     this._directoryToOpen = null
     this._filesToOpen = []
@@ -344,6 +344,12 @@ class EditorWindow extends BaseWindow {
       return
     }
     this.openTabs([{ filePath, options, selected }])
+  }
+
+  removeRoot(key: string): Promise<boolean> | boolean {
+    const host = this._accessor.sessionHost
+    if (host) return host.removeRoot(this, key)
+    return this.projectRoots.remove(key)
   }
 
   cancelPendingPreview(requestId: number): void {

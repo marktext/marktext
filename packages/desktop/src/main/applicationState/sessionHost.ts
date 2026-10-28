@@ -3,7 +3,8 @@ import { readFile, stat, rename, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import log from 'electron-log'
 import debounce from 'lodash/debounce'
-import type Accessor from '../app/accessor'
+import type Preference from '../preferences'
+import type AppMenu from '../menu'
 import type EditorWindow from '../windows/editor'
 import type { FileOpenOptions } from '../windows/editor'
 import { loadMarkdownFile, loadCliMarkdownFile, writeMarkdownFile } from '../filesystem/markdown'
@@ -40,19 +41,12 @@ import {
   createWorkspaceDescriptor
 } from './identity'
 import { applyWindowGeometry, captureWindowGeometry } from './windowGeometry'
-import { getManagedOwner, registerManagedOwner } from './sessionHostAccess'
+import type { PreparedSessionWindow } from '@shared/types/applicationState'
+export type { PreparedSessionWindow } from '@shared/types/applicationState'
 
 export interface StartupPath extends FileOpenOptions {
   path: string
   isDir: boolean
-}
-export interface PreparedSessionWindow {
-  snapshot: WindowSnapshot
-  contents: RegisteredDocumentContent[]
-  restoreGeometry: boolean
-  statuses: NonNullable<WindowInitialization['documentStatuses']>
-  openable: boolean
-  rememberPaths?: string[]
 }
 interface PendingCheckpoint {
   requirePersisted: boolean
@@ -94,7 +88,10 @@ export class SessionHost {
   private readonly previews = new Map<string, string>()
   private readonly untitledNumbers = new Map<string, number>()
 
-  constructor(private readonly accessor: Accessor) {
+  constructor(private readonly accessor: {
+    preferences: Preference
+    menu: Pick<AppMenu, 'removeWindowMenu' | 'addRecentlyUsedDocument'>
+  }) {
     this.metadata = new ApplicationStateStore(app.getPath('userData'))
     this.recovery = new RecoveryStore(app.getPath('userData'))
     this.loaded = this.metadata.load().then((result) => result.value)
@@ -573,7 +570,6 @@ export class SessionHost {
     const id = editor.sessionStateId
     if (!native || !id) throw new Error('Missing editor identity')
     this.editors.set(id, editor)
-    registerManagedOwner(native.webContents, this, id)
     const ownerId = native.webContents.id
     native.webContents.once('destroyed', () => documentWrites.clearOwner(ownerId))
   }
@@ -1308,18 +1304,20 @@ export class SessionHost {
       })
   }
 
+  private findEditor(sender: WebContents): EditorWindow | undefined {
+    return [...this.editors.values()].find(editor => editor.browserWindow?.webContents === sender)
+  }
+
   private registerIpc(): void {
     const editorFor = (sender: WebContents): EditorWindow => {
-      const owner = getManagedOwner(sender)
-      const editor = owner?.host === this ? this.editors.get(owner.windowId) : undefined
+      const editor = this.findEditor(sender)
       if (!editor) throw new Error('Unrecognized editor window')
       return editor
     }
     ipcMain.on('mt::window-initialized', (event) => {
-      const owner = getManagedOwner(event.sender)
-      if (owner?.host === this) {
-        this.rendererReady.add(owner.windowId)
-        const editor = this.editors.get(owner.windowId)
+      const editor = this.findEditor(event.sender)
+      if (editor?.sessionStateId) {
+        this.rendererReady.add(editor.sessionStateId)
         if (editor?.browserWindow && !editor.browserWindow.isVisible()) editor.bringToFront()
         if (
           this.startupWindowIds.size &&

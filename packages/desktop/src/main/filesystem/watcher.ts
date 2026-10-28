@@ -6,12 +6,16 @@ import { exists } from 'common/filesystem'
 import { hasMarkdownExtension, checkPathExcludePattern } from 'common/filesystem/paths'
 import { getUniqueId } from '../utils'
 import { loadMarkdownFile } from '../filesystem/markdown'
-import { getManagedOwner } from '../applicationState/sessionHostAccess'
 import { isLinux, isOsx } from '../config'
 import type { BrowserWindow } from 'electron'
 import type { LineEnding } from '@shared/types/files'
 import type Preference from '../preferences'
 import type { ProjectRootWatch } from '@shared/types/project'
+export interface FileWatchChange {
+  type: string
+  change: { pathname: string; data?: Awaited<ReturnType<typeof loadMarkdownFile>> }
+}
+
 type WatchEmit = (channel: string, payload: unknown) => void
 
 // TODO(refactor): Please see GH#1035.
@@ -226,7 +230,10 @@ class Watcher {
   private _ignoreChangeEvents: IgnoreEntry[]
   watchers: Record<string, WatcherEntry>
 
-  constructor(preferences: Preference) {
+  constructor(
+    preferences: Preference,
+    private readonly onFileChange?: (win: BrowserWindow, change: FileWatchChange) => void
+  ) {
     this._preferences = preferences
     this._ignoreChangeEvents = []
     this.watchers = {}
@@ -292,11 +299,7 @@ class Watcher {
     let initialScan = true
     const emit: WatchEmit = (channel, payload) => {
       if (disposed || win.isDestroyed?.()) return
-      const managed = getManagedOwner(win.webContents)
-      if (channel === 'mt::update-file' && managed) {
-        void managed.host.observeFile(managed.windowId, payload as { type: string; change: { pathname: string; data?: Awaited<ReturnType<typeof loadMarkdownFile>> } })
-          .catch(error => managed.host.report(error, managed.windowId))
-      }
+      if (channel === 'mt::update-file') this.onFileChange?.(win, payload as FileWatchChange)
       win.webContents.send(channel, channel === 'mt::update-object-tree' && context
         ? { ...(payload as object), rootKey: context.rootKey, watchToken: context.watchToken }
         : payload)

@@ -10,8 +10,8 @@ import { normalizeAndResolvePath, writeFile } from '../filesystem'
 import { guessEncoding } from './encoding'
 import { getEncodingName, type Encoding } from 'common/encoding'
 import type { LineEnding } from '@shared/types/files'
-import type { DiskBaseline } from '@shared/types/applicationState'
-import { contentSha256 } from '../applicationState/identity'
+import type { DiskBaseline } from '@shared/types/files'
+import { contentSha256 } from 'common/filesystem'
 
 interface MarkdownDocumentOptions {
   adjustLineEndingOnSave: boolean

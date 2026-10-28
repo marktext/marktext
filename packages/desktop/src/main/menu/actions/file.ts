@@ -1,4 +1,3 @@
-import { getManagedOwner } from '../../applicationState/sessionHostAccess'
 import { rename as fsRename } from 'fs-extra'
 import { stat } from 'fs/promises'
 import path from 'path'
@@ -39,6 +38,14 @@ import pandoc, {
 import { t, getCurrentLanguage } from '../../i18n'
 import type { PandocExportPayload, TabOptions, UnsavedFile } from '@shared/types/files'
 import type { IpcInvokeChannels, SaveDocumentResult } from '@shared/types/ipc'
+
+export interface ManagedFileActions {
+  save(id: string, saveAs: boolean): Promise<SaveDocumentResult>
+  rename(id: string, pathname: string): Promise<void>
+  move(id: string): Promise<void>
+}
+export type ManagedFileActionsProvider = (sender: WebContents) => ManagedFileActions | undefined
+let managedFileActions: ManagedFileActionsProvider = () => undefined
 
 type Win = BrowserWindow | null | undefined
 
@@ -293,15 +300,8 @@ const saveDocument = async(
 ): Promise<SaveDocumentResult> => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (!win) return { status: 'failed' }
-  const managed = getManagedOwner(e.sender)
-  if (managed) {
-    try {
-      await managed.host.checkpointForSave(managed.windowId)
-      const result = await managed.host.saveDocument(managed.windowId, id, saveAs)
-      if (result.status !== 'saved') return result
-      return { status: 'saved', pathname: result.document.resource.kind === 'file' ? result.document.resource.location.path : '', filename: result.document.title, savedMarkdown: result.savedMarkdown }
-    } catch (error) { managed.host.report(error, managed.windowId); return { status: 'failed' } }
-  }
+  const managed = managedFileActions(e.sender)
+  if (managed) return managed.save(id, saveAs)
   registerDocumentOwner(e.sender)
   const writeEpoch = documentWrites.capture(e.sender.id, id)
   if (writeEpoch === null) return { status: 'failed' }
@@ -609,9 +609,9 @@ interface RenamePayload {
 }
 
 ipcMain.on('mt::rename', async(e, { id, pathname, newPathname }: RenamePayload) => {
-  const managed = getManagedOwner(e.sender)
+  const managed = managedFileActions(e.sender)
   if (managed) {
-    await managed.host.renameDocument(managed.windowId, id, newPathname).catch(error => managed.host.report(error, managed.windowId))
+    await managed.rename(id, newPathname)
     return
   }
   if (pathname === newPathname) return
@@ -658,9 +658,9 @@ ipcMain.on('mt::rename', async(e, { id, pathname, newPathname }: RenamePayload) 
 ipcMain.on(
   'mt::response-file-move-to',
   async(e, { id, pathname }: { id: string; pathname: string }) => {
-    const managed = getManagedOwner(e.sender)
+    const managed = managedFileActions(e.sender)
     if (managed) {
-      await managed.host.moveDocument(managed.windowId, id).catch(error => managed.host.report(error, managed.windowId))
+      await managed.move(id)
       return
     }
     const win = BrowserWindow.fromWebContents(e.sender)
@@ -973,7 +973,11 @@ export const clearRecentlyUsed = (): void => {
 }
 
 
-export const loadFileCommands = (commandManager: CommandManager): void => {
+export const loadFileCommands = (
+  commandManager: CommandManager,
+  getManagedActions: ManagedFileActionsProvider = () => undefined
+): void => {
+  managedFileActions = getManagedActions
   commandManager.add(COMMANDS.FILE_CHECK_UPDATE, checkUpdates)
   commandManager.add(COMMANDS.FILE_CLOSE_TAB, closeTab)
   commandManager.add(COMMANDS.FILE_CLOSE_WINDOW, closeWindow)

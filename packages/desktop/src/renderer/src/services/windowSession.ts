@@ -12,14 +12,14 @@ import type {
 } from '@shared/types/applicationState'
 import type { IFileState } from '@shared/types/files'
 import type { SaveDocumentResult } from '@shared/types/ipc'
-import { useEditorStore } from '@/store/editor'
+import { setSessionActions, useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
 import { usePreferencesStore } from '@/store/preferences'
 import { useProjectStore } from '@/store/project'
 import { useMainStore } from '@/store'
 import { createDocumentState } from '@/store/help'
-import { setCheckpointWriter } from '@/store/bufferedState'
-import { setSessionActions } from './sessionActions'
+import { debouncedSendBufferedState } from '@/store/bufferedState'
+import { deepClone } from '@/util'
 import {
   captureDocumentView,
   restoreDocumentView,
@@ -42,7 +42,6 @@ const format = (file: IFileState): SaveFormatState => ({
   adjustLineEndingOnSave: file.adjustLineEndingOnSave,
   trimTrailingNewline: file.trimTrailingNewline as SaveFormatState['trimTrailingNewline']
 })
-const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
 
 class WindowSession {
   private readonly editor = useEditorStore()
@@ -126,7 +125,9 @@ class WindowSession {
         void this.flush(request.transactionId).catch((error) => this.failure(error))
       })
     )
+    debouncedSendBufferedState.cancel()
     setSessionActions({
+      checkpoint: () => this.flush(),
       captureView: () => {
         void this.captureActiveView().catch((error) => this.failure(error))
       },
@@ -149,7 +150,6 @@ class WindowSession {
             await this.save(file.id)
       }
     })
-    setCheckpointWriter(() => this.flush())
     onDocumentViewChange(() => {
       if (!this.initializing) {
         void this.restoreActiveView().catch((error) => this.failure(error))
@@ -199,13 +199,13 @@ class WindowSession {
         isPendingCreation: document.resource.kind === 'file' && document.resource.pendingCreation,
         isSaved: document.content.kind !== 'recovery',
         ...document.saveFormat,
-        cursor: copy(document.view?.muyaSelection ?? null),
-        muyaIndexCursor: copy(document.view?.sourceSelection ?? null),
+        cursor: deepClone(document.view?.muyaSelection ?? null),
+        muyaIndexCursor: deepClone(document.view?.sourceSelection ?? null),
         scrollTop: document.view?.renderedScrollTopPx ?? 0
       },
       document.id
     )
-    file.viewState = copy(document.view)
+    file.viewState = deepClone(document.view)
     file.tocCollapsedKeys = [...(document.view?.collapsedOutlineKeys ?? [])]
     this.observed.set(document.id, {
       markdown,
@@ -426,7 +426,7 @@ class WindowSession {
         content: { kind: 'recovery' as const, contentRevision: observed.revision },
         saveFormat,
         readOnly: file.readOnly,
-        view: copy(file.viewState ?? null)
+        view: deepClone(file.viewState ?? null)
       }
     })
     const request: WindowCheckpointRequest = {
@@ -548,7 +548,7 @@ class WindowSession {
     this.schedule.cancel()
     for (const stop of this.stops) stop()
     setSessionActions(null)
-    setCheckpointWriter(null)
+    debouncedSendBufferedState.cancel()
     onDocumentViewChange(null)
   }
 }

@@ -27,7 +27,7 @@ import { matchSupportedLanguage } from 'common/i18n'
 import { getNativeThemeSource, isDarkApplicationTheme } from './nativeTheme'
 import type Accessor from './accessor'
 import type WindowManager from './windowManager'
-import type { PreparedSessionWindow } from '../applicationState/sessionHost'
+import type { PreparedSessionWindow } from '@shared/types/applicationState'
 
 interface CliArgs {
   _: string[]

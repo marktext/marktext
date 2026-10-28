@@ -62,7 +62,7 @@ import { useCommandCenterStore } from '@/store/commandCenter'
 import { useProjectStore } from '@/store/project'
 import { useAutoUpdatesStore } from '@/store/autoUpdates'
 import { useNotificationStore } from '@/store/notification'
-import { isSessionRecoveryEnabled } from '@/services/sessionActions'
+import { isSessionRecoveryEnabled } from '@/util'
 import { startWindowSession } from '@/services/windowSession'
 
 const mainStore = useMainStore()

@@ -13,7 +13,8 @@ import { WindowType } from '../windows/base'
 import type { WindowTypeValue } from '../windows/base'
 import type EditorWindow from '../windows/editor'
 import type { ProjectRootWatch } from '@shared/types/project'
-import { getManagedOwner } from '../applicationState/sessionHostAccess'
+import type { WebContents } from 'electron'
+import type { FileWatchChange } from '../filesystem/watcher'
 
 class WindowActivityList {
   // Oldest             Newest
@@ -62,6 +63,7 @@ class WindowActivityList {
 /** Active-window changes carry the new window ID, or null when none is active. */
 export interface WindowManagerEvents {
   activeWindowChanged: [windowId: number | null]
+  fileChanged: [windowId: number, change: FileWatchChange]
 }
 
 interface AppMenuLike {
@@ -102,7 +104,9 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     this.editorBufferStore = editorBufferStore
 
     // TODO(need::refactor): Please see #1035.
-    this._watcher = new Watcher(preferences)
+    this._watcher = new Watcher(preferences, (win, change) => {
+      this.emit('fileChanged', win.id, change)
+    })
 
     this._listenForIpcMain()
   }
@@ -131,6 +135,12 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
   get(windowId: number | null): BaseWindow | undefined {
     if (windowId == null) return undefined
     return this._windows.get(windowId)
+  }
+
+  getEditorForWebContents(sender: WebContents): EditorWindow | undefined {
+    const native = BrowserWindow.fromWebContents(sender)
+    const window = native ? this.get(native.id) : undefined
+    return window?.type === WindowType.EDITOR ? window as EditorWindow : undefined
   }
 
   getBrowserWindow(windowId: number): IBrowserWindow | undefined {
@@ -325,7 +335,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     })
 
     ipcMain.on('mt::close-window', (e) => {
-      if (getManagedOwner(e.sender)) return
+      if (this.getEditorForWebContents(e.sender)?.sessionStateId) return
       const win = BrowserWindow.fromWebContents(e.sender)
       this.editorBufferStore.handleClose(
         (win as unknown as { restoreBufferId?: string })?.restoreBufferId,
@@ -373,9 +383,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     ipcMain.handle('mt::project-remove-root', (event, key: string) => {
       const win = BrowserWindow.fromWebContents(event.sender)
       const editor = win && this.get(win.id) as EditorWindow | undefined
-      const owner = getManagedOwner(event.sender)
-      if (editor && owner) return owner.host.removeRoot(editor, key)
-      return editor?.projectRoots?.remove(key) ?? false
+      return editor?.removeRoot(key) ?? false
     })
     ipcMain.handle('mt::project-retry-root', (event, key: string) => {
       const win = BrowserWindow.fromWebContents(event.sender)
