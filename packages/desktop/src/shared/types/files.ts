@@ -87,6 +87,7 @@ export interface IFileState {
   scrollTop: number
   // View state for this open tab; deliberately excluded from buffered persistence.
   tocCollapsedKeys?: string[]
+  viewState?: DocumentViewState | null
   muyaIndexCursor: unknown
   notifications: FileNotification[]
   lastSavedHistoryId?: number
@@ -191,22 +192,26 @@ export interface PandocExportPayload {
   fancyLists: boolean
 }
 
+/** Position in normalized editor text, independent of its disk line endings. */
 export interface SourcePosition {
   // Both are zero-based; ch counts UTF-16 code units.
   line: number
   ch: number
 }
 
+/** Preserves selection direction; anchor and focus may appear in either text order. */
 export interface SourceSelection {
   anchor: SourcePosition
   focus: SourcePosition
 }
 
+/** Path through a reconstructed Muya block tree and the offset within that block. */
 export interface MuyaEndpoint {
   path: Array<string | number>
   offset: number
 }
 
+/** JSON-safe Muya selection; valid only while the captured content hash still matches. */
 export type MuyaSelection =
   | { kind: 'text'; anchor: MuyaEndpoint; focus: MuyaEndpoint }
   | {
@@ -222,16 +227,20 @@ export type MuyaSelection =
     focus: { row: number; column: number }
   }
 
+/** Independent rendered/source positions plus folding state for one document. */
 export interface DocumentViewState {
   // Hash of the editor's Markdown string encoded as UTF-8, not the raw disk bytes.
   contentSha256: string
   sourceSelection: SourceSelection | null
   muyaSelection: MuyaSelection | null
+  // CSS-pixel offsets in the corresponding editor scroll container.
   sourceScrollTopPx: number
   renderedScrollTopPx: number
+  // Heading identities, not Muya DOM or block references.
   collapsedOutlineKeys: string[]
 }
 
+/** Save-affecting options participate in dirty detection alongside Markdown text. */
 export interface SaveFormatState {
   encoding: FileEncoding
   lineEnding: LineEnding
@@ -239,5 +248,6 @@ export interface SaveFormatState {
   trimTrailingNewline: 0 | 1 | 2 | 3
 }
 
+/** Raw on-disk bytes observed before editing; differs from the normalized editor hash. */
 export type DiskBaseline =
   { exists: false } | { exists: true; sizeBytes: number; mtimeMs: number; rawSha256: string }
