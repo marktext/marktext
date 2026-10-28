@@ -1,3 +1,4 @@
+import { SessionLifecycle } from '../types/applicationState'
 import type { SessionState, WindowSnapshot } from '../types/applicationState'
 
 export const getActiveSessionWindow = (
@@ -53,5 +54,5 @@ export const closeSessionWindow = (session: SessionState, id: string): SessionSt
 
 export const finishSession = (session: SessionState): SessionState => ({
   ...structuredClone(session),
-  lifecycle: 'closed'
+  lifecycle: SessionLifecycle.CLOSED
 })

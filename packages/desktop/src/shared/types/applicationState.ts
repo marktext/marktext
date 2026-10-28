@@ -33,6 +33,7 @@ export interface WorkspaceRoot {
   location: FileLocation
 }
 
+/** An ordered set of roots whose identity is independent of presentation order. */
 export interface WorkspaceDescriptor {
   id: WorkspaceId
   // Root order affects display, not workspace identity.
@@ -107,15 +108,21 @@ export interface WindowSnapshot {
   activeDocumentId: DocumentId | null
 }
 
+/** Closed means a normal quit completed; its windows remain available for the next launch. */
+export const SessionLifecycle = { RUNNING: 'running', CLOSED: 'closed' } as const
+
+/** Current launch membership with at most one fallback after the final window closes. */
 export interface SessionState {
   id: SessionId
-  lifecycle: 'running' | 'closed'
+  lifecycle: (typeof SessionLifecycle)[keyof typeof SessionLifecycle]
   windows: WindowSnapshot[]
+  // Preferred startup window; null when no live editor remains.
   activeWindowId: WindowStateId | null
   // Populated only when no editor windows remain; never an archive of closed windows.
   lastWindow: WindowSnapshot | null
 }
 
+/** Reopening template for a real saved file, without draft identity or recovery content. */
 export interface WorkspaceFileState {
   location: FileLocation
   readOnly: boolean
@@ -123,9 +130,11 @@ export interface WorkspaceFileState {
   view: DocumentViewState | null
 }
 
+/** Bounded workspace cache; the active source window wins over background copies. */
 export interface WorkspaceRecentState {
   workspace: WorkspaceDescriptor
   updatedAtMs: TimestampMs
+  // Identifies the window allowed to refresh this cached workspace in the background.
   sourceWindowId: WindowStateId
   layout: WindowLayoutState
   projectView: ProjectViewState
@@ -326,6 +335,7 @@ export type LoadResult<T> =
     reason: 'invalid-data' | 'unreadable' | 'unsupported-version'
   }
 
+/** Maximum counts for ordinary reopening caches; unsaved recovery content is never evicted. */
 export interface PersistenceLimits {
   recentWorkspaces: number
   filesPerRecentWorkspace: number

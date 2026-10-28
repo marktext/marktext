@@ -1,3 +1,4 @@
+import { SessionLifecycle } from '../types/applicationState'
 import type { ApplicationState, WindowLayoutState } from '../types/applicationState'
 
 export const createDefaultLayout = (
@@ -26,7 +27,7 @@ export const createEmptyApplicationState = (
   updatedAtMs: nowMs,
   session: {
     id: sessionId,
-    lifecycle: 'running',
+    lifecycle: SessionLifecycle.RUNNING,
     windows: [],
     activeWindowId: null,
     lastWindow: null
