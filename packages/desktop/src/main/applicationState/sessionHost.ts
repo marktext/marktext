@@ -717,7 +717,10 @@ export class SessionHost {
               document.resource.kind === 'untitled' &&
               document.content.kind === 'empty')
       )
-      for (const document of retire) await this._endDocument(id, document.id, false, false)
+      if (retire.length > 0) {
+        const ended = await this._endDocuments(id, retire, false, false)
+        if (ended.status !== 'persisted') throw new Error('Preview replacement was not committed')
+      }
       const result = await this._owner().addDocument(id, loaded.document, loaded.content.markdown)
       if (result.status !== 'persisted')
         this.report(new Error('Recovery storage unavailable'), id)
@@ -1162,24 +1165,25 @@ export class SessionHost {
       await this.renameDocument(windowId, documentId, result.filePath)
   }
 
-  private async _endDocument(
+  private async _endDocuments(
     windowId: string,
-    id: string,
+    documents: DocumentSnapshot[],
     discard: boolean,
     notify = true
-  ): Promise<void> {
-    const document = this._owner()
-      .getWindow(windowId)
-      ?.documents.find((document) => document.id === id)
-    const result = await this._owner().endDocument(windowId, id, discard)
-    if (result.status !== 'persisted') throw new Error('Document end was not committed')
+  ): Promise<PersistResult> {
+    const result = await this._owner().endDocuments(windowId, documents, discard)
+    if (result.status !== 'persisted') return result
+    const ids = new Set(documents.map((document) => document.id))
     this._statuses.set(
       windowId,
-      (this._statuses.get(windowId) ?? []).filter((status) => status.documentId !== id)
+      (this._statuses.get(windowId) ?? []).filter((status) => !ids.has(status.documentId))
     )
-    if (document?.resource.kind === 'file')
-      this._editors.get(windowId)?.removeFromOpenedFiles(document.resource.location.path)
-    if (notify) this._native(windowId).webContents.send('mt::state::documents-ended', [id])
+    for (const document of documents) {
+      if (document.resource.kind === 'file')
+        this._editors.get(windowId)?.removeFromOpenedFiles(document.resource.location.path)
+    }
+    if (notify) this._native(windowId).webContents.send('mt::state::documents-ended', [...ids])
+    return result
   }
 
   async observeFile(
@@ -1266,8 +1270,12 @@ export class SessionHost {
         )
           return { status: 'canceled' }
       }
-      for (const id of ids) await this._endDocument(windowId, id, choice === 'discard')
-      return { status: 'closed' }
+      const prepared = latest.documents.filter((document) => ids.includes(document.id))
+      if (prepared.length !== new Set(ids).size) return { status: 'canceled' }
+      const result = await this._endDocuments(windowId, prepared, choice === 'discard')
+      if (result.status === 'persisted') return { status: 'closed' }
+      if (result.reason === 'stale-sequence') return { status: 'canceled' }
+      throw new Error('Document close was not committed')
     } catch (error) {
       this.report(error, windowId)
       return { status: 'failed' }

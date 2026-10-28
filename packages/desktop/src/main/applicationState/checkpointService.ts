@@ -25,6 +25,8 @@ import { contentSha256 } from 'common/filesystem'
 interface RendererContext {
   token: string
   sequence: number
+  // A close awaiting recovery IO must also notice checkpoints not yet committed by the queue.
+  pendingCheckpoints: number
   // Hash of the accepted request, including layout and body updates.
   digest: string | null
   result: PersistResult | null
@@ -40,6 +42,8 @@ interface SaveCapture {
 }
 
 type SaveDocumentResult = PersistResult | { status: 'cancelled' }
+class StaleCloseError extends Error {}
+
 type RendererInitialization = Omit<WindowInitialization, 'preferences'>
 
 const failed = (): PersistResult => ({ status: 'failed', reason: 'storage-unavailable' })
@@ -138,6 +142,7 @@ export class CheckpointService {
     this._contexts.set(windowId, {
       token,
       sequence: 0,
+      pendingCheckpoints: 0,
       digest: null,
       result: null,
       closeTransactionId: null
@@ -171,7 +176,11 @@ export class CheckpointService {
     } catch {
       return Promise.resolve({ status: 'failed', reason: 'invalid-data' })
     }
-    return this._enqueue(async() => {
+    const receivedContext = this._contexts.get(windowId)
+    const pendingContext =
+      receivedContext?.token === captured.contextToken ? receivedContext : undefined
+    if (pendingContext) pendingContext.pendingCheckpoints++
+    const operation = this._enqueue<PersistResult>(async() => {
       const context = this._contexts.get(windowId)
       const snapshot = this.getWindow(windowId)
       if (!snapshot || !context || context.token !== captured.contextToken)
@@ -227,6 +236,9 @@ export class CheckpointService {
       const result = await this._persistResult(windowId)
       context.result = result
       return result
+    })
+    return operation.finally(() => {
+      if (pendingContext) pendingContext.pendingCheckpoints--
     })
   }
 
@@ -296,28 +308,105 @@ export class CheckpointService {
     })
   }
 
-  endDocument(windowId: string, documentId: string, discard: boolean): Promise<PersistResult> {
+  // Close consent covers only these snapshots; concurrent edits cancel the entire group.
+  endDocuments(
+    windowId: string,
+    documents: DocumentSnapshot[],
+    discard: boolean
+  ): Promise<PersistResult> {
+    const prepared = structuredClone(documents)
     return this._enqueue(async() => {
-      const snapshot = this.getWindow(windowId)
-      if (!snapshot?.documents.some((document) => document.id === documentId))
-        return { status: 'failed', reason: 'invalid-data' }
-      if (this._saveQueues.has(documentId)) return failed()
-      const marker = this._documents.prepareClose(documentId, discard, this._now())
-      snapshot.documents = snapshot.documents.filter((document) => document.id !== documentId)
-      if (snapshot.activeDocumentId === documentId)
-        snapshot.activeDocumentId = snapshot.documents[0]?.id ?? null
       const candidate = this.getState()
-      candidate.session.windows = candidate.session.windows.map((window) =>
-        window.id === windowId ? snapshot : window
+      const snapshot = candidate.session.windows.find((window) => window.id === windowId)
+      if (!snapshot) return { status: 'failed', reason: 'invalid-data' }
+      const isCurrent = this._closeGuard([{ id: windowId, documents: prepared }])
+      if (!this._matchesPreparedDocuments(snapshot, prepared) || !isCurrent())
+        return { status: 'failed', reason: 'stale-sequence' }
+      const ended = this._prepareDocumentEnds(
+        candidate,
+        [{ id: windowId, documents: prepared }],
+        discard
       )
       try {
-        await this._persist(candidate, [marker])
+        await this._commitDocumentEnds(candidate, ended, isCurrent)
         return this._receipt(windowId)
-      } catch {
-        this._documents.requireRecoveryWrite(documentId)
-        return failed()
+      } catch (error) {
+        return error instanceof StaleCloseError
+          ? { status: 'failed', reason: 'stale-sequence' }
+          : failed()
       }
     })
+  }
+
+  private _matchesPreparedDocuments(
+    window: WindowSnapshot,
+    prepared: DocumentSnapshot[],
+    all = false
+  ): boolean {
+    return (
+      (!all || window.documents.length === prepared.length) &&
+      new Set(prepared.map((document) => document.id)).size === prepared.length &&
+      prepared.every(
+        (document) =>
+          !this._saveQueues.has(document.id) &&
+          JSON.stringify(window.documents.find((current) => current.id === document.id)) ===
+            JSON.stringify(document)
+      )
+    )
+  }
+
+  private _closeGuard(windows: Pick<WindowSnapshot, 'id' | 'documents'>[]): () => boolean {
+    const contexts = windows.map((window) => {
+      const context = this._contexts.get(window.id)
+      return {
+        windowId: window.id,
+        context,
+        documentIds: window.documents.map((document) => document.id)
+      }
+    })
+    return () =>
+      contexts.every(
+        ({ windowId, context, documentIds }) =>
+          context !== undefined &&
+          this._contexts.get(windowId) === context &&
+          context.pendingCheckpoints === 0 &&
+          !documentIds.some((id) => this._saveQueues.has(id))
+      )
+  }
+
+  private _prepareDocumentEnds(
+    candidate: ApplicationState,
+    prepared: Pick<WindowSnapshot, 'id' | 'documents'>[],
+    discard: boolean
+  ): DiscardedRecoveryRecord[] {
+    const ended = prepared.flatMap((window) =>
+      window.documents.map((document) =>
+        this._documents.prepareClose(document.id, discard, this._now())
+      )
+    )
+    const ids = new Set(ended.map((record) => record.documentId))
+    for (const window of candidate.session.windows) {
+      if (!prepared.some((entry) => entry.id === window.id)) continue
+      window.documents = window.documents.filter((document) => !ids.has(document.id))
+      if (!window.documents.some((document) => document.id === window.activeDocumentId))
+        window.activeDocumentId = window.documents[0]?.id ?? null
+    }
+    return ended
+  }
+
+  private async _commitDocumentEnds(
+    candidate: ApplicationState,
+    ended: DiscardedRecoveryRecord[],
+    isCurrent: () => boolean
+  ): Promise<void> {
+    try {
+      await this._commitState(candidate, ended, isCurrent)
+    } catch (error) {
+      for (const record of ended) this._documents.requireRecoveryWrite(record.documentId)
+      // An arriving request may be rejected; cancellation cannot rely on it to restore recovery.
+      if (error instanceof StaleCloseError) await this._persist(this._state)
+      throw error
+    }
   }
 
   relocateDocument(
@@ -406,43 +495,32 @@ export class CheckpointService {
       const current = windowId
         ? candidate.session.windows.filter((window) => window.id === windowId)
         : candidate.session.windows
+      const isCurrent = this._closeGuard(current)
       if (
         current.length !== prepared.length ||
         (windowId && (prepared.length !== 1 || prepared[0].id !== windowId)) ||
         current.some((window) => {
           const expected = prepared.find((entry) => entry.id === window.id)
-          return (
-            !expected ||
-            JSON.stringify(window.documents) !== JSON.stringify(expected.documents) ||
-            window.documents.some((document) => this._saveQueues.has(document.id))
-          )
-        })
+          return !expected || !this._matchesPreparedDocuments(window, expected.documents, true)
+        }) ||
+        !isCurrent()
       )
         return false
-      const ended = current.flatMap((window) =>
-        window.documents
-          .filter((document) => document.content.kind === 'recovery')
-          .map((document) => this._documents.prepareClose(document.id, true, this._now()))
+      const ended = this._prepareDocumentEnds(
+        candidate,
+        current.map((window) => ({
+          id: window.id,
+          documents: window.documents.filter((document) => document.content.kind === 'recovery')
+        })),
+        true
       )
-      const endedIds = new Set(ended.map((record) => record.documentId))
-      candidate.session.windows = candidate.session.windows.map((window) => {
-        if (!current.some((entry) => entry.id === window.id)) return window
-        const documents = window.documents.filter((document) => !endedIds.has(document.id))
-        return {
-          ...window,
-          documents,
-          activeDocumentId: documents.some((document) => document.id === window.activeDocumentId)
-            ? window.activeDocumentId
-            : (documents[0]?.id ?? null)
-        }
-      })
       candidate.session = windowId
         ? closeSessionWindow(candidate.session, windowId)
         : finishSession(candidate.session)
       try {
-        await this._commitState(candidate, ended)
+        await this._commitDocumentEnds(candidate, ended, isCurrent)
       } catch (error) {
-        for (const record of ended) this._documents.requireRecoveryWrite(record.documentId)
+        if (error instanceof StaleCloseError) return false
         throw error
       }
       return true
@@ -451,7 +529,8 @@ export class CheckpointService {
 
   private async _commitState(
     candidate: ApplicationState,
-    ended: DiscardedRecoveryRecord[] = []
+    ended: DiscardedRecoveryRecord[] = [],
+    isCurrent?: () => boolean
   ): Promise<void> {
     const endedIds = new Set(ended.map((record) => record.documentId))
     const previous = this._state
@@ -478,7 +557,7 @@ export class CheckpointService {
       )
         throw new Error('Cannot remove a window with unsaved documents or pending saves')
     }
-    await this._persist(candidate, ended)
+    await this._persist(candidate, ended, isCurrent)
     for (const id of this._contexts.keys()) {
       if (candidate.session.lifecycle === SessionLifecycle.CLOSED || !liveIds.has(id)) {
         this._documents.releaseWindow(id)
@@ -513,8 +592,10 @@ export class CheckpointService {
 
   private async _persist(
     candidate: ApplicationState,
-    ended: DiscardedRecoveryRecord[] = []
+    ended: DiscardedRecoveryRecord[] = [],
+    isCurrent?: () => boolean
   ): Promise<void> {
+    if (isCurrent && !isCurrent()) throw new StaleCloseError('Close preparation changed')
     const recordsById = new Map(
       this._documents.pendingRecords(this._now()).map((record) => [record.documentId, record])
     )
@@ -549,7 +630,11 @@ export class CheckpointService {
       revision: this._state.revision + 1,
       updatedAtMs: this._now()
     }
+    if (isCurrent && !isCurrent())
+      throw new StaleCloseError('Close preparation changed during recovery IO')
     await this._metadata.write(next)
+    if (isCurrent && !isCurrent())
+      throw new StaleCloseError('Close preparation changed during metadata IO')
     this._state = next
     for (const record of ended) this._documents.discard(record.documentId)
     for (const record of records) {

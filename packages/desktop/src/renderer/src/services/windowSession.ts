@@ -369,19 +369,13 @@ class WindowSession {
     const id = file.id
     const markdown = file.markdown
     const epoch = this._interactionEpoch
+    const isCurrent = (): boolean =>
+      this._editor.currentFile?.id === id &&
+      this._editor.currentFile.markdown === markdown &&
+      this._interactionEpoch === epoch
     this._pendingRestoreId = null
-    const keys = await restoreDocumentView(
-      id,
-      markdown,
-      file.viewState ?? null,
-      () =>
-        this._editor.currentFile?.id === id &&
-        this._editor.currentFile.markdown === markdown &&
-        this._interactionEpoch === epoch,
-      true
-    )
-    if (this._editor.currentFile?.id === id && file.markdown === markdown)
-      file.tocCollapsedKeys = keys
+    const keys = await restoreDocumentView(id, markdown, file.viewState ?? null, isCurrent, true)
+    if (isCurrent()) file.tocCollapsedKeys = keys
   }
 
   private _flush(transactionId: string | null = null): Promise<PersistResult> {
