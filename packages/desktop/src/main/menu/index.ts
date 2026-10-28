@@ -12,7 +12,7 @@ import configureMenu, { configSettingMenu } from '../menu/templates'
 import { setLanguage } from '../i18n.js'
 import type Preference from '../preferences'
 import type Keybindings from '../keyboard/shortcutHandler'
-import type { IUserPreferences } from '@shared/types/preferences'
+import type { UserPreferencesPatch } from '@shared/types/preferences'
 import { RecentDocumentsStore, type RecentDocument } from './recentDocuments'
 
 const RECENTLY_USED_DOCUMENTS_FILE_NAME = 'recently-used-documents.json'
@@ -467,7 +467,7 @@ class AppMenu {
       this.clearRecentlyUsedDocuments()
     })
 
-    onInternalChannel('broadcast-preferences-changed', async(prefs: Partial<IUserPreferences>) => {
+    onInternalChannel('broadcast-preferences-changed', async(prefs: UserPreferencesPatch) => {
       if (prefs.theme !== undefined || prefs.followSystemTheme !== undefined) {
         this.updateAppMenu()
       }
