@@ -6,7 +6,7 @@ import log from 'electron-log'
 import { app, BrowserWindow, clipboard, dialog, nativeTheme, ipcMain } from 'electron'
 import type { BrowserWindowConstructorOptions } from 'electron'
 import { isChildOfDirectory } from 'common/filesystem/paths'
-import type { IUserPreferences } from '@shared/types/preferences'
+import type { UserPreferencesPatch } from '@shared/types/preferences'
 import { isLinux, isOsx, isWindows } from '../config'
 import parseArgs, { userArguments } from '../cli/parser'
 import { normalizeAndResolvePath } from '../filesystem'
@@ -233,7 +233,7 @@ class App {
 
     onInternalChannel(
       'broadcast-preferences-changed',
-      (change: Partial<IUserPreferences>) => {
+      (change: UserPreferencesPatch) => {
         const nextPreferences = {
           ...preferences.getAll(),
           ...change

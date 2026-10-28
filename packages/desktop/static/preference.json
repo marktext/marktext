@@ -13,6 +13,8 @@
   "defaultOpenMode": "edit",
   "startUpAction": "restoreAll",
   "restoreLayoutState": true,
+  "restoreEditors": true,
+  "restoreViewState": true,
   "defaultDirectoryToOpen": "",
   "lastOpenedFolder": "",
   "treePathExcludePatterns": [],

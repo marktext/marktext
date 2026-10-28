@@ -778,7 +778,6 @@ export const useEditorStore = defineStore('editor', {
 
     LISTEN_FOR_CLOSE(): void {
       const projectStore = useProjectStore()
-      const preferencesStore = usePreferencesStore()
       window.electron.ipcRenderer.on('mt::ask-for-close', () => {
         this.flushActiveEditor()
         sendBufferedState()
@@ -803,12 +802,7 @@ export const useEditorStore = defineStore('editor', {
                 }
               })
 
-            if (
-              unsavedFiles.length &&
-              (preferencesStore.startUpAction !== 'restoreAll' ||
-                unsavedFiles.some((file) => file.readOnly))
-            ) {
-              // Ignore unsaved files when user has chosen to restore all on startup, as they will be restored anyway.
+            if (unsavedFiles.length) {
               window.electron.ipcRenderer.send('mt::close-window-confirm', deepClone(unsavedFiles))
             } else {
               window.electron.ipcRenderer.send('mt::close-window')

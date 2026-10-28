@@ -2,15 +2,8 @@ import { describe, expect, it } from 'vitest'
 import fs from 'fs'
 import path from 'path'
 
-/**
- * `static/preference.json` is the list of known settings — `Preference.init()` deletes every
- * user key that is not in it. A preference declared only in the schema is therefore wiped on
- * each start and comes back as the schema default, so a switch added to `schema.json` alone
- * flips itself off again.
- */
-
 const DEFAULTS_PATH = path.join(__dirname, '../../../static/preference.json')
-const SCHEMA_PATH = path.join(__dirname, '../../../src/main/preferences/schema.json')
+const SCHEMA_PATH = path.join(__dirname, '../../../src/shared/preferences/schema.json')
 
 interface SchemaEntry {
   type?: string
@@ -38,8 +31,6 @@ describe.each(['showPandocConvert', 'fancyLists'])('static/preference.json stays
     expect(typeOf(defaults[KEY])).toBe(entry?.type)
   })
 
-  // The schema default is what a pruned key comes back as, and what PREFERENCES.md publishes;
-  // the file holds what the first start writes. Nothing at runtime compares the two.
   it('gives the switch the value the schema calls its default', () => {
     expect(defaults[KEY]).toEqual(schema[KEY]?.default)
   })

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { getPandocReader, type PandocReaderExtensions } from 'main_renderer/utils/pandoc'
 
 import defaultPreferences from '../../../static/preference.json'
-import schema from 'main_renderer/preferences/schema.json'
+import schema from '@shared/preferences/schema.json'
 
 describe('GitHub Alerts application integration', () => {
   it('keeps the migration allowlist and schema defaults consistent', () => {

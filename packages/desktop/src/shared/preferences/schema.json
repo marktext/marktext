@@ -69,7 +69,7 @@
   },
   "startUpAction": {
     "description": "General--The action after MarkText startup, open the last opened folder, open the specified folder or blank page",
-    "enum": ["folder", "openLastFolder", "blank", "restoreAll"],
+    "enum": ["folder", "openLastFolder", "blank", "restoreAll", "restoreLastWindow"],
     "default": "restoreAll"
   },
   "defaultDirectoryToOpen": {
@@ -395,6 +395,16 @@
     "description": "Theme--Theme to use when system is in light mode.",
     "type": "string",
     "default": "light"
+  },
+  "restoreEditors": {
+    "description": "General--Restore opened files on startup.",
+    "type": "boolean",
+    "default": true
+  },
+  "restoreViewState": {
+    "description": "General--Restore document reading positions on startup.",
+    "type": "boolean",
+    "default": true
   },
   "restoreLayoutState": {
     "description": "General--Restore previous editor state on startup.",
