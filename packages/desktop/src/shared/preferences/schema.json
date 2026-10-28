@@ -392,10 +392,12 @@
     "default": "light"
   },
   "restoreEditors": {
+    "description": "General--Restore opened files on startup.",
     "type": "boolean",
     "default": true
   },
   "restoreViewState": {
+    "description": "General--Restore document reading positions on startup.",
     "type": "boolean",
     "default": true
   },

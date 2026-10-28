@@ -3,31 +3,23 @@ import path from 'node:path'
 import { sync as writeAtomic } from 'write-file-atomic'
 import {
   RECOVERY_DEFAULTS,
+  type PreferenceSchemaEntry,
+  type PreferenceSchemaRule as Rule,
   type PreferenceUpdateResult,
   type UserPreferences
 } from '@shared/types/preferences'
 import bundled from '../../../static/preference.json'
-import schema from './schema.json'
+import schema from '@shared/preferences/schema.json'
 
-interface Rule {
-  type?: string
-  enum?: unknown[]
-  const?: unknown
-  minimum?: number
-  maximum?: number
-  pattern?: string
-  anyOf?: Rule[]
-  items?: Rule
-  default?: unknown
-}
 const retiredWindowKeys = new Set([
   'lastOpenedFolder',
   'tocVisibility',
   'sideBarVisibility',
   'tabBarVisibility'
 ])
+const schemaEntries: Record<string, PreferenceSchemaEntry> = schema
 const rules: Record<string, Rule> = Object.fromEntries(
-  Object.entries(schema).filter(([key]) => !retiredWindowKeys.has(key))
+  Object.entries(schemaEntries).filter(([key]) => !retiredWindowKeys.has(key))
 )
 const object = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value)
