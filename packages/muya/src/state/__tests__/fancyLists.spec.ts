@@ -12,6 +12,14 @@ function toMarkdown(states: TState[], fancyLists = true) {
     return new ExportMarkdown({ listIndentation: 1, fancyLists }).generate(states);
 }
 
+function romanList(start: number, style: 'lower-roman' | 'upper-roman', delimiter: IOrderListState['meta']['delimiter']): IOrderListState {
+    return {
+        name: 'order-list',
+        meta: { start, style, delimiter, loose: false },
+        children: ['first', 'second'].map(text => ({ name: 'list-item', children: [{ name: 'paragraph', text }] })),
+    };
+}
+
 type TOutline = string | { list: string; start?: number; loose?: boolean; items: TOutline[][] };
 
 // Lists as `{ list: '<style> <delimiter>', start, items }`, text blocks as text.
@@ -366,6 +374,56 @@ describe('fancy lists: serialization', () => {
         expect(toMarkdown([list])).toBe('I.  a\nII. b\nIII. c\nIV. d\nV.  e\n');
     });
 
+    it.each([5, 10, 50, 100, 500, 1000])('retains Roman start %i when original markers are unavailable', (start) => {
+        for (const style of ['lower-roman', 'upper-roman'] as const) {
+            for (const delimiter of ['.', ')', '()'] as const) {
+                const list = romanList(start, style, delimiter);
+                const markdown = toMarkdown([list]);
+                expect(outline(toState(markdown)), markdown).toEqual(outline([list]));
+                expect(toMarkdown(toState(markdown))).toBe(markdown);
+            }
+        }
+    });
+
+    it('retains a Roman start after original markers are discarded by an edit', () => {
+        const [list] = toState('IIIII.  first\nVI. second\n') as [IOrderListState];
+        list.children.splice(1, 0, { name: 'list-item', children: [{ name: 'paragraph', text: 'inserted' }] });
+        const markdown = toMarkdown([list]);
+        expect(outline(toState(markdown))).toEqual(outline([list]));
+        expect(markdown).toBe('IIIII.  first\nVI. inserted\nVII. second\n');
+    });
+
+    it('keeps continuation paragraphs and nested lists aligned under an expanded first marker', () => {
+        const [list] = toState('IIIII.  first\n\n        second\n\n        - child\n\nVI. next\n') as [IOrderListState];
+        list.children.push({ name: 'list-item', children: [{ name: 'paragraph', text: 'third' }] });
+        for (const listIndentation of [1, 2, 3, 4, 'tab', 'dfm']) {
+            const markdown = new ExportMarkdown({ fancyLists: true, listIndentation }).generate([list]);
+            expect(outline(toState(markdown)), markdown).toEqual(outline([list]));
+        }
+    });
+
+    it('retains a Roman task list start after adding an item', () => {
+        const states = toState('IIIII.  [ ] first\nVI. [x] second\n');
+        if (states[0].name !== 'task-list')
+            throw new Error('Expected a task list');
+        states[0].children.push({ name: 'task-list-item', meta: { checked: false }, children: [{ name: 'paragraph', text: 'third' }] });
+        const markdown = toMarkdown(states);
+        expect(markdown).toBe('IIIII.  [ ] first\nVI. [x] second\nVII. [ ] third\n');
+        expect(outline(toState(markdown))).toEqual(outline(states));
+    });
+
+    it('keeps authored Roman markers across plain and task runs', () => {
+        const markdown = 'IV. first\nV.  [ ] second\nVI. third\n';
+        expect(toMarkdown(toState(markdown))).toBe(markdown);
+    });
+
+    it('does not separate an alpha list from an unambiguous Roman start', () => {
+        const lists = [...toState('a. previous\n'), romanList(5, 'lower-roman', '.')];
+        const markdown = toMarkdown(lists);
+        expect(markdown).not.toContain('<!-- -->');
+        expect(outline(toState(markdown))).toEqual(outline(lists));
+    });
+
     it('keeps numeric p items as lists after the original markers are discarded', () => {
         const [list] = toState('o. prior\np.  5 items\n') as [IOrderListState];
         list.children.push({ name: 'list-item', children: [{ name: 'paragraph', text: 'next' }] });
@@ -524,6 +582,15 @@ function collapseSpaces(nodes: TOutline[]): TOutline[] {
 }
 
 describe.skipIf(!HAS_PANDOC)('fancy lists: pandoc reads the same structure', () => {
+    it.each([5, 10, 50, 100, 500, 1000])('reads generated Roman start %i without alphabetic ambiguity', (start) => {
+        for (const style of ['lower-roman', 'upper-roman'] as const) {
+            for (const delimiter of ['.', ')', '()'] as const) {
+                const list = romanList(start, style, delimiter);
+                expect(readWithPandoc(toMarkdown([list]))).toEqual(outline([list]));
+            }
+        }
+    });
+
     it.each(PARSE_CASES)('$name', ({ markdown, outline: expected, pandoc }) => {
         expect(collapseSpaces(readWithPandoc(markdown))).toEqual(collapseSpaces(pandoc ?? expected));
     });

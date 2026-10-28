@@ -122,8 +122,13 @@ export function parseListMarker(text: string, continueStyle?: ListStyle): IListM
     return value === null ? null : { value, style, delimiter };
 }
 
-export function formatListMarker({ value, style, delimiter }: IListMarker): string {
-    const body = STYLES[style].write(value);
+/** `first` uses additive Roman numerals where V/X/L/C/D/M would read as letters. */
+export function formatListMarker({ value, style, delimiter }: IListMarker, position: 'first' | 'continuation' = 'continuation'): string {
+    let body = STYLES[style].write(value);
+    if (position === 'first' && (style === 'lower-roman' || style === 'upper-roman') && body.length === 1 && value > 1) {
+        const additive = writeRoman(value / 5).repeat(5);
+        body = style === 'upper-roman' ? additive : additive.toLowerCase();
+    }
 
     return delimiter === '()' ? `(${body})` : `${body}${delimiter}`;
 }
@@ -146,7 +151,7 @@ export function minSpacesAfterMarker({ value, style, delimiter }: IListMarker, t
  * directional: `i.` can continue an alpha list, but `a.` cannot continue a
  * roman list. `sourceMarker` retains an authored marker when available.
  */
-export function continuesList(list: IListLevel, next: IListMarker, sourceMarker = formatListMarker(next)): boolean {
+export function continuesList(list: IListLevel, next: IListMarker, sourceMarker = formatListMarker(next, 'first')): boolean {
     const continuation = parseListMarker(sourceMarker, list.style);
     if (!continuation || continuation.delimiter !== list.delimiter)
         return false;

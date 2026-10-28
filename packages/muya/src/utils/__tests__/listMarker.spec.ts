@@ -64,6 +64,21 @@ describe('formatListMarker', () => {
         expect(formatListMarker({ value: 27, style: 'lower-alpha', delimiter: '.' })).toBe('a.');
         expect(formatListMarker({ value: 28, style: 'upper-alpha', delimiter: ')' })).toBe('B)');
     });
+
+    it('disambiguates single-letter Roman numerals only at the start of a list', () => {
+        for (const value of [1, 4, 5, 10, 50, 100, 500, 1000]) {
+            for (const style of ['lower-roman', 'upper-roman'] as const) {
+                for (const delimiter of ['.', ')', '()'] as const) {
+                    const marker = { value, style, delimiter };
+                    expect(parseListMarker(formatListMarker(marker, 'first'))).toEqual(marker);
+                    expect(parseListMarker(formatListMarker(marker), style)).toEqual(marker);
+                }
+            }
+        }
+        expect(formatListMarker({ value: 5, style: 'upper-roman', delimiter: '.' }, 'first')).toBe('IIIII.');
+        expect(formatListMarker({ value: 5, style: 'upper-roman', delimiter: '.' })).toBe('V.');
+        expect(formatListMarker({ value: 22, style: 'upper-alpha', delimiter: '.' }, 'first')).toBe('V.');
+    });
 });
 
 describe('minSpacesAfterMarker', () => {
@@ -100,6 +115,7 @@ describe('continuesList', () => {
         const alpha = { style: 'lower-alpha', delimiter: '.' } as const;
         expect(continuesList(alpha, { value: 1, style: 'lower-roman', delimiter: '.' })).toBe(true);
         expect(continuesList(alpha, { value: 2, style: 'lower-roman', delimiter: '.' })).toBe(false);
+        expect(continuesList(alpha, { value: 5, style: 'lower-roman', delimiter: '.' })).toBe(false);
         expect(continuesList({ style: 'lower-roman', delimiter: '.' }, { value: 1, style: 'lower-alpha', delimiter: '.' })).toBe(false);
         expect(continuesList(alpha, { value: 1, style: 'upper-roman', delimiter: '.' }, '#.')).toBe(true);
     });

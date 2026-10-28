@@ -71,6 +71,46 @@ test.describe('fancy list markers', () => {
         expect(await listMarkers(page)).toEqual(['I.', '1.']);
     });
 
+    for (const mode of ['typed', 'loaded'] as const) {
+        test(`a ${mode} Roman start survives reopen and insertion`, async ({ page }) => {
+            await render(page, mode === 'loaded' ? 'IIIII.  FIRST\n' : '');
+            await page.evaluate(() => {
+                const muya = window.muya!;
+                muya.domNode.focus();
+                const block = muya.editor.scrollPage!.firstContentInDescendant()!;
+                block.setCursor(block.text.length, block.text.length, true);
+            });
+            if (mode === 'typed')
+                await slowType(page, 'IIIII.  FIRST');
+            await page.keyboard.press('Enter');
+            await slowType(page, 'SECOND');
+            const saved = await getMarkdown(page);
+            await page.evaluate((markdown) => window.muya!.setContent(markdown), saved);
+            expect(await getMarkdown(page)).toBe(saved);
+            const reopened = await page.evaluate(() => window.muya!.getState());
+            expect(reopened).toHaveLength(1);
+            expect(reopened).toMatchObject([{ name: 'order-list', meta: { style: 'upper-roman', start: 5 } }]);
+            await page.evaluate(() => {
+                const muya = window.muya!;
+                muya.domNode.focus();
+                const block = muya.editor.scrollPage!.firstContentInDescendant()!;
+                block.setCursor(block.text.length, block.text.length, true);
+            });
+            await page.keyboard.press('Enter');
+            expect(await listMarkers(page)).toEqual(['V.', 'VI.', 'VII.']);
+            const inserted = await getMarkdown(page);
+            expect(inserted).toContain('IIIII.  FIRST');
+            expect(inserted).toContain('VII. SECOND');
+            await page.evaluate(() => window.muya!.undo());
+            expect(await getMarkdown(page)).toBe(saved);
+            await page.evaluate(() => window.muya!.redo());
+            expect(await getMarkdown(page)).toBe(inserted);
+            await page.evaluate((markdown) => window.muya!.setContent(markdown), inserted);
+            expect(await getMarkdown(page)).toBe(inserted);
+            expect(await listMarkers(page)).toEqual(['V.', 'VI.', 'VII.']);
+        });
+    }
+
     test('Tab at an outline item start takes the next outline level and undoes in one step', async ({ page }) => {
         await render(page, 'I.  a\nII. b\n');
         await page.evaluate(() => window.muya!.editor.scrollPage!.lastContentInDescendant()!.setCursor(0, 0, true));

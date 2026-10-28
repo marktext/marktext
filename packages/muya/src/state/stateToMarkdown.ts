@@ -153,7 +153,7 @@ export default class ExportMarkdown {
                 );
             }
             else if (state.name === 'list-item' || state.name === 'task-list-item') {
-                this._serializeListItemBlock(state, result, indent, listIndent);
+                this._serializeListItemBlock(state, result, indent, listIndent, previousState === undefined);
             }
             else {
                 const prepared = this._prepareBlockBoundary(state, previousState, isTightItem);
@@ -337,6 +337,7 @@ export default class ExportMarkdown {
         result: string[],
         indent: string,
         listIndent: string,
+        firstItem: boolean,
     ) {
         const { loose } = this._listType[this._listType.length - 1];
 
@@ -346,7 +347,7 @@ export default class ExportMarkdown {
 
         // An item of a tight list keeps its direct children blank-line free
         // unless a pair of them genuinely needs a separator.
-        result.push(this._serializeListItem(state, indent + listIndent, !loose));
+        result.push(this._serializeListItem(state, indent + listIndent, !loose, firstItem));
         this._isLooseParentList = true;
     }
 
@@ -632,7 +633,8 @@ export default class ExportMarkdown {
     private _serializeListItem(
         state: IListItemState | ITaskListItemState,
         indent: string,
-        isTightItem = false,
+        isTightItem: boolean,
+        firstItem: boolean,
     ) {
         const listInfo = this._listType[this._listType.length - 1];
         const marker = 'marker' in listInfo ? listInfo.marker : undefined;
@@ -645,7 +647,7 @@ export default class ExportMarkdown {
         }
         else if ('start' in listInfo) {
             const firstText = name === 'list-item' && children[0]?.name === 'paragraph' ? children[0].text : '';
-            itemMarker = this._orderedItemMarker(listInfo, firstText);
+            itemMarker = this._orderedItemMarker(listInfo, firstText, firstItem);
         }
         else {
             itemMarker = '- ';
@@ -682,7 +684,7 @@ export default class ExportMarkdown {
     }
 
     // The next item's marker with the spaces after it; advances the list's count.
-    private _orderedItemMarker(listInfo: Extract<TListMeta, { start: number }>, firstText: string): string {
+    private _orderedItemMarker(listInfo: Extract<TListMeta, { start: number }>, firstText: string, firstItem: boolean): string {
         const style = listInfo.style ?? 'decimal';
         const preservedMarker = listInfo.sourceMarkers?.shift();
         // NOTE: GitHub and Bitbucket limit the list count to 99 but this is nowhere defined.
@@ -693,7 +695,7 @@ export default class ExportMarkdown {
         const orderMarker = (preservedMarker && parseListMarker(preservedMarker, style))
             || { value: n, style, delimiter: listInfo.delimiter };
 
-        return `${preservedMarker || formatListMarker(orderMarker)}${' '.repeat(minSpacesAfterMarker(orderMarker, firstText))}`;
+        return `${preservedMarker || formatListMarker(orderMarker, firstItem ? 'first' : 'continuation')}${' '.repeat(minSpacesAfterMarker(orderMarker, firstText))}`;
     }
 
     private _listItemIndent(indent: string, itemMarker: string) {
