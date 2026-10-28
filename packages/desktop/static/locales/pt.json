@@ -721,7 +721,7 @@
       "online": "Online",
       "saveError": "Erro ao salvar atalhos de teclado",
       "shortcutInUse": "Atalho em uso",
-      "shortcutInUseMessage": "Este atalho já está atribuído a {accelerator}",
+      "shortcutInUseMessage": "{accelerator} já está atribuído a {commands}.",
       "table": {
         "description": "Descrição",
         "edit": "Editar",
@@ -732,7 +732,8 @@
       },
       "windowAndNavigation": "Janelas e navegação",
       "loadError": "Não foi possível carregar os atalhos de teclado.",
-      "reload": "Recarregar"
+      "reload": "Recarregar",
+      "viewConflict": "Ver {name}"
     },
     "selectFont": "Selecionar Fonte",
     "spellchecker": {

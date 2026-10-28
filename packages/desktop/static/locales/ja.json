@@ -721,7 +721,7 @@
       "online": "オンライン",
       "saveError": "キーバインドの保存エラー",
       "shortcutInUse": "ショートカットが使用中",
-      "shortcutInUseMessage": "このショートカットは既に {accelerator} に割り当てられています",
+      "shortcutInUseMessage": "{accelerator} はすでに「{commands}」に割り当てられています。",
       "table": {
         "description": "説明",
         "edit": "編集",
@@ -732,7 +732,8 @@
       },
       "windowAndNavigation": "ウィンドウとナビゲーション",
       "loadError": "キーボードショートカットを読み込めませんでした。",
-      "reload": "再読み込み"
+      "reload": "再読み込み",
+      "viewConflict": "「{name}」を表示"
     },
     "selectFont": "フォントの選択",
     "spellchecker": {

@@ -90,3 +90,12 @@
   background-color: var(--notificationErrorBg);
   color: var(--notificationErrorColor);
 }
+
+.mt-notification__action {
+  display: block;
+  margin-top: 8px;
+  color: var(--themeColor);
+  text-decoration: underline;
+  font: inherit;
+  text-align: left;
+}

@@ -83,6 +83,29 @@ test('unified search finds shortcuts before their page opens and reveals their f
   }
 })
 
+test('shortcut conflict notices name and reveal the command occupying the binding', async() => {
+  const { app, page } = await launchWithMarkdown('# Conflicting shortcuts\n', {
+    preferences: { language: 'en' }, suppressErrorDialog: true
+  })
+  try {
+    const settings = await openSettings(app, page)
+    await settings.locator('.pref-sidebar input').fill('file.save')
+    await settings.locator('.pref-autocomplete li').first().click()
+    const row = settings.locator('[id="setting-keybinding-file.save"]').locator('xpath=ancestor::tr')
+    await row.getByRole('button', { name: 'Edit', exact: true }).click()
+    const recorder = settings.locator('.key-input-dialog input:visible')
+    await recorder.press(process.platform === 'darwin' ? 'Meta+O' : 'Control+O')
+    await recorder.press('Enter')
+    const notice = settings.locator('.mt-notification')
+    await expect(notice.locator('.mt-notification__text')).toContainText('Open')
+    await notice.getByRole('button', { name: /^View / }).click()
+    await expect(settings.locator('[id="setting-keybinding-file.open-file"]')).toBeFocused()
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
 test('file-tree rule tags retain glob commas when adding and reopening settings', async() => {
   const { app, page } = await launchWithMarkdown('# Exclusion rules\n', {
     preferences: { language: 'en', treePathExcludePatterns: ['**/{drafts,archive}/**'] },

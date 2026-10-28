@@ -721,7 +721,7 @@
       "online": "線上",
       "saveError": "儲存按鍵綁定時發生錯誤",
       "shortcutInUse": "快捷鍵使用中",
-      "shortcutInUseMessage": "此快捷鍵已指派給 {accelerator}",
+      "shortcutInUseMessage": "{accelerator} 已被「{commands}」使用。",
       "table": {
         "description": "描述",
         "edit": "編輯",
@@ -732,7 +732,8 @@
       },
       "windowAndNavigation": "視窗與導覽",
       "loadError": "無法載入快捷鍵。",
-      "reload": "重新載入"
+      "reload": "重新載入",
+      "viewConflict": "檢視「{name}」"
     },
     "selectFont": "選擇字型",
     "spellchecker": {

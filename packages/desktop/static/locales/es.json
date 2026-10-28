@@ -721,7 +721,7 @@
       "online": "En línea",
       "saveError": "Error al guardar atajos de teclado",
       "shortcutInUse": "Atajo en uso",
-      "shortcutInUseMessage": "Este atajo ya está asignado a {accelerator}",
+      "shortcutInUseMessage": "{accelerator} ya está asignado a {commands}.",
       "table": {
         "description": "Descripción",
         "edit": "Editar",
@@ -732,7 +732,8 @@
       },
       "windowAndNavigation": "Ventanas y navegación",
       "loadError": "No se pudieron cargar los atajos de teclado.",
-      "reload": "Volver a cargar"
+      "reload": "Volver a cargar",
+      "viewConflict": "Ver {name}"
     },
     "selectFont": "Seleccionar Fuente",
     "spellchecker": {

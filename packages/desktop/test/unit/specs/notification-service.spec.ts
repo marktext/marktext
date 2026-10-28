@@ -70,6 +70,22 @@ describe('notification service', () => {
     expect(closeMock).toHaveBeenCalledTimes(1)
   })
 
+  it('runs an accessible action and closes only its own notification', async() => {
+    const action = vi.fn()
+    const promise = notice.notify({
+      message: 'Shortcut occupied',
+      actions: [{ label: 'View Open File', onClick: action }]
+    })
+    const button = messageBody().children[1]
+    expect(button.type).toBe('button')
+    expect(button.children).toBe('View Open File')
+    ;(button.props?.onClick as (event: MouseEvent) => void)(new MouseEvent('click'))
+    expect(action).toHaveBeenCalledOnce()
+    expect(closeMock).toHaveBeenCalledOnce()
+    expect(closeAllMock).not.toHaveBeenCalled()
+    await expect(promise).resolves.toBeUndefined()
+  })
+
   it('rejects when a confirm notice is dismissed', async() => {
     const promise = notice.notify({ message: 'Copy the URL?', showConfirm: true })
 

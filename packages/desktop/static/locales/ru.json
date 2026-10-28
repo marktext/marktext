@@ -721,7 +721,7 @@
       "online": "В сети",
       "saveError": "Ошибка при сохранении горячих клавиш",
       "shortcutInUse": "Сочетание уже используется",
-      "shortcutInUseMessage": "Это сочетание уже назначено на {accelerator}",
+      "shortcutInUseMessage": "{accelerator} уже назначено команде {commands}.",
       "table": {
         "description": "Описание",
         "edit": "Изменить",
@@ -732,7 +732,8 @@
       },
       "windowAndNavigation": "Окна и навигация",
       "loadError": "Не удалось загрузить сочетания клавиш.",
-      "reload": "Загрузить заново"
+      "reload": "Загрузить заново",
+      "viewConflict": "Показать {name}"
     },
     "selectFont": "Выбрать шрифт",
     "spellchecker": {

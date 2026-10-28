@@ -721,7 +721,7 @@
       "online": "En ligne",
       "saveError": "Erreur lors de l'enregistrement des raccourcis clavier",
       "shortcutInUse": "Raccourci en cours d'utilisation",
-      "shortcutInUseMessage": "Ce raccourci est déjà assigné à {accelerator}",
+      "shortcutInUseMessage": "{accelerator} est déjà attribué à {commands}.",
       "table": {
         "description": "Description",
         "edit": "Modifier",
@@ -732,7 +732,8 @@
       },
       "windowAndNavigation": "Fenêtres et navigation",
       "loadError": "Impossible de charger les raccourcis clavier.",
-      "reload": "Recharger"
+      "reload": "Recharger",
+      "viewConflict": "Voir {name}"
     },
     "selectFont": "Sélectionner une police",
     "spellchecker": {
