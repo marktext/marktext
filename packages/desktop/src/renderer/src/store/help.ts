@@ -1,11 +1,6 @@
-import type { SaveFormatState } from '@shared/types/files'
-import type { IFileState } from '@shared/types/files'
+import type { IFileState, SaveFormatState } from '@shared/types/files'
 import { wordCount as getWordCount } from '@muyajs/core'
 import { getUniqueId, deepClone } from '../util'
-
-export type IDocumentState = IFileState
-
-export type { IFileState }
 
 const defaultFileState = {
   readOnly: false,
