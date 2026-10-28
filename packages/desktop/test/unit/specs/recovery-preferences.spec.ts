@@ -108,3 +108,24 @@ describe('tolerant preference persistence', () => {
     }
   })
 })
+
+it('retains retired window-state keys in the original JSON without using or broadcasting them', () => {
+  const directory = profile()
+  const retired = {
+    lastOpenedFolder: '/old/folder',
+    tocVisibility: false,
+    sideBarVisibility: true,
+    tabBarVisibility: true
+  }
+  writeFileSync(join(directory, 'preferences.json'), JSON.stringify(retired))
+  const file = new PreferenceFile(directory)
+  for (const key of Object.keys(retired)) expect(file.get()).not.toHaveProperty(key)
+  expect(file.update({ sideBarVisibility: false })).toEqual({
+    status: 'failed',
+    reason: 'invalid-data'
+  })
+  expect(file.update({ autoSave: true }).status).toBe('persisted')
+  expect(JSON.parse(readFileSync(join(directory, 'preferences.json'), 'utf8'))).toMatchObject(
+    retired
+  )
+})

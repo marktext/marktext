@@ -1,21 +1,8 @@
+import path from 'node:path'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
-// `@/store/layout` reads localStorage at module load. Node 25 exposes a global
-// localStorage stub whose methods are missing, so install a working one before
-// the store modules import.
 vi.hoisted(() => {
-  const store = new Map<string, string>()
-  Object.defineProperty(globalThis, 'localStorage', {
-    configurable: true,
-    value: {
-      getItem: (key: string) => store.get(key) ?? null,
-      setItem: (key: string, value: string) => store.set(key, String(value)),
-      removeItem: (key: string) => store.delete(key),
-      clear: () => store.clear()
-    }
-  })
-
   const w = globalThis as unknown as {
     window?: {
       marktext?: { env?: { windowId?: number } }
@@ -54,22 +41,23 @@ vi.mock('@/services/notification', () => ({
 
 import { useProjectStore } from '@/store/project'
 
-describe('OPEN_PROJECT resets sidebar state', () => {
+describe('replacing project roots resets sidebar state', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    window.path.relative = path.posix.relative
   })
 
   it('drops the previous project selection and input caches', () => {
     const store = useProjectStore()
 
-    store.OPEN_PROJECT('/project-a')
+    store.APPLY_ROOTS({ revision: 1, roots: [{ key: '/project-a', pathname: '/project-a', watchToken: '1', status: 'ready' }], reason: 'replace' })
     store.CHANGE_ACTIVE_ITEM({ pathname: '/project-a/notes.md', isFile: true, isDirectory: false })
     store.createCache = { dirname: '/project-a', type: 'file' }
     store.renameCache = '/project-a/notes.md'
 
     expect(store.activeItem.pathname).toBe('/project-a/notes.md')
 
-    store.OPEN_PROJECT('/project-b')
+    store.APPLY_ROOTS({ revision: 2, roots: [{ key: '/project-b', pathname: '/project-b', watchToken: '2', status: 'ready' }], reason: 'replace' })
 
     expect(store.activeItem).toEqual({})
     expect(store.createCache).toEqual({})

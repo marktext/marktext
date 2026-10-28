@@ -14,10 +14,9 @@ import bus from '../bus'
 import { create, paste, rename, type FileCreateType, type PasteOptions } from '../util/fileSystem'
 import { PATH_SEPARATOR } from '../config'
 import notice from '../services/notification'
-import { getFileStateFromData } from './help'
 import { useLayoutStore } from './layout'
 import { useEditorStore } from './editor'
-import { debouncedSendBufferedState } from './bufferedState'
+import { scheduleWindowCheckpoint } from './checkpoint'
 import type { TreeNode, TreeFolderNode } from '../components/sideBar/types'
 import type { FileChangeDetail } from '@shared/types/files'
 import {
@@ -26,8 +25,6 @@ import {
   type WorkspaceDescriptor
 } from '@shared/types/applicationState'
 import {
-  readBufferedRoots,
-  type BufferedProjectState,
   type ProjectRoot,
   type ProjectRootsSnapshot
 } from '@shared/types/project'
@@ -81,10 +78,6 @@ const visitFolders = (tree: TreeFolderNode, visit: (folder: TreeFolderNode) => v
   for (const folder of tree.folders) visitFolders(folder, visit)
 }
 
-interface OpenProjectOptions {
-  scheduleBufferUpdate?: boolean
-}
-
 interface CreateCacheEntry {
   dirname: string
   type: 'file' | 'directory' | string
@@ -112,28 +105,11 @@ export const useProjectStore = defineStore('project', () => {
   const restoringSession = ref(false)
   const roots = ref<RootView[]>([])
   const availableRoots = computed(() => roots.value.filter((root) => root.status === 'ready'))
-  const projectTree = computed<ProjectTree | null>({
-    get: () => {
-      const currentFile = useEditorStore().currentFile
-      if (currentFile)
-        return currentFile.pathname ? (FIND_ROOT(currentFile.pathname)?.tree ?? null) : null
-      return roots.value.length === 1 ? roots.value[0].tree : null
-    },
-    set: (tree) => {
-      roots.value = tree
-        ? [
-          {
-            key: tree.pathname,
-            pathname: tree.pathname,
-            watchToken: '',
-            status: 'ready',
-            tree,
-            collapsedPaths: new Set<string>(),
-            restoring: false
-          }
-        ]
-        : []
-    }
+  const projectTree = computed<ProjectTree | null>(() => {
+    const currentFile = useEditorStore().currentFile
+    if (currentFile)
+      return currentFile.pathname ? (FIND_ROOT(currentFile.pathname)?.tree ?? null) : null
+    return roots.value.length === 1 ? roots.value[0].tree : null
   })
   let revision = 0
   const treeVersion = ref(0)
@@ -190,21 +166,11 @@ export const useProjectStore = defineStore('project', () => {
     return root && base ? `${ROOT_LABEL(root)} / ${window.path.relative(base, pathname)}` : pathname
   }
 
-  function OPEN_PROJECT(
-    pathname: string,
-    { scheduleBufferUpdate = true }: OpenProjectOptions = {}
-  ): void {
-    projectTree.value = createProjectRoot(pathname)
-    activeItem.value = {}
-    CLEAR_NAME_INPUT_STATE()
-    if (!useLayoutStore().managed) SHOW_FILES(scheduleBufferUpdate)
-  }
-
   function SHOW_FILES(scheduleBufferUpdate = true): void {
     const layoutStore = useLayoutStore()
-    layoutStore.SET_LAYOUT({ rightColumn: 'files', showSideBar: true }, { scheduleBufferUpdate })
+    layoutStore.SET_LAYOUT({ rightColumn: 'files', showSideBar: true })
     layoutStore.DISPATCH_LAYOUT_MENU_ITEMS()
-    if (scheduleBufferUpdate) debouncedSendBufferedState()
+    if (scheduleBufferUpdate) scheduleWindowCheckpoint()
   }
 
   function APPLY_ROOTS(snapshot: ProjectRootsSnapshot): void {
@@ -231,7 +197,7 @@ export const useProjectStore = defineStore('project', () => {
     if (activeItem.value?.pathname && !FIND_ROOT(activeItem.value.pathname)) activeItem.value = {}
     if (snapshot.reason === 'replace' || snapshot.reason === 'remove') CLEAR_NAME_INPUT_STATE()
     if (['add', 'replace', 'reveal'].includes(snapshot.reason)) {
-      if (!useLayoutStore().managed) SHOW_FILES()
+      SHOW_FILES()
       nextTick(() => bus.emit('SIDEBAR::focus-root', snapshot.targetKey))
       if (snapshot.reason === 'reveal')
         notice.notify({
@@ -248,7 +214,7 @@ export const useProjectStore = defineStore('project', () => {
         )
       )
     }
-    if (snapshot.reason !== 'restore') debouncedSendBufferedState()
+    if (snapshot.reason !== 'restore') scheduleWindowCheckpoint()
   }
 
   function collectCollapsed(root: RootView): string[] {
@@ -293,12 +259,20 @@ export const useProjectStore = defineStore('project', () => {
     workspace: WorkspaceDescriptor | null,
     state: ProjectViewState
   ): void {
+    restoringSession.value = false
     for (const root of roots.value) {
       const descriptor = workspace?.roots.find(item => matchesWorkspaceRoot(root, item))
       const entry = descriptor
         ? state.roots.find((entry) => entry.rootId === descriptor.id)
         : undefined
-      root.collapsedPaths = new Set(safeCollapsedPaths(entry?.collapsedPaths ?? []))
+      if (!entry) {
+        visitFolders(root.tree, folder => { folder.isCollapsed = folder !== root.tree })
+        root.collapsedPaths = new Set(collectCollapsed(root))
+        root.restoring = false
+        continue
+      }
+      restoringSession.value = true
+      root.collapsedPaths = new Set(safeCollapsedPaths(entry.collapsedPaths))
       root.restoring = true
       visitFolders(root.tree, (folder) => {
         folder.isCollapsed = root.collapsedPaths.has(
@@ -307,39 +281,6 @@ export const useProjectStore = defineStore('project', () => {
       })
     }
     treeVersion.value++
-  }
-
-  function CREATE_BUFFERED_STATE(): BufferedProjectState {
-    return {
-      roots: roots.value.map((root) => ({
-        pathname: root.pathname,
-        collapsedPaths: collectCollapsed(root)
-      }))
-    }
-  }
-
-  function RESTORE_BUFFERED_STATE(state: unknown): void {
-    const entries = readBufferedRoots(state)
-    if (!roots.value.length) {
-      roots.value = entries.map((entry) => ({
-        key: entry.pathname,
-        pathname: entry.pathname,
-        watchToken: '',
-        status: 'loading',
-        tree: createProjectRoot(entry.pathname)!,
-        collapsedPaths: new Set<string>(),
-        restoring: true
-      }))
-    }
-    for (const root of roots.value) {
-      const entry = entries.find((item) => window.path.normalize(item.pathname) === root.pathname)
-      root.collapsedPaths = new Set(entry?.collapsedPaths ?? [])
-      root.restoring = true
-      root.tree.isCollapsed = root.collapsedPaths.has('')
-    }
-    activeItem.value = {}
-    CLEAR_NAME_INPUT_STATE()
-    restoringSession.value = false
   }
 
   function LISTEN_FOR_LOAD_PROJECT(): void {
@@ -363,7 +304,7 @@ export const useProjectStore = defineStore('project', () => {
     const editorStore = useEditorStore()
     switch (type) {
       case 'add': {
-        const { pathname, data, isMarkdown } = change
+        const { pathname, isMarkdown } = change
         addFile(
           root.tree,
           change as Parameters<typeof addFile>[1],
@@ -371,8 +312,7 @@ export const useProjectStore = defineStore('project', () => {
           String(preferencesStore.fileSortOrder)
         )
         if (isMarkdown && newFileNameCache.value && pathname === newFileNameCache.value) {
-          const fileState = getFileStateFromData(data as Record<string, unknown>)
-          editorStore.UPDATE_CURRENT_FILE(fileState)
+          window.electron.ipcRenderer.send('mt::open-file', pathname, {})
           newFileNameCache.value = ''
         }
         break
@@ -435,7 +375,7 @@ export const useProjectStore = defineStore('project', () => {
     const root = FIND_ROOT(pathname)
     if (!root) return false
     const expanded = expandAncestors(root.tree, TREE_PATH(pathname)) !== null
-    if (expanded) debouncedSendBufferedState()
+    if (expanded) scheduleWindowCheckpoint()
     return expanded
   }
 
@@ -491,7 +431,7 @@ export const useProjectStore = defineStore('project', () => {
       root.collapsedPaths.delete(relative)
       if (isCollapsed) root.collapsedPaths.add(relative)
     }
-    debouncedSendBufferedState()
+    scheduleWindowCheckpoint()
   }
 
   function ASK_FOR_OPEN_PROJECT(): void {
@@ -711,11 +651,8 @@ export const useProjectStore = defineStore('project', () => {
     FILE_LABEL,
     APPLY_ROOTS,
     treeVersion,
-    OPEN_PROJECT,
     CAPTURE_PROJECT_VIEW,
     RESTORE_PROJECT_VIEW,
-    CREATE_BUFFERED_STATE,
-    RESTORE_BUFFERED_STATE,
     LISTEN_FOR_LOAD_PROJECT,
     LISTEN_FOR_UPDATE_PROJECT,
     CHANGE_ACTIVE_ITEM,

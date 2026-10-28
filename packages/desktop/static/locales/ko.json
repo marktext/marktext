@@ -524,10 +524,6 @@
       },
       "startup": {
         "title": "시작",
-        "layoutOptions": "레이아웃 옵션",
-        "startupFilesFolders": "시작 파일/폴더",
-        "restorePreviousState": "이전 편집기 상태 복원",
-        "openBlankState": "빈 상태 열기",
         "openDefaultDirectory": "선택한 폴더 열기",
         "openLastFolder": "마지막 작업 공간 열기",
         "restoreAll": "모든 창 복원",

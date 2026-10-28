@@ -23,6 +23,8 @@ interface ViewPorts {
   // Must match the policy used to normalize the tab Markdown.
   trimTrailingNewline?: number
   isCurrent?: () => boolean
+  // Mode handoffs already synchronize the caret; only their stored scroll is restored.
+  preserveCaret?: boolean
 }
 const nonnegative = (value: number): number => (Number.isFinite(value) ? Math.max(0, value) : 0)
 const position = (source: SourceView['editor'], value: SourcePosition): SourcePosition => {
@@ -79,13 +81,13 @@ export class DocumentViewAdapter {
       const selection = enabled ? state?.sourceSelection : null
       const anchor = position(source.editor, selection?.anchor ?? { line: 0, ch: 0 })
       const focus = position(source.editor, selection?.focus ?? { line: 0, ch: 0 })
-      source.editor.setSelection(anchor, focus, { scroll: false })
+      if (!ports.preserveCaret) source.editor.setSelection(anchor, focus, { scroll: false })
       source.container.scrollTop = enabled ? nonnegative(state?.sourceScrollTopPx ?? 0) : 0
     }
     if (ports.rendered) {
       const { engine, container } = ports.rendered
       let restored = false
-      if (matching && state?.muyaSelection) {
+      if (!ports.preserveCaret && matching && state?.muyaSelection) {
         try {
           const selection = JSON.parse(JSON.stringify(state.muyaSelection)) as TSelectionState
           restored = engine.setSelection(selection)
@@ -93,7 +95,7 @@ export class DocumentViewAdapter {
           restored = false
         }
       }
-      if (!restored)
+      if (!ports.preserveCaret && !restored)
         engine.setCursorByOffset({ anchor: { line: 0, ch: 0 }, focus: { line: 0, ch: 0 } })
       ports.rendered.refreshToc?.()
       container.scrollTop = enabled ? nonnegative(state?.renderedScrollTopPx ?? 0) : 0
@@ -181,7 +183,7 @@ export const restoreDocumentView = (
   markdown: string,
   state: DocumentViewState | null,
   isCurrent: () => boolean,
-  enabled = true
+  preserveCaret = false
 ): Promise<string[]> => {
   const ports = portsFor(id)
   return adapter.restore(
@@ -190,8 +192,8 @@ export const restoreDocumentView = (
     {
       ...ports,
       rendered: ports.source ? undefined : ports.rendered,
-      isCurrent
-    },
-    enabled
+      isCurrent,
+      preserveCaret
+    }
   )
 }

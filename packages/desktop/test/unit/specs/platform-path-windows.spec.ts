@@ -9,21 +9,6 @@ import { createPlatformPath } from 'common/filesystem/platformPath'
 // the separator-normalization patches (`isSamePath` at these sites,
 // `toNativePath`, `isPathWithinRoot` folding) are redundant and can be dropped.
 
-// `@/store/layout` reads localStorage at module load; stub before the stores
-// are imported below.
-vi.hoisted(() => {
-  const store = new Map<string, string>()
-  Object.defineProperty(globalThis, 'localStorage', {
-    configurable: true,
-    value: {
-      getItem: (key: string) => store.get(key) ?? null,
-      setItem: (key: string, value: string) => store.set(key, String(value)),
-      removeItem: (key: string) => store.delete(key),
-      clear: () => store.clear()
-    }
-  })
-})
-
 const ipcListeners = new Map<string, (...args: unknown[]) => void>()
 const win = globalThis as unknown as { window: Record<string, unknown> }
 win.window = win.window ?? {}
@@ -153,7 +138,9 @@ describe('path consistency with a native win32 window.path (#5683)', () => {
   it('creates a file with the native separator and matches the watcher add', async() => {
     const store = useProjectStore()
     store.LISTEN_FOR_UPDATE_PROJECT()
-    store.projectTree = makeTree() as never
+    const restoredTree = makeTree()
+    store.APPLY_ROOTS({ revision: 1, roots: [{ key: restoredTree.pathname, pathname: restoredTree.pathname, watchToken: 'root', status: 'ready' }], reason: 'restore' })
+    store.roots[0].tree = restoredTree
     store.createCache = { dirname: ROOT, type: 'file' }
 
     await store.CREATE_FILE_DIRECTORY('note')

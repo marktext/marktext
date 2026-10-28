@@ -289,8 +289,8 @@ test.describe('Tab management', () => {
   // the user can't see which tab they're on. Runs in its own app because it
   // opens many tabs to force horizontal overflow.
   test('Switching to an overflowed tab scrolls it into view', async() => {
-    const launch = await launchWithMarkdown('# overflow base\n', {
-      preferences: { tabBarVisibility: true }
+    const launch = await launchWithMarkdown('# overflow base\n', { windowLayout: { showTabBar: true },
+      preferences: {}
     })
     const sApp = launch.app
     const sPage = launch.page
@@ -358,8 +358,11 @@ test.describe('Tab management', () => {
     const cApp = launch.app
     const cPage = launch.page
     try {
-      // Helper: open `n` extra untitled tabs with distinct content and mark
-      // every existing tab SAVED via the real `mt::tab-saved` save-confirm IPC.
+      await cApp.evaluate(({ app, dialog }) => {
+        let number = 0
+        dialog.showSaveDialog = async() => ({ canceled: false, filePath: `${app.getPath('userData')}/saved-tab-${++number}.md` })
+      })
+      // Save through real IO so the main-process owner can verify the survivor set.
       const openSavedTabs = async(bodies: string[]): Promise<void> => {
         for (const body of bodies) {
           const before = await cPage.locator(tabSelector).count()
@@ -371,8 +374,15 @@ test.describe('Tab management', () => {
           )
           await cPage.waitForTimeout(150)
         }
-        const ids = await readTabIds(cPage)
-        for (const id of ids) await sendIpcToRenderer(cApp, 'mt::tab-saved', id)
+        await cPage.evaluate(async() => {
+          const root = document.querySelector('#app') as Element & { __vue_app__: { config: { globalProperties: { $pinia: { _s: Map<string, { tabs: Array<{ id: string }>; UPDATE_CURRENT_FILE(file: unknown): void; FILE_SAVE(options: { waitForResult: boolean }): Promise<{ status: string }> }> } } } } }
+          const editor = root.__vue_app__.config.globalProperties.$pinia._s.get('editor')!
+          for (const file of [...editor.tabs]) {
+            editor.UPDATE_CURRENT_FILE(file)
+            const result = await editor.FILE_SAVE({ waitForResult: true })
+            if (result.status !== 'saved') throw new Error('Fixture document was not saved')
+          }
+        })
         await expect
           .poll(
             () => cPage.evaluate(() => !!document.querySelector('.tabs-container > li.unsaved')),
@@ -394,13 +404,17 @@ test.describe('Tab management', () => {
       ids = await readTabIds(cPage)
       expect(ids.length).toBeGreaterThanOrEqual(3)
       expect(await callEditorStoreAction(cPage, 'CLOSE_SAVED_TABS')).toBe(true)
-      await expect.poll(() => readTabIds(cPage), { timeout: 5000 }).toEqual([])
+      await expect.poll(() => readTabIds(cPage).then(current => current.length), { timeout: 5000 }).toBe(1)
+      expect((await readTabIds(cPage)).some(id => ids.includes(id))).toBe(false)
+      await expect(cPage.locator('.tabs-container > li.unsaved')).toHaveCount(0)
 
       await openSavedTabs(['final A\n', 'final B\n', 'final C\n'])
       ids = await readTabIds(cPage)
       expect(ids.length).toBeGreaterThanOrEqual(3)
       expect(await callEditorStoreAction(cPage, 'CLOSE_ALL_TABS')).toBe(true)
-      await expect.poll(() => readTabIds(cPage), { timeout: 5000 }).toEqual([])
+      await expect.poll(() => readTabIds(cPage).then(current => current.length), { timeout: 5000 }).toBe(1)
+      expect((await readTabIds(cPage)).some(id => ids.includes(id))).toBe(false)
+      await expect(cPage.locator('.tabs-container > li.unsaved')).toHaveCount(0)
     } finally {
       await cApp.close()
     }

@@ -524,10 +524,6 @@
       },
       "startup": {
         "title": "啟動",
-        "layoutOptions": "版面配置選項",
-        "startupFilesFolders": "啟動檔案/資料夾",
-        "restorePreviousState": "還原上次編輯器狀態",
-        "openBlankState": "開啟空白狀態",
         "openDefaultDirectory": "開啟指定資料夾",
         "openLastFolder": "開啟上次工作區",
         "restoreAll": "還原全部視窗",
@@ -551,7 +547,7 @@
       "sidebar": {
         "title": "側邊欄",
         "wrapTextInToc": "在目錄中換行文字",
-        "tocPosition": "目錄位置",
+        "tocPosition": "預設大綱位置",
         "tocLeft": "左側",
         "tocRight": "右側",
         "showOpenedFiles": "顯示已開啟的檔案",

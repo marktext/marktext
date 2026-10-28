@@ -24,7 +24,6 @@ declare module 'codemirror/keymap/*'
 declare module 'codemirror/lib/*'
 declare module 'codemirror/mode/*'
 declare module 'codemirror/addon/*'
-declare module 'electron-window-state'
 declare module 'webfontloader'
 
 declare module '@marktext/file-icons' {

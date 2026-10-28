@@ -3,7 +3,7 @@ import fsPromises from 'fs/promises'
 import { exec } from 'child_process'
 import dayjs from 'dayjs'
 import log from 'electron-log'
-import { app, BrowserWindow, clipboard, dialog, nativeTheme, ipcMain } from 'electron'
+import { app, BrowserWindow, clipboard, nativeTheme, ipcMain } from 'electron'
 import type { BrowserWindowConstructorOptions } from 'electron'
 import { isChildOfDirectory } from 'common/filesystem/paths'
 import type { UserPreferencesPatch } from '@shared/types/preferences'
@@ -27,6 +27,7 @@ import { matchSupportedLanguage } from 'common/i18n'
 import { getNativeThemeSource, isDarkApplicationTheme } from './nativeTheme'
 import type Accessor from './accessor'
 import type WindowManager from './windowManager'
+import type { PreparedSessionWindow } from '@shared/types/applicationState'
 
 interface CliArgs {
   _: string[]
@@ -45,6 +46,7 @@ class App {
   private _openFilesTimer: ReturnType<typeof setTimeout> | null
   private _windowManager: WindowManager
   private _themeListenerRegistered: boolean
+  private _initialArgumentsConsumed = false
 
   constructor(accessor: Accessor, args: Partial<CliArgs>) {
     this._accessor = accessor
@@ -121,7 +123,7 @@ class App {
       // On OS X it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
       if (this._windowManager.windowCount === 0) {
-        this.ready()
+        this._createEditorWindow()
       }
     })
 
@@ -177,16 +179,15 @@ class App {
 
   ready = (): void => {
     const { _args: args, _openFilesCache } = this
-    const { preferences, editorBufferStore } = this._accessor
+    const { preferences } = this._accessor
 
     this._initializeLanguage()
-    const { startUpAction, defaultDirectoryToOpen, theme } = preferences.getAll()
+    const { theme } = preferences.getAll()
     const followSystemTheme = preferences.getItem<boolean>('followSystemTheme')
-    const lastOpenedFolder = preferences.getItem<string>('lastOpenedFolder')
     const lightModeTheme = preferences.getItem<string>('lightModeTheme')
     const darkModeTheme = preferences.getItem<string>('darkModeTheme')
 
-    if (args._.length) {
+    if (!this._initialArgumentsConsumed && args._.length) {
       const readOnly = args['--read-only'] === true
       for (const pathname of args._) {
         if (pathname.startsWith('--')) {
@@ -200,23 +201,7 @@ class App {
       }
     }
 
-    // We should NOT restore the previous buffer or open a folder if the user just wants to double click to open a file
-    let isRestorePathway = false
-    if (_openFilesCache.length === 0) {
-      if (startUpAction === 'restoreAll') {
-        isRestorePathway = true
-      } else if (startUpAction === 'folder' && defaultDirectoryToOpen) {
-        const info = normalizeMarkdownPath(defaultDirectoryToOpen)
-        if (info) {
-          _openFilesCache.unshift(info as PathInfo)
-        }
-      } else if (startUpAction === 'openLastFolder' && lastOpenedFolder) {
-        const info = normalizeMarkdownPath(lastOpenedFolder)
-        if (info) {
-          _openFilesCache.unshift(info as PathInfo)
-        }
-      }
-    }
+    this._initialArgumentsConsumed = true
 
     nativeTheme.themeSource = getNativeThemeSource({ followSystemTheme, theme })
 
@@ -325,27 +310,10 @@ class App {
     }
 
     const createWindow = (): void => {
-      if (isRestorePathway) {
-        const bufferStores = editorBufferStore.getAll()
-        const bufferStoreList = Object.values(bufferStores) as Array<{
-          id: string
-          filePath: string | null
-        }>
-        if (bufferStoreList.length === 0) {
-          this._createEditorWindow()
-          return
-        }
-
-        bufferStoreList.forEach((bufferStoreInfo) => {
-          this._createEditorWindow(null, [], [], {}, bufferStoreInfo)
-        })
-      } else if (_openFilesCache.length) {
-        // Discard clean saved buffers so later file-manager launches cannot restore duplicate windows.
-        editorBufferStore.clearBufferStoresWithAllSaved()
-        this._openFilesToOpen()
-      } else {
-        this._createEditorWindow()
-      }
+      const host = this._accessor.sessionHost
+      const paths = _openFilesCache.splice(0)
+      void host.start(paths, prepared => this._createEditorWindow(null, [], [], {}, {}, prepared), args['--new-window'] === true)
+        .catch(error => host.report(error))
     }
 
     if (isLinux) {
@@ -364,8 +332,6 @@ class App {
     } else {
       createWindow()
     }
-
-
 
     //   try {
     //     // write screenshot image into screenshot folder.
@@ -395,25 +361,20 @@ class App {
     }
   }
 
-
   private _createEditorWindow(
     rootDirectory: string | null = null,
     fileList: string[] = [],
     markdownList: string[] = [],
     options: Partial<BrowserWindowConstructorOptions> = {},
-    bufferStoreInfo: { id: string; filePath: string | null } | null = null,
-    fileOptions: Record<string, FileOpenOptions> = {}
+    fileOptions: Record<string, FileOpenOptions> = {},
+    preparedSession?: PreparedSessionWindow
   ): EditorWindow {
-    const editor = new EditorWindow(this._accessor)
-    if (rootDirectory) {
-      this._accessor.preferences.setItems({ lastOpenedFolder: rootDirectory })
-    }
+    const editor = new EditorWindow(this._accessor, preparedSession)
     editor.createWindow(
       rootDirectory,
       fileList,
       markdownList,
       options,
-      bufferStoreInfo,
       fileOptions
     )
     this._windowManager.add(editor)
@@ -436,8 +397,8 @@ class App {
     this._openPathList(this._openFilesCache, false)
   }
 
-  /** When openFilesInSameWindow is true, discard all but the first directory and open its files together. */
-  private _openPathList(pathsToOpen: PathInfo[], openFilesInSameWindow: boolean = false): void {
+  /** CLI --new-window groups the explicit targets in one fresh window. */
+  private _openPathList(pathsToOpen: PathInfo[], forceNewWindow: boolean = false): void {
     const { _windowManager } = this
     const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
 
@@ -458,7 +419,7 @@ class App {
     }
 
     for (const window of _windowManager.windows.values()) {
-      if (window.type === WindowType.EDITOR) {
+      if (!forceNewWindow && window.type === WindowType.EDITOR) {
         for (const root of (window as EditorWindow).projectRoots.roots) {
           for (const directory of directorySet) {
             if (resolveExistingPath(directory) === root.key) {
@@ -478,7 +439,7 @@ class App {
     }))
     const filesToOpen = Array.from(fileSet)
 
-    if (openFilesInSameWindow) {
+    if (forceNewWindow) {
       if (directoriesToOpen.length) {
         directoriesToOpen[0].fileList.push(...filesToOpen)
         directoriesToOpen.length = 1
@@ -488,7 +449,7 @@ class App {
       filesToOpen.length = 0
     }
 
-    if (!openFilesInSameWindow && !openFilesInNewWindow) {
+    if (!forceNewWindow && !openFilesInNewWindow) {
       const isFirstWindow = _windowManager.getActiveEditorId() === null
 
       for (let i = 0; i < directoriesToOpen.length; ++i) {
@@ -537,23 +498,23 @@ class App {
             }
             // else: fallthrough
           }
-          this._createEditorWindow(null, fileList, [], {}, null, fileOptions)
+          this._createEditorWindow(null, fileList, [], {}, fileOptions)
         }
       }
 
       for (const item of directoriesToOpen) {
         const { rootDirectory, fileList } = item
-        this._createEditorWindow(rootDirectory, fileList, [], {}, null, fileOptions)
+        this._createEditorWindow(rootDirectory, fileList, [], {}, fileOptions)
       }
     } else {
 
       for (const pathname of filesToOpen) {
-        this._createEditorWindow(null, [pathname], [], {}, null, fileOptions)
+        this._createEditorWindow(null, [pathname], [], {}, fileOptions)
       }
 
       for (const item of directoriesToOpen) {
         const { rootDirectory, fileList } = item
-        this._createEditorWindow(rootDirectory, fileList, [], {}, null, fileOptions)
+        this._createEditorWindow(rootDirectory, fileList, [], {}, fileOptions)
       }
     }
 
@@ -633,7 +594,7 @@ class App {
         const openFilesInNewWindow =
           this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
         if (openFilesInNewWindow) {
-          this._createEditorWindow(null, [filePath], [], {}, null, {
+          this._createEditorWindow(null, [filePath], [], {}, {
             [filePath]: options as FileOpenOptions
           })
         } else {
@@ -688,7 +649,6 @@ class App {
       }
     )
 
-
     ipcMain.on('mt::app-try-quit', () => {
       app.quit()
     })
@@ -708,21 +668,6 @@ class App {
 
     ipcMain.on('mt::open-directory-by-window-id', (_e, windowId: number, dirPath: string) => {
       ipcMain.emit('app-open-directory-by-id', windowId, dirPath)
-    })
-
-    ipcMain.on('mt::select-default-directory-to-open', async(e) => {
-      const { preferences } = this._accessor
-      const { defaultDirectoryToOpen } = preferences.getAll()
-      const win = BrowserWindow.fromWebContents(e.sender)
-      if (!win) return
-
-      const { filePaths } = await dialog.showOpenDialog(win, {
-        defaultPath: defaultDirectoryToOpen,
-        properties: ['openDirectory', 'createDirectory']
-      })
-      if (filePaths && filePaths[0]) {
-        preferences.setItems({ defaultDirectoryToOpen: filePaths[0] })
-      }
     })
 
     ipcMain.on('mt::open-setting-window', () => {

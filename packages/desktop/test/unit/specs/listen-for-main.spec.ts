@@ -65,9 +65,9 @@ describe('listenForMain store EDITOR_EDIT_ACTION', () => {
     expect(layoutStore.showSideBar).toBe(false)
   })
 
-  it.each(['', 'toc', 'unknown'])('restores legacy sidebar page %j as files', (rightColumn) => {
+  it.each(['', 'toc', 'unknown'])('normalizes unsupported sidebar page %j as files', (rightColumn) => {
     const layoutStore = useLayoutStore()
-    layoutStore.RESTORE_BUFFERED_STATE({
+    layoutStore.SET_LAYOUT({
       rightColumn,
       showSideBar: true,
       showTabBar: true,

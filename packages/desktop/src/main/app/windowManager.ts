@@ -13,6 +13,8 @@ import { WindowType } from '../windows/base'
 import type { WindowTypeValue } from '../windows/base'
 import type EditorWindow from '../windows/editor'
 import type { ProjectRootWatch } from '@shared/types/project'
+import type { WebContents } from 'electron'
+import type { FileWatchChange } from '../filesystem/watcher'
 
 class WindowActivityList {
   // Oldest             Newest
@@ -61,6 +63,7 @@ class WindowActivityList {
 /** Active-window changes carry the new window ID, or null when none is active. */
 export interface WindowManagerEvents {
   activeWindowChanged: [windowId: number | null]
+  fileChanged: [windowId: number, change: FileWatchChange]
 }
 
 interface AppMenuLike {
@@ -71,25 +74,16 @@ interface AppMenuLike {
   updateAlwaysOnTopMenu(windowId: number, flag: boolean): void
 }
 
-interface EditorBufferStoreLike {
-  handleClose(
-    restoreBufferId: string | undefined,
-    windows: { id: number; win: BaseWindow }[]
-  ): void
-}
-
 class WindowManager extends TypedEmitter<WindowManagerEvents> {
   private _appMenu: AppMenuLike
   private _activeWindowId: number | null
   private _windows: Map<number, BaseWindow>
   private _windowActivity: WindowActivityList
-  public editorBufferStore: EditorBufferStoreLike
   private _watcher: Watcher
 
   constructor(
     appMenu: AppMenuLike,
-    preferences: Preference,
-    editorBufferStore: EditorBufferStoreLike
+    preferences: Preference
   ) {
     super()
 
@@ -98,10 +92,11 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     this._activeWindowId = null
     this._windows = new Map()
     this._windowActivity = new WindowActivityList()
-    this.editorBufferStore = editorBufferStore
 
     // TODO(need::refactor): Please see #1035.
-    this._watcher = new Watcher(preferences)
+    this._watcher = new Watcher(preferences, (win, change) => {
+      this.emit('fileChanged', win.id, change)
+    })
 
     this._listenForIpcMain()
   }
@@ -130,6 +125,12 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
   get(windowId: number | null): BaseWindow | undefined {
     if (windowId == null) return undefined
     return this._windows.get(windowId)
+  }
+
+  getEditorForWebContents(sender: WebContents): EditorWindow | undefined {
+    const native = BrowserWindow.fromWebContents(sender)
+    const window = native ? this.get(native.id) : undefined
+    return window?.type === WindowType.EDITOR ? window as EditorWindow : undefined
   }
 
   getBrowserWindow(windowId: number): IBrowserWindow | undefined {
@@ -171,10 +172,6 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
   getActiveWindow(): BaseWindow | undefined {
     if (this._activeWindowId == null) return undefined
     return this._windows.get(this._activeWindowId)
-  }
-
-  getActiveWindowId(): number | null {
-    return this._activeWindowId
   }
 
   getActiveEditor(): BaseWindow | undefined {
@@ -323,15 +320,6 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
       editor.addToOpenedFiles(filePath)
     })
 
-    ipcMain.on('mt::close-window', (e) => {
-      const win = BrowserWindow.fromWebContents(e.sender)
-      this.editorBufferStore.handleClose(
-        (win as unknown as { restoreBufferId?: string })?.restoreBufferId,
-        this.getWindowsByType('editor')
-      )
-      this.forceClose(win)
-    })
-
     ipcMain.on('mt::open-file', (e, filePath: string, options: Record<string, unknown>) => {
       const win = BrowserWindow.fromWebContents(e.sender)
       if (!win) return
@@ -371,7 +359,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     ipcMain.handle('mt::project-remove-root', (event, key: string) => {
       const win = BrowserWindow.fromWebContents(event.sender)
       const editor = win && this.get(win.id) as EditorWindow | undefined
-      return editor?.projectRoots?.remove(key) ?? false
+      return editor?.removeRoot(key) ?? false
     })
     ipcMain.handle('mt::project-retry-root', (event, key: string) => {
       const win = BrowserWindow.fromWebContents(event.sender)

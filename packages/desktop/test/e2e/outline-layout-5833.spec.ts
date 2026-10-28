@@ -1,14 +1,22 @@
 import { expect, test } from '@playwright/test'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { _electron, type ElectronApplication, type Page } from 'playwright'
-import { clickMenuById, getElectronPath, launchWithMarkdown, waitForEditor } from './helpers'
+import { clickMenuById, getElectronPath, launchWithMarkdown } from './helpers'
 
 let app: ElectronApplication
 let page: Page
-let filePath: string
 const outlineWidth = (): Promise<number> => page.locator('.document-outline')
   .evaluate(el => Math.round(el.getBoundingClientRect().width))
 const setPreferences = async(preferences: Record<string, unknown>): Promise<void> => {
-  await page.evaluate(value => window.electron.ipcRenderer.send('mt::set-user-preference', value), preferences)
+  await page.evaluate(value => {
+    const { tocPosition, ...settings } = value
+    if (tocPosition) {
+      const root = document.querySelector('#app') as Element & { __vue_app__: { config: { globalProperties: { $pinia: { _s: Map<string, { outlinePosition: string }> } } } } }
+      root.__vue_app__.config.globalProperties.$pinia._s.get('layout')!.outlinePosition = tocPosition as string
+    }
+    window.electron.ipcRenderer.send('mt::set-user-preference', settings)
+  }, preferences)
 }
 const dragDivider = async(offset: number): Promise<void> => {
   const bounds = await page.getByRole('separator', { name: 'Resize table of contents' }).boundingBox()
@@ -22,8 +30,8 @@ const dragDivider = async(offset: number): Promise<void> => {
 }
 
 test.beforeEach(async() => {
-  ;({ app, page, filePath } = await launchWithMarkdown('# Document\n\n## Section\n\nBody text.\n', {
-    preferences: { language: 'en', sideBarVisibility: true, editorLineWidth: '70%' }
+  ;({ app, page } = await launchWithMarkdown('# Document\n\n## Section\n\nBody text.\n', { windowLayout: { showSideBar: true },
+    preferences: { language: 'en', editorLineWidth: '70%' }
   }))
   const win = await app.browserWindow(page)
   await win.evaluate(window => window.setContentSize(1280, 800))
@@ -60,7 +68,7 @@ for (const position of ['left', 'right']) {
     if (position === 'right') await expect(page.locator('.document-outline')).toHaveClass(/is-right/)
     await dragDivider(position === 'right' ? -120 : 120)
     await expect.poll(outlineWidth).toBe(340)
-    await expect.poll(() => page.evaluate(() => localStorage.getItem('outline-width'))).toBe('340')
+    expect(await page.evaluate(() => localStorage.getItem('outline-width'))).toBeNull()
 
     await clickMenuById(app, 'tocMenuItem')
     await page.mouse.move(700, 500)
@@ -85,14 +93,16 @@ for (const position of ['left', 'right']) {
 
     const appPath = await app.evaluate(({ app }) => app.getAppPath())
     const userData = await app.evaluate(({ app }) => app.getPath('userData'))
+    await expect.poll(() => JSON.parse(readFileSync(join(userData, 'state', 'application-state.json'), 'utf8')).session.windows[0].layout.outline.preferredWidthPx).toBe(340)
+    await expect.poll(() => JSON.parse(readFileSync(join(userData, 'state', 'application-state.json'), 'utf8')).session.windows[0].layout.modes.sourceCode).toBe(true)
     await app.close()
     app = await _electron.launch({
       executablePath: getElectronPath(),
-      args: [appPath, '--user-data-dir', userData, filePath],
+      args: [appPath, '--user-data-dir', userData],
       cwd: appPath
     })
     page = await app.firstWindow()
-    await waitForEditor(page)
+    await expect(page.locator('.source-code .CodeMirror')).toBeVisible()
     await expect(page.locator('.document-outline')).toHaveClass(/is-expanded/)
     if (position === 'right') await expect(page.locator('.document-outline')).toHaveClass(/is-right/)
     await expect.poll(outlineWidth).toBe(340)
@@ -117,7 +127,10 @@ test('resizing is bounded, keyboard accessible and preserves the preferred width
   await win.evaluate(window => window.setContentSize(850, 800))
   await expect(page.locator('.document-outline')).toHaveClass(/is-expanded/)
   await expect.poll(outlineWidth).toBeLessThan(600)
-  expect(await page.evaluate(() => localStorage.getItem('outline-width'))).toBe('600')
+  expect(await page.evaluate(() => {
+    const root = document.querySelector('#app') as Element & { __vue_app__: { config: { globalProperties: { $pinia: { _s: Map<string, { outlineWidth: number }> } } } } }
+    return root.__vue_app__.config.globalProperties.$pinia._s.get('layout')!.outlineWidth
+  })).toBe(600)
   await win.evaluate(window => window.setContentSize(1280, 800))
   await expect.poll(outlineWidth).toBe(600)
 })

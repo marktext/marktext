@@ -18,8 +18,8 @@ test('large table documents restore scroll position when switching tabs (#5860)'
   ].join('\n')
   writeFileSync(largePath, Array.from({ length: 55 }, () => section).join('\n'))
   writeFileSync(smallPath, 'Small document\n\n'.repeat(1000))
-  const { app, page } = await launchElectron([largePath, smallPath], {
-    preferences: { openFilesInNewWindow: false, tabBarVisibility: true }
+  const { app, page } = await launchElectron([largePath, smallPath], { windowLayout: { showTabBar: true },
+    preferences: { openFilesInNewWindow: false,}
   })
   try {
     await waitForEditor(page)

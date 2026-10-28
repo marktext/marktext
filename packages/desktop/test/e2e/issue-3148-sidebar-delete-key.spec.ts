@@ -32,7 +32,7 @@ test.describe('Sidebar Delete key (#3148)', () => {
     projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'marktext-3148-'))
     fs.writeFileSync(path.join(projectDir, 'note.md'), '# Note\n', 'utf-8')
 
-    const launched = await launchElectron([projectDir])
+    const launched = await launchElectron([projectDir], { windowLayout: { showSideBar: true } })
     app = launched.app
     page = launched.page
     // Opening a directory can attach to a window other than the first one.

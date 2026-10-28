@@ -524,10 +524,6 @@
       },
       "startup": {
         "title": "Başlangıç Seçenekleri",
-        "layoutOptions": "Düzen Seçenekleri",
-        "startupFilesFolders": "Başlangıç Dosyaları/Klasörleri",
-        "restorePreviousState": "Önceki düzenleyici durumunu geri yükle",
-        "openBlankState": "Boş durum aç",
         "openDefaultDirectory": "Seçilen klasörü aç",
         "openLastFolder": "Son çalışma alanını aç",
         "restoreAll": "Tüm pencereleri geri yükle",

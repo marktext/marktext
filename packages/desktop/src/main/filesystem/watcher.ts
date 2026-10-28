@@ -11,6 +11,11 @@ import type { BrowserWindow } from 'electron'
 import type { LineEnding } from '@shared/types/files'
 import type Preference from '../preferences'
 import type { ProjectRootWatch } from '@shared/types/project'
+export interface FileWatchChange {
+  type: string
+  change: { pathname: string; data?: Awaited<ReturnType<typeof loadMarkdownFile>> }
+}
+
 type WatchEmit = (channel: string, payload: unknown) => void
 
 // TODO(refactor): Please see GH#1035.
@@ -225,7 +230,10 @@ class Watcher {
   private _ignoreChangeEvents: IgnoreEntry[]
   watchers: Record<string, WatcherEntry>
 
-  constructor(preferences: Preference) {
+  constructor(
+    preferences: Preference,
+    private readonly _onFileChange?: (win: BrowserWindow, change: FileWatchChange) => void
+  ) {
     this._preferences = preferences
     this._ignoreChangeEvents = []
     this.watchers = {}
@@ -291,6 +299,7 @@ class Watcher {
     let initialScan = true
     const emit: WatchEmit = (channel, payload) => {
       if (disposed || win.isDestroyed?.()) return
+      if (channel === 'mt::update-file') this._onFileChange?.(win, payload as FileWatchChange)
       win.webContents.send(channel, channel === 'mt::update-object-tree' && context
         ? { ...(payload as object), rootKey: context.rootKey, watchToken: context.watchToken }
         : payload)

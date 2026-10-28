@@ -12,7 +12,10 @@
   },
   "titleBarStyle": {
     "description": "General--The title bar style (Windows and Linux system only).",
-    "enum": ["custom", "native"],
+    "enum": [
+      "custom",
+      "native"
+    ],
     "default": "custom"
   },
   "openFilesInNewWindow": {
@@ -44,32 +47,47 @@
   },
   "tocPosition": {
     "description": "General--The side of the editor where the table of contents is docked.",
-    "enum": ["left", "right"],
+    "enum": [
+      "left",
+      "right"
+    ],
     "default": "left"
   },
   "fileSortBy": {
     "description": "General--Sort files in opened folder by created time, modified time and title.",
-    "enum": ["modified", "created", "title"],
+    "enum": [
+      "modified",
+      "created",
+      "title"
+    ],
     "default": "modified"
   },
   "fileSortOrder": {
     "description": "General--Sort order for files in opened folders: ascending or descending.",
     "type": "string",
-    "enum": ["asc", "desc"],
+    "enum": [
+      "asc",
+      "desc"
+    ],
     "default": "asc"
-  },
-  "lastOpenedFolder": {
-    "description": "General--The last folder that was opened in MarkText.--internal",
-    "type": "string"
   },
   "defaultOpenMode": {
     "description": "General--Default mode for newly opened existing documents.",
-    "enum": ["edit", "read"],
+    "enum": [
+      "edit",
+      "read"
+    ],
     "default": "edit"
   },
   "startUpAction": {
     "description": "General--The action after MarkText startup, open the last opened folder, open the specified folder or blank page",
-    "enum": ["folder", "openLastFolder", "blank", "restoreAll", "restoreLastWindow"],
+    "enum": [
+      "folder",
+      "openLastFolder",
+      "blank",
+      "restoreAll",
+      "restoreLastWindow"
+    ],
     "default": "restoreAll"
   },
   "defaultDirectoryToOpen": {
@@ -156,7 +174,11 @@
   },
   "endOfLine": {
     "description": "Editor--The newline character used at the end of each line. The default value is default, which selects your operating system's default newline character.",
-    "enum": ["default", "lf", "crlf"],
+    "enum": [
+      "default",
+      "lf",
+      "crlf"
+    ],
     "default": "default"
   },
   "defaultEncoding": {
@@ -209,11 +231,19 @@
   "trimTrailingNewline": {
     "description": "Editor--The trim trailing newline option.",
     "default": 2,
-    "enum": [0, 1, 2, 3]
+    "enum": [
+      0,
+      1,
+      2,
+      3
+    ]
   },
   "textDirection": {
     "description": "Editor--The writing text direction",
-    "enum": ["ltr", "rtl"],
+    "enum": [
+      "ltr",
+      "rtl"
+    ],
     "default": "ltr"
   },
   "hideQuickInsertHint": {
@@ -243,32 +273,61 @@
   },
   "bulletListMarker": {
     "description": "Markdown--The marker used in bullet list",
-    "enum": ["-", "*", "+"],
+    "enum": [
+      "-",
+      "*",
+      "+"
+    ],
     "default": "-"
   },
   "orderListDelimiter": {
     "description": "Markdown--The delimiter used in order list",
-    "enum": [".", ")"],
+    "enum": [
+      ".",
+      ")"
+    ],
     "default": "."
   },
   "preferHeadingStyle": {
     "description": "Markdown--The preferred heading style in MarkText",
-    "enum": ["atx", "setext"],
+    "enum": [
+      "atx",
+      "setext"
+    ],
     "default": "atx"
   },
   "tabSize": {
     "description": "Editor--Tab key input (tab width, spaces, indentation)",
-    "anyOf": [{ "type": "number" }, { "const": "tab" }],
+    "anyOf": [
+      {
+        "type": "number"
+      },
+      {
+        "const": "tab"
+      }
+    ],
     "default": 4
   },
   "listIndentation": {
     "description": "Markdown--Select the indent of list",
-    "enum": ["dfm", "tab", 1, 2, 3, 4],
+    "enum": [
+      "dfm",
+      "tab",
+      1,
+      2,
+      3,
+      4
+    ],
     "default": 1
   },
   "frontmatterType": {
     "description": "Markdown--The frontmatter type",
-    "enum": ["-", "+", ";", "{"],
+    "enum": [
+      "-",
+      "+",
+      ";",
+      "{"
+    ],
     "default": "-"
   },
   "superSubScript": {
@@ -338,7 +397,10 @@
   },
   "sequenceTheme": {
     "description": "Markdown--Sequence diagram theme",
-    "enum": ["hand", "simple"],
+    "enum": [
+      "hand",
+      "simple"
+    ],
     "default": "hand"
   },
   "mermaidLightTheme": {
@@ -439,7 +501,11 @@
   },
   "imageInsertAction": {
     "description": "Image--The default behavior after insert image from local folder",
-    "enum": ["upload", "folder", "path"],
+    "enum": [
+      "upload",
+      "folder",
+      "path"
+    ],
     "default": "path"
   },
   "imagePreferRelativeDirectory": {
@@ -449,28 +515,16 @@
   },
   "imageRelativeDirectoryBase": {
     "description": "Image--Where relative images are copied.",
-    "enum": ["file", "folder"],
+    "enum": [
+      "file",
+      "folder"
+    ],
     "default": "file"
   },
   "imageRelativeDirectoryName": {
     "description": "Image--The relative image folder name.",
     "type": "string",
     "default": "assets"
-  },
-  "tocVisibility": {
-    "description": "View--Whether the document outline is expanded.--internal",
-    "type": "boolean",
-    "default": true
-  },
-  "sideBarVisibility": {
-    "description": "View--Whether the side bar is visible.--internal",
-    "type": "boolean",
-    "default": false
-  },
-  "tabBarVisibility": {
-    "description": "View--Whether the tabs are shown.--internal",
-    "type": "boolean",
-    "default": false
   },
   "sourceCodeModeEnabled": {
     "description": "View--Whether the source-code mode is enabled by default.--internal",

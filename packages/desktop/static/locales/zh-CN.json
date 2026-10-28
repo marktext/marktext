@@ -524,10 +524,6 @@
       },
       "startup": {
         "title": "启动",
-        "layoutOptions": "布局选项",
-        "startupFilesFolders": "启动文件/文件夹",
-        "restorePreviousState": "恢复上次编辑器状态",
-        "openBlankState": "打开空白状态",
         "openDefaultDirectory": "打开指定文件夹",
         "openLastFolder": "打开上次工作区",
         "restoreAll": "恢复全部窗口",
@@ -551,7 +547,7 @@
       "sidebar": {
         "title": "侧边栏",
         "wrapTextInToc": "在目录中换行文本",
-        "tocPosition": "目录位置",
+        "tocPosition": "默认大纲位置",
         "tocLeft": "左侧",
         "tocRight": "右侧",
         "showOpenedFiles": "显示已打开文件",

@@ -23,8 +23,8 @@ import {
 // is covered in packages/muya/test/spec/roundTrip.spec.ts. The MISSING slice
 // is one desktop doc with all block types + the full desktop save path:
 //   editor (loaded with a real file) -> Cmd/Ctrl+S (mt::editor-ask-file-save)
-//   -> store FILE_SAVE -> mt::response-file-save -> main writeMarkdownFile
-//   -> mt::tab-saved -> the tab's unsaved dot clears.
+//   -> store FILE_SAVE -> session checkpoint/save -> main writeMarkdownFile
+//   -> document-saved acknowledgement -> the tab's unsaved dot clears.
 //
 // The fixture lives at test/e2e/data/all-blocks.md. It is written in the
 // engine's canonical serialized form (default desktop prefs: listIndentation 1,
@@ -42,8 +42,7 @@ const UNSAVED_DOT = '.editor-tabs li.unsaved'
 
 // Trigger the desktop save through the exact IPC channel the File > Save menu
 // item sends (`mt::editor-ask-file-save` -> store FILE_SAVE). The file was
-// opened from a real path so main takes the alreadyExistOnDisk branch: it
-// writes the markdown to disk and replies `mt::tab-saved`, clearing the dot.
+// opened from a real path; the session service writes it and acknowledges the saved revision.
 const save = async(app: ElectronApplication): Promise<void> => {
   await sendIpcToRenderer(app, 'mt::editor-ask-file-save')
 }
@@ -145,7 +144,7 @@ test.describe('All blocks round-trip + save byte-stability (item 39)', () => {
     // the post-save state is clean and the on-disk bytes are unchanged.
     await save(app)
 
-    // The saved/clean indicator is set on the async mt::tab-saved reply.
+    // The saved indicator follows the acknowledged document revision.
     await expect.poll(() => isDirty(page), { timeout: 5000 }).toBe(false)
 
     await expect.poll(() => readDisk(), { timeout: 5000 }).toBe(original)

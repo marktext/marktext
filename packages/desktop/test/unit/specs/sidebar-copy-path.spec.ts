@@ -3,21 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 
 const { writeText, invoke } = vi.hoisted(() => ({ writeText: vi.fn(), invoke: vi.fn() }))
 
-// `@/store/layout` reads localStorage at module load. Node 25 exposes a global
-// localStorage stub whose methods are missing, so install a working one before
-// the store modules import.
 vi.hoisted(() => {
-  const store = new Map<string, string>()
-  Object.defineProperty(globalThis, 'localStorage', {
-    configurable: true,
-    value: {
-      getItem: (key: string) => store.get(key) ?? null,
-      setItem: (key: string, value: string) => store.set(key, String(value)),
-      removeItem: (key: string) => store.delete(key),
-      clear: () => store.clear()
-    }
-  })
-
   const w = globalThis as unknown as { window?: Record<string, unknown> }
   w.window ??= {}
   w.window.marktext = { env: { windowId: 1 } }

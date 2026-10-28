@@ -189,29 +189,6 @@ describe('useEditorStore cross-file anchor links (#5292)', () => {
     expect(emitSpy).not.toHaveBeenCalledWith('scroll-to-header', expect.anything())
   })
 
-  it('scrolls to the anchor once a newly opened tab has loaded', () => {
-    const w = window as unknown as {
-      fileUtils?: { isSamePathSync: (a: string, b: string) => boolean }
-    }
-    w.fileUtils ??= { isSamePathSync: (a, b) => a === b }
-    const store = useEditorStore()
-    const off = seedTocOn('file-loaded')
-    const emitSpy = vi.spyOn(bus, 'emit')
-
-    store.NEW_TAB_WITH_CONTENT({
-      markdownDocument: {
-        markdown: '# Other',
-        filename: 'other.md',
-        pathname: '/docs/other.md'
-      } as unknown as Parameters<typeof store.NEW_TAB_WITH_CONTENT>[0]['markdownDocument'],
-      options: { anchor: 'english-section' },
-      selected: true
-    })
-    off()
-
-    expect(emitSpy).toHaveBeenLastCalledWith('scroll-to-header', 'uid-9')
-    expect(store.currentFile).not.toHaveProperty('anchor')
-  })
 })
 
 describe('useEditorStore copyGithubSlug', () => {

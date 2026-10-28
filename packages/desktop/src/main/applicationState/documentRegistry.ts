@@ -1,3 +1,4 @@
+import type { DocumentRegistration } from '@shared/types/applicationState'
 import type {
   DiscardedRecoveryRecord,
   DocumentSnapshot,
@@ -31,15 +32,6 @@ interface DocumentEntry {
   baseline: DiskBaseline | null
   pending: RecoveryRecord['status'] | null
   closed: boolean
-}
-
-/** Disk observations and content revision supplied by the trusted native document loader. */
-export interface DocumentRegistration {
-  contentRevision?: number
-  // Required for restored named drafts; may differ from the currently observed saved file.
-  baseline?: DiskBaseline | null
-  // Current verified disk content, used to recognize undo without replacing the original baseline.
-  saved?: { snapshot: DocumentSnapshot; markdown: string }
 }
 
 /** Valid only until another accepted operation changes the document generation. */
@@ -201,11 +193,29 @@ export class DocumentRegistry {
         : matchesEmpty
           ? { kind: 'empty' }
           : { kind: 'recovery', contentRevision: revision }
+    if (matchesSaved && current.saved?.snapshot.content.kind === 'disk') {
+      snapshot.resource = structuredClone(current.saved.snapshot.resource)
+      entry.baseline = structuredClone(current.saved.snapshot.content.baseline)
+    }
+    const observed = current.saved?.snapshot.content
+    const acceptsObserved =
+      observed?.kind === 'disk' &&
+      observed.baseline.exists &&
+      metadata.acceptedDiskSha256 === observed.baseline.rawSha256
+    const baselineChanged =
+      acceptsObserved && JSON.stringify(entry.baseline) !== JSON.stringify(observed.baseline)
+    if (acceptsObserved) entry.baseline = structuredClone(observed.baseline)
     entry.snapshot = snapshot
     entry.markdown = markdown
     entry.revision = revision
     entry.generation++
-    if (snapshot.content.kind === 'recovery' && (changed || revision !== current.revision))
+    if (
+      snapshot.content.kind === 'recovery' &&
+      (changed ||
+        baselineChanged ||
+        revision !== current.revision ||
+        current.snapshot.content.kind !== 'recovery')
+    )
       entry.pending = RecoveryStatus.DIRTY
     else if (
       snapshot.content.kind !== 'recovery' &&
@@ -253,6 +263,48 @@ export class DocumentRegistry {
     current.generation++
   }
 
+  relocate(
+    id: string,
+    location: Extract<DocumentSnapshot['resource'], { kind: 'file' }>['location'],
+    title: string
+  ): void {
+    const entry = this._entry(id)
+    if (entry.snapshot.resource.kind !== 'file')
+      throw new Error('Cannot relocate an untitled document')
+    const resource = { ...entry.snapshot.resource, location: structuredClone(location) }
+    entry.snapshot = checkedDocument({ ...entry.snapshot, resource, title })
+    if (entry.saved)
+      entry.saved.snapshot = checkedDocument({ ...entry.saved.snapshot, resource, title })
+    entry.pending =
+      entry.snapshot.content.kind === 'recovery'
+        ? RecoveryStatus.DIRTY
+        : entry.snapshot.content.kind === 'disk'
+          ? RecoveryStatus.SAVED
+          : RecoveryStatus.DISCARDED
+    entry.generation++
+  }
+
+  observeDisk(id: string, snapshot: DocumentSnapshot | null, markdown = ''): void {
+    const entry = this._entry(id)
+    if (snapshot === null) {
+      entry.saved = null
+      entry.snapshot.content = { kind: 'recovery', contentRevision: entry.revision }
+      entry.pending = RecoveryStatus.DIRTY
+    } else {
+      const saved = checkedDocument(snapshot)
+      if (saved.id !== id || saved.content.kind !== 'disk')
+        throw new Error('Invalid observed disk document')
+      entry.saved = { snapshot: saved, textHash: contentSha256(markdown) }
+      if (entry.markdown === markdown && sameFormat(entry.snapshot.saveFormat, saved.saveFormat)) {
+        entry.snapshot.content = saved.content
+        entry.snapshot.resource = saved.resource
+        entry.baseline = structuredClone(saved.content.baseline)
+        entry.pending = RecoveryStatus.SAVED
+      }
+    }
+    entry.generation++
+  }
+
   savedDocuments(): Map<string, DocumentSnapshot> {
     return new Map(
       [...this._entries].flatMap(([id, entry]) =>
@@ -288,6 +340,7 @@ export class DocumentRegistry {
   discard(id: string): void {
     const entry = this._entry(id)
     entry.closed = true
+    entry.markdown = ''
     entry.pending = RecoveryStatus.DISCARDED
     entry.generation++
   }
@@ -333,7 +386,10 @@ export class DocumentRegistry {
       throw new Error('Cannot release unsaved window contents')
     for (const [id, entry] of entries) {
       if (entry.pending === null) this._entries.delete(id)
-      else entry.closed = true
+      else {
+        entry.closed = true
+        entry.markdown = ''
+      }
     }
   }
 }

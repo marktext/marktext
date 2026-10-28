@@ -11,7 +11,8 @@ import {
 import bundled from '../../../static/preference.json'
 import schema from '@shared/preferences/schema.json'
 
-const rules: Record<string, PreferenceSchemaEntry> = schema
+const schemaEntries: Record<string, PreferenceSchemaEntry> = schema
+const rules: Record<string, Rule> = schemaEntries
 const object = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value)
 const accepts = (value: unknown, rule: Rule): boolean => {
@@ -48,29 +49,29 @@ export const preferenceDefaults = (dark = false): UserPreferences & Record<strin
 export class PreferenceFile {
   readonly exists: boolean
   readonly readOnly: boolean
-  private readonly pathname: string
-  private value: UserPreferences & Record<string, unknown>
-  private raw: Record<string, unknown> = {}
-  private readonly write: (pathname: string, contents: string) => void
+  private readonly _pathname: string
+  private _value: UserPreferences & Record<string, unknown>
+  private _raw: Record<string, unknown> = {}
+  private readonly _write: (pathname: string, contents: string) => void
 
   constructor(
     directory: string,
     options: { dark?: boolean; write?: (pathname: string, contents: string) => void } = {}
   ) {
-    this.pathname = path.join(directory, 'preferences.json')
-    this.exists = existsSync(this.pathname)
-    this.value = preferenceDefaults(options.dark)
-    this.write =
+    this._pathname = path.join(directory, 'preferences.json')
+    this.exists = existsSync(this._pathname)
+    this._value = preferenceDefaults(options.dark)
+    this._write =
       options.write ??
       ((pathname, contents) => writeAtomic(pathname, contents, { encoding: 'utf8', mode: 0o600 }))
     let readOnly = false
     try {
-      const input: unknown = JSON.parse(readFileSync(this.pathname, 'utf8'))
+      const input: unknown = JSON.parse(readFileSync(this._pathname, 'utf8'))
       if (!object(input)) throw new Error('Invalid preferences')
-      this.raw = input
+      this._raw = input
       for (const [key, rule] of Object.entries(rules)) {
         if (accepts(input[key], rule) && input[key] !== undefined)
-          this.value[key] = structuredClone(input[key])
+          this._value[key] = structuredClone(input[key])
       }
     } catch (error) {
       readOnly = (error as NodeJS.ErrnoException).code !== 'ENOENT'
@@ -79,7 +80,7 @@ export class PreferenceFile {
   }
 
   get(): UserPreferences & Record<string, unknown> {
-    return structuredClone(this.value)
+    return structuredClone(this._value)
   }
 
   update(patch: unknown): PreferenceUpdateResult {
@@ -91,14 +92,14 @@ export class PreferenceFile {
     )
       return { status: 'failed', reason: 'invalid-data' }
     if (this.readOnly) return { status: 'failed', reason: 'storage-unavailable' }
-    const next = { ...this.value, ...structuredClone(patch) }
+    const next = { ...this._value, ...structuredClone(patch) }
     try {
-      mkdirSync(path.dirname(this.pathname), { recursive: true })
-      this.write(this.pathname, JSON.stringify({ ...this.raw, ...next }, null, 2))
+      mkdirSync(path.dirname(this._pathname), { recursive: true })
+      this._write(this._pathname, JSON.stringify({ ...this._raw, ...next }, null, 2))
     } catch {
       return { status: 'failed', reason: 'storage-unavailable' }
     }
-    this.value = next
+    this._value = next
     return { status: 'persisted', preferences: this.get() }
   }
 }

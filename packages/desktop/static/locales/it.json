@@ -524,10 +524,6 @@
       },
       "startup": {
         "title": "Opzioni di avvio",
-        "layoutOptions": "Opzioni di layout",
-        "startupFilesFolders": "File/Cartelle di avvio",
-        "restorePreviousState": "Ritorno dell’editor allo stato precedente",
-        "openBlankState": "Apertura di una schermata vuota",
         "openDefaultDirectory": "Apri la cartella selezionata",
         "openLastFolder": "Apri l’ultimo spazio di lavoro",
         "restoreAll": "Ripristina tutte le finestre",

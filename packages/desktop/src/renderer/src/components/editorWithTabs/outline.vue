@@ -146,20 +146,9 @@ const visible = computed(() => docked.value || hovering.value)
 const toggleLabel = computed(() => t(docked.value ? 'sideBar.toc.collapse' : 'sideBar.toc.expand'))
 const MIN_WIDTH = 180
 const MAX_WIDTH = 600
-const WIDTH_STORAGE_KEY = 'outline-width'
-const normalizeWidth = (value: string | null): number => {
-  const width = Number(value)
-  return Number.isFinite(width) && width > 0 ? Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, width)) : 220
-}
-const legacyWidth = ref(
-  layoutStore.managed ? 220 : normalizeWidth(localStorage.getItem(WIDTH_STORAGE_KEY))
-)
 const preferredWidth = computed({
-  get: () => (layoutStore.managed ? layoutStore.outlineWidth : legacyWidth.value),
-  set: (value) => {
-    if (layoutStore.managed) layoutStore.SET_OUTLINE_WIDTH(value)
-    else legacyWidth.value = value
-  }
+  get: () => layoutStore.outlineWidth,
+  set: (value) => layoutStore.SET_OUTLINE_WIDTH(value)
 })
 const containerWidth = ref(window.innerWidth)
 const maximumWidth = computed(() =>
@@ -222,7 +211,6 @@ const finishResize = (): void => {
   if (!dragStart) return
   dragStart = undefined
   resizing.value = false
-  if (!layoutStore.managed) localStorage.setItem(WIDTH_STORAGE_KEY, String(preferredWidth.value))
 }
 const resizeWithKeyboard = (event: KeyboardEvent): void => {
   const direction = onRight.value ? -1 : 1
@@ -232,7 +220,6 @@ const resizeWithKeyboard = (event: KeyboardEvent): void => {
   else if (event.key === 'End') setWidth(maximumWidth.value)
   else return
   event.preventDefault()
-  if (!layoutStore.managed) localStorage.setItem(WIDTH_STORAGE_KEY, String(preferredWidth.value))
 }
 watch(onRight, finishResize)
 onMounted(() => {

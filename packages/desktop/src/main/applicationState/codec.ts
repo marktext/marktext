@@ -1,4 +1,4 @@
-import { RecoveryStatus } from '@shared/types/applicationState'
+import { RecoveryStatus, SessionLifecycle } from '@shared/types/applicationState'
 import path from 'node:path'
 import { createDefaultLayout } from '@shared/applicationState/defaults'
 import type {
@@ -324,10 +324,18 @@ export const parseApplicationState = (input: unknown): ApplicationState => {
   const windowValues = value.session.windows
   const seen = new Set<string>()
   const windows: WindowSnapshot[] = []
+  const documentIds = new Set<string>()
   for (const item of windowValues) {
     const entry = parseWindowSnapshot(item)
     if (entry && !seen.has(entry.id)) {
       seen.add(entry.id)
+      entry.documents = entry.documents.filter(document => {
+        if (documentIds.has(document.id)) return false
+        documentIds.add(document.id)
+        return true
+      })
+      if (!entry.documents.some(document => document.id === entry.activeDocumentId))
+        entry.activeDocumentId = entry.documents[0]?.id ?? null
       windows.push(entry)
     }
   }
@@ -382,7 +390,7 @@ export const parseApplicationState = (input: unknown): ApplicationState => {
     updatedAtMs: value.updatedAtMs,
     session: {
       id: session.id as string,
-      lifecycle: session.lifecycle === 'closed' ? 'closed' : 'running',
+      lifecycle: session.lifecycle === SessionLifecycle.CLOSED ? SessionLifecycle.CLOSED : SessionLifecycle.RUNNING,
       windows,
       activeWindowId: windows.some((window) => window.id === session.activeWindowId)
         ? (session.activeWindowId as string)
@@ -435,6 +443,7 @@ export const parseRecoveryRecord = (input: unknown): RecoveryRecord => {
     throw new Error('Invalid recovery content')
   const base = value.baseline === null ? null : baseline(value.baseline)
   if (value.baseline !== null && !base) throw new Error('Invalid recovery baseline')
+  if (document.resource.kind === 'file' && !base) throw new Error('Missing original disk baseline')
   return {
     ...common,
     status: RecoveryStatus.DIRTY,

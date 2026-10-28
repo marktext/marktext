@@ -3,7 +3,7 @@ import type { ElectronApplication, Page } from 'playwright'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import { launchElectron } from './helpers'
+import { delaySessionStateWrites, launchElectron } from './helpers'
 
 // #3207 / #3385 — clicking (or blurring) away from the sidebar's inline
 // rename/create input must accept the edit like Finder / Windows Explorer,
@@ -19,9 +19,10 @@ test.describe('Sidebar name input commits on click-away (#3207)', () => {
     fs.writeFileSync(path.join(projectDir, 'first.md'), '# First\n', 'utf-8')
     fs.writeFileSync(path.join(projectDir, 'second.md'), '# Second\n', 'utf-8')
     fs.writeFileSync(path.join(projectDir, 'third.md'), '# Third\n', 'utf-8')
+    fs.writeFileSync(path.join(projectDir, 'fourth.md'), '# Fourth\n', 'utf-8')
     fs.mkdirSync(path.join(projectDir, 'docs'))
 
-    const launched = await launchElectron([projectDir])
+    const launched = await launchElectron([projectDir], { windowLayout: { showSideBar: true } })
     app = launched.app
     page = launched.page
     await expect
@@ -134,13 +135,16 @@ test.describe('Sidebar name input commits on click-away (#3207)', () => {
   })
 
   test('clicking a @click.stop target (project heading) still commits', async() => {
+    await delaySessionStateWrites(app, 50)
     const target = page.locator('.side-bar-file[title$="third.md"]').first()
     await target.click()
     await page.keyboard.press('F2')
 
     const input = target.locator('input.rename')
     await expect(input).toBeVisible()
+    await expect(input).toBeFocused()
     await input.pressSequentially('renamed-three', { delay: 20 })
+    await expect(input).toHaveValue('renamed-three.md')
 
     // The project heading's collapse arrow calls event.stopPropagation().
     await page.locator('.project-tree > .title .icon-arrow').first().click()
@@ -149,5 +153,22 @@ test.describe('Sidebar name input commits on click-away (#3207)', () => {
       .poll(() => fs.existsSync(path.join(projectDir, 'renamed-three.md')))
       .toBe(true)
     expect(fs.existsSync(path.join(projectDir, 'third.md'))).toBe(false)
+  })
+
+  test('renaming during a pending preview open keeps the opened document on its new path', async() => {
+    const heading = page.locator('.project-tree > .title').first()
+    if (await heading.getAttribute('aria-expanded') === 'false') await heading.click()
+    await delaySessionStateWrites(app, 150)
+    const target = page.locator('.side-bar-file[title$="fourth.md"]').first()
+    await target.click()
+    await page.keyboard.press('F2')
+    const input = target.locator('input.rename')
+    await expect(input).toBeFocused()
+    await input.fill('renamed-fourth.md')
+    await heading.locator('.icon-arrow').click()
+    await expect.poll(() => fs.existsSync(path.join(projectDir, 'renamed-fourth.md'))).toBe(true)
+    await expect(page.locator('.tabs-container > li[title$="renamed-fourth.md"]')).toHaveCount(1)
+    await expect(page.getByRole('textbox', { name: /Document|文档/, exact: true })).toContainText('Fourth')
+    await expect(page.locator('.el-notification--error')).toHaveCount(0)
   })
 })

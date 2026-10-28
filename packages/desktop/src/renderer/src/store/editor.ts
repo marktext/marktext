@@ -4,12 +4,7 @@ import { prepareReading, applyReadOnly } from '../services/documentMode'
 import bus from '../bus'
 import { getUniqueId, deepClone } from '../util'
 import listToTree, { type ListItem, type TreeNode } from '../util/listToTree'
-import {
-  createDocumentState,
-  getOptionsFromState,
-  getBlankFileState,
-  defaultFileState
-} from './help'
+import { createDocumentState } from './help'
 import notice from '../services/notification'
 import {
   FileEncodingCommand,
@@ -21,22 +16,26 @@ import {
 import { defineStore } from 'pinia'
 import { usePreferencesStore } from './preferences'
 import { useProjectStore } from './project'
-import { useLayoutStore } from './layout'
-import { useMainStore } from '.'
-import { t } from '../i18n'
-import { debouncedSendBufferedState, sendBufferedState } from './bufferedState'
-import type {
-  IFileState,
-  FileNotification,
-  FileWordCount,
-  LineEnding,
-  MarkdownDocument,
-  PageOptions,
-  SidebarOpenOptions,
-  TabOptions
-} from '@shared/types/files'
-import type { IpcMainEventChannels, IpcSendChannels, SaveDocumentResult } from '@shared/types/ipc'
 
+import { t } from '../i18n'
+import { scheduleWindowCheckpoint } from './checkpoint'
+import type { IFileState, FileNotification, FileWordCount, LineEnding, PageOptions, TabOptions } from '@shared/types/files'
+import type { SaveDocumentResult } from '@shared/types/ipc'
+
+export interface SessionActions {
+  checkpoint(transactionId?: string): Promise<unknown>
+  scheduleCheckpoint(): void
+  captureView(): void
+  save(id: string, saveAs?: boolean): Promise<SaveDocumentResult>
+  create(markdown: string, selected: boolean): Promise<void>
+  close(ids: string[]): Promise<void>
+  saveAll(closeTabs: boolean): Promise<void>
+}
+let actions: SessionActions | null = null
+export const getSessionActions = (): SessionActions | null => actions
+export const setSessionActions = (value: SessionActions | null): void => {
+  actions = value
+}
 
 interface TocItem extends ListItem {
   slug?: string
@@ -47,15 +46,6 @@ interface TocItem extends ListItem {
 }
 
 type TocTreeNode = TreeNode<TocItem>
-
-interface RestoreWarning {
-  tabId?: string | null
-  pathname?: string
-  msg: string
-  showConfirm?: boolean
-  style?: string
-  exclusiveType?: string
-}
 
 interface PushTabNotificationPayload {
   tabId: string
@@ -76,6 +66,7 @@ interface FileChangePayload {
     encoding?: IFileState['encoding']
     markdown: string
     filename: string
+    rawBaseline?: { exists: boolean; rawSha256?: string }
   }
 }
 
@@ -135,12 +126,6 @@ interface SelectionFormat {
   type: string
   [key: string]: unknown
 }
-
-interface ProjectStoreLike {
-  GET_DEFAULT_DIRECTORY?: () => string
-  projectTree: { pathname?: string } | null
-}
-
 
 export interface EditorState {
   currentFile: IFileState | null
@@ -208,11 +193,6 @@ export const useEditorStore = defineStore('editor', {
         if (value && this.currentFile?.id === tabId) await prepareReading()
         await window.electron.ipcRenderer.invoke('mt::set-document-read-only', tabId, value)
         if (!this.tabs.includes(tab)) return
-        if (!value && this.currentFile?.id === tabId && !useLayoutStore().managed) {
-          const preferences = usePreferencesStore()
-          preferences.SET_MODE({ type: 'sourceCode', checked: false })
-          preferences.DISPATCH_EDITOR_VIEW_STATE({ sourceCode: false })
-        }
         tab.readOnly = value
         if (this.currentFile?.id === tabId) applyReadOnly(value)
         if (
@@ -238,7 +218,7 @@ export const useEditorStore = defineStore('editor', {
             exclusiveType: 'reading_mode'
           })
         }
-        debouncedSendBufferedState()
+        scheduleWindowCheckpoint()
       } catch (error) {
         if (this.currentFile?.id === tabId) applyReadOnly(tab.readOnly)
         await window.electron.ipcRenderer
@@ -264,14 +244,6 @@ export const useEditorStore = defineStore('editor', {
         if (this.currentFile)
           void this.SET_READ_ONLY(this.currentFile.id, !this.currentFile.readOnly)
       })
-      window.electron.ipcRenderer.on('mt::unlock-documents-for-save', (_, ids) => {
-        for (const id of ids) {
-          const tab = this.tabs.find((item) => item.id === id)
-          if (tab) tab.readOnly = false
-        }
-        if (this.currentFile && ids.includes(this.currentFile.id)) applyReadOnly(false)
-        debouncedSendBufferedState()
-      })
     },
 
     SET_SELECTION_WORD_COUNT(wordCount: FileWordCount | null): void {
@@ -283,81 +255,6 @@ export const useEditorStore = defineStore('editor', {
         map[tab.id] = index
         return map
       }, {})
-    },
-
-    CREATE_BUFFERED_STATE(): ReturnType<typeof createBufferedEditorState> {
-      return createBufferedEditorState(this.$state)
-    },
-
-    RESTORE_BUFFERED_STATE(state: unknown): void {
-      const rawState = state as { editor?: unknown; project?: unknown; layout?: unknown } | null
-      const editorInput = rawState?.editor ?? state
-      const bufferedEditorState = createBufferedEditorState(editorInput)
-      if (!bufferedEditorState) {
-        console.error('RESTORE_BUFFERED_STATE: Invalid editor buffer state.')
-        return
-      }
-
-      const oldIdToNewId: Record<string, string> = {}
-      const tabs: IFileState[] = bufferedEditorState.tabs.map((tab) => {
-        const fileState = createDocumentState({
-          ...tab,
-          readOnly:
-            tab.readOnly ??
-            (!!tab.pathname &&
-              !tab.isPendingCreation &&
-              usePreferencesStore().defaultOpenMode === 'read')
-        })
-        oldIdToNewId[tab.id] = fileState.id
-        return fileState
-      })
-
-      const currentFileId = bufferedEditorState.currentFileId
-        ? oldIdToNewId[bufferedEditorState.currentFileId]
-        : undefined
-      const currentFile: IFileState | null = tabs.find((tab) => tab.id === currentFileId) ?? null
-
-      const projectStore = useProjectStore()
-      const layoutStore = useLayoutStore()
-
-      projectStore.RESTORE_BUFFERED_STATE(rawState?.project)
-      window.electron.ipcRenderer.send('mt::project-renderer-ready')
-      layoutStore.RESTORE_BUFFERED_STATE(rawState?.layout)
-      this.$patch((s) => {
-        s.tabs = tabs
-        s.currentFile = currentFile
-        s.tabIdToIndex = {}
-        s.listToc = []
-        s.toc = []
-        s.selectionWordCount = null
-      })
-
-      this.updateTabIdToIndex()
-      for (const tab of tabs) {
-        if (tab.readOnly)
-          void window.electron.ipcRenderer.invoke('mt::set-document-read-only', tab.id, true)
-      }
-      window.DIRNAME = currentFile?.pathname ? window.path.dirname(currentFile.pathname) : ''
-      this.UPDATE_LINE_ENDING_MENU()
-
-      for (const warning of bufferedEditorState.restoreWarnings) {
-        const restoredTabId = warning.tabId ? oldIdToNewId[warning.tabId] : null
-        const tab = restoredTabId
-          ? this.tabs.find((t) => t.id === restoredTabId)
-          : this.tabs.find((t) =>
-            window.fileUtils.isSamePathSync(t.pathname, warning.pathname ?? '')
-          )
-
-        if (!tab) continue
-
-        this.pushTabNotification({
-          tabId: tab.id,
-          msg: warning.msg,
-          showConfirm: warning.showConfirm,
-          style: warning.style,
-          exclusiveType: warning.exclusiveType
-        })
-      }
     },
 
     async copyGithubSlug(key: string): Promise<boolean> {
@@ -385,7 +282,7 @@ export const useEditorStore = defineStore('editor', {
       if (tab) {
         tab.scrollTop = scrollTop
       }
-      debouncedSendBufferedState()
+      scheduleWindowCheckpoint()
     },
 
     /**
@@ -482,6 +379,7 @@ export const useEditorStore = defineStore('editor', {
 
       Object.assign(tab, newFileState)
       tab.readOnly = readOnly
+      tab.acceptedDiskSha256 = data.rawBaseline?.rawSha256
       tab.diskMissing = false
       tab.diskConflict = false
       tab.id = oldId
@@ -521,7 +419,7 @@ export const useEditorStore = defineStore('editor', {
           isReload: true
         })
       }
-      debouncedSendBufferedState()
+      scheduleWindowCheckpoint()
     },
 
     FORMAT_LINK_CLICK({ data, dirname }: FormatLinkClickPayload): void {
@@ -640,26 +538,12 @@ export const useEditorStore = defineStore('editor', {
 
     FILE_SAVE({ waitForResult = false } = {}): Promise<SaveDocumentResult> | void {
       if (!this.currentFile || this.currentFile.readOnly || this.currentFile.modeChanging) return
+      const session = getSessionActions()
+      if (!session) return
       this.flushActiveEditor()
-      const file = this.currentFile
-      if (!file.id) return
-      const args: IpcSendChannels['mt::response-file-save'] = [
-        file.id,
-        file.filename,
-        file.pathname,
-        file.markdown,
-        deepClone(getOptionsFromState(file)),
-        getRootFolderFromState(useProjectStore())
-      ]
-      if (waitForResult) {
-        return window.electron.ipcRenderer.invoke('mt::response-file-save', ...args).then((result) => {
-          if (result.status === 'saved' && this.tabs.some((tab) => tab.id === file.id)) {
-            this.SET_PATHNAME({ id: file.id, ...result })
-          }
-          return result
-        })
-      }
-      window.electron.ipcRenderer.send('mt::response-file-save', ...args)
+      const result = session.save(this.currentFile.id)
+      if (waitForResult) return result
+      void result.catch(console.error)
     },
 
     LISTEN_FOR_SAVE(): void {
@@ -672,25 +556,11 @@ export const useEditorStore = defineStore('editor', {
     },
 
     FILE_SAVE_AS(): void {
-      if (this.currentFile?.readOnly || this.currentFile?.modeChanging) return
-      if (!this.currentFile) return
+      if (!this.currentFile || this.currentFile.readOnly || this.currentFile.modeChanging) return
+      const session = getSessionActions()
+      if (!session) return
       this.flushActiveEditor()
-      const projectStore = useProjectStore()
-      const { id, filename, pathname, markdown } = this.currentFile
-      const options = getOptionsFromState(this.currentFile)
-      const defaultPath = getRootFolderFromState(projectStore)
-
-      if (id) {
-        window.electron.ipcRenderer.send(
-          'mt::response-file-save-as',
-          id,
-          filename,
-          pathname,
-          markdown,
-          deepClone(options),
-          defaultPath
-        )
-      }
+      void session.save(this.currentFile.id, true).catch(console.error)
     },
 
     LISTEN_FOR_SAVE_AS(): void {
@@ -702,194 +572,23 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    SET_PATHNAME(fileInfo: IpcMainEventChannels['mt::set-pathname'][0]): void {
-      const { tabs } = this
-      const { pathname, id } = fileInfo
-      const tab = tabs.find((f) => f.id === id)
-      if (!tab) {
-        console.error('[ERROR] Cannot change file path from unknown tab.')
-        return
-      }
 
-      const existingTab = tabs.find(
-        (t) => t.id !== id && window.fileUtils.isSamePathSync(t.pathname, pathname)
-      )
-      // Both the save event and invoke reply can arrive while the close dialog is pending.
-      if (existingTab && (tab.isPendingCreation || !window.fileUtils.isSamePathSync(tab.pathname, pathname))) {
-        this.CLOSE_TAB(existingTab)
-      }
-
-      const { filename } = fileInfo
-      if (id === this.currentFile?.id && pathname) {
-        window.DIRNAME = window.path.dirname(pathname)
-      }
-      Object.assign(tab, { filename, pathname, isPendingCreation: false })
-      if ('savedMarkdown' in fileInfo && fileInfo.savedMarkdown === tab.markdown)
-        tab.isSaved = true
-      debouncedSendBufferedState()
-    },
-
-    LISTEN_FOR_SET_PATHNAME(): void {
-      window.electron.ipcRenderer.on('mt::set-pathname', (_, fileInfo) => {
-        this.SET_PATHNAME(fileInfo)
-      })
-      window.electron.ipcRenderer.on('mt::tab-saved', (_, tabId, savedMarkdown) => {
-        const tab = this.tabs.find((f) => f.id === tabId)
-        if (tab && (savedMarkdown === undefined || tab.markdown === savedMarkdown)) {
-          const lastEditIndex = tab.history.lastEditIndex
-          if (
-            typeof lastEditIndex === 'number' &&
-            lastEditIndex >= 0 &&
-            lastEditIndex < tab.history.stack.length
-          ) {
-            const entry = tab.history.stack[lastEditIndex]
-            if (entry && typeof entry.id === 'number') {
-              tab.lastSavedHistoryId = entry.id
-            }
-          }
-          tab.isSaved = true
-          tab.diskConflict = false
-          tab.isPendingCreation = false
-          debouncedSendBufferedState()
-        }
-      })
-
-      window.electron.ipcRenderer.on('mt::tab-save-failure', (_, tabId, msg) => {
-        const tab = this.tabs.find((t) => t.id === tabId)
-        if (!tab) {
-          notice.notify({
-            title: t('dialog.saveFailure'),
-            message: msg,
-            type: 'error',
-            time: 20000,
-            showConfirm: false
-          })
-          return
-        }
-
-        tab.isSaved = false
-        this.pushTabNotification({
-          tabId,
-          msg: t('store.editor.errorWhileSaving', { msg }),
-          style: 'crit'
-        })
-        debouncedSendBufferedState()
-      })
-    },
-
-    LISTEN_FOR_CLOSE(): void {
-      const projectStore = useProjectStore()
-      window.electron.ipcRenderer.on('mt::ask-for-close', () => {
-        this.flushActiveEditor()
-        sendBufferedState()
-          .catch((err) => {
-            notice.notify({ title: t('sideBar.tree.sessionSaveFailed'), type: 'error', message: String(err) })
-            throw err
-          })
-          .then(() => {
-            const unsavedFiles = this.tabs
-              .filter((file) => !file.isSaved)
-              .map((file) => {
-                const { id, filename, pathname, markdown } = file
-                const options = getOptionsFromState(file)
-                return {
-                  id,
-                  readOnly: file.readOnly,
-                  filename,
-                  pathname,
-                  markdown,
-                  options,
-                  defaultPath: getRootFolderFromState(projectStore)
-                }
-              })
-
-            if (unsavedFiles.length) {
-              window.electron.ipcRenderer.send('mt::close-window-confirm', deepClone(unsavedFiles))
-            } else {
-              window.electron.ipcRenderer.send('mt::close-window')
-            }
-          })
-          .catch(err => console.error('Window remains open because its session could not be saved', err))
-      })
-    },
-
-    LISTEN_FOR_SAVE_CLOSE(): void {
-      window.electron.ipcRenderer.on('mt::discard-and-close-window', async(_, ids) => {
-        this.CLOSE_TABS(ids)
-        await sendBufferedState()
-        window.electron.ipcRenderer.send('mt::close-window')
-      })
-      window.electron.ipcRenderer.on('mt::finish-close-window', async() => {
-        this.flushActiveEditor()
-        if (this.tabs.some((tab) => !tab.isSaved)) return
-        await sendBufferedState()
-        window.electron.ipcRenderer.send('mt::close-window')
-      })
-
-      window.electron.ipcRenderer.on('mt::force-close-tabs-by-id', (_, tabIdList) => {
-        if (Array.isArray(tabIdList) && tabIdList.length) {
-          this.CLOSE_TABS(tabIdList)
-        }
-      })
-    },
 
     ASK_FOR_SAVE_ALL(closeTabs: boolean): void {
-      const { tabs } = this
-      if (!closeTabs && tabs.some((tab) => tab.readOnly && !tab.isSaved)) {
-        notice.notify({ title: t('readingMode.skipped'), showConfirm: false })
-      }
-      const projectStore = useProjectStore()
-      const unsavedFiles = tabs
-        .filter((file) => closeTabs || !file.readOnly)
-        .filter((file) => !(file.isSaved && /[^\n]/.test(file.markdown)))
-        .map((file) => {
-          const { id, filename, pathname, markdown } = file
-          const options = getOptionsFromState(file)
-          return {
-            id,
-            readOnly: file.readOnly,
-            filename,
-            pathname,
-            markdown,
-            options,
-            defaultPath: getRootFolderFromState(projectStore)
-          }
-        })
-
-      if (closeTabs) {
-        if (unsavedFiles.length) {
-          this.CLOSE_TABS(tabs.filter((f) => f.isSaved).map((f) => f.id))
-          window.electron.ipcRenderer.send('mt::save-and-close-tabs', deepClone(unsavedFiles))
-        } else {
-          this.CLOSE_TABS(tabs.map((f) => f.id))
-        }
-      } else {
-        window.electron.ipcRenderer.send('mt::save-tabs', deepClone(unsavedFiles))
-      }
+      const session = getSessionActions()
+      if (session) void session.saveAll(closeTabs).catch(console.error)
     },
 
     MOVE_FILE_TO(): void {
       if (this.currentFile?.readOnly && !this.currentFile.pathname) return
       if (!this.currentFile) return
-      this.flushActiveEditor()
-      const projectStore = useProjectStore()
-      const { id, filename, pathname, markdown } = this.currentFile
-      const options = getOptionsFromState(this.currentFile)
-      const defaultPath = getRootFolderFromState(projectStore)
-      if (!id) return
-      if (!pathname) {
-        window.electron.ipcRenderer.send(
-          'mt::response-file-save',
-          id,
-          filename,
-          pathname,
-          markdown,
-          deepClone(options),
-          defaultPath
-        )
-      } else {
-        window.electron.ipcRenderer.send('mt::response-file-move-to', { id, pathname })
+      if (!this.currentFile.pathname) {
+        this.FILE_SAVE()
+        return
       }
+      this.flushActiveEditor()
+      const { id, pathname } = this.currentFile
+      window.electron.ipcRenderer.send('mt::response-file-move-to', { id, pathname })
     },
 
     LISTEN_FOR_MOVE_TO(): void {
@@ -913,25 +612,12 @@ export const useEditorStore = defineStore('editor', {
     RESPONSE_FOR_RENAME(): void {
       if (this.currentFile?.readOnly && !this.currentFile.pathname) return
       if (!this.currentFile) return
-      this.flushActiveEditor()
-      const projectStore = useProjectStore()
-      const { id, filename, pathname, markdown } = this.currentFile
-      const options = getOptionsFromState(this.currentFile)
-      const defaultPath = getRootFolderFromState(projectStore)
-      if (!id) return
-      if (!pathname) {
-        window.electron.ipcRenderer.send(
-          'mt::response-file-save',
-          id,
-          filename,
-          pathname,
-          markdown,
-          deepClone(options),
-          defaultPath
-        )
-      } else {
-        bus.emit('rename')
+      if (!this.currentFile.pathname) {
+        this.FILE_SAVE()
+        return
       }
+      this.flushActiveEditor()
+      bus.emit('rename')
     },
 
     RENAME(newFilename: string): void {
@@ -961,7 +647,7 @@ export const useEditorStore = defineStore('editor', {
       if (this.currentFile != null && this.currentFile.pathname === dest) {
         window.DIRNAME = window.path.dirname(dest)
       }
-      debouncedSendBufferedState()
+      scheduleWindowCheckpoint()
     },
 
     UPDATE_CURRENT_FILE(currentFile: IFileState): void {
@@ -974,6 +660,7 @@ export const useEditorStore = defineStore('editor', {
         // flushed edit is attributed to that tab and not lost on switch (#2938).
         if (oldCurrentFile) {
           this.flushActiveEditor()
+          getSessionActions()?.captureView()
         }
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
         this.currentFile = currentFile
@@ -1002,16 +689,13 @@ export const useEditorStore = defineStore('editor', {
 
       this.UPDATE_LINE_ENDING_MENU()
       if (didUpdateCurrentFile) {
-        debouncedSendBufferedState()
+        scheduleWindowCheckpoint()
       }
     },
 
-    // This events are only used during window creation.
-    LISTEN_FOR_BOOTSTRAP_WINDOW(): void {
+    REGISTER_EDITOR_COMMANDS(): void {
       const preferencesStore = usePreferencesStore()
-      const layoutStore = useLayoutStore()
       const projectStore = useProjectStore()
-      const mainStore = useMainStore()
 
       setTimeout(() => {
         bus.emit('cmd::register-command', new FileEncodingCommand(this))
@@ -1032,57 +716,9 @@ export const useEditorStore = defineStore('editor', {
           bus.emit('cmd::sort-commands')
         }, 100)
       }, 400)
-
-      window.electron.ipcRenderer.on('mt::bootstrap-editor', (_, config) => {
-        const {
-          addBlankTab,
-          markdownList,
-          lineEnding,
-          sideBarVisibility,
-          tabBarVisibility,
-          sourceCodeModeEnabled
-        } = config
-
-        window.electron.ipcRenderer.send('mt::window-initialized')
-        mainStore.SET_INITIALIZED()
-        preferencesStore.SET_USER_PREFERENCE({ endOfLine: lineEnding })
-        layoutStore.SET_LAYOUT({
-          rightColumn: 'files',
-          showSideBar: !!sideBarVisibility,
-          showTabBar: !!tabBarVisibility
-        })
-        layoutStore.DISPATCH_LAYOUT_MENU_ITEMS()
-        preferencesStore.SET_MODE({
-          type: 'sourceCode',
-          checked: !!sourceCodeModeEnabled
-        })
-
-        if (addBlankTab) {
-          this.NEW_UNTITLED_TAB({ selected: true })
-        } else if (markdownList.length) {
-          let isFirst = true
-          for (const md of markdownList) {
-            this.NEW_UNTITLED_TAB({
-              markdown: md,
-              selected: isFirst
-            })
-            isFirst = false
-          }
-        }
-      })
     },
 
     LISTEN_FOR_NEW_TAB(): void {
-      window.electron.ipcRenderer.on(
-        'mt::open-new-tab',
-        (_, markdownDocument, options = {}, selected = true) => {
-          if (markdownDocument) {
-            this.NEW_TAB_WITH_CONTENT({ markdownDocument, options, selected })
-          } else {
-            this.NEW_UNTITLED_TAB({})
-          }
-        }
-      )
 
       window.electron.ipcRenderer.on(
         'mt::new-untitled-tab',
@@ -1099,13 +735,8 @@ export const useEditorStore = defineStore('editor', {
 
     CLOSE_TAB(file: IFileState | null = null): void {
       const target = file ?? this.currentFile
-      if (target === null) return
-
-      if (target.isSaved) {
-        this.FORCE_CLOSE_TAB(target)
-      } else {
-        this.CLOSE_UNSAVED_TAB(target)
-      }
+      const session = getSessionActions()
+      if (target && session) void session.close([target.id]).catch(console.error)
     },
 
     LISTEN_FOR_CLOSE_TAB(): void {
@@ -1191,94 +822,29 @@ export const useEditorStore = defineStore('editor', {
       if (pathname) {
         window.electron.ipcRenderer.send('mt::window-tab-closed', pathname)
       }
-      debouncedSendBufferedState()
+      scheduleWindowCheckpoint()
     },
 
-    CLOSE_UNSAVED_TAB(file: IFileState): void {
-      if (this.currentFile?.id === file.id) this.flushActiveEditor()
-      const { id, pathname, filename, markdown } = file
-      const options = getOptionsFromState(file)
-      window.electron.ipcRenderer.send('mt::save-and-close-tabs', [
-        { id, pathname, filename, markdown, readOnly: file.readOnly, options: deepClone(options) }
-      ])
-    },
+
 
     CLOSE_OTHER_TABS(file: IFileState): void {
-      this.tabs
-        .filter((f) => f.id !== file.id)
-        .forEach((tab) => {
-          this.CLOSE_TAB(tab)
-        })
+      const session = getSessionActions()
+      if (session) void session.close(this.tabs.filter(tab => tab.id !== file.id).map(tab => tab.id)).catch(console.error)
     },
 
     CLOSE_SAVED_TABS(): void {
-      this.tabs
-        .filter((f) => f.isSaved)
-        .forEach((tab) => {
-          this.CLOSE_TAB(tab)
-        })
+      const session = getSessionActions()
+      if (session) void session.close(this.tabs.filter(tab => tab.isSaved).map(tab => tab.id)).catch(console.error)
     },
 
     CLOSE_ALL_TABS(): void {
-      this.tabs.slice().forEach((tab) => {
-        this.CLOSE_TAB(tab)
-      })
+      const session = getSessionActions()
+      if (session) void session.close(this.tabs.map(tab => tab.id)).catch(console.error)
     },
 
     CLOSE_TABS(tabIdList: string[]): void {
-      if (!tabIdList || tabIdList.length === 0) return
-
-      let tabIndex = 0
-      tabIdList.forEach((id) => {
-        window.electron.ipcRenderer.send('mt::forget-document', id)
-        const index = this.tabs.findIndex((f) => f.id === id)
-        if (index === -1) return
-
-        const closed = this.tabs[index]
-        const { pathname } = closed ?? { pathname: '' }
-
-        if (pathname) {
-          window.electron.ipcRenderer.send('mt::window-tab-closed', pathname)
-        }
-
-        this.tabs.splice(index, 1)
-        if (this.currentFile?.id === id) {
-          this.currentFile = null
-          this.selectionWordCount = null
-          window.DIRNAME = ''
-          if (tabIdList.length === 1) {
-            tabIndex = index
-          }
-        }
-      })
-
-      this.updateTabIdToIndex() // Update before sending it out to prevent stale mappings.
-
-      if (this.currentFile == null && this.tabs.length > 0) {
-        this.currentFile = this.tabs[tabIndex] ?? this.tabs[tabIndex - 1] ?? this.tabs[0] ?? null
-        this.selectionWordCount = null
-        if (this.currentFile && typeof this.currentFile.markdown === 'string') {
-          const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
-            this.currentFile
-          window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
-          bus.emit('file-changed', {
-            id,
-            markdown,
-            cursor,
-            muyaIndexCursor,
-            renderCursor: true,
-            history,
-            scrollTop,
-            blocks
-          })
-        }
-      }
-
-      if (this.tabs.length === 0) {
-        this.listToc = []
-        this.toc = []
-      }
-      debouncedSendBufferedState()
+      const session = getSessionActions()
+      if (session) void session.close(tabIdList).catch(console.error)
     },
 
     EXCHANGE_TABS_BY_ID(tabIDs: { fromId: string; toId: string | null }): void {
@@ -1306,7 +872,7 @@ export const useEditorStore = defineStore('editor', {
         moveItem(tabs, fromIndex, realToIndex)
       }
       this.updateTabIdToIndex()
-      debouncedSendBufferedState()
+      scheduleWindowCheckpoint()
     },
 
     RENAME_FILE(file: IFileState): void {
@@ -1476,180 +1042,9 @@ export const useEditorStore = defineStore('editor', {
       this.UPDATE_CURRENT_FILE(nextTab)
     },
 
-    NEW_UNTITLED_TAB({
-      markdown: markdownString,
-      selected
-    }: {
-      markdown?: string
-      selected?: boolean
-    }): void {
-      if (selected == null) {
-        selected = true
-      }
-
-      const preferencesStore = usePreferencesStore()
-      const { defaultEncoding, endOfLine } = preferencesStore
-      const fileState = getBlankFileState(
-        this.tabs,
-        defaultEncoding,
-        endOfLine,
-        markdownString ?? null
-      )
-
-      if (selected) {
-        const { id, markdown } = fileState
-        this.UPDATE_CURRENT_FILE(fileState)
-        bus.emit('file-loaded', { id, markdown })
-      } else {
-        this.tabs.push(fileState)
-        this.updateTabIdToIndex()
-        debouncedSendBufferedState()
-      }
-    },
-
-    NEW_TAB_WITH_CONTENT({
-      markdownDocument,
-      options = {},
-      selected
-    }: {
-      markdownDocument: MarkdownDocument | null | undefined
-      options?: SidebarOpenOptions
-      selected?: boolean
-    }): void {
-      if (!markdownDocument) {
-        console.warn('Cannot create a file tab without a markdown document!')
-        this.NEW_UNTITLED_TAB({})
-        return
-      }
-
-      if (typeof selected === 'undefined') {
-        selected = true
-      }
-
-      const { currentFile, tabs } = this
-      const { pathname } = markdownDocument
-      const requestId = options.requestId
-      const requestedPreviewMode = options.preview === true
-      if (
-        requestedPreviewMode &&
-        typeof requestId === 'number' &&
-        !this.IS_LATEST_SIDEBAR_OPEN(requestId, pathname ?? '')
-      ) {
-        this.DISCARD_OPEN_INTENT(pathname)
-        return
-      }
-      if (typeof requestId === 'number') {
-        this.SETTLE_SIDEBAR_OPEN(requestId, pathname ?? '')
-      }
-
-      const existingTab = tabs.find((t) =>
-        window.fileUtils.isSamePathSync(t.pathname, pathname ?? '')
-      )
-      if (existingTab) {
-        this.UPDATE_CURRENT_FILE(existingTab)
-        if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
-        return
-      }
-
-      const preferencesStore = usePreferencesStore()
-      const openIntent = this.PEEK_OPEN_INTENT(pathname)
-      const preview =
-        (openIntent?.preview ?? requestedPreviewMode) && preferencesStore.openFilesInPreviewMode
-
-      if (currentFile) {
-        const { isSaved, pathname: cfPath } = currentFile
-        if (isSaved && !cfPath) {
-          this.FORCE_CLOSE_TAB(currentFile)
-        }
-      }
-
-      const { markdown, isMixedLineEndings } = markdownDocument
-      const docState = createDocumentState(
-        Object.assign(
-          {},
-          markdownDocument as unknown as Record<string, unknown>,
-          options as Record<string, unknown>
-        )
-      )
-      docState.isPreview = preview
-      docState.readOnly =
-        options.readOnly ??
-        (!!docState.pathname &&
-          !docState.isPendingCreation &&
-          usePreferencesStore().defaultOpenMode === 'read')
-      if (docState.readOnly)
-        void window.electron.ipcRenderer.invoke('mt::set-document-read-only', docState.id, true)
-      const { id, cursor } = docState
-
-      if (preview) {
-        let previewIndex = tabs.findIndex((tab) => tab.isPreview)
-        if (previewIndex >= 0 && tabs[previewIndex]?.id === currentFile?.id) {
-          this.flushActiveEditor()
-          previewIndex = tabs.findIndex((tab) => tab.isPreview)
-        }
-
-        const previousPreview = previewIndex >= 0 ? tabs[previewIndex] : null
-        if (previousPreview) {
-          if (autoSaveTimers.has(previousPreview.id)) {
-            clearTimeout(autoSaveTimers.get(previousPreview.id))
-            autoSaveTimers.delete(previousPreview.id)
-          }
-          window.electron.ipcRenderer.send('mt::forget-document', previousPreview.id)
-          if (previousPreview.pathname) {
-            window.electron.ipcRenderer.send('mt::window-tab-closed', previousPreview.pathname)
-          }
-          tabs.splice(previewIndex, 1)
-        }
-
-        if (selected) {
-          if (previousPreview) tabs.splice(previewIndex, 0, docState)
-          this.updateTabIdToIndex()
-          this.UPDATE_CURRENT_FILE(docState)
-          bus.emit('file-loaded', { id, markdown, cursor })
-          if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
-        } else {
-          if (previousPreview) tabs.splice(previewIndex, 0, docState)
-          else tabs.push(docState)
-          this.updateTabIdToIndex()
-          debouncedSendBufferedState()
-        }
-        if (isMixedLineEndings) {
-          const { filename, lineEnding } = markdownDocument
-          if (typeof lineEnding === 'string') {
-            this.pushTabNotification({
-              tabId: id,
-              msg: t('store.editor.mixedLineEndingsNormalized', {
-                name: filename,
-                lineEnding: lineEnding.toUpperCase()
-              })
-            })
-          }
-        }
-        return
-      }
-
-      if (selected) {
-        this.UPDATE_CURRENT_FILE(docState)
-        bus.emit('file-loaded', { id, markdown, cursor })
-        if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
-      } else {
-        this.tabs.push(docState)
-        this.updateTabIdToIndex()
-        debouncedSendBufferedState()
-      }
-
-      if (isMixedLineEndings) {
-        const { filename, lineEnding } = markdownDocument
-        if (typeof lineEnding === 'string') {
-          this.pushTabNotification({
-            tabId: id,
-            msg: t('store.editor.mixedLineEndingsNormalized', {
-              name: filename,
-              lineEnding: lineEnding.toUpperCase()
-            })
-          })
-        }
-      }
+    NEW_UNTITLED_TAB({ markdown = '', selected = true }: { markdown?: string; selected?: boolean }): void {
+      const session = getSessionActions()
+      if (session) void session.create(markdown, selected).catch(console.error)
     },
 
     SET_SAVE_STATUS_WHEN_REMOVE({ pathname }: { pathname: string }): void {
@@ -1661,7 +1056,7 @@ export const useEditorStore = defineStore('editor', {
         }
       })
       if (didUpdateSaveStatus) {
-        debouncedSendBufferedState()
+        scheduleWindowCheckpoint()
       }
     },
 
@@ -1740,11 +1135,6 @@ export const useEditorStore = defineStore('editor', {
       markdown = adjustTrailingNewlines(markdown, trimTrailingNewline)
       tab.markdown = markdown
 
-      if (oldMarkdown.length === 0 && markdown.length === 1 && markdown[0] === '\n') {
-        debouncedSendBufferedState()
-        return
-      }
-
       if (wordCount) tab.wordCount = wordCount
       if (cursor) tab.cursor = cursor
       if (muyaIndexCursor) tab.muyaIndexCursor = muyaIndexCursor
@@ -1756,31 +1146,12 @@ export const useEditorStore = defineStore('editor', {
         this.toc = listToTree<TocItem>(toc)
       }
 
-      const lastEditIndex = tab.history.lastEditIndex
-      const editEntry =
-        typeof lastEditIndex === 'number' && lastEditIndex >= 0
-          ? tab.history.stack[lastEditIndex]
-          : undefined
-      const historyMarksDirty =
-        (typeof lastEditIndex === 'number' &&
-          lastEditIndex >= 0 &&
-          editEntry !== undefined &&
-          editEntry.id !== tab.lastSavedHistoryId) ||
-        (lastEditIndex === -1 &&
-          tab.lastSavedHistoryId !== -1 &&
-          tab.lastSavedHistoryId !== tab.history.lastInitIndex) // Edge Case: Undo to original content (lastEditIndex === -1) after saving means we cant use the lastEditIndex. Compare it against the lastInitIndex instead.
-      const isDirty = history === undefined ? markdown !== oldMarkdown : historyMarksDirty
-      if (isDirty) {
+      if (markdown !== oldMarkdown) {
         tab.isPreview = false
         tab.isSaved = false
-        if (pathname && autoSave && !tab.modeChanging) {
-          this.HANDLE_AUTO_SAVE(tab)
-        }
-      } else if (history !== undefined && tab.lastSavedHistoryId !== -1) {
-        // Check here is to prevent it from overriding a restored .isSaved state
-        tab.isSaved = true
+        if (pathname && autoSave && !tab.modeChanging) this.HANDLE_AUTO_SAVE(tab)
       }
-      debouncedSendBufferedState()
+      scheduleWindowCheckpoint()
     },
 
     HANDLE_AUTO_SAVE({ id, pathname }: AutoSavePayload): void {
@@ -1789,7 +1160,6 @@ export const useEditorStore = defineStore('editor', {
       }
 
       const preferencesStore = usePreferencesStore()
-      const projectStore = useProjectStore()
       const { autoSaveDelay } = preferencesStore
 
       if (autoSaveTimers.has(id)) {
@@ -1803,16 +1173,8 @@ export const useEditorStore = defineStore('editor', {
 
         const tab = this.tabs.find((t) => t.id === id)
         if (tab && !tab.isSaved && !tab.readOnly && !tab.modeChanging && !tab.diskConflict) {
-          const defaultPath = getRootFolderFromState(projectStore)
-          window.electron.ipcRenderer.send(
-            'mt::response-file-save',
-            id,
-            tab.filename,
-            tab.pathname,
-            tab.markdown,
-            deepClone(getOptionsFromState(tab)),
-            defaultPath
-          )
+          const session = getSessionActions()
+          if (session) void session.save(id).catch(console.error)
         }
       }, autoSaveDelay)
       autoSaveTimers.set(id, timer)
@@ -1939,7 +1301,7 @@ export const useEditorStore = defineStore('editor', {
         this.currentFile.adjustLineEndingOnSave = lineEnding !== 'lf'
         this.currentFile.isSaved = true
         this.UPDATE_LINE_ENDING_MENU()
-        debouncedSendBufferedState()
+        scheduleWindowCheckpoint()
       }
     },
 
@@ -1961,7 +1323,7 @@ export const useEditorStore = defineStore('editor', {
           this.currentFile.encoding.encoding = encodingName as string
           this.currentFile.encoding.isBom = false
           this.currentFile.isSaved = true
-          debouncedSendBufferedState()
+          scheduleWindowCheckpoint()
         }
       })
     },
@@ -1974,7 +1336,7 @@ export const useEditorStore = defineStore('editor', {
         if (trimTrailingNewline !== value) {
           this.currentFile.trimTrailingNewline = value as number
           this.currentFile.isSaved = true
-          debouncedSendBufferedState()
+          scheduleWindowCheckpoint()
         }
       })
     },
@@ -1998,7 +1360,7 @@ export const useEditorStore = defineStore('editor', {
                 showConfirm: false,
                 exclusiveType: 'file_changed'
               })
-              debouncedSendBufferedState()
+              scheduleWindowCheckpoint()
               break
             }
             case 'add':
@@ -2044,7 +1406,7 @@ export const useEditorStore = defineStore('editor', {
                   }
                 }
               })
-              debouncedSendBufferedState()
+              scheduleWindowCheckpoint()
               break
             }
             default:
@@ -2106,25 +1468,8 @@ export const useEditorStore = defineStore('editor', {
         bus.emit('open-command-spellchecker-switch-language')
       })
     },
-
-    LISTEN_FOR_STATE_REPLACE(): void {
-      window.electron.ipcRenderer.on('mt::load-state', (_, state) => {
-        this.RESTORE_BUFFERED_STATE(state)
-      })
-    }
   }
 })
-
-
-/** Empty when no project directory is open. */
-const getRootFolderFromState = (projectStore: ProjectStoreLike): string => {
-  if (projectStore.GET_DEFAULT_DIRECTORY) return projectStore.GET_DEFAULT_DIRECTORY()
-  const openedFolder = projectStore.projectTree
-  if (openedFolder) {
-    return openedFolder.pathname ?? ''
-  }
-  return ''
-}
 
 
 interface ApplicationMenuState {
@@ -2246,124 +1591,4 @@ export const createSelectionFormatState = (formats: SelectionFormat[]): Record<s
     if (key) state[key] = true
   }
   return state
-}
-
-/*
- * Convert a Pinia Proxy Object to a serializable value by applying JSON stringify and parse.
- */
-function toSerializableValue<T>(value: T | null | undefined, fallback: T): T
-function toSerializableValue<T>(value: T | null | undefined, fallback: null): T | null
-function toSerializableValue<T>(value: T | null | undefined, fallback: T | null = null): T | null {
-  if (value == null) return fallback
-
-  try {
-    return deepClone(value) as T
-  } catch (err) {
-    console.warn('Unable to serialize editor buffer value:', err)
-    return fallback
-  }
-}
-
-interface BufferedTabState {
-  readOnly?: boolean
-  diskMissing?: boolean
-  diskConflict?: boolean
-  isPendingCreation?: boolean
-  id: string
-  pathname: string
-  filename: string
-  markdown: string
-  isSaved: boolean
-  encoding: IFileState['encoding']
-  lineEnding: IFileState['lineEnding']
-  trimTrailingNewline: number
-  adjustLineEndingOnSave: boolean
-  cursor: unknown
-  wordCount: IFileState['wordCount']
-  muyaIndexCursor: unknown
-  scrollTop: number
-}
-
-const createBufferedTabState = (tab: Partial<IFileState> & { id: string }): BufferedTabState => {
-  return {
-    readOnly: typeof tab.readOnly === 'boolean' ? tab.readOnly : undefined,
-    diskMissing: tab.diskMissing,
-    diskConflict: tab.diskConflict,
-    id: tab.id,
-    pathname: tab.pathname ?? defaultFileState.pathname,
-    filename: tab.filename ?? defaultFileState.filename,
-    markdown: typeof tab.markdown === 'string' ? tab.markdown : defaultFileState.markdown,
-    isPendingCreation: tab.isPendingCreation,
-    isSaved: tab.isSaved ?? defaultFileState.isSaved,
-    encoding: toSerializableValue(tab.encoding, defaultFileState.encoding),
-    lineEnding: tab.lineEnding ?? defaultFileState.lineEnding,
-    trimTrailingNewline:
-      typeof tab.trimTrailingNewline === 'number'
-        ? tab.trimTrailingNewline
-        : defaultFileState.trimTrailingNewline,
-    adjustLineEndingOnSave: tab.adjustLineEndingOnSave ?? defaultFileState.adjustLineEndingOnSave,
-    cursor: toSerializableValue(tab.cursor, defaultFileState.cursor),
-    wordCount: toSerializableValue(tab.wordCount, defaultFileState.wordCount),
-    muyaIndexCursor: toSerializableValue(tab.muyaIndexCursor, defaultFileState.muyaIndexCursor),
-    scrollTop: tab.scrollTop ?? defaultFileState.scrollTop
-  }
-}
-
-interface BufferedRestoreWarning {
-  tabId: string | null
-  pathname: string
-  msg: string
-  showConfirm: boolean
-  style: string
-  exclusiveType: string
-}
-
-const createBufferedRestoreWarning = (
-  warning: RestoreWarning | null | undefined
-): BufferedRestoreWarning | null => {
-  if (!warning) return null
-
-  const { tabId, pathname, msg, showConfirm, style, exclusiveType } = warning
-  if (!tabId && !pathname) return null
-  if (!msg) return null
-
-  return {
-    tabId: tabId || null,
-    pathname: pathname || '',
-    msg,
-    showConfirm: !!showConfirm,
-    style: style || 'info',
-    exclusiveType: exclusiveType || ''
-  }
-}
-
-interface BufferedEditorState {
-  currentFileId: string | null
-  tabs: BufferedTabState[]
-  restoreWarnings: BufferedRestoreWarning[]
-}
-
-const createBufferedEditorState = (state: unknown): BufferedEditorState | null => {
-  const s = state as
-    | {
-      tabs?: unknown
-      currentFileId?: string
-      currentFile?: { id?: string } | null
-      restoreWarnings?: unknown
-    }
-    | null
-    | undefined
-  if (!s || !Array.isArray(s.tabs)) {
-    return null
-  }
-
-  return {
-    currentFileId: s.currentFileId || s.currentFile?.id || null,
-    tabs: (s.tabs as Array<Partial<IFileState> & { id: string }>).map(createBufferedTabState),
-    restoreWarnings: Array.isArray(s.restoreWarnings)
-      ? (s.restoreWarnings as RestoreWarning[])
-        .map(createBufferedRestoreWarning)
-        .filter((w): w is BufferedRestoreWarning => w !== null)
-      : []
-  }
 }

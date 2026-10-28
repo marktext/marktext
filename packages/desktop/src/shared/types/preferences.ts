@@ -177,13 +177,6 @@ export const RECOVERY_DEFAULTS: RecoveryPreferences = {
   restoreViewState: true
 }
 
-export interface LayoutState {
-  rightColumn: 'files' | 'search'
-  showSideBar: boolean
-  showTabBar: boolean
-  [key: string]: unknown
-}
-
 export type PreferenceUpdateResult =
   | { status: 'persisted'; preferences: UserPreferences }
   | { status: 'failed'; reason: 'invalid-data' | 'storage-unavailable' }

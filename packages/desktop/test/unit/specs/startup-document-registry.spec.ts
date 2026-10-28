@@ -36,6 +36,65 @@ const metadata = (snapshot: DocumentSnapshot): RendererDocumentCheckpoint => ({
 })
 
 describe('document identity and content lifecycle', () => {
+  it('relocates dirty text without changing identity, revision or the original disk baseline', () => {
+    const { registry, snapshot, windowId } = registration(true)
+    const baseline = registry.baseline(snapshot.id)
+    registry.apply([
+      registry.prepare(
+        windowId,
+        { ...metadata(snapshot), content: { kind: 'recovery', contentRevision: 1 } },
+        { documentId: snapshot.id, contentRevision: 1, markdown: 'Edited' }
+      )
+    ])
+    const location = createFileLocation('renamed.md')
+    registry.relocate(snapshot.id, location, 'renamed.md')
+    expect(registry.get(snapshot.id)).toMatchObject({
+      id: snapshot.id,
+      title: 'renamed.md',
+      resource: { location },
+      content: { kind: 'recovery', contentRevision: 1 }
+    })
+    expect(registry.baseline(snapshot.id)).toEqual(baseline)
+    expect(registry.pendingRecords(10)).toMatchObject([
+      { status: 'dirty', markdown: 'Edited', baseline, document: { resource: { location } } }
+    ])
+  })
+  it('accepts a verified external reload as clean without treating it as an unsaved edit', () => {
+    const { registry, snapshot, windowId } = registration(true)
+    const external: DocumentSnapshot = {
+      ...snapshot,
+      content: {
+        kind: 'disk',
+        baseline: { exists: true, sizeBytes: 8, mtimeMs: 30, rawSha256: contentSha256('External') }
+      }
+    }
+    registry.observeDisk(snapshot.id, external, 'External')
+    registry.apply([
+      registry.prepare(
+        windowId,
+        { ...metadata(snapshot), content: { kind: 'recovery', contentRevision: 1 } },
+        { documentId: snapshot.id, contentRevision: 1, markdown: 'External' }
+      )
+    ])
+    expect(registry.get(snapshot.id).content).toEqual(external.content)
+    expect(registry.baseline(snapshot.id)).toEqual(
+      external.content.kind === 'disk' ? external.content.baseline : null
+    )
+  })
+  it('retains the last text for a deleted disk file even without a new content revision', () => {
+    const { registry, snapshot, windowId } = registration(true)
+    registry.observeDisk(snapshot.id, null)
+    registry.apply([
+      registry.prepare(windowId, {
+        ...metadata(snapshot),
+        content: { kind: 'recovery', contentRevision: 0 }
+      })
+    ])
+    expect(registry.pendingRecords(10)).toMatchObject([
+      { status: 'dirty', markdown: 'Original', contentRevision: 0 }
+    ])
+    expect(() => registry.prepareClose(snapshot.id, false, 10)).toThrow(/unsaved/i)
+  })
   it('protects ownership and rejects a clean claim without matching saved text', () => {
     const { registry, snapshot, windowId } = registration(true)
     const update = registry.prepare(
@@ -300,4 +359,41 @@ describe('document identity and content lifecycle', () => {
     expect(registry.pendingRecords(10)).toMatchObject([{ status: 'dirty', markdown: '' }])
     expect(() => registry.prepareClose(snapshot.id, false, 10)).toThrow(/unsaved/i)
   })
+})
+
+it('keeps the accepted external baseline when reload and undo happen before the next checkpoint', () => {
+  const { registry, snapshot, windowId } = registration(true)
+  const baseline = {
+    exists: true as const,
+    rawSha256: contentSha256('External'),
+    sizeBytes: 8,
+    mtimeMs: 20
+  }
+  registry.observeDisk(
+    snapshot.id,
+    { ...snapshot, content: { kind: 'disk', baseline } },
+    'External'
+  )
+  registry.apply([
+    registry.prepare(windowId, {
+      ...metadata(snapshot),
+      content: { kind: 'recovery', contentRevision: 0 },
+      acceptedDiskSha256: baseline.rawSha256
+    })
+  ])
+  expect(registry.get(snapshot.id).content.kind).toBe('recovery')
+  expect(registry.baseline(snapshot.id)).toEqual(baseline)
+  expect(registry.pendingRecords(30)).toMatchObject([
+    { status: 'dirty', markdown: 'Original', baseline }
+  ])
+  const record = registry.pendingRecords(30)[0]
+  registry.settle(record)
+  registry.apply([
+    registry.prepare(windowId, {
+      ...metadata(snapshot),
+      content: { kind: 'recovery', contentRevision: 0 },
+      acceptedDiskSha256: baseline.rawSha256
+    })
+  ])
+  expect(registry.pendingRecords(40)).toEqual([])
 })

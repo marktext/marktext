@@ -7,8 +7,8 @@ import { launchElectron } from './helpers'
 test('CLI opens a named buffer without writing until Save (#2143)', async() => {
   const directory = mkdtempSync(path.join(tmpdir(), 'marktext-2143-e2e-'))
   const pathname = path.join(directory, 'first.md')
-  const { app, page } = await launchElectron([pathname], {
-    preferences: { openFilesInNewWindow: false, autoSave: false, tabBarVisibility: true }
+  const { app, page } = await launchElectron([pathname], { windowLayout: { showTabBar: true },
+    preferences: { openFilesInNewWindow: false, autoSave: false,}
   })
   try {
     await expect(page.locator('.tabs-container > li').filter({ hasText: 'first.md' })).toHaveCount(

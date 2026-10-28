@@ -1,3 +1,4 @@
+import type { UserPreferences } from '@shared/types/preferences'
 import { useEditorStore } from './editor'
 import { defineStore } from 'pinia'
 import bus from '../bus'
@@ -5,7 +6,6 @@ import { setLanguage } from '../i18n'
 
 export type EndOfLine = 'default' | 'lf' | 'crlf'
 export type TitleBarStyle = 'custom' | 'native'
-export type StartUpAction = 'restoreAll' | 'lastSession' | 'blank'
 export type TextDirection = 'ltr' | 'rtl'
 export type BulletListMarker = '*' | '+' | '-'
 export type OrderListDelimiter = '.' | ')'
@@ -30,10 +30,9 @@ export interface PreferencesState {
   fileSortBy: FileSortBy | string
   fileSortOrder: FileSortOrder | string
   defaultOpenMode: 'edit' | 'read'
-  startUpAction: StartUpAction | string
+  startUpAction: UserPreferences['startUpAction']
   restoreLayoutState: boolean
   defaultDirectoryToOpen: string
-  lastOpenedFolder: string
   treePathExcludePatterns: string[]
   language: string
   showPandocConvert: boolean
@@ -102,9 +101,6 @@ export interface PreferencesState {
   spellcheckerNoUnderline: boolean
   spellcheckerLanguage: string
 
-  tocVisibility: boolean
-  sideBarVisibility: boolean
-  tabBarVisibility: boolean
   sourceCodeModeEnabled: boolean
   openedFilesInSidebar: boolean
   autoRevealInSidebar: boolean
@@ -161,7 +157,6 @@ export const usePreferencesStore = defineStore('preferences', {
     startUpAction: 'restoreAll',
     restoreLayoutState: true,
     defaultDirectoryToOpen: '',
-    lastOpenedFolder: '',
     treePathExcludePatterns: [],
     language: 'en',
     showPandocConvert: false,
@@ -230,9 +225,6 @@ export const usePreferencesStore = defineStore('preferences', {
     spellcheckerNoUnderline: false,
     spellcheckerLanguage: 'en-US',
 
-    tocVisibility: true,
-    sideBarVisibility: false,
-    tabBarVisibility: false,
     sourceCodeModeEnabled: false,
     openedFilesInSidebar: true,
     autoRevealInSidebar: true,
@@ -245,7 +237,6 @@ export const usePreferencesStore = defineStore('preferences', {
     searchFollowSymlinks: true,
 
     watcherUsePolling: false,
-
 
     // Edit modes of the current window (not part of persistent settings)
     typewriter: false, // typewriter mode
@@ -322,10 +313,6 @@ export const usePreferencesStore = defineStore('preferences', {
 
     SET_IMAGE_FOLDER_PATH(value?: string): void {
       window.electron.ipcRenderer.send('mt::ask-for-modify-image-folder-path', value)
-    },
-
-    SELECT_DEFAULT_DIRECTORY_TO_OPEN(): void {
-      window.electron.ipcRenderer.send('mt::select-default-directory-to-open')
     },
 
     LISTEN_FOR_VIEW(): void {

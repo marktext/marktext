@@ -1,3 +1,4 @@
+import type { IpcMainEventChannels } from '../../src/shared/types/ipc'
 import { expect } from '@playwright/test'
 import { _electron, type ElectronApplication, type Page } from 'playwright'
 import * as fs from 'node:fs'
@@ -53,6 +54,8 @@ export interface LaunchResult {
 }
 
 export interface LaunchOptions {
+  windowLayout?: { showSideBar?: boolean; showTabBar?: boolean }
+  userDataDir?: string
   // When true, sets MARKTEXT_ERROR_INTERACTION=1 in the launch env so
   // src/main/exceptionHandler.ts suppresses the modal "Unexpected error"
   // dialog. Only crash-guard specs that explicitly call expectNoRendererErrors
@@ -76,7 +79,7 @@ export const launchElectron = async(
   const executablePath = getElectronPath()
   // Pass project root as entry so Electron reads package.json and getAppPath() returns project root.
   // Passing out/main/index.js directly bypasses package.json and breaks __static path resolution.
-  const userDataDir = trackTempDir(getTempPath())
+  const userDataDir = options.userDataDir ?? trackTempDir(getTempPath())
   if (options.preferences) {
     fs.mkdirSync(userDataDir, { recursive: true })
     fs.writeFileSync(
@@ -88,6 +91,7 @@ export const launchElectron = async(
   if (options.userDataFiles) {
     fs.mkdirSync(userDataDir, { recursive: true })
     for (const [fileName, content] of Object.entries(options.userDataFiles)) {
+      fs.mkdirSync(path.dirname(path.join(userDataDir, fileName)), { recursive: true })
       fs.writeFileSync(path.join(userDataDir, fileName), content, 'utf-8')
     }
   }
@@ -114,6 +118,17 @@ export const launchElectron = async(
   const page = await app.firstWindow()
   await page.waitForLoadState('domcontentloaded')
   await new Promise((resolve) => setTimeout(resolve, 500))
+  if (options.windowLayout) {
+    await page.waitForFunction(() => {
+      const root = document.querySelector('#app') as Element & {
+        __vue_app__?: {
+          config: { globalProperties: { $pinia: { _s: Map<string, { currentFile?: unknown }> } } }
+        }
+      }
+      return !!root?.__vue_app__?.config.globalProperties.$pinia._s.get('editor')?.currentFile
+    })
+    await sendIpcToRenderer(app, 'mt::set-view-layout', options.windowLayout)
+  }
   return { app, page }
 }
 
@@ -162,7 +177,9 @@ export const clearRendererErrors = async(app: ElectronApplication): Promise<void
 export const expectNoRendererErrors = async(app: ElectronApplication): Promise<void> => {
   const errors = await getRendererErrors(app)
   if (errors.length > 0) {
-    const summary = errors.map((e) => `- ${e.name ?? 'Error'}: ${e.message}\n${e.stack ?? ''}`).join('\n\n')
+    const summary = errors
+      .map((e) => `- ${e.name ?? 'Error'}: ${e.message}\n${e.stack ?? ''}`)
+      .join('\n\n')
     throw new Error(`Expected no renderer errors, captured ${errors.length}:\n\n${summary}`)
   }
   expect(errors.length).toBe(0)
@@ -236,6 +253,21 @@ export const waitForEditor = async(page: Page, timeout = 15000): Promise<void> =
   )
 }
 
+export const delaySessionStateWrites = async(app: ElectronApplication, delayMs: number): Promise<void> => {
+  await app.evaluate(({ ipcMain }, milliseconds) => {
+    const filesystem = process.getBuiltinModule('fs') as typeof fs
+    const rename = filesystem.rename
+    filesystem.rename = ((source, target, callback) => {
+      if (String(target).endsWith('application-state.json')) {
+        ipcMain.emit('test-session-state-write', source)
+        setTimeout(() => rename(source, target, callback), milliseconds)
+      } else {
+        rename(source, target, callback)
+      }
+    }) as typeof rename
+  }, delayMs)
+}
+
 /**
  * Opens `root` as the project folder of the running window and waits until
  * `marker` (a markdown file inside `root`) appears in the tree.
@@ -280,8 +312,7 @@ export const enterSourceMode = async(page: Page, app: ElectronApplication): Prom
   await page.waitForFunction(
     () => {
       const cm = document.querySelector('.source-code .CodeMirror') as
-        | (Element & { CodeMirror?: unknown })
-        | null
+        (Element & { CodeMirror?: unknown }) | null
       return cm && cm.CodeMirror
     },
     null,
@@ -298,18 +329,14 @@ export const exitSourceMode = async(page: Page, app: ElectronApplication): Promi
   })
 }
 
-export const getMarkdownContent = async(
-  page: Page,
-  app: ElectronApplication
-): Promise<string> => {
+export const getMarkdownContent = async(page: Page, app: ElectronApplication): Promise<string> => {
   const wasInSource = await page.evaluate(
     () => !!document.querySelector('.source-code .CodeMirror')
   )
   if (!wasInSource) await enterSourceMode(page, app)
   const value = await page.evaluate(() => {
     const cm = document.querySelector('.source-code .CodeMirror') as
-      | (Element & { CodeMirror?: { getValue(): string } })
-      | null
+      (Element & { CodeMirror?: { getValue(): string } }) | null
     return cm && cm.CodeMirror ? cm.CodeMirror.getValue() : ''
   })
   if (!wasInSource) await exitSourceMode(page, app)
@@ -376,8 +403,7 @@ export const setSourceMarkdown = async(
   await enterSourceMode(page, app)
   await page.evaluate((value) => {
     const cm = document.querySelector('.source-code .CodeMirror') as
-      | (Element & { CodeMirror?: { setValue(v: string): void } })
-      | null
+      (Element & { CodeMirror?: { setValue(v: string): void } }) | null
     if (cm && cm.CodeMirror) cm.CodeMirror.setValue(value)
   }, markdown)
   await exitSourceMode(page, app)
@@ -416,10 +442,10 @@ export const launchWithMarkdown = async(
   return { app, page, filePath }
 }
 
-export const sendIpcToRenderer = async(
+export const sendIpcToRenderer = async<K extends keyof IpcMainEventChannels>(
   app: ElectronApplication,
-  channel: string,
-  ...args: unknown[]
+  channel: K,
+  ...args: IpcMainEventChannels[K]
 ): Promise<void> => {
   await app.evaluate(
     ({ BrowserWindow }, payload) => {
@@ -432,7 +458,7 @@ export const sendIpcToRenderer = async(
 
 export const makeRoomForOutline = async(app: ElectronApplication, page: Page): Promise<void> => {
   const window = await app.browserWindow(page)
-  await window.evaluate(window => {
+  await window.evaluate((window) => {
     const [, height] = window.getContentSize()
     window.setContentSize(1600, height)
   })

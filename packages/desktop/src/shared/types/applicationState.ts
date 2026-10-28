@@ -1,3 +1,5 @@
+import type { ProjectRootsSnapshot } from './project'
+
 import type { PreferenceUpdateResult, UserPreferences, UserPreferencesPatch } from './preferences'
 import type { DocumentViewState, DiskBaseline, SaveFormatState } from './files'
 /** UUID of a native editor window; independent of Electron process IDs. */
@@ -220,6 +222,7 @@ export interface RuntimeWindowContext {
 /** Renderer-editable document fields; resource paths and titles remain main-owned. */
 export interface RendererDocumentCheckpoint {
   id: DocumentId
+  acceptedDiskSha256?: Sha256
   content: DocumentContentState
   readOnly: boolean
   saveFormat: SaveFormatState
@@ -245,11 +248,14 @@ export interface WindowCheckpointRequest {
   documents: RendererDocumentCheckpoint[]
   activeDocumentId: DocumentId | null
   dirtyContents: DirtyContentUpdate[]
+  previewDocumentId?: DocumentId | null
 }
 
 /** Metadata revision durably committed by this operation. */
 export interface PersistReceipt {
   metadataRevision: number
+  // Authoritative document metadata corresponding to the committed revision.
+  documents?: DocumentSnapshot[]
 }
 
 /** Operational failures; unsupported disk formats are reported by LoadResult instead. */
@@ -271,34 +277,62 @@ export interface WindowInitialization {
   snapshot: WindowSnapshot
   // Runtime text also includes clean documents whose revisions survived a renderer reload.
   documentContents: DirtyContentUpdate[]
+  projectRoots?: ProjectRootsSnapshot
+  persistenceAvailable?: boolean
+  startupWarning?: string
+  documentStatuses?: Array<{ documentId: string; diskMissing: boolean; diskConflict: boolean }>
 }
 
+/** Native document registration delivered before the renderer can edit or checkpoint it. */
+export interface ManagedDocumentPayload {
+  document: DocumentSnapshot
+  markdown: string
+  contentRevision: number
+  selected: boolean
+  options?: { preview?: boolean; requestId?: number; anchor?: string }
+  replacedDocumentIds?: DocumentId[]
+}
+
+/** A successful disk save includes its captured text and format, even if newer edits remain. */
+export type ManagedSaveResult =
+  | { status: 'saved'; document: DocumentSnapshot; savedMarkdown: string; savedFormat: SaveFormatState; metadataRevision: number }
+  | { status: 'canceled' | 'failed' }
+
+/** Registration failure leaves renderer membership unchanged. */
 export type RegisterUntitledResult =
   | { status: 'registered'; document: DocumentSnapshot }
   | { status: 'failed'; reason: PersistenceFailure }
 
+/** Request/response operations; the native sender determines window ownership. */
 export interface StateIpcInvokeChannels {
   'mt::state::get-window-initialization': {
     args: []
     ret: WindowInitialization
   }
   'mt::state::register-untitled': {
-    args: [request: { contextToken: string; title: string }]
+    args: [request: { contextToken: string; title: string; markdown?: string; selected?: boolean }]
     ret: RegisterUntitledResult
   }
   'mt::state::checkpoint': {
     args: [request: WindowCheckpointRequest]
     ret: PersistResult
   }
-  'mt::state::flush': { args: [contextToken: string]; ret: PersistResult }
   'mt::preferences::get': { args: []; ret: UserPreferences }
   'mt::preferences::update': {
     args: [patch: UserPreferencesPatch]
     ret: PreferenceUpdateResult
   }
+  'mt::preferences::choose-directory': { args: []; ret: string | null }
+  'mt::state::save-document': { args: [contextToken: string, documentId: string, saveAs: boolean]; ret: ManagedSaveResult }
+  'mt::state::close-documents': { args: [contextToken: string, documentIds: string[]]; ret: { status: 'closed' | 'canceled' | 'failed' } }
 }
 
+/** Native state notifications; renderer revisions guard against out-of-order delivery. */
 export interface StateIpcMainEvents {
+  'mt::state::document-relocated': [document: DocumentSnapshot, metadataRevision: number]
+  'mt::state::document-opened': [payload: ManagedDocumentPayload]
+  'mt::state::documents-ended': [documentIds: string[]]
+  'mt::state::document-saved': [result: Extract<ManagedSaveResult, { status: 'saved' }>]
   'mt::preferences::changed': [preferences: UserPreferences]
   'mt::state::prepare-close': [request: { contextToken: string; transactionId: string }]
   'mt::state::context-changed': [initialization: WindowInitialization]
@@ -342,7 +376,29 @@ export interface DocumentRecoveryStorage {
   remove(windowId: WindowStateId, documentId: DocumentId): Promise<void>
 }
 
-export interface WindowStateProvider {
-  get(windowId: WindowStateId): WindowSnapshot | null
-  update(snapshot: WindowSnapshot): void
+/** Trusted loader observations; original and currently observed disk contents may differ. */
+export interface DocumentRegistration {
+  contentRevision?: number
+  // Original disk state before the recovered edits were made.
+  baseline?: DiskBaseline | null
+  // Latest verified disk content for undo and conflict checks.
+  saved?: { snapshot: DocumentSnapshot; markdown: string }
+}
+
+/** Initial live text plus trusted observations for one registered editing instance. */
+export interface RegisteredDocumentContent extends DocumentRegistration {
+  documentId: string
+  markdown: string
+}
+
+/** Resolved native startup inputs, before creating or binding an Electron window. */
+export interface PreparedSessionWindow {
+  snapshot: WindowSnapshot
+  contents: RegisteredDocumentContent[]
+  restoreGeometry: boolean
+  statuses: NonNullable<WindowInitialization['documentStatuses']>
+  // False when every ordinary file disappeared and no workspace remains to open.
+  openable: boolean
+  // Explicit user targets added to native recent items; restoration does not add entries.
+  rememberPaths?: string[]
 }

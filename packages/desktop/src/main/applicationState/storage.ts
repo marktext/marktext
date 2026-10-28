@@ -1,5 +1,5 @@
 import { RecoveryStatus } from '@shared/types/applicationState'
-import { readdir } from 'node:fs/promises'
+import { readdir, rmdir } from 'node:fs/promises'
 import path from 'node:path'
 import { createEmptyApplicationState } from '@shared/applicationState/defaults'
 import type {
@@ -35,11 +35,18 @@ export class ApplicationStateStore implements ApplicationStateStorage {
 
 export class RecoveryStore implements DocumentRecoveryStorage {
   private readonly _files = new Map<string, AtomicJsonFile<RecoveryRecord | null>>()
+  private _pending: Promise<void> = Promise.resolve()
 
   constructor(
     private readonly _userDataPath: string,
     private readonly _hooks: StorageHooks = {}
   ) {}
+
+  private _enqueue(operation: () => Promise<void>): Promise<void> {
+    const task = this._pending.then(operation)
+    this._pending = task.catch(() => {})
+    return task
+  }
 
   private _pathname(windowId: string, documentId: string): string {
     if (!validIdentity(windowId) || !validIdentity(documentId))
@@ -88,13 +95,24 @@ export class RecoveryStore implements DocumentRecoveryStorage {
   }
 
   async write(record: RecoveryRecord): Promise<void> {
-    const parsed = parseRecoveryRecord(record)
-    await this._file(parsed.ownerWindowId, parsed.documentId).write(parsed)
+    const parsed = parseRecoveryRecord(structuredClone(record))
+    await this._enqueue(() => this._file(parsed.ownerWindowId, parsed.documentId).write(parsed))
   }
 
   async remove(windowId: string, documentId: string): Promise<void> {
-    await this._file(windowId, documentId).remove((record) => {
-      if (record?.status === RecoveryStatus.DIRTY) throw new Error('Cannot delete a dirty recovery record')
+    const pathname = this._pathname(windowId, documentId)
+    await this._enqueue(async() => {
+      await this._file(windowId, documentId).remove((record) => {
+        if (record?.status === RecoveryStatus.DIRTY)
+          throw new Error('Cannot delete a dirty recovery record')
+      })
+      // Serialize with all recovery writes so mkdir cannot race removal of its parent.
+      try {
+        await rmdir(path.dirname(pathname))
+      } catch (error) {
+        const code = (error as NodeJS.ErrnoException).code
+        if (code !== 'ENOENT' && code !== 'ENOTEMPTY' && code !== 'EEXIST') throw error
+      }
     })
   }
 }

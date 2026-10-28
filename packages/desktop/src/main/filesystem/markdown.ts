@@ -10,6 +10,8 @@ import { normalizeAndResolvePath, writeFile } from '../filesystem'
 import { guessEncoding } from './encoding'
 import { getEncodingName, type Encoding } from 'common/encoding'
 import type { LineEnding } from '@shared/types/files'
+import type { DiskBaseline } from '@shared/types/files'
+import { contentSha256 } from 'common/filesystem'
 
 interface MarkdownDocumentOptions {
   adjustLineEndingOnSave: boolean
@@ -18,6 +20,7 @@ interface MarkdownDocumentOptions {
 }
 
 interface MarkdownDocumentRaw {
+  rawBaseline: DiskBaseline
   isPendingCreation?: boolean
   markdown: string
   filename: string
@@ -116,6 +119,7 @@ export const loadCliMarkdownFile = async(
       pathname,
       filename: path.basename(pathname),
       markdown: '',
+      rawBaseline: { exists: false },
       isPendingCreation: true,
       encoding: { encoding: defaultEncoding, isBom: false },
       lineEnding: args[0],
@@ -126,6 +130,7 @@ export const loadCliMarkdownFile = async(
   }
 }
 
+/** Writes the confirmed pathname verbatim; extension defaults belong in the save dialog. */
 export const writeMarkdownFile = (
   pathname: string,
   content: string,
@@ -133,7 +138,6 @@ export const writeMarkdownFile = (
 ): Promise<void> => {
   const { adjustLineEndingOnSave, lineEnding } = options
   const { encoding, isBom } = options.encoding
-  const extension = path.extname(pathname) || '.md'
 
   if (adjustLineEndingOnSave) {
     content = convertLineEndings(content, lineEnding)
@@ -154,7 +158,7 @@ export const writeMarkdownFile = (
     return Promise.reject(error)
   }
 
-  return writeFile(pathname, buffer, extension, undefined)
+  return writeFile(pathname, buffer)
 }
 
 export const loadMarkdownFile = async(
@@ -168,6 +172,7 @@ export const loadMarkdownFile = async(
   //       encoding on the first 256/512 bytes.
 
   const buffer = await fsPromises.readFile(path.resolve(pathname))
+  const diskStat = await fsPromises.stat(path.resolve(pathname))
 
   const encoding = guessEncoding(buffer, autoGuessEncoding)
   const supported = iconv.encodingExists(encoding.encoding)
@@ -216,6 +221,7 @@ export const loadMarkdownFile = async(
 
   return {
     markdown,
+    rawBaseline: { exists: true, sizeBytes: buffer.byteLength, mtimeMs: diskStat.mtimeMs, rawSha256: contentSha256(buffer) },
     filename,
     pathname,
     encoding,

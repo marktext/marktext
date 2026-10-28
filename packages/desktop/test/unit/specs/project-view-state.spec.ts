@@ -10,7 +10,7 @@ const { listeners } = vi.hoisted(() => {
   return { listeners: new Map<string, (...args: unknown[]) => void>() }
 })
 vi.mock('@/services/notification', () => ({ default: { notify: vi.fn() } }))
-vi.mock('@/store/bufferedState', () => ({ debouncedSendBufferedState: vi.fn() }))
+vi.mock('@/store/checkpoint', () => ({ scheduleWindowCheckpoint: vi.fn() }))
 import { useProjectStore } from '@/store/project'
 
 const workspace: WorkspaceDescriptor = {
@@ -56,6 +56,14 @@ const addDirectory = (pathname: string) =>
     change: { pathname }
   })
 describe('workspace-root view state', () => {
+  it('keeps a fresh workspace root expanded and lazy descendants collapsed without historical state', () => {
+    const store = initialize()
+    store.RESTORE_PROJECT_VIEW(workspace, { roots: [] })
+    addDirectory('/a/notes')
+    expect(store.roots[0].tree.isCollapsed).toBe(false)
+    expect(store.roots[0].tree.folders[0].isCollapsed).toBe(true)
+    expect(store.restoringSession).toBe(false)
+  })
   it('matches a displayed alias through the native canonical root key', () => {
     const store = useProjectStore()
     store.APPLY_ROOTS({ revision: 1, reason: 'restore', roots: [{ key: '/a', pathname: '/alias-a', watchToken: 'alias', status: 'loading' }] })
@@ -92,6 +100,6 @@ describe('workspace-root view state', () => {
       { rootId: 'b-id', collapsedPaths: [] }
     ])
     store.RESTORE_PROJECT_VIEW(workspace, { roots: [] })
-    expect(store.roots[0].tree.folders[0].isCollapsed).toBe(false)
+    expect(store.roots[0].tree.folders[0].isCollapsed).toBe(true)
   })
 })

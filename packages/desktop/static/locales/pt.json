@@ -524,10 +524,6 @@
       },
       "startup": {
         "title": "Inicialização",
-        "layoutOptions": "Opções de layout",
-        "startupFilesFolders": "Arquivos/pastas de inicialização",
-        "restorePreviousState": "Restaurar estado anterior do editor",
-        "openBlankState": "Abrir estado em branco",
         "openDefaultDirectory": "Abrir a pasta selecionada",
         "openLastFolder": "Abrir o último espaço de trabalho",
         "restoreAll": "Restaurar todas as janelas",

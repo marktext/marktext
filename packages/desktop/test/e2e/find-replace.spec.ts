@@ -117,10 +117,7 @@ const closeAndReset = async(page: Page): Promise<void> => {
   await expect.poll(() => page.locator('.mu-selection').count()).toBe(0)
 }
 
-// Seed the document content for a test and mark the tab clean (records the
-// current history entry as `lastSavedHistoryId` + clears the dirty flag), so a
-// subsequent edit's effect on the unsaved indicator is observed from a known
-// clean baseline. Mirrors the real post-save IPC the main process sends.
+// Save the seeded text so later edits are checked against a real disk baseline.
 const seedDocClean = async(
   app: ElectronApplication,
   page: Page,
@@ -129,11 +126,7 @@ const seedDocClean = async(
   await closeAndReset(page)
   await setSourceMarkdown(page, app, markdown)
   await page.waitForTimeout(400)
-  const tabId = await page.evaluate(
-    () => document.querySelector('.editor-tabs li.active')?.getAttribute('data-id') ?? null
-  )
-  if (!tabId) throw new Error('could not resolve the active tab id')
-  await sendIpcToRenderer(app, 'mt::tab-saved', tabId)
+  await sendIpcToRenderer(app, 'mt::editor-ask-file-save')
   await expect.poll(() => isTabDirty(page)).toBe(false)
 }
 
@@ -226,7 +219,7 @@ test.describe('Find bar — option toggles re-run the search (items 185, 186, 18
   let page: Page
 
   test.beforeAll(async() => {
-    const launched = await launchWithMarkdown('placeholder\n')
+    const launched = await launchWithMarkdown('placeholder\n', { preferences: { language: 'en' } })
     app = launched.app
     page = launched.page
     await focusEditor(page)
@@ -315,7 +308,7 @@ test.describe('Find bar — replace single / all dirty the tab (items 153, 183, 
   let page: Page
 
   test.beforeAll(async() => {
-    const launched = await launchWithMarkdown('placeholder\n')
+    const launched = await launchWithMarkdown('placeholder\n', { preferences: { language: 'en' } })
     app = launched.app
     page = launched.page
     await focusEditor(page)

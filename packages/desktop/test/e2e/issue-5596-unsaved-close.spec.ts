@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { _electron, type ElectronApplication, type Page } from 'playwright'
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { enterSourceMode, getElectronPath, launchElectron, setSourceMarkdown, typeIntoEditor, waitForEditor } from './helpers'
@@ -37,11 +37,15 @@ const readTabs = (page: Page): Promise<TabSnapshot[]> => page.evaluate(() => {
 })
 
 const snapshots = (profile: string): TabSnapshot[] => {
-  const directory = join(profile, 'editorStates')
-  if (!existsSync(directory)) return []
-  return readdirSync(directory)
-    .filter(name => name.endsWith('_editor_buffer_store.json'))
-    .flatMap(name => (JSON.parse(readFileSync(join(directory, name), 'utf8')) as { tabs: TabSnapshot[] }).tabs)
+  const pathname = join(profile, 'state', 'application-state.json')
+  if (!existsSync(pathname)) return []
+  const state = JSON.parse(readFileSync(pathname, 'utf8'))
+  return state.session.windows.flatMap((window: { id: string; documents: Array<{ id: string; title: string; resource: { kind: string; location?: { path: string } }; content: { kind: string } }> }) => window.documents.flatMap(document => {
+    const record = join(profile, 'recovery', window.id, `${document.id}.json`)
+    if (!existsSync(record)) return []
+    const value = JSON.parse(readFileSync(record, 'utf8'))
+    return value.status === 'dirty' ? [{ pathname: document.resource.location?.path ?? '', markdown: value.markdown, isSaved: false }] : []
+  }))
 }
 
 const mockDialogs = async(app: ElectronApplication, response: number, savePath: string, cancelSave = false): Promise<void> => {
@@ -70,8 +74,8 @@ const setup = async(draft: boolean) => {
   const filePath = join(directory, 'existing.md')
   const savePath = draft ? join(directory, 'saved-draft.md') : filePath
   writeFileSync(filePath, original)
-  const { app, page } = await launchElectron(draft ? [] : [filePath], {
-    preferences: { language: 'en', autoSave: false, startUpAction: 'restoreAll', defaultOpenMode: 'edit', tabBarVisibility: true }
+  const { app, page } = await launchElectron(draft ? [] : [filePath], { windowLayout: { showTabBar: true },
+    preferences: { language: 'en', autoSave: false, startUpAction: 'restoreAll', defaultOpenMode: 'edit',}
   })
   apps.push(app)
   await waitForEditor(page)
@@ -128,9 +132,10 @@ for (const draft of [false, true]) {
         return
       }
 
-      const closed = app.waitForEvent('close')
+      const closed = page.waitForEvent('close')
       await closeWindow(app)
       await closed
+      await app.evaluate(({ app }) => app.exit(0)).catch(() => {})
 
       if (response === 0) {
         expect(readFileSync(savePath, 'utf8')).toBe(expectedMarkdown)

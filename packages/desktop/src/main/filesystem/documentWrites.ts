@@ -1,5 +1,6 @@
 interface DocumentWriteState {
   readOnly: boolean
+  barriers: number
   epoch: number
   pending: Promise<unknown>
 }
@@ -12,7 +13,7 @@ export class DocumentWriteCoordinator {
     const key = `${owner}:${tabId}`
     let state = this._states.get(key)
     if (!state) {
-      state = { readOnly: false, epoch: 0, pending: Promise.resolve() }
+      state = { readOnly: false, barriers: 0, epoch: 0, pending: Promise.resolve() }
       this._states.set(key, state)
     }
     return state
@@ -20,7 +21,7 @@ export class DocumentWriteCoordinator {
 
   capture(owner: number, tabId: string): number | null {
     const state = this._state(owner, tabId)
-    return state.readOnly ? null : state.epoch
+    return state.readOnly || state.barriers > 0 ? null : state.epoch
   }
 
   async setReadOnly(owner: number, tabId: string, readOnly: boolean): Promise<void> {
@@ -28,6 +29,25 @@ export class DocumentWriteCoordinator {
     state.readOnly = readOnly
     state.epoch++
     await state.pending
+  }
+
+  /** Temporary IO barriers must not replace a user's independently changing read-only choice. */
+  async withBlockedWrites<T>(
+    owner: number,
+    tabIds: string[],
+    operation: () => Promise<T>
+  ): Promise<T> {
+    const states = [...new Set(tabIds)].map((id) => this._state(owner, id))
+    for (const state of states) {
+      state.barriers++
+      state.epoch++
+    }
+    try {
+      await Promise.all(states.map((state) => state.pending))
+      return await operation()
+    } finally {
+      for (const state of states) state.barriers--
+    }
   }
 
   async write<T>(
@@ -38,7 +58,7 @@ export class DocumentWriteCoordinator {
   ): Promise<T | undefined> {
     const state = this._state(owner, tabId)
     const accepted = state.pending.then(() => {
-      if (state.readOnly || state.epoch !== epoch) return undefined
+      if (state.readOnly || state.barriers > 0 || state.epoch !== epoch) return undefined
       return write()
     })
     state.pending = accepted.catch(() => {})

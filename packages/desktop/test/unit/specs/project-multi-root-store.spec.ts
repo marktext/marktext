@@ -8,9 +8,9 @@ vi.hoisted(() => {
 })
 
 vi.mock('@/services/notification', () => ({ default: { notify: vi.fn() } }))
-vi.mock('@/store/bufferedState', () => ({
-  debouncedSendBufferedState: vi.fn(),
-  sendBufferedState: vi.fn()
+vi.mock('@/store/checkpoint', () => ({
+  scheduleWindowCheckpoint: vi.fn(),
+  requestWindowCheckpoint: vi.fn()
 }))
 
 import { useProjectStore } from '@/store/project'
@@ -27,6 +27,14 @@ const snapshot = (
   roots: ProjectRoot[],
   reason: ProjectRootsSnapshot['reason'] = 'add'
 ): ProjectRootsSnapshot => ({ revision, roots, reason })
+
+const workspace = (...paths: string[]) => ({
+  id: 'workspace',
+  roots: paths.map(pathname => ({
+    id: pathname,
+    location: { path: pathname, canonicalPath: pathname, key: pathname }
+  }))
+})
 
 describe('multi-root renderer state (#2222)', () => {
   beforeEach(() => {
@@ -91,7 +99,7 @@ describe('multi-root renderer state (#2222)', () => {
   it('restores folded roots and descendants without resetting them on ready', () => {
     const store = useProjectStore()
     store.APPLY_ROOTS(snapshot(1, [{ ...root('/a'), status: 'loading' }], 'restore'))
-    store.RESTORE_BUFFERED_STATE({ roots: [{ pathname: '/a', collapsedPaths: ['', 'closed'] }] })
+    store.RESTORE_PROJECT_VIEW(workspace('/a'), { roots: [{ rootId: '/a', collapsedPaths: ['', 'closed'] }] })
     store.LISTEN_FOR_UPDATE_PROJECT()
     const event = listeners.get('mt::update-object-tree')!
     for (const name of ['closed', 'open']) {
@@ -103,7 +111,7 @@ describe('multi-root renderer state (#2222)', () => {
     store.APPLY_ROOTS(snapshot(2, [root('/a')], 'status'))
     expect(store.roots[0].tree.isCollapsed).toBe(true)
     expect(store.roots[0].tree.folders.map((folder) => folder.isCollapsed)).toEqual([true, false])
-    expect(store.CREATE_BUFFERED_STATE().roots[0].collapsedPaths).toEqual(['', 'closed'])
+    expect(store.CAPTURE_PROJECT_VIEW(workspace('/a')).roots[0].collapsedPaths).toEqual(['', 'closed'])
   })
 
   it('labels same-name roots distinctly and keeps unavailable-root fold data', () => {
@@ -115,11 +123,11 @@ describe('multi-root renderer state (#2222)', () => {
         'restore'
       )
     )
-    store.RESTORE_BUFFERED_STATE({
-      roots: [{ pathname: '/home/notes', collapsedPaths: ['lost-child'] }]
+    store.RESTORE_PROJECT_VIEW(workspace('/work/notes', '/home/notes'), {
+      roots: [{ rootId: '/home/notes', collapsedPaths: ['lost-child'] }]
     })
     expect(store.FILE_LABEL('/work/notes/a.md')).toContain('/work')
     expect(store.FILE_LABEL('/home/notes/a.md')).toContain('/home')
-    expect(store.CREATE_BUFFERED_STATE().roots[1].collapsedPaths).toContain('lost-child')
+    expect(store.CAPTURE_PROJECT_VIEW(workspace('/work/notes', '/home/notes')).roots[1].collapsedPaths).toContain('lost-child')
   })
 })

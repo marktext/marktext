@@ -3,7 +3,7 @@ import type { KeyboardInputEvent } from 'electron'
 import { expect, test } from '@playwright/test'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { launchWithMarkdown, sendIpcToRenderer, typeIntoEditor, toggleReadingMode } from './helpers'
+import { launchWithMarkdown, exitSourceMode, sendIpcToRenderer, typeIntoEditor, toggleReadingMode } from './helpers'
 
 test('clicking rendered diagrams while reading opens the diagram viewer and retains the lock', async() => {
   const markdown =
@@ -168,7 +168,7 @@ test('dirty buffers survive locking and other tabs stay editable', async() => {
   }
 })
 
-test('unlocking default reading stays in live editing without changing the startup source preference', async() => {
+test('unlocking default reading restores the preferred source mode without changing its startup default', async() => {
   const { app, page } = await launchWithMarkdown('# default reading\n', {
     preferences: { defaultOpenMode: 'read', sourceCodeModeEnabled: true }
   })
@@ -176,24 +176,24 @@ test('unlocking default reading stays in live editing without changing the start
     await expect(page.locator('.mu-read-only')).toBeVisible()
     await expect(page.locator('.CodeMirror')).toHaveCount(0)
     await toggleReadingMode(page)
-    await expect(page.locator('.CodeMirror')).toHaveCount(0)
+    await expect(page.locator('.CodeMirror')).toBeVisible()
     await expect(page.locator('.mu-read-only')).toHaveCount(0)
     await expect.poll(() => app.evaluate(({ Menu }) => {
       const menu = Menu.getApplicationMenu()!
       return ['sourceCodeModeMenuItem', 'focusModeMenuItem', 'typewriterModeMenuItem']
         .map((id) => menu.getMenuItemById(id)?.enabled)
-    })).toEqual([true, true, true])
+    })).toEqual([true, false, false])
     const userData = await app.evaluate(({ app }) => app.getPath('userData'))
     expect(JSON.parse(readFileSync(join(userData, 'preferences.json'), 'utf8')).sourceCodeModeEnabled).toBe(true)
     await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, 'new document\n')
-    await expect(page.locator('.CodeMirror')).toHaveCount(0)
+    await expect(page.locator('.CodeMirror')).toBeVisible()
     await expect(page.locator('.mu-read-only')).toHaveCount(0)
   } finally {
     await app.evaluate(({ app }) => app.exit(0)).catch(() => {})
   }
 })
 
-test('entering reading exits source mode and returns to live editing with the source changes intact', async() => {
+test('reading temporarily hides source mode and unlocking restores its edits and undo history', async() => {
   const { app, page, filePath } = await launchWithMarkdown('original\n', {
     preferences: { sourceCodeModeEnabled: true }
   })
@@ -207,13 +207,15 @@ test('entering reading exits source mode and returns to live editing with the so
     await expect(page.locator('.editor-component')).toContainText('source edit')
     expect(readFileSync(filePath, 'utf8')).toBe('original\n')
     await toggleReadingMode(page)
-    await expect(page.locator('.CodeMirror')).toHaveCount(0)
+    await expect(page.locator('.CodeMirror')).toBeVisible()
     await expect(page.locator('.mu-read-only')).toHaveCount(0)
     await expect(page.locator('.editor-component')).toContainText('source edit')
     await expect.poll(() => app.evaluate(({ Menu }) =>
       Menu.getApplicationMenu()?.getMenuItemById('sourceCodeModeMenuItem')?.checked
-    )).toBe(false)
+    )).toBe(true)
     await sendIpcToRenderer(app, 'mt::editor-edit-action', 'undo')
+    await expect.poll(() => page.locator('.CodeMirror').evaluate(element => (element as unknown as Element & { CodeMirror: { getValue(): string } }).CodeMirror.getValue())).not.toContain('source edit')
+    await exitSourceMode(page, app)
     await expect(page.locator('.editor-component')).not.toContainText('source edit')
     await typeIntoEditor(page, 'live edit')
     await expect(page.locator('.editor-component')).toContainText('live edit')
@@ -255,7 +257,9 @@ test('closing a locked dirty tab honors Cancel, then explicitly unlocks and save
       dialog.showMessageBox = async() => ({ response: 0, checkboxChecked: false })
     })
     await page.locator('.tabs-container li .close-icon').click()
-    await expect(page.locator('.tabs-container li')).toHaveCount(0)
+    await expect(page.locator('.tabs-container li')).toHaveCount(1)
+    await expect(page.locator('.tabs-container li')).not.toHaveAttribute('title', filePath)
+    await expect(page.locator('.tabs-container li.unsaved')).toHaveCount(0)
     expect(readFileSync(filePath, 'utf8')).toContain('retained edit')
   } finally {
     await app.evaluate(({ app }) => app.exit(0)).catch(() => {})

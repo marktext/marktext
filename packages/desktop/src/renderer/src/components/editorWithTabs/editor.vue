@@ -1104,6 +1104,11 @@ const rebuildHeadingCache = (): void => {
 // is fractional, and rounding the headings to whole pixels reports the one the
 // caret sits in as the heading above it.
 const updateActiveHeading = (viewportY: number): void => {
+  // Locale and view restoration can rebuild blocks without a content-change event.
+  if (editor.value && headingElementCache.some(({ el }) => !el.isConnected)) {
+    editorStore.REFRESH_TOC(editor.value.getTOC())
+    rebuildHeadingCache()
+  }
   if (headingElementCache.length === 0) return
   const positions: HeadingPosition[] = headingElementCache
     .filter(({ el }) => el.getClientRects().length > 0)
@@ -1616,6 +1621,7 @@ const handleLanguageChanged = (newLocale?: unknown) => {
   if (editor.value) {
     const locale = typeof newLocale === 'string' ? newLocale : language.value
     editor.value.locale(getMuyaLocale(locale))
+    editorStore.REFRESH_TOC(editor.value.getTOC())
   }
 }
 const resizeObserverForEditor = new ResizeObserver(handleResetPaddingBottom)
@@ -1788,7 +1794,7 @@ onMounted(() => {
   const container = getScrollContainer()!
   renderedDocumentId = currentFile.value?.id ?? null
   renderedMarkdown = currentFile.value?.markdown ?? ''
-  releaseViewState = registerRenderedViewState({ documentId: () => renderedDocumentId, markdown: () => renderedMarkdown, view: { engine: muya, container } })
+  releaseViewState = registerRenderedViewState({ documentId: () => renderedDocumentId, markdown: () => renderedMarkdown, view: { engine: muya, container, refreshToc: () => editorStore.UPDATE_TOC(muya.getTOC()) } })
   muya.on('selection-change', documentViewChanged)
 
   bus.on('language-changed', handleLanguageChanged)
@@ -1875,6 +1881,7 @@ onMounted(() => {
   editor.value.on(
     'heading-copy-link',
     async ({ key, onCopied }: { key: string; onCopied?: (ok: boolean) => void }) => {
+      editorStore.REFRESH_TOC(editor.value?.getTOC() ?? [])
       const ok = await editorStore.copyGithubSlug(key)
       onCopied?.(ok)
     }

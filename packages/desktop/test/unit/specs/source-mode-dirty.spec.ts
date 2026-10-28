@@ -25,11 +25,7 @@ vi.mock('@/services/notification', () => ({
 
 import { useEditorStore } from '@/store/editor'
 
-// #4455: editing in Source Code mode and closing without switching back to
-// WYSIWYG silently dropped the save prompt. Source-mode content changes reach
-// LISTEN_FOR_CONTENT_CHANGE WITHOUT an editor `history`, and the history-based
-// dirty check never flips `isSaved` (it can even reset it to true), so the
-// close path saw nothing unsaved. Decide dirty state from the content instead.
+// Source edits can lack a Muya history entry; dirty state follows text changes (#4455).
 describe('useEditorStore LISTEN_FOR_CONTENT_CHANGE — source-mode dirty tracking (#4455)', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -44,7 +40,6 @@ describe('useEditorStore LISTEN_FOR_CONTENT_CHANGE — source-mode dirty trackin
       markdown: 'hello',
       trimTrailingNewline: 0,
       isSaved: true,
-      lastSavedHistoryId: 7,
       history: { stack: [{ id: 7 }], lastEditIndex: 0, lastInitIndex: -1 }
     }
     store.tabs = [tab] as unknown as typeof store.tabs
@@ -70,7 +65,7 @@ describe('useEditorStore LISTEN_FOR_CONTENT_CHANGE — source-mode dirty trackin
     expect(tab.isSaved).toBe(true)
   })
 
-  it('leaves the WYSIWYG history-based path unchanged (history present, edit matches saved id)', () => {
+  it('marks changed text dirty even when the history stays on its initial frame', () => {
     const store = useEditorStore()
     const tab = makeSavedTab(store)
 
@@ -80,6 +75,6 @@ describe('useEditorStore LISTEN_FOR_CONTENT_CHANGE — source-mode dirty trackin
       history: { stack: [{ id: 7 }], lastEditIndex: 0, lastInitIndex: -1 } as never
     })
 
-    expect(tab.isSaved).toBe(true)
+    expect(tab.isSaved).toBe(false)
   })
 })

@@ -15,16 +15,6 @@ export const getActiveSessionWindow = (
   )
 }
 
-export const updateSessionWindow = (
-  session: SessionState,
-  snapshot: WindowSnapshot
-): SessionState => ({
-  ...session,
-  windows: session.windows.map((window) =>
-    window.id === snapshot.id ? structuredClone(snapshot) : window
-  )
-})
-
 export const activateSessionWindow = (
   session: SessionState,
   id: string,

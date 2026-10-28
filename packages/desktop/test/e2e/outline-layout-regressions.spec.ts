@@ -10,8 +10,8 @@ let app: ElectronApplication
 let page: Page
 
 test.beforeEach(async() => {
-  ;({ app, page } = await launchWithMarkdown(MARKDOWN, {
-    preferences: { language: 'en', sideBarVisibility: true, editorLineWidth: '100%' }
+  ;({ app, page } = await launchWithMarkdown(MARKDOWN, { windowLayout: { showSideBar: true },
+    preferences: { language: 'en', editorLineWidth: '100%' }
   }))
   const win = await app.browserWindow(page)
   await win.evaluate(window => window.setContentSize(1280, 800))
@@ -23,11 +23,13 @@ test.afterEach(async() => { await app?.close() })
 for (const position of ['left', 'right']) {
   test(`${position} outline preserves readable content at the minimum window width`, async() => {
     await page.evaluate(tocPosition => {
-      window.electron.ipcRenderer.send('mt::set-user-preference', { tocPosition })
+      const root = document.querySelector('#app') as Element & { __vue_app__: { config: { globalProperties: { $pinia: { _s: Map<string, { outlinePosition: string }> } } } } }
+      root.__vue_app__.config.globalProperties.$pinia._s.get('layout')!.outlinePosition = tocPosition
     }, position)
     if (position === 'right') await expect(page.locator('.document-outline')).toHaveClass(/is-right/)
     const win = await app.browserWindow(page)
     await win.evaluate(window => window.setContentSize(550, 800))
+    await expect.poll(() => page.evaluate(() => window.innerWidth)).toBe(550)
     await expect.poll(() => page.locator('.document-body').evaluate(el => el.clientWidth)).toBeGreaterThanOrEqual(320)
     const bounds = await page.evaluate(() => {
       const column = document.querySelector('.mu-container') as HTMLElement

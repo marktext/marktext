@@ -1,5 +1,5 @@
 import { registerBootInfo } from './bootInfo'
-import { registerFsHandlers } from './fs'
+import { registerFsHandlers, type FileOperations } from './fs'
 import { registerPathHandlers } from './paths'
 import { registerRipgrepHandlers } from './ripgrep'
 import { registerUploaderHandlers } from './uploader'
@@ -13,9 +13,9 @@ import { registerDiagramHandlers } from './diagram'
 import { registerLinkHtmlHandler } from './linkHtml'
 import { registerImageClipboardHandlers } from './clipboardImage'
 
-export const registerSandboxIpcHandlers = (): void => {
+export const registerSandboxIpcHandlers = (fileOperations?: FileOperations): void => {
   registerBootInfo()
-  registerFsHandlers()
+  registerFsHandlers(fileOperations)
   registerPathHandlers()
   registerRipgrepHandlers()
   registerUploaderHandlers()

@@ -21,64 +21,53 @@ interface DataCenterPaths {
 }
 
 class DataCenter extends TypedEmitter<DataCenterEvents> {
-  dataCenterPath: string
-  userDataPath: string
-  serviceName: string
-  encryptKeys: string[]
-  hasDataCenterFile: boolean
-  store: Store<Record<string, unknown>>
+  private readonly _serviceName = 'marktext'
+  private readonly _encryptKeys: string[] = []
+  private readonly _defaults: Record<string, unknown>
+  // Unavailable storage uses detached defaults without allowing writes to replace the original.
+  private readonly _store: Store<Record<string, unknown>> | null = null
 
   constructor(paths: DataCenterPaths) {
     super()
 
     const { dataCenterPath, userDataPath } = paths
-    this.dataCenterPath = dataCenterPath
-    this.userDataPath = userDataPath
-    this.serviceName = 'marktext'
-    this.encryptKeys = []
-    this.hasDataCenterFile = fs.existsSync(
-      path.join(this.dataCenterPath, `./${DATA_CENTER_NAME}.json`)
-    )
-    this.store = new Store<Record<string, unknown>>({
-      schema: schema as Schema<Record<string, unknown>>,
-      name: DATA_CENTER_NAME
-    })
-
-    this.init()
-  }
-
-  init(): void {
-    const defaultData = {
-      imageFolderPath: path.join(this.userDataPath, 'images'),
-      screenshotFolderPath: path.join(this.userDataPath, 'screenshot'),
+    this._defaults = {
+      imageFolderPath: path.join(userDataPath, 'images'),
+      screenshotFolderPath: path.join(userDataPath, 'screenshot'),
       webImages: [],
       cloudImages: [],
       currentUploader: 'picgo'
     }
-
-    if (!this.hasDataCenterFile) {
-      this.store.set(defaultData)
-      ensureDirSync(this.store.get('screenshotFolderPath') as string)
-    } else {
-      // Migrate legacy uploader values that no longer exist
-      const stored = this.store.get('currentUploader') as string | undefined
-      if (stored === 'none' || stored === 'github') {
-        this.store.set('currentUploader', 'picgo')
+    const hasDataCenterFile = fs.existsSync(path.join(dataCenterPath, `${DATA_CENTER_NAME}.json`))
+    try {
+      const store = new Store<Record<string, unknown>>({
+        schema: schema as Schema<Record<string, unknown>>,
+        name: DATA_CENTER_NAME,
+        cwd: dataCenterPath,
+        defaults: this._defaults
+      })
+      if (!hasDataCenterFile) {
+        ensureDirSync(store.get('screenshotFolderPath') as string)
+      } else {
+        const uploader = store.get('currentUploader')
+        if (uploader === 'none' || uploader === 'github') store.set('currentUploader', 'picgo')
       }
+      this._store = store
+    } catch (error) {
+      log.error('DataCenter is unavailable; using read-only defaults', error)
     }
     this._listenForIpcMain()
   }
 
   async getAll(): Promise<Record<string, unknown>> {
-    const { serviceName, encryptKeys } = this
-    const data = this.store.store
+    const data = structuredClone(this._store?.store ?? this._defaults)
     try {
       const encryptData = await Promise.all(
-        encryptKeys.map((key) => {
-          return keytar.getPassword(serviceName, key)
+        this._encryptKeys.map((key) => {
+          return keytar.getPassword(this._serviceName, key)
         })
       )
-      const encryptObj = encryptKeys.reduce<Record<string, string | null>>((acc, k, i) => {
+      const encryptObj = this._encryptKeys.reduce<Record<string, string | null>>((acc, k, i) => {
         return {
           ...acc,
           [k]: encryptData[i]
@@ -93,7 +82,8 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
   }
 
   addImage(key: string, url: string): void {
-    const items = this.store.get(key) as Array<{ url: string; timeStamp: number }>
+    if (!this._store) return
+    const items = this._store.get(key) as Array<{ url: string; timeStamp: number }>
     const alreadyHas = items.some((item) => item.url === url)
     let item
     if (alreadyHas) {
@@ -104,45 +94,49 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
       items.push(item)
     }
 
+    this._store.set(key, items)
     ipcMain.emit('broadcast-web-image-added', { type: key, item })
-    return this.store.set(key, items)
   }
 
   removeImage(type: string, url: string): unknown {
-    const items = this.store.get(type) as unknown[]
+    if (!this._store) return
+    const items = this._store.get(type) as unknown[]
     const index = items.indexOf(url)
     const item = items[index]
     if (index === -1) return
     items.splice(index, 1)
+    this._store.set(type, items)
     ipcMain.emit('broadcast-web-image-removed', { type, item })
-    return this.store.set(type, items)
   }
 
   getItem(key: string): Promise<unknown> {
-    const { encryptKeys, serviceName } = this
-    if (encryptKeys.includes(key)) {
-      return keytar.getPassword(serviceName, key)
+    if (this._encryptKeys.includes(key)) {
+      return keytar.getPassword(this._serviceName, key)
     } else {
-      const value = this.store.get(key)
+      const value = this._store ? this._store.get(key) : structuredClone(this._defaults[key])
       return Promise.resolve(value)
     }
   }
 
   async setItem(key: string, value: unknown): Promise<void> {
-    const { encryptKeys, serviceName } = this
+    if (!this._store) {
+      log.error('Cannot update read-only DataCenter storage')
+      return
+    }
     if (key === 'screenshotFolderPath') {
       ensureDirSync(value as string)
     }
-    ipcMain.emit('broadcast-user-data-changed', { [key]: value })
-    if (encryptKeys.includes(key)) {
+    if (this._encryptKeys.includes(key)) {
       try {
-        return await keytar.setPassword(serviceName, key, value as string)
+        await keytar.setPassword(this._serviceName, key, value as string)
       } catch (err) {
         log.error('Keytar error:', err)
+        return
       }
     } else {
-      return this.store.set(key, value)
+      this._store.set(key, value)
     }
+    ipcMain.emit('broadcast-user-data-changed', { [key]: value })
   }
 
   setItems(settings: Record<string, unknown>): void {
@@ -152,11 +146,13 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
     }
 
     Object.keys(settings).forEach((key) => {
-      this.setItem(key, settings[key])
+      void this.setItem(key, settings[key]).catch((error) =>
+        log.error('Cannot update DataCenter', error)
+      )
     })
   }
 
-  _listenForIpcMain(): void {
+  private _listenForIpcMain(): void {
     ipcMain.on('set-image-folder-path', (newPath) => {
       this.setItem('imageFolderPath', newPath)
     })

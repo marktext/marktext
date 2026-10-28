@@ -56,3 +56,32 @@ describe('document write barriers', () => {
     expect(writes.capture(1, 'a')).toBe(0)
   })
 })
+
+it('blocks file-move writes without undoing a concurrent reading-mode change', async() => {
+  const writes = new DocumentWriteCoordinator()
+  const epoch = writes.capture(1, 'file')!
+  await writes.withBlockedWrites(1, ['file'], async() => {
+    expect(writes.capture(1, 'file')).toBeNull()
+    const write = vi.fn(async() => 'must not write')
+    expect(await writes.write(1, 'file', epoch, write)).toBeUndefined()
+    expect(write).not.toHaveBeenCalled()
+    await writes.setReadOnly(1, 'file', true)
+  })
+  expect(writes.capture(1, 'file')).toBeNull()
+  await writes.setReadOnly(1, 'file', false)
+  expect(writes.capture(1, 'file')).not.toBeNull()
+})
+
+it('keeps overlapping move barriers blocked until both operations finish', async() => {
+  const writes = new DocumentWriteCoordinator()
+  let finish: (() => void) | undefined
+  const waiting = new Promise<void>((resolve) => {
+    finish = resolve
+  })
+  const first = writes.withBlockedWrites(1, ['file'], () => waiting)
+  await writes.withBlockedWrites(1, ['file'], async() => {})
+  expect(writes.capture(1, 'file')).toBeNull()
+  finish?.()
+  await first
+  expect(writes.capture(1, 'file')).not.toBeNull()
+})

@@ -4,6 +4,7 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import type { StorageHooks } from '../../../src/main/applicationState/atomicJsonFile'
 import { CheckpointService } from '../../../src/main/applicationState/checkpointService'
 import { ApplicationStateStore, RecoveryStore } from '../../../src/main/applicationState/storage'
 import {
@@ -29,7 +30,7 @@ const deferred = () => {
   })
   return { promise, resolve }
 }
-const setup = async() => {
+const setup = async(recoveryHooks: StorageHooks = {}, metadataHooks: StorageHooks = {}) => {
   const directory = await mkdtemp(join(tmpdir(), 'marktext-checkpoint-'))
   directories.push(directory)
   const window = windowSnapshot()
@@ -42,15 +43,17 @@ const setup = async() => {
   let failure: 'body' | 'metadata' | null = null
   const writes: string[] = []
   const metadata = new ApplicationStateStore(directory, {
-    beforeReplace: async() => {
+    beforeReplace: async(pathname, value) => {
       writes.push('metadata')
       if (failure === 'metadata') throw new Error('metadata unavailable')
+      if (metadataHooks.beforeReplace) await metadataHooks.beforeReplace(pathname, value)
     }
   })
   const recovery = new RecoveryStore(directory, {
-    beforeReplace: async() => {
+    beforeReplace: async(pathname, value) => {
       writes.push('body')
       if (failure === 'body') throw new Error('body unavailable')
+      if (recoveryHooks.beforeReplace) await recoveryHooks.beforeReplace(pathname, value)
     }
   })
   const state = applicationState([window])
@@ -198,7 +201,9 @@ describe('durable document checkpoints', () => {
     const f = await setup()
     await f.service.checkpoint(f.window.id, f.request(1))
     f.fail('metadata')
-    expect(await f.service.endDocument(f.window.id, f.document.id, true)).toMatchObject({
+    expect(
+      await f.service.endDocuments(f.window.id, [f.service.getDocument(f.document.id)], true)
+    ).toMatchObject({
       status: 'failed'
     })
     expect(await new RecoveryStore(f.directory).readWindow(f.window.id)).toMatchObject([
@@ -207,7 +212,7 @@ describe('durable document checkpoints', () => {
     expect(f.service.getWindow(f.window.id)?.documents).toHaveLength(1)
     expect(f.service.getDocument(f.document.id).content.kind).toBe('recovery')
     f.fail(null)
-    await f.service.endDocument(f.window.id, f.document.id, true)
+    await f.service.endDocuments(f.window.id, [f.service.getDocument(f.document.id)], true)
     expect((await f.metadata.load()).value.session.windows[0]?.documents).toEqual([])
     expect(await f.recovery.readWindow(f.window.id)).toEqual([])
     expect(await f.service.checkpoint(f.window.id, f.request(2))).toMatchObject({
@@ -388,7 +393,9 @@ describe('durable document checkpoints', () => {
     const context = await service.attachWindow(dirty, [
       { documentId: f.document.id, markdown: 'Draft' }
     ])
-    expect(await service.endDocument(f.window.id, f.document.id, true)).toMatchObject({
+    expect(
+      await service.endDocuments(f.window.id, [service.getDocument(f.document.id)], true)
+    ).toMatchObject({
       status: 'persisted'
     })
     expect(cleanupErrors).toHaveLength(1)
@@ -403,7 +410,7 @@ describe('durable document checkpoints', () => {
     const f = await setup()
     await f.service.checkpoint(f.window.id, f.request(1))
     f.fail('metadata')
-    await f.service.endDocument(f.window.id, f.document.id, true)
+    await f.service.endDocuments(f.window.id, [f.service.getDocument(f.document.id)], true)
     f.fail(null)
     expect(await f.service.checkpoint(f.window.id, f.request(2, 'Still editing'))).toMatchObject({
       status: 'persisted'
@@ -429,7 +436,7 @@ describe('durable document checkpoints', () => {
     const other = { ...first, id: createStateId() }
     await f.service.addDocument(f.window.id, first, '')
     await f.service.addDocument(second.id, other, '')
-    await f.service.endDocument(f.window.id, first.id, false)
+    await f.service.endDocuments(f.window.id, [f.service.getDocument(first.id)], false)
     expect(f.service.getWindow(second.id)?.documents.map((document) => document.id)).toEqual([
       other.id
     ])
@@ -528,5 +535,285 @@ describe('durable document checkpoints', () => {
     expect(await f.service.checkpoint(f.window.id, f.request(1))).toMatchObject({
       status: 'persisted'
     })
+  })
+})
+
+describe('atomic close validation', () => {
+  it('validates current documents inside the checkpoint queue instead of committing a stale final snapshot', async() => {
+    const f = await setup()
+    const prepared = f.service.getState().session.windows
+    const editing = f.service.checkpoint(f.window.id, f.request(1))
+    const closing = f.service.closeWindows(prepared)
+    expect(await editing).toMatchObject({ status: 'persisted' })
+    expect(await closing).toBe(false)
+    expect(f.service.getState().session.lifecycle).toBe('running')
+    expect((await f.metadata.load()).value.session.windows[0].documents[0].content.kind).toBe(
+      'recovery'
+    )
+    expect(await f.recovery.readWindow(f.window.id)).toMatchObject([
+      { status: 'dirty', markdown: 'Draft' }
+    ])
+  })
+
+  it('commits approved discards with the final session and rejects checkpoints after quit is committed', async() => {
+    const f = await setup()
+    await f.service.checkpoint(f.window.id, f.request(1))
+    expect(await f.service.closeWindows(f.service.getState().session.windows)).toBe(true)
+    expect((await f.metadata.load()).value.session).toMatchObject({
+      lifecycle: 'closed',
+      windows: [{ documents: [] }]
+    })
+    expect(await f.recovery.readWindow(f.window.id)).toEqual([])
+    expect(await f.service.checkpoint(f.window.id, f.request(2))).toMatchObject({
+      status: 'failed',
+      reason: 'stale-context'
+    })
+  })
+
+  it('restores dirty recovery writes after a failed final metadata commit', async() => {
+    const f = await setup()
+    await f.service.checkpoint(f.window.id, f.request(1))
+    f.fail('metadata')
+    await expect(f.service.closeWindows(f.service.getState().session.windows)).rejects.toThrow(
+      'metadata unavailable'
+    )
+    expect(f.service.getState().session.lifecycle).toBe('running')
+    f.fail(null)
+    expect(await f.service.flush(f.window.id, f.context.contextToken)).toMatchObject({
+      status: 'persisted'
+    })
+    expect(await f.recovery.readWindow(f.window.id)).toMatchObject([
+      { status: 'dirty', markdown: 'Draft' }
+    ])
+  })
+})
+
+describe('transactional document ends', () => {
+  it('retains an already persisted newer revision instead of applying old discard consent', async() => {
+    const f = await setup()
+    await f.service.checkpoint(f.window.id, f.request(1, 'Approved draft'))
+    const prepared = f.service.getWindow(f.window.id)?.documents ?? []
+    await f.service.checkpoint(f.window.id, f.request(2, 'New persisted draft'))
+    expect(await f.service.endDocuments(f.window.id, prepared, true)).toMatchObject({
+      status: 'failed',
+      reason: 'stale-sequence'
+    })
+    expect((await f.metadata.load()).value.session.windows[0].documents).toHaveLength(1)
+    expect(await f.recovery.readWindow(f.window.id)).toMatchObject([
+      { status: 'dirty', markdown: 'New persisted draft' }
+    ])
+  })
+
+  it.each([false, true])(
+    'cancels the entire batch when a checkpoint arrives during recovery IO (dirty=%s)',
+    async(dirty) => {
+      const entered = deferred()
+      const release = deferred()
+      let armed = false
+      const f = await setup({
+        beforeReplace: async(_pathname, value) => {
+          if (armed && JSON.parse(value).status === 'discarded') {
+            armed = false
+            entered.resolve()
+            await release.promise
+          }
+        }
+      })
+      const second = dirtyRecord(f.window.id, 'Approved draft')
+      if (!dirty) second.document.content = { kind: 'empty' }
+      await f.service.addDocument(f.window.id, second.document, dirty ? second.markdown : '')
+      const prepared = f.service.getWindow(f.window.id)?.documents ?? []
+      armed = true
+      const closing = f.service.endDocuments(f.window.id, prepared, true)
+      await entered.promise
+      const update = f.request(1, 'New draft during close', 2)
+      update.documents = [
+        f.service.getDocument(f.document.id),
+        {
+          ...f.service.getDocument(second.documentId),
+          content: { kind: 'recovery', contentRevision: 2 }
+        }
+      ]
+      update.activeDocumentId = second.documentId
+      update.dirtyContents = [
+        { documentId: second.documentId, contentRevision: 2, markdown: 'New draft during close' }
+      ]
+      const editing = f.service.checkpoint(f.window.id, update)
+      release.resolve()
+      expect(await closing).toMatchObject({ status: 'failed', reason: 'stale-sequence' })
+      expect(await editing).toMatchObject({ status: 'persisted' })
+      expect(
+        (await f.metadata.load()).value.session.windows[0].documents.map((document) => document.id)
+      ).toEqual(prepared.map((document) => document.id))
+      expect(await f.recovery.readWindow(f.window.id)).toMatchObject([
+        { status: 'dirty', markdown: 'New draft during close' }
+      ])
+    }
+  )
+
+  it('does not close a batch containing a document with a pending save', async() => {
+    const f = await setup()
+    await f.service.checkpoint(f.window.id, f.request(1))
+    const entered = deferred()
+    const release = deferred()
+    const save = f.service.saveDocument(f.window.id, f.document.id, async() => {
+      entered.resolve()
+      await release.promise
+      return null
+    })
+    await entered.promise
+    expect(
+      await f.service.endDocuments(
+        f.window.id,
+        f.service.getState().session.windows[0].documents,
+        true
+      )
+    ).toMatchObject({ status: 'failed', reason: 'stale-sequence' })
+    release.resolve()
+    expect(await save).toMatchObject({ status: 'cancelled' })
+    expect(f.service.getWindow(f.window.id)?.documents).toHaveLength(1)
+  })
+
+  it('retains every member and repairs dirty records after a failed batch metadata write', async() => {
+    const f = await setup()
+    await f.service.checkpoint(f.window.id, f.request(1))
+    const second = dirtyRecord(f.window.id, 'Second draft')
+    await f.service.addDocument(f.window.id, second.document, second.markdown)
+    const prepared = f.service.getWindow(f.window.id)?.documents ?? []
+    f.fail('metadata')
+    expect(await f.service.endDocuments(f.window.id, prepared, true)).toMatchObject({
+      status: 'failed',
+      reason: 'storage-unavailable'
+    })
+    expect(f.service.getWindow(f.window.id)?.documents).toHaveLength(2)
+    f.fail(null)
+    await f.service.flush(f.window.id, f.context.contextToken)
+    expect((await f.metadata.load()).value.session.windows[0].documents).toHaveLength(2)
+    expect((await f.recovery.readWindow(f.window.id)).map((record) => record.status)).toEqual([
+      'dirty',
+      'dirty'
+    ])
+  })
+
+  it('restores the original dirty body before returning a canceled batch even if the arriving checkpoint is rejected', async() => {
+    const entered = deferred()
+    const release = deferred()
+    let armed = false
+    const f = await setup({
+      beforeReplace: async(_pathname, value) => {
+        if (armed && JSON.parse(value).status === 'discarded') {
+          armed = false
+          entered.resolve()
+          await release.promise
+        }
+      }
+    })
+    await f.service.checkpoint(f.window.id, f.request(1, 'Original recoverable body'))
+    armed = true
+    const closing = f.service.endDocuments(
+      f.window.id,
+      f.service.getState().session.windows[0].documents,
+      true
+    )
+    await entered.promise
+    const invalid = f.service.checkpoint(f.window.id, {
+      ...f.request(2),
+      documents: [],
+      dirtyContents: [],
+      activeDocumentId: null
+    })
+    release.resolve()
+    expect(await closing).toMatchObject({ status: 'failed', reason: 'stale-sequence' })
+    expect(await invalid).toMatchObject({ status: 'failed', reason: 'invalid-data' })
+    expect(await f.recovery.readWindow(f.window.id)).toMatchObject([
+      { status: 'dirty', markdown: 'Original recoverable body' }
+    ])
+  })
+
+  it('also cancels arrivals during the final metadata write and restores the open manifest', async() => {
+    const entered = deferred()
+    const release = deferred()
+    let armed = false
+    const f = await setup(
+      {},
+      {
+        beforeReplace: async() => {
+          if (armed) {
+            armed = false
+            entered.resolve()
+            await release.promise
+          }
+        }
+      }
+    )
+    await f.service.checkpoint(f.window.id, f.request(1, 'Approved draft'))
+    armed = true
+    const closing = f.service.endDocuments(
+      f.window.id,
+      f.service.getState().session.windows[0].documents,
+      true
+    )
+    await entered.promise
+    const editing = f.service.checkpoint(f.window.id, f.request(2, 'New draft during metadata IO'))
+    release.resolve()
+    expect(await closing).toMatchObject({ status: 'failed', reason: 'stale-sequence' })
+    expect(await editing).toMatchObject({ status: 'persisted' })
+    expect((await f.metadata.load()).value.session.windows[0].documents).toHaveLength(1)
+    expect(await f.recovery.readWindow(f.window.id)).toMatchObject([
+      { status: 'dirty', markdown: 'New draft during metadata IO' }
+    ])
+  })
+
+  it.each(['tabs', 'windows'] as const)(
+    'cancels edits received during recovery cleanup before publishing %s closes',
+    async(target) => {
+      const f = await setup()
+      await f.service.checkpoint(f.window.id, f.request(1, 'Approved draft'))
+      const entered = deferred()
+      const release = deferred()
+      const remove = f.recovery.remove.bind(f.recovery)
+      let armed = true
+      f.recovery.remove = async(windowId, documentId) => {
+        if (armed) {
+          armed = false
+          entered.resolve()
+          await release.promise
+        }
+        await remove(windowId, documentId)
+      }
+      const snapshots = f.service.getState().session.windows
+      let closing:
+        ReturnType<typeof f.service.endDocuments> | ReturnType<typeof f.service.closeWindows>
+      if (target === 'tabs') {
+        closing = f.service.endDocuments(f.window.id, snapshots[0].documents, true)
+      } else {
+        closing = f.service.closeWindows(snapshots)
+      }
+      await entered.promise
+      const editing = f.service.checkpoint(f.window.id, f.request(2, 'New draft during cleanup'))
+      release.resolve()
+      const result = await closing
+      if (target === 'tabs')
+        expect(result).toMatchObject({ status: 'failed', reason: 'stale-sequence' })
+      else expect(result).toBe(false)
+      expect(await editing).toMatchObject({ status: 'persisted' })
+      expect((await f.metadata.load()).value.session.windows[0].documents).toHaveLength(1)
+      expect(await f.recovery.readWindow(f.window.id)).toMatchObject([
+        { status: 'dirty', markdown: 'New draft during cleanup' }
+      ])
+    }
+  )
+
+  it('does not leave the close guard blocked after a rejected checkpoint completes', async() => {
+    const f = await setup()
+    const invalid = { ...f.request(1), documents: [], dirtyContents: [], activeDocumentId: null }
+    expect(await f.service.checkpoint(f.window.id, invalid)).toMatchObject({ status: 'failed' })
+    expect(
+      await f.service.endDocuments(
+        f.window.id,
+        f.service.getState().session.windows[0].documents,
+        false
+      )
+    ).toMatchObject({ status: 'persisted' })
   })
 })

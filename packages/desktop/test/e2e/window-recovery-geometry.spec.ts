@@ -5,6 +5,22 @@ import ts from 'typescript'
 import { launchElectron } from './helpers'
 import type * as Geometry from '../../src/main/applicationState/windowGeometry'
 
+test('closed editor windows release focus and geometry event listeners', async() => {
+  const { app } = await launchElectron()
+  try {
+    const closed = await app.evaluate(({ BrowserWindow }) => {
+      const window = BrowserWindow.getAllWindows()[0]
+      window.destroy()
+      for (const event of ['focus', 'blur', 'maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen'])
+        window.emit(event)
+      return window.isDestroyed()
+    })
+    expect(closed).toBe(true)
+  } finally {
+    await app.close()
+  }
+})
+
 test('geometry adapters use independent native window bounds and recover an off-screen window', async() => {
   const { app } = await launchElectron()
   const source = ts.transpileModule(

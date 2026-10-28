@@ -62,6 +62,7 @@ import { useCommandCenterStore } from '@/store/commandCenter'
 import { useProjectStore } from '@/store/project'
 import { useAutoUpdatesStore } from '@/store/autoUpdates'
 import { useNotificationStore } from '@/store/notification'
+import { startWindowSession } from '@/services/windowSession'
 
 const mainStore = useMainStore()
 const editorStore = useEditorStore()
@@ -178,7 +179,8 @@ const setupDragDropHandler = (): void => {
 }
 
 let stopSidebarContextMenu: (() => void) | undefined
-onUnmounted(() => stopSidebarContextMenu?.())
+let stopWindowSession: (() => void) | undefined
+onUnmounted(() => { stopSidebarContextMenu?.(); stopWindowSession?.() })
 
 onMounted(async () => {
   if (window.marktext?.initialState) {
@@ -201,13 +203,10 @@ onMounted(async () => {
   preferencesStore.LISTEN_TOGGLE_VIEW()
   editorStore.LISTEN_SCREEN_SHOT()
   editorStore.LISTEN_FOR_READING_MODE()
-  editorStore.LISTEN_FOR_CLOSE()
   editorStore.LISTEN_FOR_SAVE_AS()
   editorStore.LISTEN_FOR_MOVE_TO()
   editorStore.LISTEN_FOR_SAVE()
-  editorStore.LISTEN_FOR_SET_PATHNAME()
-  editorStore.LISTEN_FOR_BOOTSTRAP_WINDOW()
-  editorStore.LISTEN_FOR_SAVE_CLOSE()
+  editorStore.REGISTER_EDITOR_COMMANDS()
   editorStore.LISTEN_FOR_RENAME()
   editorStore.LISTEN_FOR_SET_LINE_ENDING()
   editorStore.LISTEN_FOR_SET_ENCODING()
@@ -222,9 +221,10 @@ onMounted(async () => {
   editorStore.LISTEN_WINDOW_ZOOM()
   editorStore.LISTEN_FOR_RELOAD_IMAGES()
   editorStore.LISTEN_FOR_CONTEXT_MENU()
-  editorStore.LISTEN_FOR_STATE_REPLACE()
 
   notificationStore.listenForNotification()
+
+  stopWindowSession = await startWindowSession()
 
   setupDragDropHandler()
 
