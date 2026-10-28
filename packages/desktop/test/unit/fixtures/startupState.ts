@@ -1,4 +1,5 @@
-import { createStateId, contentSha256 } from '../../../src/main/applicationState/identity'
+import { createStateId } from '../../../src/main/applicationState/identity'
+import { contentSha256 } from 'common/filesystem'
 import {
   createDefaultLayout,
   createEmptyApplicationState

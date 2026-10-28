@@ -7,7 +7,8 @@ import { rmSync } from 'node:fs'
 import { ApplicationStateStore, RecoveryStore } from '../../../src/main/applicationState/storage'
 import { applicationState, dirtyRecord, windowSnapshot } from '../fixtures/startupState'
 import type { RecoveryRecord } from '../../../src/shared/types/applicationState'
-import { contentSha256, createFileLocation } from '../../../src/main/applicationState/identity'
+import { createFileLocation } from '../../../src/main/applicationState/identity'
+import { contentSha256 } from 'common/filesystem'
 
 const directories: string[] = []
 const profile = async(): Promise<string> => {

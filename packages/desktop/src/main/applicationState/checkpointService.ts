@@ -13,7 +13,8 @@ import type {
 } from '@shared/types/applicationState'
 import { parseWindowSnapshot } from './codec'
 import { DocumentRegistry, type DocumentRegistration } from './documentRegistry'
-import { contentSha256, createStateId } from './identity'
+import { createStateId } from './identity'
+import { contentSha256 } from 'common/filesystem'
 
 interface RendererContext {
   token: string
