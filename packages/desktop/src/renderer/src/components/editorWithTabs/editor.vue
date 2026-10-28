@@ -189,6 +189,7 @@ const {
   texMathGfm,
   texMathSingleBackslash,
   texMathDoubleBackslash,
+  fancyLists,
   highlightSyntax,
   inlineDiff,
   multilineBlockquote,
@@ -535,6 +536,10 @@ watch(texMathSingleBackslash, (value, oldValue) => {
 
 watch(texMathDoubleBackslash, (value, oldValue) => {
   if (value !== oldValue) applyOutlineAffectingOption({ texMathDoubleBackslash: value })
+})
+
+watch(fancyLists, (value, oldValue) => {
+  if (value !== oldValue) applyOutlineAffectingOption({ fancyLists: value })
 })
 
 watch(highlightSyntax, (value, oldValue) => {
@@ -1679,6 +1684,7 @@ onMounted(() => {
     texMathGfm: texMathGfm.value,
     texMathSingleBackslash: texMathSingleBackslash.value,
     texMathDoubleBackslash: texMathDoubleBackslash.value,
+    fancyLists: fancyLists.value,
     highlightSyntax: highlightSyntax.value,
     inlineDiff: inlineDiff.value,
     multilineBlockquote: multilineBlockquote.value,

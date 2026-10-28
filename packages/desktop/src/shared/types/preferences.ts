@@ -111,6 +111,7 @@ export interface UserPreferences extends RecoveryPreferences {
   texMathGfm: boolean
   texMathSingleBackslash: boolean
   texMathDoubleBackslash: boolean
+  fancyLists: boolean
   highlightSyntax: boolean
   inlineDiff: boolean
   githubAlerts: boolean

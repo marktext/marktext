@@ -239,6 +239,122 @@
     list-style-type: decimal;
 }
 
+/* Pandoc fancy lists. The class outranks the nesting rules above. */
+@counter-style fancy-list-decimal-paren {
+    suffix: ') ';
+    system: extends decimal;
+}
+
+@counter-style fancy-list-decimal-parens {
+    prefix: '(';
+    suffix: ') ';
+    system: extends decimal;
+}
+
+@counter-style fancy-list-lower-alpha-paren {
+    suffix: ') ';
+    system: extends lower-alpha;
+}
+
+@counter-style fancy-list-lower-alpha-parens {
+    prefix: '(';
+    suffix: ') ';
+    system: extends lower-alpha;
+}
+
+@counter-style fancy-list-upper-alpha-paren {
+    suffix: ') ';
+    system: extends upper-alpha;
+}
+
+@counter-style fancy-list-upper-alpha-parens {
+    prefix: '(';
+    suffix: ') ';
+    system: extends upper-alpha;
+}
+
+@counter-style fancy-list-lower-roman-paren {
+    suffix: ') ';
+    system: extends lower-roman;
+}
+
+@counter-style fancy-list-lower-roman-parens {
+    prefix: '(';
+    suffix: ') ';
+    system: extends lower-roman;
+}
+
+@counter-style fancy-list-upper-roman-paren {
+    suffix: ') ';
+    system: extends upper-roman;
+}
+
+@counter-style fancy-list-upper-roman-parens {
+    prefix: '(';
+    suffix: ') ';
+    system: extends upper-roman;
+}
+
+.markdown-body ol.fancy-list-decimal {
+    list-style-type: decimal;
+}
+
+.markdown-body ol.fancy-list-decimal-paren {
+    list-style-type: fancy-list-decimal-paren;
+}
+
+.markdown-body ol.fancy-list-decimal-parens {
+    list-style-type: fancy-list-decimal-parens;
+}
+
+.markdown-body ol.fancy-list-lower-alpha {
+    list-style-type: lower-alpha;
+}
+
+.markdown-body ol.fancy-list-lower-alpha-paren {
+    list-style-type: fancy-list-lower-alpha-paren;
+}
+
+.markdown-body ol.fancy-list-lower-alpha-parens {
+    list-style-type: fancy-list-lower-alpha-parens;
+}
+
+.markdown-body ol.fancy-list-upper-alpha {
+    list-style-type: upper-alpha;
+}
+
+.markdown-body ol.fancy-list-upper-alpha-paren {
+    list-style-type: fancy-list-upper-alpha-paren;
+}
+
+.markdown-body ol.fancy-list-upper-alpha-parens {
+    list-style-type: fancy-list-upper-alpha-parens;
+}
+
+.markdown-body ol.fancy-list-lower-roman {
+    list-style-type: lower-roman;
+}
+
+.markdown-body ol.fancy-list-lower-roman-paren {
+    list-style-type: fancy-list-lower-roman-paren;
+}
+
+.markdown-body ol.fancy-list-lower-roman-parens {
+    list-style-type: fancy-list-lower-roman-parens;
+}
+
+.markdown-body ol.fancy-list-upper-roman {
+    list-style-type: upper-roman;
+}
+
+.markdown-body ol.fancy-list-upper-roman-paren {
+    list-style-type: fancy-list-upper-roman-paren;
+}
+
+.markdown-body ol.fancy-list-upper-roman-parens {
+    list-style-type: fancy-list-upper-roman-parens;
+}
+
 .markdown-body div.plantuml,
 .markdown-body div.mermaid,
 .markdown-body div.vega-lite,

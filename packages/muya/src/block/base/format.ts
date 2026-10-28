@@ -9,6 +9,7 @@ import type { IBulletListState, IListItemState, IOrderListState, IParagraphState
 import type { Nullable } from '../../types';
 import type { ColorFormatType, IColorStyle } from '../../utils/colorSpan';
 import type { IImageInfo } from '../../utils/image';
+import type { IListMarker } from '../../utils/listMarker';
 import type AtxHeading from '../commonMark/atxHeading';
 import type BulletList from '../commonMark/bulletList';
 import type OrderList from '../commonMark/orderList';
@@ -34,6 +35,7 @@ import { isListItemState } from '../../state/types';
 import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isKeyboardEvent, isMouseEvent, lastGraphemeLength } from '../../utils';
 import { COLOR_SPAN_CLOSE_TAG, colorPropertyOf, colorSpanOpenTag, isColorStyleEmpty, parseColorStyle } from '../../utils/colorSpan';
 import { correctImageSrc, encodeImageSrc, getImageInfo } from '../../utils/image';
+import { minSpacesAfterMarker, parseListMarker, toListDelimiter } from '../../utils/listMarker';
 import logger from '../../utils/logger';
 
 interface IOffset {
@@ -62,6 +64,30 @@ const INLINE_UPDATE_FRAGMENTS = [
 ];
 
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i');
+
+// Fancy-list markers (`a.`, `IV)`, `(1)`, `#.`); the decimal `1.` and `1)`
+// ones are in INLINE_UPDATE_FRAGMENTS.
+const FANCY_LIST_PREFIX_REG = /^ {0,3}(\((?:[A-Z\d]+|#)\)|(?:[A-Z]+|#)[.)])( {1,4})/i;
+
+interface IFancyListPrefix {
+    marker: IListMarker;
+    text: string;
+}
+
+// A fancy marker opens a list only on a paragraph's first line, as pandoc
+// needs a blank line before a list, and with the spaces pandoc requires so
+// `B. Russell` stays text. A nested list has to start at one.
+function matchFancyListPrefix(text: string, nested: boolean): IFancyListPrefix | null {
+    const match = FANCY_LIST_PREFIX_REG.exec(text);
+    const marker = match && parseListMarker(match[1]);
+    if (!match || !marker)
+        return null;
+    const itemText = text.slice(match[0].length);
+    if (match[2].length < minSpacesAfterMarker(marker, itemText) || (nested && marker.value !== 1))
+        return null;
+
+    return { marker, text: itemText };
+}
 
 function stripHardBreakMarker(line: string): string {
     const trimmed = line.replace(/[ \t]+$/, '');
@@ -740,6 +766,7 @@ class Format extends Content {
             indentedCodeBlock,
             thematicBreak,
         ] = text.match(INLINE_UPDATE_REG) || [];
+        const fancyList = this._fancyListPrefix();
 
         switch (true) {
             case !!thematicBreak
@@ -753,6 +780,10 @@ class Format extends Content {
 
             case !!orderList:
                 this._convertToList();
+                break;
+
+            case !!fancyList:
+                this._convertToFancyList(fancyList!);
                 break;
 
             case !!taskList:
@@ -856,7 +887,7 @@ class Format extends Content {
     }
 
     private _convertToList() {
-        const { text, parent, muya, hasSelection } = this;
+        const { text, parent, muya } = this;
         const { preferLooseListItem } = muya.options;
         // The marker must start a line: the pre-group captures whole lines up to
         // (and including) the newline before the marker, so a `*` inside e.g.
@@ -896,7 +927,7 @@ class Format extends Content {
                     name: 'order-list',
                     meta: {
                         loose: preferLooseListItem,
-                        delimiter: matches![2].slice(-1),
+                        delimiter: toListDelimiter(matches![2].slice(-1)),
                         start: Number(matches![2].slice(0, -1)),
                     },
                     children,
@@ -910,6 +941,33 @@ class Format extends Content {
                     children,
                 };
 
+        this._replaceParagraphWithList(listState);
+    }
+
+    private _fancyListPrefix(): IFancyListPrefix | null {
+        const { parent } = this;
+        if (!this.muya.options.fancyLists || parent?.blockName !== 'paragraph')
+            return null;
+        const item = parent.parent?.blockName;
+
+        return matchFancyListPrefix(this.text, item === 'list-item' || item === 'task-list-item');
+    }
+
+    private _convertToFancyList({ marker: { value, style, delimiter }, text }: IFancyListPrefix) {
+        this._replaceParagraphWithList({
+            name: 'order-list',
+            meta: {
+                loose: this.muya.options.preferLooseListItem,
+                start: value,
+                delimiter,
+                ...(style === 'decimal' ? {} : { style }),
+            },
+            children: [{ name: 'list-item', children: [{ name: 'paragraph', text }] }],
+        });
+    }
+
+    private _replaceParagraphWithList(listState: IOrderListState | IBulletListState) {
+        const { parent, muya, hasSelection } = this;
         const list = ScrollPage.loadBlock(listState.name).create(muya, listState);
         parent!.replaceWith(list);
 
@@ -948,6 +1006,7 @@ class Format extends Content {
                     loose,
                     start: (list.meta as IOrderListState['meta']).start + offset,
                     delimiter: (list.meta as IOrderListState['meta']).delimiter,
+                    ...('style' in list.meta ? { style: list.meta.style } : {}),
                 }
             : {
                     loose,
@@ -1025,6 +1084,7 @@ class Format extends Content {
                                 loose,
                                 start: (list.meta as IOrderListState['meta']).start + offset + 1,
                                 delimiter: (list.meta as IOrderListState['meta']).delimiter,
+                                ...('style' in list.meta ? { style: list.meta.style } : {}),
                             },
                             children: [],
                         }

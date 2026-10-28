@@ -85,7 +85,7 @@ function needsLoose(list: TList, options: IMuyaOptions): boolean {
         return false;
     // Use the actual export/import boundary rules, including nested lists and
     // enabled extensions, instead of maintaining a second list grammar here.
-    const markdown = new ExportMarkdown({ listIndentation: options.listIndentation }).generate([list]);
+    const markdown = new ExportMarkdown({ listIndentation: options.listIndentation, fancyLists: options.fancyLists }).generate([list]);
     return new MarkdownToState(options).generate(markdown).some(state => isAnyListState(state) && state.meta.loose);
 }
 

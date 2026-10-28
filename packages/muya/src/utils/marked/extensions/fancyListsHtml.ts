@@ -1,0 +1,56 @@
+import type { MarkedExtension, Tokens } from 'marked';
+import type { ListDelimiter, ListStyle } from '../../listMarker';
+import type { ListToken } from '../types';
+import { Lexer } from 'marked';
+import { toListDelimiter } from '../../listMarker';
+import compactNestedLists from '../compactNestedLists';
+import fancyListsExtension, { endListItemsAtFancyMarkers } from './fancyLists';
+
+type TCounterStyle = Exclude<ListStyle, 'default'>;
+
+const TYPE_ATTRIBUTE: Record<TCounterStyle, string> = {
+    'decimal': '1',
+    'lower-alpha': 'a',
+    'upper-alpha': 'A',
+    'lower-roman': 'i',
+    'upper-roman': 'I',
+};
+
+// `type` cannot show `)` or `(1)`, and selectors match `type` values
+// case-insensitively, so export CSS styles the list by this class instead.
+const CLASS_SUFFIX: Record<ListDelimiter, string> = {
+    '.': '',
+    ')': '-paren',
+    '()': '-parens',
+};
+
+// marked's own tokenizer reads decimal `1.` and `1)` lists without recording
+// the delimiter.
+function decimalDelimiter(list: Tokens.List): ListDelimiter {
+    return toListDelimiter(/^ *\d+([.)])/.exec(list.items[0].raw)?.[1] ?? '.');
+}
+
+function orderedListAttributes(token: Tokens.List): string {
+    const { style = 'decimal', delimiter = decimalDelimiter(token) } = token as ListToken;
+    const counter: TCounterStyle = style === 'default' ? 'decimal' : style;
+
+    return ` type="${TYPE_ATTRIBUTE[counter]}" class="fancy-list-${counter}${CLASS_SUFFIX[delimiter]}"`;
+}
+
+/** Pandoc fancy lists for marked's HTML renderer: `<ol type="I" class="…">`. */
+export default function fancyListsHtmlExtension(): MarkedExtension {
+    return {
+        ...fancyListsExtension(),
+        ...compactNestedLists(orderedListAttributes),
+        hooks: {
+            provideLexer() {
+                return (src, options) => {
+                    const lexer = new Lexer(options);
+                    endListItemsAtFancyMarkers(lexer);
+
+                    return lexer.lex(src);
+                };
+            },
+        },
+    };
+}

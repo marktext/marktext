@@ -13,9 +13,10 @@ import { tokenizer } from '../inlineRenderer/lexer';
 import { atxHeadingBody, splitAtxHeading } from '../state/headings';
 import HtmlToMarkdown from '../state/htmlToMarkdown';
 import { MarkdownToState } from '../state/markdownToState';
-import { isAnyListState, isParagraphState } from '../state/types';
+import { isAnyListState, isParagraphState, markdownListMarker } from '../state/types';
 import { getClipboardImageFile, getCopyTextType, isHttpUrl, isStandaloneTableHtml, normalizePastedHTML } from '../utils/paste';
 import { pasteClipboardImage, readClipboardImage } from './image';
+import { hasMarkdownSource } from './markdownSource';
 import { mergePasteIntoHeading } from './mergePasteIntoHeading';
 import { insertImageSrc, replaceImageAt, resolveImageSrc } from './pasteImage';
 import { getUrlPaste, pasteUrl } from './pasteUrl';
@@ -250,23 +251,6 @@ function seatListMergeCursor(muya: Muya, newList: Parent, seam: IListMergeSeam):
     seatCursorAtSeam(newList.find(lastPastedIndex) as Nullable<Parent>, sewOffset);
 }
 
-function listMarkersMatch(a: TState, b: TState): boolean {
-    if (a.name === 'order-list' && b.name === 'order-list')
-        return a.meta.delimiter === b.meta.delimiter;
-    if (a.name === 'bullet-list' && b.name === 'bullet-list')
-        return a.meta.marker === b.meta.marker;
-    if (a.name === 'task-list' && b.name === 'task-list') {
-        if (!!a.meta.ordered !== !!b.meta.ordered)
-            return false;
-
-        return a.meta.ordered && b.meta.ordered
-            ? a.meta.delimiter === b.meta.delimiter
-            : ('marker' in a.meta && 'marker' in b.meta && a.meta.marker === b.meta.marker);
-    }
-
-    return false;
-}
-
 function getListPasteTarget(
     ctx: IPasteContext,
     firstState: TState,
@@ -281,7 +265,7 @@ function getListPasteTarget(
         return null;
 
     const listState = listBlock.getState();
-    if (!isAnyListState(listState) || !listMarkersMatch(listState, firstState))
+    if (!isAnyListState(listState) || markdownListMarker(listState) !== markdownListMarker(firstState))
         return null;
 
     const itemIndex = listBlock.offset(listItem);
@@ -584,6 +568,8 @@ async function applyTextPaste(
     const { pasteType } = data;
     // Preserve source provenance before synthetic URL/table HTML promotion.
     const hasClipboardHtml = html !== '';
+    if (text.length > 0 && hasMarkdownSource(html))
+        html = '';
 
     // Firefox can supply a pasted URL without HTML.
     if (isHttpUrl(text) && !html) {

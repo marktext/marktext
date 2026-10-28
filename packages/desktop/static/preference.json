@@ -61,6 +61,7 @@
   "texMathGfm": false,
   "texMathSingleBackslash": false,
   "texMathDoubleBackslash": false,
+  "fancyLists": false,
   "highlightSyntax": false,
   "inlineDiff": false,
   "multilineBlockquote": false,

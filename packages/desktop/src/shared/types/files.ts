@@ -189,6 +189,7 @@ export interface PandocExportPayload {
   texMathGfm: boolean
   texMathSingleBackslash: boolean
   texMathDoubleBackslash: boolean
+  fancyLists: boolean
 }
 
 /** Position in normalized editor text, independent of its disk line endings. */

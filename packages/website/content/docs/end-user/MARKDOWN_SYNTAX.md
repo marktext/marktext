@@ -14,6 +14,7 @@ This guide introduces Markdown syntax supported by MarkText and the optional ext
   - [Images](#images)
   - [Blockquotes](#blockquotes)
   - [Lists](#lists)
+  - [Fancy lists](#fancy-lists)
   - [Code](#code)
   - [Raw HTML](#raw-html)
   - [Escaping with backslashes](#escaping-with-backslashes)
@@ -355,6 +356,57 @@ Automatically re-numbers the items and renders to:
 6. Faucibus porta lacus fringilla vel
 7. Aenean sit amet erat nunc
 8. Eget porttitor lorem
+
+### Fancy lists
+
+Pandoc's `fancy_lists` extension numbers ordered lists with letters and Roman
+numerals as well as digits. MarkText reads these lists when **Preferences →
+Markdown → Letter and Roman numeral lists** is enabled. With the setting off,
+the markers stay paragraph text.
+
+```markdown
+a. Lower-case letters
+b. continue the list
+
+IV) Upper-case Roman numerals with a parenthesis
+V) continue the list
+
+(1) Digits in parentheses
+(2) continue the list
+
+#. A hash numbers the item
+#. without writing the number
+```
+
+A list keeps the marker style and delimiter of its first item. A top-level
+list starts at the value of its first marker, so `C.` starts at three. Pandoc
+reads a list nested in an item only when it starts at one, so MarkText numbers
+new sublists from `1.`, `a.`, or `i.`. A `#`
+list shows digits, and MarkText keeps writing `#.`, `#)`, or `(#)` when you
+save it. MarkText writes two spaces after a capital letter followed by a
+period, as in `B.  Russell`, because pandoc reads `B. Russell` with one space
+as a paragraph.
+
+#### Outlines
+
+An outline is a list that starts at `I.`. To start one, type `I.` and two
+spaces at the start of a paragraph. In an outline, <kbd>Tab</kbd> at the start of
+an item moves it one level deeper and <kbd>Shift</kbd>+<kbd>Tab</kbd> moves it back.
+Each level has its own marker:
+
+`I.` → `A.` → `1.` → `a.` → `i.` → `(1)` → `(a)`
+
+<!-- prettier-ignore -->
+```markdown
+I.  Introduction
+    A.  Background
+        1. Early work
+            a. Sources
+II. Method
+```
+
+When two lists in the same style follow each other, MarkText ends the first one
+with an empty HTML comment, `<!-- -->`, so pandoc reads them back as two lists.
 
 <br>
 

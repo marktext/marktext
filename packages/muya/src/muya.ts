@@ -40,6 +40,7 @@ import { deepClone } from './utils';
 import { getBlock } from './utils/dom';
 import { GITHUB_ALERT_TYPES, githubAlertBlockType, githubAlertMarker } from './utils/githubAlerts';
 import { encodeImageSrc } from './utils/image';
+import { toListDelimiter } from './utils/listMarker';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
@@ -125,6 +126,7 @@ const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
     'trimUnnecessaryCodeBlockEmptyLines',
     'multilineBlockquote',
     'githubAlerts',
+    'fancyLists',
 ]);
 
 function endpointPair(
@@ -1559,7 +1561,7 @@ export class Muya {
         else if (label === 'order-list') {
             newState = {
                 name: 'order-list',
-                meta: { delimiter: orderListDelimiter, loose, start: 1 },
+                meta: { delimiter: toListDelimiter(orderListDelimiter), loose, start: 1 },
                 children: childContents.map(children => ({ name: 'list-item', children })),
             };
         }

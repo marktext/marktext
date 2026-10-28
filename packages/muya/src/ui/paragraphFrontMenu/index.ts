@@ -20,6 +20,7 @@ import { isAnyListState, isAtxHeadingState } from '../../state/types';
 
 import { deepClone, isHTMLElement } from '../../utils';
 import { githubAlertBlockType } from '../../utils/githubAlerts';
+import { toListDelimiter } from '../../utils/listMarker';
 import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
 import { renderMenuIcon } from '../menuIcon';
@@ -341,7 +342,8 @@ export class ParagraphFrontMenu extends BaseFloat {
         const loose = sourceMeta.loose;
         const delimiter = 'delimiter' in sourceMeta
             ? sourceMeta.delimiter
-            : orderListDelimiter;
+            : toListDelimiter(orderListDelimiter);
+        const style = 'delimiter' in sourceMeta ? sourceMeta.style : undefined;
         const marker = 'marker' in sourceMeta
             ? sourceMeta.marker
             : bulletListMarker;
@@ -365,7 +367,7 @@ export class ParagraphFrontMenu extends BaseFloat {
         else if (label === 'order-list') {
             state = {
                 name: 'order-list',
-                meta: { delimiter, loose: !!loose, start: 1 },
+                meta: { delimiter, ...(style ? { style } : {}), loose: !!loose, start: 1 },
                 children: childContents.map(children => ({
                     name: 'list-item',
                     children,

@@ -23,6 +23,7 @@ import type {
 import { deepClone } from '../utils';
 import { githubAlertMarker } from '../utils/githubAlerts';
 import { indentationWidth, indentToTabStop, indentWithTabs, removeIndent } from '../utils/indentation';
+import { continuesList, formatListMarker, minSpacesAfterMarker, parseListMarker } from '../utils/listMarker';
 import logger from '../utils/logger';
 import stringWidth from '../utils/stringWidth';
 import { BlockBoundaryResolver } from './blockBoundary';
@@ -35,31 +36,49 @@ function startsWithIndentedHeading(state: TState): boolean {
     return (isAtxHeadingState(state) || isSetextHeadingState(state)) && /^[ \t]/.test(state.text);
 }
 
+type TListMeta = IBulletListState['meta'] | IOrderListState['meta'] | ITaskListState['meta'];
+
+interface IWrittenList {
+    name: (IBulletListState | IOrderListState | ITaskListState)['name'];
+    meta: TListMeta;
+}
+
+function wouldMergeAdjacentLists(previous: TListMeta, meta: TListMeta): boolean {
+    if ('delimiter' in previous && 'delimiter' in meta) {
+        return continuesList(
+            { style: previous.style ?? 'decimal', delimiter: previous.delimiter },
+            { value: meta.start, style: meta.style ?? 'decimal', delimiter: meta.delimiter },
+            meta.sourceMarkers?.[0],
+        );
+    }
+
+    return 'marker' in previous && 'marker' in meta && previous.marker === meta.marker;
+}
+
 function escapeText(str: string) {
     return str.replace(/(?<!\\)\|/g, '\\|');
 }
 
 export interface IExportMarkdownOptions {
-    listIndentation: number | string;
+    listIndentation?: number | string;
+    fancyLists?: boolean;
 }
 
 export default class ExportMarkdown {
     private _blockBoundary = new BlockBoundaryResolver();
 
     // Open list metadata stack; innermost settings control nested item serialization.
-    private _listType: (
-        | IBulletListState['meta']
-        | IOrderListState['meta']
-        | ITaskListState['meta']
-    )[];
+    private _listType: TListMeta[];
 
     private _isLooseParentList: boolean;
     private _listIndentation: string;
     private _listIndentationCount: number;
+    private _fancyLists: boolean;
 
     constructor(
         {
             listIndentation,
+            fancyLists = false,
         }: IExportMarkdownOptions = {
             listIndentation: 1,
         },
@@ -67,6 +86,7 @@ export default class ExportMarkdown {
         this._listType = []; // 'ul' or 'ol'
         // helper to translate the first tight item in a nested list
         this._isLooseParentList = true;
+        this._fancyLists = fancyLists;
 
         this._listIndentation = 'number';
         if (listIndentation === 'tab') {
@@ -98,7 +118,7 @@ export default class ExportMarkdown {
     ): string {
         const result: string[] = [];
         // helper for CommonMark 264
-        let lastListBullet = '';
+        let previousList: IWrittenList | undefined;
         let previousState: TState | undefined;
 
         for (const originalState of states) {
@@ -108,7 +128,7 @@ export default class ExportMarkdown {
                 && state.name !== 'bullet-list'
                 && state.name !== 'task-list'
             ) {
-                lastListBullet = '';
+                previousList = undefined;
             }
 
             if (isAnyListState(state)) {
@@ -122,18 +142,18 @@ export default class ExportMarkdown {
                     && isAnyListState(previousState)
                     && !previousState.meta.loose
                     && !state.meta.loose;
-                lastListBullet = this._serializeListBlock(
+                previousList = this._serializeListBlock(
                     state,
                     result,
                     indent,
                     listIndent,
-                    lastListBullet,
+                    previousList,
                     markerOverride,
                     followsTightList,
                 );
             }
             else if (state.name === 'list-item' || state.name === 'task-list-item') {
-                this._serializeListItemBlock(state, result, indent, listIndent);
+                this._serializeListItemBlock(state, result, indent, listIndent, previousState === undefined);
             }
             else {
                 const prepared = this._prepareBlockBoundary(state, previousState, isTightItem);
@@ -238,10 +258,10 @@ export default class ExportMarkdown {
         result: string[],
         indent: string,
         listIndent: string,
-        lastListBullet: string,
+        previousList: IWrittenList | undefined,
         markerOverride?: string,
         followsTightList = false,
-    ): string {
+    ): IWrittenList {
         let insertNewLine = this._isLooseParentList;
         this._isLooseParentList = true;
         const meta = deepClone(state.meta);
@@ -250,18 +270,26 @@ export default class ExportMarkdown {
         if (state.name !== 'bullet-list' && 'sourceMarkers' in meta && !this._shouldPreserveOrderMarkers(state))
             delete meta.sourceMarkers;
 
-        // Changing a bullet or ordered delimiter starts a separate Markdown list.
-        const bulletMarkerOrDelimiter
-            = 'delimiter' in meta ? meta.delimiter : meta.marker;
+        const wouldMergeLists = previousList !== undefined && wouldMergeAdjacentLists(previousList.meta, meta);
 
-        if (lastListBullet && lastListBullet !== bulletMarkerOrDelimiter)
+        if (previousList && !wouldMergeLists)
             insertNewLine = false;
 
         // Adjacent tight lists with the same marker are one markdown list (the
         // parser splits it where items switch between plain and task), so a
         // blank line would only make that list loose on the next parse.
-        if (lastListBullet === bulletMarkerOrDelimiter && followsTightList)
+        if (wouldMergeLists && followsTightList)
             insertNewLine = false;
+
+        const needsListSeparator = this._fancyLists && wouldMergeLists
+            && previousList?.name === state.name && 'delimiter' in meta;
+        // Blank lines cannot preserve independent lists whose markers would merge
+        // on reparse. See https://pandoc.org/MANUAL.html#ending-a-list.
+        if (needsListSeparator) {
+            this._insertLineBreak(result, indent);
+            result.push(`${indent}<!-- -->\n`);
+            insertNewLine = true;
+        }
 
         if (insertNewLine)
             this._insertLineBreak(result, indent);
@@ -270,7 +298,7 @@ export default class ExportMarkdown {
         result.push(this._serializeList(state, indent, listIndent));
         this._listType.pop();
 
-        return bulletMarkerOrDelimiter;
+        return { name: state.name, meta };
     }
 
     // Source markers only hold while the list keeps the items it was parsed
@@ -309,6 +337,7 @@ export default class ExportMarkdown {
         result: string[],
         indent: string,
         listIndent: string,
+        firstItem: boolean,
     ) {
         const { loose } = this._listType[this._listType.length - 1];
 
@@ -318,7 +347,7 @@ export default class ExportMarkdown {
 
         // An item of a tight list keeps its direct children blank-line free
         // unless a pair of them genuinely needs a separator.
-        result.push(this._serializeListItem(state, indent + listIndent, !loose));
+        result.push(this._serializeListItem(state, indent + listIndent, !loose, firstItem));
         this._isLooseParentList = true;
     }
 
@@ -604,11 +633,11 @@ export default class ExportMarkdown {
     private _serializeListItem(
         state: IListItemState | ITaskListItemState,
         indent: string,
-        isTightItem = false,
+        isTightItem: boolean,
+        firstItem: boolean,
     ) {
         const listInfo = this._listType[this._listType.length - 1];
         const marker = 'marker' in listInfo ? listInfo.marker : undefined;
-        const delimiter = 'delimiter' in listInfo ? listInfo.delimiter : undefined;
         const isUnorderedList = !!marker;
         const { children, name } = state;
         let itemMarker;
@@ -617,20 +646,8 @@ export default class ExportMarkdown {
             itemMarker = marker ? `${marker} ` : '- ';
         }
         else if ('start' in listInfo) {
-            const preservedMarker = listInfo.sourceMarkers?.shift();
-            if (preservedMarker) {
-                itemMarker = `${preservedMarker} `;
-            }
-            else {
-                // NOTE: GitHub and Bitbucket limit the list count to 99 but this is nowhere defined.
-                //  We limit the number to 99 for Daring Fireball Markdown to prevent indentation issues.
-                let n = listInfo.start;
-                if ((this._listIndentation === 'dfm' && n > 99) || n > 999999999)
-                    n = 1;
-
-                itemMarker = `${n}${delimiter || '.'} `;
-            }
-            listInfo.start++;
+            const firstText = name === 'list-item' && children[0]?.name === 'paragraph' ? children[0].text : '';
+            itemMarker = this._orderedItemMarker(listInfo, firstText, firstItem);
         }
         else {
             itemMarker = '- ';
@@ -664,6 +681,21 @@ export default class ExportMarkdown {
             ? content.slice(newIndent.length)
             : removeIndent(content.slice(container.length), contentColumn, indentationWidth(container));
         return `${indent}${itemMarker}${firstContent}`;
+    }
+
+    // The next item's marker with the spaces after it; advances the list's count.
+    private _orderedItemMarker(listInfo: Extract<TListMeta, { start: number }>, firstText: string, firstItem: boolean): string {
+        const style = listInfo.style ?? 'decimal';
+        const preservedMarker = listInfo.sourceMarkers?.shift();
+        // NOTE: GitHub and Bitbucket limit the list count to 99 but this is nowhere defined.
+        //  We limit the number to 99 for Daring Fireball Markdown to prevent indentation issues.
+        let n = listInfo.start++;
+        if (style === 'decimal' && ((this._listIndentation === 'dfm' && n > 99) || n > 999999999))
+            n = 1;
+        const orderMarker = (preservedMarker && parseListMarker(preservedMarker, style))
+            || { value: n, style, delimiter: listInfo.delimiter };
+
+        return `${preservedMarker || formatListMarker(orderMarker, firstItem ? 'first' : 'continuation')}${' '.repeat(minSpacesAfterMarker(orderMarker, firstText))}`;
     }
 
     private _listItemIndent(indent: string, itemMarker: string) {

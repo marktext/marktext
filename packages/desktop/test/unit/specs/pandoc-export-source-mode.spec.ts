@@ -60,6 +60,7 @@ const sentPayload = (sendSpy: { mock: { calls: unknown[][] } }) =>
     texMathGfm: boolean
     texMathSingleBackslash: boolean
     texMathDoubleBackslash: boolean
+    fancyLists: boolean
   }
 
 describe('pandoc export payload (#5379)', () => {
@@ -101,6 +102,7 @@ describe('pandoc export payload (#5379)', () => {
     usePreferencesStore().texMathGfm = true
     usePreferencesStore().texMathSingleBackslash = true
     usePreferencesStore().texMathDoubleBackslash = true
+    usePreferencesStore().fancyLists = true
 
     store.EXPORT_PANDOC('docx')
 
@@ -110,7 +112,8 @@ describe('pandoc export payload (#5379)', () => {
       texMathDollars: false,
       texMathGfm: true,
       texMathSingleBackslash: true,
-      texMathDoubleBackslash: true
+      texMathDoubleBackslash: true,
+      fancyLists: true
     })
   })
 

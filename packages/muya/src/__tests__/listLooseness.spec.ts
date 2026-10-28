@@ -5,6 +5,7 @@ import type TaskListCheckbox from '../block/gfm/taskListCheckbox';
 import type { IBulletListState, IOrderListState, ITaskListState } from '../state/types';
 import * as json1 from 'ot-json1';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ScrollPage } from '../block/scrollPage';
 import { Muya } from '../muya';
 import { SelectionDirection } from '../selection/types';
 import { asDoc } from '../state';
@@ -28,10 +29,10 @@ afterEach(() => {
     vi.restoreAllMocks();
 });
 
-function boot(markdown: string, preferLooseListItem = false) {
+function boot(markdown: string, preferLooseListItem = false, fancyLists = false) {
     const host = document.createElement('div');
     document.body.appendChild(host);
-    const muya = new Muya(host, { markdown, preferLooseListItem });
+    const muya = new Muya(host, { markdown, preferLooseListItem, fancyLists });
     instances.push(muya);
     muya.init();
     return muya;
@@ -52,6 +53,27 @@ function parentAt(muya: Muya, path: (string | number)[]): Parent {
 }
 
 describe('list looseness across editing and history', () => {
+    it('accounts for fancy-list separators when normalizing a containing item', () => {
+        const muya = boot('- parent\n  a. x\n', false, true);
+        const before = muya.getState();
+        const owner = parentAt(muya, [0, 'children', 0]);
+        const [nested] = new MarkdownToState({ fancyLists: true }).generate('i. y\n');
+        muya.transact(() => {
+            owner.append(ScrollPage.loadBlock(nested.name).create(muya, nested), ChangeSource.User);
+        });
+        muya.flush();
+        expect((muya.getState()[0] as TList).meta.loose).toBe(true);
+        const markdown = muya.getMarkdown();
+        expect(markdown).toContain('\n  <!-- -->\n');
+        const reopened = new MarkdownToState({ fancyLists: true }).generate(markdown);
+        expect((reopened[0] as TList).meta.loose).toBe(true);
+        expect(new ExportMarkdown({ fancyLists: true }).generate(reopened)).toBe(markdown);
+        muya.undo();
+        expect(muya.getState()).toEqual(before);
+        muya.redo();
+        expect(muya.getMarkdown()).toBe(markdown);
+    });
+
     it('does not export or reparse a nested task list when a checkbox is toggled', () => {
         const muya = boot('- [ ] a\n  - nested\n- [ ] b\n');
         const parse = vi.spyOn(MarkdownToState.prototype, 'generate');

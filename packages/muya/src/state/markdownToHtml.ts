@@ -187,6 +187,7 @@ export class MarkdownToHtml {
             inlineDiff: options.inlineDiff ?? false,
             multilineBlockquote: options.multilineBlockquote ?? false,
             githubAlerts: options.githubAlerts ?? false,
+            fancyLists: options.fancyLists ?? false,
         });
 
         // Transform footnotes before DOMPurify strips their data-identifier markers.
