@@ -537,7 +537,6 @@
         "restoreLayoutState": "Restore window layout",
         "restoreEditors": "Restore opened files",
         "restoreViewState": "Restore reading positions and selections",
-        "defaults": "Outline position and source mode are defaults for new layouts. Existing windows keep their own layout.",
         "failure": "The settings could not be saved. Your previous settings are still in use."
       },
       "pandoc": {

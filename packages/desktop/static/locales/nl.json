@@ -537,7 +537,6 @@
         "restoreLayoutState": "Vensterindeling herstellen",
         "restoreEditors": "Geopende bestanden herstellen",
         "restoreViewState": "Leesposities en selecties herstellen",
-        "defaults": "De positie van de inhoudsopgave en de bronmodus zijn standaardwaarden voor nieuwe indelingen. Bestaande vensters behouden hun eigen indeling.",
         "failure": "De instellingen konden niet worden opgeslagen. De vorige instellingen blijven in gebruik."
       },
       "pandoc": {

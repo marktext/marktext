@@ -1,7 +1,6 @@
 <template>
   <compound
     class="recovery-settings"
-    :notes="t('preferences.general.startup.defaults')"
   >
     <template #head>
       <h6 class="title">
@@ -16,7 +15,10 @@
         :disable="busy"
         :on-change="(action) => save({ startUpAction: action as StartupAction })"
       />
-      <div class="startup-directory">
+      <div
+        v-if="value.startUpAction === 'folder'"
+        class="startup-directory"
+      >
         <el-button
           size="small"
           :disabled="busy"

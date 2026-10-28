@@ -537,7 +537,6 @@
         "restoreLayoutState": "Restaurer la disposition des fenêtres",
         "restoreEditors": "Restaurer les fichiers ouverts",
         "restoreViewState": "Restaurer les positions de lecture et les sélections",
-        "defaults": "La position du plan et le mode source sont les valeurs par défaut des nouvelles dispositions. Les fenêtres existantes conservent leur propre disposition.",
         "failure": "Les paramètres n’ont pas pu être enregistrés. Les paramètres précédents restent en vigueur."
       },
       "pandoc": {
