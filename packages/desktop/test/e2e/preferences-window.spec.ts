@@ -75,9 +75,11 @@ test('startup settings use shared controls and persist policy, switches and fold
     await expect(startup.locator('h6.title')).toHaveText('Startup Options')
     await expect(startup.locator('.el-switch')).toHaveCount(3)
     await expect(startup.locator('select')).toHaveCount(0)
+    await expect(startup.locator('.startup-directory')).toHaveCount(0)
     await startup.locator('.el-select__wrapper').click()
     await settings.getByRole('option', { name: 'Restore the last active window', exact: true }).click()
     await expect.poll(async() => (await preferences(app)).startUpAction).toBe('restoreLastWindow')
+    await expect(startup.locator('.startup-directory')).toHaveCount(0)
     const restoreFiles = startup.getByRole('switch', { name: 'Restore opened files', exact: true })
     await restoreFiles.locator('..').click()
     await expect(restoreFiles).not.toBeChecked()
@@ -85,11 +87,20 @@ test('startup settings use shared controls and persist policy, switches and fold
     await app.evaluate(({ dialog }, folder) => {
       dialog.showOpenDialog = async() => ({ canceled: false, filePaths: [folder] })
     }, dirname(filePath))
+    await startup.locator('.el-select__wrapper').click()
+    await settings.getByRole('option', { name: 'Open the selected folder', exact: true }).click()
+    await expect(startup.locator('.startup-directory')).toBeVisible()
     await startup.getByRole('button', { name: 'Select Folder', exact: true }).click()
     await expect.poll(() => preferences(app)).toMatchObject({
       startUpAction: 'folder', defaultDirectoryToOpen: dirname(filePath), restoreEditors: false
     })
     await expect(startup.locator('.startup-directory')).toContainText(dirname(filePath))
+    await startup.locator('.el-select__wrapper').click()
+    await settings.getByRole('option', { name: 'New blank document', exact: true }).click()
+    await expect(startup.locator('.startup-directory')).toHaveCount(0)
+    await expect.poll(() => preferences(app)).toMatchObject({
+      startUpAction: 'blank', defaultDirectoryToOpen: dirname(filePath)
+    })
     await expectNoRendererErrors(app)
   } finally {
     await app.close()
