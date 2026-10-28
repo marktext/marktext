@@ -5,7 +5,7 @@ import {
   RECOVERY_DEFAULTS,
   type PreferenceUpdateResult,
   type UserPreferences
-} from '@shared/types/applicationState'
+} from '@shared/types/preferences'
 import bundled from '../../../static/preference.json'
 import schema from './schema.json'
 
