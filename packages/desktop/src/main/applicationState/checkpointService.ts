@@ -16,9 +16,11 @@ import { DocumentRegistry, type DocumentRegistration } from './documentRegistry'
 import { createStateId } from './identity'
 import { contentSha256 } from 'common/filesystem'
 
+/** Per-renderer request ordering and the receipt cached for an identical retry. */
 interface RendererContext {
   token: string
   sequence: number
+  // Hash of the accepted request, including layout and body updates.
   digest: string | null
   result: PersistResult | null
   closeTransactionId: string | null
@@ -29,56 +31,53 @@ export interface RegisteredDocumentContent extends DocumentRegistration {
   markdown: string
 }
 
-export interface SaveCapture {
+/** Immutable input to one disk save; later typing must remain independent of its result. */
+interface SaveCapture {
   snapshot: DocumentSnapshot
   markdown: string
   contentRevision: number
   baseline: DiskBaseline | null
 }
 
-export type SaveDocumentResult = PersistResult | { status: 'cancelled' }
+type SaveDocumentResult = PersistResult | { status: 'cancelled' }
 type RendererInitialization = Omit<WindowInitialization, 'preferences'>
 
 const failed = (): PersistResult => ({ status: 'failed', reason: 'storage-unavailable' })
 
 /** Serializes all application metadata changes; disk saves run outside the checkpoint queue. */
 export class CheckpointService {
-  private state: ApplicationState
-  private readonly documents = new DocumentRegistry()
-  private readonly contexts = new Map<string, RendererContext>()
-  private readonly saveQueues = new Map<string, Promise<unknown>>()
-  private tail: Promise<unknown> = Promise.resolve()
+  private _state: ApplicationState
+  private readonly _documents = new DocumentRegistry()
+  private readonly _contexts = new Map<string, RendererContext>()
+  private readonly _saveQueues = new Map<string, Promise<unknown>>()
+  private _tail: Promise<unknown> = Promise.resolve()
 
   constructor(
     initial: ApplicationState,
-    private readonly metadata: ApplicationStateStorage,
-    private readonly recovery: DocumentRecoveryStorage,
-    private readonly now: () => number = Date.now,
-    private readonly onCleanupError: (error: unknown) => void = () => {}
+    private readonly _metadata: ApplicationStateStorage,
+    private readonly _recovery: DocumentRecoveryStorage,
+    private readonly _now: () => number = Date.now,
+    private readonly _onCleanupError: (error: unknown) => void = () => {}
   ) {
-    this.state = structuredClone(initial)
+    this._state = structuredClone(initial)
   }
 
-  private enqueue<T>(operation: () => Promise<T> | T): Promise<T> {
-    const result = this.tail.then(operation)
-    this.tail = result.catch(() => {})
+  private _enqueue<T>(operation: () => Promise<T> | T): Promise<T> {
+    const result = this._tail.then(operation)
+    this._tail = result.catch(() => {})
     return result
   }
 
   getState(): ApplicationState {
-    return structuredClone(this.state)
+    return structuredClone(this._state)
   }
 
   getWindow(id: string): WindowSnapshot | null {
-    return structuredClone(this.state.session.windows.find((window) => window.id === id) ?? null)
+    return structuredClone(this._state.session.windows.find((window) => window.id === id) ?? null)
   }
 
   getDocument(id: string): DocumentSnapshot {
-    return this.documents.get(id)
-  }
-
-  savedDocuments(): Map<string, DocumentSnapshot> {
-    return this.documents.savedDocuments()
+    return this._documents.get(id)
   }
 
   /** The host must flush a new window's membership before allowing edits in its renderer. */
@@ -88,7 +87,7 @@ export class CheckpointService {
   ): Promise<RuntimeWindowContext> {
     const window = structuredClone(snapshot)
     const bodies = structuredClone(contents)
-    return this.enqueue(() => {
+    return this._enqueue(() => {
       const parsed = parseWindowSnapshot(window)
       if (
         !parsed ||
@@ -105,50 +104,50 @@ export class CheckpointService {
       }
       for (const document of parsed.documents) {
         if (
-          this.state.session.windows.some((existing) =>
+          this._state.session.windows.some((existing) =>
             existing.documents.some((item) => item.id === document.id && existing.id !== parsed.id)
           )
         )
           throw new Error('Invalid document owner')
       }
-      if (this.contexts.has(parsed.id)) throw new Error('Window already attached')
+      if (this._contexts.has(parsed.id)) throw new Error('Window already attached')
       for (const document of parsed.documents) {
         const body = bodies.find((body) => body.documentId === document.id)
         if (!body) throw new Error('Missing document content')
-        this.documents.register(parsed.id, document, body.markdown, body)
+        this._documents.register(parsed.id, document, body.markdown, body)
       }
-      const index = this.state.session.windows.findIndex((entry) => entry.id === parsed.id)
-      if (index < 0) this.state.session.windows.push(parsed)
-      else this.state.session.windows[index] = parsed
-      this.state.session.lastWindow = null
-      this.state.session.activeWindowId ??= parsed.id
-      return this.rotateContext(parsed.id)
+      const index = this._state.session.windows.findIndex((entry) => entry.id === parsed.id)
+      if (index < 0) this._state.session.windows.push(parsed)
+      else this._state.session.windows[index] = parsed
+      this._state.session.lastWindow = null
+      this._state.session.activeWindowId ??= parsed.id
+      return this._rotateContext(parsed.id)
     })
   }
 
-  private rotateContext(windowId: string): RuntimeWindowContext {
+  private _rotateContext(windowId: string): RuntimeWindowContext {
     const token = createStateId()
-    this.contexts.set(windowId, {
+    this._contexts.set(windowId, {
       token,
       sequence: 0,
       digest: null,
       result: null,
       closeTransactionId: null
     })
-    return { windowId, sessionId: this.state.session.id, contextToken: token }
+    return { contextToken: token }
   }
 
   initializeRenderer(windowId: string): Promise<RendererInitialization> {
-    return this.enqueue(() => {
+    return this._enqueue(() => {
       const snapshot = this.getWindow(windowId)
-      if (!snapshot || !this.contexts.has(windowId)) throw new Error('Unknown window')
+      if (!snapshot || !this._contexts.has(windowId)) throw new Error('Unknown window')
       return {
-        context: this.rotateContext(windowId),
+        context: this._rotateContext(windowId),
         snapshot,
         documentContents: snapshot.documents.map((document) => ({
           documentId: document.id,
-          contentRevision: this.documents.revision(document.id),
-          markdown: this.documents.text(document.id)
+          contentRevision: this._documents.revision(document.id),
+          markdown: this._documents.text(document.id)
         }))
       }
     })
@@ -164,8 +163,8 @@ export class CheckpointService {
     } catch {
       return Promise.resolve({ status: 'failed', reason: 'invalid-data' })
     }
-    return this.enqueue(async() => {
-      const context = this.contexts.get(windowId)
+    return this._enqueue(async() => {
+      const context = this._contexts.get(windowId)
       const snapshot = this.getWindow(windowId)
       if (!snapshot || !context || context.token !== captured.contextToken)
         return { status: 'failed', reason: 'stale-context' }
@@ -186,7 +185,7 @@ export class CheckpointService {
       try {
         if (!Array.isArray(captured.documents) || !Array.isArray(captured.dirtyContents))
           throw new Error('Invalid checkpoint')
-        const owned = this.documents.ownedDocuments(windowId)
+        const owned = this._documents.ownedDocuments(windowId)
         const ids = new Set(captured.documents.map((document) => document.id))
         const bodies = new Map(captured.dirtyContents.map((body) => [body.documentId, body]))
         if (
@@ -199,7 +198,7 @@ export class CheckpointService {
         )
           throw new Error('Invalid checkpoint membership')
         const updates = captured.documents.map((document) =>
-          this.documents.prepare(windowId, document, bodies.get(document.id))
+          this._documents.prepare(windowId, document, bodies.get(document.id))
         )
         const parsed = parseWindowSnapshot({
           ...snapshot,
@@ -207,34 +206,34 @@ export class CheckpointService {
           projectView: captured.projectView,
           documents: updates.map((update) => update.entry.snapshot),
           activeDocumentId: captured.activeDocumentId,
-          updatedAtMs: this.now()
+          updatedAtMs: this._now()
         })
         if (!parsed) throw new Error('Invalid checkpoint snapshot')
-        this.documents.apply(updates)
-        this.replaceWindow(parsed)
+        this._documents.apply(updates)
+        this._replaceWindow(parsed)
       } catch {
         return { status: 'failed', reason: 'invalid-data' }
       }
       context.sequence = captured.sequence
       context.digest = digest
-      const result = await this.persistResult(captured.sequence, windowId)
+      const result = await this._persistResult()
       context.result = result
       return result
     })
   }
 
   flush(windowId: string, token: string): Promise<PersistResult> {
-    return this.enqueue(async() => {
-      const context = this.contexts.get(windowId)
+    return this._enqueue(async() => {
+      const context = this._contexts.get(windowId)
       if (!this.getWindow(windowId) || !context || context.token !== token)
         return { status: 'failed', reason: 'stale-context' }
-      return this.persistResult(context.sequence, windowId)
+      return this._persistResult()
     })
   }
 
   beginCloseCheckpoint(windowId: string, transactionId: string): Promise<void> {
-    return this.enqueue(() => {
-      const context = this.contexts.get(windowId)
+    return this._enqueue(() => {
+      const context = this._contexts.get(windowId)
       if (!context || !this.getWindow(windowId) || !transactionId)
         throw new Error('Invalid close transaction')
       context.closeTransactionId = transactionId
@@ -242,23 +241,23 @@ export class CheckpointService {
   }
 
   cancelCloseCheckpoint(windowId: string, transactionId: string): Promise<void> {
-    return this.enqueue(() => {
-      const context = this.contexts.get(windowId)
+    return this._enqueue(() => {
+      const context = this._contexts.get(windowId)
       if (context?.closeTransactionId === transactionId) context.closeTransactionId = null
     })
   }
 
-  private replaceWindow(snapshot: WindowSnapshot): void {
-    const index = this.state.session.windows.findIndex((window) => window.id === snapshot.id)
+  private _replaceWindow(snapshot: WindowSnapshot): void {
+    const index = this._state.session.windows.findIndex((window) => window.id === snapshot.id)
     if (index < 0) throw new Error('Unknown window')
-    this.state.session.windows[index] = snapshot
+    this._state.session.windows[index] = snapshot
   }
 
-  private refreshDocuments(windowId: string): void {
+  private _refreshDocuments(windowId: string): void {
     const snapshot = this.getWindow(windowId)
     if (!snapshot) throw new Error('Unknown window')
     const remaining = new Map(
-      this.documents.ownedDocuments(windowId).map((document) => [document.id, document])
+      this._documents.ownedDocuments(windowId).map((document) => [document.id, document])
     )
     snapshot.documents = snapshot.documents.flatMap((document) => {
       const current = remaining.get(document.id)
@@ -268,8 +267,8 @@ export class CheckpointService {
     snapshot.documents.push(...remaining.values())
     if (!snapshot.documents.some((document) => document.id === snapshot.activeDocumentId))
       snapshot.activeDocumentId = snapshot.documents[0]?.id ?? null
-    snapshot.updatedAtMs = this.now()
-    this.replaceWindow(snapshot)
+    snapshot.updatedAtMs = this._now()
+    this._replaceWindow(snapshot)
   }
 
   addDocument(
@@ -280,22 +279,22 @@ export class CheckpointService {
   ): Promise<PersistResult> {
     const document = structuredClone(snapshot)
     const registration = structuredClone(options)
-    return this.enqueue(async() => {
-      const context = this.contexts.get(windowId)
+    return this._enqueue(async() => {
+      const context = this._contexts.get(windowId)
       if (!this.getWindow(windowId) || !context) throw new Error('Unknown window')
-      this.documents.register(windowId, document, markdown, registration)
-      this.refreshDocuments(windowId)
-      return this.persistResult(context.sequence, windowId)
+      this._documents.register(windowId, document, markdown, registration)
+      this._refreshDocuments(windowId)
+      return this._persistResult()
     })
   }
 
   endDocument(windowId: string, documentId: string, discard: boolean): Promise<PersistResult> {
-    return this.enqueue(async() => {
+    return this._enqueue(async() => {
       const snapshot = this.getWindow(windowId)
       if (!snapshot?.documents.some((document) => document.id === documentId))
         return { status: 'failed', reason: 'invalid-data' }
-      if (this.saveQueues.has(documentId)) return failed()
-      const marker = this.documents.prepareClose(documentId, discard, this.now())
+      if (this._saveQueues.has(documentId)) return failed()
+      const marker = this._documents.prepareClose(documentId, discard, this._now())
       snapshot.documents = snapshot.documents.filter((document) => document.id !== documentId)
       if (snapshot.activeDocumentId === documentId)
         snapshot.activeDocumentId = snapshot.documents[0]?.id ?? null
@@ -304,10 +303,10 @@ export class CheckpointService {
         window.id === windowId ? snapshot : window
       )
       try {
-        await this.persist(candidate, [marker])
-        return this.receipt(this.contexts.get(windowId)?.sequence ?? 0, windowId)
+        await this._persist(candidate, [marker])
+        return this._receipt()
       } catch {
-        this.documents.requireRecoveryWrite(documentId)
+        this._documents.requireRecoveryWrite(documentId)
         return failed()
       }
     })
@@ -320,32 +319,32 @@ export class CheckpointService {
       capture: SaveCapture
     ) => Promise<{ snapshot: DocumentSnapshot; markdown: string } | null>
   ): Promise<SaveDocumentResult> {
-    const previous = this.saveQueues.get(documentId) ?? Promise.resolve()
+    const previous = this._saveQueues.get(documentId) ?? Promise.resolve()
     const operation = previous
       .catch(() => {})
       .then(async(): Promise<SaveDocumentResult> => {
-        const capture = await this.enqueue((): SaveCapture => {
+        const capture = await this._enqueue((): SaveCapture => {
           if (!this.getWindow(windowId)?.documents.some((document) => document.id === documentId))
             throw new Error('Invalid document owner')
           return {
-            snapshot: this.documents.get(documentId),
-            markdown: this.documents.text(documentId),
-            contentRevision: this.documents.revision(documentId),
-            baseline: this.documents.baseline(documentId)
+            snapshot: this._documents.get(documentId),
+            markdown: this._documents.text(documentId),
+            contentRevision: this._documents.revision(documentId),
+            baseline: this._documents.baseline(documentId)
           }
         })
         const revision = capture.contentRevision
         const saved = structuredClone(await write(capture))
         if (saved === null) return { status: 'cancelled' }
-        return this.enqueue(async() => {
-          this.documents.markSaved(documentId, revision, saved.snapshot, saved.markdown)
-          this.refreshDocuments(windowId)
-          return this.persistResult(this.contexts.get(windowId)?.sequence ?? 0, windowId)
+        return this._enqueue(async() => {
+          this._documents.markSaved(documentId, revision, saved.snapshot, saved.markdown)
+          this._refreshDocuments(windowId)
+          return this._persistResult()
         })
       })
-    this.saveQueues.set(documentId, operation)
+    this._saveQueues.set(documentId, operation)
     const cleanup = (): void => {
-      if (this.saveQueues.get(documentId) === operation) this.saveQueues.delete(documentId)
+      if (this._saveQueues.get(documentId) === operation) this._saveQueues.delete(documentId)
     }
     void operation.then(cleanup, cleanup)
     return operation
@@ -353,13 +352,13 @@ export class CheckpointService {
 
   /** Membership changes become visible only after the complete durable commit succeeds. */
   commitState(transform: (state: ApplicationState) => ApplicationState): Promise<void> {
-    return this.enqueue(async() => {
+    return this._enqueue(async() => {
       const candidate = structuredClone(transform(this.getState()))
-      const previous = this.state
+      const previous = this._state
       const liveIds = new Set(candidate.session.windows.map((window) => window.id))
-      if (candidate.session.lifecycle === 'closed' && this.saveQueues.size > 0)
+      if (candidate.session.lifecycle === 'closed' && this._saveQueues.size > 0)
         throw new Error('Cannot finish session with pending saves')
-      for (const window of this.state.session.windows) {
+      for (const window of this._state.session.windows) {
         const retained = candidate.session.windows.find((entry) => entry.id === window.id)
         if (
           retained &&
@@ -371,15 +370,15 @@ export class CheckpointService {
         if (
           !liveIds.has(window.id) &&
           (window.documents.some((document) => document.content.kind === 'recovery') ||
-            window.documents.some((document) => this.saveQueues.has(document.id)))
+            window.documents.some((document) => this._saveQueues.has(document.id)))
         )
           throw new Error('Cannot remove a window with unsaved documents or pending saves')
       }
-      await this.persist(candidate)
-      for (const id of this.contexts.keys()) {
+      await this._persist(candidate)
+      for (const id of this._contexts.keys()) {
         if (!liveIds.has(id)) {
-          this.documents.releaseWindow(id)
-          this.contexts.delete(id)
+          this._documents.releaseWindow(id)
+          this._contexts.delete(id)
         } else if (
           candidate.session.id !== previous.session.id ||
           JSON.stringify(
@@ -387,69 +386,56 @@ export class CheckpointService {
           ) !==
             JSON.stringify(previous.session.windows.find((window) => window.id === id)?.workspace)
         )
-          this.rotateContext(id)
+          this._rotateContext(id)
       }
     })
   }
 
-  private async persistResult(sequence: number, windowId: string): Promise<PersistResult> {
+  private async _persistResult(): Promise<PersistResult> {
     try {
-      await this.persist(this.state)
-      return this.receipt(sequence, windowId)
+      await this._persist(this._state)
+      return this._receipt()
     } catch {
       return failed()
     }
   }
 
-  private receipt(sequence: number, windowId: string): PersistResult {
-    const documents = this.getWindow(windowId)?.documents ?? []
-    return {
-      status: 'persisted',
-      receipt: {
-        metadataRevision: this.state.revision,
-        sequence,
-        recoveryRevisions: documents
-          .filter((document) => document.content.kind === 'recovery')
-          .map((document) => ({
-            documentId: document.id,
-            contentRevision: this.documents.revision(document.id)
-          }))
-      }
-    }
+  private _receipt(): PersistResult {
+    return { status: 'persisted', receipt: { metadataRevision: this._state.revision } }
   }
 
-  private async persist(
+  private async _persist(
     candidate: ApplicationState,
     ended: DiscardedRecoveryRecord[] = []
   ): Promise<void> {
     const recordsById = new Map(
-      this.documents.pendingRecords(this.now()).map((record) => [record.documentId, record])
+      this._documents.pendingRecords(this._now()).map((record) => [record.documentId, record])
     )
     for (const record of ended) recordsById.set(record.documentId, record)
     const records = [...recordsById.values()]
-    for (const record of records) await this.recovery.write(record)
+    for (const record of records) await this._recovery.write(record)
     const next = {
       ...structuredClone(candidate),
-      revision: this.state.revision + 1,
-      updatedAtMs: this.now()
+      revision: this._state.revision + 1,
+      updatedAtMs: this._now()
     }
-    await this.metadata.write(next)
-    this.state = next
-    for (const record of ended) this.documents.discard(record.documentId)
+    await this._metadata.write(next)
+    this._state = next
+    for (const record of ended) this._documents.discard(record.documentId)
     for (const record of records) {
       if (record.status !== 'dirty') {
         try {
-          await this.recovery.remove(record.ownerWindowId, record.documentId)
+          await this._recovery.remove(record.ownerWindowId, record.documentId)
         } catch (error) {
           try {
-            this.onCleanupError(error)
+            this._onCleanupError(error)
           } catch {
             // Reporting cannot invalidate a completed metadata commit.
           }
           continue
         }
       }
-      this.documents.settle(record)
+      this._documents.settle(record)
     }
   }
 }
