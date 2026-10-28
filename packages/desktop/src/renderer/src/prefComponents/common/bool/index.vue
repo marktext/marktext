@@ -47,13 +47,13 @@
     <el-switch
       v-model="status"
       :aria-label="description"
-      @change="handleSwitchChange"
+      :disabled="disable"
     />
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
 import { InfoFilled } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
@@ -77,16 +77,10 @@ const props = withDefaults(defineProps<BoolProps>(), {
   disable: false
 })
 
-const status = ref(props.bool)
-
-watch(
-  () => props.bool,
-  (value, oldValue) => {
-    if (value !== oldValue) {
-      status.value = value
-    }
-  }
-)
+const status = computed({
+  get: () => props.bool,
+  set: (value: boolean | string | number) => props.onChange(Boolean(value))
+})
 
 const handleMoreClick = () => {
   if (typeof props.more === 'string') {
@@ -94,9 +88,6 @@ const handleMoreClick = () => {
   }
 }
 
-const handleSwitchChange = (value: boolean | string | number) => {
-  props.onChange(Boolean(value))
-}
 </script>
 
 <style>
