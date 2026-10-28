@@ -936,6 +936,7 @@ export class SessionHost {
       .getWindow(windowId)
       ?.documents.find((document) => document.id === documentId)
     if (!document || (document.readOnly && !allowReadOnly)) return { status: 'failed' }
+    let previousPath = ''
     let savedMarkdown = ''
     let savedFormat = document.saveFormat
     const sender = this._native(windowId).webContents
@@ -947,6 +948,8 @@ export class SessionHost {
         if (epoch === null) throw new Error('Document is read-only')
         const native = this._native(windowId)
         const resource = capture.snapshot.resource
+        // A preceding queued Save As may have rebound the resource since the request arrived.
+        previousPath = resource.kind === 'file' ? resource.location.path : ''
         let destination = resource.kind === 'file' ? resource.location.path : ''
         if (saveAs || !destination) {
           const choice = await dialog.showSaveDialog(native, {
@@ -1007,7 +1010,10 @@ export class SessionHost {
         (this._statuses.get(windowId) ?? []).filter((status) => status.documentId !== documentId)
       )
       if (saved.resource.kind === 'file') {
-        this._editors.get(windowId)?.addToOpenedFiles(saved.resource.location.path)
+        const editor = this._editors.get(windowId)
+        if (previousPath && previousPath !== saved.resource.location.path)
+          editor?.changeOpenedFilePath(saved.resource.location.path, previousPath)
+        else editor?.addToOpenedFiles(saved.resource.location.path)
         this._accessor.menu.addRecentlyUsedDocument(saved.resource.location.path)
         ipcMain.emit('window-file-saved', this._native(windowId).id, saved.resource.location.path)
       }

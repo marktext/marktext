@@ -344,22 +344,25 @@ class WindowSession {
 
   private async _captureActiveView(): Promise<void> {
     const file = this._editor.currentFile
-    if (!file || this._pendingRestoreId === file.id || !isDocumentViewReady(file.id, file.markdown))
+    if (
+      !file ||
+      this._pendingRestoreId === file.id ||
+      !isDocumentViewReady(file.id, file.markdown, file.trimTrailingNewline)
+    )
       return
     const markdown = file.markdown
-    const view = await captureDocumentView(
-      file.id,
-      markdown,
-      file.tocCollapsedKeys ?? [],
-      file.viewState ?? null
-    )
+    const view = await captureDocumentView(file)
     if (this._editor.tabs.some((current) => current.id === file.id) && file.markdown === markdown)
       file.viewState = view
   }
 
   private async _restoreActiveView(): Promise<void> {
     const file = this._editor.currentFile
-    if (!file || this._pendingRestoreId !== file.id || !isDocumentViewReady(file.id, file.markdown))
+    if (
+      !file ||
+      this._pendingRestoreId !== file.id ||
+      !isDocumentViewReady(file.id, file.markdown, file.trimTrailingNewline)
+    )
       return
     const id = file.id
     const markdown = file.markdown
