@@ -234,6 +234,90 @@ describe('latest document recovery storage', () => {
     expect(await store.readWindow(record.ownerWindowId)).toEqual([])
   })
 
+  it('removes an empty window directory after the last completed record, including retries', async() => {
+    const directory = await profile()
+    const store = new RecoveryStore(directory)
+    const record = dirtyRecord()
+    await store.write({
+      schemaVersion: 1,
+      status: 'discarded',
+      ownerWindowId: record.ownerWindowId,
+      documentId: record.documentId,
+      contentRevision: 1,
+      updatedAtMs: 20
+    })
+    await store.remove(record.ownerWindowId, record.documentId)
+    await expect(stat(join(directory, 'recovery', record.ownerWindowId))).rejects.toMatchObject({
+      code: 'ENOENT'
+    })
+    await store.remove(record.ownerWindowId, record.documentId)
+    await mkdir(join(directory, 'recovery', record.ownerWindowId))
+    await store.remove(record.ownerWindowId, record.documentId)
+    await expect(stat(join(directory, 'recovery', record.ownerWindowId))).rejects.toMatchObject({
+      code: 'ENOENT'
+    })
+  })
+
+  it('captures recovery view selections before queued IO can observe caller mutations', async() => {
+    const store = new RecoveryStore(await profile())
+    const record = dirtyRecord()
+    const sourceSelection = { anchor: { line: 0, ch: 0 }, focus: { line: 0, ch: 1 } }
+    record.document.view = {
+      contentSha256: record.contentSha256,
+      sourceSelection,
+      muyaSelection: null,
+      sourceScrollTopPx: 0,
+      renderedScrollTopPx: 0,
+      collapsedOutlineKeys: []
+    }
+    const requested = structuredClone(record)
+    const written = store.write(record)
+    sourceSelection.anchor.ch = 7
+    await written
+    expect(await store.readWindow(record.ownerWindowId)).toEqual([requested])
+  })
+
+  it('keeps other documents, unknown files and unrelated window directories during cleanup', async() => {
+    const directory = await profile()
+    const store = new RecoveryStore(directory)
+    const record = dirtyRecord()
+    const sibling = dirtyRecord(record.ownerWindowId)
+    const other = dirtyRecord()
+    await store.write(sibling)
+    await store.write(other)
+    const windowPath = join(directory, 'recovery', record.ownerWindowId)
+    await writeFile(join(windowPath, 'unrecognized.json'), '{broken')
+    await store.write({
+      schemaVersion: 1,
+      status: 'discarded',
+      ownerWindowId: record.ownerWindowId,
+      documentId: record.documentId,
+      contentRevision: 1,
+      updatedAtMs: 20
+    })
+    await store.remove(record.ownerWindowId, record.documentId)
+    expect(await store.readWindow(record.ownerWindowId)).toEqual([sibling])
+    expect(await store.readWindow(other.ownerWindowId)).toEqual([other])
+    expect(await readFile(join(windowPath, 'unrecognized.json'), 'utf8')).toBe('{broken')
+  })
+
+  it('serializes empty-directory removal against a new document in the same window', async() => {
+    const directory = await profile()
+    const store = new RecoveryStore(directory)
+    const record = dirtyRecord()
+    const next = dirtyRecord(record.ownerWindowId)
+    await store.write({
+      schemaVersion: 1,
+      status: 'discarded',
+      ownerWindowId: record.ownerWindowId,
+      documentId: record.documentId,
+      contentRevision: 1,
+      updatedAtMs: 20
+    })
+    await Promise.all([store.remove(record.ownerWindowId, record.documentId), store.write(next)])
+    expect(await store.readWindow(record.ownerWindowId)).toEqual([next])
+  })
+
   it('preserves corrupt records while returning other valid documents', async() => {
     const directory = await profile()
     const store = new RecoveryStore(directory)
@@ -282,5 +366,8 @@ describe('latest document recovery storage', () => {
     const record = dirtyRecord()
     await expect(store.write(record)).rejects.toThrow('disk full')
     expect(await store.readWindow(record.ownerWindowId)).toEqual([])
+    beforeReplace.mockResolvedValue(undefined)
+    await store.write(record)
+    expect(await store.readWindow(record.ownerWindowId)).toEqual([record])
   })
 })

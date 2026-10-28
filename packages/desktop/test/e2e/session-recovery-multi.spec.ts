@@ -632,11 +632,7 @@ test('ten normal startup, edit, save or discard and quit cycles do not accumulat
       running = null
       expect(state(directory).session.lifecycle).toBe('closed')
       expect(state(directory).session.windows).toHaveLength(1)
-      expect(
-        readdirSync(join(directory, 'recovery'), { recursive: true }).filter((file) =>
-          String(file).endsWith('.json')
-        )
-      ).toEqual([])
+      expect(readdirSync(join(directory, 'recovery'))).toEqual([])
       expect(readdirSync(join(directory, 'state'))).toEqual(['application-state.json'])
       if (cycle % 2 === 0)
         expect(readFileSync(join(directory, `saved-${cycle}.md`), 'utf8').trim()).toBe(

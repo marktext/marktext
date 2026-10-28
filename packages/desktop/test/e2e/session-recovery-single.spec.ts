@@ -89,11 +89,7 @@ test('a completed save cleans recovery contents and restores an ordinary saved f
       readFileSync(join(directory, 'state', 'application-state.json'), 'utf8')
     )
     expect(state.session.lastWindow.documents[0].content.kind).toBe('disk')
-    expect(
-      readdirSync(join(directory, 'recovery'), { recursive: true }).filter((name) =>
-        String(name).endsWith('.json')
-      )
-    ).toEqual([])
+    expect(readdirSync(join(directory, 'recovery'))).toEqual([])
     await stop(app)
     running = null
     const restored = await launchElectron([], {
@@ -333,10 +329,7 @@ test('cancel keeps an unsaved window and discard commits removal without revivin
     )
     expect(state.session.windows).toEqual([])
     expect(state.session.lastWindow.documents).toEqual([])
-    const recoveryFiles = readdirSync(join(directory, 'recovery'), { recursive: true }).filter(
-      (name) => String(name).endsWith('.json')
-    )
-    expect(recoveryFiles).toEqual([])
+    expect(readdirSync(join(directory, 'recovery'))).toEqual([])
   } finally {
     await stop(app)
     rmSync(directory, { recursive: true, force: true })
