@@ -537,7 +537,6 @@
         "restoreLayoutState": "Pencere düzenini geri yükle",
         "restoreEditors": "Açık dosyaları geri yükle",
         "restoreViewState": "Okuma konumlarını ve seçimleri geri yükle",
-        "defaults": "Anahat konumu ve kaynak modu, yeni düzenler için varsayılanlardır. Mevcut pencereler kendi düzenlerini korur.",
         "failure": "Ayarlar kaydedilemedi. Önceki ayarlar kullanılmaya devam ediyor."
       },
       "pandoc": {

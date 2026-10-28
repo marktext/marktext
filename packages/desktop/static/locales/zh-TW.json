@@ -537,7 +537,6 @@
         "restoreLayoutState": "還原視窗配置",
         "restoreEditors": "還原已開啟的檔案",
         "restoreViewState": "還原閱讀位置與選取範圍",
-        "defaults": "大綱位置與原始碼模式是新配置的預設偏好，既有視窗保留各自的配置。",
         "failure": "無法儲存設定，仍使用先前的設定。"
       },
       "pandoc": {

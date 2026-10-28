@@ -537,7 +537,6 @@
         "restoreLayoutState": "恢复窗口布局",
         "restoreEditors": "恢复已打开的文件",
         "restoreViewState": "恢复阅读位置和选区",
-        "defaults": "大纲位置与源码模式是新布局的默认偏好，已有窗口保留各自的布局。",
         "failure": "设置未能保存，仍使用之前的设置。"
       },
       "pandoc": {
