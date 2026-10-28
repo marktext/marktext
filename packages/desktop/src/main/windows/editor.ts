@@ -84,7 +84,7 @@ class EditorWindow extends BaseWindow {
       ;(winOptions.webPreferences as { spellcheck: boolean }).spellcheck = false
     }
 
-    let win: BrowserWindow | null = (this.browserWindow = new BrowserWindow(winOptions))
+    const win = (this.browserWindow = new BrowserWindow(winOptions))
 
     this.id = win.id
     host.registerEditor(this)
@@ -109,7 +109,7 @@ class EditorWindow extends BaseWindow {
     appMenu.addEditorMenu(win, { sourceCodeModeEnabled })
 
     win.webContents.on('context-menu', (event, params) => {
-      showEditorContextMenu(win!, event, params, preferences.getItem('spellcheckerEnabled'))
+      showEditorContextMenu(win, event, params, preferences.getItem('spellcheckerEnabled'))
     })
 
     win.webContents.once('did-finish-load', () => {
@@ -121,11 +121,11 @@ class EditorWindow extends BaseWindow {
       const lineEnding = preferences.getPreferredEol()
       appMenu.updateLineEndingMenu(this.id!, lineEnding)
 
-      win!.webContents.on('zoom-changed', (_event, zoomDirection) => {
+      win.webContents.on('zoom-changed', (_event, zoomDirection) => {
         if (zoomDirection === 'in') {
-          zoomIn(win!)
+          zoomIn(win)
         } else if (zoomDirection === 'out') {
-          zoomOut(win!)
+          zoomOut(win)
         }
       })
     })
@@ -149,14 +149,14 @@ class EditorWindow extends BaseWindow {
         return
       }
 
-      const { response } = await dialog.showMessageBox(win!, {
+      const { response } = await dialog.showMessageBox(win, {
         type: 'warning',
         buttons: ['Close', 'Reload', 'Keep It Open'],
         message: 'MarkText has crashed',
         detail: msg
       })
 
-      if (win!.id) {
+      if (win.id) {
         switch (response) {
           case 0:
             return host.closeWindow(this)
@@ -166,22 +166,29 @@ class EditorWindow extends BaseWindow {
       }
     })
 
-    win.on('focus', () => {
+    const onFocus = (): void => {
       this.emit('window-focus')
-      win!.webContents.send('mt::window-active-status', { status: true })
-    })
+      win.webContents.send('mt::window-active-status', { status: true })
+    }
 
-    win.on('blur', () => {
+    const onBlur = (): void => {
       this.emit('window-blur')
-      win!.webContents.send('mt::window-active-status', { status: false })
+      win.webContents.send('mt::window-active-status', { status: false })
+    }
+    win.on('focus', onFocus)
+    win.on('blur', onBlur)
+    // macOS can deliver focus/blur after closed; these listeners own a live renderer only.
+    win.once('closed', () => {
+      win.removeListener('focus', onFocus)
+      win.removeListener('blur', onBlur)
     })
     ;(['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen'] as const).forEach(
       (channel) => {
         // Electron's BrowserWindow.on() is heavily overloaded — the union of
         // event names can't be satisfied by a single overload, so we widen.
-        ;(win! as { on(event: string, listener: () => void): void }).on(channel, () => {
-          win!.webContents.send(`mt::window-${channel}`)
-        })
+        const notify = (): void => { win.webContents.send(`mt::window-${channel}`) }
+        ;(win as NodeJS.EventEmitter).on(channel, notify)
+        win.once('closed', () => (win as NodeJS.EventEmitter).removeListener(channel, notify))
       }
     )
 
@@ -199,7 +206,7 @@ class EditorWindow extends BaseWindow {
       this.lifecycle = WindowLifecycle.QUITTED
       this.emit('window-closed')
 
-      win = null
+      this.browserWindow = null
     })
 
     this.lifecycle = WindowLifecycle.LOADING
