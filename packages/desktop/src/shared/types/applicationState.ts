@@ -1,16 +1,27 @@
 import type { PreferenceUpdateResult, UserPreferences, UserPreferencesPatch } from './preferences'
 import type { DocumentViewState, DiskBaseline, SaveFormatState } from './files'
+/** UUID of a native editor window; independent of Electron process IDs. */
 export type WindowStateId = string
+/** UUID shared by windows belonging to one application launch. */
 export type SessionId = string
+/** SHA-256 of the sorted canonical root identities. */
 export type WorkspaceId = string
+/** Canonical root location key. */
 export type RootId = string
+/** UUID of an editing instance; opening one path twice creates distinct IDs. */
 export type DocumentId = string
+/** SHA-256 of an absolute canonical path. */
 export type ResourceKey = string
+/** Lowercase hexadecimal SHA-256 digest. */
 export type Sha256 = string
+/** Unix epoch time in milliseconds. */
 export type TimestampMs = number
 
+/** User-facing path and its canonical identity, including not-yet-created files. */
 export interface FileLocation {
+  // Absolute path retained for display and subsequent file operations.
   path: string
+  // Resolves existing ancestor symlinks while preserving any missing suffix.
   canonicalPath: string
   key: ResourceKey
 }
@@ -60,14 +71,17 @@ export interface ProjectViewState {
   roots: RootViewState[]
 }
 
+/** A named document may still have no file on disk when pendingCreation is true. */
 export type DocumentResource =
   { kind: 'untitled' } | { kind: 'file'; location: FileLocation; pendingCreation: boolean }
 
+/** Disk-backed, untouched blank, or recoverable unsaved content; excludes the body itself. */
 export type DocumentContentState =
   | { kind: 'disk'; baseline: DiskBaseline }
   | { kind: 'empty' }
   | { kind: 'recovery'; contentRevision: number }
 
+/** Serializable document metadata; the main process owns resource and content truth. */
 export interface DocumentSnapshot {
   id: DocumentId
   title: string
@@ -118,8 +132,10 @@ export interface WorkspaceRecentState {
   activeFileKey: ResourceKey | null
 }
 
+/** Versioned metadata index; Markdown bodies live in separate recovery records. */
 export interface ApplicationState {
   schemaVersion: 1
+  // Advances only after a successful metadata replacement.
   revision: number
   updatedAtMs: TimestampMs
   session: SessionState
@@ -132,9 +148,17 @@ export interface ApplicationState {
   } | null
 }
 
+/** Serialized recovery states; keep values stable for records already on disk. */
+export const RecoveryStatus = {
+  DIRTY: 'dirty',
+  SAVED: 'saved',
+  DISCARDED: 'discarded'
+} as const
+
+/** Self-contained unsaved content with the disk baseline used for conflict checks. */
 export interface DirtyRecoveryRecord {
   schemaVersion: 1
-  status: 'dirty'
+  status: typeof RecoveryStatus.DIRTY
   ownerWindowId: WindowStateId
   documentId: DocumentId
   contentRevision: number
@@ -142,12 +166,14 @@ export interface DirtyRecoveryRecord {
   document: DocumentSnapshot
   markdown: string
   contentSha256: Sha256
+  // Original disk state before unsaved edits, retained even if the file changes later.
   baseline: DiskBaseline | null
 }
 
+/** Retains a completed save or Save As result across an interrupted metadata commit. */
 export interface SavedRecoveryRecord {
   schemaVersion: 1
-  status: 'saved'
+  status: typeof RecoveryStatus.SAVED
   ownerWindowId: WindowStateId
   documentId: DocumentId
   contentRevision: number
@@ -155,9 +181,10 @@ export interface SavedRecoveryRecord {
   document: DocumentSnapshot
 }
 
+/** Prevents explicitly closed or discarded content from being restored after a crash. */
 export interface DiscardedRecoveryRecord {
   schemaVersion: 1
-  status: 'discarded'
+  status: typeof RecoveryStatus.DISCARDED
   ownerWindowId: WindowStateId
   documentId: DocumentId
   contentRevision: number
@@ -167,12 +194,12 @@ export interface DiscardedRecoveryRecord {
 // saved/discarded replace the same file until the metadata commit makes deletion safe.
 export type RecoveryRecord = DirtyRecoveryRecord | SavedRecoveryRecord | DiscardedRecoveryRecord
 
+/** A fresh token invalidates messages from a previous renderer or workspace context. */
 export interface RuntimeWindowContext {
-  windowId: WindowStateId
-  sessionId: SessionId
   contextToken: string
 }
 
+/** Renderer-editable document fields; resource paths and titles remain main-owned. */
 export interface RendererDocumentCheckpoint {
   id: DocumentId
   content: DocumentContentState
@@ -181,15 +208,19 @@ export interface RendererDocumentCheckpoint {
   view: DocumentViewState | null
 }
 
+/** Full Markdown at a monotonically increasing per-document content revision. */
 export interface DirtyContentUpdate {
   documentId: DocumentId
   contentRevision: number
   markdown: string
 }
 
+/** Complete window membership plus bodies changed since the last acknowledged checkpoint. */
 export interface WindowCheckpointRequest {
   contextToken: string
+  // Strictly increases within one context token; identical requests may be retried.
   sequence: number
+  // Null for normal checkpoints; otherwise matches the pending native close request.
   closeTransactionId: string | null
   layout: WindowLayoutState
   projectView: ProjectViewState
@@ -198,27 +229,30 @@ export interface WindowCheckpointRequest {
   dirtyContents: DirtyContentUpdate[]
 }
 
+/** Metadata revision durably committed by this operation. */
 export interface PersistReceipt {
   metadataRevision: number
-  sequence: number
-  recoveryRevisions: Array<{ documentId: DocumentId; contentRevision: number }>
 }
 
+/** Operational failures; unsupported disk formats are reported by LoadResult instead. */
 export type PersistenceFailure =
   | 'invalid-data'
   | 'stale-context'
   | 'stale-sequence'
-  | 'unsupported-version'
   | 'storage-unavailable'
 
+/** Failure preserves live contents for retry and never implies a completed close. */
 export type PersistResult =
   | { status: 'persisted'; receipt: PersistReceipt }
   | { status: 'failed'; reason: PersistenceFailure }
 
+/** Initial state delivered through IPC after the main process attaches a renderer. */
 export interface WindowInitialization {
   context: RuntimeWindowContext
   preferences: UserPreferences
   snapshot: WindowSnapshot
+  // Runtime text also includes clean documents whose revisions survived a renderer reload.
+  documentContents: DirtyContentUpdate[]
 }
 
 export type RegisterUntitledResult =
@@ -252,6 +286,7 @@ export interface StateIpcMainEvents {
   'mt::state::context-changed': [initialization: WindowInitialization]
 }
 
+/** Read-only defaults preserve an unreadable or invalid original file from replacement. */
 export type LoadResult<T> =
   | { status: 'loaded'; value: T }
   | { status: 'defaulted'; value: T; reason: 'missing' }
@@ -275,11 +310,13 @@ export const STATE_LIMITS: PersistenceLimits = {
   collapsedOutlineKeysPerDocument: 2000
 }
 
+/** Serializes metadata writes without interpreting editor commands. */
 export interface ApplicationStateStorage {
   load(): Promise<LoadResult<ApplicationState>>
   write(state: ApplicationState): Promise<void>
 }
 
+/** Recovery records are isolated by owner window and document editing identity. */
 export interface DocumentRecoveryStorage {
   readWindow(windowId: WindowStateId): Promise<RecoveryRecord[]>
   write(record: RecoveryRecord): Promise<void>
