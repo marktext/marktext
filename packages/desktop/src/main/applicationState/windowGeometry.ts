@@ -76,12 +76,15 @@ export const applyWindowGeometry = (
 export const captureWindowGeometry = (
   window: GeometryWindow,
   displays: DisplayArea[],
-  primary: string
+  primary: string,
+  previous?: WindowGeometryState
 ): WindowGeometryState => {
-  const normalBounds = window.getNormalBounds()
+  const maximized = window.isMaximized()
+  // macOS can report an older normal frame while the window is zoomed.
+  const normalBounds = maximized && previous ? previous.normalBounds : window.getNormalBounds()
   return {
     normalBounds,
-    maximized: window.isMaximized(),
+    maximized,
     displayId: displayFor(normalBounds, displays, null, primary).id
   }
 }

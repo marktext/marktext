@@ -591,16 +591,18 @@ export class SessionHost {
     }
     for (const pathname of prepared.rememberPaths ?? [])
       this._accessor.menu.addRecentlyUsedDocument(pathname)
+    let geometry = prepared.restoreGeometry ? prepared.snapshot.geometry : undefined
     const updateGeometry = (): void => {
       if (native.isDestroyed() || !this._owner().getWindow(id)) return
-      const geometry = captureWindowGeometry(native, displays(), primary())
+      const captured = captureWindowGeometry(native, displays(), primary(), geometry)
+      geometry = captured
       void this._owner()
         .commitState((state) => ({
           ...state,
           session: {
             ...state.session,
             windows: state.session.windows.map((window) =>
-              window.id === id ? { ...window, geometry } : window
+              window.id === id ? { ...window, geometry: captured } : window
             )
           }
         }))
@@ -610,6 +612,8 @@ export class SessionHost {
     this._geometryWriters.set(id, scheduleGeometry)
     native.on('move', scheduleGeometry)
     native.on('resize', scheduleGeometry)
+    // A completed manual resize must survive even if native zoom starts before the debounce.
+    native.on('resized', updateGeometry)
     native.on('maximize', scheduleGeometry)
     native.on('unmaximize', scheduleGeometry)
     native.on('focus', () => {

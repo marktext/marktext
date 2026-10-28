@@ -19,7 +19,7 @@ import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
 import { useProjectStore } from '@/store/project'
 import { createDefaultLayout } from '../../../src/shared/applicationState/defaults'
-import { fitWindowGeometry } from '../../../src/main/applicationState/windowGeometry'
+import { captureWindowGeometry, fitWindowGeometry } from '../../../src/main/applicationState/windowGeometry'
 
 beforeEach(() => {
   setActivePinia(createPinia())
@@ -129,6 +129,23 @@ describe('window-owned layout', () => {
 })
 describe('window geometry in external device-independent bounds', () => {
   const displays = [{ id: 'primary', workArea: { x: 0, y: 25, width: 1440, height: 875 } }]
+  it('keeps the latest observed normal frame when the native maximized frame is stale', () => {
+    const previous = {
+      normalBounds: { x: 40, y: 60, width: 875, height: 700 },
+      maximized: false,
+      displayId: 'primary'
+    }
+    const native = {
+      getNormalBounds: () => ({ x: 0, y: 25, width: 1200, height: 800 }),
+      isMaximized: () => true,
+      setBounds: vi.fn(), maximize: vi.fn(), unmaximize: vi.fn()
+    }
+    expect(captureWindowGeometry(native, displays, 'primary', previous)).toEqual({
+      ...previous, maximized: true
+    })
+    native.isMaximized = () => false
+    expect(captureWindowGeometry(native, displays, 'primary', previous).normalBounds.width).toBe(1200)
+  })
   it('brings a removed-monitor window back into the current work area', () => {
     const result = fitWindowGeometry(
       {

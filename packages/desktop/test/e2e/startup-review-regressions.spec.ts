@@ -165,3 +165,29 @@ test('switching editing modes retains each mode reading position across restart'
   await exitSourceMode(restored.page, restored.app)
   await expect.poll(() => restored.page.getByRole('textbox', { name: 'Document', exact: true }).evaluate((element) => element.scrollTop)).toBe(1200)
 })
+
+
+test('a fast resize before maximizing retains normal bounds across restart', async() => {
+  const { app } = await launch('Geometry state')
+  await app.evaluate(({ BrowserWindow }) => {
+    const native = BrowserWindow.getAllWindows()[0]
+    const normalBounds = native.getNormalBounds.bind(native)
+    native.getNormalBounds = () => native.isMaximized()
+      ? { x: 0, y: 0, width: 1200, height: 800 }
+      : normalBounds()
+    native.setSize(875, 700)
+    native.emit('resized')
+    native.maximize()
+    native.emit('maximize')
+  })
+  await expect.poll(() => readState().session.windows[0].geometry).toMatchObject({
+    normalBounds: { width: 875, height: 700 }, maximized: true
+  })
+  const restored = await restart(app)
+  await restored.app.evaluate(({ BrowserWindow }) => {
+    BrowserWindow.getAllWindows()[0].unmaximize()
+  })
+  await expect.poll(() => readState().session.windows[0].geometry).toMatchObject({
+    normalBounds: { width: 875, height: 700 }, maximized: false
+  })
+})
