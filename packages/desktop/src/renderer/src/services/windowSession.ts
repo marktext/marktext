@@ -177,20 +177,25 @@ class WindowSession {
     )
     this._stops.push(
       watch(
+        () => this._editor.currentFile?.id,
+        () => {
+          if (!this._initializing) this._project.restoringSession = false
+          this._prepareViewRestore(this._editor.currentFile?.id)
+        },
+        // Disk reload briefly assigns a temporary id before restoring the original in the same update.
+        { flush: 'post' }
+      )
+    )
+    this._stops.push(
+      watch(
         () => [
           this._editor.currentFile?.id,
           this._preferences.sourceCode && !this._editor.currentFile?.readOnly
         ] as const,
         ([id, source], [previousId, previousSource]) => {
-          if (id === previousId && source === previousSource) return
-          if (!this._initializing) this._project.restoringSession = false
+          if (this._initializing || id !== previousId || source === previousSource) return
           // Capture the outgoing mode before Vue unmounts its editor binding.
-          const capture = id === previousId ? this._captureActiveView() : null
-          this._pendingRestore = id ? { id, capture } : null
-          void nextTick()
-            .then(() => this._restoreActiveView())
-            .catch((error) => this._failure(error))
-          this._schedule()
+          this._prepareViewRestore(id, this._captureActiveView())
         },
         { flush: 'sync' }
       )
@@ -350,6 +355,14 @@ class WindowSession {
     this._schedule()
   }
 
+  private _prepareViewRestore(id: string | undefined, capture: Promise<void> | null = null): void {
+    this._pendingRestore = id ? { id, capture } : null
+    void nextTick()
+      .then(() => this._restoreActiveView())
+      .catch((error) => this._failure(error))
+    this._schedule()
+  }
+
   private async _captureActiveView(): Promise<void> {
     const file = this._editor.currentFile
     if (
@@ -395,7 +408,8 @@ class WindowSession {
       this._interactionEpoch === epoch
     this._pendingRestore = null
     const keys = await restoreDocumentView(id, markdown, file.viewState ?? null, isCurrent, pending.capture !== null)
-    if (isCurrent()) file.tocCollapsedKeys = keys
+    // Mode handoffs retain live fold edits; only document restoration reapplies saved keys.
+    if (isCurrent() && !pending.capture) file.tocCollapsedKeys = keys
   }
 
   private _flush(transactionId: string | null = null): Promise<PersistResult> {

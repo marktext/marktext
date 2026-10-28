@@ -168,6 +168,8 @@ test('switching editing modes retains each mode reading position across restart'
 
 
 test('a fast resize before maximizing retains normal bounds across restart', async() => {
+  test.skip(process.platform === 'linux' && process.env.CI === 'true',
+    'The CI Xvfb session has no window manager for native maximization.')
   const { app } = await launch('Geometry state')
   await app.evaluate(({ BrowserWindow }) => {
     const native = BrowserWindow.getAllWindows()[0]
