@@ -153,7 +153,8 @@ export interface UserPreferences extends RecoveryPreferences {
   watcherUsePolling: boolean
 }
 
-export interface IUserPreferences extends Partial<UserPreferences> {
+export interface IUserPreferences extends Partial<Omit<UserPreferences, 'startUpAction'>> {
+  startUpAction?: UserPreferences['startUpAction'] | 'lastState'
   tocVisibility?: boolean
   sidebarColumn?: number
   imagePreferRelativePath?: boolean
