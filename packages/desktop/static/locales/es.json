@@ -430,7 +430,9 @@
         "hideScrollbars": "Ocultar barras de desplazamiento",
         "openFilesInNewWindow": "Abrir archivos en nueva ventana",
         "openFoldersInNewWindow": "Abrir carpetas en nueva ventana",
-        "zoom": "Zoom"
+        "zoom": "Zoom",
+        "openFilesInNewWindowNote": "Si se activa, los archivos se abren en una ventana nueva. Si se desactiva, se abren en pestañas de la ventana actual.",
+        "openFoldersInNewWindowNote": "Si se activa, las carpetas se abren en una ventana nueva. Si se desactiva, reemplazan la carpeta de la ventana actual."
       },
       "startup": {
         "title": "Inicio",
@@ -484,25 +486,24 @@
           "newestFirst": "Más reciente primero"
         }
       },
-      "misc": {
-        "title": "Misceláneos",
-        "language": {
-          "title": "Idioma",
-          "english": "English",
-          "chinese": "简体中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "Idioma",
+        "english": "English",
+        "chinese": "简体中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "Idioma de la interfaz"
+      },
+      "openingMode": "Modo de apertura"
     },
     "editor": {
       "title": "Editor",

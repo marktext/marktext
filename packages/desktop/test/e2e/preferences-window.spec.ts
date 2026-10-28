@@ -219,7 +219,7 @@ test('actual settings clicks persist autosave and language and update the editor
 
     await settings.getByRole('button', { name: 'General', exact: true }).click()
     const language = settings.locator('.pref-select-item').filter({
-      has: settings.getByRole('combobox', { name: 'Language', exact: true })
+      has: settings.getByRole('combobox', { name: 'Interface language', exact: true })
     })
     await language.locator('.el-select__wrapper').click()
     await settings.getByRole('option', { name: '简体中文', exact: true }).click()

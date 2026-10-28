@@ -3,31 +3,40 @@
     <h4 v-if="!embedded">
       {{ t('preferences.theme.title') }}
     </h4>
-    <bool
-      id="setting-followSystemTheme"
-      :description="preferenceLabel('followSystemTheme')"
-      :notes="followSystemTheme ? t('preferences.theme.followSystemNote') : ''"
-      :bool="followSystemTheme"
-      :on-change="value => onSelectChange('followSystemTheme', value)"
-    />
-    <section id="setting-theme">
-      <theme-choice
-        v-if="!followSystemTheme"
-        :description="preferenceLabel('theme')"
-        :value="theme"
-        @choose="openPicker('theme')"
-      />
-      <template v-else>
-        <theme-choice
-          v-for="key in modeThemeKeys"
-          :id="`setting-${key}`"
-          :key="key"
-          :description="preferenceLabel(key)"
-          :value="key === 'lightModeTheme' ? lightModeTheme : darkModeTheme"
-          @choose="openPicker(key)"
-        />
+    <compound>
+      <template #head>
+        <h6 class="title">
+          {{ t('preferences.theme.title') }}
+        </h6>
       </template>
-    </section>
+      <template #children>
+        <bool
+          id="setting-followSystemTheme"
+          :description="preferenceLabel('followSystemTheme')"
+          :notes="followSystemTheme ? t('preferences.theme.followSystemNote') : ''"
+          :bool="followSystemTheme"
+          :on-change="value => onSelectChange('followSystemTheme', value)"
+        />
+        <section id="setting-theme">
+          <theme-choice
+            v-if="!followSystemTheme"
+            :description="preferenceLabel('theme')"
+            :value="theme"
+            @choose="openPicker('theme')"
+          />
+          <template v-else>
+            <theme-choice
+              v-for="key in modeThemeKeys"
+              :id="`setting-${key}`"
+              :key="key"
+              :description="preferenceLabel(key)"
+              :value="key === 'lightModeTheme' ? lightModeTheme : darkModeTheme"
+              @choose="openPicker(key)"
+            />
+          </template>
+        </section>
+      </template>
+    </compound>
     <details
       id="setting-customCss"
       class="custom-css"
@@ -101,6 +110,7 @@ import { isDarkThemeId } from 'common/theme'
 import { usePreferencesStore, type PreferencesState } from '@/store/preferences'
 import { preferenceLabel } from '../registry'
 import Bool from '../common/bool/index.vue'
+import Compound from '../common/compound/index.vue'
 import ThemeChoice from './choice.vue'
 import ThemePreview from './preview.vue'
 import { themes, themeLabel } from './config'

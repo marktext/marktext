@@ -97,55 +97,55 @@ export const getFileSortOrderOptions = (sortBy: string = 'title'): PrefSelectOpt
 
 export const getLanguageOptions = (): PrefSelectOption<string>[] => [
   {
-    label: t('preferences.general.misc.language.english'),
+    label: t('preferences.general.language.english'),
     value: 'en'
   },
   {
-    label: t('preferences.general.misc.language.chinese'),
+    label: t('preferences.general.language.chinese'),
     value: 'zh-CN'
   },
   {
-    label: t('preferences.general.misc.language.traditionalChinese'),
+    label: t('preferences.general.language.traditionalChinese'),
     value: 'zh-TW'
   },
   {
-    label: t('preferences.general.misc.language.spanish'),
+    label: t('preferences.general.language.spanish'),
     value: 'es'
   },
   {
-    label: t('preferences.general.misc.language.french'),
+    label: t('preferences.general.language.french'),
     value: 'fr'
   },
   {
-    label: t('preferences.general.misc.language.german'),
+    label: t('preferences.general.language.german'),
     value: 'de'
   },
   {
-    label: t('preferences.general.misc.language.japanese'),
+    label: t('preferences.general.language.japanese'),
     value: 'ja'
   },
   {
-    label: t('preferences.general.misc.language.korean'),
+    label: t('preferences.general.language.korean'),
     value: 'ko'
   },
   {
-    label: t('preferences.general.misc.language.dutch'),
+    label: t('preferences.general.language.dutch'),
     value: 'nl'
   },
   {
-    label: t('preferences.general.misc.language.portuguese'),
+    label: t('preferences.general.language.portuguese'),
     value: 'pt'
   },
   {
-    label: t('preferences.general.misc.language.turkish'),
+    label: t('preferences.general.language.turkish'),
     value: 'tr'
   },
   {
-    label: t('preferences.general.misc.language.russian'),
+    label: t('preferences.general.language.russian'),
     value: 'ru'
   },
   {
-    label: t('preferences.general.misc.language.italian'),
+    label: t('preferences.general.language.italian'),
     value: 'it'
   }
 ]

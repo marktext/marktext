@@ -430,7 +430,9 @@
         "hideScrollbars": "隱藏捲軸",
         "openFilesInNewWindow": "在新視窗中開啟檔案",
         "openFoldersInNewWindow": "在新視窗中開啟資料夾",
-        "zoom": "縮放"
+        "zoom": "縮放",
+        "openFilesInNewWindowNote": "啟用後，檔案會在新視窗中開啟；停用後，會在目前視窗的分頁中開啟。",
+        "openFoldersInNewWindowNote": "啟用後，資料夾會在新視窗中開啟；停用後，會在目前視窗中開啟並取代目前的資料夾。"
       },
       "startup": {
         "title": "啟動",
@@ -484,25 +486,24 @@
           "newestFirst": "從新到舊"
         }
       },
-      "misc": {
-        "title": "其他",
-        "language": {
-          "title": "語言",
-          "english": "English",
-          "chinese": "簡體中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "語言",
+        "english": "English",
+        "chinese": "簡體中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "介面語言"
+      },
+      "openingMode": "開啟模式"
     },
     "editor": {
       "title": "編輯器",

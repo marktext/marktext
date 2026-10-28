@@ -39,11 +39,13 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
   },
   "openFilesInNewWindow": {
     "category": "general",
-    "label": "preferences.general.window.openFilesInNewWindow"
+    "label": "preferences.general.window.openFilesInNewWindow",
+    "notes": "preferences.general.window.openFilesInNewWindowNote"
   },
   "openFolderInNewWindow": {
     "category": "general",
-    "label": "preferences.general.window.openFoldersInNewWindow"
+    "label": "preferences.general.window.openFoldersInNewWindow",
+    "notes": "preferences.general.window.openFoldersInNewWindowNote"
   },
   "zoom": {
     "category": "appearance",
@@ -83,7 +85,7 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
   },
   "language": {
     "category": "general",
-    "label": "preferences.general.misc.language.title"
+    "label": "preferences.general.language.label"
   },
   "fontSize": {
     "category": "appearance",

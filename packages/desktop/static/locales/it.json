@@ -430,7 +430,9 @@
         "hideScrollbars": "Nascondi le barre di scorrimento",
         "openFilesInNewWindow": "Apri i file in una nuova finestra",
         "openFoldersInNewWindow": "Apri le cartelle in una nuova finestra",
-        "zoom": "Zoom"
+        "zoom": "Zoom",
+        "openFilesInNewWindowNote": "Se attivata, i file si aprono in una nuova finestra. Altrimenti, si aprono in schede nella finestra corrente.",
+        "openFoldersInNewWindowNote": "Se attivata, le cartelle si aprono in una nuova finestra. Altrimenti, sostituiscono la cartella nella finestra corrente."
       },
       "startup": {
         "title": "Opzioni di avvio",
@@ -484,25 +486,24 @@
           "newestFirst": "Prima il più recente"
         }
       },
-      "misc": {
-        "title": "Varie",
-        "language": {
-          "title": "Lingua",
-          "english": "English",
-          "chinese": "简体中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "Lingua",
+        "english": "English",
+        "chinese": "简体中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "Lingua dell’interfaccia"
+      },
+      "openingMode": "Modalità di apertura"
     },
     "editor": {
       "title": "Editor",

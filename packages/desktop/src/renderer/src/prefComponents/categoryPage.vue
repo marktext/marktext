@@ -4,6 +4,10 @@
     :class="`pref-${category}`"
   >
     <h4>{{ t(`preferences.categories.${category}`) }}</h4>
+    <theme-settings
+      v-if="category === 'appearance'"
+      embedded
+    />
     <general-settings
       v-if="generalGroups[category]"
       :key="`general-${category}`"
@@ -14,10 +18,6 @@
       v-if="editorGroups[category]"
       :key="`editor-${category}`"
       :groups="editorGroups[category]"
-      embedded
-    />
-    <theme-settings
-      v-if="category === 'appearance'"
       embedded
     />
     <spellchecker-settings

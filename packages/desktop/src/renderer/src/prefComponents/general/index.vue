@@ -3,18 +3,42 @@
     <h4 v-if="!embedded">
       {{ t('preferences.general.title') }}
     </h4>
-    <cur-select
-      v-if="show('opening')"
-      id="setting-defaultOpenMode"
-      :description="preferenceLabel('defaultOpenMode')"
-      :notes="preferenceNotes('defaultOpenMode')"
-      :value="defaultOpenMode"
-      :options="[
-        { label: t('readingMode.edit'), value: 'edit' },
-        { label: t('readingMode.title'), value: 'read' }
-      ]"
-      :on-change="(value) => onSelectChange('defaultOpenMode', value)"
-    />
+    <compound v-if="show('language')">
+      <template #head>
+        <h6 class="title">
+          {{ t('preferences.general.language.title') }}
+        </h6>
+      </template>
+      <template #children>
+        <cur-select
+          id="setting-language"
+          :description="preferenceLabel('language')"
+          :value="language"
+          :options="getLanguageOptions()"
+          :on-change="(value) => onSelectChange('language', value)"
+        />
+      </template>
+    </compound>
+    <compound v-if="show('opening')">
+      <template #head>
+        <h6 class="title">
+          {{ t('preferences.general.openingMode') }}
+        </h6>
+      </template>
+      <template #children>
+        <cur-select
+          id="setting-defaultOpenMode"
+          :description="preferenceLabel('defaultOpenMode')"
+          :notes="preferenceNotes('defaultOpenMode')"
+          :value="defaultOpenMode"
+          :options="[
+            { label: t('readingMode.edit'), value: 'edit' },
+            { label: t('readingMode.title'), value: 'read' }
+          ]"
+          :on-change="(value) => onSelectChange('defaultOpenMode', value)"
+        />
+      </template>
+    </compound>
     <compound v-if="show('save')">
       <template #head>
         <h6 class="title">
@@ -68,6 +92,7 @@
           v-if="show('windowOpening')"
           id="setting-openFilesInNewWindow"
           :description="preferenceLabel('openFilesInNewWindow')"
+          :notes="preferenceNotes('openFilesInNewWindow')"
           :bool="openFilesInNewWindow"
           :on-change="(value) => onSelectChange('openFilesInNewWindow', value)"
         />
@@ -75,6 +100,7 @@
           v-if="show('windowOpening')"
           id="setting-openFolderInNewWindow"
           :description="preferenceLabel('openFolderInNewWindow')"
+          :notes="preferenceNotes('openFolderInNewWindow')"
           :bool="openFolderInNewWindow"
           :on-change="(value) => onSelectChange('openFolderInNewWindow', value)"
         />
@@ -190,23 +216,6 @@
             {{ t('preferences.general.pandoc.recheck') }}
           </el-button>
         </div>
-      </template>
-    </compound>
-
-    <compound v-if="show('language')">
-      <template #head>
-        <h6 class="title">
-          {{ t('preferences.general.misc.title') }}
-        </h6>
-      </template>
-      <template #children>
-        <cur-select
-          id="setting-language"
-          :description="preferenceLabel('language')"
-          :value="language"
-          :options="getLanguageOptions()"
-          :on-change="(value) => onSelectChange('language', value)"
-        />
       </template>
     </compound>
   </div>
