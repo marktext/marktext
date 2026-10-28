@@ -4,8 +4,6 @@
 // commits. Until then, these are intentionally open structures — better an
 // imperfect surface than a placeholder that's wrong.
 
-import type { DocumentViewState } from './applicationState'
-
 export type LineEnding = 'lf' | 'crlf'
 
 export interface SerializedStat {
