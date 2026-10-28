@@ -46,7 +46,9 @@ export class DocumentViewAdapter {
     const selection = !source ? (ports.rendered?.engine.getSelectionState() ?? null) : null
     const captured = {
       sourceSelection:
-        source && adjustTrailingNewlines(source.getValue(), ports.trimTrailingNewline ?? 2) === markdown
+        source &&
+        adjustTrailingNewlines(source.getValue(), ports.trimTrailingNewline ?? 2) ===
+          adjustTrailingNewlines(markdown, ports.trimTrailingNewline ?? 2)
           ? {
             anchor: position(source, source.getCursor('anchor')),
             focus: position(source, source.getCursor('head'))
@@ -171,7 +173,8 @@ export const isDocumentViewReady = (id: string, markdown: string, trimTrailingNe
   const current = ports.source
     ? ports.source.editor.getValue()
     : rendered?.documentId() === id ? rendered.markdown() : null
-  return current !== null && adjustTrailingNewlines(current, trimTrailingNewline) === markdown
+  return current !== null &&
+    adjustTrailingNewlines(current, trimTrailingNewline) === adjustTrailingNewlines(markdown, trimTrailingNewline)
 }
 export const restoreDocumentView = (
   id: string,
