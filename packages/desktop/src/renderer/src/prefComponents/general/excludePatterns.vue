@@ -1,6 +1,16 @@
 <template>
   <section class="exclude-patterns">
-    <h6>{{ t('preferences.general.sidebar.excludePatterns') }}</h6>
+    <h6>
+      <span>{{ t('preferences.general.sidebar.excludePatterns') }}</span>
+      <button
+        type="button"
+        class="plain-button pattern-help"
+        :aria-label="t('preferences.general.sidebar.patternHelp')"
+        @click="openHelp"
+      >
+        <LinkIcon :size="14" />
+      </button>
+    </h6>
     <p class="notes">
       {{ t('preferences.general.sidebar.excludePatternsNotes') }}
     </p>
@@ -47,18 +57,13 @@
     >
       {{ t('preferences.general.sidebar.patternSaveError') }}
     </p>
-    <el-button
-      link
-      @click="openHelp"
-    >
-      {{ t('preferences.general.sidebar.patternHelp') }}
-    </el-button>
   </section>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import LinkIcon from '@/components/icons/LinkIcon.vue'
 import type { PreferenceUpdateResult, UserPreferences } from '@shared/types/preferences'
 
 const props = defineProps<{
@@ -117,7 +122,21 @@ const openHelp = (): void => {
   margin: 20px 0;
 }
 .exclude-patterns h6 {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   margin-bottom: 8px;
+}
+.pattern-help {
+  display: inline-flex;
+  align-items: center;
+  color: var(--iconColor);
+  opacity: 0.7;
+}
+.pattern-help:hover,
+.pattern-help:focus-visible {
+  color: var(--themeColor);
+  opacity: 1;
 }
 .pattern-row {
   display: flex;
@@ -125,7 +144,19 @@ const openHelp = (): void => {
   margin: 8px 0;
 }
 .pattern-row .el-input {
+  --el-input-bg-color: transparent;
+  --el-input-text-color: var(--editorColor);
+  --el-input-border-color: var(--editorColor10);
+  --el-input-hover-border-color: var(--editorColor30);
+  --el-input-focus-border-color: var(--themeColor);
+  --el-input-placeholder-color: var(--editorColor30);
+
   min-width: 0;
+}
+.pattern-row :deep(input.el-input__inner) {
+  background: transparent;
+  border: none;
+  color: var(--editorColor);
 }
 .pattern-row .el-button {
   flex-shrink: 0;
