@@ -1,12 +1,12 @@
 import type { DocumentRegistration } from '@shared/types/applicationState'
 import type {
-  DiskBaseline,
   DiscardedRecoveryRecord,
   DocumentSnapshot,
   DirtyContentUpdate,
   RecoveryRecord,
   RendererDocumentCheckpoint
 } from '@shared/types/applicationState'
+import type { DiskBaseline } from '@shared/types/files'
 import { parseDocument, validIdentity } from './codec'
 import { contentSha256 } from 'common/filesystem'
 

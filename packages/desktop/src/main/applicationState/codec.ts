@@ -2,17 +2,15 @@ import path from 'node:path'
 import { createDefaultLayout } from '@shared/applicationState/defaults'
 import type {
   ApplicationState,
-  DiskBaseline,
   DocumentSnapshot,
   FileLocation,
   RecoveryRecord,
   WindowLayoutState,
   WindowSnapshot,
   WorkspaceDescriptor,
-  WorkspaceRecentState,
-  SourceSelection,
-  SaveFormatState
+  WorkspaceRecentState
 } from '@shared/types/applicationState'
+import type { DiskBaseline, SourceSelection, SaveFormatState } from '@shared/types/files'
 import { contentSha256 } from 'common/filesystem'
 
 type ObjectValue = Record<string, unknown>

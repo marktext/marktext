@@ -20,7 +20,6 @@ import {
 import type {
   ApplicationState,
   DocumentSnapshot,
-  DiskBaseline,
   RecoveryRecord,
   WindowSnapshot,
   WindowInitialization,
@@ -29,16 +28,16 @@ import type {
   PersistResult,
   ManagedSaveResult,
   ManagedDocumentPayload,
-  SaveFormatState
+  RegisteredDocumentContent,
+  PreparedSessionWindow
 } from '@shared/types/applicationState'
+import type { DiskBaseline, SaveFormatState } from '@shared/types/files'
 import { ApplicationStateStore, RecoveryStore } from './storage'
-import { CheckpointService, type RegisteredDocumentContent } from './checkpointService'
+import { CheckpointService } from './checkpointService'
 import { CloseCoordinator } from './closeCoordinator'
 import { createStateId, createFileLocation, createWorkspaceDescriptor } from './identity'
 import { contentSha256 } from 'common/filesystem'
 import { applyWindowGeometry, captureWindowGeometry } from './windowGeometry'
-import type { PreparedSessionWindow } from '@shared/types/applicationState'
-export type { PreparedSessionWindow } from '@shared/types/applicationState'
 
 export interface StartupPath extends FileOpenOptions {
   path: string

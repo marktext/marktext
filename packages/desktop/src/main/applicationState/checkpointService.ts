@@ -2,7 +2,6 @@ import { rememberWindowContext } from '@shared/applicationState/workspaceRecents
 import type {
   ApplicationState,
   ApplicationStateStorage,
-  DiskBaseline,
   DiscardedRecoveryRecord,
   DocumentRecoveryStorage,
   DocumentSnapshot,
@@ -10,12 +9,13 @@ import type {
   RuntimeWindowContext,
   WindowCheckpointRequest,
   WindowInitialization,
-  WindowSnapshot
+  WindowSnapshot,
+  DocumentRegistration,
+  RegisteredDocumentContent
 } from '@shared/types/applicationState'
+import type { DiskBaseline } from '@shared/types/files'
 import { parseWindowSnapshot } from './codec'
 import { DocumentRegistry } from './documentRegistry'
-import type { DocumentRegistration, RegisteredDocumentContent } from '@shared/types/applicationState'
-export type { RegisteredDocumentContent } from '@shared/types/applicationState'
 import { createStateId } from './identity'
 import { contentSha256 } from 'common/filesystem'
 

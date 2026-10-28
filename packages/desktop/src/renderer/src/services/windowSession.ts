@@ -6,10 +6,10 @@ import type {
   ManagedSaveResult,
   PersistResult,
   RuntimeWindowContext,
-  SaveFormatState,
   WindowCheckpointRequest,
   WindowInitialization
 } from '@shared/types/applicationState'
+import type { SaveFormatState } from '@shared/types/files'
 import type { IFileState } from '@shared/types/files'
 import type { SaveDocumentResult } from '@shared/types/ipc'
 import { setSessionActions, useEditorStore } from '@/store/editor'
