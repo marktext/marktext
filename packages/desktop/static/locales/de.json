@@ -435,7 +435,7 @@
         "openFoldersInNewWindowNote": "Wenn aktiviert, werden Ordner in einem neuen Fenster geöffnet. Andernfalls ersetzen sie den Ordner im aktuellen Fenster."
       },
       "startup": {
-        "title": "Start",
+        "title": "Start und Wiederherstellung",
         "openDefaultDirectory": "Ausgewählten Ordner öffnen",
         "openLastFolder": "Letzten Arbeitsbereich öffnen",
         "restoreAll": "Alle Fenster wiederherstellen",

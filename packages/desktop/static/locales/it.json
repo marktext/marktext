@@ -435,7 +435,7 @@
         "openFoldersInNewWindowNote": "Se attivata, le cartelle si aprono in una nuova finestra. Altrimenti, sostituiscono la cartella nella finestra corrente."
       },
       "startup": {
-        "title": "Opzioni di avvio",
+        "title": "Avvio e ripristino",
         "openDefaultDirectory": "Apri la cartella selezionata",
         "openLastFolder": "Apri l’ultimo spazio di lavoro",
         "restoreAll": "Ripristina tutte le finestre",

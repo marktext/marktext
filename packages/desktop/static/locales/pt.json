@@ -435,7 +435,7 @@
         "openFoldersInNewWindowNote": "Quando ativado, as pastas abrem numa nova janela. Quando desativado, substituem a pasta na janela atual."
       },
       "startup": {
-        "title": "Inicialização",
+        "title": "Arranque e recuperação",
         "openDefaultDirectory": "Abrir a pasta selecionada",
         "openLastFolder": "Abrir o último espaço de trabalho",
         "restoreAll": "Restaurar todas as janelas",

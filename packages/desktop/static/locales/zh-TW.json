@@ -435,7 +435,7 @@
         "openFoldersInNewWindowNote": "啟用後，資料夾會在新視窗中開啟；停用後，會在目前視窗中開啟並取代目前的資料夾。"
       },
       "startup": {
-        "title": "啟動",
+        "title": "啟動與還原",
         "openDefaultDirectory": "開啟指定資料夾",
         "openLastFolder": "開啟上次工作區",
         "restoreAll": "還原全部視窗",

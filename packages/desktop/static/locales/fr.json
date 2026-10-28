@@ -435,7 +435,7 @@
         "openFoldersInNewWindowNote": "Si cette option est activée, les dossiers s’ouvrent dans une nouvelle fenêtre. Sinon, ils remplacent le dossier de la fenêtre actuelle."
       },
       "startup": {
-        "title": "Démarrage",
+        "title": "Démarrage et restauration",
         "openDefaultDirectory": "Ouvrir le dossier sélectionné",
         "openLastFolder": "Ouvrir le dernier espace de travail",
         "restoreAll": "Restaurer toutes les fenêtres",

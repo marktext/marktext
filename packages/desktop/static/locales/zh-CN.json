@@ -435,7 +435,7 @@
         "openFoldersInNewWindowNote": "启用后，文件夹在新窗口中打开；关闭后，在当前窗口中打开并替换当前文件夹。"
       },
       "startup": {
-        "title": "启动",
+        "title": "启动与恢复",
         "openDefaultDirectory": "打开指定文件夹",
         "openLastFolder": "打开上次工作区",
         "restoreAll": "恢复全部窗口",

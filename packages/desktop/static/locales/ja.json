@@ -435,7 +435,7 @@
         "openFoldersInNewWindowNote": "有効にすると、フォルダーを新しいウィンドウで開きます。無効にすると、現在のウィンドウのフォルダーを置き換えて開きます。"
       },
       "startup": {
-        "title": "起動",
+        "title": "起動と復元",
         "openDefaultDirectory": "選択したフォルダーを開く",
         "openLastFolder": "前回のワークスペースを開く",
         "restoreAll": "すべてのウィンドウを復元",

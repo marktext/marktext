@@ -435,7 +435,7 @@
         "openFoldersInNewWindowNote": "켜면 폴더를 새 창에서 엽니다. 끄면 현재 창의 폴더를 바꿔서 엽니다."
       },
       "startup": {
-        "title": "시작",
+        "title": "시작 및 복원",
         "openDefaultDirectory": "선택한 폴더 열기",
         "openLastFolder": "마지막 작업 공간 열기",
         "restoreAll": "모든 창 복원",

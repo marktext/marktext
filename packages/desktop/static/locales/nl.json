@@ -435,7 +435,7 @@
         "openFoldersInNewWindowNote": "Indien ingeschakeld, openen mappen in een nieuw venster. Anders vervangen ze de map in het huidige venster."
       },
       "startup": {
-        "title": "Opstartopties",
+        "title": "Opstarten en herstellen",
         "openDefaultDirectory": "Geselecteerde map openen",
         "openLastFolder": "Laatste werkruimte openen",
         "restoreAll": "Alle vensters herstellen",

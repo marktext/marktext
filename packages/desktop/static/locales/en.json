@@ -435,7 +435,7 @@
         "openFoldersInNewWindowNote": "When enabled, folders open in a new window. When disabled, they replace the folder in the current window."
       },
       "startup": {
-        "title": "Startup Options",
+        "title": "Startup and recovery",
         "openDefaultDirectory": "Open the selected folder",
         "openLastFolder": "Open the last workspace",
         "restoreAll": "Restore all windows",

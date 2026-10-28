@@ -435,7 +435,7 @@
         "openFoldersInNewWindowNote": "Etkinleştirildiğinde klasörler yeni bir pencerede açılır. Devre dışı bırakıldığında geçerli penceredeki klasörün yerini alır."
       },
       "startup": {
-        "title": "Başlangıç Seçenekleri",
+        "title": "Başlangıç ve kurtarma",
         "openDefaultDirectory": "Seçilen klasörü aç",
         "openLastFolder": "Son çalışma alanını aç",
         "restoreAll": "Tüm pencereleri geri yükle",

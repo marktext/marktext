@@ -435,7 +435,7 @@
         "openFoldersInNewWindowNote": "Si se activa, las carpetas se abren en una ventana nueva. Si se desactiva, reemplazan la carpeta de la ventana actual."
       },
       "startup": {
-        "title": "Inicio",
+        "title": "Inicio y recuperación",
         "openDefaultDirectory": "Abrir la carpeta seleccionada",
         "openLastFolder": "Abrir el último espacio de trabajo",
         "restoreAll": "Restaurar todas las ventanas",
