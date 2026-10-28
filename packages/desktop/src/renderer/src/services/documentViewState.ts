@@ -2,6 +2,7 @@ import type CodeMirror from 'codemirror'
 import type { Muya, TSelectionState } from '@muyajs/core'
 import type { DocumentViewState, SourcePosition } from '@shared/types/files'
 import { STATE_LIMITS } from '@shared/types/applicationState'
+import { getHash } from '@/util/fileSystem'
 
 type SourceView = Pick<
   CodeMirror.Editor,
@@ -11,6 +12,7 @@ interface RenderedView {
   engine: Pick<Muya, 'getMarkdown' | 'getSelectionState' | 'setSelection' | 'setCursorByOffset'>
   container: HTMLElement
 }
+/** Only the active editor is exposed; isCurrent guards asynchronous hash completion. */
 interface ViewPorts {
   source?: SourceView
   rendered?: RenderedView
@@ -27,14 +29,12 @@ const keys = (values: string[]): string[] =>
     0,
     STATE_LIMITS.collapsedOutlineKeysPerDocument
   )
-export const hashEditorMarkdown = async(markdown: string): Promise<string> => {
-  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(markdown))
-  return [...new Uint8Array(bytes)].map((byte) => byte.toString(16).padStart(2, '0')).join('')
-}
-
 /** Applies editor view state without reading or writing document files or editor contents. */
 export class DocumentViewAdapter {
-  constructor(private readonly hash: (markdown: string) => Promise<string> = hashEditorMarkdown) {}
+  constructor(
+    private readonly _hash: (markdown: string) => Promise<string> =
+      (markdown) => getHash(markdown, 'utf8', 'sha256')
+  ) {}
 
   async capture(markdown: string, ports: ViewPorts): Promise<DocumentViewState> {
     const source = ports.source
@@ -54,7 +54,7 @@ export class DocumentViewAdapter {
       renderedScrollTopPx: nonnegative(ports.rendered?.container.scrollTop ?? 0),
       collapsedOutlineKeys: keys(ports.collapsedOutlineKeys ?? [])
     }
-    return { ...captured, contentSha256: await this.hash(markdown) }
+    return { ...captured, contentSha256: await this._hash(markdown) }
   }
 
   async restore(
@@ -64,7 +64,7 @@ export class DocumentViewAdapter {
     enabled = true
   ): Promise<string[]> {
     const matching =
-      enabled && state !== null && state.contentSha256 === (await this.hash(markdown))
+      enabled && state !== null && state.contentSha256 === (await this._hash(markdown))
     if (ports.isCurrent && !ports.isCurrent()) return []
     const source = ports.source
     if (source) {
@@ -93,6 +93,7 @@ export class DocumentViewAdapter {
   }
 }
 
+/** Teardown releases only its own editor binding, preserving a newer mounted view. */
 interface Binding<T> {
   documentId: () => string | null
   view: T
@@ -144,14 +145,16 @@ export const restoreDocumentView = (
   state: DocumentViewState | null,
   isCurrent: () => boolean,
   enabled = true
-): Promise<string[]> =>
-  adapter.restore(
+): Promise<string[]> => {
+  const ports = portsFor(id)
+  return adapter.restore(
     markdown,
     state,
     {
-      ...portsFor(id),
-      rendered: source?.documentId() === id ? undefined : portsFor(id).rendered,
+      ...ports,
+      rendered: ports.source ? undefined : ports.rendered,
       isCurrent
     },
     enabled
   )
+}

@@ -5,6 +5,7 @@ import { usePreferencesStore } from './preferences'
 import { debouncedSendBufferedState } from './bufferedState'
 import type { WindowLayoutState } from '@shared/types/applicationState'
 import type { LayoutState } from '@shared/types/preferences'
+import { createDefaultLayout } from '@shared/applicationState/defaults'
 
 interface LayoutPartial {
   rightColumn?: string
@@ -17,9 +18,13 @@ interface SetLayoutOptions {
   scheduleBufferUpdate?: boolean
 }
 
+const defaultLayout = createDefaultLayout()
+
 const normalizeSideBarWidth = (width: unknown): number => {
   const numericWidth = Number(width)
-  return Number.isFinite(numericWidth) ? Math.max(numericWidth, 220) : 280
+  return Number.isFinite(numericWidth)
+    ? Math.max(numericWidth, 220)
+    : defaultLayout.sidebar.preferredWidthPx
 }
 
 interface BufferedLayout {
@@ -51,21 +56,21 @@ export const useLayoutStore = defineStore('layout', () => {
   const preferencesStore = usePreferencesStore()
   // Enabled by the session host after initialization; legacy windows keep their existing adapters.
   const managed = ref(false)
-  const outlineVisible = ref(true)
-  const outlinePositionValue = ref<'left' | 'right'>('left')
+  const outlineVisible = ref(defaultLayout.outline.visible)
+  const outlinePositionValue = ref(defaultLayout.outline.position)
   const outlinePosition = computed(() =>
     managed.value ? outlinePositionValue.value : preferencesStore.tocPosition
   )
-  const outlineWidth = ref(220)
-  const openedFilesExpanded = ref(true)
-  const openedFilesHeight = ref(112)
+  const outlineWidth = ref(defaultLayout.outline.preferredWidthPx)
+  const openedFilesExpanded = ref(defaultLayout.sidebar.openedFiles.expanded)
+  const openedFilesHeight = ref(defaultLayout.sidebar.openedFiles.preferredHeightPx)
   let changed: (() => void) | undefined
   const showToc = computed(() =>
     managed.value ? outlineVisible.value : preferencesStore.tocVisibility
   )
   const rightColumn = ref<LayoutState['rightColumn']>('files')
-  const showSideBar = ref(false)
-  const showTabBar = ref(false)
+  const showSideBar = ref(defaultLayout.sidebar.visible)
+  const showTabBar = ref(defaultLayout.tabBar.visible)
   const sideBarWidth = ref<number>(initialSideBarWidth)
   const viewportWidth = ref(window.innerWidth)
   const updateViewport = (): void => {
