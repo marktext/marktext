@@ -65,6 +65,24 @@ test('settings search focuses the exact control, including repeated selections',
   }
 })
 
+test('unified search finds shortcuts before their page opens and reveals their functional group', async() => {
+  const { app, page } = await launchWithMarkdown('# Shortcut search\n', {
+    preferences: { language: 'en' }, suppressErrorDialog: true
+  })
+  try {
+    const settings = await openSettings(app, page)
+    await settings.locator('.pref-sidebar input').fill('file.save')
+    await settings.locator('.pref-autocomplete li').first().click()
+    const command = settings.locator('[id="setting-keybinding-file.save"]')
+    await expect(command).toBeFocused()
+    await expect(settings.getByRole('region', { name: 'File', exact: true }).locator('[id="setting-keybinding-file.save"]')).toBeVisible()
+    await expect(settings.locator('.pref-keybindings input:not([type="hidden"]):visible')).toHaveCount(0)
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
 test('file-tree rule tags retain glob commas when adding and reopening settings', async() => {
   const { app, page } = await launchWithMarkdown('# Exclusion rules\n', {
     preferences: { language: 'en', treePathExcludePatterns: ['**/{drafts,archive}/**'] },
