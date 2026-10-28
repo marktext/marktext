@@ -525,7 +525,7 @@
         "removeEmptyLines": "Remover linhas vazias"
       },
       "writingBehavior": {
-        "title": "Comportamento de Escrita",
+        "title": "Preferências de escrita",
         "autoCloseBrackets": "Fechar colchetes automaticamente",
         "autoCompleteMarkdown": "Completar pares de marcadores Markdown",
         "autoCloseQuotes": "Fechar aspas automaticamente"

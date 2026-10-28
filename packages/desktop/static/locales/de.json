@@ -525,7 +525,7 @@
         "removeEmptyLines": "Leere Zeilen entfernen"
       },
       "writingBehavior": {
-        "title": "Schreibverhalten",
+        "title": "Schreibeinstellungen",
         "autoCloseBrackets": "Klammern automatisch schließen",
         "autoCompleteMarkdown": "Markdown-Zeichen paarweise ergänzen",
         "autoCloseQuotes": "Anführungszeichen automatisch schließen"

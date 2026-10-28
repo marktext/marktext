@@ -525,7 +525,7 @@
         "removeEmptyLines": "빈 줄 제거"
       },
       "writingBehavior": {
-        "title": "작성 동작",
+        "title": "작성 환경설정",
         "autoCloseBrackets": "괄호 자동 닫기",
         "autoCompleteMarkdown": "Markdown 기호 쌍 자동 완성",
         "autoCloseQuotes": "따옴표 자동 닫기"

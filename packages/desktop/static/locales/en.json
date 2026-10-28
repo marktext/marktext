@@ -525,7 +525,7 @@
         "removeEmptyLines": "Remove empty lines"
       },
       "writingBehavior": {
-        "title": "Writing Behavior",
+        "title": "Writing preferences",
         "autoCloseBrackets": "Auto close brackets",
         "autoCompleteMarkdown": "Auto-pair Markdown markers",
         "autoCloseQuotes": "Auto close quotes"

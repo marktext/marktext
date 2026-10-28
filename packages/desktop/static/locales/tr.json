@@ -525,7 +525,7 @@
         "removeEmptyLines": "Boş satırları kaldır"
       },
       "writingBehavior": {
-        "title": "Yazma Davranışı",
+        "title": "Yazım tercihleri",
         "autoCloseBrackets": "Parantezleri otomatik kapat",
         "autoCompleteMarkdown": "Markdown işaretlerini çift olarak tamamla",
         "autoCloseQuotes": "Tırnakları otomatik kapat"

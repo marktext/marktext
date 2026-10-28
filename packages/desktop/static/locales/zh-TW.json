@@ -525,7 +525,7 @@
         "removeEmptyLines": "移除空行"
       },
       "writingBehavior": {
-        "title": "寫作行為",
+        "title": "寫作偏好",
         "autoCloseBrackets": "自動關閉括號",
         "autoCompleteMarkdown": "自動補全 Markdown 成對標記",
         "autoCloseQuotes": "自動關閉引號"

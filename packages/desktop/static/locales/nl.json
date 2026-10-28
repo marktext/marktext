@@ -525,7 +525,7 @@
         "removeEmptyLines": "Lege regels verwijderen"
       },
       "writingBehavior": {
-        "title": "Schrijfgedrag",
+        "title": "Schrijfvoorkeuren",
         "autoCloseBrackets": "Haakjes automatisch sluiten",
         "autoCompleteMarkdown": "Markdown-markeringen als paar aanvullen",
         "autoCloseQuotes": "Aanhalingstekens automatisch sluiten"

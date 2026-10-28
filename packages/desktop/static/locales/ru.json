@@ -525,7 +525,7 @@
         "removeEmptyLines": "Удалять пустые строки"
       },
       "writingBehavior": {
-        "title": "Поведение при вводе",
+        "title": "Настройки написания",
         "autoCloseBrackets": "Автоматически закрывать скобки",
         "autoCompleteMarkdown": "Дополнять парные маркеры Markdown",
         "autoCloseQuotes": "Автоматически закрывать кавычки"

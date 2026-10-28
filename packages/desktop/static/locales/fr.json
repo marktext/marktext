@@ -525,7 +525,7 @@
         "removeEmptyLines": "Supprimer les lignes vides"
       },
       "writingBehavior": {
-        "title": "Comportement d'écriture",
+        "title": "Préférences de rédaction",
         "autoCloseBrackets": "Fermeture automatique des crochets",
         "autoCompleteMarkdown": "Compléter les paires de marqueurs Markdown",
         "autoCloseQuotes": "Fermeture automatique des guillemets"

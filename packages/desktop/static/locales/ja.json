@@ -525,7 +525,7 @@
         "removeEmptyLines": "空行を削除"
       },
       "writingBehavior": {
-        "title": "書き込み動作",
+        "title": "執筆設定",
         "autoCloseBrackets": "括弧を自動で閉じる",
         "autoCompleteMarkdown": "Markdown 記号のペアを自動補完",
         "autoCloseQuotes": "引用符を自動で閉じる"
