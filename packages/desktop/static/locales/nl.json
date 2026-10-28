@@ -512,7 +512,7 @@
         "fontSize": "Lettergrootte",
         "lineHeight": "Regelhoogte",
         "fontFamily": "Lettertypefamilie",
-        "maxWidth": "Maximale breedte",
+        "maxWidth": "Maximale breedte van de editorinhoud",
         "maxWidthNotes": "Maximale breedte van editorinhoud. Voer een getal in gevolgd door px, ch (tekens) of %, bijvoorbeeld 800px, 80ch of 60%. Laat leeg om de standaardbreedte te gebruiken.",
         "maxWidthInvalid": "Voer een getal in gevolgd door px, ch of %, bijvoorbeeld 800px.",
         "codeFontFamily": "Lettertype voor code",

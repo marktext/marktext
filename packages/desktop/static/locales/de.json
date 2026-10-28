@@ -512,7 +512,7 @@
         "fontSize": "Schriftgröße",
         "lineHeight": "Zeilenhöhe",
         "fontFamily": "Schriftfamilie",
-        "maxWidth": "Maximale Breite",
+        "maxWidth": "Maximale Breite des Editorinhalts",
         "maxWidthNotes": "Maximale Breite des Editor-Inhalts. Geben Sie eine Zahl gefolgt von px, ch (Zeichen) oder % ein, z. B. 800px, 80ch oder 60%. Leer lassen, um die Standardbreite zu verwenden.",
         "maxWidthInvalid": "Geben Sie eine Zahl gefolgt von px, ch oder % ein, z. B. 800px.",
         "codeFontFamily": "Code-Schriftart",

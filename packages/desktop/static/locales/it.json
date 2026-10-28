@@ -512,7 +512,7 @@
         "fontSize": "Dimensione caratteri",
         "lineHeight": "Altezza riga",
         "fontFamily": "Famiglia di caratteri",
-        "maxWidth": "Larghezza massima",
+        "maxWidth": "Larghezza massima del contenuto dell’editor",
         "maxWidthNotes": "Larghezza massima del contenuto dell’editor. Inserire un numero seguito da: px (pixel), ch (caratteri) o % (percentuale). Per esempio: 800px, 80ch o 60%. Se la casella rimane vuota, viene usata la larghezza predefinita.",
         "maxWidthInvalid": "Inserisci un numero seguito da px, ch o %. Per esempio: 800px.",
         "codeFontFamily": "Famiglia di caratteri per la rappresentazione di codice",
