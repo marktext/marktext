@@ -21,6 +21,11 @@ import { debouncedSendBufferedState } from './bufferedState'
 import type { TreeNode, TreeFolderNode } from '../components/sideBar/types'
 import type { FileChangeDetail } from '@shared/types/files'
 import {
+  STATE_LIMITS,
+  type ProjectViewState,
+  type WorkspaceDescriptor
+} from '@shared/types/applicationState'
+import {
   readBufferedRoots,
   type BufferedProjectState,
   type ProjectRoot,
@@ -192,15 +197,12 @@ export const useProjectStore = defineStore('project', () => {
     projectTree.value = createProjectRoot(pathname)
     activeItem.value = {}
     CLEAR_NAME_INPUT_STATE()
-    SHOW_FILES(scheduleBufferUpdate)
+    if (!useLayoutStore().managed) SHOW_FILES(scheduleBufferUpdate)
   }
 
   function SHOW_FILES(scheduleBufferUpdate = true): void {
     const layoutStore = useLayoutStore()
-    layoutStore.SET_LAYOUT(
-      { rightColumn: 'files', showSideBar: true },
-      { scheduleBufferUpdate }
-    )
+    layoutStore.SET_LAYOUT({ rightColumn: 'files', showSideBar: true }, { scheduleBufferUpdate })
     layoutStore.DISPATCH_LAYOUT_MENU_ITEMS()
     if (scheduleBufferUpdate) debouncedSendBufferedState()
   }
@@ -229,7 +231,7 @@ export const useProjectStore = defineStore('project', () => {
     if (activeItem.value?.pathname && !FIND_ROOT(activeItem.value.pathname)) activeItem.value = {}
     if (snapshot.reason === 'replace' || snapshot.reason === 'remove') CLEAR_NAME_INPUT_STATE()
     if (['add', 'replace', 'reveal'].includes(snapshot.reason)) {
-      SHOW_FILES()
+      if (!useLayoutStore().managed) SHOW_FILES()
       nextTick(() => bus.emit('SIDEBAR::focus-root', snapshot.targetKey))
       if (snapshot.reason === 'reveal')
         notice.notify({
@@ -257,6 +259,54 @@ export const useProjectStore = defineStore('project', () => {
     return root.restoring || root.status === 'unavailable'
       ? [...new Set([...root.collapsedPaths, ...paths])]
       : paths
+  }
+
+  const safeCollapsedPaths = (paths: string[]): string[] =>
+    [
+      ...new Set(
+        paths.filter(
+          (relative) =>
+            typeof relative === 'string' &&
+            !/^(?:[A-Za-z]:|[\\/])/.test(relative) &&
+            !relative.split(/[\\/]/).includes('..')
+        )
+      )
+    ].slice(0, STATE_LIMITS.collapsedPathsPerRoot)
+
+  const matchesWorkspaceRoot = (root: RootView, descriptor: WorkspaceDescriptor['roots'][number]): boolean =>
+    window.path.normalize(root.key) === window.path.normalize(descriptor.location.canonicalPath) ||
+    window.path.normalize(root.pathname) === window.path.normalize(descriptor.location.path)
+
+  function CAPTURE_PROJECT_VIEW(workspace: WorkspaceDescriptor | null): ProjectViewState {
+    return {
+      roots: (workspace?.roots ?? []).map((descriptor) => {
+        const root = roots.value.find(root => matchesWorkspaceRoot(root, descriptor))
+        return {
+          rootId: descriptor.id,
+          collapsedPaths: root ? safeCollapsedPaths(collectCollapsed(root)) : []
+        }
+      })
+    }
+  }
+
+  function RESTORE_PROJECT_VIEW(
+    workspace: WorkspaceDescriptor | null,
+    state: ProjectViewState
+  ): void {
+    for (const root of roots.value) {
+      const descriptor = workspace?.roots.find(item => matchesWorkspaceRoot(root, item))
+      const entry = descriptor
+        ? state.roots.find((entry) => entry.rootId === descriptor.id)
+        : undefined
+      root.collapsedPaths = new Set(safeCollapsedPaths(entry?.collapsedPaths ?? []))
+      root.restoring = true
+      visitFolders(root.tree, (folder) => {
+        folder.isCollapsed = root.collapsedPaths.has(
+          window.path.relative(root.pathname, folder.pathname)
+        )
+      })
+    }
+    treeVersion.value++
   }
 
   function CREATE_BUFFERED_STATE(): BufferedProjectState {
@@ -662,6 +712,8 @@ export const useProjectStore = defineStore('project', () => {
     APPLY_ROOTS,
     treeVersion,
     OPEN_PROJECT,
+    CAPTURE_PROJECT_VIEW,
+    RESTORE_PROJECT_VIEW,
     CREATE_BUFFERED_STATE,
     RESTORE_BUFFERED_STATE,
     LISTEN_FOR_LOAD_PROJECT,

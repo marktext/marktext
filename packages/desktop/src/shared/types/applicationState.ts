@@ -38,17 +38,21 @@ export interface WorkspaceDescriptor {
   roots: WorkspaceRoot[]
 }
 
+/** Normal bounds and maximized intent; restored bounds are fitted to available displays. */
 export interface WindowGeometryState {
   // Electron screen coordinates and bounds are device-independent pixels.
   normalBounds: { x: number; y: number; width: number; height: number }
   maximized: boolean
+  // Electron display ID, serialized as text; null lets placement select a display.
   displayId: string | null
 }
 
+/** Preferred window layout, before viewport clamps or temporary mode overrides. */
 export interface WindowLayoutState {
   sidebar: {
     visible: boolean
     activeView: 'files' | 'search'
+    // Remembered CSS-pixel width, including while the sidebar is hidden.
     preferredWidthPx: number
     openedFiles: { expanded: boolean; preferredHeightPx: number }
   }
@@ -62,12 +66,14 @@ export interface WindowLayoutState {
   modes: { sourceCode: boolean; focus: boolean; typewriter: boolean }
 }
 
+/** Folder folding owned by one workspace root. */
 export interface RootViewState {
   rootId: RootId
   // Relative to this root; an empty string identifies the root itself.
   collapsedPaths: string[]
 }
 
+/** Folding state for roots that still belong to the current workspace. */
 export interface ProjectViewState {
   roots: RootViewState[]
 }
@@ -93,10 +99,13 @@ export interface DocumentSnapshot {
   view: DocumentViewState | null
 }
 
+/** Serializable window identity, native placement, layout and ordered document membership. */
 export interface WindowSnapshot {
   id: WindowStateId
   updatedAtMs: TimestampMs
+  // Fallback selection when activeWindowId no longer refers to a restored window.
   lastActivatedAtMs: TimestampMs
+  // Null denotes a window with no folder roots.
   workspace: WorkspaceDescriptor | null
   geometry: WindowGeometryState
   layout: WindowLayoutState
