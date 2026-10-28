@@ -42,48 +42,45 @@ const fill = async(input: HTMLInputElement, text: string): Promise<void> => {
   await settle()
 }
 
-it('edits, adds and removes individual rules without splitting glob commas', async() => {
+const enter = async(input: HTMLInputElement): Promise<void> => {
+  input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', bubbles: true, cancelable: true }))
+  await settle()
+}
+
+it('adds and removes tags without splitting glob commas or trimming filename whitespace', async() => {
   const update = vi.fn(async(patch) => ({
     status: 'persisted' as const,
     preferences: patch as UserPreferences
   }))
   const { root, value } = mount(['*.tmp', '**/{drafts,archive}/**'], update)
-  const existing = root.querySelector<HTMLInputElement>('input')!
-  await fill(existing, '**/{cache,backup}/**')
-  existing.dispatchEvent(new Event('change', { bubbles: true }))
-  await settle()
-  expect(value.value).toEqual(['**/{cache,backup}/**', '**/{drafts,archive}/**'])
-  const input = root.querySelector<HTMLInputElement>('form input')!
-  await fill(input, ' leading space.md')
-  root.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
-  await settle()
-  expect(value.value).toEqual(['**/{cache,backup}/**', '**/{drafts,archive}/**', ' leading space.md'])
+  const input = root.querySelector<HTMLInputElement>('input')!
+  await fill(input, ' leading space.md ')
+  await enter(input)
+  expect(value.value).toEqual(['*.tmp', '**/{drafts,archive}/**', ' leading space.md '])
   expect(input.value).toBe('')
-  root.querySelector<HTMLButtonElement>('.pattern-row button')!.click()
-  await settle()
-  expect(value.value).toEqual(['**/{drafts,archive}/**', ' leading space.md'])
-  root.querySelector<HTMLButtonElement>('.pattern-row button')!.click()
-  await settle()
-  root.querySelector<HTMLButtonElement>('.pattern-row button')!.click()
-  await settle()
+  await fill(input, '**/{cache,backup}/**')
+  await enter(input)
+  expect(value.value.at(-1)).toBe('**/{cache,backup}/**')
+  for (let index = 0; index < 4; index++) {
+    root.querySelector<HTMLButtonElement>('.el-tag__close')!.click()
+    await settle()
+  }
   expect(value.value).toEqual([])
 })
 
-it('keeps confirmed rules and an unsaved new rule when persistence fails', async() => {
+it('keeps confirmed rules and shows an error when saving a tag fails', async() => {
   const update = vi.fn(async(): Promise<PreferenceUpdateResult> => ({
     status: 'failed', reason: 'storage-unavailable'
   }))
   const { root, value } = mount(['original'], update)
   const input = root.querySelector<HTMLInputElement>('input')!
-  await fill(input, 'changed')
-  input.dispatchEvent(new Event('change', { bubbles: true }))
-  await settle()
+  await fill(input, '**/{cache,backup}/**')
+  await enter(input)
   expect(value.value).toEqual(['original'])
-  expect(input.value).toBe('original')
+  expect(root.querySelector('.el-tag__content')?.textContent).toBe('original')
   expect(root.querySelector('[role="alert"]')?.textContent).toContain('Could not save')
-  await fill(root.querySelector<HTMLInputElement>('form input')!, '*.tmp')
-  root.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+  root.querySelector<HTMLButtonElement>('.el-tag__close')!.click()
   await settle()
-  expect(root.querySelector<HTMLInputElement>('form input')!.value).toBe('*.tmp')
   expect(value.value).toEqual(['original'])
+  expect(root.querySelector('.el-tag__content')?.textContent).toBe('original')
 })

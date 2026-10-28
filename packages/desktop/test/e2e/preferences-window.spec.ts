@@ -33,7 +33,7 @@ test('the full settings window indexes searchable controls without renderer exce
   }
 })
 
-test('file-tree rules retain glob commas when editing and reopening settings', async() => {
+test('file-tree rule tags retain glob commas when adding and reopening settings', async() => {
   const { app, page } = await launchWithMarkdown('# Exclusion rules\n', {
     preferences: { language: 'en', treePathExcludePatterns: ['**/{drafts,archive}/**'] },
     suppressErrorDialog: true
@@ -41,25 +41,20 @@ test('file-tree rules retain glob commas when editing and reopening settings', a
   try {
     let settings = await openSettings(app, page)
     const rules = settings.locator('.exclude-patterns')
-    await expect(rules.getByRole('textbox', { name: 'Exclusion rule 1', exact: true }))
-      .toHaveValue('**/{drafts,archive}/**')
-    await rules.getByRole('textbox', { name: 'New exclusion rule', exact: true }).fill('**/{cache,backup}/**')
-    await rules.getByRole('button', { name: 'Add rule', exact: true }).click()
+    await expect(rules.locator('.el-tag__content')).toHaveText(['**/{drafts,archive}/**'])
+    const input = rules.getByRole('textbox', { name: 'New exclusion rule', exact: true })
+    await input.fill(' **/{cache,backup}/** ')
+    await input.press('Enter')
     await expect.poll(async() => (await preferences(app)).treePathExcludePatterns)
-      .toEqual(['**/{drafts,archive}/**', '**/{cache,backup}/**'])
-    const existing = rules.getByRole('textbox', { name: 'Exclusion rule 1', exact: true })
-    await existing.fill('*.tmp')
-    await existing.press('Tab')
+      .toEqual(['**/{drafts,archive}/**', ' **/{cache,backup}/** '])
+    await rules.locator('.el-tag__close').first().click()
     await expect.poll(async() => (await preferences(app)).treePathExcludePatterns)
-      .toEqual(['*.tmp', '**/{cache,backup}/**'])
-    await rules.getByRole('button', { name: 'Remove exclusion rule 1', exact: true }).click()
-    await expect.poll(async() => (await preferences(app)).treePathExcludePatterns)
-      .toEqual(['**/{cache,backup}/**'])
+      .toEqual([' **/{cache,backup}/** '])
     await settings.evaluate(() => window.electron.windowControl.close())
     await expect.poll(() => app.windows().length).toBe(1)
     settings = await openSettings(app, page)
-    await expect(settings.getByRole('textbox', { name: 'Exclusion rule 1', exact: true }))
-      .toHaveValue('**/{cache,backup}/**')
+    await expect(settings.locator('.exclude-patterns .el-tag__content'))
+      .toHaveText([' **/{cache,backup}/** '])
     await expectNoRendererErrors(app)
   } finally {
     await app.close()

@@ -14,42 +14,16 @@
     <p class="notes">
       {{ t('preferences.general.sidebar.excludePatternsNotes') }}
     </p>
-    <div
-      v-for="(_, index) in patterns"
-      :key="index"
-      class="pattern-row"
-    >
-      <el-input
-        v-model="patterns[index]"
-        :aria-label="t('preferences.general.sidebar.patternLabel', { number: index + 1 })"
-        :disabled="busy"
-        @change="(text: string) => replacePattern(index, text)"
-      />
-      <el-button
-        :disabled="busy"
-        :aria-label="t('preferences.general.sidebar.removePatternLabel', { number: index + 1 })"
-        @click="removePattern(index)"
-      >
-        {{ t('preferences.general.sidebar.removePattern') }}
-      </el-button>
-    </div>
-    <form
-      class="pattern-row"
-      @submit.prevent="addPattern"
-    >
-      <el-input
-        v-model="newPattern"
+    <el-config-provider :locale="inputTagLocale">
+      <el-input-tag
+        :model-value="value"
         :aria-label="t('preferences.general.sidebar.newPattern')"
         :placeholder="t('preferences.general.sidebar.patternExample')"
         :disabled="busy"
+        @input="(text: string) => { draft = text }"
+        @update:model-value="updatePatterns"
       />
-      <el-button
-        native-type="submit"
-        :disabled="busy || !newPattern"
-      >
-        {{ t('preferences.general.sidebar.addPattern') }}
-      </el-button>
-    </form>
+    </el-config-provider>
     <p
       v-if="error"
       class="notes"
@@ -61,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
 import type { PreferenceUpdateResult, UserPreferences } from '@shared/types/preferences'
@@ -71,46 +45,41 @@ const props = defineProps<{
   update: (patch: Pick<UserPreferences, 'treePathExcludePatterns'>) => Promise<PreferenceUpdateResult>
 }>()
 const emit = defineEmits<{ persisted: [preferences: UserPreferences] }>()
-const { t } = useI18n()
-const newPattern = ref('')
+const { t, locale } = useI18n()
+const inputTagLocale = computed(() => ({
+  name: locale.value,
+  el: { tag: { close: t('preferences.general.sidebar.removePattern') } }
+}))
+const draft = ref('')
 const busy = ref(false)
 const error = ref(false)
-const patterns = ref([...props.value])
-watch(() => props.value, (value) => { patterns.value = [...value] })
 
-const save = async (next: string[], added = false): Promise<void> => {
+const save = async (next: string[]): Promise<void> => {
   if (busy.value) return
   busy.value = true
   error.value = false
   try {
     const result = await props.update({ treePathExcludePatterns: next })
     if (result.status === 'persisted') {
-      patterns.value = [...result.preferences.treePathExcludePatterns]
       emit('persisted', result.preferences)
-      if (added) newPattern.value = ''
     } else {
-      patterns.value = [...props.value]
       error.value = true
     }
   } catch {
-    patterns.value = [...props.value]
     error.value = true
   } finally {
     busy.value = false
   }
 }
 
-const replacePattern = (index: number, pattern: string): void => {
-  const next = [...props.value]
-  next[index] = pattern
+const updatePatterns = (value: string[] | undefined): void => {
+  const next = [...(value ?? [])]
+  // InputTag trims new tags; whitespace can be part of a glob filename.
+  if (next.length === props.value.length + 1 && draft.value) {
+    next[next.length - 1] = draft.value
+  }
+  draft.value = ''
   void save(next)
-}
-const removePattern = (index: number): void => {
-  void save(props.value.filter((_, position) => position !== index))
-}
-const addPattern = (): void => {
-  if (!newPattern.value) return
-  void save([...props.value, newPattern.value], true)
 }
 const openHelp = (): void => {
   window.electron.shell.openExternal('https://github.com/isaacs/minimatch')
@@ -138,27 +107,28 @@ const openHelp = (): void => {
   color: var(--themeColor);
   opacity: 1;
 }
-.pattern-row {
-  display: flex;
-  gap: 8px;
+.exclude-patterns :deep(.el-input-tag) {
+  --el-fill-color-blank: transparent;
+  --el-fill-color-light: transparent;
+  --el-border-color: var(--editorColor10);
+  --el-border-color-hover: var(--editorColor30);
+  --el-color-primary: var(--themeColor);
+  --el-text-color-regular: var(--editorColor);
+  --el-text-color-placeholder: var(--editorColor30);
+
   margin: 8px 0;
 }
-.pattern-row .el-input {
-  --el-input-bg-color: transparent;
-  --el-input-text-color: var(--editorColor);
-  --el-input-border-color: var(--editorColor10);
-  --el-input-hover-border-color: var(--editorColor30);
-  --el-input-focus-border-color: var(--themeColor);
-  --el-input-placeholder-color: var(--editorColor30);
-
-  min-width: 0;
-}
-.pattern-row :deep(input.el-input__inner) {
+.exclude-patterns :deep(.el-input-tag__input) {
   background: transparent;
-  border: none;
   color: var(--editorColor);
 }
-.pattern-row .el-button {
-  flex-shrink: 0;
+.exclude-patterns :deep(.el-tag) {
+  --el-tag-bg-color: var(--editorColor04);
+  --el-tag-border-color: var(--editorColor10);
+  --el-tag-text-color: var(--editorColor);
+}
+.exclude-patterns :deep(.el-tag__content) {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 </style>
