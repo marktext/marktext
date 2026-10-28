@@ -444,16 +444,16 @@
         "sourceCodeLineNumbers": "Mostrar números de linha no modo código fonte",
         "trimUnnecessaryCodeBlockEmptyLines": "Aparar as linhas vazias do início e fim no bloco de código",
         "autoPairBracket": "Parênteses automáticos ao editar",
-        "autoPairMarkdownSyntax": "Autocompletar sintaxe markdown",
+        "autoPairMarkdownSyntax": "Completar pares de marcadores Markdown",
         "autoPairQuote": "Finalização automática de aspas",
-        "endOfLine": "O caractere de nova linha usado no final de cada linha. O valor padrão é default, que seleciona o caractere de nova linha padrão do seu sistema operacional",
+        "endOfLine": "Fim de linha padrão dos arquivos",
         "defaultEncoding": "A codificação de arquivo padrão",
         "autoGuessEncoding": "Tentar adivinhar automaticamente a codificação do arquivo ao abrir arquivos",
         "trimTrailingNewline": "A opção de aparar nova linha final",
         "textDirection": "A direção de escrita do texto",
         "hideQuickInsertHint": "Ocultar dica para criar parágrafos rapidamente",
         "hideLinkPopup": "Ocultar popup de link quando o cursor está sobre o link",
-        "autoCheck": "Se verificar automaticamente a tarefa relacionada",
+        "autoCheck": "Vincular tarefas principais e subtarefas",
         "preferLooseListItem": "O tipo de lista preferido",
         "bulletListMarker": "O marcador usado na lista de marcadores",
         "orderListDelimiter": "O delimitador usado na lista ordenada",
@@ -491,7 +491,7 @@
         "imageRelativeDirectoryName": "O nome da pasta de imagem relativa",
         "fileSortOrder": "Ordem de classificação dos arquivos nas pastas abertas: ascendente ou descendente.",
         "openedFilesInSidebar": "Se os arquivos abertos são mostrados na barra lateral.",
-        "showPandocConvert": "Mostrar o menu de conversão do Pandoc. Requer o Pandoc instalado."
+        "showPandocConvert": "Ativar conversão com Pandoc"
       }
     },
     "categories": {
@@ -539,8 +539,8 @@
       },
       "pandoc": {
         "title": "Conversão com Pandoc",
-        "description": "Mostrar o menu de conversão do Pandoc",
-        "detailedDescription": "Requer o Pandoc instalado",
+        "description": "Ativar conversão com Pandoc",
+        "detailedDescription": "Mostra comandos de conversão no menu. É necessário instalar o Pandoc.",
         "found": "Encontrado: {path}",
         "notFound": "Não encontrado",
         "recheck": "Verificar novamente"
@@ -617,14 +617,14 @@
       "writingBehavior": {
         "title": "Comportamento de Escrita",
         "autoCloseBrackets": "Fechar colchetes automaticamente",
-        "autoCompleteMarkdown": "Completar markdown automaticamente",
+        "autoCompleteMarkdown": "Completar pares de marcadores Markdown",
         "autoCloseQuotes": "Fechar aspas automaticamente"
       },
       "fileRepresentation": {
         "title": "Representação de Arquivo",
         "tabWidth": "Entrada da tecla Tab",
         "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
-        "lineSeparator": "Separador de linha",
+        "lineSeparator": "Fim de linha padrão dos arquivos",
         "defaultEncoding": "Codificação padrão",
         "autoDetectEncoding": "Detectar codificação automaticamente",
         "trailingNewlines": {
@@ -649,7 +649,7 @@
         },
         "hideQuickInsertHint": "Ocultar dica de inserção rápida",
         "hideLinkPopup": "Ocultar popup de link",
-        "autoCheck": "Verificação automática",
+        "autoCheck": "Vincular tarefas principais e subtarefas",
         "autoNormalizeLineEndings": "Normalizar automaticamente finais de linha para LF ao abrir",
         "wrapCodeBlocks": "Quebrar blocos de código",
         "sourceCodeLineNumbers": "Mostrar números de linha no modo código fonte"
@@ -838,6 +838,11 @@
       "enableSpellChecking": "Habilitar verificação ortográfica",
       "hideMarksForErrors": "Ocultar marcas para erros ortográficos",
       "title": "Corretor Ortográfico"
+    },
+    "explanations": {
+      "taskCascade": "Marcar uma tarefa principal atualiza suas subtarefas; alterar as subtarefas atualiza a tarefa principal.",
+      "markdownPairs": "Completa pares de marcadores Markdown, como asteriscos, sublinhados e crases, durante a digitação.",
+      "lineEndings": "Usado em novos arquivos e com finais de linha mistos ou não detectados. Arquivos LF ou CRLF mantêm o formato detectado."
     }
   },
   "about": {

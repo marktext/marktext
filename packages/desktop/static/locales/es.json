@@ -444,16 +444,16 @@
         "sourceCodeLineNumbers": "Mostrar números de línea en el modo código fuente",
         "trimUnnecessaryCodeBlockEmptyLines": "Recortar las líneas vacías del principio y final en bloque de código",
         "autoPairBracket": "Paréntesis automáticos al editar",
-        "autoPairMarkdownSyntax": "Autocompletar sintaxis de markdown",
+        "autoPairMarkdownSyntax": "Completar pares de marcadores Markdown",
         "autoPairQuote": "Finalización automática de comillas",
-        "endOfLine": "El carácter de nueva línea usado al final de cada línea. El valor predeterminado es default, que selecciona el carácter de nueva línea predeterminado de su sistema operativo",
+        "endOfLine": "Fin de línea predeterminado de archivos",
         "defaultEncoding": "La codificación de archivo predeterminada",
         "autoGuessEncoding": "Intentar adivinar automáticamente la codificación del archivo al abrir archivos",
         "trimTrailingNewline": "La opción de recortar nueva línea final",
         "textDirection": "La dirección de escritura del texto",
         "hideQuickInsertHint": "Ocultar sugerencia para crear párrafos rápidamente",
         "hideLinkPopup": "Ocultar popup de enlace cuando el cursor está sobre el enlace",
-        "autoCheck": "Si verificar automáticamente la tarea relacionada",
+        "autoCheck": "Vincular tareas principales y subtareas",
         "preferLooseListItem": "El tipo de lista preferido",
         "bulletListMarker": "El marcador usado en lista de viñetas",
         "orderListDelimiter": "El delimitador usado en lista ordenada",
@@ -491,7 +491,7 @@
         "imageRelativeDirectoryName": "El nombre de la carpeta de imagen relativa",
         "fileSortOrder": "El orden de clasificación de los archivos en las carpetas abiertas: ascendente o descendente",
         "openedFilesInSidebar": "Si mostrar los archivos abiertos en la barra lateral",
-        "showPandocConvert": "Mostrar el menú de conversión de Pandoc. Requiere tener Pandoc instalado."
+        "showPandocConvert": "Activar la conversión con Pandoc"
       }
     },
     "categories": {
@@ -539,8 +539,8 @@
       },
       "pandoc": {
         "title": "Conversión con Pandoc",
-        "description": "Mostrar el menú de conversión de Pandoc",
-        "detailedDescription": "Requiere tener Pandoc instalado",
+        "description": "Activar la conversión con Pandoc",
+        "detailedDescription": "Muestra comandos de conversión en el menú. Requiere instalar Pandoc.",
         "found": "Encontrado: {path}",
         "notFound": "No encontrado",
         "recheck": "Volver a comprobar"
@@ -617,14 +617,14 @@
       "writingBehavior": {
         "title": "Comportamiento de Escritura",
         "autoCloseBrackets": "Cerrar corchetes automáticamente",
-        "autoCompleteMarkdown": "Autocompletar markdown",
+        "autoCompleteMarkdown": "Completar pares de marcadores Markdown",
         "autoCloseQuotes": "Cerrar comillas automáticamente"
       },
       "fileRepresentation": {
         "title": "Representación de Archivo",
         "tabWidth": "Entrada de la tecla Tab",
         "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
-        "lineSeparator": "Separador de línea",
+        "lineSeparator": "Fin de línea predeterminado de archivos",
         "defaultEncoding": "Codificación predeterminada",
         "autoDetectEncoding": "Detectar codificación automáticamente",
         "trailingNewlines": {
@@ -649,7 +649,7 @@
         },
         "hideQuickInsertHint": "Ocultar sugerencia de inserción rápida",
         "hideLinkPopup": "Ocultar popup de enlace",
-        "autoCheck": "Verificación automática",
+        "autoCheck": "Vincular tareas principales y subtareas",
         "autoNormalizeLineEndings": "Normalizar automáticamente los finales de línea a LF al abrir",
         "wrapCodeBlocks": "Ajustar bloques de código",
         "sourceCodeLineNumbers": "Mostrar números de línea en el modo código fuente"
@@ -838,6 +838,11 @@
       "enableSpellChecking": "Habilitar corrección ortográfica",
       "hideMarksForErrors": "Ocultar marcas para errores ortográficos",
       "title": "Corrector Ortográfico"
+    },
+    "explanations": {
+      "taskCascade": "Marcar una tarea principal actualiza sus subtareas; cambiar las subtareas actualiza la tarea principal.",
+      "markdownPairs": "Completa pares de marcadores Markdown, como asteriscos, guiones bajos y acentos graves, al escribir.",
+      "lineEndings": "Se usa en archivos nuevos y con finales de línea mixtos o no detectados. Los archivos LF o CRLF conservan el formato detectado."
     }
   },
   "about": {

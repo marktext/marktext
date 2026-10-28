@@ -444,16 +444,16 @@
         "sourceCodeLineNumbers": "在原始碼模式中顯示行號",
         "trimUnnecessaryCodeBlockEmptyLines": "修剪程式碼區塊開頭和結尾的空行",
         "autoPairBracket": "編輯時自動配對括號",
-        "autoPairMarkdownSyntax": "自動完成 Markdown 語法",
+        "autoPairMarkdownSyntax": "自動補全 Markdown 成對標記",
         "autoPairQuote": "自動完成引號",
-        "endOfLine": "每行結尾使用的換行字元。預設值為 default，會選擇您作業系統的預設換行字元",
+        "endOfLine": "預設檔案換行符號",
         "defaultEncoding": "預設檔案編碼",
         "autoGuessEncoding": "開啟檔案時嘗試自動猜測檔案編碼",
         "trimTrailingNewline": "修剪尾隨換行選項",
         "textDirection": "文本書寫方向",
         "hideQuickInsertHint": "隱藏快速建立段落的提示",
         "hideLinkPopup": "當游標懸停在連結上時隱藏連結彈出視窗",
-        "autoCheck": "是否自動檢查相關任務",
+        "autoCheck": "連動勾選父子任務",
         "preferLooseListItem": "首選清單類型",
         "bulletListMarker": "項目符號清單中使用的標記",
         "orderListDelimiter": "有序清單中使用的分隔符",
@@ -491,7 +491,7 @@
         "imageRelativeDirectoryName": "相對圖片資料夾名稱",
         "fileSortOrder": "開啟資料夾中檔案的排序順序：遞增或遞減",
         "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案",
-        "showPandocConvert": "顯示 Pandoc 轉換選單。需要先安裝 Pandoc。"
+        "showPandocConvert": "啟用 Pandoc 格式轉換"
       }
     },
     "categories": {
@@ -539,8 +539,8 @@
       },
       "pandoc": {
         "title": "Pandoc 轉換",
-        "description": "顯示 Pandoc 轉換選單",
-        "detailedDescription": "需要先安裝 Pandoc",
+        "description": "啟用 Pandoc 格式轉換",
+        "detailedDescription": "在選單中顯示格式轉換命令，需要先安裝 Pandoc。",
         "found": "已找到：{path}",
         "notFound": "未找到",
         "recheck": "重新檢測"
@@ -617,14 +617,14 @@
       "writingBehavior": {
         "title": "寫作行為",
         "autoCloseBrackets": "自動關閉括號",
-        "autoCompleteMarkdown": "自動完成 Markdown",
+        "autoCompleteMarkdown": "自動補全 Markdown 成對標記",
         "autoCloseQuotes": "自動關閉引號"
       },
       "fileRepresentation": {
         "title": "檔案表示",
         "tabWidth": "Tab 鍵輸入",
         "tabInputNotes": "選擇插入空格或真正的定位字元。已有定位字元按四欄定位點顯示。清單和表格中的 Tab 用於調整層級或切換儲存格。",
-        "lineSeparator": "行分隔符",
+        "lineSeparator": "預設檔案換行符號",
         "defaultEncoding": "預設編碼",
         "autoDetectEncoding": "自動偵測編碼",
         "trailingNewlines": {
@@ -649,7 +649,7 @@
         },
         "hideQuickInsertHint": "隱藏快速插入提示",
         "hideLinkPopup": "隱藏連結彈出視窗",
-        "autoCheck": "自動檢查",
+        "autoCheck": "連動勾選父子任務",
         "autoNormalizeLineEndings": "開啟時自動將行尾標準化為 LF",
         "wrapCodeBlocks": "換行程式碼區塊",
         "sourceCodeLineNumbers": "在原始碼模式中顯示行號"
@@ -838,6 +838,11 @@
       "enableSpellChecking": "啟用拼字檢查",
       "hideMarksForErrors": "隱藏拼字錯誤標記",
       "title": "拼字檢查"
+    },
+    "explanations": {
+      "taskCascade": "勾選或取消父任務時同步更新子任務；子任務狀態變更時同步更新父任務。",
+      "markdownPairs": "輸入星號、底線、反引號等 Markdown 標記時，自動補全配對標記。",
+      "lineEndings": "用於新檔案及換行符號混合或無法偵測的檔案。既有 LF 或 CRLF 檔案保留偵測到的格式。"
     }
   },
   "about": {

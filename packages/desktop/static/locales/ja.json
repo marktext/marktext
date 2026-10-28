@@ -444,16 +444,16 @@
         "sourceCodeLineNumbers": "ソースコードモードで行番号を表示",
         "trimUnnecessaryCodeBlockEmptyLines": "コードブロックの最初と最後の空行をトリミング",
         "autoPairBracket": "編集時に括弧を自動で閉じる",
-        "autoPairMarkdownSyntax": "Markdown 構文の自動補完",
+        "autoPairMarkdownSyntax": "Markdown 記号のペアを自動補完",
         "autoPairQuote": "引用符の自動補完",
-        "endOfLine": "各行の末尾で使用される改行文字。デフォルト値は default で、オペレーティングシステムのデフォルトの改行文字を選択します",
+        "endOfLine": "ファイルの既定の改行コード",
         "defaultEncoding": "デフォルトのファイルエンコーディング",
         "autoGuessEncoding": "ファイルを開くときにファイルエンコーディングを自動判別する",
         "trimTrailingNewline": "末尾改行のトリミングオプション",
         "textDirection": "テキストの書込方向",
         "hideQuickInsertHint": "段落を素早く作成するためのヒントを非表示",
         "hideLinkPopup": "カーソルがリンクの上にホバーしたときにリンクポップアップを非表示",
-        "autoCheck": "関連するタスクを自動的にチェックするかどうか",
+        "autoCheck": "親子タスクのチェックを連動",
         "preferLooseListItem": "優先されるリストタイプ",
         "bulletListMarker": "箇条書きリストで使用されるマーカー",
         "orderListDelimiter": "順序付きリストで使用される区切り文字",
@@ -491,7 +491,7 @@
         "imageRelativeDirectoryName": "相対画像フォルダー名",
         "fileSortOrder": "開いたフォルダー内のファイルの並べ替え順、昇順または降順",
         "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか",
-        "showPandocConvert": "Pandoc 変換メニューを表示します。Pandoc がインストールされている必要があります。"
+        "showPandocConvert": "Pandoc 形式変換を有効化"
       }
     },
     "categories": {
@@ -539,8 +539,8 @@
       },
       "pandoc": {
         "title": "Pandoc 変換",
-        "description": "Pandoc 変換メニューを表示",
-        "detailedDescription": "Pandoc がインストールされている必要があります",
+        "description": "Pandoc 形式変換を有効化",
+        "detailedDescription": "メニューに形式変換コマンドを表示します。Pandoc のインストールが必要です。",
         "found": "検出: {path}",
         "notFound": "見つかりません",
         "recheck": "再検出"
@@ -617,14 +617,14 @@
       "writingBehavior": {
         "title": "書き込み動作",
         "autoCloseBrackets": "括弧を自動で閉じる",
-        "autoCompleteMarkdown": "Markdown を自動補完",
+        "autoCompleteMarkdown": "Markdown 記号のペアを自動補完",
         "autoCloseQuotes": "引用符を自動で閉じる"
       },
       "fileRepresentation": {
         "title": "ファイルの表示形式",
         "tabWidth": "Tab キーの入力",
         "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
-        "lineSeparator": "行区切り文字",
+        "lineSeparator": "ファイルの既定の改行コード",
         "defaultEncoding": "デフォルトエンコーディング",
         "autoDetectEncoding": "エンコーディングを自動検出",
         "trailingNewlines": {
@@ -649,7 +649,7 @@
         },
         "hideQuickInsertHint": "クイック挿入ヒントを隠す",
         "hideLinkPopup": "リンクポップアップを隠す",
-        "autoCheck": "自動チェック",
+        "autoCheck": "親子タスクのチェックを連動",
         "autoNormalizeLineEndings": "開くときに改行コードを自動的に LF へ統一",
         "wrapCodeBlocks": "コードブロックを折り返し",
         "sourceCodeLineNumbers": "ソースコードモードで行番号を表示"
@@ -838,6 +838,11 @@
       "enableSpellChecking": "スペルチェックを有効",
       "hideMarksForErrors": "スペルエラーのマークを隠す",
       "title": "スペルチェック"
+    },
+    "explanations": {
+      "taskCascade": "親タスクのチェックを変更すると子タスクも更新され、子タスクの変更は親タスクに反映されます。",
+      "markdownPairs": "入力中のアスタリスク、アンダースコア、バッククォートなどの Markdown 記号をペアで補完します。",
+      "lineEndings": "新規ファイルと改行が混在または検出できないファイルに使用します。既存の LF・CRLF ファイルは検出された形式を保持します。"
     }
   },
   "about": {

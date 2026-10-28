@@ -21,27 +21,11 @@
           <LinkIcon :size="14" />
         </button>
       </icon-tooltip>
-      <icon-tooltip
-        v-else-if="detailedDescription"
-        :content="detailedDescription"
-        placement="top-start"
-      >
-        <button
-          type="button"
-          class="plain-button"
-          :aria-label="detailedDescription"
-        >
-          <InfoFilled
-            width="16"
-            height="16"
-          />
-        </button>
-      </icon-tooltip>
       <span
-        v-if="notes"
+        v-if="supportingNotes"
         class="notes"
       >
-        {{ notes }}
+        {{ supportingNotes }}
       </span>
     </div>
     <el-switch
@@ -54,7 +38,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { InfoFilled } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
 import IconTooltip from '@/components/iconTooltip/index.vue'
@@ -76,6 +59,8 @@ const props = withDefaults(defineProps<BoolProps>(), {
   detailedDescription: '',
   disable: false
 })
+
+const supportingNotes = computed(() => [props.notes, props.detailedDescription].filter(Boolean).join(' '))
 
 const status = computed({
   get: () => props.bool,
