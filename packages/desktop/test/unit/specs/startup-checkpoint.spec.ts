@@ -101,7 +101,7 @@ describe('durable document checkpoints', () => {
     const f = await setup()
     expect(await f.service.checkpoint(f.window.id, f.request(1))).toMatchObject({
       status: 'persisted',
-      receipt: { metadataRevision: 1, sequence: 1 }
+      receipt: { metadataRevision: 1 }
     })
     expect(f.writes).toEqual(['body', 'metadata'])
     expect(await new RecoveryStore(f.directory).readWindow(f.window.id)).toMatchObject([

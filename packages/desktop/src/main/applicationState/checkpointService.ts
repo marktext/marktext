@@ -16,9 +16,11 @@ import { DocumentRegistry, type DocumentRegistration } from './documentRegistry'
 import { createStateId } from './identity'
 import { contentSha256 } from 'common/filesystem'
 
+/** Per-renderer request ordering and the receipt cached for an identical retry. */
 interface RendererContext {
   token: string
   sequence: number
+  // Hash of the accepted request, including layout and body updates.
   digest: string | null
   result: PersistResult | null
   closeTransactionId: string | null
@@ -29,14 +31,15 @@ export interface RegisteredDocumentContent extends DocumentRegistration {
   markdown: string
 }
 
-export interface SaveCapture {
+/** Immutable input to one disk save; later typing must remain independent of its result. */
+interface SaveCapture {
   snapshot: DocumentSnapshot
   markdown: string
   contentRevision: number
   baseline: DiskBaseline | null
 }
 
-export type SaveDocumentResult = PersistResult | { status: 'cancelled' }
+type SaveDocumentResult = PersistResult | { status: 'cancelled' }
 type RendererInitialization = Omit<WindowInitialization, 'preferences'>
 
 const failed = (): PersistResult => ({ status: 'failed', reason: 'storage-unavailable' })
@@ -131,7 +134,7 @@ export class CheckpointService {
       result: null,
       closeTransactionId: null
     })
-    return { windowId, sessionId: this._state.session.id, contextToken: token }
+    return { contextToken: token }
   }
 
   initializeRenderer(windowId: string): Promise<RendererInitialization> {
@@ -213,7 +216,7 @@ export class CheckpointService {
       }
       context.sequence = captured.sequence
       context.digest = digest
-      const result = await this._persistResult(captured.sequence, windowId)
+      const result = await this._persistResult()
       context.result = result
       return result
     })
@@ -224,7 +227,7 @@ export class CheckpointService {
       const context = this._contexts.get(windowId)
       if (!this.getWindow(windowId) || !context || context.token !== token)
         return { status: 'failed', reason: 'stale-context' }
-      return this._persistResult(context.sequence, windowId)
+      return this._persistResult()
     })
   }
 
@@ -281,7 +284,7 @@ export class CheckpointService {
       if (!this.getWindow(windowId) || !context) throw new Error('Unknown window')
       this._documents.register(windowId, document, markdown, registration)
       this._refreshDocuments(windowId)
-      return this._persistResult(context.sequence, windowId)
+      return this._persistResult()
     })
   }
 
@@ -301,7 +304,7 @@ export class CheckpointService {
       )
       try {
         await this._persist(candidate, [marker])
-        return this._receipt(this._contexts.get(windowId)?.sequence ?? 0, windowId)
+        return this._receipt()
       } catch {
         this._documents.requireRecoveryWrite(documentId)
         return failed()
@@ -336,7 +339,7 @@ export class CheckpointService {
         return this._enqueue(async() => {
           this._documents.markSaved(documentId, revision, saved.snapshot, saved.markdown)
           this._refreshDocuments(windowId)
-          return this._persistResult(this._contexts.get(windowId)?.sequence ?? 0, windowId)
+          return this._persistResult()
         })
       })
     this._saveQueues.set(documentId, operation)
@@ -388,30 +391,17 @@ export class CheckpointService {
     })
   }
 
-  private async _persistResult(sequence: number, windowId: string): Promise<PersistResult> {
+  private async _persistResult(): Promise<PersistResult> {
     try {
       await this._persist(this._state)
-      return this._receipt(sequence, windowId)
+      return this._receipt()
     } catch {
       return failed()
     }
   }
 
-  private _receipt(sequence: number, windowId: string): PersistResult {
-    const documents = this.getWindow(windowId)?.documents ?? []
-    return {
-      status: 'persisted',
-      receipt: {
-        metadataRevision: this._state.revision,
-        sequence,
-        recoveryRevisions: documents
-          .filter((document) => document.content.kind === 'recovery')
-          .map((document) => ({
-            documentId: document.id,
-            contentRevision: this._documents.revision(document.id)
-          }))
-      }
-    }
+  private _receipt(): PersistResult {
+    return { status: 'persisted', receipt: { metadataRevision: this._state.revision } }
   }
 
   private async _persist(
