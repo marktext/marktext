@@ -192,3 +192,54 @@ export interface PandocExportPayload {
   texMathSingleBackslash: boolean
   texMathDoubleBackslash: boolean
 }
+
+export interface SourcePosition {
+  // Both are zero-based; ch counts UTF-16 code units.
+  line: number
+  ch: number
+}
+
+export interface SourceSelection {
+  anchor: SourcePosition
+  focus: SourcePosition
+}
+
+export interface MuyaEndpoint {
+  path: Array<string | number>
+  offset: number
+}
+
+export type MuyaSelection =
+  | { kind: 'text'; anchor: MuyaEndpoint; focus: MuyaEndpoint }
+  | {
+    kind: 'image'
+    path: Array<string | number>
+    range: { start: number; end: number }
+    raw: string
+  }
+  | {
+    kind: 'table'
+    tablePath: Array<string | number>
+    anchor: { row: number; column: number }
+    focus: { row: number; column: number }
+  }
+
+export interface DocumentViewState {
+  // Hash of the editor's Markdown string encoded as UTF-8, not the raw disk bytes.
+  contentSha256: string
+  sourceSelection: SourceSelection | null
+  muyaSelection: MuyaSelection | null
+  sourceScrollTopPx: number
+  renderedScrollTopPx: number
+  collapsedOutlineKeys: string[]
+}
+
+export interface SaveFormatState {
+  encoding: FileEncoding
+  lineEnding: LineEnding
+  adjustLineEndingOnSave: boolean
+  trimTrailingNewline: 0 | 1 | 2 | 3
+}
+
+export type DiskBaseline =
+  { exists: false } | { exists: true; sizeBytes: number; mtimeMs: number; rawSha256: string }
