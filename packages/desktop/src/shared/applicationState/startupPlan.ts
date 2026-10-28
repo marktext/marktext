@@ -3,13 +3,13 @@ import type {
   ApplicationState,
   DocumentSnapshot,
   ProjectViewState,
-  RecoveryPreferences,
   RecoveryRecord,
   WindowLayoutState,
   WindowSnapshot,
   WorkspaceDescriptor,
   WorkspaceFileState
 } from '../types/applicationState'
+import type { RecoveryPreferences } from '../types/preferences'
 
 export type ExplicitTarget =
   | { kind: 'file'; pathname: string; readOnly: boolean }
