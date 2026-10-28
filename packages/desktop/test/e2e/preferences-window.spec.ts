@@ -148,7 +148,8 @@ test('uploader keeps its complete offline guide and persists a custom script', a
   })
   try {
     let settings = await openSettings(app, page)
-    await settings.getByRole('button', { name: 'Images & export', exact: true }).click()
+    await settings.locator('.pref-sidebar input').fill('imageUploader')
+    await settings.locator('.pref-autocomplete li').first().click()
     const guide = settings.locator('.uploader-guide')
     await expect(guide).not.toHaveAttribute('open', '')
     await guide.locator('summary').click()
@@ -165,8 +166,48 @@ test('uploader keeps its complete offline guide and persists a custom script', a
     await settings.evaluate(() => window.electron.windowControl.close())
     await expect.poll(() => app.windows().length).toBe(1)
     settings = await openSettings(app, page)
-    await settings.getByRole('button', { name: 'Images & export', exact: true }).click()
+    await settings.locator('.pref-sidebar input').fill('imageUploader')
+    await settings.locator('.pref-autocomplete li').first().click()
     await expect(settings.locator('#setting-cliScript input')).toHaveValue(process.execPath)
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
+test('image insertion behavior switches its related settings and preserves search access', async() => {
+  const { app, page } = await launchWithMarkdown('# Image settings\n', {
+    preferences: { language: 'en', imageInsertAction: 'path' }, suppressErrorDialog: true
+  })
+  try {
+    const settings = await openSettings(app, page)
+    await settings.getByRole('button', { name: 'Images & export', exact: true }).click()
+    await expect(settings.getByRole('heading', { name: 'Image', exact: true })).toBeVisible()
+    const folder = settings.locator('.image-folder')
+    const uploader = settings.locator('#setting-imageUploader')
+    await expect(folder).toBeVisible()
+    await expect(uploader).toHaveCount(0)
+    const chooseAction = async(label: string) => {
+      await settings.locator('#setting-imageInsertAction .el-select__wrapper').click()
+      await settings.getByRole('option', { name: label, exact: true }).click()
+    }
+    await chooseAction('Upload to cloud')
+    await expect(uploader).toBeVisible()
+    await expect(folder).toHaveCount(0)
+    await expect.poll(async() => (await preferences(app)).imageInsertAction).toBe('upload')
+    await chooseAction('Copy to folder')
+    await expect(folder).toBeVisible()
+    await expect(uploader).toHaveCount(0)
+    await chooseAction('Use absolute path')
+    await expect(folder).toBeVisible()
+    await expect(uploader).toHaveCount(0)
+    await settings.locator('.pref-sidebar input').fill('imageUploader')
+    await settings.locator('.pref-autocomplete li').first().click()
+    await expect(uploader).toBeFocused()
+    await expect.poll(async() => (await preferences(app)).imageInsertAction).toBe('path')
+    await chooseAction('Copy to folder')
+    await expect(uploader).toHaveCount(0)
+    await expect(folder).toBeVisible()
     await expectNoRendererErrors(app)
   } finally {
     await app.close()
@@ -249,7 +290,7 @@ test('startup settings use shared controls and persist policy, switches and fold
     const settings = await openSettings(app, page)
     await settings.getByRole('button', { name: 'Files & saving', exact: true }).click()
     const startup = settings.locator('.recovery-settings')
-    await expect(startup.locator('h6.title')).toHaveText('Startup Options')
+    await expect(startup.locator('h6.title')).toHaveText('Startup and recovery')
     await expect(startup.locator('.el-switch')).toHaveCount(3)
     await expect(startup.locator('select')).toHaveCount(0)
     await expect(startup.locator('.startup-directory')).toHaveCount(0)

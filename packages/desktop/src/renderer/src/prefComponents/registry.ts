@@ -9,6 +9,7 @@ export interface PreferenceDefinition {
   platform?: 'mac' | 'other'
   aliases?: string[]
   fallback?: string
+  section?: 'imageFolder' | 'imageUploader'
 }
 
 // IDs are persisted keys where available; auxiliary controls use stable UI IDs.
@@ -299,10 +300,12 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
     "fallback": "followSystemTheme"
   },
   "imagePreferRelativeDirectory": {
+    "section": "imageFolder",
     "category": "images",
     "label": "preferences.image.folderSetting.preferRelative"
   },
   "imageRelativeDirectoryName": {
+    "section": "imageFolder",
     "category": "images",
     "label": "preferences.image.folderSetting.relativeFolderName"
   },
@@ -361,14 +364,17 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
     "label": "preferences.theme.customCss"
   },
   "imageUploader": {
+    "section": "imageUploader",
     "category": "images",
     "label": "preferences.image.uploader.title"
   },
   "imageFolderPath": {
+    "section": "imageFolder",
     "category": "images",
     "label": "preferences.image.folderSetting.globalFolder"
   },
   "cliScript": {
+    "section": "imageUploader",
     "category": "images",
     "label": "preferences.image.uploader.scriptLocation",
     "fallback": "imageUploader"
