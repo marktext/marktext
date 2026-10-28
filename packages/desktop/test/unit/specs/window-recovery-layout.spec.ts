@@ -59,16 +59,33 @@ describe('window-owned layout', () => {
     )
     expect(localStorage.getItem('side-bar-width')).toBeNull()
   })
-  it('keeps a restored layout when global defaults later change', () => {
+  it('applies explicit outline-position changes without replacing other restored layout state', () => {
     const store = useLayoutStore()
     const preferences = usePreferencesStore()
     store.INITIALIZE_WINDOW_LAYOUT(createDefaultLayout())
-    preferences.tocPosition = 'right'
-    preferences.tocVisibility = false
-    expect(store.outlinePosition).toBe('left')
+    preferences.sourceCodeModeEnabled = true
+    preferences.SET_USER_PREFERENCE({ tocPosition: 'right' })
+    expect(store.outlinePosition).toBe('right')
+    expect(store.CAPTURE_WINDOW_LAYOUT().modes.sourceCode).toBe(false)
     expect(store.showToc).toBe(true)
     store.SET_OUTLINE_WIDTH(900)
     expect(store.outlineWidth).toBe(600)
+  })
+  it('keeps restored placement during initialization until the user changes the preference', async() => {
+    const preferences = usePreferencesStore()
+    preferences.SET_USER_PREFERENCE({ tocPosition: 'right' })
+    const layout = useLayoutStore()
+    const restored = createDefaultLayout()
+    restored.outline.position = 'left'
+    const changed = vi.fn()
+    layout.INITIALIZE_WINDOW_LAYOUT(restored, changed)
+    await nextTick()
+    expect(layout.outlinePosition).toBe('left')
+    expect(changed).not.toHaveBeenCalled()
+    preferences.SET_USER_PREFERENCE({ tocPosition: 'left' })
+    preferences.SET_USER_PREFERENCE({ tocPosition: 'right' })
+    expect(layout.CAPTURE_WINDOW_LAYOUT().outline.position).toBe('right')
+    expect(changed).toHaveBeenCalledOnce()
   })
   it('does not let temporary reading mode reset the preferred source mode', async() => {
     const layout = useLayoutStore()
@@ -90,7 +107,7 @@ describe('window-owned layout', () => {
   it('does not expand a hidden sidebar when a folder loads', () => {
     const layout = useLayoutStore()
     layout.INITIALIZE_WINDOW_LAYOUT(createDefaultLayout())
-    useProjectStore().OPEN_PROJECT('/notes')
+    useProjectStore().APPLY_ROOTS({ revision: 1, roots: [{ key: '/notes', pathname: '/notes', watchToken: 'root', status: 'loading' }], reason: 'restore' })
     expect(layout.showSideBar).toBe(false)
   })
   it('clips the visible sidebar without changing or persisting the preferred width', () => {

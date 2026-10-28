@@ -2,7 +2,7 @@
   <div
     ref="sourceCodeContainer"
     class="source-code"
-    @scroll.passive="updateActiveHeadingFromScroll"
+    @scroll.passive="handleScroll"
   />
 </template>
 
@@ -382,6 +382,11 @@ const updateActiveHeadingFromScroll = (): void => {
   setActiveHeadingAtLine(line)
 }
 
+const handleScroll = (): void => {
+  updateActiveHeadingFromScroll()
+  documentViewChanged()
+}
+
 const listenChange = (cm: CodeMirror.Editor) => {
   cm.on('cursorActivity', (instance: CodeMirror.Editor) => {
     saveContent(instance)
@@ -414,6 +419,7 @@ onMounted(() => {
 
   const { markdown, muyaIndexCursor, textDirection } = props
   const container = sourceCodeContainer.value
+  if (!container) return
   const codeMirrorConfig: Record<string, unknown> = {
     value: markdown,
     lineNumbers: sourceCodeLineNumbers.value,
@@ -472,8 +478,10 @@ onMounted(() => {
   })
   resizeObserver.observe(codeMirrorInstance.getWrapperElement())
 
-  releaseViewState = registerSourceViewState({ documentId: () => tabId.value, view: codeMirrorInstance })
-  codeMirrorInstance.on('scroll', documentViewChanged)
+  releaseViewState = registerSourceViewState({
+    documentId: () => tabId.value,
+    view: { editor: codeMirrorInstance, container }
+  })
   codeMirrorInstance.on('cursorActivity', documentViewChanged)
   listenChange(codeMirrorInstance)
   registerSourceView(async () => {
@@ -489,7 +497,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   releaseViewState?.()
-  editor.value?.off('scroll', documentViewChanged)
   editor.value?.off('cursorActivity', documentViewChanged)
   resizeObserver?.disconnect()
   registerSourceView(null)
