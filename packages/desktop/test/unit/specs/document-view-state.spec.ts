@@ -3,7 +3,7 @@ import CodeMirror from 'codemirror'
 import { Muya, SelectionType, type TSelectionState } from '@muyajs/core'
 import { createHash } from 'node:crypto'
 import { DocumentViewAdapter } from '@/services/documentViewState'
-import type { DocumentViewState } from '../../../src/shared/types/applicationState'
+import type { DocumentViewState } from '../../../src/shared/types/files'
 
 const hash = async(text: string) => createHash('sha256').update(text).digest('hex')
 const createRange = document.createRange.bind(document)

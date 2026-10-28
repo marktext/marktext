@@ -1,6 +1,6 @@
 import type CodeMirror from 'codemirror'
 import type { Muya, TSelectionState } from '@muyajs/core'
-import type { DocumentViewState, SourcePosition } from '@shared/types/applicationState'
+import type { DocumentViewState, SourcePosition } from '@shared/types/files'
 import { STATE_LIMITS } from '@shared/types/applicationState'
 
 type SourceView = Pick<
