@@ -8,7 +8,8 @@ import {
   Operation as KeyBindingIcon
 } from '@element-plus/icons-vue'
 
-import preferences from '../../../../main/preferences/schema.json'
+import preferences from '@shared/preferences/schema.json'
+import type { PreferenceSchemaEntry } from '@shared/types/preferences'
 import { t } from '../../i18n'
 
 interface PrefCategory {
@@ -16,12 +17,6 @@ interface PrefCategory {
   label: string
   icon: unknown
   path: string
-}
-
-interface PreferenceSchemaEntry {
-  description: string
-  enum?: unknown[]
-  [key: string]: unknown
 }
 
 interface TranslatedSearchEntry {
@@ -63,7 +58,7 @@ interface CachedTranslator {
   lastLanguage?: string
 }
 
-const preferencesSchema = preferences as unknown as Record<string, PreferenceSchemaEntry>
+const preferencesSchema: Record<string, PreferenceSchemaEntry> = preferences
 
 export const getCategory = (): PrefCategory[] => [
   {
