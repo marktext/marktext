@@ -233,7 +233,7 @@ describe('document identity and content lifecycle', () => {
         { documentId: snapshot.id, contentRevision: 1, markdown: 'Draft' }
       )
     ])
-    expect(() => registry.close(snapshot.id)).toThrow(/unsaved/i)
+    expect(() => registry.prepareClose(snapshot.id, false, 10)).toThrow(/unsaved/i)
     registry.discard(snapshot.id)
     expect(registry.pendingRecords(10)).toMatchObject([
       { status: 'discarded', documentId: snapshot.id }
@@ -326,6 +326,27 @@ describe('document identity and content lifecycle', () => {
     expect(registry.pendingRecords(10)).toMatchObject([{ baseline: { exists: false } }])
   })
 
+  it('keeps a restored file dirty when its text is cleared without a saved-content snapshot', () => {
+    const { snapshot, windowId } = registration(true)
+    const registry = new DocumentRegistry()
+    const baseline = snapshot.content.kind === 'disk' ? snapshot.content.baseline : null
+    const restored: DocumentSnapshot = {
+      ...snapshot,
+      content: { kind: 'recovery', contentRevision: 5 }
+    }
+    registry.register(windowId, restored, 'Recovered edits', { baseline })
+    registry.apply([
+      registry.prepare(
+        windowId,
+        { ...metadata(restored), content: { kind: 'recovery', contentRevision: 6 } },
+        { documentId: restored.id, contentRevision: 6, markdown: '' }
+      )
+    ])
+    expect(registry.get(restored.id).content).toEqual({ kind: 'recovery', contentRevision: 6 })
+    expect(registry.pendingRecords(10)).toMatchObject([{ status: 'dirty', markdown: '', baseline }])
+    expect(() => registry.prepareClose(restored.id, false, 10)).toThrow(/unsaved/i)
+  })
+
   it('keeps deleting all text from a disk file dirty', () => {
     const { registry, snapshot, windowId } = registration(true)
     registry.apply([
@@ -336,7 +357,7 @@ describe('document identity and content lifecycle', () => {
       )
     ])
     expect(registry.pendingRecords(10)).toMatchObject([{ status: 'dirty', markdown: '' }])
-    expect(() => registry.close(snapshot.id)).toThrow(/unsaved/i)
+    expect(() => registry.prepareClose(snapshot.id, false, 10)).toThrow(/unsaved/i)
   })
 })
 
