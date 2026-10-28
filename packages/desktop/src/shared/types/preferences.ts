@@ -171,3 +171,18 @@ export interface LayoutState {
 export type PreferenceUpdateResult =
   | { status: 'persisted'; preferences: UserPreferences }
   | { status: 'failed'; reason: 'invalid-data' | 'storage-unavailable' }
+
+export interface PreferenceSchemaRule {
+  type?: string
+  enum?: unknown[]
+  const?: unknown
+  minimum?: number
+  maximum?: number
+  pattern?: string
+  anyOf?: PreferenceSchemaRule[]
+  items?: PreferenceSchemaRule
+  default?: unknown
+}
+export interface PreferenceSchemaEntry extends PreferenceSchemaRule {
+  description: string
+}
