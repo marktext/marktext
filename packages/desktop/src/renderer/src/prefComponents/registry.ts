@@ -52,31 +52,31 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
     "label": "preferences.general.window.zoom"
   },
   "tocPosition": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.tocPosition"
   },
   "wordWrapInToc": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.wrapTextInToc"
   },
   "openedFilesInSidebar": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.showOpenedFiles"
   },
   "autoRevealInSidebar": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.autoReveal"
   },
   "openFilesInPreviewMode": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.openFilesInPreviewMode"
   },
   "fileSortBy": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.fileSortBy.title"
   },
   "fileSortOrder": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.fileSortOrder.title"
   },
   "showPandocConvert": {
@@ -308,7 +308,7 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
     "label": "preferences.image.folderSetting.relativeFolderName"
   },
   "treePathExcludePatterns": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.excludePatterns",
     "notes": "preferences.general.sidebar.excludePatternsNotes"
   },
