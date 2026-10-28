@@ -764,6 +764,46 @@ describe('transactional document ends', () => {
     ])
   })
 
+  it.each(['tabs', 'windows'] as const)(
+    'cancels edits received during recovery cleanup before publishing %s closes',
+    async(target) => {
+      const f = await setup()
+      await f.service.checkpoint(f.window.id, f.request(1, 'Approved draft'))
+      const entered = deferred()
+      const release = deferred()
+      const remove = f.recovery.remove.bind(f.recovery)
+      let armed = true
+      f.recovery.remove = async(windowId, documentId) => {
+        if (armed) {
+          armed = false
+          entered.resolve()
+          await release.promise
+        }
+        await remove(windowId, documentId)
+      }
+      const snapshots = f.service.getState().session.windows
+      let closing:
+        ReturnType<typeof f.service.endDocuments> | ReturnType<typeof f.service.closeWindows>
+      if (target === 'tabs') {
+        closing = f.service.endDocuments(f.window.id, snapshots[0].documents, true)
+      } else {
+        closing = f.service.closeWindows(snapshots)
+      }
+      await entered.promise
+      const editing = f.service.checkpoint(f.window.id, f.request(2, 'New draft during cleanup'))
+      release.resolve()
+      const result = await closing
+      if (target === 'tabs')
+        expect(result).toMatchObject({ status: 'failed', reason: 'stale-sequence' })
+      else expect(result).toBe(false)
+      expect(await editing).toMatchObject({ status: 'persisted' })
+      expect((await f.metadata.load()).value.session.windows[0].documents).toHaveLength(1)
+      expect(await f.recovery.readWindow(f.window.id)).toMatchObject([
+        { status: 'dirty', markdown: 'New draft during cleanup' }
+      ])
+    }
+  )
+
   it('does not leave the close guard blocked after a rejected checkpoint completes', async() => {
     const f = await setup()
     const invalid = { ...f.request(1), documents: [], dirtyContents: [], activeDocumentId: null }

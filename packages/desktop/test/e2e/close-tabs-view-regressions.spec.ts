@@ -40,7 +40,7 @@ const launch = async(firstText: string, secondText: string) => {
 }
 
 for (const dirty of [false, true]) {
-  for (const stage of ['recovery', 'metadata'] as const) {
+  for (const stage of ['recovery', 'metadata', 'cleanup'] as const) {
     test(`batch close preserves edits received during ${stage} IO (dirty=${dirty})`, async() => {
       const { app, page } = await launch('First clean file', 'Second clean file')
       await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 1)
@@ -66,6 +66,19 @@ for (const dirty of [false, true]) {
           audit.received = false
           dialog.showMessageBox = async() => ({ response: 1, checkboxChecked: false })
           const filesystem = process.getBuiltinModule('fs') as typeof FileSystem
+          if (stage === 'cleanup') {
+            const promises = process.getBuiltinModule('fs/promises') as typeof FileSystem.promises
+            const unlink = promises.unlink
+            promises.unlink = async(pathname) => {
+              if (!audit.held && String(pathname).endsWith(`${firstId}.json`)) {
+                audit.held = true
+                await new Promise<void>((resolve) => {
+                  audit.release = resolve
+                })
+              }
+              await unlink(pathname)
+            }
+          }
           const rename = filesystem.rename
           filesystem.rename = ((source, target, callback) => {
             let closingTarget = false

@@ -13,7 +13,8 @@ import type {
   WindowInitialization,
   WindowSnapshot,
   DocumentRegistration,
-  RegisteredDocumentContent
+  RegisteredDocumentContent,
+  RecoveryRecord
 } from '@shared/types/applicationState'
 import type { DiskBaseline } from '@shared/types/files'
 import { parseWindowSnapshot } from './codec'
@@ -635,8 +636,7 @@ export class CheckpointService {
     await this._metadata.write(next)
     if (isCurrent && !isCurrent())
       throw new StaleCloseError('Close preparation changed during metadata IO')
-    this._state = next
-    for (const record of ended) this._documents.discard(record.documentId)
+    const completedRecords: RecoveryRecord[] = []
     for (const record of records) {
       if (record.status !== RecoveryStatus.DIRTY) {
         try {
@@ -650,7 +650,13 @@ export class CheckpointService {
           continue
         }
       }
-      this._documents.settle(record)
+      completedRecords.push(record)
     }
+    // The renderer remains editable until every awaited IO operation has finished.
+    if (isCurrent && !isCurrent())
+      throw new StaleCloseError('Close preparation changed during recovery cleanup')
+    this._state = next
+    for (const record of ended) this._documents.discard(record.documentId)
+    for (const record of completedRecords) this._documents.settle(record)
   }
 }
