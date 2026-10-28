@@ -96,18 +96,26 @@ describe('minSpacesAfterMarker', () => {
 });
 
 describe('continuesList', () => {
+    it('distinguishes overlapping alpha and roman markers by the first written value', () => {
+        const alpha = { style: 'lower-alpha', delimiter: '.' } as const;
+        expect(continuesList(alpha, { value: 1, style: 'lower-roman', delimiter: '.' })).toBe(true);
+        expect(continuesList(alpha, { value: 2, style: 'lower-roman', delimiter: '.' })).toBe(false);
+        expect(continuesList({ style: 'lower-roman', delimiter: '.' }, { value: 1, style: 'lower-alpha', delimiter: '.' })).toBe(false);
+        expect(continuesList(alpha, { value: 1, style: 'upper-roman', delimiter: '.' }, '#.')).toBe(true);
+    });
+
     it('continues a list with a `#` list unless pandoc wants two spaces after it', () => {
-        expect(continuesList({ style: 'lower-alpha', delimiter: '.' }, { style: 'default', delimiter: '.' })).toBe(true);
-        expect(continuesList({ style: 'decimal', delimiter: ')' }, { style: 'default', delimiter: ')' })).toBe(true);
-        expect(continuesList({ style: 'upper-alpha', delimiter: '.' }, { style: 'default', delimiter: '.' })).toBe(false);
-        expect(continuesList({ style: 'lower-alpha', delimiter: '.' }, { style: 'default', delimiter: ')' })).toBe(false);
+        expect(continuesList({ style: 'lower-alpha', delimiter: '.' }, { value: 1, style: 'default', delimiter: '.' })).toBe(true);
+        expect(continuesList({ style: 'decimal', delimiter: ')' }, { value: 1, style: 'default', delimiter: ')' })).toBe(true);
+        expect(continuesList({ style: 'upper-alpha', delimiter: '.' }, { value: 1, style: 'default', delimiter: '.' })).toBe(false);
+        expect(continuesList({ style: 'lower-alpha', delimiter: '.' }, { value: 1, style: 'default', delimiter: ')' })).toBe(false);
     });
 
     it('continues a `#` list with digits only', () => {
-        expect(continuesList({ style: 'default', delimiter: '.' }, { style: 'decimal', delimiter: '.' })).toBe(true);
-        expect(continuesList({ style: 'default', delimiter: '.' }, { style: 'lower-alpha', delimiter: '.' })).toBe(false);
-        expect(continuesList({ style: 'lower-roman', delimiter: '.' }, { style: 'lower-roman', delimiter: '.' })).toBe(true);
-        expect(continuesList({ style: 'lower-roman', delimiter: '.' }, { style: 'decimal', delimiter: '.' })).toBe(false);
+        expect(continuesList({ style: 'default', delimiter: '.' }, { value: 1, style: 'decimal', delimiter: '.' })).toBe(true);
+        expect(continuesList({ style: 'default', delimiter: '.' }, { value: 1, style: 'lower-alpha', delimiter: '.' })).toBe(false);
+        expect(continuesList({ style: 'lower-roman', delimiter: '.' }, { value: 1, style: 'lower-roman', delimiter: '.' })).toBe(true);
+        expect(continuesList({ style: 'lower-roman', delimiter: '.' }, { value: 1, style: 'decimal', delimiter: '.' })).toBe(false);
     });
 });
 

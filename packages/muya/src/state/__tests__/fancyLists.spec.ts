@@ -406,6 +406,57 @@ describe('fancy lists: serialization', () => {
             { list: 'lower-roman ()', start: 1, items: [['y']] },
         ]);
     });
+
+    it.each([
+        ['1. x\n', '1. y\n', true],
+        ['1. [ ] x\n', '1. [x] y\n', true],
+        ['a. x\n', 'a. y\n', true],
+        ['a. x\n', '#. y\n', true],
+        ['1. x\n', '2. [x] y\n', false],
+        ['1. [ ] x\n', '2. y\n', false],
+        ['- x\n', '- y\n', false],
+        ['1. x\n', '1) y\n', false],
+        ['a. x\n', 'i. y\n', true],
+        ['A.  x\n', 'I.  y\n', true],
+        ['a. x\n', 'ii. y\n', false],
+        ['i. x\n', 'a. y\n', false],
+    ] as const)('preserves the boundary between %j and %j when needed', (first, second, needsSeparator) => {
+        const lists = [...toState(first), ...toState(second)];
+        const markdown = toMarkdown(lists);
+        expect(markdown.includes('<!-- -->')).toBe(needsSeparator);
+        if (needsSeparator) {
+            expect(outline(toState(markdown))).toEqual([
+                ...outline(toState(first)),
+                'html-block',
+                ...outline(toState(second)),
+            ]);
+        }
+    });
+
+    it('does not separate individual items or lists already separated by a paragraph', () => {
+        for (const markdown of ['1. x\n2. y\n', '1. x\n\nparagraph\n\n1. y\n'])
+            expect(toMarkdown(toState(markdown))).toBe(markdown);
+    });
+
+    it('keeps an inserted separator inside the containing item', () => {
+        const states = toState('- parent\n\n  a. x\n');
+        const parent = states[0];
+        if (parent.name !== 'bullet-list')
+            throw new Error('Expected a bullet parent');
+        parent.children[0].children.push(...toState('a. y\n'));
+        const markdown = toMarkdown(states);
+        expect(markdown).toContain('\n  <!-- -->\n');
+        const reopened = toState(markdown)[0];
+        if (reopened.name !== 'bullet-list')
+            throw new Error('Expected a bullet parent after reopening');
+        expect(reopened.children[0].children.map(child => child.name)).toEqual([
+            'paragraph',
+            'order-list',
+            'html-block',
+            'order-list',
+        ]);
+        expect(toMarkdown(toState(markdown))).toBe(markdown);
+    });
 });
 
 const HAS_PANDOC = spawnSync('pandoc', ['--version']).status === 0;

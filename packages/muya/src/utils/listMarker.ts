@@ -142,17 +142,17 @@ export function minSpacesAfterMarker({ value, style, delimiter }: IListMarker, t
 }
 
 /**
- * Whether a list in `next`'s style, written right after a list in `list`'s
- * style, reads back as more items of `list`: a `#` marker continues any list
- * as item one would, and a `#` list continues with digits.
+ * Whether `next`'s first written marker continues `list`. Continuation is
+ * directional: `i.` can continue an alpha list, but `a.` cannot continue a
+ * roman list. `sourceMarker` retains an authored marker when available.
  */
-export function continuesList(list: IListLevel, next: IListLevel): boolean {
-    if (list.delimiter !== next.delimiter)
+export function continuesList(list: IListLevel, next: IListMarker, sourceMarker = formatListMarker(next)): boolean {
+    const continuation = parseListMarker(sourceMarker, list.style);
+    if (!continuation || continuation.delimiter !== list.delimiter)
         return false;
-    if (next.style === 'default')
-        return minSpacesAfterMarker({ value: 1, ...list }) === 1;
+    const writtenMarker = parseListMarker(sourceMarker, next.style) ?? next;
 
-    return next.style === list.style || (list.style === 'default' && next.style === 'decimal');
+    return minSpacesAfterMarker(writtenMarker) >= minSpacesAfterMarker(continuation);
 }
 
 export function toListDelimiter(value: string): ListDelimiter {

@@ -63,4 +63,28 @@ test.describe('fancy-list clipboard fidelity', () => {
         expect(markdown).toContain('a. existing');
         expect(markdown).not.toContain('existingpasted');
     });
+
+    test('independent nested lists keep spacing through paste, history and reopen', async ({ browserName, context, page }) => {
+        test.skip(browserName !== 'chromium', 'Requires Chromium clipboard permissions.');
+        await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+        const source = '- parent\n  a. existing\n';
+        await page.evaluate(async (markdown) => {
+            window.__e2e!.rebuildMuya({ markdown, fancyLists: true });
+            const muya = window.muya!;
+            muya.domNode.focus();
+            const block = muya.editor.scrollPage!.firstContentInDescendant()!;
+            block.setCursor(block.text.length, block.text.length, true);
+            await navigator.clipboard.writeText('a. pasted\n');
+        }, source);
+        await page.keyboard.press(`${metaKey()}+v`);
+        await expect.poll(() => getMarkdown(page)).toContain('<!-- -->');
+        const saved = await getMarkdown(page);
+        expect(saved).toContain('- parent\n\n');
+        await page.evaluate(() => window.muya!.undo());
+        await expect.poll(() => getMarkdown(page)).toBe(source);
+        await page.evaluate(() => window.muya!.redo());
+        await expect.poll(() => getMarkdown(page)).toBe(saved);
+        await page.evaluate((markdown) => window.muya!.setContent(markdown), saved);
+        expect(await getMarkdown(page)).toBe(saved);
+    });
 });

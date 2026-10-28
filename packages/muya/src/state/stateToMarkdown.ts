@@ -43,13 +43,12 @@ interface IWrittenList {
     meta: TListMeta;
 }
 
-// Whether the list with `meta`, written right after the list with `previous`,
-// reads back as more items of it.
-function readsOn(previous: TListMeta, meta: TListMeta): boolean {
+function wouldMergeAdjacentLists(previous: TListMeta, meta: TListMeta): boolean {
     if ('delimiter' in previous && 'delimiter' in meta) {
         return continuesList(
             { style: previous.style ?? 'decimal', delimiter: previous.delimiter },
-            { style: meta.style ?? 'decimal', delimiter: meta.delimiter },
+            { value: meta.start, style: meta.style ?? 'decimal', delimiter: meta.delimiter },
+            meta.sourceMarkers?.[0],
         );
     }
 
@@ -271,21 +270,22 @@ export default class ExportMarkdown {
         if (state.name !== 'bullet-list' && 'sourceMarkers' in meta && !this._shouldPreserveOrderMarkers(state))
             delete meta.sourceMarkers;
 
-        // A list that does not read on from the previous one needs no blank line before it.
-        const sameList = previousList !== undefined && readsOn(previousList.meta, meta);
+        const wouldMergeLists = previousList !== undefined && wouldMergeAdjacentLists(previousList.meta, meta);
 
-        if (previousList && !sameList)
+        if (previousList && !wouldMergeLists)
             insertNewLine = false;
 
         // Adjacent tight lists with the same marker are one markdown list (the
         // parser splits it where items switch between plain and task), so a
         // blank line would only make that list loose on the next parse.
-        if (sameList && followsTightList)
+        if (wouldMergeLists && followsTightList)
             insertNewLine = false;
 
-        // Two ordered lists of one kind would read back as one list, so end
-        // the first with an HTML comment (pandoc's "Ending a list").
-        if (sameList && this._fancyLists && previousList?.name === state.name && 'delimiter' in meta) {
+        const needsListSeparator = this._fancyLists && wouldMergeLists
+            && previousList?.name === state.name && 'delimiter' in meta;
+        // Blank lines cannot preserve independent lists whose markers would merge
+        // on reparse. See https://pandoc.org/MANUAL.html#ending-a-list.
+        if (needsListSeparator) {
             this._insertLineBreak(result, indent);
             result.push(`${indent}<!-- -->\n`);
             insertNewLine = true;
