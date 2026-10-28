@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 
 const DEFAULTS_PATH = path.join(__dirname, '../../../static/preference.json')
-const SCHEMA_PATH = path.join(__dirname, '../../../src/main/preferences/schema.json')
+const SCHEMA_PATH = path.join(__dirname, '../../../src/shared/preferences/schema.json')
 
 interface SchemaEntry {
   type?: string

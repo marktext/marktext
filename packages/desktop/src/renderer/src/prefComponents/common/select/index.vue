@@ -27,7 +27,6 @@
       v-model="selectValue"
       :aria-label="description || ariaLabel"
       :disabled="disable"
-      @change="select"
     >
       <el-option
         v-for="item in options"
@@ -46,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
 import IconTooltip from '@/components/iconTooltip/index.vue'
@@ -72,16 +71,10 @@ const props = withDefaults(defineProps<SelectProps>(), {
   disable: false
 })
 
-const selectValue = ref<SelectValue>(props.value)
-
-watch(
-  () => props.value,
-  (value, oldValue) => {
-    if (value !== oldValue) {
-      selectValue.value = value
-    }
-  }
-)
+const selectValue = computed({
+  get: () => props.value,
+  set: (value: SelectValue) => props.onChange(value)
+})
 
 const handleMoreClick = () => {
   if (typeof props.more === 'string') {
@@ -89,9 +82,6 @@ const handleMoreClick = () => {
   }
 }
 
-const select = (value: SelectValue) => {
-  props.onChange(value)
-}
 </script>
 
 <style>
