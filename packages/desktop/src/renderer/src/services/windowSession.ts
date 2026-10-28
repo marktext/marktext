@@ -54,7 +54,7 @@ class WindowSession {
   // Late save/checkpoint replies must not undo newer native resource updates.
   private readonly _serverRevision = new Map<string, number>()
   private readonly _stops: Array<WatchStopHandle | (() => void)> = []
-  private _pendingRestoreId: string | null = null
+  private _pendingRestore: { id: string; capture: Promise<void> | null } | null = null
   private readonly _pendingOpens: ManagedDocumentPayload[] = []
   private readonly _schedule = debounce(() => {
     void this._flush().catch((error) => this._failure(error))
@@ -65,7 +65,7 @@ class WindowSession {
     const interacted = (): void => {
       this._interactionEpoch++
       // An unready editor must not apply its old view after the user starts interacting.
-      this._pendingRestoreId = null
+      this._pendingRestore = null
     }
     for (const name of ['pointerdown', 'keydown', 'beforeinput', 'wheel']) {
       document.addEventListener(name, interacted, { capture: true, passive: true })
@@ -177,16 +177,22 @@ class WindowSession {
     )
     this._stops.push(
       watch(
-        () => this._editor.currentFile?.id,
-        () => {
+        () => [
+          this._editor.currentFile?.id,
+          this._preferences.sourceCode && !this._editor.currentFile?.readOnly
+        ] as const,
+        ([id, source], [previousId, previousSource]) => {
+          if (id === previousId && source === previousSource) return
           if (!this._initializing) this._project.restoringSession = false
-          this._pendingRestoreId = this._editor.currentFile?.id ?? null
+          // Capture the outgoing mode before Vue unmounts its editor binding.
+          const capture = id === previousId ? this._captureActiveView() : null
+          this._pendingRestore = id ? { id, capture } : null
           void nextTick()
             .then(() => this._restoreActiveView())
             .catch((error) => this._failure(error))
           this._schedule()
         },
-        { flush: 'post' }
+        { flush: 'sync' }
       )
     )
     await this._flush()
@@ -288,7 +294,7 @@ class WindowSession {
       typewriter: this._preferences.typewriter
     })
     this._initializing = false
-    this._pendingRestoreId = active?.id ?? null
+    this._pendingRestore = active ? { id: active.id, capture: null } : null
     await nextTick()
     await this._restoreActiveView()
     if (initialized.startupWarning)
@@ -348,7 +354,7 @@ class WindowSession {
     const file = this._editor.currentFile
     if (
       !file ||
-      this._pendingRestoreId === file.id ||
+      this._pendingRestore?.id === file.id ||
       !isDocumentViewReady(file.id, file.markdown, file.trimTrailingNewline)
     )
       return
@@ -359,13 +365,27 @@ class WindowSession {
   }
 
   private async _restoreActiveView(): Promise<void> {
+    const pending = this._pendingRestore
+    await pending?.capture
     const file = this._editor.currentFile
     if (
       !file ||
-      this._pendingRestoreId !== file.id ||
+      !pending ||
+      this._pendingRestore !== pending ||
+      pending.id !== file.id ||
       !isDocumentViewReady(file.id, file.markdown, file.trimTrailingNewline)
     )
       return
+    if (pending.capture) {
+      const selection = this._preferences.sourceCode && !file.readOnly
+        ? file.viewState?.sourceSelection
+        : file.viewState?.muyaSelection
+      if (!selection) {
+        // A mode without a previous view keeps the editor's initial caret handoff.
+        this._pendingRestore = null
+        return
+      }
+    }
     const id = file.id
     const markdown = file.markdown
     const epoch = this._interactionEpoch
@@ -373,8 +393,8 @@ class WindowSession {
       this._editor.currentFile?.id === id &&
       this._editor.currentFile.markdown === markdown &&
       this._interactionEpoch === epoch
-    this._pendingRestoreId = null
-    const keys = await restoreDocumentView(id, markdown, file.viewState ?? null, isCurrent, true)
+    this._pendingRestore = null
+    const keys = await restoreDocumentView(id, markdown, file.viewState ?? null, isCurrent, pending.capture !== null)
     if (isCurrent()) file.tocCollapsedKeys = keys
   }
 

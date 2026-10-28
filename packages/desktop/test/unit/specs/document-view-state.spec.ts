@@ -109,6 +109,31 @@ describe('document view adapters with reconstructed editors', () => {
     expect(second.container.scrollTop).toBe(0)
   })
 
+  it('restores source scrolling without replacing a caret supplied by a mode handoff', async() => {
+    const source = sourceView(CodeMirror(document.body, { value: 'abcdef' }))
+    source.editor.setSelection({ line: 0, ch: 1 }, { line: 0, ch: 3 })
+    source.container.scrollTop = 240
+    const state = await adapter.capture('abcdef', { source })
+    source.editor.setSelection({ line: 0, ch: 4 }, { line: 0, ch: 5 })
+    source.container.scrollTop = 0
+    await adapter.restore('abcdef', state, { source, preserveCaret: true })
+    expect(source.editor.getCursor('anchor')).toEqual({ line: 0, ch: 4 })
+    expect(source.editor.getCursor('head')).toEqual({ line: 0, ch: 5 })
+    expect(source.container.scrollTop).toBe(240)
+  })
+
+  it('restores rendered scrolling without replacing a caret supplied by a mode handoff', async() => {
+    const view = rendered('Hello world\n')
+    view.engine.setCursorByOffset({ anchor: { line: 0, ch: 1 }, focus: { line: 0, ch: 3 } })
+    view.container.scrollTop = 240
+    const state = await adapter.capture('Hello world\n', { rendered: view })
+    view.engine.setCursorByOffset({ anchor: { line: 0, ch: 6 }, focus: { line: 0, ch: 11 } })
+    view.container.scrollTop = 0
+    await adapter.restore('Hello world\n', state, { rendered: view, preserveCaret: true })
+    expect(view.engine.getSelectedText()).toBe('world')
+    expect(view.container.scrollTop).toBe(240)
+  })
+
   it('restores a real Muya selection after rebuilding its block tree', async() => {
     const markdown = 'Hello world\n'
     const first = rendered(markdown)

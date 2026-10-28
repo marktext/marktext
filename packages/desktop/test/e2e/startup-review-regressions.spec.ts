@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication } from 'playwright'
+import type CodeMirror from 'codemirror'
 import { createHash } from 'node:crypto'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { ApplicationState } from '../../src/shared/types/applicationState'
-import { enterSourceMode, launchElectron, sendIpcToRenderer } from './helpers'
+import { enterSourceMode, exitSourceMode, launchElectron, sendIpcToRenderer } from './helpers'
 
 let directory: string
 let profile: string
@@ -134,4 +135,33 @@ test('an explicit TOC position preference moves the live outline and survives re
   await expect.poll(() => readState().session.windows[0].layout.outline.position).toBe('right')
   const restored = await restart(app)
   await expect(restored.page.locator('.document-outline')).toHaveClass(/is-right/)
+})
+
+
+test('switching editing modes retains each mode reading position across restart', async() => {
+  const markdown = Array.from({ length: 150 }, (_, index) => `Paragraph ${index} for reading state.\n`).join('\n')
+  const { app, page } = await launch(markdown)
+  const rendered = page.getByRole('textbox', { name: 'Document', exact: true })
+  await rendered.click()
+  await page.keyboard.press('Meta+ArrowDown')
+  await page.keyboard.press('Shift+ArrowUp')
+  await rendered.evaluate((element) => { element.scrollTop = 1200 })
+  await rendered.dispatchEvent('scroll')
+  await expect.poll(() => readState().session.windows[0].documents[0].view?.renderedScrollTopPx).toBe(1200)
+  await enterSourceMode(page, app)
+  await page.locator('.source-code .CodeMirror').evaluate((element) => {
+    const cm = (element as unknown as Element & { CodeMirror: CodeMirror.Editor }).CodeMirror
+    cm.setSelection({ line: 50, ch: 1 }, { line: 52, ch: 3 }, { scroll: false })
+  })
+  await page.locator('.source-code').evaluate((element) => { element.scrollTop = 480 })
+  await page.locator('.source-code').dispatchEvent('scroll')
+  await expect.poll(() => readState().session.windows[0].documents[0].view?.sourceScrollTopPx).toBe(480)
+  await exitSourceMode(page, app)
+  await expect.poll(() => rendered.evaluate((element) => element.scrollTop)).toBe(1200)
+  await enterSourceMode(page, app)
+  await expect.poll(() => page.locator('.source-code').evaluate((element) => element.scrollTop)).toBe(480)
+  const restored = await restart(app)
+  await expect.poll(() => restored.page.locator('.source-code').evaluate((element) => element.scrollTop)).toBe(480)
+  await exitSourceMode(restored.page, restored.app)
+  await expect.poll(() => restored.page.getByRole('textbox', { name: 'Document', exact: true }).evaluate((element) => element.scrollTop)).toBe(1200)
 })
