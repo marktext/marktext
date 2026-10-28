@@ -585,10 +585,9 @@
       },
       "uploader": {
         "title": "Загрузчик изображений",
-        "currentUploader": "Текущий загрузчик: {name}",
-        "picgoNotInstalled": "PicGo не установлен",
-        "picgoInstalled": "PicGo установлен",
-        "picgoDetectionFailed": "Не удалось определить PicGo",
+        "picgoNotInstalled": "PicGo-Core не установлен",
+        "picgoInstalled": "PicGo-Core установлен",
+        "picgoDetectionFailed": "Не удалось определить PicGo-Core",
         "debugInfo": "Отладочная информация",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
@@ -596,11 +595,11 @@
         "chooseInstallMethod": "Выберите способ установки:",
         "retestPicgo": "Проверить снова",
         "lastDetectionTime": "Время последней проверки",
-        "picgoDetection": "Проверка PicGo",
+        "picgoDetection": "Проверка PicGo-Core",
         "usageGuide": {
-          "title": "Краткое руководство по PicGo",
+          "title": "Краткое руководство по PicGo-Core",
           "step1": "Настроить загрузчик",
-          "step1Description": "Используйте следующую команду для настройки загрузчика PicGo:",
+          "step1Description": "Используйте следующую команду для настройки загрузчика PicGo-Core:",
           "step2": "Загрузить изображения",
           "step2Description": "Используйте следующую команду для загрузки изображений:",
           "step3": "Просмотреть конфигурацию",
@@ -616,7 +615,7 @@
         "saveConfig": "Сохранить конфигурацию",
         "scriptConfigSaved": "Конфигурация скрипта сохранена",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI-скрипт"
         },
         "pleaseInstall": "Пожалуйста, установите",

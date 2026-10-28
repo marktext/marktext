@@ -142,6 +142,37 @@ test('theme picker keeps fixed and system theme choices separate and preserves c
   }
 })
 
+test('uploader keeps its complete offline guide and persists a custom script', async() => {
+  const { app, page } = await launchWithMarkdown('# Uploader settings\n', {
+    preferences: { language: 'en', imageInsertAction: 'path' }, suppressErrorDialog: true
+  })
+  try {
+    let settings = await openSettings(app, page)
+    await settings.getByRole('button', { name: 'Images & export', exact: true }).click()
+    const guide = settings.locator('.uploader-guide')
+    await expect(guide).not.toHaveAttribute('open', '')
+    await guide.locator('summary').click()
+    await expect(guide.locator('code').filter({ hasText: 'picgo set uploader' })).toBeVisible()
+    await expect(guide.locator('code').filter({ hasText: 'picgo config' })).toBeVisible()
+    await settings.locator('#setting-imageUploader .el-select__wrapper').click()
+    await settings.getByRole('option', { name: 'CLI Script', exact: true }).click()
+    const script = settings.locator('#setting-cliScript input')
+    await script.fill(process.execPath)
+    const save = settings.locator('#setting-imageUploader').getByRole('button', { name: 'Save', exact: true })
+    await expect(save).toBeEnabled()
+    await save.click()
+    await expect.poll(async() => (await preferences(app)).imageInsertAction).toBe('path')
+    await settings.evaluate(() => window.electron.windowControl.close())
+    await expect.poll(() => app.windows().length).toBe(1)
+    settings = await openSettings(app, page)
+    await settings.getByRole('button', { name: 'Images & export', exact: true }).click()
+    await expect(settings.locator('#setting-cliScript input')).toHaveValue(process.execPath)
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
 test('file-tree rule tags retain glob commas when adding and reopening settings', async() => {
   const { app, page } = await launchWithMarkdown('# Exclusion rules\n', {
     preferences: { language: 'en', treePathExcludePatterns: ['**/{drafts,archive}/**'] },

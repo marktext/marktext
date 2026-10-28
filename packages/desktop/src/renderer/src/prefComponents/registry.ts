@@ -13,6 +13,7 @@ export interface PreferenceDefinition {
 
 // IDs are persisted keys where available; auxiliary controls use stable UI IDs.
 export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
+  "imageInsertAction": { "category": "images", "label": "preferences.image.defaultBehavior" },
   "defaultOpenMode": {
     "category": "general",
     "label": "readingMode.defaultMode",

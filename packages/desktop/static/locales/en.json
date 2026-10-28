@@ -585,10 +585,9 @@
       },
       "uploader": {
         "title": "Image Uploader",
-        "currentUploader": "Current Uploader: {name}",
-        "picgoNotInstalled": "PicGo is not installed",
-        "picgoInstalled": "PicGo is installed",
-        "picgoDetectionFailed": "PicGo detection failed",
+        "picgoNotInstalled": "PicGo-Core is not installed",
+        "picgoInstalled": "PicGo-Core is installed",
+        "picgoDetectionFailed": "PicGo-Core detection failed",
         "debugInfo": "Debug Info",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
@@ -596,11 +595,11 @@
         "chooseInstallMethod": "Choose installation method:",
         "retestPicgo": "Retest",
         "lastDetectionTime": "Last Detection Time",
-        "picgoDetection": "PicGo Detection",
+        "picgoDetection": "PicGo-Core Detection",
         "usageGuide": {
-          "title": "PicGo Basic Usage Guide",
+          "title": "PicGo-Core Basic Usage Guide",
           "step1": "Configure Uploader",
-          "step1Description": "Use the following command to configure PicGo uploader:",
+          "step1Description": "Use the following command to configure PicGo-Core uploader:",
           "step2": "Upload Images",
           "step2Description": "Use the following command to upload images:",
           "step3": "View Configuration",
@@ -616,7 +615,7 @@
         "saveConfig": "Save Configuration",
         "scriptConfigSaved": "Script configuration saved",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI Script"
         },
         "pleaseInstall": "Please install",

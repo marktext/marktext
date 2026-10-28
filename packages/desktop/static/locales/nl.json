@@ -585,10 +585,9 @@
       },
       "uploader": {
         "title": "Afbeeldings-uploader",
-        "currentUploader": "Huidige uploader: {name}",
-        "picgoNotInstalled": "PicGo is niet geïnstalleerd",
-        "picgoInstalled": "PicGo is geïnstalleerd",
-        "picgoDetectionFailed": "PicGo-detectie mislukt",
+        "picgoNotInstalled": "PicGo-Core is niet geïnstalleerd",
+        "picgoInstalled": "PicGo-Core is geïnstalleerd",
+        "picgoDetectionFailed": "PicGo-Core-detectie mislukt",
         "debugInfo": "Foutopsporingsinformatie",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
@@ -596,11 +595,11 @@
         "chooseInstallMethod": "Kies installatiemethode:",
         "retestPicgo": "Opnieuw testen",
         "lastDetectionTime": "Laatste detectietijd",
-        "picgoDetection": "PicGo-detectie",
+        "picgoDetection": "PicGo-Core-detectie",
         "usageGuide": {
-          "title": "PicGo basisgebruikshandleiding",
+          "title": "PicGo-Core basisgebruikshandleiding",
           "step1": "Uploader configureren",
-          "step1Description": "Gebruik de volgende opdracht om PicGo-uploader te configureren:",
+          "step1Description": "Gebruik de volgende opdracht om PicGo-Core-uploader te configureren:",
           "step2": "Afbeeldingen uploaden",
           "step2Description": "Gebruik de volgende opdracht om afbeeldingen te uploaden:",
           "step3": "Configuratie bekijken",
@@ -616,7 +615,7 @@
         "saveConfig": "Configuratie opslaan",
         "scriptConfigSaved": "Scriptconfiguratie opgeslagen",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI-script"
         },
         "pleaseInstall": "Installeer a.u.b.",

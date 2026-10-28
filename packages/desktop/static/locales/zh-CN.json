@@ -585,10 +585,9 @@
       },
       "uploader": {
         "title": "图片上传器",
-        "currentUploader": "当前上传器：{name}",
-        "picgoNotInstalled": "PicGo 未安装",
-        "picgoInstalled": "PicGo 已安装",
-        "picgoDetectionFailed": "PicGo 检测失败",
+        "picgoNotInstalled": "PicGo-Core 未安装",
+        "picgoInstalled": "PicGo-Core 已安装",
+        "picgoDetectionFailed": "PicGo-Core 检测失败",
         "debugInfo": "调试信息",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
@@ -596,11 +595,11 @@
         "chooseInstallMethod": "选择安装方式：",
         "retestPicgo": "重新检测",
         "lastDetectionTime": "上次检测时间",
-        "picgoDetection": "PicGo 检测",
+        "picgoDetection": "PicGo-Core 检测",
         "usageGuide": {
-          "title": "PicGo 基本使用说明",
+          "title": "PicGo-Core 基本使用说明",
           "step1": "配置上传器",
-          "step1Description": "使用以下命令配置 PicGo 上传器：",
+          "step1Description": "使用以下命令配置 PicGo-Core 上传器：",
           "step2": "上传图片",
           "step2Description": "使用以下命令上传图片：",
           "step3": "查看配置",
@@ -616,7 +615,7 @@
         "saveConfig": "保存配置",
         "scriptConfigSaved": "脚本配置已保存",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI 脚本"
         },
         "pleaseInstall": "请安装",

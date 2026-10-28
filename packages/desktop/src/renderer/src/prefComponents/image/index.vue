@@ -3,15 +3,13 @@
     <h4 v-if="!embedded">
       {{ t('preferences.image.title') }}
     </h4>
-    <section class="image-ctrl">
-      <div>{{ t('preferences.image.defaultBehavior') }}</div>
-      <CurSelect
-        :value="imageInsertAction"
-        :options="imageActions"
-        :aria-label="t('preferences.image.defaultBehavior')"
-        :on-change="(value) => onSelectChange('imageInsertAction', value)"
-      />
-    </section>
+    <CurSelect
+      id="setting-imageInsertAction"
+      :description="preferenceLabel('imageInsertAction')"
+      :value="imageInsertAction"
+      :options="imageActions"
+      :on-change="value => onSelectChange('imageInsertAction', value)"
+    />
     <Separator />
     <FolderSetting />
     <Uploader />
@@ -21,6 +19,8 @@
 <script setup lang="ts">
 defineProps<{ embedded?: boolean }>()
 
+import { computed } from 'vue'
+import { preferenceLabel } from '../registry'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
@@ -37,7 +37,7 @@ const preferenceStore = usePreferencesStore()
 
 const { imageInsertAction } = storeToRefs(preferenceStore)
 
-const imageActions = getImageActions()
+const imageActions = computed(() => getImageActions())
 
 const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   preferenceStore.SET_SINGLE_PREFERENCE({ type, value })

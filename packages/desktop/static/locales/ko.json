@@ -585,10 +585,9 @@
       },
       "uploader": {
         "title": "이미지 업로더",
-        "currentUploader": "현재 업로더: {name}",
-        "picgoNotInstalled": "PicGo가 설치되지 않음",
-        "picgoInstalled": "PicGo가 설치됨",
-        "picgoDetectionFailed": "PicGo 감지 실패",
+        "picgoNotInstalled": "PicGo-Core가 설치되지 않음",
+        "picgoInstalled": "PicGo-Core가 설치됨",
+        "picgoDetectionFailed": "PicGo-Core 감지 실패",
         "debugInfo": "디버그 정보",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
@@ -597,9 +596,9 @@
         "retestPicgo": "다시 테스트",
         "lastDetectionTime": "마지막 감지 시간",
         "usageGuide": {
-          "title": "PicGo 기본 사용 가이드",
+          "title": "PicGo-Core 기본 사용 가이드",
           "step1": "업로더 구성",
-          "step1Description": "다음 명령을 사용하여 PicGo 업로더를 구성하세요:",
+          "step1Description": "다음 명령을 사용하여 PicGo-Core 업로더를 구성하세요:",
           "step2": "이미지 업로드",
           "step2Description": "다음 명령을 사용하여 이미지를 업로드하세요:",
           "step3": "구성 보기",
@@ -612,12 +611,12 @@
         "saveConfig": "구성 저장",
         "scriptConfigSaved": "스크립트 구성 저장됨",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI 스크립트"
         },
         "pleaseInstall": "설치하세요",
         "scriptPath": "스크립트 경로",
-        "picgoDetection": "PicGo 감지",
+        "picgoDetection": "PicGo-Core 감지",
         "lastSuccessTime": "마지막 성공 시간",
         "neverDetected": "감지된 적 없음",
         "neverSuccessful": "성공한 적 없음"

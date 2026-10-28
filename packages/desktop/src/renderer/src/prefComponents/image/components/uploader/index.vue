@@ -3,18 +3,9 @@
     id="setting-imageUploader"
     class="pref-image-uploader"
   >
-    <h5>{{ t('preferences.image.uploader.title') }}</h5>
-    <section class="current-uploader">
-      <div>
-        {{
-          t('preferences.image.uploader.currentUploader', {
-            name: getServiceNameById(currentUploader)
-          })
-        }}
-      </div>
-    </section>
     <section class="configration">
       <cur-select
+        :description="preferenceLabel('imageUploader')"
         :value="currentUploader"
         :options="uploaderOptions"
         :aria-label="t('preferences.image.uploader.title')"
@@ -39,18 +30,10 @@
                   :aria-label="t('preferences.image.uploader.retestPicgo')"
                   @click="manualDetection"
                 >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <polyline points="23 4 23 10 17 10" />
-                    <polyline points="1 20 1 14 7 14" />
-                    <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                  </svg>
+                  <Refresh
+                    :width="14"
+                    :height="14"
+                  />
                 </button>
               </icon-tooltip>
               <div class="detection-status-indicator">
@@ -109,20 +92,10 @@
                       :aria-label="t('preferences.image.uploader.retestPicgo')"
                       @click="manualDetection"
                     >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <polyline points="23 4 23 10 17 10" />
-                        <polyline points="1 20 1 14 7 14" />
-                        <path
-                          d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
-                        />
-                      </svg>
+                      <Refresh
+                        :width="14"
+                        :height="14"
+                      />
                     </button>
                   </icon-tooltip>
                 </div>
@@ -147,84 +120,7 @@
               {{ t('preferences.image.uploader.lastSuccessTime') }}: {{ getLastSuccessTime() }}
             </div>
           </div>
-          <div
-            v-if="!picgoExists"
-            class="install-commands"
-          >
-            <div class="install-title">
-              {{ t('preferences.image.uploader.chooseInstallMethod') }}
-            </div>
-            <div class="install-options">
-              <div class="install-option">
-                <strong>npm:</strong>
-                <code class="install-command">{{
-                  t('preferences.image.uploader.npmInstallCommand')
-                }}</code>
-              </div>
-              <div class="install-option">
-                <strong>yarn:</strong>
-                <code class="install-command">{{
-                  t('preferences.image.uploader.yarnInstallCommand')
-                }}</code>
-              </div>
-              <div class="install-option">
-                <strong>pnpm:</strong>
-                <code class="install-command">{{
-                  t('preferences.image.uploader.pnpmInstallCommand')
-                }}</code>
-              </div>
-            </div>
-            <div class="install-link">
-              <span
-                class="link"
-                @click="open('https://github.com/PicGo/PicGo-Core')"
-              >picgo<LinkIcon
-                :size="14"
-                class="link-icon"
-              /></span>
-              {{ t('preferences.image.uploader.pleaseInstall') }}
-            </div>
-          </div>
-
-          <div class="usage-guide">
-            <div class="usage-title">
-              {{ t('preferences.image.uploader.usageGuide.title') }}
-            </div>
-            <div class="usage-content">
-              <div class="usage-step">
-                <strong>1. {{ t('preferences.image.uploader.usageGuide.step1') }}</strong>
-                <div class="usage-description">
-                  {{ t('preferences.image.uploader.usageGuide.step1Description') }}
-                </div>
-                <code class="usage-command">picgo set uploader</code>
-              </div>
-              <div class="usage-step">
-                <strong>2. {{ t('preferences.image.uploader.usageGuide.step2') }}</strong>
-                <div class="usage-description">
-                  {{ t('preferences.image.uploader.usageGuide.step2Description') }}
-                </div>
-                <code class="usage-command">picgo upload /path/to/image.png</code>
-              </div>
-              <div class="usage-step">
-                <strong>3. {{ t('preferences.image.uploader.usageGuide.step3') }}</strong>
-                <div class="usage-description">
-                  {{ t('preferences.image.uploader.usageGuide.step3Description') }}
-                </div>
-                <code class="usage-command">picgo config</code>
-              </div>
-            </div>
-            <div class="usage-link">
-              <span
-                class="link"
-                @click="open('https://picgo.github.io/PicGo-Core-Doc/')"
-              >{{
-                t('preferences.image.uploader.usageGuide.documentation')
-              }}<LinkIcon
-                :size="14"
-                class="link-icon"
-              /></span>
-            </div>
-          </div>
+          <uploader-guide :show-installation="!picgoExists" />
 
           <details
             v-if="picgoDetectionFailed && picgoDebugInfo"
@@ -242,19 +138,17 @@
         <div class="description">
           {{ t('preferences.image.uploader.scriptDescription') }}
         </div>
-        <div
+        <setting-row
           id="setting-cliScript"
-          class="form-group"
+          :description="preferenceLabel('cliScript')"
         >
-          <div class="label">
-            {{ t('preferences.image.uploader.scriptLocation') }}:
-          </div>
           <el-input
             v-model="cliScript"
+            :aria-label="preferenceLabel('cliScript')"
             :placeholder="t('preferences.image.uploader.scriptPath')"
-            size="mini"
+            size="small"
           />
-        </div>
+        </setting-row>
         <div class="form-group">
           <el-button
             size="mini"
@@ -283,12 +177,14 @@ import {
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
 import getServices from './services'
-import type { UploaderServiceId } from './services'
 import { isFileExecutable } from '@/util/fileSystem'
 import CurSelect from '@/prefComponents/common/select/index.vue'
 import notice from '@/services/notification'
 import { storeToRefs } from 'pinia'
-import LinkIcon from '@/components/icons/LinkIcon.vue'
+import { Refresh } from '@element-plus/icons-vue'
+import { preferenceLabel } from '@/prefComponents/registry'
+import SettingRow from '@/prefComponents/common/settingRow.vue'
+import UploaderGuide from './guide.vue'
 import IconTooltip from '@/components/iconTooltip/index.vue'
 import type { PrefSelectOption } from '@/prefComponents/common/types'
 
@@ -296,14 +192,9 @@ const { t } = useI18n()
 
 const preferenceStore = usePreferencesStore()
 
-const uploaderOptions: PrefSelectOption<string>[] = Object.keys(getServices()).map((name) => {
-  const services = getServices()
-  const { name: label } = services[name as UploaderServiceId]
-  return {
-    label,
-    value: name
-  }
-})
+const uploaderOptions = computed<PrefSelectOption<string>[]>(() =>
+  Object.entries(getServices()).map(([value, service]) => ({ value, label: service.name }))
+)
 const cliScript = ref<string>('')
 const picgoExists = ref<boolean>(false)
 const picgoDetectionFailed = ref<boolean>(false)
@@ -328,6 +219,8 @@ const {
   currentUploader,
   cliScript: prefCliScript
 } = storeToRefs(preferenceStore)
+
+watch(prefCliScript, value => { cliScript.value = value }, { immediate: true })
 
 // `isFileExecutable` is async via IPC; track the result in a ref so the
 // disabled state still updates reactively.
@@ -535,18 +428,6 @@ onUnmounted(() => {
 
   document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
-
-const getServiceNameById = (id: string): string => {
-  const services = getServices()
-  if (Object.prototype.hasOwnProperty.call(services, id)) {
-    return services[id as UploaderServiceId].name
-  }
-  return id
-}
-
-const open = (link: string): void => {
-  window.electron.shell.openExternal(link)
-}
 
 const save = (): void => {
   preferenceStore.SET_USER_DATA({
@@ -1007,109 +888,6 @@ const testPicgo = async (): Promise<void> => {
   50% {
     opacity: 0.5;
   }
-}
-
-.pref-image-uploader .install-commands {
-  margin-top: 12px;
-  padding: 12px;
-  background-color: var(--floatBgColor);
-  border-radius: 6px;
-  border-left: 4px solid var(--warningColor, #ffc107);
-}
-
-.pref-image-uploader .install-title {
-  font-weight: 500;
-  margin-bottom: 8px;
-  color: var(--editorColor);
-  font-size: 13px;
-}
-
-.pref-image-uploader .install-options {
-  margin-bottom: 12px;
-}
-
-.pref-image-uploader .install-option {
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pref-image-uploader .install-option strong {
-  min-width: 50px;
-  font-size: 12px;
-  color: var(--editorColor70);
-}
-
-.pref-image-uploader .install-command {
-  background-color: var(--editorColor10);
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 11px;
-  color: var(--editorColor);
-  border: 1px solid var(--editorColor20);
-  user-select: all;
-}
-
-.pref-image-uploader .install-link {
-  margin: 10px 0;
-  font-size: 13px;
-}
-
-.pref-image-uploader .usage-guide {
-  margin-top: 15px;
-  padding: 15px;
-  background-color: var(--floatBgColor);
-  border-radius: 6px;
-  border-left: 4px solid var(--themeColor);
-}
-
-.pref-image-uploader .usage-title {
-  font-weight: 500;
-  margin-bottom: 12px;
-  color: var(--editorColor);
-  font-size: 14px;
-}
-
-.pref-image-uploader .usage-content {
-  margin-bottom: 12px;
-}
-
-.pref-image-uploader .usage-step {
-  margin-bottom: 12px;
-  padding: 8px 0;
-}
-
-.pref-image-uploader .usage-step strong {
-  color: var(--editorColor);
-  font-size: 13px;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.pref-image-uploader .usage-description {
-  font-size: 12px;
-  color: var(--editorColor70);
-  margin-bottom: 6px;
-  line-height: 1.4;
-}
-
-.pref-image-uploader .usage-command {
-  background-color: var(--editorColor10);
-  padding: 4px 8px;
-  border-radius: 3px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 11px;
-  color: var(--editorColor);
-  border: 1px solid var(--editorColor20);
-  user-select: all;
-  display: inline-block;
-}
-
-.pref-image-uploader .usage-link {
-  margin-top: 8px;
-  font-size: 13px;
 }
 
 .pref-image-uploader .debug-info {

@@ -585,10 +585,9 @@
       },
       "uploader": {
         "title": "圖片上傳器",
-        "currentUploader": "目前上傳器：{name}",
-        "picgoNotInstalled": "PicGo 未安裝",
-        "picgoInstalled": "PicGo 已安裝",
-        "picgoDetectionFailed": "PicGo 偵測失敗",
+        "picgoNotInstalled": "PicGo-Core 未安裝",
+        "picgoInstalled": "PicGo-Core 已安裝",
+        "picgoDetectionFailed": "PicGo-Core 偵測失敗",
         "debugInfo": "除錯資訊",
         "npmInstallCommand": "npm install picgo",
         "yarnInstallCommand": "yarn add picgo",
@@ -597,9 +596,9 @@
         "retestPicgo": "重新檢測",
         "lastDetectionTime": "上次檢測時間",
         "usageGuide": {
-          "title": "PicGo 基本使用說明",
+          "title": "PicGo-Core 基本使用說明",
           "step1": "設定上傳器",
-          "step1Description": "使用以下命令設定 PicGo 上傳器：",
+          "step1Description": "使用以下命令設定 PicGo-Core 上傳器：",
           "step2": "上傳圖片",
           "step2Description": "使用以下命令上傳圖片：",
           "step3": "檢視設定",
@@ -612,12 +611,12 @@
         "saveConfig": "儲存設定",
         "scriptConfigSaved": "腳本設定已儲存",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI 腳本"
         },
         "pleaseInstall": "請安裝",
         "scriptPath": "腳本路徑",
-        "picgoDetection": "PicGo 偵測",
+        "picgoDetection": "PicGo-Core 偵測",
         "lastSuccessTime": "上次成功時間",
         "neverDetected": "從未偵測",
         "neverSuccessful": "從未成功"

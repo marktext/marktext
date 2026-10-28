@@ -585,10 +585,9 @@
       },
       "uploader": {
         "title": "Carregador de Imagens",
-        "currentUploader": "Uploader atual: {name}",
-        "picgoNotInstalled": "PicGo não está instalado",
-        "picgoInstalled": "PicGo está instalado",
-        "picgoDetectionFailed": "Detecção do PicGo falhou",
+        "picgoNotInstalled": "PicGo-Core não está instalado",
+        "picgoInstalled": "PicGo-Core está instalado",
+        "picgoDetectionFailed": "Detecção do PicGo-Core falhou",
         "debugInfo": "Informações de Debug",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
@@ -597,9 +596,9 @@
         "retestPicgo": "Testar novamente",
         "lastDetectionTime": "Última detecção",
         "usageGuide": {
-          "title": "Guia básico de uso do PicGo",
+          "title": "Guia básico de uso do PicGo-Core",
           "step1": "Configurar carregador",
-          "step1Description": "Use o seguinte comando para configurar o carregador PicGo:",
+          "step1Description": "Use o seguinte comando para configurar o carregador PicGo-Core:",
           "step2": "Carregar imagens",
           "step2Description": "Use o seguinte comando para carregar imagens:",
           "step3": "Ver configuração",
@@ -612,12 +611,12 @@
         "saveConfig": "Salvar Configuração",
         "scriptConfigSaved": "Configuração de script salva",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "Script CLI"
         },
         "pleaseInstall": "Por favor instale",
         "scriptPath": "Caminho do script",
-        "picgoDetection": "Detecção do PicGo",
+        "picgoDetection": "Detecção do PicGo-Core",
         "lastSuccessTime": "Última vez bem-sucedida",
         "neverDetected": "Nunca detectado",
         "neverSuccessful": "Nunca bem-sucedido"

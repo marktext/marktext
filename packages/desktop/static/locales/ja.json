@@ -585,10 +585,9 @@
       },
       "uploader": {
         "title": "画像アップローダー",
-        "currentUploader": "現在のアップローダー: {name}",
-        "picgoNotInstalled": "PicGo がインストールされていません",
-        "picgoInstalled": "PicGo がインストールされています",
-        "picgoDetectionFailed": "PicGo 検出に失敗しました",
+        "picgoNotInstalled": "PicGo-Core がインストールされていません",
+        "picgoInstalled": "PicGo-Core がインストールされています",
+        "picgoDetectionFailed": "PicGo-Core 検出に失敗しました",
         "debugInfo": "デバッグ情報",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
@@ -597,9 +596,9 @@
         "retestPicgo": "再テスト",
         "lastDetectionTime": "最後の検出時間",
         "usageGuide": {
-          "title": "PicGo 基本使用ガイド",
+          "title": "PicGo-Core 基本使用ガイド",
           "step1": "アップローダーの設定",
-          "step1Description": "以下のコマンドを使用して PicGo アップローダーを設定してください :",
+          "step1Description": "以下のコマンドを使用して PicGo-Core アップローダーを設定してください :",
           "step2": "画像をアップロード",
           "step2Description": "以下のコマンドを使用して画像をアップロードしてください :",
           "step3": "設定を表示",
@@ -612,12 +611,12 @@
         "saveConfig": "設定を保存",
         "scriptConfigSaved": "スクリプト設定が保存されました",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI スクリプト"
         },
         "pleaseInstall": "インストールしてください",
         "scriptPath": "スクリプトパス",
-        "picgoDetection": "PicGo 検出",
+        "picgoDetection": "PicGo-Core 検出",
         "lastSuccessTime": "最後の成功時刻",
         "neverDetected": "検出されたことがない",
         "neverSuccessful": "成功したことがない"

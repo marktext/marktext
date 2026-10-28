@@ -585,10 +585,9 @@
       },
       "uploader": {
         "title": "Görsel Yükleyici",
-        "currentUploader": "Geçerli Yükleyici: {name}",
-        "picgoNotInstalled": "PicGo yüklü değil",
-        "picgoInstalled": "PicGo yüklü",
-        "picgoDetectionFailed": "PicGo algılaması başarısız",
+        "picgoNotInstalled": "PicGo-Core yüklü değil",
+        "picgoInstalled": "PicGo-Core yüklü",
+        "picgoDetectionFailed": "PicGo-Core algılaması başarısız",
         "debugInfo": "Hata Ayıklama Bilgisi",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
@@ -596,11 +595,11 @@
         "chooseInstallMethod": "Yükleme yöntemini seçin:",
         "retestPicgo": "Yeniden Test Et",
         "lastDetectionTime": "Son Algılama Zamanı",
-        "picgoDetection": "PicGo Algılama",
+        "picgoDetection": "PicGo-Core Algılama",
         "usageGuide": {
-          "title": "PicGo Temel Kullanım Kılavuzu",
+          "title": "PicGo-Core Temel Kullanım Kılavuzu",
           "step1": "Yükleyiciyi Yapılandır",
-          "step1Description": "PicGo yükleyicisini yapılandırmak için aşağıdaki komutu kullanın:",
+          "step1Description": "PicGo-Core yükleyicisini yapılandırmak için aşağıdaki komutu kullanın:",
           "step2": "Görselleri Yükle",
           "step2Description": "Görselleri yüklemek için aşağıdaki komutu kullanın:",
           "step3": "Yapılandırmayı Görüntüle",
@@ -616,7 +615,7 @@
         "saveConfig": "Yapılandırmayı Kaydet",
         "scriptConfigSaved": "Betik yapılandırması kaydedildi",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI Betiği"
         },
         "pleaseInstall": "Lütfen yükleyin",
