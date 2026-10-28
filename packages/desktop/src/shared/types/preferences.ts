@@ -1,16 +1,31 @@
-export type StartupAction =
-  'restoreAll' | 'restoreLastWindow' | 'openLastFolder' | 'folder' | 'blank'
+/** Stable preference values shared by startup planning and the settings UI. */
+export const StartupAction = {
+  RESTORE_ALL: 'restoreAll',
+  RESTORE_LAST_WINDOW: 'restoreLastWindow',
+  OPEN_LAST_FOLDER: 'openLastFolder',
+  FOLDER: 'folder',
+  BLANK: 'blank'
+} as const
 
+export type StartupAction = (typeof StartupAction)[keyof typeof StartupAction]
+
+/** Startup choice and independently switchable restoration scopes. */
 export interface RecoveryPreferences {
   startUpAction: StartupAction
+  // Absolute folder path used only by StartupAction.FOLDER.
   defaultDirectoryToOpen: string
+  // Native bounds, pane layout and project-tree folding.
   restoreLayoutState: boolean
+  // Ordinary saved editors; unsaved recovery contents remain protected independently.
   restoreEditors: boolean
+  // Per-document cursor, selection, scroll offsets and outline folding.
   restoreViewState: boolean
 }
 
+/** Only keys supplied by the caller are updated; omitted keys retain their current values. */
 export type UserPreferencesPatch = Partial<UserPreferences>
 
+/** Validated complete preferences, including defaults for omitted persisted keys. */
 export interface UserPreferences extends RecoveryPreferences {
   autoSave: boolean
   autoSaveDelay: number
