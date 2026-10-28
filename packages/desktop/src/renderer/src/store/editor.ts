@@ -207,7 +207,7 @@ export const useEditorStore = defineStore('editor', {
         if (value && this.currentFile?.id === tabId) await prepareReading()
         await window.electron.ipcRenderer.invoke('mt::set-document-read-only', tabId, value)
         if (!this.tabs.includes(tab)) return
-        if (!value && this.currentFile?.id === tabId) {
+        if (!value && this.currentFile?.id === tabId && !useLayoutStore().managed) {
           const preferences = usePreferencesStore()
           preferences.SET_MODE({ type: 'sourceCode', checked: false })
           preferences.DISPATCH_EDITOR_VIEW_STATE({ sourceCode: false })

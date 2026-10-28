@@ -71,6 +71,8 @@
 </template>
 
 <script setup lang="ts">
+import { registerRenderedViewState, documentViewChanged } from '@/services/documentViewState'
+
 import {
   computed,
   ref,
@@ -230,6 +232,9 @@ const sourceCode = computed(() => sourceCodePreference.value && !currentFile.val
 const typewriter = computed(() => typewriterPreference.value && !currentFile.value?.readOnly)
 const focus = computed(() => focusPreference.value && !currentFile.value?.readOnly)
 let loadingContent = false
+let releaseViewState: (() => void) | undefined
+let renderedDocumentId: string | null = null
+let renderedMarkdown = ''
 const readingSelectionChanged = () => {
   if (!currentFile.value?.readOnly || !editor.value) return
   const selection = document.getSelection()
@@ -1379,6 +1384,8 @@ const setMarkdownToEditor = (payload: unknown) => {
     // `setContent` resets the document and clears the undo history; only set a
     // cursor afterwards (a freshly-opened file has no history to restore).
     editor.value.setContent(newMarkdown ?? '')
+    renderedDocumentId = id ?? currentFile.value?.id ?? null
+    renderedMarkdown = newMarkdown ?? ''
     // Seed baseline ID 0 from engine serialization so undoing the first edit marks the tab clean.
     if (id) {
       resetSyntheticHistory(id, editor.value.getMarkdown())
@@ -1397,6 +1404,7 @@ const setMarkdownToEditor = (payload: unknown) => {
     editorStore.UPDATE_TOC(editor.value.getTOC())
     // A freshly created/opened tab should be ready to type into.
     if (editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false) focusFreshEditor()
+    documentViewChanged()
   }
 }
 
@@ -1510,6 +1518,12 @@ const handleFileChange = (payload: unknown) => {
     }
   } else if (newCursor) {
     applyCursor(editor.value, newCursor)
+  }
+
+  if (typeof newMarkdown === 'string') {
+    renderedDocumentId = id ?? currentFile.value?.id ?? null
+    renderedMarkdown = newMarkdown
+    documentViewChanged()
   }
 
   if (typeof scrollTop === 'number') {
@@ -1766,6 +1780,10 @@ onMounted(() => {
   }
 
   const container = getScrollContainer()!
+  renderedDocumentId = currentFile.value?.id ?? null
+  renderedMarkdown = currentFile.value?.markdown ?? ''
+  releaseViewState = registerRenderedViewState({ documentId: () => renderedDocumentId, markdown: () => renderedMarkdown, view: { engine: muya, container } })
+  muya.on('selection-change', documentViewChanged)
 
   bus.on('language-changed', handleLanguageChanged)
 
@@ -1819,6 +1837,8 @@ onMounted(() => {
     const { id } = currentFile.value
     if (!id) return
     const markdown = editor.value.getMarkdown()
+    renderedDocumentId = id
+    renderedMarkdown = markdown
     // Persist engine undo history separately from content-based save tracking.
     const engineHistory = editor.value.getHistory()
     engineHistoryByTab.set(id, engineHistory)
@@ -1838,6 +1858,7 @@ onMounted(() => {
   // The engine does not emit `scroll`; listen on the scroll container directly
   // so the desktop can persist each tab's scroll position.
   scrollHandler = () => {
+    documentViewChanged()
     if (!sourceCode.value) updateActiveHeading(container.getBoundingClientRect().top + 80)
     if (currentFile.value) {
       editorStore.updateScrollPosition(currentFile.value.id, container.scrollTop)
@@ -1941,6 +1962,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  releaseViewState?.()
   registerDocumentView(null)
   document.removeEventListener('selectionchange', readingSelectionChanged)
   bus.off('file-loaded', setMarkdownToEditor)

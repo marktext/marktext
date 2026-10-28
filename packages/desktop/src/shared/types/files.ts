@@ -87,6 +87,7 @@ export interface IFileState {
   scrollTop: number
   // View state for this open tab; deliberately excluded from buffered persistence.
   tocCollapsedKeys?: string[]
+  viewState?: DocumentViewState | null
   muyaIndexCursor: unknown
   notifications: FileNotification[]
   lastSavedHistoryId?: number

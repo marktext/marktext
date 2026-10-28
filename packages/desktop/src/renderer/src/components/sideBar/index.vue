@@ -87,13 +87,13 @@ const { rightColumn, showSideBar, sideBarWidth } = storeToRefs(layoutStore)
 
 const { tabs } = storeToRefs(editorStore)
 
-watch(sideBarWidth, width => {
+watch(sideBarWidth, (width) => {
   sideBarViewWidth.value = Number(width)
 })
 
 const finalSideBarWidth = computed<number>(() => {
   if (!showSideBar.value) return 0
-  return sideBarViewWidth.value < 220 ? 220 : sideBarViewWidth.value
+  return Math.min(layoutStore.sideBarMaximumWidth, Math.max(220, sideBarViewWidth.value))
 })
 
 let stopDragging: (() => void) | undefined
@@ -174,7 +174,9 @@ const returnToFiles = (restoreFocus = true): void => {
   -webkit-app-region: no-drag;
 }
 
-.add-folder-button { margin-left: auto; }
+.add-folder-button {
+  margin-left: auto;
+}
 
 .sidebar-title {
   flex: 1;
