@@ -1,12 +1,11 @@
-import { createHash, randomUUID } from 'node:crypto'
+import { randomUUID } from 'node:crypto'
+import { contentSha256 } from 'common/filesystem'
+export { contentSha256 } from 'common/filesystem'
 import { realpathSync } from 'node:fs'
 import path from 'node:path'
 import type { FileLocation, WorkspaceDescriptor } from '@shared/types/applicationState'
 
 export const createStateId = (): string => randomUUID()
-
-export const contentSha256 = (content: string | Uint8Array): string =>
-  createHash('sha256').update(content).digest('hex')
 
 const resolveCanonicalPath = (pathname: string): string => {
   const suffix: string[] = []

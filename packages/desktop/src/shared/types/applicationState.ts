@@ -1,5 +1,24 @@
 import type { ProjectRootsSnapshot } from './project'
 
+import type { PreferenceUpdateResult, UserPreferences, UserPreferencesPatch } from './preferences'
+export { RECOVERY_DEFAULTS } from './preferences'
+export type {
+  PreferenceUpdateResult,
+  RecoveryPreferences,
+  StartupAction,
+  UserPreferences,
+  UserPreferencesPatch
+} from './preferences'
+import type { DocumentViewState, DiskBaseline, SaveFormatState } from './files'
+export type {
+  SourcePosition,
+  SourceSelection,
+  MuyaEndpoint,
+  MuyaSelection,
+  DocumentViewState,
+  DiskBaseline,
+  SaveFormatState
+} from './files'
 export type WindowStateId = string
 export type SessionId = string
 export type WorkspaceId = string
@@ -8,20 +27,6 @@ export type DocumentId = string
 export type ResourceKey = string
 export type Sha256 = string
 export type TimestampMs = number
-
-export type StartupAction =
-  'restoreAll' | 'restoreLastWindow' | 'openLastFolder' | 'folder' | 'blank'
-
-export interface RecoveryPreferences {
-  startUpAction: StartupAction
-  defaultDirectoryToOpen: string
-  restoreLayoutState: boolean
-  restoreEditors: boolean
-  restoreViewState: boolean
-}
-
-export type UserPreferences = RetainedPreferences & RecoveryPreferences
-export type UserPreferencesPatch = Partial<UserPreferences>
 
 export interface FileLocation {
   path: string
@@ -74,59 +79,8 @@ export interface ProjectViewState {
   roots: RootViewState[]
 }
 
-export interface SourcePosition {
-  // Both are zero-based; ch counts UTF-16 code units.
-  line: number
-  ch: number
-}
-
-export interface SourceSelection {
-  anchor: SourcePosition
-  focus: SourcePosition
-}
-
-export interface MuyaEndpoint {
-  path: Array<string | number>
-  offset: number
-}
-
-export type MuyaSelection =
-  | { kind: 'text'; anchor: MuyaEndpoint; focus: MuyaEndpoint }
-  | {
-    kind: 'image'
-    path: Array<string | number>
-    range: { start: number; end: number }
-    raw: string
-  }
-  | {
-    kind: 'table'
-    tablePath: Array<string | number>
-    anchor: { row: number; column: number }
-    focus: { row: number; column: number }
-  }
-
-export interface DocumentViewState {
-  // Hash of the editor's Markdown string encoded as UTF-8, not the raw disk bytes.
-  contentSha256: Sha256
-  sourceSelection: SourceSelection | null
-  muyaSelection: MuyaSelection | null
-  sourceScrollTopPx: number
-  renderedScrollTopPx: number
-  collapsedOutlineKeys: string[]
-}
-
-export interface SaveFormatState {
-  encoding: { encoding: string; isBom: boolean }
-  lineEnding: 'lf' | 'crlf'
-  adjustLineEndingOnSave: boolean
-  trimTrailingNewline: 0 | 1 | 2 | 3
-}
-
 export type DocumentResource =
   { kind: 'untitled' } | { kind: 'file'; location: FileLocation; pendingCreation: boolean }
-
-export type DiskBaseline =
-  { exists: false } | { exists: true; sizeBytes: number; mtimeMs: number; rawSha256: Sha256 }
 
 export type DocumentContentState =
   | { kind: 'disk'; baseline: DiskBaseline }
@@ -308,10 +262,6 @@ export type ManagedSaveResult =
   | { status: 'saved'; document: DocumentSnapshot; savedMarkdown: string; savedFormat: SaveFormatState; metadataRevision: number }
   | { status: 'canceled' | 'failed' }
 
-export type PreferenceUpdateResult =
-  | { status: 'persisted'; preferences: UserPreferences }
-  | { status: 'failed'; reason: 'invalid-data' | 'storage-unavailable' }
-
 export type RegisterUntitledResult =
   | { status: 'registered'; document: DocumentSnapshot }
   | { status: 'failed'; reason: PersistenceFailure }
@@ -364,156 +314,6 @@ export interface PersistenceLimits {
   filesPerRecentWorkspace: number
   collapsedPathsPerRoot: number
   collapsedOutlineKeysPerDocument: number
-}
-
-export interface RetainedPreferences {
-  autoSave: boolean
-  autoSaveDelay: number
-  titleBarStyle: 'custom' | 'native'
-  openFilesInNewWindow: boolean
-  openFolderInNewWindow: boolean
-  zoom: number
-  hideScrollbar: boolean
-  wordWrapInToc: boolean
-  tocPosition: 'left' | 'right'
-  fileSortBy: 'modified' | 'created' | 'title'
-  fileSortOrder: 'asc' | 'desc'
-  defaultOpenMode: 'edit' | 'read'
-  language: string
-  editorFontFamily: string
-  fontSize: number
-  lineHeight: number
-  wrapCodeBlocks: boolean
-  editorLineWidth: string
-  codeFontSize: number
-  codeFontFamily: string
-  codeBlockLineNumbers: boolean
-  sourceCodeLineNumbers: boolean
-  trimUnnecessaryCodeBlockEmptyLines: boolean
-  autoPairBracket: boolean
-  autoPairMarkdownSyntax: boolean
-  autoPairQuote: boolean
-  endOfLine: 'default' | 'lf' | 'crlf'
-  defaultEncoding:
-    | 'ascii'
-    | 'utf8'
-    | 'utf16be'
-    | 'utf16le'
-    | 'utf32be'
-    | 'utf32le'
-    | 'latin3'
-    | 'iso885915'
-    | 'cp1252'
-    | 'arabic'
-    | 'cp1256'
-    | 'latin4'
-    | 'cp1257'
-    | 'iso88592'
-    | 'windows1250'
-    | 'cp866'
-    | 'iso88595'
-    | 'koi8r'
-    | 'koi8u'
-    | 'cp1251'
-    | 'iso885913'
-    | 'greek'
-    | 'cp1253'
-    | 'hebrew'
-    | 'cp1255'
-    | 'latin5'
-    | 'cp1254'
-    | 'gb2312'
-    | 'gb18030'
-    | 'gbk'
-    | 'big5'
-    | 'big5hkscs'
-    | 'shiftjis'
-    | 'eucjp'
-    | 'euckr'
-    | 'latin6'
-  autoGuessEncoding: boolean
-  trimTrailingNewline: 0 | 1 | 2 | 3
-  textDirection: 'ltr' | 'rtl'
-  hideQuickInsertHint: boolean
-  hideLinkPopup: boolean
-  autoCheck: boolean
-  autoNormalizeLineEndings: boolean
-  preferLooseListItem: boolean
-  bulletListMarker: '-' | '*' | '+'
-  orderListDelimiter: '.' | ')'
-  preferHeadingStyle: 'atx' | 'setext'
-  tabSize: number | 'tab'
-  listIndentation: 'dfm' | 'tab' | 1 | 2 | 3 | 4
-  frontmatterType: '-' | '+' | ';' | '{'
-  superSubScript: boolean
-  footnote: boolean
-  texMathDollars: boolean
-  texMathGfm: boolean
-  texMathSingleBackslash: boolean
-  texMathDoubleBackslash: boolean
-  highlightSyntax: boolean
-  inlineDiff: boolean
-  githubAlerts: boolean
-  multilineBlockquote: boolean
-  isHtmlEnabled: boolean
-  softNewlineAsSpace: boolean
-  sequenceTheme: 'hand' | 'simple'
-  mermaidLightTheme:
-    | 'default'
-    | 'forest'
-    | 'neutral'
-    | 'base'
-    | 'dark'
-    | 'neo'
-    | 'neo-dark'
-    | 'redux'
-    | 'redux-dark'
-    | 'redux-color'
-    | 'redux-dark-color'
-  mermaidDarkTheme:
-    | 'default'
-    | 'forest'
-    | 'neutral'
-    | 'base'
-    | 'dark'
-    | 'neo'
-    | 'neo-dark'
-    | 'redux'
-    | 'redux-dark'
-    | 'redux-color'
-    | 'redux-dark-color'
-  plantumlServer: string
-  theme: string
-  followSystemTheme: boolean
-  lightModeTheme: string
-  darkModeTheme: string
-  customCss: string
-  spellcheckerEnabled: boolean
-  spellcheckerNoUnderline: boolean
-  spellcheckerLanguage: string
-  imageInsertAction: 'upload' | 'folder' | 'path'
-  imagePreferRelativeDirectory: boolean
-  imageRelativeDirectoryBase: 'file' | 'folder'
-  imageRelativeDirectoryName: string
-  sourceCodeModeEnabled: boolean
-  openedFilesInSidebar: boolean
-  autoRevealInSidebar: boolean
-  openFilesInPreviewMode: boolean
-  showPandocConvert: boolean
-  searchExclusions: string[]
-  searchMaxFileSize: string
-  searchIncludeHidden: boolean
-  searchNoIgnore: boolean
-  searchFollowSymlinks: boolean
-  watcherUsePolling: boolean
-}
-
-export const RECOVERY_DEFAULTS: RecoveryPreferences = {
-  startUpAction: 'restoreAll',
-  defaultDirectoryToOpen: '',
-  restoreLayoutState: true,
-  restoreEditors: true,
-  restoreViewState: true
 }
 
 export const STATE_LIMITS: PersistenceLimits = {

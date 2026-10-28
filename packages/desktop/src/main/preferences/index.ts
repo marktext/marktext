@@ -3,9 +3,8 @@ import log from 'electron-log'
 import { isWindows } from '../config'
 import { onInternalChannel } from '../utils/internalIpc'
 import { TypedEmitter } from '@shared/types/typedEmitter'
-import type { IUserPreferences } from '@shared/types/preferences'
 import { PreferenceFile } from './preferenceFile'
-import type { PreferenceUpdateResult, UserPreferences } from '@shared/types/applicationState'
+import type { PreferenceUpdateResult, UserPreferences } from '@shared/types/preferences'
 
 type PreferenceEvents = Record<string, unknown[]>
 
@@ -27,7 +26,7 @@ class Preference extends TypedEmitter<PreferenceEvents> {
     this._listenForIpcMain()
   }
 
-  getAll(): IUserPreferences & UserPreferences {
+  getAll(): UserPreferences & Record<string, unknown> {
     return this.file.get()
   }
 

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { access } from 'fs/promises'
 import { accessSync, constants, lstatSync, readlinkSync, statSync } from 'fs'
 import { resolve, dirname } from 'path'
@@ -108,3 +109,6 @@ export const isSymbolicLink = (filepath: string): boolean => {
     return false
   }
 }
+
+export const contentSha256 = (content: string | Uint8Array): string =>
+  createHash('sha256').update(content).digest('hex')
