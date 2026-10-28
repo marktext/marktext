@@ -415,6 +415,7 @@
         "custom css": "CSS personnalisé"
       },
       "items": {
+        "treePathExcludePatterns": "Règles d’exclusion de l’arborescence des fichiers (glob)",
         "autoSave": "Sauvegarder automatiquement le contenu en cours d'édition",
         "autoSaveDelay": "Le temps en ms après un changement avant que le fichier soit sauvegardé",
         "autoNormalizeLineEndings": "Normaliser automatiquement les fins de ligne à l'ouverture des fichiers. Lorsque désactivé, les fichiers sont ouverts tels quels.",
@@ -553,8 +554,13 @@
         "showOpenedFiles": "Afficher les fichiers ouverts",
         "autoReveal": "Afficher le fichier actif dans la barre latérale",
         "openFilesInPreviewMode": "Ouvrir les fichiers de la barre latérale dans des onglets d’aperçu. La modification ou le double-clic conserve l’onglet.",
-        "excludePatterns": "Motifs d'exclusion",
-        "excludePatternsNotes": "Notes sur les motifs d'exclusion",
+        "excludePatterns": "Règles d’exclusion de l’arborescence des fichiers",
+        "excludePatternsNotes": "Les chemins correspondant à une règle glob sont exclus de l’arborescence des fichiers. Appuyez sur Entrée pour ajouter une règle et cliquez sur × pour la supprimer ; les virgules au sein d’une règle sont conservées. Rouvrez le dossier pour appliquer toutes les modifications.",
+        "removePattern": "Supprimer",
+        "newPattern": "Nouvelle règle d’exclusion",
+        "patternExample": "Par exemple : **/drafts/** ou *.tmp",
+        "patternSaveError": "Impossible d’enregistrer les règles d’exclusion. Les règles enregistrées ont été conservées. Réessayez.",
+        "patternHelp": "Syntaxe des motifs glob",
         "fileSortBy": {
           "title": "Trier les fichiers par",
           "creationTime": "Heure de création",

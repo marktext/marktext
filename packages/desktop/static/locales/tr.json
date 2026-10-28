@@ -415,6 +415,7 @@
         "custom css": "Özel CSS"
       },
       "items": {
+        "treePathExcludePatterns": "Dosya ağacı dışlama kuralları (glob)",
         "autoSave": "Düzenlenen içeriği otomatik olarak kaydet",
         "autoSaveDelay": "Bir değişiklikten sonra dosyanın kaydedileceği süre (ms)",
         "titleBarStyle": "Başlık çubuğu stili (yalnızca Windows ve Linux)",
@@ -553,8 +554,13 @@
         "showOpenedFiles": "Açık dosyaları göster",
         "autoReveal": "Etkin dosyayı kenar çubuğunda göster",
         "openFilesInPreviewMode": "Kenar çubuğu dosyalarını önizleme sekmelerinde açar. Düzenleme veya çift tıklama sekmeyi korur.",
-        "excludePatterns": "Hariç tutma desenleri",
-        "excludePatternsNotes": "Hariç tutma desenleri (Notlar)",
+        "excludePatterns": "Dosya ağacı dışlama kuralları",
+        "excludePatternsNotes": "Herhangi bir glob kuralıyla eşleşen yollar dosya ağacından dışlanır. Kural eklemek için Enter tuşuna basın, kaldırmak için × simgesine tıklayın; kural içindeki virgüller korunur. Değişiklikleri tamamen uygulamak için klasörü yeniden açın.",
+        "removePattern": "Kaldır",
+        "newPattern": "Yeni dışlama kuralı",
+        "patternExample": "Örneğin: **/drafts/** veya *.tmp",
+        "patternSaveError": "Dışlama kuralları kaydedilemedi. Kayıtlı kurallar korundu. Lütfen yeniden deneyin.",
+        "patternHelp": "Glob deseni sözdizimi",
         "fileSortBy": {
           "title": "Dosya Sıralama Ölçütü",
           "creationTime": "Oluşturulma Zamanı",

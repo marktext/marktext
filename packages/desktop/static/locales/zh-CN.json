@@ -415,6 +415,7 @@
         "custom css": "自定义 CSS"
       },
       "items": {
+        "treePathExcludePatterns": "文件树排除规则（glob 通配符）",
         "autoSave": "自动保存正在编辑的内容",
         "autoSaveDelay": "文件保存前的延迟时间（毫秒）",
         "autoNormalizeLineEndings": "打开文件时自动规范化行尾。禁用时按原样打开文件",
@@ -553,8 +554,13 @@
         "showOpenedFiles": "显示已打开文件",
         "autoReveal": "在侧边栏中定位当前文件",
         "openFilesInPreviewMode": "单击侧栏文件时复用预览标签页；编辑或双击后保留该标签页",
-        "excludePatterns": "排除模式",
-        "excludePatternsNotes": "排除模式（注释）",
+        "excludePatterns": "文件树排除规则",
+        "excludePatternsNotes": "匹配任意 glob 规则的路径将从文件树中排除。按 Enter 添加规则，点击 × 删除；规则内的逗号会保留。重新打开文件夹以完整应用更改。",
+        "removePattern": "删除",
+        "newPattern": "新增排除规则",
+        "patternExample": "例如：**/drafts/** 或 *.tmp",
+        "patternSaveError": "无法保存排除规则，已保留原有规则，请重试。",
+        "patternHelp": "glob 规则语法",
         "fileSortBy": {
           "title": "文件排序方式",
           "creationTime": "创建时间",

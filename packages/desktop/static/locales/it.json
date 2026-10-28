@@ -415,6 +415,7 @@
         "custom css": "CSS personalizzato"
       },
       "items": {
+        "treePathExcludePatterns": "Regole di esclusione dell’albero dei file (glob)",
         "autoSave": "Salva automaticamente il contenuto modificato",
         "autoSaveDelay": "Ritardo (in ms) nel salvataggio dei file dopo una modifica",
         "titleBarStyle": "Stile della barra del titolo (Windows e Linux solamente)",
@@ -553,8 +554,13 @@
         "showOpenedFiles": "Mostra i file aperti",
         "autoReveal": "Mostra il file attivo nella barra laterale",
         "openFilesInPreviewMode": "Apri i file della barra laterale in schede di anteprima. La modifica o il doppio clic mantiene aperta la scheda",
-        "excludePatterns": "Pattern di esclusione",
-        "excludePatternsNotes": "Informazioni sul pattern di esclusione.",
+        "excludePatterns": "Regole di esclusione dell’albero dei file",
+        "excludePatternsNotes": "I percorsi che corrispondono a una qualsiasi regola glob vengono esclusi dall’albero dei file. Premi Invio per aggiungere una regola e fai clic su × per rimuoverla; le virgole all’interno di una regola vengono mantenute. Riapri la cartella per applicare tutte le modifiche.",
+        "removePattern": "Rimuovi",
+        "newPattern": "Nuova regola di esclusione",
+        "patternExample": "Ad esempio: **/drafts/** o *.tmp",
+        "patternSaveError": "Impossibile salvare le regole di esclusione. Le regole salvate sono state mantenute. Riprova.",
+        "patternHelp": "Sintassi dei pattern glob",
         "fileSortBy": {
           "title": "File ordinati per",
           "creationTime": "Orario di creazione",

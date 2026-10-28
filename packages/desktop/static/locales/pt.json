@@ -415,6 +415,7 @@
         "custom css": "CSS personalizado"
       },
       "items": {
+        "treePathExcludePatterns": "Regras de exclusão da árvore de arquivos (glob)",
         "autoSave": "Salvar automaticamente o conteúdo sendo editado",
         "autoSaveDelay": "O tempo em ms após uma mudança que o arquivo é salvo",
         "autoNormalizeLineEndings": "Normalizar automaticamente as quebras de linha ao abrir arquivos. Quando desativado, os arquivos são abertos como estão.",
@@ -553,8 +554,13 @@
         "showOpenedFiles": "Mostrar arquivos abertos",
         "autoReveal": "Mostrar o arquivo ativo na barra lateral",
         "openFilesInPreviewMode": "Abrir arquivos da barra lateral em abas de visualização. Editar ou clicar duas vezes mantém a aba.",
-        "excludePatterns": "Padrões de exclusão",
-        "excludePatternsNotes": "Padrões de exclusão (Notas)",
+        "excludePatterns": "Regras de exclusão da árvore de arquivos",
+        "excludePatternsNotes": "Os caminhos que correspondem a qualquer regra glob são excluídos da árvore de arquivos. Pressione Enter para adicionar uma regra e clique em × para removê-la; as vírgulas dentro de uma regra são preservadas. Abra a pasta novamente para aplicar todas as alterações.",
+        "removePattern": "Remover",
+        "newPattern": "Nova regra de exclusão",
+        "patternExample": "Por exemplo: **/drafts/** ou *.tmp",
+        "patternSaveError": "Não foi possível salvar as regras de exclusão. As regras salvas foram mantidas. Tente novamente.",
+        "patternHelp": "Sintaxe dos padrões glob",
         "fileSortBy": {
           "title": "Ordenar Arquivos Por",
           "creationTime": "Hora de Criação",

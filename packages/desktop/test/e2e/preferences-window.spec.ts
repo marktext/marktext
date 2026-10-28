@@ -33,6 +33,34 @@ test('the full settings window indexes searchable controls without renderer exce
   }
 })
 
+test('file-tree rule tags retain glob commas when adding and reopening settings', async() => {
+  const { app, page } = await launchWithMarkdown('# Exclusion rules\n', {
+    preferences: { language: 'en', treePathExcludePatterns: ['**/{drafts,archive}/**'] },
+    suppressErrorDialog: true
+  })
+  try {
+    let settings = await openSettings(app, page)
+    const rules = settings.locator('.exclude-patterns')
+    await expect(rules.locator('.el-tag__content')).toHaveText(['**/{drafts,archive}/**'])
+    const input = rules.getByRole('textbox', { name: 'New exclusion rule', exact: true })
+    await input.fill(' **/{cache,backup}/** ')
+    await input.press('Enter')
+    await expect.poll(async() => (await preferences(app)).treePathExcludePatterns)
+      .toEqual(['**/{drafts,archive}/**', ' **/{cache,backup}/** '])
+    await rules.locator('.el-tag__close').first().click()
+    await expect.poll(async() => (await preferences(app)).treePathExcludePatterns)
+      .toEqual([' **/{cache,backup}/** '])
+    await settings.evaluate(() => window.electron.windowControl.close())
+    await expect.poll(() => app.windows().length).toBe(1)
+    settings = await openSettings(app, page)
+    await expect(settings.locator('.exclude-patterns .el-tag__content'))
+      .toHaveText([' **/{cache,backup}/** '])
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
 test('actual settings clicks persist autosave and language and update the editor', async() => {
   const { app, page, filePath } = await launchWithMarkdown('# Before\n', {
     preferences: { language: 'en', autoSave: false, autoSaveDelay: 1000 },
