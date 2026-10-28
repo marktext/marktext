@@ -9,7 +9,7 @@ import {
   type RecoveryPreferences,
   type UserPreferences,
   type PreferenceUpdateResult
-} from '../../../src/shared/types/applicationState'
+} from '../../../src/shared/types/preferences'
 
 let app: App | undefined
 afterEach(() => {

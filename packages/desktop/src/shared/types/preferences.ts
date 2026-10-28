@@ -153,21 +153,6 @@ export interface UserPreferences extends RecoveryPreferences {
   watcherUsePolling: boolean
 }
 
-export interface IUserPreferences extends Partial<Omit<UserPreferences, 'startUpAction'>> {
-  startUpAction?: UserPreferences['startUpAction'] | 'lastState'
-  tocVisibility?: boolean
-  sidebarColumn?: number
-  imagePreferRelativePath?: boolean
-  imageFolderPath?: string
-  screenshotFolderPath?: string
-  imageBed?: { selected?: string; [key: string]: unknown }
-  imageBedAlias?: { [key: string]: unknown }
-  watcher?: { usePolling?: boolean; [key: string]: unknown }
-  lastOpenedFolder?: string
-  treePathExcludePatterns?: string[]
-  [key: string]: unknown
-}
-
 export const RECOVERY_DEFAULTS: RecoveryPreferences = {
   startUpAction: 'restoreAll',
   defaultDirectoryToOpen: '',
