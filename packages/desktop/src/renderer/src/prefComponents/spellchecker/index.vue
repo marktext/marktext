@@ -4,28 +4,32 @@
     <compound>
       <template #head>
         <bool
-          :description="t('preferences.spellchecker.enableSpellChecking')"
+          id="setting-spellcheckerEnabled"
+          :description="preferenceLabel('spellcheckerEnabled')"
           :bool="spellcheckerEnabled"
           :on-change="handleSpellcheckerEnabled"
         />
       </template>
       <template #children>
         <bool
-          :description="t('preferences.spellchecker.hideMarksForErrors')"
+          id="setting-spellcheckerNoUnderline"
+          :description="preferenceLabel('spellcheckerNoUnderline')"
           :bool="spellcheckerNoUnderline"
           :disable="!spellcheckerEnabled"
           :on-change="(value) => onSelectChange('spellcheckerNoUnderline', value)"
         />
         <bool
           v-show="isOsx"
-          :description="t('preferences.spellchecker.autoDetectLanguage')"
+          id="setting-spellcheckerAutoDetectLanguage"
+          :description="preferenceLabel('spellcheckerAutoDetectLanguage')"
           :bool="true"
           :disable="true"
           :on-change="noop"
         />
         <cur-select
           v-show="!isOsx"
-          :description="t('preferences.spellchecker.defaultLanguage')"
+          id="setting-spellcheckerLanguage"
+          :description="preferenceLabel('spellcheckerLanguage')"
           :value="spellcheckerLanguage"
           :options="availableDictionaries"
           :disable="!spellcheckerEnabled"
@@ -41,7 +45,10 @@
       {{ t('preferences.spellchecker.autoDetectDescription') }}
     </div>
 
-    <div v-if="!isOsx && spellcheckerEnabled">
+    <div
+      v-if="!isOsx && spellcheckerEnabled"
+      id="setting-customDictionary"
+    >
       <h6 class="title">
         {{ t('preferences.spellchecker.customDictionary.title') }}
       </h6>
@@ -85,6 +92,8 @@
 </template>
 
 <script setup lang="ts">
+import { preferenceLabel } from '@/prefComponents/registry'
+
 import log from 'electron-log'
 import { usePreferencesStore } from '@/store/preferences'
 import type { PreferencesState } from '@/store/preferences'

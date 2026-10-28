@@ -22,9 +22,11 @@ import { storeToRefs } from 'pinia'
 import TitleBar from '@/prefComponents/common/titlebar.vue'
 import SideBar from '@/prefComponents/sideBar/index.vue'
 import { addThemeStyle } from '@/util/theme'
+import { useSettingLocation } from '@/prefComponents/settingLocation'
 import { DEFAULT_STYLE } from '@/config'
 import { isMac } from '@/util'
 
+useSettingLocation()
 const preferencesStore = usePreferencesStore()
 
 const { theme, titleBarStyle } = storeToRefs(preferencesStore)
@@ -139,5 +141,19 @@ onMounted(() => {
     margin-top: var(--titleBarHeight);
     padding-top: 0;
   }
+}
+</style>
+
+<style>
+.is-search-target {
+  animation: preference-location 1.8s ease-out;
+  outline-offset: 5px;
+}
+@keyframes preference-location {
+  from { outline: 2px solid var(--themeColor); }
+  to { outline: 2px solid transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-search-target { animation-duration: 0.1s; }
 }
 </style>

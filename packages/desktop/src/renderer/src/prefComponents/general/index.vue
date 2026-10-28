@@ -2,8 +2,9 @@
   <div class="pref-general">
     <h4>{{ t('preferences.general.title') }}</h4>
     <cur-select
-      :description="t('readingMode.defaultMode')"
-      :notes="t('readingMode.defaultNote')"
+      id="setting-defaultOpenMode"
+      :description="preferenceLabel('defaultOpenMode')"
+      :notes="preferenceNotes('defaultOpenMode')"
       :value="defaultOpenMode"
       :options="[
         { label: t('readingMode.edit'), value: 'edit' },
@@ -19,12 +20,14 @@
       </template>
       <template #children>
         <bool
-          :description="t('preferences.general.autoSave.description')"
+          id="setting-autoSave"
+          :description="preferenceLabel('autoSave')"
           :bool="autoSave"
           :on-change="(value) => onSelectChange('autoSave', value)"
         />
         <range
-          :description="t('preferences.general.autoSave.delayDescription')"
+          id="setting-autoSaveDelay"
+          :description="preferenceLabel('autoSaveDelay')"
           :value="autoSaveDelay"
           :min="1000"
           :max="10000"
@@ -44,29 +47,34 @@
       <template #children>
         <cur-select
           v-if="!isMac"
-          :description="t('preferences.general.window.titleBarStyle.title')"
-          :notes="t('preferences.general.window.requiresRestart')"
+          id="setting-titleBarStyle"
+          :description="preferenceLabel('titleBarStyle')"
+          :notes="preferenceNotes('titleBarStyle')"
           :value="titleBarStyle"
           :options="getTitleBarStyleOptions()"
           :on-change="(value) => onSelectChange('titleBarStyle', value)"
         />
         <bool
-          :description="t('preferences.general.window.hideScrollbars')"
+          id="setting-hideScrollbar"
+          :description="preferenceLabel('hideScrollbar')"
           :bool="hideScrollbar"
           :on-change="(value) => onSelectChange('hideScrollbar', value)"
         />
         <bool
-          :description="t('preferences.general.window.openFilesInNewWindow')"
+          id="setting-openFilesInNewWindow"
+          :description="preferenceLabel('openFilesInNewWindow')"
           :bool="openFilesInNewWindow"
           :on-change="(value) => onSelectChange('openFilesInNewWindow', value)"
         />
         <bool
-          :description="t('preferences.general.window.openFoldersInNewWindow')"
+          id="setting-openFolderInNewWindow"
+          :description="preferenceLabel('openFolderInNewWindow')"
           :bool="openFolderInNewWindow"
           :on-change="(value) => onSelectChange('openFolderInNewWindow', value)"
         />
         <cur-select
-          :description="t('preferences.general.window.zoom')"
+          id="setting-zoom"
+          :description="preferenceLabel('zoom')"
           :value="zoom"
           :options="zoomOptions"
           :on-change="(value) => onSelectChange('zoom', value)"
@@ -82,7 +90,8 @@
       </template>
       <template #children>
         <cur-select
-          :description="t('preferences.general.sidebar.tocPosition')"
+          id="setting-tocPosition"
+          :description="preferenceLabel('tocPosition')"
           :value="tocPosition"
           :options="[
             { label: t('preferences.general.sidebar.tocLeft'), value: 'left' },
@@ -91,41 +100,48 @@
           :on-change="(value) => onSelectChange('tocPosition', value)"
         />
         <bool
-          :description="t('preferences.general.sidebar.wrapTextInToc')"
+          id="setting-wordWrapInToc"
+          :description="preferenceLabel('wordWrapInToc')"
           :bool="wordWrapInToc"
           :on-change="(value) => onSelectChange('wordWrapInToc', value)"
         />
         <bool
-          :description="t('preferences.general.sidebar.showOpenedFiles')"
+          id="setting-openedFilesInSidebar"
+          :description="preferenceLabel('openedFilesInSidebar')"
           :bool="openedFilesInSidebar"
           :on-change="(value) => onSelectChange('openedFilesInSidebar', value)"
         />
         <bool
-          :description="t('preferences.general.sidebar.autoReveal')"
+          id="setting-autoRevealInSidebar"
+          :description="preferenceLabel('autoRevealInSidebar')"
           :bool="autoRevealInSidebar"
           :on-change="(value) => onSelectChange('autoRevealInSidebar', value)"
         />
         <bool
-          :description="t('preferences.general.sidebar.openFilesInPreviewMode')"
+          id="setting-openFilesInPreviewMode"
+          :description="preferenceLabel('openFilesInPreviewMode')"
           :bool="openFilesInPreviewMode"
           :on-change="(value) => onSelectChange('openFilesInPreviewMode', value)"
         />
 
         <exclude-patterns
           v-if="recoveryPreferences"
+          id="setting-treePathExcludePatterns"
           :value="recoveryPreferences.treePathExcludePatterns"
           :update="updateExcludePatterns"
           @persisted="acceptRecoveryPreferences"
         />
 
         <cur-select
-          :description="t('preferences.general.sidebar.fileSortBy.title')"
+          id="setting-fileSortBy"
+          :description="preferenceLabel('fileSortBy')"
           :value="fileSortBy"
           :options="getFileSortByOptions()"
           :on-change="(value) => onSelectChange('fileSortBy', value)"
         />
         <cur-select
-          :description="t('preferences.general.sidebar.fileSortOrder.title')"
+          id="setting-fileSortOrder"
+          :description="preferenceLabel('fileSortOrder')"
           :value="fileSortOrder"
           :options="getFileSortOrderOptions(String(fileSortBy))"
           :on-change="(value) => onSelectChange('fileSortOrder', value)"
@@ -140,8 +156,7 @@
       :choose-directory="chooseRecoveryDirectory"
       @persisted="acceptRecoveryPreferences"
     />
-    <!-- Beside `<bool>` rather than on `compound`'s `notes` prop: the status needs its own
-         markup for the button, and outside the switch it stays readable while it is greyed. -->
+    <!-- Keep status readable independently of the disabled conversion switch. -->
     <compound>
       <template #head>
         <h6 class="title">
@@ -150,7 +165,8 @@
       </template>
       <template #children>
         <bool
-          :description="t('preferences.general.pandoc.description')"
+          id="setting-showPandocConvert"
+          :description="preferenceLabel('showPandocConvert')"
           :detailed-description="t('preferences.general.pandoc.detailedDescription')"
           :bool="showPandocConvert"
           :disable="pandocDisabled"
@@ -178,7 +194,8 @@
       </template>
       <template #children>
         <cur-select
-          :description="t('preferences.general.misc.language.title')"
+          id="setting-language"
+          :description="preferenceLabel('language')"
           :value="language"
           :options="getLanguageOptions()"
           :on-change="(value) => onSelectChange('language', value)"
@@ -189,6 +206,8 @@
 </template>
 
 <script setup lang="ts">
+import { preferenceLabel, preferenceNotes } from '@/prefComponents/registry'
+
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import RecoverySettings from './recoverySettings.vue'
 import ExcludePatterns from './excludePatterns.vue'

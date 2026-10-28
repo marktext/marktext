@@ -1,5 +1,5 @@
 import { expect, it, vi } from 'vitest'
-import { getTranslatedSearchContent } from '../../../src/renderer/src/prefComponents/sideBar/config'
+import { getTranslatedSearchContent, matchesSearch } from '../../../src/renderer/src/prefComponents/sideBar/config'
 
 vi.mock('../../../src/renderer/src/i18n', () => ({ t: (key: string) => key }))
 
@@ -19,6 +19,19 @@ it('routes the fancy-list search result to Markdown preferences', () => {
   expect(entry).toMatchObject({
     routeCategory: 'markdown',
     categoryEn: 'Markdown',
-    preference: 'preferences.search.items.fancyLists'
+    preference: 'preferences.markdown.extensions.fancyLists'
   })
+})
+
+it('includes auxiliary controls and searches real labels, descriptions and stable IDs', () => {
+  const entries = getTranslatedSearchContent()
+  for (const key of ['treePathExcludePatterns', 'customCss', 'imageFolderPath', 'imageUploader']) {
+    expect(entries.some(entry => entry.key === key)).toBe(true)
+  }
+  const task = entries.find(entry => entry.key === 'autoCheck')
+  expect(task).toBeDefined()
+  if (!task) return
+  expect(matchesSearch(task, 'parent subtasks')).toBe(true)
+  expect(matchesSearch(task, 'autoCheck')).toBe(true)
+  expect(matchesSearch(task, 'encoding')).toBe(false)
 })

@@ -33,6 +33,28 @@ test('the full settings window indexes searchable controls without renderer exce
   }
 })
 
+test('settings search focuses the exact control, including repeated selections', async() => {
+  const { app, page } = await launchWithMarkdown('# Search preferences\n', {
+    preferences: { language: 'en' }, suppressErrorDialog: true
+  })
+  try {
+    const settings = await openSettings(app, page)
+    const search = settings.locator('.pref-sidebar input')
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await search.fill('editorLineWidth')
+      await settings.locator('.pref-autocomplete li').first().click()
+      await expect(settings.locator('#setting-editorLineWidth')).toBeFocused()
+      await expect(settings.locator('#setting-editorLineWidth input')).toBeVisible()
+    }
+    await search.fill('imageRelativeDirectoryName')
+    await settings.locator('.pref-autocomplete li').first().click()
+    await expect(settings.locator('#setting-imageRelativeDirectoryName')).toBeFocused()
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
 test('file-tree rule tags retain glob commas when adding and reopening settings', async() => {
   const { app, page } = await launchWithMarkdown('# Exclusion rules\n', {
     preferences: { language: 'en', treePathExcludePatterns: ['**/{drafts,archive}/**'] },

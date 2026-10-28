@@ -1,5 +1,8 @@
 <template>
-  <div class="pref-image-uploader">
+  <div
+    id="setting-imageUploader"
+    class="pref-image-uploader"
+  >
     <h5>{{ t('preferences.image.uploader.title') }}</h5>
     <section class="current-uploader">
       <div>
@@ -239,7 +242,10 @@
         <div class="description">
           {{ t('preferences.image.uploader.scriptDescription') }}
         </div>
-        <div class="form-group">
+        <div
+          id="setting-cliScript"
+          class="form-group"
+        >
           <div class="label">
             {{ t('preferences.image.uploader.scriptLocation') }}:
           </div>
