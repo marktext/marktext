@@ -415,6 +415,7 @@
         "custom css": "사용자 정의 CSS"
       },
       "items": {
+        "treePathExcludePatterns": "파일 트리 제외 규칙 (glob)",
         "autoSave": "편집 중인 내용을 자동으로 저장",
         "autoSaveDelay": "변경 후 파일이 저장되기까지의 시간(밀리초)",
         "autoNormalizeLineEndings": "파일을 열 때 줄 끝을 자동으로 정규화합니다. 비활성화하면 파일을 있는 그대로 엽니다.",
@@ -553,8 +554,16 @@
         "showOpenedFiles": "열린 파일 표시",
         "autoReveal": "사이드바에서 활성 파일 표시",
         "openFilesInPreviewMode": "사이드바 파일을 미리보기 탭에서 엽니다. 편집하거나 두 번 클릭하면 탭이 유지됩니다.",
-        "excludePatterns": "제외 패턴",
-        "excludePatternsNotes": "제외 패턴 (참고)",
+        "excludePatterns": "파일 트리 제외 규칙",
+        "excludePatternsNotes": "glob 규칙 중 하나와 일치하는 경로는 파일 트리에서 제외됩니다. 규칙을 하나씩 입력하세요. 규칙 안의 쉼표는 그대로 유지됩니다. 변경 사항을 완전히 적용하려면 폴더를 다시 여세요.",
+        "patternLabel": "제외 규칙 {number}",
+        "removePatternLabel": "제외 규칙 {number} 삭제",
+        "removePattern": "삭제",
+        "newPattern": "새 제외 규칙",
+        "patternExample": "예: **/drafts/** 또는 *.tmp",
+        "addPattern": "규칙 추가",
+        "patternSaveError": "제외 규칙을 저장하지 못했습니다. 저장된 규칙은 유지됩니다. 다시 시도하세요.",
+        "patternHelp": "glob 패턴 문법",
         "fileSortBy": {
           "title": "파일 정렬 기준",
           "creationTime": "생성 시간",

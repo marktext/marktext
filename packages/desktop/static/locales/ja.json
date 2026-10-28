@@ -415,6 +415,7 @@
         "custom css": "カスタム CSS"
       },
       "items": {
+        "treePathExcludePatterns": "ファイルツリーの除外ルール (glob)",
         "autoSave": "編集中のコンテンツを自動保存",
         "autoSaveDelay": "変更後にファイルが保存されるまでの時間 (ミリ秒)",
         "autoNormalizeLineEndings": "開くときに改行コードを自動的に LF へ統一",
@@ -553,8 +554,16 @@
         "showOpenedFiles": "開いているファイルを表示",
         "autoReveal": "サイドバーで現在のファイルを表示",
         "openFilesInPreviewMode": "サイドバーのファイルをプレビュータブで開きます。編集またはダブルクリックするとタブが保持されます。",
-        "excludePatterns": "除外パターン",
-        "excludePatternsNotes": "除外パターンの注意事項",
+        "excludePatterns": "ファイルツリーの除外ルール",
+        "excludePatternsNotes": "いずれかの glob ルールに一致するパスをファイルツリーから除外します。ルールは1件ずつ入力してください。ルール内のカンマはそのまま保持されます。変更を完全に適用するには、フォルダーを開き直してください。",
+        "patternLabel": "除外ルール {number}",
+        "removePatternLabel": "除外ルール {number} を削除",
+        "removePattern": "削除",
+        "newPattern": "新しい除外ルール",
+        "patternExample": "例：**/drafts/** または *.tmp",
+        "addPattern": "ルールを追加",
+        "patternSaveError": "除外ルールを保存できませんでした。保存済みのルールは保持されています。もう一度お試しください。",
+        "patternHelp": "glob パターンの構文",
         "fileSortBy": {
           "title": "ファイルの並び順",
           "creationTime": "作成時刻",

@@ -415,6 +415,7 @@
         "custom css": "Benutzerdefiniertes CSS"
       },
       "items": {
+        "treePathExcludePatterns": "Ausschlussregeln für den Dateibaum (glob)",
         "autoSave": "Den bearbeiteten Inhalt automatisch speichern",
         "autoSaveDelay": "Die Zeit in ms nach einer Änderung, bis die Datei gespeichert wird",
         "autoNormalizeLineEndings": "Zeilenenden beim Öffnen von Dateien automatisch normalisieren. Wenn deaktiviert, werden Dateien unverändert geöffnet.",
@@ -553,8 +554,16 @@
         "showOpenedFiles": "Geöffnete Dateien anzeigen",
         "autoReveal": "Aktive Datei in der Seitenleiste anzeigen",
         "openFilesInPreviewMode": "Sidebar-Dateien in Vorschauregistern öffnen. Bearbeiten oder Doppelklicken behält das Register bei.",
-        "excludePatterns": "Ausschlussmuster",
-        "excludePatternsNotes": "Hinweise zu Ausschlussmustern",
+        "excludePatterns": "Ausschlussregeln für den Dateibaum",
+        "excludePatternsNotes": "Pfade, die einer glob-Regel entsprechen, werden aus dem Dateibaum ausgeschlossen. Geben Sie jede Regel einzeln ein; Kommas innerhalb einer Regel bleiben erhalten. Öffnen Sie den Ordner erneut, um die Änderungen vollständig anzuwenden.",
+        "patternLabel": "Ausschlussregel {number}",
+        "removePatternLabel": "Ausschlussregel {number} entfernen",
+        "removePattern": "Entfernen",
+        "newPattern": "Neue Ausschlussregel",
+        "patternExample": "Zum Beispiel: **/drafts/** oder *.tmp",
+        "addPattern": "Regel hinzufügen",
+        "patternSaveError": "Die Ausschlussregeln konnten nicht gespeichert werden. Die gespeicherten Regeln wurden beibehalten. Bitte versuchen Sie es erneut.",
+        "patternHelp": "Syntax von glob-Mustern",
         "fileSortBy": {
           "title": "Dateien sortieren nach",
           "creationTime": "Erstellungszeit",

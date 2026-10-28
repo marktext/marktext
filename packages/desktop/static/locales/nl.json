@@ -415,6 +415,7 @@
         "custom css": "Aangepaste CSS"
       },
       "items": {
+        "treePathExcludePatterns": "Uitsluitregels voor de bestandsboom (glob)",
         "autoSave": "Automatisch de bewerkte inhoud opslaan",
         "autoSaveDelay": "De tijd in ms na een wijziging voordat het bestand wordt opgeslagen",
         "titleBarStyle": "De titelbalkstijl (alleen Windows en Linux)",
@@ -553,8 +554,16 @@
         "showOpenedFiles": "Geopende bestanden tonen",
         "autoReveal": "Actief bestand tonen in de zijbalk",
         "openFilesInPreviewMode": "Bestanden in de zijbalk openen in voorbeeldtabbladen. Bewerken of dubbelklikken houdt het tabblad open.",
-        "excludePatterns": "Uitsluitpatronen",
-        "excludePatternsNotes": "Uitsluitpatronen (opmerkingen)",
+        "excludePatterns": "Uitsluitregels voor de bestandsboom",
+        "excludePatternsNotes": "Paden die overeenkomen met een glob-regel worden uitgesloten van de bestandsboom. Voer elke regel afzonderlijk in; komma’s binnen een regel blijven behouden. Open de map opnieuw om alle wijzigingen toe te passen.",
+        "patternLabel": "Uitsluitregel {number}",
+        "removePatternLabel": "Uitsluitregel {number} verwijderen",
+        "removePattern": "Verwijderen",
+        "newPattern": "Nieuwe uitsluitregel",
+        "patternExample": "Bijvoorbeeld: **/drafts/** of *.tmp",
+        "addPattern": "Regel toevoegen",
+        "patternSaveError": "De uitsluitregels konden niet worden opgeslagen. De opgeslagen regels zijn behouden. Probeer het opnieuw.",
+        "patternHelp": "Syntaxis van glob-patronen",
         "fileSortBy": {
           "title": "Bestanden sorteren op",
           "creationTime": "Aanmaaktijd",
