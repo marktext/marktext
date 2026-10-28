@@ -7,6 +7,7 @@ import {
 import { unsavedDocuments } from '@shared/applicationState/startupPlan'
 import { createStateId } from './identity'
 
+/** Native close operations; persistence must succeed before any window is destroyed. */
 export interface ClosePorts {
   getSession(): SessionState
   checkpoint(windowId: string, transactionId: string): Promise<WindowSnapshot>
@@ -17,6 +18,7 @@ export interface ClosePorts {
   destroy(windowId: string): Promise<void>
 }
 
+/** Discard consent applies only to the document revisions seen in the prompt. */
 interface PreparedWindow {
   snapshot: WindowSnapshot
   discarded: Map<string, number>

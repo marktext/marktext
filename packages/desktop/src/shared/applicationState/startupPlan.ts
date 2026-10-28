@@ -10,17 +10,19 @@ import type {
   WorkspaceDescriptor,
   WorkspaceFileState
 } from '../types/applicationState'
-import type { RecoveryPreferences } from '../types/preferences'
+import { StartupAction, type RecoveryPreferences } from '../types/preferences'
 
 export type ExplicitTarget =
   | { kind: 'file'; pathname: string; readOnly: boolean }
   | { kind: 'folder'; workspace: WorkspaceDescriptor }
 
+/** Only preferences that affect the pure startup decision; no filesystem access occurs here. */
 export interface PlanningPreferences extends RecoveryPreferences {
   tocPosition?: 'left' | 'right'
   sourceCodeModeEnabled?: boolean
 }
 
+/** Optional explicit targets override stored startup choices, even when resolution yields none. */
 export interface StartupPlanInput {
   state: ApplicationState
   preferences: PlanningPreferences
@@ -29,13 +31,13 @@ export interface StartupPlanInput {
   recoveryRecords?: ReadonlyMap<string, readonly RecoveryRecord[]>
 }
 
+/** Native IO instructions; each variant carries only the data needed to open that window. */
 export type StartupWindowPlan =
   | { kind: 'explicit'; targets: ExplicitTarget[] }
-  | { kind: 'empty'; layout: WindowLayoutState; restoreGeometry: false }
+  | { kind: 'empty'; layout: WindowLayoutState }
   | {
     kind: 'restore'
     snapshot: WindowSnapshot
-    layout: WindowLayoutState
     restoreGeometry: boolean
   }
   | {
@@ -45,7 +47,6 @@ export type StartupWindowPlan =
     activeFileKey: string | null
     projectView: ProjectViewState
     layout: WindowLayoutState
-    restoreGeometry: false
   }
 
 const defaultLayout = (preferences: PlanningPreferences): WindowLayoutState =>
@@ -112,8 +113,7 @@ export const buildWorkspacePlan = (
     projectView:
       preferences.restoreLayoutState && recent
         ? structuredClone(recent.projectView)
-        : { roots: [] },
-    restoreGeometry: false
+        : { roots: [] }
   }
 }
 
@@ -121,7 +121,6 @@ export const buildStartupPlan = (input: StartupPlanInput): StartupWindowPlan[] =
   const { state, preferences } = input
   const empty = (): Extract<StartupWindowPlan, { kind: 'empty' }> => ({
     kind: 'empty',
-    restoreGeometry: false,
     layout:
       preferences.restoreLayoutState && state.recentEmptyWindowLayout
         ? structuredClone(state.recentEmptyWindowLayout.layout)
@@ -132,13 +131,13 @@ export const buildStartupPlan = (input: StartupPlanInput): StartupWindowPlan[] =
       ? [{ kind: 'explicit', targets: structuredClone(input.request.targets) }]
       : [empty()]
   }
-  if (preferences.startUpAction === 'blank') return [empty()]
-  if (preferences.startUpAction === 'folder') {
+  if (preferences.startUpAction === StartupAction.BLANK) return [empty()]
+  if (preferences.startUpAction === StartupAction.FOLDER) {
     return input.configuredWorkspace
       ? [buildWorkspacePlan(input.configuredWorkspace, state, preferences)]
       : [empty()]
   }
-  if (preferences.startUpAction === 'openLastFolder') {
+  if (preferences.startUpAction === StartupAction.OPEN_LAST_FOLDER) {
     const recent =
       state.recentWorkspaces.find((entry) => entry.workspace.id === state.lastActiveWorkspaceId) ??
       state.recentWorkspaces[0]
@@ -149,7 +148,7 @@ export const buildStartupPlan = (input: StartupPlanInput): StartupWindowPlan[] =
     : state.session.lastWindow
       ? [state.session.lastWindow]
       : []
-  if (preferences.startUpAction === 'restoreLastWindow') {
+  if (preferences.startUpAction === StartupAction.RESTORE_LAST_WINDOW) {
     const active = getActiveSessionWindow(windows, state.session.activeWindowId)
     windows = active ? [active] : []
   }
@@ -172,7 +171,6 @@ export const buildStartupPlan = (input: StartupPlanInput): StartupWindowPlan[] =
     plans.push({
       kind: 'restore',
       snapshot,
-      layout: snapshot.layout,
       restoreGeometry: preferences.restoreLayoutState
     })
   }

@@ -352,7 +352,7 @@ describe('startup planning without filesystem or Electron effects', () => {
             })
             expect(plan).toHaveLength(1)
             if (plan[0].kind !== 'explicit')
-              expect(plan[0].layout.sidebar.visible).toBe(restoreLayoutState && action !== 'blank')
+              expect((plan[0].kind === 'restore' ? plan[0].snapshot.layout : plan[0].layout).sidebar.visible).toBe(restoreLayoutState && action !== 'blank')
             const entries =
               plan[0].kind === 'restore'
                 ? plan[0].snapshot.documents
