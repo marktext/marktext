@@ -1,29 +1,18 @@
 import type { SessionState, WindowSnapshot } from '../types/applicationState'
 
-const activeId = (windows: WindowSnapshot[], preferred: string | null): string | null => {
-  if (windows.some((window) => window.id === preferred)) return preferred
+export const getActiveSessionWindow = (
+  windows: readonly WindowSnapshot[],
+  preferred: string | null
+): WindowSnapshot | null => {
   return (
+    windows.find((window) => window.id === preferred) ??
     windows.reduce<WindowSnapshot | null>(
       (latest, window) =>
         !latest || window.lastActivatedAtMs > latest.lastActivatedAtMs ? window : latest,
       null
-    )?.id ?? null
+    )
   )
 }
-
-export const registerSessionWindow = (
-  session: SessionState,
-  snapshot: WindowSnapshot
-): SessionState => ({
-  ...session,
-  lifecycle: 'running',
-  windows: [
-    ...session.windows.filter((window) => window.id !== snapshot.id),
-    structuredClone(snapshot)
-  ],
-  activeWindowId: snapshot.id,
-  lastWindow: null
-})
 
 export const updateSessionWindow = (
   session: SessionState,
@@ -57,7 +46,7 @@ export const closeSessionWindow = (session: SessionState, id: string): SessionSt
   return {
     ...session,
     windows,
-    activeWindowId: activeId(windows, session.activeWindowId),
+    activeWindowId: getActiveSessionWindow(windows, session.activeWindowId)?.id ?? null,
     lastWindow: windows.length === 0 ? structuredClone(closing) : null
   }
 }

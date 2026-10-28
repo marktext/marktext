@@ -1,4 +1,5 @@
 import { createDefaultLayout } from './defaults'
+import { getActiveSessionWindow } from './session'
 import type {
   ApplicationState,
   DocumentSnapshot,
@@ -149,13 +150,7 @@ export const buildStartupPlan = (input: StartupPlanInput): StartupWindowPlan[] =
       ? [state.session.lastWindow]
       : []
   if (preferences.startUpAction === 'restoreLastWindow') {
-    const active =
-      windows.find((window) => window.id === state.session.activeWindowId) ??
-      windows.reduce<WindowSnapshot | null>(
-        (latest, window) =>
-          !latest || window.lastActivatedAtMs > latest.lastActivatedAtMs ? window : latest,
-        null
-      )
+    const active = getActiveSessionWindow(windows, state.session.activeWindowId)
     windows = active ? [active] : []
   }
   const plans: StartupWindowPlan[] = []
