@@ -530,3 +530,53 @@ describe('durable document checkpoints', () => {
     })
   })
 })
+
+describe('atomic close validation', () => {
+  it('validates current documents inside the checkpoint queue instead of committing a stale final snapshot', async() => {
+    const f = await setup()
+    const prepared = f.service.getState().session.windows
+    const editing = f.service.checkpoint(f.window.id, f.request(1))
+    const closing = f.service.closeWindows(prepared)
+    expect(await editing).toMatchObject({ status: 'persisted' })
+    expect(await closing).toBe(false)
+    expect(f.service.getState().session.lifecycle).toBe('running')
+    expect((await f.metadata.load()).value.session.windows[0].documents[0].content.kind).toBe(
+      'recovery'
+    )
+    expect(await f.recovery.readWindow(f.window.id)).toMatchObject([
+      { status: 'dirty', markdown: 'Draft' }
+    ])
+  })
+
+  it('commits approved discards with the final session and rejects checkpoints after quit is committed', async() => {
+    const f = await setup()
+    await f.service.checkpoint(f.window.id, f.request(1))
+    expect(await f.service.closeWindows(f.service.getState().session.windows)).toBe(true)
+    expect((await f.metadata.load()).value.session).toMatchObject({
+      lifecycle: 'closed',
+      windows: [{ documents: [] }]
+    })
+    expect(await f.recovery.readWindow(f.window.id)).toEqual([])
+    expect(await f.service.checkpoint(f.window.id, f.request(2))).toMatchObject({
+      status: 'failed',
+      reason: 'stale-context'
+    })
+  })
+
+  it('restores dirty recovery writes after a failed final metadata commit', async() => {
+    const f = await setup()
+    await f.service.checkpoint(f.window.id, f.request(1))
+    f.fail('metadata')
+    await expect(f.service.closeWindows(f.service.getState().session.windows)).rejects.toThrow(
+      'metadata unavailable'
+    )
+    expect(f.service.getState().session.lifecycle).toBe('running')
+    f.fail(null)
+    expect(await f.service.flush(f.window.id, f.context.contextToken)).toMatchObject({
+      status: 'persisted'
+    })
+    expect(await f.recovery.readWindow(f.window.id)).toMatchObject([
+      { status: 'dirty', markdown: 'Draft' }
+    ])
+  })
+})

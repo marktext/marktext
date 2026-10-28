@@ -1,9 +1,4 @@
 import type { SessionState, WindowSnapshot } from '@shared/types/applicationState'
-import {
-  closeSessionWindow,
-  finishSession,
-  updateSessionWindow
-} from '@shared/applicationState/session'
 import { unsavedDocuments } from '@shared/applicationState/startupPlan'
 import { createStateId } from './identity'
 
@@ -13,8 +8,8 @@ export interface ClosePorts {
   checkpoint(windowId: string, transactionId: string): Promise<WindowSnapshot>
   choose(snapshot: WindowSnapshot, transactionId: string): Promise<'save' | 'discard' | 'cancel'>
   save(snapshot: WindowSnapshot): Promise<'saved' | 'canceled' | 'failed'>
-  discard(windowId: string, documentIds: string[]): Promise<void>
-  commit(session: SessionState): Promise<void>
+  // The owner validates every prepared document and applies discards in one serialized commit.
+  commit(snapshots: WindowSnapshot[], windowId?: string): Promise<boolean>
   destroy(windowId: string): Promise<void>
 }
 
@@ -52,9 +47,6 @@ export class CloseCoordinator {
       const windows = structuredClone(
         windowId ? initial.windows.filter((window) => window.id === windowId) : initial.windows
       )
-      const matchesMembership = (session: SessionState): boolean =>
-        session.windows.length === windows.length &&
-        windows.every((window) => session.windows.some((current) => current.id === window.id))
       if (windowId && windows.length === 0) return
       const transactionId = createStateId()
       const prepared: PreparedWindow[] = []
@@ -91,20 +83,11 @@ export class CloseCoordinator {
         if (unexpected) return
         entry.snapshot = latest
       }
-      if (!windowId && !matchesMembership(this._ports.getSession())) return
-      for (const entry of prepared) {
-        const discarded = unsavedDocuments(entry.snapshot).map((document) => document.id)
-        if (discarded.length > 0) {
-          await this._ports.discard(entry.snapshot.id, discarded)
-          entry.snapshot = await this._capture(entry.snapshot.id, transactionId)
-          if (unsavedDocuments(entry.snapshot).length > 0) return
-        }
-      }
-      let final = this._ports.getSession()
-      if (!windowId && !matchesMembership(final)) return
-      for (const entry of prepared) final = updateSessionWindow(final, entry.snapshot)
-      const committed = windowId ? closeSessionWindow(final, windowId) : finishSession(final)
-      await this._ports.commit(committed)
+      const committed = await this._ports.commit(
+        prepared.map((entry) => entry.snapshot),
+        windowId
+      )
+      if (!committed) return
       for (const entry of prepared) await this._ports.destroy(entry.snapshot.id)
     } finally {
       this._pending = false

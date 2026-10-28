@@ -104,10 +104,7 @@ export class SessionHost {
         }
         return 'saved'
       },
-      discard: async(id, ids) => {
-        for (const documentId of ids) await this._endDocument(id, documentId, true)
-      },
-      commit: (session) => this._owner().commitState((state) => ({ ...state, session })),
+      commit: (snapshots, windowId) => this._owner().closeWindows(snapshots, windowId),
       destroy: async(id) => {
         const editor = this._editors.get(id)
         if (!editor) return
@@ -241,15 +238,16 @@ export class SessionHost {
     return { document, content: { documentId: id, markdown: raw.markdown } }
   }
 
-  start(paths: StartupPath[], create: (prepared: PreparedSessionWindow) => void): Promise<void> {
-    const result = this._startQueue.then(() => this._startNow(paths, create))
+  start(paths: StartupPath[], create: (prepared: PreparedSessionWindow) => void, forceNewWindow = false): Promise<void> {
+    const result = this._startQueue.then(() => this._startNow(paths, create, forceNewWindow))
     this._startQueue = result.catch(() => {})
     return result
   }
 
   private async _startNow(
     paths: StartupPath[],
-    create: (prepared: PreparedSessionWindow) => void
+    create: (prepared: PreparedSessionWindow) => void,
+    forceNewWindow: boolean
   ): Promise<void> {
     if (this._service) {
       create(await this.prepareNewWindow(null, [], []))
@@ -281,7 +279,7 @@ export class SessionHost {
       state: previous,
       preferences,
       configuredWorkspace,
-      request: targets.length ? { kind: 'explicit' as const, targets } : undefined
+      request: targets.length ? { kind: 'explicit' as const, targets, forceNewWindow } : undefined
     }
     const records = new Map<string, RecoveryRecord[]>()
     const selected = buildStartupPlan(input)
@@ -519,6 +517,16 @@ export class SessionHost {
       this._accessor.preferences.getAll()
     )
     const prepared = await this._preparePlan(plan, [])
+    const readOnlyOverrides = new Map<string, boolean>()
+    for (const [pathname, optionsForFile] of Object.entries(options)) {
+      if (optionsForFile.readOnly !== undefined)
+        readOnlyOverrides.set(createFileLocation(pathname).key, optionsForFile.readOnly)
+    }
+    for (const document of prepared.snapshot.documents) {
+      if (document.resource.kind !== 'file') continue
+      const readOnly = readOnlyOverrides.get(document.resource.location.key)
+      if (readOnly !== undefined) document.readOnly = readOnly
+    }
     for (const pathname of files) {
       try {
         const loaded = await this._readDocument(pathname, options[pathname])
@@ -978,7 +986,6 @@ export class SessionHost {
             if (choice.response !== 0) return null
           }
         }
-        if (!path.extname(destination)) destination += '.md'
         const written = await documentWrites.write(sender.id, documentId, epoch, async() => {
           await writeMarkdownFile(destination, capture.markdown, capture.snapshot.saveFormat)
           return true

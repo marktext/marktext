@@ -7,8 +7,7 @@ import {
   activateSessionWindow,
   closeSessionWindow,
   finishSession,
-  getActiveSessionWindow,
-  updateSessionWindow
+  getActiveSessionWindow
 } from '../../../src/shared/applicationState/session'
 import { buildStartupPlan } from '../../../src/shared/applicationState/startupPlan'
 import type {
@@ -100,15 +99,6 @@ describe('latest session membership', () => {
     expect(last.id).toBe(original.id)
   })
 
-  it('updates a window without duplicating or sharing the incoming snapshot', () => {
-    const snapshot = window('a')
-    const original = state(window('a'), window('b')).session
-    const session = updateSessionWindow(original, snapshot)
-    snapshot.layout.sidebar.visible = true
-    expect(session.windows.map((entry) => entry.id)).toEqual(['a', 'b'])
-    expect(session.windows[0].layout.sidebar.visible).toBe(false)
-  })
-
   it('updates activation without mutating the previous session', () => {
     const original = state(window('a'), window('b')).session
     const session = activateSessionWindow(original, 'a', 50)
@@ -137,6 +127,30 @@ describe('startup planning without filesystem or Electron effects', () => {
     expect(
       buildStartupPlan({ state: previous, preferences, request: { kind: 'explicit', targets } })
     ).toEqual([{ kind: 'explicit', targets }])
+  })
+
+  it('splits explicit startup files when new-window preference is enabled', () => {
+    const targets = [
+      { kind: 'file' as const, pathname: '/one.md', readOnly: false },
+      { kind: 'file' as const, pathname: '/two.md', readOnly: true }
+    ]
+    const plans = buildStartupPlan({
+      state: state(),
+      preferences: { ...preferences, openFilesInNewWindow: true },
+      request: { kind: 'explicit', targets }
+    })
+    expect(plans).toEqual(targets.map((target) => ({ kind: 'explicit', targets: [target] })))
+  })
+
+  it('keeps explicit new-window targets grouped even when the preference splits ordinary startup', () => {
+    const targets = [
+      { kind: 'file' as const, pathname: '/one.md', readOnly: false },
+      { kind: 'file' as const, pathname: '/two.md', readOnly: true }
+    ]
+    expect(buildStartupPlan({
+      state: state(), preferences: { ...preferences, openFilesInNewWindow: true },
+      request: { kind: 'explicit', targets, forceNewWindow: true }
+    })).toEqual([{ kind: 'explicit', targets }])
   })
 
   it('selects only the last active window when requested', () => {
@@ -352,7 +366,10 @@ describe('startup planning without filesystem or Electron effects', () => {
             })
             expect(plan).toHaveLength(1)
             if (plan[0].kind !== 'explicit')
-              expect((plan[0].kind === 'restore' ? plan[0].snapshot.layout : plan[0].layout).sidebar.visible).toBe(restoreLayoutState && action !== 'blank')
+              expect(
+                (plan[0].kind === 'restore' ? plan[0].snapshot.layout : plan[0].layout).sidebar
+                  .visible
+              ).toBe(restoreLayoutState && action !== 'blank')
             const entries =
               plan[0].kind === 'restore'
                 ? plan[0].snapshot.documents

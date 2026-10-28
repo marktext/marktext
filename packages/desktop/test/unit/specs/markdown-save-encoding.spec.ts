@@ -27,6 +27,14 @@ const options = (encoding: string, isBom = false) => ({
 })
 
 describe('markdown saves preserve characters (#5614)', () => {
+  it('writes an extensionless path exactly and preserves a neighboring md file', async() => {
+    const destination = path.join(directory, 'note')
+    writeFileSync(pathname, 'Unrelated original bytes')
+    await writeMarkdownFile(destination, 'Requested destination bytes', options('utf8'))
+    expect(readFileSync(pathname, 'utf8')).toBe('Unrelated original bytes')
+    expect(readFileSync(destination, 'utf8')).toBe('Requested destination bytes')
+  })
+
   it.each(['cp1252', 'iso88591', 'shiftjis', 'gbk'])(
     'rejects a lossy %s save without overwriting the original bytes',
     async(encoding) => {

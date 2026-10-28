@@ -130,6 +130,7 @@ export const loadCliMarkdownFile = async(
   }
 }
 
+/** Writes the confirmed pathname verbatim; extension defaults belong in the save dialog. */
 export const writeMarkdownFile = (
   pathname: string,
   content: string,
@@ -137,7 +138,6 @@ export const writeMarkdownFile = (
 ): Promise<void> => {
   const { adjustLineEndingOnSave, lineEnding } = options
   const { encoding, isBom } = options.encoding
-  const extension = path.extname(pathname) || '.md'
 
   if (adjustLineEndingOnSave) {
     content = convertLineEndings(content, lineEnding)
@@ -158,7 +158,7 @@ export const writeMarkdownFile = (
     return Promise.reject(error)
   }
 
-  return writeFile(pathname, buffer, extension, undefined)
+  return writeFile(pathname, buffer)
 }
 
 export const loadMarkdownFile = async(

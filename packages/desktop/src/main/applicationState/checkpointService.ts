@@ -1,3 +1,4 @@
+import { closeSessionWindow, finishSession } from '@shared/applicationState/session'
 import { rememberWindowContext } from '@shared/applicationState/workspaceRecents'
 import { RecoveryStatus, SessionLifecycle } from '@shared/types/applicationState'
 import type {
@@ -394,43 +395,101 @@ export class CheckpointService {
 
   /** Membership changes become visible only after the complete durable commit succeeds. */
   commitState(transform: (state: ApplicationState) => ApplicationState): Promise<void> {
+    return this._enqueue(() => this._commitState(structuredClone(transform(this.getState()))))
+  }
+
+  /** Returns false on stale preparation or pending saves. Dirty snapshots require prior discard consent. */
+  closeWindows(snapshots: WindowSnapshot[], windowId?: string): Promise<boolean> {
+    const prepared = structuredClone(snapshots)
     return this._enqueue(async() => {
-      const candidate = structuredClone(transform(this.getState()))
-      const previous = this._state
-      const liveIds = new Set(candidate.session.windows.map((window) => window.id))
-      if (candidate.session.lifecycle === SessionLifecycle.CLOSED && this._saveQueues.size > 0)
-        throw new Error('Cannot finish session with pending saves')
-      for (const window of this._state.session.windows) {
-        const retained = candidate.session.windows.find((entry) => entry.id === window.id)
-        if (
-          retained &&
-          window.documents.some(
-            (document) => !retained.documents.some((entry) => entry.id === document.id)
+      const candidate = this.getState()
+      const current = windowId
+        ? candidate.session.windows.filter((window) => window.id === windowId)
+        : candidate.session.windows
+      if (
+        current.length !== prepared.length ||
+        (windowId && (prepared.length !== 1 || prepared[0].id !== windowId)) ||
+        current.some((window) => {
+          const expected = prepared.find((entry) => entry.id === window.id)
+          return (
+            !expected ||
+            JSON.stringify(window.documents) !== JSON.stringify(expected.documents) ||
+            window.documents.some((document) => this._saveQueues.has(document.id))
           )
-        )
-          throw new Error('Document removal requires an explicit end operation')
-        if (
-          !liveIds.has(window.id) &&
-          (window.documents.some((document) => document.content.kind === 'recovery') ||
-            window.documents.some((document) => this._saveQueues.has(document.id)))
-        )
-          throw new Error('Cannot remove a window with unsaved documents or pending saves')
+        })
+      )
+        return false
+      const ended = current.flatMap((window) =>
+        window.documents
+          .filter((document) => document.content.kind === 'recovery')
+          .map((document) => this._documents.prepareClose(document.id, true, this._now()))
+      )
+      const endedIds = new Set(ended.map((record) => record.documentId))
+      candidate.session.windows = candidate.session.windows.map((window) => {
+        if (!current.some((entry) => entry.id === window.id)) return window
+        const documents = window.documents.filter((document) => !endedIds.has(document.id))
+        return {
+          ...window,
+          documents,
+          activeDocumentId: documents.some((document) => document.id === window.activeDocumentId)
+            ? window.activeDocumentId
+            : (documents[0]?.id ?? null)
+        }
+      })
+      candidate.session = windowId
+        ? closeSessionWindow(candidate.session, windowId)
+        : finishSession(candidate.session)
+      try {
+        await this._commitState(candidate, ended)
+      } catch (error) {
+        for (const record of ended) this._documents.requireRecoveryWrite(record.documentId)
+        throw error
       }
-      await this._persist(candidate)
-      for (const id of this._contexts.keys()) {
-        if (!liveIds.has(id)) {
-          this._documents.releaseWindow(id)
-          this._contexts.delete(id)
-        } else if (
-          candidate.session.id !== previous.session.id ||
-          JSON.stringify(
-            candidate.session.windows.find((window) => window.id === id)?.workspace
-          ) !==
-            JSON.stringify(previous.session.windows.find((window) => window.id === id)?.workspace)
-        )
-          this._rotateContext(id)
-      }
+      return true
     })
+  }
+
+  private async _commitState(
+    candidate: ApplicationState,
+    ended: DiscardedRecoveryRecord[] = []
+  ): Promise<void> {
+    const endedIds = new Set(ended.map((record) => record.documentId))
+    const previous = this._state
+    const liveIds = new Set(candidate.session.windows.map((window) => window.id))
+    if (candidate.session.lifecycle === SessionLifecycle.CLOSED && this._saveQueues.size > 0)
+      throw new Error('Cannot finish session with pending saves')
+    for (const window of this._state.session.windows) {
+      const retained = candidate.session.windows.find((entry) => entry.id === window.id)
+      if (
+        retained &&
+        window.documents.some(
+          (document) =>
+            !endedIds.has(document.id) &&
+            !retained.documents.some((entry) => entry.id === document.id)
+        )
+      )
+        throw new Error('Document removal requires an explicit end operation')
+      if (
+        !liveIds.has(window.id) &&
+        (window.documents.some(
+          (document) => document.content.kind === 'recovery' && !endedIds.has(document.id)
+        ) ||
+          window.documents.some((document) => this._saveQueues.has(document.id)))
+      )
+        throw new Error('Cannot remove a window with unsaved documents or pending saves')
+    }
+    await this._persist(candidate, ended)
+    for (const id of this._contexts.keys()) {
+      if (candidate.session.lifecycle === SessionLifecycle.CLOSED || !liveIds.has(id)) {
+        this._documents.releaseWindow(id)
+        this._contexts.delete(id)
+      } else if (
+        candidate.session.id !== previous.session.id ||
+        JSON.stringify(candidate.session.windows.find((window) => window.id === id)?.workspace) !==
+          JSON.stringify(previous.session.windows.find((window) => window.id === id)?.workspace)
+      )
+        this._rotateContext(id)
+    }
   }
 
   private async _persistResult(windowId: string): Promise<PersistResult> {

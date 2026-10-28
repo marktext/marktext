@@ -4,6 +4,7 @@ import {
   CloseCoordinator,
   type ClosePorts
 } from '../../../src/main/applicationState/closeCoordinator'
+import { closeSessionWindow, finishSession } from '../../../src/shared/applicationState/session'
 import { createDefaultLayout } from '../../../src/shared/applicationState/defaults'
 import { createFileLocation } from '../../../src/main/applicationState/identity'
 import type { SessionState, WindowSnapshot } from '../../../src/shared/types/applicationState'
@@ -81,15 +82,29 @@ const setup = (
       }
       return 'saved'
     }),
-    discard: vi.fn(async(id, ids) => {
-      events.push(`discard:${id}`)
-      const current = session.windows.find((entry) => entry.id === id)
-      if (current)
-        current.documents = current.documents.filter((document) => !ids.includes(document.id))
-    }),
-    commit: vi.fn(async(value) => {
+    commit: vi.fn<ClosePorts['commit']>(async(prepared, windowId) => {
+      const current = windowId
+        ? session.windows.filter((window) => window.id === windowId)
+        : session.windows
+      if (
+        current.length !== prepared.length ||
+        current.some(
+          (window) =>
+            JSON.stringify(window.documents) !==
+            JSON.stringify(prepared.find((entry) => entry.id === window.id)?.documents)
+        )
+      )
+        return false
+      for (const window of current) {
+        if (window.documents.some((document) => document.content.kind === 'recovery'))
+          events.push(`discard:${window.id}`)
+        window.documents = window.documents.filter(
+          (document) => document.content.kind !== 'recovery'
+        )
+      }
       events.push('commit')
-      session = value
+      session = windowId ? closeSessionWindow(session, windowId) : finishSession(session)
+      return true
     }),
     destroy: vi.fn(async(id) => {
       events.push(`destroy:${id}`)
@@ -107,9 +122,9 @@ describe('close preparation and commit ordering', () => {
   })
 
   it('does not discard or destroy earlier windows when a later window cancels', async() => {
-    const { ports, coordinator, session } = setup(['discard', 'cancel'])
+    const { ports, coordinator, session, events } = setup(['discard', 'cancel'])
     await coordinator.quit()
-    expect(ports.discard).not.toHaveBeenCalled()
+    expect(events.some((event) => event.startsWith('discard:'))).toBe(false)
     expect(ports.commit).not.toHaveBeenCalled()
     expect(ports.destroy).not.toHaveBeenCalled()
     expect(session().windows.every((window) => window.documents.length === 1)).toBe(true)
@@ -150,14 +165,14 @@ describe('close preparation and commit ordering', () => {
   })
 
   it('does not discard a newer revision that was not approved in the prompt', async() => {
-    const { ports, coordinator, session } = setup(['discard', 'discard'])
+    const { ports, coordinator, session, events } = setup(['discard', 'discard'])
     vi.mocked(ports.choose).mockImplementation(async(window) => {
       if (window.id === 'b')
         session().windows[0].documents[0].content = { kind: 'recovery', contentRevision: 2 }
       return 'discard'
     })
     await coordinator.quit()
-    expect(ports.discard).not.toHaveBeenCalled()
+    expect(events.some((event) => event.startsWith('discard:'))).toBe(false)
     expect(ports.destroy).not.toHaveBeenCalled()
   })
 
@@ -172,16 +187,48 @@ describe('close preparation and commit ordering', () => {
     expect(retry.ports.destroy).toHaveBeenCalledWith('dirty')
   })
 
-  it('does not commit an application quit if a new window appears during discard', async() => {
-    const { ports, coordinator, session } = setup(['discard'], [snapshot('a')])
-    vi.mocked(ports.discard).mockImplementation(async() => {
-      session().windows[0].documents = []
-      session().windows.push(snapshot('new', false))
+  it('keeps windows open if membership changes after the last checkpoint', async() => {
+    const fixture = setup(['discard'], [snapshot('a')])
+    const capture = vi.mocked(fixture.ports.checkpoint).getMockImplementation()
+    if (!capture) throw new Error('Missing checkpoint fixture')
+    let captures = 0
+    vi.mocked(fixture.ports.checkpoint).mockImplementation(async(id, transactionId) => {
+      const result = await capture(id, transactionId)
+      if (++captures === 2) fixture.session().windows.push(snapshot('new', false))
+      return result
     })
-    await coordinator.quit()
-    expect(ports.commit).not.toHaveBeenCalled()
-    expect(ports.destroy).not.toHaveBeenCalled()
+    await fixture.coordinator.quit()
+    expect(fixture.session().lifecycle).toBe('running')
+    expect(fixture.ports.destroy).not.toHaveBeenCalled()
   })
+
+  it.each([false, true])(
+    'preserves edits made after another window final checkpoint (discard=%s)',
+    async(discard) => {
+      const fixture = setup(discard ? ['discard'] : [], [
+        snapshot('a', discard),
+        snapshot('b', false)
+      ])
+      const capture = vi.mocked(fixture.ports.checkpoint).getMockImplementation()
+      if (!capture) throw new Error('Missing checkpoint fixture')
+      let secondCaptures = 0
+      vi.mocked(fixture.ports.checkpoint).mockImplementation(async(id, transactionId) => {
+        if (id === 'b' && ++secondCaptures === 2)
+          fixture.session().windows[0].documents[0].content = {
+            kind: 'recovery',
+            contentRevision: 2
+          }
+        return capture(id, transactionId)
+      })
+      await fixture.coordinator.quit()
+      expect(fixture.session().lifecycle).toBe('running')
+      expect(fixture.session().windows[0].documents[0].content).toEqual({
+        kind: 'recovery',
+        contentRevision: 2
+      })
+      expect(fixture.ports.destroy).not.toHaveBeenCalled()
+    }
+  )
 
   it('rejects a checkpoint from the wrong window before prompting or committing', async() => {
     const { ports, coordinator } = setup(['discard'])

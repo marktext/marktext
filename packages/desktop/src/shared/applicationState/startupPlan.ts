@@ -11,23 +11,21 @@ import type {
   WorkspaceDescriptor,
   WorkspaceFileState
 } from '../types/applicationState'
-import { StartupAction, type RecoveryPreferences } from '../types/preferences'
+import { StartupAction, type RecoveryPreferences, type UserPreferences } from '../types/preferences'
 
 export type ExplicitTarget =
   | { kind: 'file'; pathname: string; readOnly: boolean }
   | { kind: 'folder'; workspace: WorkspaceDescriptor }
 
 /** Only preferences that affect the pure startup decision; no filesystem access occurs here. */
-export interface PlanningPreferences extends RecoveryPreferences {
-  tocPosition?: 'left' | 'right'
-  sourceCodeModeEnabled?: boolean
-}
+export type PlanningPreferences = RecoveryPreferences &
+  Partial<Pick<UserPreferences, 'tocPosition' | 'sourceCodeModeEnabled' | 'openFilesInNewWindow'>>
 
 /** Optional explicit targets override stored startup choices, even when resolution yields none. */
 export interface StartupPlanInput {
   state: ApplicationState
   preferences: PlanningPreferences
-  request?: { kind: 'explicit'; targets: ExplicitTarget[] }
+  request?: { kind: 'explicit'; targets: ExplicitTarget[]; forceNewWindow?: boolean }
   configuredWorkspace?: WorkspaceDescriptor | null
   recoveryRecords?: ReadonlyMap<string, readonly RecoveryRecord[]>
 }
@@ -128,9 +126,11 @@ export const buildStartupPlan = (input: StartupPlanInput): StartupWindowPlan[] =
         : defaultLayout(preferences)
   })
   if (input.request?.kind === 'explicit') {
-    return input.request.targets.length
-      ? [{ kind: 'explicit', targets: structuredClone(input.request.targets) }]
-      : [empty()]
+    const targets = structuredClone(input.request.targets)
+    if (!targets.length) return [empty()]
+    if (preferences.openFilesInNewWindow && !input.request.forceNewWindow)
+      return targets.map(target => ({ kind: 'explicit', targets: [target] }))
+    return [{ kind: 'explicit', targets }]
   }
   if (preferences.startUpAction === StartupAction.BLANK) return [empty()]
   if (preferences.startUpAction === StartupAction.FOLDER) {

@@ -312,7 +312,7 @@ class App {
     const createWindow = (): void => {
       const host = this._accessor.sessionHost
       const paths = _openFilesCache.splice(0)
-      void host.start(paths, prepared => this._createEditorWindow(null, [], [], {}, {}, prepared))
+      void host.start(paths, prepared => this._createEditorWindow(null, [], [], {}, {}, prepared), args['--new-window'] === true)
         .catch(error => host.report(error))
     }
 
