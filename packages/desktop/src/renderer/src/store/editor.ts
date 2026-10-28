@@ -1,4 +1,5 @@
 import equal from 'deep-equal'
+import { adjustTrailingNewlines } from '@/util/markdown'
 import { prepareReading, applyReadOnly } from '../services/documentMode'
 import bus from '../bus'
 import { getUniqueId, deepClone } from '../util'
@@ -1469,47 +1470,6 @@ export const useEditorStore = defineStore('editor', {
   }
 })
 
-/**
- * Trim the final newlines according `trimTrailingNewlineOption`.
- *
- * @param markdown The text to trim.
- * @param trimTrailingNewlineOption The option how we should trim the final newlines.
- */
-const adjustTrailingNewlines = (markdown: string, trimTrailingNewlineOption: number): string => {
-  if (!markdown) {
-    return ''
-  }
-
-  switch (trimTrailingNewlineOption) {
-    case 0: {
-      return trimTrailingNewlines(markdown)
-    }
-    case 1: {
-      // Muya will always add a final new line to the markdown text. Check first whether
-      // only one newline exist to prevent copying the string.
-      const lastIndex = markdown.length - 1
-      if (markdown[lastIndex] === '\n') {
-        if (markdown.length === 1) {
-          return ''
-        } else if (markdown[lastIndex - 1] !== '\n') {
-          return markdown
-        }
-      }
-
-      markdown = trimTrailingNewlines(markdown)
-      if (markdown.length === 0) {
-        return ''
-      }
-      return markdown + '\n'
-    }
-    default:
-      return markdown
-  }
-}
-
-const trimTrailingNewlines = (text: string): string => {
-  return text.replace(/[\r?\n]+$/, '')
-}
 
 interface ApplicationMenuState {
   alertType?: string
