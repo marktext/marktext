@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto'
 import { contentSha256 } from 'common/filesystem'
-export { contentSha256 } from 'common/filesystem'
 import { realpathSync } from 'node:fs'
 import path from 'node:path'
 import type { FileLocation, WorkspaceDescriptor } from '@shared/types/applicationState'
