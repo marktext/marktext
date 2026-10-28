@@ -575,7 +575,7 @@
       "folderSetting": {
         "title": "資料夾設定",
         "globalFolder": "全域圖片資料夾",
-        "open": "開啟",
+        "open": "選擇資料夾…",
         "showInFolder": "在資料夾中顯示",
         "preferRelative": "偏好相對目錄",
         "relativeCopyLocation": "圖片相對複製到",
@@ -608,9 +608,6 @@
         },
         "scriptDescription": "腳本描述",
         "scriptLocation": "腳本位置",
-        "save": "儲存",
-        "saveConfig": "儲存設定",
-        "scriptConfigSaved": "腳本設定已儲存",
         "services": {
           "picgo": "PicGo-Core",
           "cliScript": "CLI 腳本"
@@ -620,7 +617,8 @@
         "picgoDetection": "PicGo-Core 偵測",
         "lastSuccessTime": "上次成功時間",
         "neverDetected": "從未偵測",
-        "neverSuccessful": "從未成功"
+        "neverSuccessful": "從未成功",
+        "invalidScript": "請輸入存在且可執行的指令碼路徑。"
       },
       "defaultBehavior": "貼上或拖曳圖片到 MarkText 後的預設行為"
     },

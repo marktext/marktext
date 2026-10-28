@@ -575,7 +575,7 @@
       "folderSetting": {
         "title": "Paramètres de dossier",
         "globalFolder": "Dossier d'images global",
-        "open": "Ouvrir",
+        "open": "Choisir un dossier…",
         "showInFolder": "Afficher dans le dossier",
         "preferRelative": "Préférer le répertoire relatif",
         "relativeCopyLocation": "Copier l'image relativement à",
@@ -608,9 +608,6 @@
         },
         "scriptDescription": "Description du script",
         "scriptLocation": "Emplacement du script",
-        "save": "Enregistrer",
-        "saveConfig": "Enregistrer la configuration",
-        "scriptConfigSaved": "Configuration du script enregistrée",
         "services": {
           "picgo": "PicGo-Core",
           "cliScript": "Script CLI"
@@ -620,7 +617,8 @@
         "picgoDetection": "Détection PicGo-Core",
         "lastSuccessTime": "Dernière heure de succès",
         "neverDetected": "Jamais détecté",
-        "neverSuccessful": "Jamais réussi"
+        "neverSuccessful": "Jamais réussi",
+        "invalidScript": "Saisissez le chemin d’un script existant et exécutable."
       },
       "defaultBehavior": "Comportement par défaut après avoir collé ou glissé une image dans MarkText"
     },

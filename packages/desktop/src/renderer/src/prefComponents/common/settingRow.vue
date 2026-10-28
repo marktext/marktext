@@ -35,6 +35,7 @@
 
 <script setup lang="ts">
 import { useId } from 'vue'
+import './controlSizing.css'
 import { useI18n } from 'vue-i18n'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
 import type { PrefControlBaseProps } from './types'

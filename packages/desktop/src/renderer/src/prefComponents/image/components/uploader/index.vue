@@ -138,26 +138,15 @@
         <div class="description">
           {{ t('preferences.image.uploader.scriptDescription') }}
         </div>
-        <setting-row
+        <text-box
           id="setting-cliScript"
           :description="preferenceLabel('cliScript')"
-        >
-          <el-input
-            v-model="cliScript"
-            :aria-label="preferenceLabel('cliScript')"
-            :placeholder="t('preferences.image.uploader.scriptPath')"
-            size="small"
-          />
-        </setting-row>
-        <div class="form-group">
-          <el-button
-            size="mini"
-            :disabled="cliScriptDisable"
-            @click="save()"
-          >
-            {{ t('preferences.image.uploader.save') }}
-          </el-button>
-        </div>
+          :input="prefCliScript"
+          :default-value="t('preferences.image.uploader.scriptPath')"
+          :validate="validateScript"
+          :error-message="t('preferences.image.uploader.invalidScript')"
+          :on-change="saveScript"
+        />
       </div>
     </section>
   </div>
@@ -179,11 +168,10 @@ import { usePreferencesStore } from '@/store/preferences'
 import getServices from './services'
 import { isFileExecutable } from '@/util/fileSystem'
 import CurSelect from '@/prefComponents/common/select/index.vue'
-import notice from '@/services/notification'
 import { storeToRefs } from 'pinia'
 import { Refresh } from '@element-plus/icons-vue'
 import { preferenceLabel } from '@/prefComponents/registry'
-import SettingRow from '@/prefComponents/common/settingRow.vue'
+import TextBox from '@/prefComponents/common/textBox/index.vue'
 import UploaderGuide from './guide.vue'
 import IconTooltip from '@/components/iconTooltip/index.vue'
 import type { PrefSelectOption } from '@/prefComponents/common/types'
@@ -195,7 +183,6 @@ const preferenceStore = usePreferencesStore()
 const uploaderOptions = computed<PrefSelectOption<string>[]>(() =>
   Object.entries(getServices()).map(([value, service]) => ({ value, label: service.name }))
 )
-const cliScript = ref<string>('')
 const picgoExists = ref<boolean>(false)
 const picgoDetectionFailed = ref<boolean>(false)
 const picgoDetectionStatus = ref<string>('')
@@ -220,27 +207,10 @@ const {
   cliScript: prefCliScript
 } = storeToRefs(preferenceStore)
 
-watch(prefCliScript, value => { cliScript.value = value }, { immediate: true })
-
-// `isFileExecutable` is async via IPC; track the result in a ref so the
-// disabled state still updates reactively.
-const cliScriptExecutable = ref(false)
-watch(
-  cliScript,
-  async (value) => {
-    if (!value) {
-      cliScriptExecutable.value = false
-      return
-    }
-    try {
-      cliScriptExecutable.value = await isFileExecutable(value)
-    } catch {
-      cliScriptExecutable.value = false
-    }
-  },
-  { immediate: true }
-)
-const cliScriptDisable = computed(() => !cliScript.value || !cliScriptExecutable.value)
+const validateScript = (value: string): boolean | Promise<boolean> => {
+  if (!value) return false
+  return isFileExecutable(value)
+}
 
 watch(currentUploader, (newValue, oldValue) => {
   if (newValue === 'picgo') {
@@ -372,8 +342,6 @@ const handleComponentDeactivated = () => {
 
 onMounted(() => {
   nextTick(() => {
-    cliScript.value = prefCliScript.value
-
     if (currentUploader.value === 'picgo') {
       stopRealtimeDetection()
       stopAnimationAndButton()
@@ -429,16 +397,8 @@ onUnmounted(() => {
   document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 
-const save = (): void => {
-  preferenceStore.SET_USER_DATA({
-    type: 'cliScript',
-    value: cliScript.value
-  })
-  notice.notify({
-    title: t('preferences.image.uploader.saveConfig'),
-    message: t('preferences.image.uploader.scriptConfigSaved'),
-    type: 'primary'
-  })
+const saveScript = (value: string): void => {
+  preferenceStore.SET_USER_DATA({ type: 'cliScript', value })
 }
 
 const setCurrentUploader = (value: string | number | boolean): void => {
@@ -918,10 +878,6 @@ const testPicgo = async (): Promise<void> => {
 .pref-image-uploader .description {
   margin-top: 20px;
   margin-bottom: 20px;
-}
-
-.pref-image-uploader .form-group {
-  margin: 20px 0 0 0;
 }
 
 .pref-image-uploader .label {

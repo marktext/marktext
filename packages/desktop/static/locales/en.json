@@ -575,7 +575,7 @@
       "folderSetting": {
         "title": "Folder Setting",
         "globalFolder": "Global image folder",
-        "open": "Open",
+        "open": "Choose folder…",
         "showInFolder": "Show in Folder",
         "preferRelative": "Prefer relative directory",
         "relativeCopyLocation": "Copy image relative to",
@@ -612,15 +612,13 @@
         "neverSuccessful": "Never successful",
         "scriptDescription": "Script Description",
         "scriptLocation": "Script Location",
-        "save": "Save",
-        "saveConfig": "Save Configuration",
-        "scriptConfigSaved": "Script configuration saved",
         "services": {
           "picgo": "PicGo-Core",
           "cliScript": "CLI Script"
         },
         "pleaseInstall": "Please install",
-        "scriptPath": "Script path"
+        "scriptPath": "Script path",
+        "invalidScript": "Enter the path to an existing executable script."
       },
       "defaultBehavior": "The default behavior after pasting or dragging the image to MarkText"
     },

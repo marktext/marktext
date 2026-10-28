@@ -1,0 +1,25 @@
+:is(.pref-container, .theme-picker) {
+  --pref-control-height: 36px;
+  --el-font-size-base: 14px;
+}
+
+:is(.pref-container, .theme-picker) :is(.el-input, .el-select, .el-input-tag) {
+  --el-component-size: var(--pref-control-height);
+  --el-component-size-small: var(--pref-control-height);
+}
+
+:is(.pref-container, .theme-picker) :is(.el-input__wrapper, .el-select__wrapper, .el-input-tag) {
+  min-height: var(--pref-control-height);
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+:is(.pref-container, .theme-picker) input.el-input__inner {
+  height: calc(var(--pref-control-height) - 2px);
+  line-height: calc(var(--pref-control-height) - 2px);
+  font-size: 14px;
+}
+
+.pref-container .el-input-tag__input {
+  font-size: 14px;
+}

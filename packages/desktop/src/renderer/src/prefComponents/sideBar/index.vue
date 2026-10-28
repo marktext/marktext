@@ -119,9 +119,6 @@ onUnmounted(() => {
   & .el-input__inner {
     border: none;
     background: transparent;
-    height: 28px;
-    line-height: 28px;
-    font-size: 13px;
   }
 }
 .pref-autocomplete {

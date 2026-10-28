@@ -575,7 +575,7 @@
       "folderSetting": {
         "title": "Mapinstelling",
         "globalFolder": "Globale afbeeldingsmap",
-        "open": "Openen",
+        "open": "Map kiezen…",
         "showInFolder": "Tonen in map",
         "preferRelative": "Relatieve map prefereren",
         "relativeCopyLocation": "Afbeelding kopiëren relatief aan",
@@ -612,15 +612,13 @@
         "neverSuccessful": "Nooit succesvol",
         "scriptDescription": "Scriptbeschrijving",
         "scriptLocation": "Scriptlocatie",
-        "save": "Opslaan",
-        "saveConfig": "Configuratie opslaan",
-        "scriptConfigSaved": "Scriptconfiguratie opgeslagen",
         "services": {
           "picgo": "PicGo-Core",
           "cliScript": "CLI-script"
         },
         "pleaseInstall": "Installeer a.u.b.",
-        "scriptPath": "Scriptpad"
+        "scriptPath": "Scriptpad",
+        "invalidScript": "Voer het pad naar een bestaand uitvoerbaar script in."
       },
       "defaultBehavior": "Het standaardgedrag na plakken of slepen van een afbeelding naar MarkText"
     },

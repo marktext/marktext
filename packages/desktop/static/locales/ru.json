@@ -575,7 +575,7 @@
       "folderSetting": {
         "title": "Настройки папки",
         "globalFolder": "Глобальная папка изображений",
-        "open": "Открыть",
+        "open": "Выбрать папку…",
         "showInFolder": "Показать в папке",
         "preferRelative": "Предпочитать относительную папку",
         "relativeCopyLocation": "Копировать изображение относительно",
@@ -612,15 +612,13 @@
         "neverSuccessful": "Никогда не успешно",
         "scriptDescription": "Описание скрипта",
         "scriptLocation": "Расположение скрипта",
-        "save": "Сохранить",
-        "saveConfig": "Сохранить конфигурацию",
-        "scriptConfigSaved": "Конфигурация скрипта сохранена",
         "services": {
           "picgo": "PicGo-Core",
           "cliScript": "CLI-скрипт"
         },
         "pleaseInstall": "Пожалуйста, установите",
-        "scriptPath": "Путь к скрипту"
+        "scriptPath": "Путь к скрипту",
+        "invalidScript": "Укажите путь к существующему исполняемому скрипту."
       },
       "defaultBehavior": "Поведение по умолчанию после вставки или перетаскивания изображения в MarkText"
     },

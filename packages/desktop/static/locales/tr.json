@@ -575,7 +575,7 @@
       "folderSetting": {
         "title": "Klasör Ayarı",
         "globalFolder": "Genel görsel klasörü",
-        "open": "Aç",
+        "open": "Klasör seç…",
         "showInFolder": "Klasörde Göster",
         "preferRelative": "Göreli klasörü tercih et",
         "relativeCopyLocation": "Görseli şuna göre kopyala",
@@ -612,15 +612,13 @@
         "neverSuccessful": "Hiç başarılı olmadı",
         "scriptDescription": "Betik Açıklaması",
         "scriptLocation": "Betik Konumu",
-        "save": "Kaydet",
-        "saveConfig": "Yapılandırmayı Kaydet",
-        "scriptConfigSaved": "Betik yapılandırması kaydedildi",
         "services": {
           "picgo": "PicGo-Core",
           "cliScript": "CLI Betiği"
         },
         "pleaseInstall": "Lütfen yükleyin",
-        "scriptPath": "Betik yolu"
+        "scriptPath": "Betik yolu",
+        "invalidScript": "Var olan ve çalıştırılabilir bir betiğin yolunu girin."
       },
       "defaultBehavior": "Görseli MarkText'e yapıştırdıktan veya sürükledikten sonraki varsayılan davranış"
     },

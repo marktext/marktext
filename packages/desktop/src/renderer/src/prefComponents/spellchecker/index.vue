@@ -291,13 +291,8 @@ const handleDeleteClick = (selectedItem: CustomDictionaryWord): void => {
   }
 }
 .pref-spellchecker input.el-input__inner {
-  height: 30px;
   background: transparent;
   color: var(--editorColor);
   border-color: var(--editorColor10);
-}
-.pref-spellchecker .el-input__icon,
-.pref-spellchecker .el-input__inner {
-  line-height: 30px;
 }
 </style>

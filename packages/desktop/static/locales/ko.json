@@ -575,7 +575,7 @@
       "folderSetting": {
         "title": "폴더 설정",
         "globalFolder": "전역 이미지 폴더",
-        "open": "열기",
+        "open": "폴더 선택…",
         "showInFolder": "폴더에서 보기",
         "preferRelative": "상대 디렉터리 선호",
         "relativeCopyLocation": "이미지 상대 복사 기준",
@@ -608,9 +608,6 @@
         },
         "scriptDescription": "스크립트 설명",
         "scriptLocation": "스크립트 위치",
-        "save": "저장",
-        "saveConfig": "구성 저장",
-        "scriptConfigSaved": "스크립트 구성 저장됨",
         "services": {
           "picgo": "PicGo-Core",
           "cliScript": "CLI 스크립트"
@@ -620,7 +617,8 @@
         "picgoDetection": "PicGo-Core 감지",
         "lastSuccessTime": "마지막 성공 시간",
         "neverDetected": "감지된 적 없음",
-        "neverSuccessful": "성공한 적 없음"
+        "neverSuccessful": "성공한 적 없음",
+        "invalidScript": "실행 가능한 기존 스크립트의 경로를 입력하세요."
       },
       "defaultBehavior": "이미지를 MarkText에 붙여넣거나 드래그한 후의 기본 동작"
     },

@@ -575,7 +575,7 @@
       "folderSetting": {
         "title": "フォルダーの設定",
         "globalFolder": "グローバル画像フォルダー",
-        "open": "開く",
+        "open": "フォルダーを選択…",
         "showInFolder": "フォルダーの表示",
         "preferRelative": "相対ディレクトリを優先",
         "relativeCopyLocation": "画像の相対コピー先",
@@ -608,9 +608,6 @@
         },
         "scriptDescription": "スクリプトの説明",
         "scriptLocation": "スクリプトの場所",
-        "save": "保存",
-        "saveConfig": "設定を保存",
-        "scriptConfigSaved": "スクリプト設定が保存されました",
         "services": {
           "picgo": "PicGo-Core",
           "cliScript": "CLI スクリプト"
@@ -620,7 +617,8 @@
         "picgoDetection": "PicGo-Core 検出",
         "lastSuccessTime": "最後の成功時刻",
         "neverDetected": "検出されたことがない",
-        "neverSuccessful": "成功したことがない"
+        "neverSuccessful": "成功したことがない",
+        "invalidScript": "存在する実行可能なスクリプトのパスを入力してください。"
       },
       "defaultBehavior": "MarkText に画像を貼り付けまたはドラッグした後のデフォルト動作"
     },

@@ -203,7 +203,7 @@ const isRawKeyCode = (event: KeyboardEvent, keyCode: string): boolean => {
 }
 input.input-textbox {
   width: 100%;
-  height: 30px;
+  height: var(--pref-control-height, 36px);
   margin: 0 10px;
   font-size: 14px;
   color: var(--editorColor);
