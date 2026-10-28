@@ -8,27 +8,34 @@ import type {
 } from '@shared/types/applicationState'
 import type { DiskBaseline } from '@shared/types/files'
 import { parseDocument, validIdentity } from './codec'
+import { RecoveryStatus } from '@shared/types/applicationState'
 import { contentSha256 } from 'common/filesystem'
 
+/** Last verified disk content after editor newline and encoding normalization. */
 interface SavedDocument {
   snapshot: DocumentSnapshot
   textHash: string
 }
 
+/** Live contents survive failed persistence; pending records are retried before metadata. */
 interface DocumentEntry {
   ownerWindowId: string
   snapshot: DocumentSnapshot
   markdown: string
+  // Changes only with content or save-format edits.
   revision: number
+  // Also invalidates prepared updates after saves, relocations, and disk observations.
   generation: number
   saved: SavedDocument | null
+  // Original format of a new blank document, used to recognize undo back to empty.
   emptyFormat: DocumentSnapshot['saveFormat']
   baseline: DiskBaseline | null
   pending: RecoveryRecord['status'] | null
   closed: boolean
 }
 
-export interface PreparedDocumentUpdate {
+/** Valid only until another accepted operation changes the document generation. */
+interface PreparedDocumentUpdate {
   readonly id: string
   readonly generation: number
   readonly entry: DocumentEntry
@@ -108,7 +115,7 @@ export class DocumentRegistry {
       saved,
       emptyFormat: structuredClone(document.saveFormat),
       baseline: structuredClone(baseline),
-      pending: document.content.kind === 'recovery' ? 'dirty' : null,
+      pending: document.content.kind === 'recovery' ? RecoveryStatus.DIRTY : null,
       closed: false
     })
   }
@@ -209,12 +216,12 @@ export class DocumentRegistry {
         revision !== current.revision ||
         current.snapshot.content.kind !== 'recovery')
     )
-      entry.pending = 'dirty'
+      entry.pending = RecoveryStatus.DIRTY
     else if (
       snapshot.content.kind !== 'recovery' &&
       (current.pending !== null || current.snapshot.content.kind === 'recovery')
     ) {
-      entry.pending = snapshot.content.kind === 'disk' ? 'saved' : 'discarded'
+      entry.pending = snapshot.content.kind === 'disk' ? RecoveryStatus.SAVED : RecoveryStatus.DISCARDED
     }
     return { id: snapshot.id, generation: current.generation, entry }
   }
@@ -252,7 +259,7 @@ export class DocumentRegistry {
       resource: saved.resource,
       content: clean ? saved.content : { kind: 'recovery', contentRevision: current.revision }
     }
-    current.pending = clean ? 'saved' : 'dirty'
+    current.pending = clean ? RecoveryStatus.SAVED : RecoveryStatus.DIRTY
     current.generation++
   }
 
@@ -270,10 +277,10 @@ export class DocumentRegistry {
       entry.saved.snapshot = checkedDocument({ ...entry.saved.snapshot, resource, title })
     entry.pending =
       entry.snapshot.content.kind === 'recovery'
-        ? 'dirty'
+        ? RecoveryStatus.DIRTY
         : entry.snapshot.content.kind === 'disk'
-          ? 'saved'
-          : 'discarded'
+          ? RecoveryStatus.SAVED
+          : RecoveryStatus.DISCARDED
     entry.generation++
   }
 
@@ -282,7 +289,7 @@ export class DocumentRegistry {
     if (snapshot === null) {
       entry.saved = null
       entry.snapshot.content = { kind: 'recovery', contentRevision: entry.revision }
-      entry.pending = 'dirty'
+      entry.pending = RecoveryStatus.DIRTY
     } else {
       const saved = checkedDocument(snapshot)
       if (saved.id !== id || saved.content.kind !== 'disk')
@@ -292,7 +299,7 @@ export class DocumentRegistry {
         entry.snapshot.content = saved.content
         entry.snapshot.resource = saved.resource
         entry.baseline = structuredClone(saved.content.baseline)
-        entry.pending = 'saved'
+        entry.pending = RecoveryStatus.SAVED
       }
     }
     entry.generation++
@@ -312,7 +319,7 @@ export class DocumentRegistry {
       throw new Error('Cannot close unsaved document')
     return {
       schemaVersion: 1,
-      status: 'discarded',
+      status: RecoveryStatus.DISCARDED,
       ownerWindowId: entry.ownerWindowId,
       documentId: id,
       contentRevision: entry.revision,
@@ -324,17 +331,17 @@ export class DocumentRegistry {
     const entry = this._entry(id)
     entry.pending =
       entry.snapshot.content.kind === 'recovery'
-        ? 'dirty'
+        ? RecoveryStatus.DIRTY
         : entry.snapshot.content.kind === 'disk'
-          ? 'saved'
-          : 'discarded'
+          ? RecoveryStatus.SAVED
+          : RecoveryStatus.DISCARDED
   }
 
   discard(id: string): void {
     const entry = this._entry(id)
     entry.closed = true
     entry.markdown = ''
-    entry.pending = 'discarded'
+    entry.pending = RecoveryStatus.DISCARDED
     entry.generation++
   }
 
@@ -347,14 +354,14 @@ export class DocumentRegistry {
         contentRevision: entry.revision,
         updatedAtMs: now
       } as const
-      if (entry.pending === 'discarded') return [{ ...common, status: 'discarded' }]
-      if (entry.pending === 'saved')
-        return [{ ...common, status: 'saved', document: structuredClone(entry.snapshot) }]
-      if (entry.pending === 'dirty')
+      if (entry.pending === RecoveryStatus.DISCARDED) return [{ ...common, status: RecoveryStatus.DISCARDED }]
+      if (entry.pending === RecoveryStatus.SAVED)
+        return [{ ...common, status: RecoveryStatus.SAVED, document: structuredClone(entry.snapshot) }]
+      if (entry.pending === RecoveryStatus.DIRTY)
         return [
           {
             ...common,
-            status: 'dirty',
+            status: RecoveryStatus.DIRTY,
             document: structuredClone(entry.snapshot),
             markdown: entry.markdown,
             contentSha256: contentSha256(entry.markdown),

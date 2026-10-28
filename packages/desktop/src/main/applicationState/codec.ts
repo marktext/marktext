@@ -1,3 +1,4 @@
+import { RecoveryStatus } from '@shared/types/applicationState'
 import path from 'node:path'
 import { createDefaultLayout } from '@shared/applicationState/defaults'
 import type {
@@ -426,13 +427,13 @@ export const parseRecoveryRecord = (input: unknown): RecoveryRecord => {
     contentRevision: value.contentRevision,
     updatedAtMs: value.updatedAtMs
   }
-  if (value.status === 'discarded') return { ...common, status: 'discarded' }
+  if (value.status === RecoveryStatus.DISCARDED) return { ...common, status: RecoveryStatus.DISCARDED }
   const document = parseDocument(value.document)
   if (!document || document.id !== value.documentId) throw new Error('Invalid recovery document')
-  if (value.status === 'saved' && document.content.kind === 'disk')
-    return { ...common, status: 'saved', document }
+  if (value.status === RecoveryStatus.SAVED && document.content.kind === 'disk')
+    return { ...common, status: RecoveryStatus.SAVED, document }
   if (
-    value.status !== 'dirty' ||
+    value.status !== RecoveryStatus.DIRTY ||
     typeof value.markdown !== 'string' ||
     !hash(value.contentSha256) ||
     contentSha256(value.markdown) !== value.contentSha256 ||
@@ -445,7 +446,7 @@ export const parseRecoveryRecord = (input: unknown): RecoveryRecord => {
   if (document.resource.kind === 'file' && !base) throw new Error('Missing original disk baseline')
   return {
     ...common,
-    status: 'dirty',
+    status: RecoveryStatus.DIRTY,
     document,
     markdown: value.markdown,
     contentSha256: value.contentSha256,

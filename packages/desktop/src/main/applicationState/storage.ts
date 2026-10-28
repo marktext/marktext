@@ -1,3 +1,4 @@
+import { RecoveryStatus } from '@shared/types/applicationState'
 import { readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { createEmptyApplicationState } from '@shared/applicationState/defaults'
@@ -93,7 +94,7 @@ export class RecoveryStore implements DocumentRecoveryStorage {
 
   async remove(windowId: string, documentId: string): Promise<void> {
     await this._file(windowId, documentId).remove((record) => {
-      if (record?.status === 'dirty') throw new Error('Cannot delete a dirty recovery record')
+      if (record?.status === RecoveryStatus.DIRTY) throw new Error('Cannot delete a dirty recovery record')
     })
   }
 }
