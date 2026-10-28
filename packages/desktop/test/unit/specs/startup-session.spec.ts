@@ -13,11 +13,11 @@ import { buildStartupPlan } from '../../../src/shared/applicationState/startupPl
 import type {
   ApplicationState,
   DocumentSnapshot,
-  RecoveryPreferences,
   WindowSnapshot,
   WorkspaceDescriptor,
   RecoveryRecord
 } from '../../../src/shared/types/applicationState'
+import type { RecoveryPreferences } from '../../../src/shared/types/preferences'
 
 const preferences: RecoveryPreferences = {
   startUpAction: 'restoreAll',
