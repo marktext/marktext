@@ -1,7 +1,6 @@
 import type {
   ApplicationState,
   ApplicationStateStorage,
-  DiskBaseline,
   DiscardedRecoveryRecord,
   DocumentRecoveryStorage,
   DocumentSnapshot,
@@ -11,6 +10,7 @@ import type {
   WindowInitialization,
   WindowSnapshot
 } from '@shared/types/applicationState'
+import type { DiskBaseline } from '@shared/types/files'
 import { parseWindowSnapshot } from './codec'
 import { DocumentRegistry, type DocumentRegistration } from './documentRegistry'
 import { createStateId } from './identity'
