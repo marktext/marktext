@@ -630,7 +630,6 @@
         "title": "Uzantılar",
         "superSubScript": "Üst/Alt Simge",
         "footnote": "Dipnot",
-        "footnoteNotes": "Dipnot notları",
         "texMathDollars": "$ ve $$ ile TeX matematiği",
         "texMathGfm": "GitHub TeX matematiği ($`…`$ ve ```math)",
         "texMathSingleBackslash": "Tek ters eğik çizgili TeX matematiği",

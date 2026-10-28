@@ -630,7 +630,6 @@
         "title": "Estensioni",
         "superSubScript": "Apice/Pedice",
         "footnote": "Nota a piè di pagina",
-        "footnoteNotes": "Informazioni sulle Note a piè di pagina.",
         "texMathDollars": "Espressioni matematiche TeX con: $ e $$",
         "texMathGfm": "Espressioni matematiche TeX tipo GitHub: ($`…`$ e ```math)",
         "texMathSingleBackslash": "Delimitatori di espressione matematica TeX con singola barra rovesciata",

@@ -630,7 +630,6 @@
         "title": "Extensies",
         "superSubScript": "Super-/subscript",
         "footnote": "Voetnoot",
-        "footnoteNotes": "Voetnoten",
         "texMathDollars": "TeX-wiskunde met $ en $$",
         "texMathGfm": "GitHub TeX-wiskunde ($`…`$ en ```math)",
         "texMathSingleBackslash": "TeX-wiskunde met enkele backslash",

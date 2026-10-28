@@ -630,7 +630,6 @@
         "title": "확장",
         "superSubScript": "위/아래 첨자",
         "footnote": "각주",
-        "footnoteNotes": "각주 노트",
         "texMathDollars": "$ 및 $$ TeX 수식",
         "texMathGfm": "GitHub TeX 수식($`…`$ 및 ```math)",
         "texMathSingleBackslash": "단일 백슬래시 TeX 수식",

@@ -630,7 +630,6 @@
         "title": "擴充功能",
         "superSubScript": "上標/下標",
         "footnote": "腳註",
-        "footnoteNotes": "腳註備註",
         "texMathDollars": "使用 $ 與 $$ 的 TeX 數學公式",
         "texMathGfm": "GitHub 的 TeX 數學公式（$`…`$ 與 ```math）",
         "texMathSingleBackslash": "使用單反斜線分隔符的 TeX 數學公式",

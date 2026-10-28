@@ -630,7 +630,6 @@
         "title": "拡張機能",
         "superSubScript": "上付き/下付き文字",
         "footnote": "脚注",
-        "footnoteNotes": "脚注",
         "texMathDollars": "$ と $$ による TeX 数式",
         "texMathGfm": "GitHub の TeX 数式（$`…`$ と ```math）",
         "texMathSingleBackslash": "単一バックスラッシュの TeX 数式",

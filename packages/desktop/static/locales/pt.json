@@ -630,7 +630,6 @@
         "title": "Extensões",
         "superSubScript": "Super/Sub script",
         "footnote": "Nota de rodapé",
-        "footnoteNotes": "Notas de rodapé",
         "texMathDollars": "Matemática TeX com $ e $$",
         "texMathGfm": "Matemática TeX do GitHub ($`…`$ e ```math)",
         "texMathSingleBackslash": "Matemática TeX com barra invertida simples",

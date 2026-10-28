@@ -630,7 +630,6 @@
         "title": "Расширения",
         "superSubScript": "Верхний/нижний индекс",
         "footnote": "Сноска",
-        "footnoteNotes": "Примечания к сноскам",
         "texMathDollars": "TeX-формулы с $ и $$",
         "texMathGfm": "GitHub TeX-формулы ($`…`$ и ```math)",
         "texMathSingleBackslash": "TeX-формулы с одинарным обратным слешем",

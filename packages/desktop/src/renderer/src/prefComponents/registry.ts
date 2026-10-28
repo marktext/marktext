@@ -214,8 +214,7 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
   },
   "footnote": {
     "category": "markdown",
-    "label": "preferences.markdown.extensions.footnote",
-    "notes": "preferences.markdown.extensions.footnoteNotes"
+    "label": "preferences.markdown.extensions.footnote"
   },
   "texMathDollars": {
     "category": "markdown",

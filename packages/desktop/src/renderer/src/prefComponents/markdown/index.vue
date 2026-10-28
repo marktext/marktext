@@ -65,7 +65,6 @@
         <bool
           id="setting-footnote"
           :description="preferenceLabel('footnote')"
-          :notes="preferenceNotes('footnote')"
           :bool="footnote"
           :on-change="(value) => onSelectChange('footnote', value)"
           more="https://pandoc.org/MANUAL.html#footnotes"
