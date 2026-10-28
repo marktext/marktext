@@ -236,6 +236,8 @@ export interface WindowInitialization {
   context: RuntimeWindowContext
   preferences: UserPreferences
   snapshot: WindowSnapshot
+  // Runtime text also includes clean documents whose revisions survived a renderer reload.
+  documentContents: DirtyContentUpdate[]
 }
 
 export type RegisterUntitledResult =
