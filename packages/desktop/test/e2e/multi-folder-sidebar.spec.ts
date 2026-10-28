@@ -113,8 +113,15 @@ test('multi-folder sidebar completes add, search, remove and restore (#2222)', a
     await expect(roots().first()).toHaveAttribute('aria-expanded', 'false')
     const userData = await app.evaluate(({ app: electronApp }) => electronApp.getPath('userData'))
     await expectNoRendererErrors(app)
+    await expect.poll(() => {
+      const directory = path.join(userData, 'editorStates')
+      if (!fs.existsSync(directory)) return false
+      return fs.readdirSync(directory)
+        .filter(name => name.endsWith('_editor_buffer_store.json'))
+        .some(name => fs.readFileSync(path.join(directory, name), 'utf8').includes('unsaved2222'))
+    }).toBe(true)
     const closed = app.waitForEvent('close')
-    await page.evaluate(() => window.electron.ipcRenderer.send('mt::app-try-quit'))
+    app.process().kill('SIGKILL')
     await closed
     app = await _electron.launch({
       executablePath: getElectronPath(),
@@ -129,7 +136,10 @@ test('multi-folder sidebar completes add, search, remove and restore (#2222)', a
     await expect(page.locator('.mu-editor')).toContainText('unsaved2222')
     await expect(roots().nth(1)).toContainText('third')
   } finally {
-    if (app) await app.close().catch(() => {})
+    if (app) {
+      await app.evaluate(({ app }) => app.exit(0)).catch(() => {})
+      await app.close().catch(() => {})
+    }
     fs.rmSync(fixture, { recursive: true, force: true })
   }
 })

@@ -81,8 +81,13 @@ test.describe('host-owned keybindings', () => {
   })
 
   test.afterEach(async() => {
-    await expectNoRendererErrors(app)
-    await app.close()
+    try {
+      await expectNoRendererErrors(app)
+    } finally {
+      // Restarted instances bypass launchElectron's prompt-free cleanup wrapper.
+      await app.evaluate(({ app }) => app.exit(0)).catch(() => {})
+      await app.close()
+    }
   })
 
   test('rebinding and unbinding remove old shortcuts and native format mutations', async() => {
