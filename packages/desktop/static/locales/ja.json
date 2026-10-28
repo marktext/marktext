@@ -520,7 +520,7 @@
       },
       "codeBlock": {
         "title": "コードブロック",
-        "fontSize": "フォントサイズ",
+        "fontSize": "コードブロックのフォントサイズ",
         "showLineNumbers": "行番号を表示",
         "removeEmptyLines": "空行を削除"
       },

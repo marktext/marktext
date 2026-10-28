@@ -520,7 +520,7 @@
       },
       "codeBlock": {
         "title": "Bloc de code",
-        "fontSize": "Taille de police",
+        "fontSize": "Taille de police des blocs de code",
         "showLineNumbers": "Afficher les numéros de ligne",
         "removeEmptyLines": "Supprimer les lignes vides"
       },

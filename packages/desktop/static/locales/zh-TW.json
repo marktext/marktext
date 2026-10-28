@@ -520,7 +520,7 @@
       },
       "codeBlock": {
         "title": "程式碼區塊",
-        "fontSize": "字型大小",
+        "fontSize": "程式碼區塊字型大小",
         "showLineNumbers": "顯示行號",
         "removeEmptyLines": "移除空行"
       },
