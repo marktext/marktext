@@ -74,25 +74,16 @@ interface AppMenuLike {
   updateAlwaysOnTopMenu(windowId: number, flag: boolean): void
 }
 
-interface EditorBufferStoreLike {
-  handleClose(
-    restoreBufferId: string | undefined,
-    windows: { id: number; win: BaseWindow }[]
-  ): void
-}
-
 class WindowManager extends TypedEmitter<WindowManagerEvents> {
   private _appMenu: AppMenuLike
   private _activeWindowId: number | null
   private _windows: Map<number, BaseWindow>
   private _windowActivity: WindowActivityList
-  public editorBufferStore: EditorBufferStoreLike
   private _watcher: Watcher
 
   constructor(
     appMenu: AppMenuLike,
-    preferences: Preference,
-    editorBufferStore: EditorBufferStoreLike
+    preferences: Preference
   ) {
     super()
 
@@ -101,7 +92,6 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     this._activeWindowId = null
     this._windows = new Map()
     this._windowActivity = new WindowActivityList()
-    this.editorBufferStore = editorBufferStore
 
     // TODO(need::refactor): Please see #1035.
     this._watcher = new Watcher(preferences, (win, change) => {
@@ -332,16 +322,6 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
         return
       }
       editor.addToOpenedFiles(filePath)
-    })
-
-    ipcMain.on('mt::close-window', (e) => {
-      if (this.getEditorForWebContents(e.sender)?.sessionStateId) return
-      const win = BrowserWindow.fromWebContents(e.sender)
-      this.editorBufferStore.handleClose(
-        (win as unknown as { restoreBufferId?: string })?.restoreBufferId,
-        this.getWindowsByType('editor')
-      )
-      this.forceClose(win)
     })
 
     ipcMain.on('mt::open-file', (e, filePath: string, options: Record<string, unknown>) => {

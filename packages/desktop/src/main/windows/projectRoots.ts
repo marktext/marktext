@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { randomUUID } from 'crypto'
-import type { BufferedRoot, ProjectRoot, ProjectRootsSnapshot } from '@shared/types/project'
+import type { ProjectRoot, ProjectRootsSnapshot } from '@shared/types/project'
 
 interface RootEffects {
   publish: (snapshot: ProjectRootsSnapshot) => void
@@ -140,7 +140,7 @@ export class ProjectRoots {
     this._publish('status', key)
   }
 
-  restore(entries: BufferedRoot[]): void {
+  restore(entries: Pick<ProjectRoot, 'pathname'>[]): void {
     this.clear()
     for (const entry of entries) {
       const pathname = path.resolve(entry.pathname)

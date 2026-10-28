@@ -18,7 +18,7 @@ vi.hoisted(() => {
 vi.mock('@/services/notification', () => ({
   default: { notify: vi.fn(), name: 'notify' }
 }))
-vi.mock('@/store/bufferedState', () => ({ debouncedSendBufferedState: vi.fn() }))
+vi.mock('@/store/checkpoint', () => ({ scheduleWindowCheckpoint: vi.fn() }))
 
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'

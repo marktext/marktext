@@ -75,7 +75,6 @@
     "electron-log": "^5.4.4",
     "electron-store": "^11.0.2",
     "electron-updater": "^6.8.12",
-    "electron-window-state": "^5.0.3",
     "element-plus": "^2.14.7",
     "flowchart.js": "^1.18.1",
     "font-list": "^2.1.0",

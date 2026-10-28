@@ -49,12 +49,7 @@ const selectFile = (file: TabDescriptor): void => {
 }
 
 const removeFileInTab = (file: TabDescriptor): void => {
-  const { isSaved } = file
-  if (isSaved) {
-    editorStore.FORCE_CLOSE_TAB(file)
-  } else {
-    editorStore.CLOSE_UNSAVED_TAB(file)
-  }
+  editorStore.CLOSE_TAB(file)
 }
 </script>
 

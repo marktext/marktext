@@ -523,10 +523,6 @@
       },
       "startup": {
         "title": "Параметры запуска",
-        "layoutOptions": "Параметры макета",
-        "startupFilesFolders": "Файлы/папки при запуске",
-        "restorePreviousState": "Восстановить предыдущее состояние редактора",
-        "openBlankState": "Открыть пустое состояние",
         "openDefaultDirectory": "Открыть выбранную папку",
         "openLastFolder": "Открыть последнюю рабочую область",
         "restoreAll": "Восстановить все окна",

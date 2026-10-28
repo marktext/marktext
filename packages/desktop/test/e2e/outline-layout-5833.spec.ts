@@ -12,8 +12,8 @@ const setPreferences = async(preferences: Record<string, unknown>): Promise<void
   await page.evaluate(value => {
     const { tocPosition, ...settings } = value
     if (tocPosition) {
-      const root = document.querySelector('#app') as Element & { __vue_app__: { config: { globalProperties: { $pinia: { _s: Map<string, { SET_OUTLINE_POSITION(position: string): void }> } } } } }
-      root.__vue_app__.config.globalProperties.$pinia._s.get('layout')!.SET_OUTLINE_POSITION(tocPosition as string)
+      const root = document.querySelector('#app') as Element & { __vue_app__: { config: { globalProperties: { $pinia: { _s: Map<string, { outlinePosition: string }> } } } } }
+      root.__vue_app__.config.globalProperties.$pinia._s.get('layout')!.outlinePosition = tocPosition as string
     }
     window.electron.ipcRenderer.send('mt::set-user-preference', settings)
   }, preferences)

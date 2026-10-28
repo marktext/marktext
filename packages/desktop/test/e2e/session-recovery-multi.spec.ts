@@ -34,7 +34,6 @@ test('restoreAll restores exactly the live manifest windows with independent dra
     const first = await launchElectron([], {
       userDataDir: directory,
       preferences: { language: 'en' },
-      env: { MARKTEXT_SESSION_RECOVERY: '1' },
       suppressErrorDialog: true
     })
     running = first.app
@@ -61,7 +60,6 @@ test('restoreAll restores exactly the live manifest windows with independent dra
     running = null
     const restored = await launchElectron([], {
       userDataDir: directory,
-      env: { MARKTEXT_SESSION_RECOVERY: '1' },
       suppressErrorDialog: true
     })
     running = restored.app
@@ -92,7 +90,6 @@ test('a canceled application quit keeps every window and does not discard earlie
   const first = await launchElectron([], {
     userDataDir: directory,
     preferences: { language: 'en' },
-    env: { MARKTEXT_SESSION_RECOVERY: '1' },
     suppressErrorDialog: true
   })
   try {
@@ -142,7 +139,6 @@ test('reopening a recent workspace uses fresh identities and never copies its un
     const first = await launchElectron([folder, file], {
       userDataDir: directory,
       preferences: { language: 'en' },
-      env: { MARKTEXT_SESSION_RECOVERY: '1' },
       suppressErrorDialog: true
     })
     running = first.app
@@ -163,7 +159,6 @@ test('reopening a recent workspace uses fresh identities and never copies its un
     running = null
     const restored = await launchElectron([], {
       userDataDir: directory,
-      env: { MARKTEXT_SESSION_RECOVERY: '1' },
       suppressErrorDialog: true
     })
     running = restored.app

@@ -3,7 +3,6 @@ import os from 'os'
 import path from 'path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectRoots, containsPath } from 'main_renderer/windows/projectRoots'
-import { readBufferedRoots } from '@shared/types/project'
 
 describe('window project roots (#2222)', () => {
   let directory: string
@@ -78,8 +77,8 @@ describe('window project roots (#2222)', () => {
   it('restores unavailable roots without remembering them and starts listeners only after the handshake', () => {
     const missing = path.join(directory, 'missing')
     project.restore([
-      { pathname: a, collapsedPaths: [''] },
-      { pathname: missing, collapsedPaths: [] }
+      { pathname: a },
+      { pathname: missing }
     ])
     expect(project.roots.map((root) => root.status)).toEqual(['loading', 'unavailable'])
     expect(effects.watch).not.toHaveBeenCalled()
@@ -102,11 +101,5 @@ describe('window project roots (#2222)', () => {
     expect(project.roots).toHaveLength(0)
   })
 
-  it('migrates single-root state and rejects malformed buffered entries', () => {
-    expect(readBufferedRoots({ rootDirectory: a })).toEqual([{ pathname: a, collapsedPaths: [] }])
-    expect(readBufferedRoots({ roots: [null, { pathname: b, collapsedPaths: ['', 3] }] })).toEqual([
-      { pathname: b, collapsedPaths: [''] }
-    ])
-    expect(readBufferedRoots({ roots: [], rootDirectory: a })).toEqual([])
-  })
+
 })

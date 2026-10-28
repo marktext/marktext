@@ -10,7 +10,7 @@ const { listeners } = vi.hoisted(() => {
   return { listeners: new Map<string, (...args: unknown[]) => void>() }
 })
 vi.mock('@/services/notification', () => ({ default: { notify: vi.fn() } }))
-vi.mock('@/store/bufferedState', () => ({ debouncedSendBufferedState: vi.fn() }))
+vi.mock('@/store/checkpoint', () => ({ scheduleWindowCheckpoint: vi.fn() }))
 import { useProjectStore } from '@/store/project'
 
 const workspace: WorkspaceDescriptor = {

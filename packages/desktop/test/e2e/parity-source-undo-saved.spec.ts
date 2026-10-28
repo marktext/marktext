@@ -126,11 +126,7 @@ test.describe('Parity PG14 — first undo after source mode reverts the edit in 
 })
 
 test.describe('Parity PG15 — undo back to on-disk content restores the saved indicator', () => {
-  // The synthetic save-tracking id is a MONOTONIC, never-reused id keyed on the
-  // live document content (see `syntheticHistory.ts`). A freshly-loaded tab seeds
-  // `lastSavedHistoryId` to the baseline (id 0); undoing an edit back to disk
-  // content reproduces the baseline content and hence the saved id, restoring the
-  // saved/clean indicator.
+  // Undo must compare the live text with the disk baseline, including the initial loaded text.
   test('PG15: undoing an edit back to disk content clears the unsaved indicator', async() => {
     const { app, page } = await launchWithMarkdown('hello world\n')
     await waitForMenuReady(app)

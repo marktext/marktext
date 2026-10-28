@@ -1,8 +1,8 @@
 import { app } from 'electron'
 import { editorWinOptions } from '../../../src/main/config'
-import { ensureWindowPosition } from '../../../src/main/windows/utils'
+import { fitWindowGeometry } from '../../../src/main/applicationState/windowGeometry'
 
-export const windowPositionFixture = { editorWinOptions, ensureWindowPosition }
+export const windowPositionFixture = { editorWinOptions, fitWindowGeometry }
 Object.assign(globalThis, { windowPositionFixture })
 
 // Each test destroys its window; Playwright owns the harness lifetime.

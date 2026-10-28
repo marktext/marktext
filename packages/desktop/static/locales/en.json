@@ -523,10 +523,6 @@
       },
       "startup": {
         "title": "Startup Options",
-        "layoutOptions": "Layout Options",
-        "startupFilesFolders": "Startup Files/Folders",
-        "restorePreviousState": "Restore previous editor state",
-        "openBlankState": "Open blank state",
         "openDefaultDirectory": "Open the selected folder",
         "openLastFolder": "Open the last workspace",
         "restoreAll": "Restore all windows",

@@ -194,6 +194,3 @@ const platform =
 export const isMac = platform === 'darwin'
 export const isWindows = platform === 'win32'
 export const isLinux = platform === 'linux'
-
-export const isSessionRecoveryEnabled = (): boolean =>
-  window.electron?.process?.env?.MARKTEXT_SESSION_RECOVERY !== '0'

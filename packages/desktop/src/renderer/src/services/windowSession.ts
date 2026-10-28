@@ -1,3 +1,4 @@
+import { requestWindowCheckpoint } from '@/store/checkpoint'
 import { nextTick, watch, type WatchStopHandle } from 'vue'
 import debounce from 'lodash/debounce'
 import type {
@@ -9,7 +10,6 @@ import type {
   WindowCheckpointRequest,
   WindowInitialization
 } from '@shared/types/applicationState'
-import type { SaveFormatState } from '@shared/types/files'
 import type { IFileState } from '@shared/types/files'
 import type { SaveDocumentResult } from '@shared/types/ipc'
 import { setSessionActions, useEditorStore } from '@/store/editor'
@@ -17,8 +17,7 @@ import { useLayoutStore } from '@/store/layout'
 import { usePreferencesStore } from '@/store/preferences'
 import { useProjectStore } from '@/store/project'
 import { useMainStore } from '@/store'
-import { createDocumentState } from '@/store/help'
-import { debouncedSendBufferedState } from '@/store/bufferedState'
+import { createDocumentState, getOptionsFromState } from '@/store/help'
 import { deepClone } from '@/util'
 import {
   captureDocumentView,
@@ -36,12 +35,6 @@ interface ObservedContent {
   revision: number
   pending: boolean
 }
-const format = (file: IFileState): SaveFormatState => ({
-  encoding: { ...file.encoding },
-  lineEnding: file.lineEnding === 'crlf' ? 'crlf' : 'lf',
-  adjustLineEndingOnSave: file.adjustLineEndingOnSave,
-  trimTrailingNewline: file.trimTrailingNewline as SaveFormatState['trimTrailingNewline']
-})
 
 class WindowSession {
   private readonly editor = useEditorStore()
@@ -106,6 +99,13 @@ class WindowSession {
       })
     )
     this.stops.push(ipc.on('mt::state::document-saved', (_event, result) => this.saved(result)))
+    this.stops.push(ipc.on('mt::tab-save-failure', (_event, id, message) => {
+      this.editor.pushTabNotification({
+        tabId: id,
+        msg: t('store.editor.errorWhileSaving', { msg: message }),
+        style: 'crit'
+      })
+    }))
     this.stops.push(
       ipc.on('mt::state::document-relocated', (_event, document, revision) => {
         const file = this.editor.tabs.find((file) => file.id === document.id)
@@ -122,12 +122,12 @@ class WindowSession {
     this.stops.push(
       ipc.on('mt::state::prepare-close', (_event, request) => {
         if (request.contextToken !== this.context?.contextToken) return
-        void this.flush(request.transactionId).catch((error) => this.failure(error))
+        void requestWindowCheckpoint(request.transactionId).catch((error) => this.failure(error))
       })
     )
-    debouncedSendBufferedState.cancel()
     setSessionActions({
-      checkpoint: () => this.flush(),
+      checkpoint: transactionId => this.flush(transactionId),
+      scheduleCheckpoint: () => { this.schedule() },
       captureView: () => {
         void this.captureActiveView().catch((error) => this.failure(error))
       },
@@ -165,7 +165,7 @@ class WindowSession {
           this.editor.tabs.map((file) => [
             file.id,
             file.markdown,
-            JSON.stringify(format(file)),
+            JSON.stringify(getOptionsFromState(file)),
             file.readOnly
           ]),
         () => this.schedule()
@@ -209,7 +209,7 @@ class WindowSession {
     file.tocCollapsedKeys = [...(document.view?.collapsedOutlineKeys ?? [])]
     this.observed.set(document.id, {
       markdown,
-      format: JSON.stringify(format(file)),
+      format: JSON.stringify(getOptionsFromState(file)),
       revision: payload.contentRevision,
       pending: false
     })
@@ -399,7 +399,7 @@ class WindowSession {
     const contents: WindowCheckpointRequest['dirtyContents'] = []
     const captured = new Map<string, { markdown: string; format: string; revision: number }>()
     const documents = this.editor.tabs.map((file) => {
-      const saveFormat = format(file)
+      const saveFormat = getOptionsFromState(file)
       const formatKey = JSON.stringify(saveFormat)
       const observed = this.observed.get(file.id)
       if (!observed) throw new Error('Unknown document identity')
@@ -463,7 +463,7 @@ class WindowSession {
       if ((this.serverRevision.get(document.id) ?? -1) > result.receipt.metadataRevision) continue
       this.serverRevision.set(document.id, result.receipt.metadataRevision)
       this.applyResource(file, document)
-      if (file.markdown === sent.markdown && JSON.stringify(format(file)) === sent.format) {
+      if (file.markdown === sent.markdown && JSON.stringify(getOptionsFromState(file)) === sent.format) {
         file.isSaved = document.content.kind !== 'recovery'
       }
     }
@@ -490,7 +490,7 @@ class WindowSession {
     file.diskMissing = false
     const baseline = { markdown: result.savedMarkdown, format: JSON.stringify(result.savedFormat) }
     file.isSaved =
-      file.markdown === baseline.markdown && JSON.stringify(format(file)) === baseline.format
+      file.markdown === baseline.markdown && JSON.stringify(getOptionsFromState(file)) === baseline.format
     if (this.editor.currentFile?.id === file.id) window.DIRNAME = window.path.dirname(file.pathname)
     this.schedule()
   }
@@ -548,7 +548,6 @@ class WindowSession {
     this.schedule.cancel()
     for (const stop of this.stops) stop()
     setSessionActions(null)
-    debouncedSendBufferedState.cancel()
     onDocumentViewChange(null)
   }
 }

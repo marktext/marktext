@@ -278,7 +278,18 @@ test.describe('#5685 sidebar opened files resize', () => {
     const ids = await page.locator('.tabs-container > li').evaluateAll(elements =>
       elements.slice(4).map(el => el.getAttribute('data-id'))
     )
-    await sendIpcToRenderer(app, 'mt::force-close-tabs-by-id', ids)
+    await app.evaluate(({ dialog }) => {
+      dialog.showMessageBox = async() => ({ response: 1, checkboxChecked: false })
+    })
+    await page.evaluate(ids => {
+      const root = document.querySelector('#app') as Element & {
+        __vue_app__: { config: { globalProperties: { $pinia: {
+          _s: Map<string, { CLOSE_TABS(ids: string[]): void }>
+        } } } }
+      }
+      const store = root.__vue_app__.config.globalProperties.$pinia._s.get('editor')!
+      store.CLOSE_TABS(ids.filter((id): id is string => id !== null))
+    }, ids)
     await expect.poll(() => rowCount(page)).toBe(4)
     await expect.poll(() => listHeight(page)).toBe(112)
     await expect(page.locator(resizeSelector)).toHaveCount(0)

@@ -1,8 +1,4 @@
 // Core file/tab/document shapes shared between main and renderer.
-//
-// Concrete fields are populated as call-sites convert to TS in subsequent
-// commits. Until then, these are intentionally open structures — better an
-// imperfect surface than a placeholder that's wrong.
 
 export type LineEnding = 'lf' | 'crlf'
 
@@ -14,18 +10,6 @@ export interface SerializedStat {
   isFile: boolean
   isDirectory: boolean
   isSymbolicLink?: boolean
-}
-
-export interface MarkdownDocument {
-  isPendingCreation?: boolean
-  markdown: string
-  filename: string
-  pathname: string | null
-  encoding?: string
-  lineEnding?: LineEnding
-  adjustLineEndingOnSave?: boolean
-  trimTrailingNewline?: number
-  isMixedLineEndings?: boolean
 }
 
 export interface FileHistory {
@@ -91,7 +75,6 @@ export interface IFileState {
   viewState?: DocumentViewState | null
   muyaIndexCursor: unknown
   notifications: FileNotification[]
-  lastSavedHistoryId?: number
   // Muya block tree; only populated for the actively edited tab.
   blocks?: unknown
   isMixedLineEndings?: boolean
@@ -124,43 +107,6 @@ export interface TabOptions {
 export interface SidebarOpenOptions extends TabOptions {
   preview?: boolean
   requestId?: number
-}
-
-export interface SaveOptions {
-  isPendingCreation?: boolean
-  // Encoding is the `FileEncoding` object at runtime (`{ encoding, isBom }`).
-  // String form is accepted for legacy callers that haven't been updated.
-  encoding?: FileEncoding | string
-  lineEnding?: LineEnding | string
-  adjustLineEndingOnSave?: boolean
-  trimTrailingNewline?: number
-}
-
-/** Unsaved tab payload for close-window and save-tabs confirmation requests. */
-export interface UnsavedFile {
-  readOnly?: boolean
-  id: string
-  filename: string
-  pathname?: string
-  markdown: string
-  options: SaveOptions
-  defaultPath?: string
-}
-
-export interface BootstrapEditorConfig {
-  isNewWindow?: boolean
-  addBlankTab?: boolean
-  /** Seed Markdown for new untitled tabs, including stdin launches. */
-  markdownList: string[]
-  lineEnding: LineEnding
-  sideBarVisibility: boolean
-  tabBarVisibility: boolean
-  sourceCodeModeEnabled: boolean
-  preferences?: unknown
-  userKeybindings?: unknown
-  recentlyUsedFiles?: string[]
-  windowId?: number
-  [key: string]: unknown
 }
 
 export interface PageOptions {

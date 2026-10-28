@@ -523,10 +523,6 @@
       },
       "startup": {
         "title": "启动",
-        "layoutOptions": "布局选项",
-        "startupFilesFolders": "启动文件/文件夹",
-        "restorePreviousState": "恢复上次编辑器状态",
-        "openBlankState": "打开空白状态",
         "openDefaultDirectory": "打开指定文件夹",
         "openLastFolder": "打开上次工作区",
         "restoreAll": "恢复全部窗口",

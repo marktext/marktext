@@ -1,6 +1,5 @@
 import WindowManager from '../app/windowManager'
 import Preference from '../preferences'
-import EditorBufferStore from '../editorBufferStore'
 import DataCenter from '../dataCenter'
 import Keybindings from '../keyboard/shortcutHandler'
 import AppMenu from '../menu'
@@ -16,12 +15,11 @@ class Accessor {
   public paths: AppPaths
   public preferences: Preference
   public dataCenter: DataCenter
-  public editorBufferStore: EditorBufferStore
   public commandManager: CommandManager
   public keybindings: Keybindings
   public menu: AppMenu
   public windowManager: WindowManager
-  public sessionHost: SessionHost | null
+  public sessionHost: SessionHost
 
   constructor(appEnvironment: AppEnvironment) {
     const userDataPath = appEnvironment.paths.userDataPath
@@ -31,15 +29,14 @@ class Accessor {
 
     this.preferences = new Preference(this.paths)
     this.dataCenter = new DataCenter(this.paths)
-    this.editorBufferStore = new EditorBufferStore(this.paths)
 
     this.commandManager = CommandManager
     this._loadCommands()
 
     this.keybindings = new Keybindings(this.commandManager, appEnvironment)
     this.menu = new AppMenu(this.preferences, this.keybindings, userDataPath)
-    this.windowManager = new WindowManager(this.menu, this.preferences, this.editorBufferStore)
-    this.sessionHost = process.env.MARKTEXT_SESSION_RECOVERY !== '0' ? new SessionHost(this) : null
+    this.windowManager = new WindowManager(this.menu, this.preferences)
+    this.sessionHost = new SessionHost(this)
     this.windowManager.on('fileChanged', (windowId, change) => {
       const editor = this.windowManager.get(windowId) as EditorWindow | undefined
       const host = this.sessionHost
@@ -59,22 +56,6 @@ class Accessor {
       const id = editor?.sessionStateId
       if (!host || !id) return undefined
       return {
-        save: async(documentId, saveAs) => {
-          try {
-            await host.checkpointForSave(id)
-            const result = await host.saveDocument(id, documentId, saveAs)
-            if (result.status !== 'saved') return result
-            return {
-              status: 'saved',
-              pathname: result.document.resource.kind === 'file' ? result.document.resource.location.path : '',
-              filename: result.document.title,
-              savedMarkdown: result.savedMarkdown
-            }
-          } catch (error) {
-            host.report(error, id)
-            return { status: 'failed' }
-          }
-        },
         rename: (documentId, pathname) => host.renameDocument(id, documentId, pathname)
           .catch(error => host.report(error, id)),
         move: documentId => host.moveDocument(id, documentId)

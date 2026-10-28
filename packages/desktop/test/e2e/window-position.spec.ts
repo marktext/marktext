@@ -38,14 +38,19 @@ test.describe('Restored editor window bounds', () => {
     for (const oversized of [false, true]) {
       test(`${titleBarStyle} title bar preserves ${oversized ? 'clamped' : 'saved'} outer bounds`, async() => {
         const result = await app.evaluate(({ BrowserWindow, Menu, screen }, options) => {
-          const { editorWinOptions, ensureWindowPosition } = (globalThis as typeof globalThis & {
+          const { editorWinOptions, fitWindowGeometry } = (globalThis as typeof globalThis & {
             windowPositionFixture: typeof windowPositionFixture
           }).windowPositionFixture
           const display = screen.getPrimaryDisplay()
           const area = process.platform === 'linux' ? display.bounds : display.workArea
-          const expected = ensureWindowPosition(options.oversized
-            ? { width: area.width + 100, height: area.height + 100 }
-            : { x: area.x, y: area.y + area.height - 400, width: 600, height: 400 })
+          const normalBounds = options.oversized
+            ? { x: area.x, y: area.y, width: area.width + 100, height: area.height + 100 }
+            : { x: area.x, y: area.y + area.height - 400, width: 600, height: 400 }
+          const expected = fitWindowGeometry(
+            { normalBounds, maximized: false, displayId: String(display.id) },
+            [{ id: String(display.id), workArea: area }],
+            String(display.id)
+          ).normalBounds
           const win = new BrowserWindow({
             ...editorWinOptions,
             ...expected,

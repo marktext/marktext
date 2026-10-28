@@ -11,7 +11,7 @@ describe('named CLI buffer state (#2143)', () => {
     })
     expect(document.isSaved).toBe(true)
     expect(document.isPendingCreation).toBe(true)
-    expect(getOptionsFromState(document).isPendingCreation).toBe(true)
+    expect(getOptionsFromState(document)).not.toHaveProperty('isPendingCreation')
     const restored = createDocumentState(JSON.parse(JSON.stringify(document)))
     expect(restored.pathname).toBe('/notes/new.md')
     expect(restored.isPendingCreation).toBe(true)

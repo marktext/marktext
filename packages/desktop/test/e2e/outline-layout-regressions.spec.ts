@@ -23,8 +23,8 @@ test.afterEach(async() => { await app?.close() })
 for (const position of ['left', 'right']) {
   test(`${position} outline preserves readable content at the minimum window width`, async() => {
     await page.evaluate(tocPosition => {
-      const root = document.querySelector('#app') as Element & { __vue_app__: { config: { globalProperties: { $pinia: { _s: Map<string, { SET_OUTLINE_POSITION(position: string): void }> } } } } }
-      root.__vue_app__.config.globalProperties.$pinia._s.get('layout')!.SET_OUTLINE_POSITION(tocPosition)
+      const root = document.querySelector('#app') as Element & { __vue_app__: { config: { globalProperties: { $pinia: { _s: Map<string, { outlinePosition: string }> } } } } }
+      root.__vue_app__.config.globalProperties.$pinia._s.get('layout')!.outlinePosition = tocPosition
     }, position)
     if (position === 'right') await expect(page.locator('.document-outline')).toHaveClass(/is-right/)
     const win = await app.browserWindow(page)

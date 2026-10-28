@@ -523,10 +523,6 @@
       },
       "startup": {
         "title": "Opstartopties",
-        "layoutOptions": "Lay-outopties",
-        "startupFilesFolders": "Opstartbestanden/-mappen",
-        "restorePreviousState": "Vorige editorstatus herstellen",
-        "openBlankState": "Lege status openen",
         "openDefaultDirectory": "Geselecteerde map openen",
         "openLastFolder": "Laatste werkruimte openen",
         "restoreAll": "Alle vensters herstellen",

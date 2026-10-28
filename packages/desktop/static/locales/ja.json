@@ -523,10 +523,6 @@
       },
       "startup": {
         "title": "起動",
-        "layoutOptions": "レイアウトオプション",
-        "startupFilesFolders": "起動時のファイル/フォルダー",
-        "restorePreviousState": "前回のエディター状態を復元",
-        "openBlankState": "空の状態で開く",
         "openDefaultDirectory": "選択したフォルダーを開く",
         "openLastFolder": "前回のワークスペースを開く",
         "restoreAll": "すべてのウィンドウを復元",

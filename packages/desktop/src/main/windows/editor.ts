@@ -2,38 +2,20 @@ import path from 'path'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
 import type { BrowserWindowConstructorOptions } from 'electron'
 import log from 'electron-log'
-import windowStateKeeper from 'electron-window-state'
 import { isChildOfDirectory } from 'common/filesystem/paths'
 import BaseWindow, { WindowLifecycle, WindowType } from './base'
 import type Accessor from '../app/accessor'
-import { ensureWindowPosition, zoomIn, zoomOut } from './utils'
+import { zoomIn, zoomOut } from './utils'
 import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
 import { showEditorContextMenu } from '../contextMenu/editor'
-import { loadMarkdownFile, loadCliMarkdownFile } from '../filesystem/markdown'
 import { switchLanguage } from '../spellchecker'
 import type { TabOptions } from '@shared/types/files'
-import fs from 'fs'
 import { ProjectRoots, resolveExistingPath } from './projectRoots'
-import { readBufferedRoots } from '@shared/types/project'
-import { t } from '../i18n'
 import { randomUUID } from 'node:crypto'
 import type { PreparedSessionWindow } from '@shared/types/applicationState'
 
-type RawMarkdownDocument = Awaited<ReturnType<typeof loadMarkdownFile>>
-
 export interface FileOpenOptions extends TabOptions {
   allowMissing?: boolean
-}
-
-interface PendingFile {
-  doc: RawMarkdownDocument
-  options: FileOpenOptions
-  selected: boolean
-}
-
-interface BufferStoreInfo {
-  id: string
-  filePath: string | null
 }
 
 interface CandidateScore {
@@ -41,44 +23,18 @@ interface CandidateScore {
   score: number
 }
 
-interface RestoredTab {
-  pathname: string
-  filename?: string
-  markdown?: string
-  isSaved?: boolean
-  [key: string]: unknown
-}
-
-interface RestoredBufferState {
-  tabs: RestoredTab[]
-  restoreWarnings?: unknown[]
-  project?: unknown
-  [key: string]: unknown
-}
-
 class EditorWindow extends BaseWindow {
-  private _directoryToOpen: string | null
-  private _filesToOpen: PendingFile[] | null
-  private _markdownToOpen: string[] | null
   // Root directory and file list that are currently opened. These lists are
   // used to find the best window to open new files in.
   readonly projectRoots: ProjectRoots
   private _openedFiles: string[] | null
-  private _latestPreviewRequestId: number | null
-  private _pendingPreviewPaths: Map<string, number>
-
-  public bufferStoreInfo: BufferStoreInfo | null
-  public readonly sessionStateId: string | null
+  public readonly sessionStateId: string
   public sessionReady: Promise<void> = Promise.resolve()
 
   constructor(accessor: Accessor, private preparedSession?: PreparedSessionWindow) {
     super(accessor)
     this.type = WindowType.EDITOR
-    this.sessionStateId = accessor.sessionHost ? preparedSession?.snapshot.id ?? randomUUID() : null
-
-    this._directoryToOpen = null
-    this._filesToOpen = []
-    this._markdownToOpen = [] // List of markdown strings or an empty string will open a new untitled tab
+    this.sessionStateId = preparedSession?.snapshot.id ?? randomUUID()
 
     this.projectRoots = new ProjectRoots({
       publish: snapshot => this.browserWindow?.webContents.send('mt::project-roots-changed', snapshot),
@@ -92,15 +48,11 @@ class EditorWindow extends BaseWindow {
       },
       unwatch: root => ipcMain.emit('watcher-unwatch-directory', this.browserWindow, root.pathname),
       remember: pathname => {
-        if (!this._accessor.sessionHost) this._accessor.preferences.setItems({ lastOpenedFolder: pathname })
         this._accessor.menu.addRecentlyUsedDocument(pathname)
       }
     })
     this._openedFiles = []
-    this._latestPreviewRequestId = null
-    this._pendingPreviewPaths = new Map()
 
-    this.bufferStoreInfo = null
   }
 
   createWindow(
@@ -108,41 +60,17 @@ class EditorWindow extends BaseWindow {
     fileList: string[] = [],
     markdownList: string[] = [],
     options: Partial<BrowserWindowConstructorOptions> = {},
-    bufferStoreInfo: BufferStoreInfo | null = null,
     fileOptions: Record<string, FileOpenOptions> = {}
   ): BrowserWindow {
-    const { menu: appMenu, env, preferences, editorBufferStore } = this._accessor
-    const addBlankTab =
-      !bufferStoreInfo && !rootDirectory && fileList.length === 0 && markdownList.length === 0
-
-    const mainWindowState = this._accessor.sessionHost ? null : windowStateKeeper({
-      defaultWidth: 1200,
-      defaultHeight: 800
-    })
-
-    const { x, y, width, height } = mainWindowState ? ensureWindowPosition(mainWindowState) : { x: undefined, y: undefined, width: 1200, height: 800 }
+    const { menu: appMenu, env, preferences, sessionHost: host } = this._accessor
     const winOptions: BrowserWindowConstructorOptions = Object.assign(
-      { x, y, width, height },
+      { width: 1200, height: 800 },
       editorWinOptions,
-      options
+      options,
+      { show: false }
     )
-    if (isLinux) {
-      winOptions.icon = path.join(process.cwd(), 'static', 'logo-96px.png')
-    }
-
-    if (this._accessor.sessionHost) winOptions.show = false
-
-    const {
-      titleBarStyle,
-      theme,
-      sideBarVisibility,
-      restoreLayoutState,
-      tabBarVisibility,
-      sourceCodeModeEnabled,
-      spellcheckerEnabled,
-      spellcheckerLanguage
-    } = preferences.getAll()
-    const resolvedSideBarVisibility = restoreLayoutState ? !!sideBarVisibility : false
+    if (isLinux) winOptions.icon = path.join(process.cwd(), 'static', 'logo-96px.png')
+    const { titleBarStyle, theme, spellcheckerEnabled, spellcheckerLanguage, sourceCodeModeEnabled } = preferences.getAll()
 
     if (!isOsx) {
       winOptions.titleBarStyle = 'default'
@@ -158,30 +86,17 @@ class EditorWindow extends BaseWindow {
 
     let win: BrowserWindow | null = (this.browserWindow = new BrowserWindow(winOptions))
 
-    // Give every editor window a stable id for session buffer persistence.
-    // We cant use win.id as it might collide with same IDs from closed windows
-    if (!this._accessor.sessionHost) {
-      this.bufferStoreInfo = {
-        id: bufferStoreInfo ? bufferStoreInfo.id : editorBufferStore.getUnUsedBufferUUID(),
-        filePath: bufferStoreInfo ? bufferStoreInfo.filePath : null
-      }
-      Object.assign(win, { restoreBufferId: this.bufferStoreInfo.id, projectRoots: this.projectRoots })
-    } else {
-      Object.assign(win, { projectRoots: this.projectRoots })
-    }
-
     this.id = win.id
-    const host = this._accessor.sessionHost
-    if (host) {
-      host.registerEditor(this)
-      const prepared = this.preparedSession ? Promise.resolve(this.preparedSession) : host.prepareNewWindow(rootDirectory, fileList, markdownList, fileOptions)
-      this.preparedSession = undefined
-      this.sessionReady = prepared.then(prepared => {
-        prepared.snapshot.id = this.sessionStateId!
-        return host.bindEditor(this, prepared)
-      })
-      void this.sessionReady.catch(error => host.report(error, this.sessionStateId ?? undefined))
-    }
+    host.registerEditor(this)
+    const prepared = this.preparedSession
+      ? Promise.resolve(this.preparedSession)
+      : host.prepareNewWindow(rootDirectory, fileList, markdownList, fileOptions)
+    this.preparedSession = undefined
+    this.sessionReady = prepared.then(prepared => {
+      prepared.snapshot.id = this.sessionStateId
+      return host.bindEditor(this, prepared)
+    })
+    void this.sessionReady.catch(error => host.report(error, this.sessionStateId))
 
     if (spellcheckerEnabled && !isOsx) {
       try {
@@ -191,7 +106,7 @@ class EditorWindow extends BaseWindow {
       }
     }
 
-    appMenu.addEditorMenu(win, { sourceCodeModeEnabled: sourceCodeModeEnabled as boolean })
+    appMenu.addEditorMenu(win, { sourceCodeModeEnabled })
 
     win.webContents.on('context-menu', (event, params) => {
       showEditorContextMenu(win!, event, params, preferences.getItem('spellcheckerEnabled'))
@@ -205,25 +120,6 @@ class EditorWindow extends BaseWindow {
 
       const lineEnding = preferences.getPreferredEol()
       appMenu.updateLineEndingMenu(this.id!, lineEnding)
-
-      if (!host) {
-        win!.webContents.send('mt::bootstrap-editor', {
-          addBlankTab,
-          markdownList: this.bufferStoreInfo!.filePath ? [] : this._markdownToOpen,
-          lineEnding,
-          sideBarVisibility: resolvedSideBarVisibility,
-          tabBarVisibility,
-          sourceCodeModeEnabled
-        })
-
-        if (this.bufferStoreInfo!.filePath) {
-          this._restoreAllState()
-        } else {
-          this._doOpenFilesToOpen()
-          this._markdownToOpen!.length = 0
-        }
-
-      }
 
       win!.webContents.on('zoom-changed', (_event, zoomDirection) => {
         if (zoomDirection === 'in') {
@@ -244,7 +140,7 @@ class EditorWindow extends BaseWindow {
       if (reason === 'clean-exit') {
         return
       }
-      host?.rendererGone(this)
+      host.rendererGone(this)
 
       const msg = `The renderer process has crashed unexpected or is killed (${reason}).`
       log.error(msg)
@@ -263,8 +159,7 @@ class EditorWindow extends BaseWindow {
       if (win!.id) {
         switch (response) {
           case 0:
-            if (host) return host.closeWindow(this)
-            return this.destroy()
+            return host.closeWindow(this)
           case 1:
             return this.reload()
         }
@@ -295,9 +190,7 @@ class EditorWindow extends BaseWindow {
       this.emit('window-close')
 
       event.preventDefault()
-      if (host) {
-        void host.closeWindow(this).catch(error => host.report(error, this.sessionStateId ?? undefined))
-      } else win!.webContents.send('mt::ask-for-close')
+      void host.closeWindow(this).catch(error => host.report(error, this.sessionStateId))
 
       // TODO: Close all watchers etc. Should we do this manually or listen to 'quit' event?
     })
@@ -313,64 +206,53 @@ class EditorWindow extends BaseWindow {
     win.loadURL(this._buildUrlString(this.id, env, preferences))
     win.setSheetOffset(TITLE_BAR_HEIGHT)
 
-    mainWindowState?.manage(win)
-
     // Disable application menu shortcuts because we want to handle key bindings ourself.
     win.webContents.setIgnoreMenuShortcuts(true)
-
-    if (!host) setTimeout(() => {
-      if (rootDirectory) {
-        this.openFolder(rootDirectory)
-      }
-      if (fileList.length) {
-        this.openTabsFromPaths(fileList, fileOptions)
-      }
-    }, 0)
 
     return win
   }
 
   override bringToFront(): void {
     const host = this._accessor.sessionHost
-    if (host && this.sessionStateId && !host.isRendererInitialized(this.sessionStateId)) return
+    if (!host.isRendererInitialized(this.sessionStateId)) return
     super.bringToFront()
   }
 
-  openTab(filePath: string, options: FileOpenOptions = {}, selected: boolean = true): void {
+  openTab(filePath: string, options: FileOpenOptions = {}, selected = true): void {
     if (this.lifecycle === WindowLifecycle.QUITTED) return
     const host = this._accessor.sessionHost
-    if (host) {
-      void host.openFile(this, filePath, options, selected).catch(error => host.report(error, this.sessionStateId ?? undefined))
-      return
-    }
-    this.openTabs([{ filePath, options, selected }])
+    void host.openFile(this, filePath, options, selected)
+      .catch(error => host.report(error, this.sessionStateId))
   }
 
-  removeRoot(key: string): Promise<boolean> | boolean {
-    const host = this._accessor.sessionHost
-    if (host) return host.removeRoot(this, key)
-    return this.projectRoots.remove(key)
+  removeRoot(key: string): Promise<boolean> {
+    return this._accessor.sessionHost.removeRoot(this, key)
   }
 
   cancelPendingPreview(requestId: number): void {
-    if (this._accessor.sessionHost && this.sessionStateId) {
-      this._accessor.sessionHost.cancelPreview(this.sessionStateId, requestId)
-      return
-    }
-    if (requestId !== this._latestPreviewRequestId) return
-
-    for (const [pathname, pendingId] of this._pendingPreviewPaths) {
-      if (pendingId === requestId) {
-        this._pendingPreviewPaths.delete(pathname)
-        break
-      }
-    }
-    this._latestPreviewRequestId = null
+    this._accessor.sessionHost.cancelPreview(this.sessionStateId, requestId)
   }
 
-  private _resetPreviewRequests(): void {
-    this._latestPreviewRequestId = null
-    this._pendingPreviewPaths.clear()
+  openTabs(fileList: { filePath: string; selected: boolean; options: FileOpenOptions }[]): void {
+    for (const file of fileList) this.openTab(file.filePath, file.options, file.selected)
+  }
+
+  openUntitledTab(selected = true, markdown = ''): void {
+    if (this.lifecycle === WindowLifecycle.QUITTED) return
+    const host = this._accessor.sessionHost
+    void this.sessionReady.then(() => host.newDocument(this.sessionStateId, '', markdown, selected))
+      .catch(error => host.report(error, this.sessionStateId))
+  }
+
+  openFolder(pathname: string): void {
+    this.addFolder(pathname, true)
+  }
+
+  addFolder(pathname: string, replace = false): void {
+    if (!pathname || this.lifecycle === WindowLifecycle.QUITTED) return
+    const host = this._accessor.sessionHost
+    void host.changeFolder(this, pathname, replace)
+      .catch(error => host.report(error, this.sessionStateId))
   }
 
   openTabsFromPaths(filePaths: string[], fileOptions: Record<string, FileOpenOptions> = {}): void {
@@ -383,132 +265,6 @@ class EditorWindow extends BaseWindow {
     }))
     fileList[0].selected = true
     this.openTabs(fileList)
-  }
-
-  openTabs(fileList: { filePath: string; selected: boolean; options: FileOpenOptions }[]): void {
-    if (this.lifecycle === WindowLifecycle.QUITTED) return
-
-    const host = this._accessor.sessionHost
-    if (host) {
-      for (const file of fileList) this.openTab(file.filePath, file.options, file.selected)
-      return
-    }
-    const { browserWindow } = this
-    const { preferences } = this._accessor
-    const eol = preferences.getPreferredEol()
-    const { autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings } =
-      preferences.getAll()
-
-    for (const { filePath, options, selected } of fileList) {
-      const isPreview = options.preview === true && typeof options.requestId === 'number'
-      const previewRequestId = isPreview ? (options.requestId as number) : null
-      if (previewRequestId !== null) {
-        const pendingRequestId = this._pendingPreviewPaths.get(filePath)
-        if (pendingRequestId !== undefined) {
-          if (previewRequestId <= pendingRequestId) continue
-        } else {
-          if (
-            this._latestPreviewRequestId !== null &&
-            previewRequestId < this._latestPreviewRequestId
-          ) {
-            continue
-          }
-        }
-        this._latestPreviewRequestId = previewRequestId
-        this._pendingPreviewPaths.set(filePath, previewRequestId)
-      }
-
-      if (this._openedFiles!.includes(filePath)) {
-        if (previewRequestId !== null) {
-          this._pendingPreviewPaths.delete(filePath)
-          if (this._latestPreviewRequestId === previewRequestId) {
-            this._latestPreviewRequestId = null
-          }
-        }
-        browserWindow!.webContents.send('mt::switch-tab-by-file_path', filePath, options)
-        continue
-      }
-      if (!isPreview) this._openedFiles!.push(filePath)
-      const load =
-        options.allowMissing && !options.readOnly
-          ? loadCliMarkdownFile.bind(null, filePath, preferences.getAll().defaultEncoding ?? 'utf8')
-          : loadMarkdownFile.bind(null, filePath)
-      load(eol, autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings)
-        .then((rawDocument) => {
-          if (previewRequestId !== null) {
-            const currentPendingRequestId = this._pendingPreviewPaths.get(filePath)
-            if (currentPendingRequestId !== previewRequestId) return
-            this._pendingPreviewPaths.delete(filePath)
-            if (previewRequestId !== this._latestPreviewRequestId) return
-          }
-          if (this.lifecycle === WindowLifecycle.READY) {
-            this._doOpenTab(rawDocument, options, selected)
-          } else {
-            this._filesToOpen!.push({ doc: rawDocument, options, selected })
-          }
-        })
-        .catch((err: Error) => {
-          if (previewRequestId !== null) {
-            if (this._pendingPreviewPaths.get(filePath) === previewRequestId) {
-              this._pendingPreviewPaths.delete(filePath)
-            }
-          } else {
-            this._openedFiles = this._openedFiles!.filter((p) => p !== filePath)
-          }
-          const { message, stack } = err
-          log.error(`[ERROR] Cannot open file or directory: ${message}\n\n${stack}`)
-          browserWindow!.webContents.send('mt::show-notification', {
-            title: 'Cannot open tab',
-            type: 'error',
-            message: err.message
-          })
-        })
-    }
-  }
-
-  openUntitledTab(selected: boolean = true, markdown: string = ''): void {
-    if (this.lifecycle === WindowLifecycle.QUITTED) return
-    const host = this._accessor.sessionHost
-    if (host && this.sessionStateId) {
-      void this.sessionReady.then(() => host.newDocument(this.sessionStateId!, '', markdown, selected)).catch(error => host.report(error, this.sessionStateId ?? undefined))
-      return
-    }
-
-    if (this.lifecycle === WindowLifecycle.READY) {
-      const { browserWindow } = this
-      browserWindow!.webContents.send('mt::new-untitled-tab', selected, markdown)
-    } else {
-      this._markdownToOpen!.push(markdown)
-    }
-  }
-
-  openFolder(pathname: string): void {
-    if (!pathname || this.lifecycle === WindowLifecycle.QUITTED) return
-    if (this.lifecycle !== WindowLifecycle.READY) {
-      this._directoryToOpen = pathname
-      return
-    }
-    this.addFolder(pathname, true)
-  }
-
-  addFolder(pathname: string, replace = false): void {
-    if (this.lifecycle !== WindowLifecycle.READY) return
-    const host = this._accessor.sessionHost
-    if (host) {
-      void host.changeFolder(this, pathname, replace).catch(error => host.report(error, this.sessionStateId ?? undefined))
-      return
-    }
-    try {
-      this.projectRoots.add(pathname, replace)
-    } catch (error) {
-      this.browserWindow?.webContents.send('mt::show-notification', {
-        title: t('menu.file.addFolder'),
-        type: 'error',
-        message: error instanceof Error && error.message === 'overlap'
-          ? t('sideBar.tree.overlappingFolder')
-          : `${pathname}: ${error instanceof Error ? error.message : String(error)}`
-      })
-    }
   }
 
   addToOpenedFiles(filePath: string): void {
@@ -561,192 +317,13 @@ class EditorWindow extends BaseWindow {
     return buf
   }
 
-  override reload(): void {
-    if (this._accessor.sessionHost) { super.reload(); return }
-    const { id, browserWindow } = this
-
-    ipcMain.emit('watcher-unwatch-all-by-id', id)
-
-    this._directoryToOpen = ''
-    this._filesToOpen = []
-    this._markdownToOpen = []
-    this.projectRoots.clear()
-    this._openedFiles = []
-    this._resetPreviewRequests()
-
-    browserWindow!.webContents.once('did-finish-load', () => {
-      this.lifecycle = WindowLifecycle.READY
-      const { preferences } = this._accessor
-      const { sideBarVisibility, restoreLayoutState, tabBarVisibility, sourceCodeModeEnabled } =
-        preferences.getAll()
-      const resolvedSideBarVisibility = restoreLayoutState ? !!sideBarVisibility : false
-      const lineEnding = preferences.getPreferredEol()
-      browserWindow!.webContents.send('mt::bootstrap-editor', {
-        addBlankTab: true,
-        markdownList: [],
-        lineEnding,
-        sideBarVisibility: resolvedSideBarVisibility,
-        tabBarVisibility,
-        sourceCodeModeEnabled
-      })
-    })
-
-    this.lifecycle = WindowLifecycle.LOADING
-    super.reload()
-  }
-
   override destroy(): void {
     super.destroy()
 
     // Watchers are freed from WindowManager.
 
-    this._directoryToOpen = null
-    this._filesToOpen = null
-    this._markdownToOpen = null
     this.projectRoots.clear()
     this._openedFiles = null
-    this._resetPreviewRequests()
-  }
-
-  private _doOpenTab(
-    rawDocument: RawMarkdownDocument,
-    options: FileOpenOptions,
-    selected: boolean
-  ): void {
-    const { _accessor, _openedFiles, browserWindow } = this
-    const { menu: appMenu } = _accessor
-    const { pathname } = rawDocument
-
-    if (!rawDocument.isPendingCreation) {
-      ipcMain.emit('watcher-watch-file', browserWindow, pathname)
-      appMenu.addRecentlyUsedDocument(pathname)
-    }
-    if (!_openedFiles!.includes(pathname)) _openedFiles!.push(pathname)
-    browserWindow!.webContents.send(
-      'mt::open-new-tab',
-      rawDocument,
-      {
-        ...options,
-        readOnly:
-          options.readOnly ??
-          (!rawDocument.isPendingCreation &&
-            _accessor.preferences.getItem('defaultOpenMode') === 'read')
-      },
-      selected
-    )
-  }
-
-  private _doOpenFilesToOpen(): void {
-    if (this.lifecycle !== WindowLifecycle.READY) {
-      throw new Error('Invalid state.')
-    }
-
-    if (this._directoryToOpen) {
-      this.openFolder(this._directoryToOpen)
-    }
-    this._directoryToOpen = null
-
-    for (const { doc, options, selected } of this._filesToOpen!) {
-      this._doOpenTab(doc, options, selected)
-    }
-    this._filesToOpen!.length = 0
-  }
-
-  private _restoreAllState(): void {
-    if (this.lifecycle !== WindowLifecycle.READY) {
-      throw new Error('Invalid state.')
-    }
-    const { browserWindow, bufferStoreInfo, _accessor } = this
-    const { menu: appMenu, preferences } = _accessor
-
-    try {
-      const bufferState = JSON.parse(
-        fs.readFileSync(bufferStoreInfo!.filePath!, 'utf-8')
-      ) as RestoredBufferState
-      if (!bufferState || !Array.isArray(bufferState.tabs)) {
-        throw new Error('Invalid editor buffer state.')
-      }
-      if (!Array.isArray(bufferState.restoreWarnings)) {
-        bufferState.restoreWarnings = []
-      }
-      const restoredRoots = readBufferedRoots(bufferState.project)
-      this.projectRoots.restore(restoredRoots)
-
-      // We still need to load the files of all opened tabs and check for errors/changed files
-      const eol = preferences.getPreferredEol()
-      const { autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings } =
-        preferences.getAll()
-
-      const fileOpenRequests: Promise<void>[] = []
-      for (const tab of bufferState.tabs) {
-        tab.readOnly ??=
-          !!tab.pathname &&
-          !tab.isPendingCreation &&
-          preferences.getItem('defaultOpenMode') === 'read'
-        if (!tab.pathname) {
-          continue
-        }
-
-        fileOpenRequests.push(
-          loadMarkdownFile(
-            tab.pathname,
-            eol,
-            autoGuessEncoding,
-            trimTrailingNewline,
-            autoNormalizeLineEndings
-          )
-            .then((rawDocument) => {
-              // Dirty pending buffers still need first-save replacement confirmation.
-              if (tab.isSaved) tab.isPendingCreation = false
-              if (rawDocument.markdown !== tab.markdown) {
-                // File has changed since it was last opened, if it is not saved, we should NOT override the buffer
-                if (tab.isSaved) {
-                  Object.assign(tab, rawDocument)
-                  tab.diskMissing = false
-                } else {
-                  tab.diskConflict = true
-                }
-              }
-
-              if (!this._openedFiles!.includes(tab.pathname)) {
-                this.addToOpenedFiles(tab.pathname)
-                appMenu.addRecentlyUsedDocument(tab.pathname)
-              }
-            })
-            .catch((err: Error) => {
-              if (tab.isPendingCreation && (err as NodeJS.ErrnoException).code === 'ENOENT') {
-                if (!this._openedFiles!.includes(tab.pathname))
-                  this._openedFiles!.push(tab.pathname)
-                return
-              }
-              const { message, stack } = err
-              tab.diskMissing = true
-              if (!tab.readOnly) tab.isSaved = false
-              log.error(`[ERROR] Cannot open file: ${message}\n\n${stack}`)
-              browserWindow!.webContents.send('mt::show-notification', {
-                title: `Could not find file ${tab.filename} on disk, please save your work.`,
-                type: 'error',
-                message: err.message
-              })
-            })
-        )
-      }
-
-      Promise.all(fileOpenRequests)
-        .then(() => {
-          browserWindow!.webContents.send('mt::load-state', bufferState)
-        })
-        .catch((err: Error) => {
-          log.error('Failed to load files for restoring editor state:', err)
-          browserWindow!.webContents.send('mt::show-notification', {
-            title: 'Failed to restore buffered state',
-            type: 'error',
-            message: err.message
-          })
-        })
-    } catch (e) {
-      log.error('Failed to restore editor state:', e)
-    }
   }
 }
 

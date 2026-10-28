@@ -18,7 +18,7 @@ vi.hoisted(() => {
 
 vi.mock('@/services/notification', () => ({ default: { notify: vi.fn() } }))
 
-import { useEditorStore } from '@/store/editor'
+import { useEditorStore, setSessionActions } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { createDocumentState } from '@/store/help'
 import { registerDocumentView } from '@/services/documentMode'
@@ -31,6 +31,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  setSessionActions(null)
   registerDocumentView(null)
   vi.useRealTimers()
 })
@@ -40,6 +41,8 @@ describe('per-tab reading state', () => {
     const store = useEditorStore()
     const preferences = usePreferencesStore()
     preferences.autoSave = true
+    const save = vi.fn(async() => ({ status: 'failed' } as const))
+    setSessionActions({ save, checkpoint: vi.fn(), scheduleCheckpoint: vi.fn(), captureView: vi.fn(), create: vi.fn(), close: vi.fn(), saveAll: vi.fn() })
     const tab = createDocumentState({
       pathname: '/notes/a.md',
       markdown: 'retained',
@@ -54,53 +57,11 @@ describe('per-tab reading state', () => {
     expect(tab.readOnly).toBe(true)
     expect(tab.markdown).toBe('retained')
     expect(tab.isSaved).toBe(false)
-    expect(
-      vi
-        .mocked(window.electron.ipcRenderer.send)
-        .mock.calls.some(([channel]) => channel === 'mt::response-file-save')
-    ).toBe(false)
     store.FILE_SAVE()
     store.FILE_SAVE_AS()
+    expect(save).not.toHaveBeenCalled()
     store.LISTEN_FOR_CONTENT_CHANGE({ id: tab.id, markdown: 'late async change' })
     expect(tab.markdown).toBe('retained')
-  })
-
-  it('resolves defaults for existing files but preserves explicit mode and editable new documents', () => {
-    const store = useEditorStore()
-    const preferences = usePreferencesStore()
-    preferences.defaultOpenMode = 'read'
-    store.NEW_TAB_WITH_CONTENT({
-      markdownDocument: { pathname: '/notes/a.md', filename: 'a.md', markdown: 'a' }
-    })
-    expect(store.currentFile?.readOnly).toBe(true)
-    store.NEW_TAB_WITH_CONTENT({
-      markdownDocument: { pathname: '/notes/a.md', filename: 'a.md', markdown: 'different' },
-      options: { readOnly: false }
-    })
-    expect(store.currentFile?.readOnly).toBe(true)
-    expect(store.currentFile?.markdown).toBe('a')
-    store.NEW_UNTITLED_TAB({})
-    expect(store.currentFile?.readOnly).toBe(false)
-    store.NEW_TAB_WITH_CONTENT({
-      markdownDocument: { pathname: '/notes/b.md', filename: 'b.md', markdown: 'b' },
-      options: { readOnly: false }
-    })
-    expect(store.currentFile?.readOnly).toBe(false)
-  })
-
-  it('keeps restored pending documents editable when the default is reading', () => {
-    const store = useEditorStore()
-    usePreferencesStore().defaultOpenMode = 'read'
-    const tab = createDocumentState({
-      pathname: '/notes/new.md',
-      isPendingCreation: true
-    })
-    store.tabs = [tab]
-    store.currentFile = tab
-    const snapshot = store.CREATE_BUFFERED_STATE()!
-    delete snapshot.tabs[0].readOnly
-    store.RESTORE_BUFFERED_STATE(snapshot)
-    expect(store.currentFile?.readOnly).toBe(false)
   })
 
   it('restores the editor and reports failure even when rollback IPC also fails', async() => {
@@ -125,21 +86,4 @@ describe('per-tab reading state', () => {
     }
   })
 
-  it('serializes locked dirty state independently of the saved marker', () => {
-    const store = useEditorStore()
-    const tab = createDocumentState({
-      pathname: '/notes/a.md',
-      markdown: 'retained',
-      isSaved: false,
-      readOnly: true
-    })
-    store.tabs = [tab]
-    store.currentFile = tab
-    const snapshot = store.CREATE_BUFFERED_STATE()
-    expect(snapshot?.tabs[0]).toMatchObject({
-      readOnly: true,
-      isSaved: false,
-      markdown: 'retained'
-    })
-  })
 })

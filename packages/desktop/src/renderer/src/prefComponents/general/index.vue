@@ -135,71 +135,12 @@
     </compound>
 
     <recovery-settings
-      v-if="recoveryEnabled && recoveryPreferences"
+      v-if="recoveryPreferences"
       :value="recoveryPreferences"
       :update="updateRecoveryPreferences"
       :choose-directory="chooseRecoveryDirectory"
       @persisted="acceptRecoveryPreferences"
     />
-    <compound v-if="!recoveryEnabled">
-      <template #head>
-        <h6 class="title">
-          {{ t('preferences.general.startup.title') }}
-        </h6>
-      </template>
-      <template #children>
-        <h6>{{ t('preferences.general.startup.layoutOptions') }}</h6>
-        <section>
-          <el-radio-group
-            v-model="restoreLayoutState"
-            class="startup-action-ctrl"
-          >
-            <el-radio :label="true">
-              {{ t('preferences.general.startup.restorePreviousState') }}
-            </el-radio>
-            <el-radio :label="false">
-              {{ t('preferences.general.startup.openBlankState') }}
-            </el-radio>
-          </el-radio-group>
-        </section>
-        <h6>{{ t('preferences.general.startup.startupFilesFolders') }}</h6>
-        <section>
-          <el-radio-group
-            v-model="startUpAction"
-            class="startup-action-ctrl"
-          >
-            <!--
-              Hide "lastState" for now (#2064).
-            <el-radio class="ag-underdevelop" label="lastState">Restore last editor session</el-radio>
-            -->
-            <el-radio label="restoreAll">
-              {{ t('preferences.general.startup.restoreAll') }}
-            </el-radio>
-            <el-radio label="openLastFolder">
-              {{ t('preferences.general.startup.openLastFolder') }}
-            </el-radio>
-            <div>
-              <el-radio label="folder">
-                {{ t('preferences.general.startup.openDefaultDirectory')
-                }}<span>: {{ defaultDirectoryToOpen }}</span>
-              </el-radio>
-              <el-button
-                size="small"
-                @click="selectDefaultDirectoryToOpen"
-              >
-                {{ t('preferences.general.startup.selectFolder') }}
-              </el-button>
-            </div>
-            <div>
-              <el-radio label="blank">
-                {{ t('preferences.general.startup.openBlankPage') }}
-              </el-radio>
-            </div>
-          </el-radio-group>
-        </section>
-      </template>
-    </compound>
-
     <!-- Beside `<bool>` rather than on `compound`'s `notes` prop: the status needs its own
          markup for the button, and outside the switch it stays readable while it is greyed. -->
     <compound>
@@ -251,7 +192,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import RecoverySettings from './recoverySettings.vue'
-import { isSessionRecoveryEnabled } from '@/util'
 import type { UserPreferences, RecoveryPreferences } from '@shared/types/preferences'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
@@ -276,7 +216,6 @@ import {
 
 const { t } = useI18n()
 const preferenceStore = usePreferencesStore()
-const recoveryEnabled = isSessionRecoveryEnabled()
 const recoveryPreferences = ref<UserPreferences | null>(null)
 const acceptRecoveryPreferences = (preferences: UserPreferences): void => {
   recoveryPreferences.value = preferences
@@ -292,7 +231,6 @@ const {
   autoSave,
   autoSaveDelay,
   titleBarStyle,
-  defaultDirectoryToOpen,
   openFilesInNewWindow,
   openFolderInNewWindow,
   treePathExcludePatterns: projectPaths,
@@ -335,59 +273,20 @@ const probePandoc = async (): Promise<void> => {
 }
 
 onMounted(async () => {
-  if (recoveryEnabled) {
-    acceptRecoveryPreferences(await window.electron.ipcRenderer.invoke('mt::preferences::get'))
-    stopRecoveryPreferences = window.electron.ipcRenderer.on('mt::preferences::changed', (_event, preferences) => acceptRecoveryPreferences(preferences))
-  }
+  acceptRecoveryPreferences(await window.electron.ipcRenderer.invoke('mt::preferences::get'))
+  stopRecoveryPreferences = window.electron.ipcRenderer.on('mt::preferences::changed', (_event, preferences) => acceptRecoveryPreferences(preferences))
   await probePandoc()
-})
-
-const startUpAction = computed<string>({
-  get: () => preferenceStore.startUpAction,
-  set: (value: string) => {
-    const type = 'startUpAction'
-    preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
-  }
-})
-
-const restoreLayoutState = computed<boolean>({
-  get: () => preferenceStore.restoreLayoutState,
-  set: (value: boolean) => {
-    const type = 'restoreLayoutState'
-    preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
-  }
 })
 
 const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
 }
 
-const selectDefaultDirectoryToOpen = (): void => {
-  preferenceStore.SELECT_DEFAULT_DIRECTORY_TO_OPEN()
-}
 </script>
 
 <style scoped>
-.pref-general .startup-action-ctrl div {
-  display: flex;
-  align-items: center;
-}
-.pref-general .startup-action-ctrl {
-  font-size: 14px;
-  user-select: none;
-  color: var(--editorColor);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
 
-.pref-general .startup-action-ctrl .el-button--small {
-  margin-left: 10px;
-}
 
-.pref-general .startup-action-ctrl label {
-  margin: 5px 0;
-}
 
 /* The note line is italic; this button inside it is not. */
 .pref-general .pandoc-recheck {

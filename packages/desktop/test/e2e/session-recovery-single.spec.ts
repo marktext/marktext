@@ -31,10 +31,10 @@ test('new recovery host retains an untitled draft after force exit and reuses it
     const first = await launchElectron([], {
       userDataDir: directory,
       preferences: { language: 'en' },
-      env: { MARKTEXT_SESSION_RECOVERY: '1' },
       suppressErrorDialog: true
     })
     running = first.app
+    expect(existsSync(join(directory, 'editorStates'))).toBe(false)
     await first.page
       .getByRole('textbox', { name: 'Document', exact: true })
       .fill('Unsaved recovery draft')
@@ -50,7 +50,6 @@ test('new recovery host retains an untitled draft after force exit and reuses it
     running = null
     const restored = await launchElectron([], {
       userDataDir: directory,
-      env: { MARKTEXT_SESSION_RECOVERY: '1' },
       suppressErrorDialog: true
     })
     running = restored.app
@@ -74,7 +73,6 @@ test('a completed save cleans recovery contents and restores an ordinary saved f
     const { app, page } = await launchElectron([], {
       userDataDir: directory,
       preferences: { language: 'en' },
-      env: { MARKTEXT_SESSION_RECOVERY: '1' },
       suppressErrorDialog: true
     })
     running = app
@@ -100,7 +98,6 @@ test('a completed save cleans recovery contents and restores an ordinary saved f
     running = null
     const restored = await launchElectron([], {
       userDataDir: directory,
-      env: { MARKTEXT_SESSION_RECOVERY: '1' },
       suppressErrorDialog: true
     })
     running = restored.app
@@ -119,7 +116,6 @@ test('renderer reload restores the live document without the legacy blank bootst
   const { app, page } = await launchElectron([], {
     userDataDir: directory,
     preferences: { language: 'en' },
-    env: { MARKTEXT_SESSION_RECOVERY: '1' },
     suppressErrorDialog: true
   })
   try {
@@ -161,7 +157,6 @@ test('damaged metadata and stale legacy snapshots do not block editing or get ov
   const { app, page } = await launchElectron([], {
     userDataDir: directory,
     preferences: { language: 'en' },
-    env: { MARKTEXT_SESSION_RECOVERY: '1' },
     suppressErrorDialog: true,
     userDataFiles: {
       'state/application-state.json': '{damaged',
@@ -193,7 +188,6 @@ test('failed metadata replacement keeps the window and its text, then permits a 
   const { app, page } = await launchElectron([], {
     userDataDir: directory,
     preferences: { language: 'en' },
-    env: { MARKTEXT_SESSION_RECOVERY: '1' },
     suppressErrorDialog: true
   })
   try {
@@ -241,7 +235,6 @@ test('Save As writes the captured version while newer typing remains recoverable
   const { app, page } = await launchElectron([], {
     userDataDir: directory,
     preferences: { language: 'en' },
-    env: { MARKTEXT_SESSION_RECOVERY: '1' },
     suppressErrorDialog: true
   })
   try {
@@ -306,7 +299,6 @@ test('cancel keeps an unsaved window and discard commits removal without revivin
   const { app, page } = await launchElectron([], {
     userDataDir: directory,
     preferences: { language: 'en' },
-    env: { MARKTEXT_SESSION_RECOVERY: '1' },
     suppressErrorDialog: true
   })
   try {
@@ -363,7 +355,6 @@ test('layout, native geometry and source reading selection survive a full restar
     const first = await launchElectron([pathname], {
       userDataDir: directory,
       preferences: { language: 'en' },
-      env: { MARKTEXT_SESSION_RECOVERY: '1' },
       suppressErrorDialog: true
     })
     running = first.app
@@ -434,7 +425,6 @@ test('layout, native geometry and source reading selection survive a full restar
     running = null
     const restored = await launchElectron([], {
       userDataDir: directory,
-      env: { MARKTEXT_SESSION_RECOVERY: '1' },
       suppressErrorDialog: true
     })
     running = restored.app
@@ -486,7 +476,6 @@ test('workspace folds are applied again as folders are rebuilt after restart', a
     const first = await launchElectron([folder, join(folder, 'notes', 'child.md')], {
       userDataDir: directory,
       preferences: { language: 'en' },
-      env: { MARKTEXT_SESSION_RECOVERY: '1' },
       suppressErrorDialog: true
     })
     running = first.app
@@ -538,7 +527,6 @@ test('workspace folds are applied again as folders are rebuilt after restart', a
     running = null
     const restored = await launchElectron([], {
       userDataDir: directory,
-      env: { MARKTEXT_SESSION_RECOVERY: '1' },
       suppressErrorDialog: true
     })
     running = restored.app
@@ -585,7 +573,6 @@ test('renaming a dirty document retains its identity and saves to the authoritat
   const { app, page } = await launchElectron([source], {
     userDataDir: directory,
     preferences: { language: 'en' },
-    env: { MARKTEXT_SESSION_RECOVERY: '1' },
     suppressErrorDialog: true
   })
   try {
@@ -636,7 +623,6 @@ test('a pending Save As cannot write after the document is locked for reading', 
   const { app, page } = await launchElectron([source], {
     userDataDir: directory,
     preferences: { language: 'en' },
-    env: { MARKTEXT_SESSION_RECOVERY: '1' },
     suppressErrorDialog: true
   })
   try {
@@ -707,7 +693,6 @@ test('external reload stays clean and deleting the disk file retains recoverable
   const { app, page } = await launchElectron([source], {
     userDataDir: directory,
     preferences: { language: 'en' },
-    env: { MARKTEXT_SESSION_RECOVERY: '1' },
     suppressErrorDialog: true
   })
   try {
@@ -736,7 +721,7 @@ test('external reload stays clean and deleting the disk file retains recoverable
   }
 })
 
-for (const route of ['renderer', 'native-adapter'] as const) {
+for (const route of ['renderer', 'wait-for-result'] as const) {
   test(`manual Save remains available with read-only damaged recovery metadata: ${route}`, async() => {
     const directory = mkdtempSync(join(tmpdir(), 'mt-session-manual-save-'))
     const destination = join(directory, 'manual-save.md')
@@ -759,21 +744,14 @@ for (const route of ['renderer', 'native-adapter'] as const) {
           const root = document.querySelector('#app') as Element & {
             __vue_app__: {
               config: {
-                globalProperties: { $pinia: { _s: Map<string, { currentFile: { id: string } }> } }
+                globalProperties: { $pinia: { _s: Map<string, {
+                  FILE_SAVE(options: { waitForResult: true }): Promise<{ status: string }>
+                }> } }
               }
             }
           }
-          const id =
-            root.__vue_app__.config.globalProperties.$pinia._s.get('editor')!.currentFile.id
-          return window.electron.ipcRenderer.invoke(
-            'mt::response-file-save',
-            id,
-            'ignored',
-            '/ignored.md',
-            'untrusted body',
-            {},
-            ''
-          )
+          const store = root.__vue_app__.config.globalProperties.$pinia._s.get('editor')!
+          return store.FILE_SAVE({ waitForResult: true })
         })
         expect(result.status).toBe('saved')
       }
@@ -788,6 +766,49 @@ for (const route of ['renderer', 'native-adapter'] as const) {
       await expectNoRendererErrors(app)
     } finally {
       await stop(app)
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+}
+
+for (const [surface, selector] of [
+  ['tab bar', '.editor-tabs .close-icon'],
+  ['opened files', '.opened-file .close-icon']
+] as const) {
+  test(`closing a dirty document from ${surface} confirms once and cannot revive it`, async() => {
+    const directory = mkdtempSync(join(tmpdir(), 'mt-close-document-ui-'))
+    let running: ElectronApplication | null = null
+    try {
+      const first = await launchElectron([], {
+        userDataDir: directory,
+        preferences: { language: 'en' },
+        windowLayout: { showSideBar: true, showTabBar: true },
+        suppressErrorDialog: true
+      })
+      running = first.app
+      await first.page.getByRole('textbox', { name: 'Document', exact: true }).fill('Discard this draft')
+      await first.app.evaluate(({ dialog }) => {
+        Object.assign(globalThis, { closeDialogCount: 0 })
+        dialog.showMessageBox = async() => {
+          const state = globalThis as typeof globalThis & { closeDialogCount: number }
+          state.closeDialogCount++
+          return { response: 1, checkboxChecked: false }
+        }
+      })
+      const statePath = join(directory, 'state', 'application-state.json')
+      const readState = () => JSON.parse(readFileSync(statePath, 'utf8'))
+      const originalId = readState().session.windows[0].activeDocumentId
+      await first.page.locator(selector).first().click()
+      await expect.poll(() => readState().session.windows[0]?.documents.some((document: { id: string }) => document.id === originalId)).toBe(false)
+      expect(await first.app.evaluate(() => (globalThis as typeof globalThis & { closeDialogCount: number }).closeDialogCount)).toBe(1)
+      await stop(first.app)
+      running = null
+      const restored = await launchElectron([], { userDataDir: directory, suppressErrorDialog: true })
+      running = restored.app
+      await expect(restored.page.getByRole('textbox', { name: 'Document', exact: true })).not.toContainText('Discard this draft')
+      await expectNoRendererErrors(restored.app)
+    } finally {
+      if (running) await stop(running)
       rmSync(directory, { recursive: true, force: true })
     }
   })

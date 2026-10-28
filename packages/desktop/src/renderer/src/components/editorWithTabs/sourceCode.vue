@@ -15,7 +15,7 @@ import {
 import { ref, shallowRef, markRaw, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
-import { useLayoutStore } from '@/store/layout'
+
 import { registerSourceViewState, documentViewChanged } from '@/services/documentViewState'
 import {
   findMarkdownHeadingLine,
@@ -477,13 +477,7 @@ onMounted(() => {
   codeMirrorInstance.on('cursorActivity', documentViewChanged)
   listenChange(codeMirrorInstance)
   registerSourceView(async () => {
-    if (useLayoutStore().managed) {
-      if (editor.value) saveContent(editor.value)
-      return
-    }
-    preferencesStore.SET_MODE({ type: 'sourceCode', checked: false })
-    preferencesStore.DISPATCH_EDITOR_VIEW_STATE({ sourceCode: false })
-    await nextTick()
+    if (editor.value) saveContent(editor.value)
   })
 })
 

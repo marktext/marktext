@@ -16,10 +16,8 @@
   "restoreEditors": true,
   "restoreViewState": true,
   "defaultDirectoryToOpen": "",
-  "lastOpenedFolder": "",
   "treePathExcludePatterns": [],
   "language": "en",
-
   "editorFontFamily": "Open Sans",
   "fontSize": 16,
   "lineHeight": 1.6,
@@ -30,7 +28,6 @@
   "trimUnnecessaryCodeBlockEmptyLines": true,
   "wrapCodeBlocks": false,
   "editorLineWidth": "",
-
   "autoPairBracket": true,
   "autoPairMarkdownSyntax": true,
   "autoPairQuote": true,
@@ -47,7 +44,6 @@
   "imageRelativeDirectoryName": "assets",
   "hideLinkPopup": false,
   "autoCheck": false,
-
   "preferLooseListItem": true,
   "bulletListMarker": "-",
   "orderListDelimiter": ".",
@@ -71,31 +67,23 @@
   "mermaidLightTheme": "default",
   "mermaidDarkTheme": "dark",
   "plantumlServer": "https://www.plantuml.com/plantuml",
-
   "theme": "light",
   "followSystemTheme": true,
   "lightModeTheme": "light",
   "darkModeTheme": "dark",
   "customCss": "",
-
   "spellcheckerEnabled": false,
   "spellcheckerNoUnderline": false,
   "spellcheckerLanguage": "en-US",
-
-  "tocVisibility": true,
-  "sideBarVisibility": false,
-  "tabBarVisibility": false,
   "sourceCodeModeEnabled": false,
   "openedFilesInSidebar": true,
   "autoRevealInSidebar": true,
   "openFilesInPreviewMode": true,
   "showPandocConvert": false,
-
   "searchExclusions": [],
   "searchMaxFileSize": "",
   "searchIncludeHidden": false,
   "searchNoIgnore": false,
   "searchFollowSymlinks": true,
-
   "watcherUsePolling": false
 }

@@ -523,10 +523,6 @@
       },
       "startup": {
         "title": "啟動",
-        "layoutOptions": "版面配置選項",
-        "startupFilesFolders": "啟動檔案/資料夾",
-        "restorePreviousState": "還原上次編輯器狀態",
-        "openBlankState": "開啟空白狀態",
         "openDefaultDirectory": "開啟指定資料夾",
         "openLastFolder": "開啟上次工作區",
         "restoreAll": "還原全部視窗",

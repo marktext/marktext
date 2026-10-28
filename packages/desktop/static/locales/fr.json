@@ -523,10 +523,6 @@
       },
       "startup": {
         "title": "Démarrage",
-        "layoutOptions": "Options de mise en page",
-        "startupFilesFolders": "Fichiers/dossiers au démarrage",
-        "restorePreviousState": "Restaurer l'état précédent de l'éditeur",
-        "openBlankState": "Ouvrir un état vierge",
         "openDefaultDirectory": "Ouvrir le dossier sélectionné",
         "openLastFolder": "Ouvrir le dernier espace de travail",
         "restoreAll": "Restaurer toutes les fenêtres",

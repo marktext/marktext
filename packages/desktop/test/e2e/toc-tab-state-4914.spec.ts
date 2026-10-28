@@ -64,14 +64,13 @@ test.describe('TOC state belongs to each open tab (#4914)', () => {
     await expect.poll(() => visibleLabels(page)).toEqual(['A', 'B', 'B1', 'C'])
   })
 
-  test('keeps state in memory without dirtying or serializing the document', async() => {
+  test('keeps folds separate from document contents without dirtying the document', async() => {
     await toggleNode(page, 'B')
     const state = await page.evaluate(() => {
       const root = document.querySelector('#app') as Element & {
         __vue_app__: { config: { globalProperties: { $pinia: {
           _s: Map<string, {
-            currentFile: { tocCollapsedKeys?: string[]; isSaved: boolean }
-            CREATE_BUFFERED_STATE: () => { tabs: unknown[] }
+            currentFile: { tocCollapsedKeys?: string[]; isSaved: boolean; markdown: string }
           }>
         } } } }
       }
@@ -80,12 +79,12 @@ test.describe('TOC state belongs to each open tab (#4914)', () => {
       return {
         collapsed: store.currentFile.tocCollapsedKeys,
         saved: store.currentFile.isSaved,
-        buffered: store.CREATE_BUFFERED_STATE()
+        markdown: store.currentFile.markdown
       }
     })
     expect(state.collapsed).toHaveLength(1)
     expect(state.saved).toBe(true)
-    expect(JSON.stringify(state.buffered)).not.toContain('tocCollapsedKeys')
+    expect(state.markdown.trim()).toBe(MARKDOWN.trim())
 
     await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, MARKDOWN)
     await expect.poll(() => visibleLabels(page)).toEqual(ALL_LABELS)

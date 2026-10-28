@@ -13,7 +13,7 @@ vi.hoisted(() => {
   })
 })
 vi.mock('@/services/notification', () => ({ default: { notify: vi.fn() } }))
-vi.mock('@/store/bufferedState', () => ({ debouncedSendBufferedState: vi.fn() }))
+vi.mock('@/store/checkpoint', () => ({ scheduleWindowCheckpoint: vi.fn() }))
 import { useLayoutStore } from '@/store/layout'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
@@ -64,7 +64,7 @@ describe('window-owned layout', () => {
     const preferences = usePreferencesStore()
     store.INITIALIZE_WINDOW_LAYOUT(createDefaultLayout())
     preferences.tocPosition = 'right'
-    preferences.tocVisibility = false
+    preferences.SET_USER_PREFERENCE({ tocVisibility: false })
     expect(store.outlinePosition).toBe('left')
     expect(store.showToc).toBe(true)
     store.SET_OUTLINE_WIDTH(900)
@@ -90,7 +90,7 @@ describe('window-owned layout', () => {
   it('does not expand a hidden sidebar when a folder loads', () => {
     const layout = useLayoutStore()
     layout.INITIALIZE_WINDOW_LAYOUT(createDefaultLayout())
-    useProjectStore().OPEN_PROJECT('/notes')
+    useProjectStore().APPLY_ROOTS({ revision: 1, roots: [{ key: '/notes', pathname: '/notes', watchToken: 'root', status: 'loading' }], reason: 'restore' })
     expect(layout.showSideBar).toBe(false)
   })
   it('clips the visible sidebar without changing or persisting the preferred width', () => {

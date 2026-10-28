@@ -117,10 +117,7 @@ const closeAndReset = async(page: Page): Promise<void> => {
   await expect.poll(() => page.locator('.mu-selection').count()).toBe(0)
 }
 
-// Seed the document content for a test and mark the tab clean (records the
-// current history entry as `lastSavedHistoryId` + clears the dirty flag), so a
-// subsequent edit's effect on the unsaved indicator is observed from a known
-// clean baseline. Mirrors the real post-save IPC the main process sends.
+// Save the seeded text so later edits are checked against a real disk baseline.
 const seedDocClean = async(
   app: ElectronApplication,
   page: Page,

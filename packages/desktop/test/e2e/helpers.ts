@@ -1,3 +1,4 @@
+import type { IpcMainEventChannels } from '../../src/shared/types/ipc'
 import { expect } from '@playwright/test'
 import { _electron, type ElectronApplication, type Page } from 'playwright'
 import * as fs from 'node:fs'
@@ -441,10 +442,10 @@ export const launchWithMarkdown = async(
   return { app, page, filePath }
 }
 
-export const sendIpcToRenderer = async(
+export const sendIpcToRenderer = async<K extends keyof IpcMainEventChannels>(
   app: ElectronApplication,
-  channel: string,
-  ...args: unknown[]
+  channel: K,
+  ...args: IpcMainEventChannels[K]
 ): Promise<void> => {
   await app.evaluate(
     ({ BrowserWindow }, payload) => {

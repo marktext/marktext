@@ -5,18 +5,13 @@ const ROW_HEIGHT = 28
 export const MIN_VISIBLE_ROWS = 4
 const DEFAULT_HEIGHT = ROW_HEIGHT * MIN_VISIBLE_ROWS
 const PROJECT_TREE_RESERVE = 150
-const HEIGHT_KEY = 'side-bar-opened-files-height'
 
 export const useOpenedFilesResize = (
   rowCount: Ref<number>,
   visible: Ref<boolean>,
-  state?: { preferredHeight: Ref<number>; persist: (height: number) => void }
+  state: { preferredHeight: Ref<number>; persist: (height: number) => void }
 ) => {
-  const storedHeight = state ? DEFAULT_HEIGHT : Number(localStorage.getItem(HEIGHT_KEY))
-  // Automatic layout clamps never replace the user's last explicit choice.
-  const preferredHeight =
-    state?.preferredHeight ??
-    ref(Number.isFinite(storedHeight) && storedHeight > 0 ? storedHeight : DEFAULT_HEIGHT)
+  const preferredHeight = state.preferredHeight
   const treeView = ref<HTMLElement | null>(null)
   const openedFilesList = ref<HTMLElement | null>(null)
   const resizeHandle = ref<HTMLElement | null>(null)
@@ -39,8 +34,7 @@ export const useOpenedFilesResize = (
   }
 
   const persistHeight = (): void => {
-    if (state) state.persist(preferredHeight.value)
-    else localStorage.setItem(HEIGHT_KEY, String(preferredHeight.value))
+    state.persist(preferredHeight.value)
   }
 
   const requestHeight = (height: number): void => {

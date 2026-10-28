@@ -523,10 +523,6 @@
       },
       "startup": {
         "title": "Start",
-        "layoutOptions": "Layout-Optionen",
-        "startupFilesFolders": "Startdateien/-ordner",
-        "restorePreviousState": "Vorherigen Editorzustand wiederherstellen",
-        "openBlankState": "Leeren Zustand öffnen",
         "openDefaultDirectory": "Ausgewählten Ordner öffnen",
         "openLastFolder": "Letzten Arbeitsbereich öffnen",
         "restoreAll": "Alle Fenster wiederherstellen",
