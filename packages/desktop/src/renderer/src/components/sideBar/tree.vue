@@ -416,6 +416,8 @@ const handleRevealPath = (pathname: unknown): void => {
 }
 
 const handleInputFocus = (): void => {
+  const root = roots.value.find((root) => root.pathname === createCacheDirname.value)
+  if (root) projectStore.SET_FOLDER_COLLAPSED(root.tree, false)
   nextTick(() => {
     if (input.value) {
       input.value.focus()

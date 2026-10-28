@@ -28,8 +28,8 @@ test.describe('New File on a collapsed folder (#3439)', () => {
   test.beforeAll(async() => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'marktext-collapsed-folder-'))
     fs.mkdirSync(path.join(root, 'nested'))
-    const launched = await launchElectron([root], { windowLayout: { showSideBar: true },
-      preferences: { restoreLayoutState: true }
+    const launched = await launchElectron([root], { userDataDir: `${root}-profile`, windowLayout: { showSideBar: true },
+      preferences: { restoreLayoutState: true, language: 'en' }
     })
     app = launched.app
     page = launched.page
@@ -69,7 +69,10 @@ test.describe('New File on a collapsed folder (#3439)', () => {
     try {
       if (app) await app.close()
     } finally {
-      if (root) fs.rmSync(root, { recursive: true, force: true })
+      if (root) {
+        fs.rmSync(root, { recursive: true, force: true })
+        fs.rmSync(`${root}-profile`, { recursive: true, force: true })
+      }
     }
   })
 
@@ -95,4 +98,25 @@ test.describe('New File on a collapsed folder (#3439)', () => {
 
     await page.keyboard.press('Escape')
   })
+
+  test('creating from a collapsed project root reveals its input and persists expansion', async() => {
+    const header = page.locator('.project-root').first()
+    await header.click()
+    await expect(header).toHaveAttribute('aria-expanded', 'false')
+    await header.click({ button: 'right' })
+    const input = page.locator('.project-tree > .tree-contents > input.new-input')
+    await expect(input).toBeVisible()
+    await expect(input).toBeFocused()
+    await input.fill('created-from-root.md')
+    await page.getByRole('textbox', { name: 'Document', exact: true }).click()
+    await expect.poll(() => fs.existsSync(path.join(root, 'created-from-root.md'))).toBe(true)
+    await expect(header).toHaveAttribute('aria-expanded', 'true')
+    const state = () => JSON.parse(fs.readFileSync(path.join(`${root}-profile`, 'state', 'application-state.json'), 'utf8'))
+    await expect.poll(() => state().session.windows[0].layout.sidebar.visible).toBe(true)
+    await expect.poll(() => state().session.windows[0].projectView.roots[0]?.collapsedPaths ?? ['']).not.toContain('')
+    await page.reload()
+    await expect(page.locator('.project-root').first()).toHaveAttribute('aria-expanded', 'true')
+    await expect(page.locator('.side-bar-file[title$="created-from-root.md"]')).toBeVisible()
+  })
+
 })
