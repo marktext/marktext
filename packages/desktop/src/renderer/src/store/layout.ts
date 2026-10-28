@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import bus from '../bus'
 import { usePreferencesStore } from './preferences'
 import type { WindowLayoutState } from '@shared/types/applicationState'
+import { createDefaultLayout } from '@shared/applicationState/defaults'
 
 interface LayoutPartial {
   rightColumn?: string
@@ -11,25 +12,29 @@ interface LayoutPartial {
   sideBarWidth?: number | string
 }
 
+const defaultLayout = createDefaultLayout()
+
 const normalizeSideBarWidth = (width: unknown): number => {
   const numericWidth = Number(width)
-  return Number.isFinite(numericWidth) ? Math.max(numericWidth, 220) : 280
+  return Number.isFinite(numericWidth)
+    ? Math.max(numericWidth, 220)
+    : defaultLayout.sidebar.preferredWidthPx
 }
 
 export const useLayoutStore = defineStore('layout', () => {
   const preferencesStore = usePreferencesStore()
   let initializing = false
-  const outlineVisible = ref(true)
-  const outlinePosition = ref<'left' | 'right'>('left')
-  const outlineWidth = ref(220)
-  const openedFilesExpanded = ref(true)
-  const openedFilesHeight = ref(112)
+  const outlineVisible = ref(defaultLayout.outline.visible)
+  const outlinePosition = ref(defaultLayout.outline.position)
+  const outlineWidth = ref(defaultLayout.outline.preferredWidthPx)
+  const openedFilesExpanded = ref(defaultLayout.sidebar.openedFiles.expanded)
+  const openedFilesHeight = ref(defaultLayout.sidebar.openedFiles.preferredHeightPx)
   let changed: (() => void) | undefined
   const showToc = outlineVisible
-  const rightColumn = ref<WindowLayoutState['sidebar']['activeView']>('files')
-  const showSideBar = ref(false)
-  const showTabBar = ref(false)
-  const sideBarWidth = ref<number>(280)
+  const rightColumn = ref(defaultLayout.sidebar.activeView)
+  const showSideBar = ref(defaultLayout.sidebar.visible)
+  const showTabBar = ref(defaultLayout.tabBar.visible)
+  const sideBarWidth = ref(defaultLayout.sidebar.preferredWidthPx)
   const viewportWidth = ref(window.innerWidth)
   const updateViewport = (): void => {
     viewportWidth.value = window.innerWidth

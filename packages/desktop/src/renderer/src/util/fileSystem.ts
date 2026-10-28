@@ -29,8 +29,6 @@ const toHex = (buf: ArrayBuffer | Uint8Array): string => {
   return out
 }
 
-// Replacement for crypto.createHash that uses the Web Crypto API. Only SHA-1 is
-// used by callers in this file.
 export const getHash = async(
   content: string | Uint8Array | ArrayBuffer,
   encoding?: string,

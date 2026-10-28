@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import CodeMirror from 'codemirror'
 import { Muya, SelectionType, type TSelectionState } from '@muyajs/core'
-import { createHash } from 'node:crypto'
+import { createHash, webcrypto } from 'node:crypto'
 import { DocumentViewAdapter } from '@/services/documentViewState'
 import type { DocumentViewState } from '../../../src/shared/types/files'
 
@@ -31,6 +31,13 @@ const rendered = (markdown: string) => {
 }
 const adapter = new DocumentViewAdapter(hash)
 describe('document view adapters with reconstructed editors', () => {
+  it('hashes UTF-8 Markdown with the shared browser hashing utility', async() => {
+    vi.spyOn(window, 'crypto', 'get').mockReturnValue(webcrypto as unknown as Crypto)
+    const markdown = '# 标题 🌱\n'
+    const state = await new DocumentViewAdapter().capture(markdown, {})
+    expect(state.contentSha256).toBe(await hash(markdown))
+  })
+
   it('restores a backward source selection in a new CodeMirror instance and clamps invalid positions', async() => {
     const markdown = 'First line\nSecond line'
     const first = CodeMirror(document.body, { value: markdown })
