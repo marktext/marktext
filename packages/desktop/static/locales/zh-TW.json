@@ -695,7 +695,7 @@
     "theme": {
       "title": "主題",
       "followSystemTheme": "跟隨系統外觀",
-      "followSystemNote": "跟隨系統主題時，下方主題列表無法切換。關閉後即可自由切換。",
+      "followSystemNote": "可以在下方分別選擇深色模式和淺色模式下的主題。",
       "modeThemes": "主題選擇",
       "lightModeTheme": "淺色模式主題",
       "darkModeTheme": "深色模式主題",

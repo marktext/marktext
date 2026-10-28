@@ -19,11 +19,14 @@
       :key="`editor-${category}`"
       :groups="editorGroups[category]"
       embedded
-    />
-    <spellchecker-settings
-      v-if="category === 'editor'"
-      embedded
-    />
+    >
+      <template #before-misc>
+        <spellchecker-settings
+          v-if="category === 'editor'"
+          embedded
+        />
+      </template>
+    </editor-settings>
     <image-settings
       v-if="category === 'images'"
       embedded

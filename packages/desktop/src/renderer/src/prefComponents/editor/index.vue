@@ -128,6 +128,20 @@
           :options="getTabSizeOptions()"
           :on-change="(value) => onSelectChange('tabSize', value)"
         />
+        <cur-select
+          id="setting-textDirection"
+          :description="preferenceLabel('textDirection')"
+          :value="textDirection"
+          :options="getTextDirectionOptions()"
+          :on-change="(value) => onSelectChange('textDirection', value)"
+        />
+        <bool
+          id="setting-autoCheck"
+          :description="preferenceLabel('autoCheck')"
+          :notes="preferenceNotes('autoCheck')"
+          :bool="autoCheck"
+          :on-change="(value) => onSelectChange('autoCheck', value)"
+        />
       </template>
     </compound>
 
@@ -175,6 +189,8 @@
       </template>
     </compound>
 
+    <slot name="before-misc" />
+
     <compound v-if="show('writing')">
       <template #head>
         <h6 class="title">
@@ -182,13 +198,6 @@
         </h6>
       </template>
       <template #children>
-        <cur-select
-          id="setting-textDirection"
-          :description="preferenceLabel('textDirection')"
-          :value="textDirection"
-          :options="getTextDirectionOptions()"
-          :on-change="(value) => onSelectChange('textDirection', value)"
-        />
         <bool
           id="setting-hideQuickInsertHint"
           :description="preferenceLabel('hideQuickInsertHint')"
@@ -200,13 +209,6 @@
           :description="preferenceLabel('hideLinkPopup')"
           :bool="hideLinkPopup"
           :on-change="(value) => onSelectChange('hideLinkPopup', value)"
-        />
-        <bool
-          id="setting-autoCheck"
-          :description="preferenceLabel('autoCheck')"
-          :notes="preferenceNotes('autoCheck')"
-          :bool="autoCheck"
-          :on-change="(value) => onSelectChange('autoCheck', value)"
         />
         <bool
           id="setting-sourceCodeLineNumbers"

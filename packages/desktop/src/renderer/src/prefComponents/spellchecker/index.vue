@@ -5,14 +5,17 @@
     </h4>
     <compound>
       <template #head>
+        <h6 class="title">
+          {{ t('preferences.spellchecker.title') }}
+        </h6>
+      </template>
+      <template #children>
         <bool
           id="setting-spellcheckerEnabled"
           :description="preferenceLabel('spellcheckerEnabled')"
           :bool="spellcheckerEnabled"
           :on-change="handleSpellcheckerEnabled"
         />
-      </template>
-      <template #children>
         <bool
           id="setting-spellcheckerNoUnderline"
           :description="preferenceLabel('spellcheckerNoUnderline')"

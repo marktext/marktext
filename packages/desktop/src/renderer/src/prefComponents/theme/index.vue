@@ -24,7 +24,10 @@
             :value="theme"
             @choose="openPicker('theme')"
           />
-          <template v-else>
+          <div
+            v-else
+            class="theme-mode-choices"
+          >
             <theme-choice
               v-for="key in modeThemeKeys"
               :id="`setting-${key}`"
@@ -33,7 +36,7 @@
               :value="key === 'lightModeTheme' ? lightModeTheme : darkModeTheme"
               @choose="openPicker(key)"
             />
-          </template>
+          </div>
         </section>
       </template>
     </compound>
@@ -174,6 +177,25 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   --el-bg-color: var(--floatBgColor);
   --el-fill-color-blank: var(--floatBgColor);
   --el-border-color: var(--floatBorderColor);
+}
+.theme-mode-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin: 16px 0;
+}
+.theme-mode-choices > .pref-setting-row {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  margin: 0;
+}
+@container (max-width: 480px) {
+  .theme-mode-choices { grid-template-columns: minmax(0, 1fr); }
+}
+.theme-picker .el-input__inner {
+  background: transparent;
+  border: none;
+  color: var(--editorColor);
 }
 .theme-picker-tools {
   display: flex;

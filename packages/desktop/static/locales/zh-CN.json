@@ -695,7 +695,7 @@
     "theme": {
       "title": "主题",
       "followSystemTheme": "跟随系统外观",
-      "followSystemNote": "跟随系统主题时，下方主题列表不可切换。关闭后即可自由切换。",
+      "followSystemNote": "可以在下方分别选择深色模式和浅色模式下的主题。",
       "modeThemes": "主题选择",
       "lightModeTheme": "浅色模式主题",
       "darkModeTheme": "深色模式主题",
@@ -756,7 +756,7 @@
       "defaultLanguage": "默认语言",
       "enableSpellChecking": "启用拼写检查",
       "hideMarksForErrors": "隐藏拼写错误标记",
-      "title": "拼写检查器"
+      "title": "拼写检查"
     },
     "explanations": {
       "taskCascade": "勾选或取消父任务时同步更新子任务；子任务状态变化时同步更新父任务。",
