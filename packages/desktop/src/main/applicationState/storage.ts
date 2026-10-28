@@ -13,10 +13,10 @@ import { parseApplicationState, parseRecoveryRecord, validIdentity } from './cod
 import { createStateId } from './identity'
 
 export class ApplicationStateStore implements ApplicationStateStorage {
-  private readonly file: AtomicJsonFile<ApplicationState>
+  private readonly _file: AtomicJsonFile<ApplicationState>
 
   constructor(userDataPath: string, hooks: StorageHooks = {}) {
-    this.file = new AtomicJsonFile(
+    this._file = new AtomicJsonFile(
       path.join(userDataPath, 'state', 'application-state.json'),
       parseApplicationState,
       () => createEmptyApplicationState(createStateId(), Date.now()),
@@ -25,30 +25,30 @@ export class ApplicationStateStore implements ApplicationStateStorage {
   }
 
   load(): Promise<LoadResult<ApplicationState>> {
-    return this.file.load()
+    return this._file.load()
   }
   write(state: ApplicationState): Promise<void> {
-    return this.file.write(state)
+    return this._file.write(state)
   }
 }
 
 export class RecoveryStore implements DocumentRecoveryStorage {
-  private readonly files = new Map<string, AtomicJsonFile<RecoveryRecord | null>>()
+  private readonly _files = new Map<string, AtomicJsonFile<RecoveryRecord | null>>()
 
   constructor(
-    private readonly userDataPath: string,
-    private readonly hooks: StorageHooks = {}
+    private readonly _userDataPath: string,
+    private readonly _hooks: StorageHooks = {}
   ) {}
 
-  private pathname(windowId: string, documentId: string): string {
+  private _pathname(windowId: string, documentId: string): string {
     if (!validIdentity(windowId) || !validIdentity(documentId))
       throw new Error('Invalid recovery identity')
-    return path.join(this.userDataPath, 'recovery', windowId, `${documentId}.json`)
+    return path.join(this._userDataPath, 'recovery', windowId, `${documentId}.json`)
   }
 
-  private file(windowId: string, documentId: string): AtomicJsonFile<RecoveryRecord | null> {
-    const pathname = this.pathname(windowId, documentId)
-    let file = this.files.get(pathname)
+  private _file(windowId: string, documentId: string): AtomicJsonFile<RecoveryRecord | null> {
+    const pathname = this._pathname(windowId, documentId)
+    let file = this._files.get(pathname)
     if (!file) {
       file = new AtomicJsonFile(
         pathname,
@@ -60,9 +60,9 @@ export class RecoveryStore implements DocumentRecoveryStorage {
           return record
         },
         () => null,
-        this.hooks
+        this._hooks
       )
-      this.files.set(pathname, file)
+      this._files.set(pathname, file)
     }
     return file
   }
@@ -71,7 +71,7 @@ export class RecoveryStore implements DocumentRecoveryStorage {
     if (!validIdentity(windowId)) throw new Error('Invalid recovery identity')
     let names: string[]
     try {
-      names = await readdir(path.join(this.userDataPath, 'recovery', windowId))
+      names = await readdir(path.join(this._userDataPath, 'recovery', windowId))
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') return []
       throw error
@@ -80,7 +80,7 @@ export class RecoveryStore implements DocumentRecoveryStorage {
     for (const name of names.sort()) {
       const documentId = name.endsWith('.json') ? name.slice(0, -5) : ''
       if (!validIdentity(documentId)) continue
-      const result = await this.file(windowId, documentId).load()
+      const result = await this._file(windowId, documentId).load()
       if (result.status === 'loaded' && result.value) records.push(result.value)
     }
     return records
@@ -88,11 +88,11 @@ export class RecoveryStore implements DocumentRecoveryStorage {
 
   async write(record: RecoveryRecord): Promise<void> {
     const parsed = parseRecoveryRecord(record)
-    await this.file(parsed.ownerWindowId, parsed.documentId).write(parsed)
+    await this._file(parsed.ownerWindowId, parsed.documentId).write(parsed)
   }
 
   async remove(windowId: string, documentId: string): Promise<void> {
-    await this.file(windowId, documentId).remove((record) => {
+    await this._file(windowId, documentId).remove((record) => {
       if (record?.status === 'dirty') throw new Error('Cannot delete a dirty recovery record')
     })
   }

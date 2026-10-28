@@ -57,7 +57,7 @@ const checkedDocument = (snapshot: DocumentSnapshot): DocumentSnapshot => {
 
 /** Main-process authority for document identity, live text and verified disk baselines. */
 export class DocumentRegistry {
-  private readonly entries = new Map<string, DocumentEntry>()
+  private readonly _entries = new Map<string, DocumentEntry>()
 
   register(
     ownerWindowId: string,
@@ -68,7 +68,7 @@ export class DocumentRegistry {
     const document = checkedDocument(snapshot)
     if (
       !validIdentity(ownerWindowId) ||
-      this.entries.has(document.id) ||
+      this._entries.has(document.id) ||
       typeof markdown !== 'string'
     )
       throw new Error('Invalid document registration')
@@ -104,7 +104,7 @@ export class DocumentRegistry {
             : null))
     if (document.content.kind === 'recovery' && document.resource.kind === 'file' && !baseline)
       throw new Error('Missing original disk baseline')
-    this.entries.set(document.id, {
+    this._entries.set(document.id, {
       ownerWindowId,
       snapshot: document,
       markdown,
@@ -118,31 +118,31 @@ export class DocumentRegistry {
     })
   }
 
-  private entry(id: string): DocumentEntry {
-    const entry = this.entries.get(id)
+  private _entry(id: string): DocumentEntry {
+    const entry = this._entries.get(id)
     if (!entry) throw new Error('Unknown document')
     if (entry.closed) throw new Error('Document is closed')
     return entry
   }
 
   get(id: string): DocumentSnapshot {
-    return structuredClone(this.entry(id).snapshot)
+    return structuredClone(this._entry(id).snapshot)
   }
 
   text(id: string): string {
-    return this.entry(id).markdown
+    return this._entry(id).markdown
   }
 
   revision(id: string): number {
-    return this.entry(id).revision
+    return this._entry(id).revision
   }
 
   baseline(id: string): DiskBaseline | null {
-    return structuredClone(this.entry(id).baseline)
+    return structuredClone(this._entry(id).baseline)
   }
 
   ownedDocuments(windowId: string): DocumentSnapshot[] {
-    return [...this.entries.values()]
+    return [...this._entries.values()]
       .filter((entry) => entry.ownerWindowId === windowId && !entry.closed)
       .map((entry) => structuredClone(entry.snapshot))
   }
@@ -152,7 +152,7 @@ export class DocumentRegistry {
     metadata: RendererDocumentCheckpoint,
     update?: DirtyContentUpdate
   ): PreparedDocumentUpdate {
-    const current = this.entry(metadata.id)
+    const current = this._entry(metadata.id)
     if (current.ownerWindowId !== ownerWindowId) throw new Error('Invalid document owner')
     const snapshot = checkedDocument({
       ...current.snapshot,
@@ -178,7 +178,10 @@ export class DocumentRegistry {
       contentSha256(markdown) === current.saved.textHash &&
       sameFormat(snapshot.saveFormat, current.saved.snapshot.saveFormat)
     const matchesEmpty =
-      !current.saved && markdown === '' && sameFormat(snapshot.saveFormat, current.emptyFormat)
+      !current.saved &&
+      (snapshot.resource.kind === 'untitled' || snapshot.resource.pendingCreation) &&
+      markdown === '' &&
+      sameFormat(snapshot.saveFormat, current.emptyFormat)
     if (snapshot.content.kind !== 'recovery' && !matchesSaved && !matchesEmpty)
       throw new Error('Clean content does not match saved content')
     const entry = structuredClone(current)
@@ -207,15 +210,15 @@ export class DocumentRegistry {
   apply(updates: PreparedDocumentUpdate[]): void {
     const seen = new Set<string>()
     for (const update of updates) {
-      if (seen.has(update.id) || this.entry(update.id).generation !== update.generation)
+      if (seen.has(update.id) || this._entry(update.id).generation !== update.generation)
         throw new Error('Stale or duplicate prepared document')
       seen.add(update.id)
     }
-    for (const update of updates) this.entries.set(update.id, structuredClone(update.entry))
+    for (const update of updates) this._entries.set(update.id, structuredClone(update.entry))
   }
 
   markSaved(id: string, savedRevision: number, snapshot: DocumentSnapshot, markdown: string): void {
-    const current = this.entry(id)
+    const current = this._entry(id)
     const saved = checkedDocument(snapshot)
     if (
       saved.id !== id ||
@@ -242,20 +245,14 @@ export class DocumentRegistry {
 
   savedDocuments(): Map<string, DocumentSnapshot> {
     return new Map(
-      [...this.entries].flatMap(([id, entry]) =>
+      [...this._entries].flatMap(([id, entry]) =>
         entry.saved && !entry.closed ? [[id, structuredClone(entry.saved.snapshot)] as const] : []
       )
     )
   }
 
-  close(id: string): void {
-    const entry = this.entry(id)
-    if (entry.snapshot.content.kind === 'recovery') throw new Error('Cannot close unsaved document')
-    this.discard(id)
-  }
-
   prepareClose(id: string, discard: boolean, now: number): DiscardedRecoveryRecord {
-    const entry = this.entry(id)
+    const entry = this._entry(id)
     if (!discard && entry.snapshot.content.kind === 'recovery')
       throw new Error('Cannot close unsaved document')
     return {
@@ -269,7 +266,7 @@ export class DocumentRegistry {
   }
 
   requireRecoveryWrite(id: string): void {
-    const entry = this.entry(id)
+    const entry = this._entry(id)
     entry.pending =
       entry.snapshot.content.kind === 'recovery'
         ? 'dirty'
@@ -279,14 +276,14 @@ export class DocumentRegistry {
   }
 
   discard(id: string): void {
-    const entry = this.entry(id)
+    const entry = this._entry(id)
     entry.closed = true
     entry.pending = 'discarded'
     entry.generation++
   }
 
   pendingRecords(now: number): RecoveryRecord[] {
-    return [...this.entries.values()].flatMap((entry): RecoveryRecord[] => {
+    return [...this._entries.values()].flatMap((entry): RecoveryRecord[] => {
       const common = {
         schemaVersion: 1,
         ownerWindowId: entry.ownerWindowId,
@@ -313,19 +310,19 @@ export class DocumentRegistry {
   }
 
   settle(record: RecoveryRecord): void {
-    const entry = this.entries.get(record.documentId)
+    const entry = this._entries.get(record.documentId)
     if (!entry || entry.revision !== record.contentRevision || entry.pending !== record.status)
       return
-    if (entry.closed) this.entries.delete(record.documentId)
+    if (entry.closed) this._entries.delete(record.documentId)
     else entry.pending = null
   }
 
   releaseWindow(windowId: string): void {
-    const entries = [...this.entries].filter(([, entry]) => entry.ownerWindowId === windowId)
+    const entries = [...this._entries].filter(([, entry]) => entry.ownerWindowId === windowId)
     if (entries.some(([, entry]) => !entry.closed && entry.snapshot.content.kind === 'recovery'))
       throw new Error('Cannot release unsaved window contents')
     for (const [id, entry] of entries) {
-      if (entry.pending === null) this.entries.delete(id)
+      if (entry.pending === null) this._entries.delete(id)
       else entry.closed = true
     }
   }
