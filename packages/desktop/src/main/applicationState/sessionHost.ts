@@ -582,8 +582,7 @@ export class SessionHost {
       applyWindowGeometry(native, prepared.snapshot.geometry, displays(), primary())
     editor.projectRoots.restore(
       prepared.snapshot.workspace?.roots.map((root) => ({
-        pathname: root.location.path,
-        collapsedPaths: []
+        pathname: root.location.path
       })) ?? []
     )
     for (const document of prepared.snapshot.documents) {
@@ -897,6 +896,9 @@ export class SessionHost {
 
   private async _choose(snapshot: WindowSnapshot): Promise<'save' | 'discard' | 'cancel'> {
     const documents = snapshot.documents.filter((document) => document.content.kind === 'recovery')
+    const documentLabels = documents.map((document) =>
+      document.resource.kind === 'file' ? document.resource.location.path : document.title
+    )
     const { response } = await dialog.showMessageBox(this._native(snapshot.id), {
       type: 'warning',
       buttons: [
@@ -909,12 +911,8 @@ export class SessionHost {
       defaultId: 0,
       cancelId: 2,
       noLink: true,
-      message: t('dialog.saveChanges', {
-        count: documents.length,
-        type: t(documents.length === 1 ? 'dialog.file' : 'dialog.files'),
-        files: documents.map((document) => document.title).join('\n')
-      }),
-      detail: t('dialog.changesWillBeLost')
+      message: t('dialog.saveChanges'),
+      detail: `${documentLabels.join('\n')}\n\n${t('dialog.changesWillBeLost')}`
     })
     if (response === 0) return 'save'
     if (response === 1) return 'discard'
@@ -1322,9 +1320,14 @@ export class SessionHost {
         }
       }
     })
-    ipcMain.handle('mt::state::get-window-initialization', (event) =>
-      this._initialization(editorFor(event.sender))
-    )
+    ipcMain.handle('mt::state::get-window-initialization', (event) => {
+      const editor = editorFor(event.sender)
+      if (this.isRendererInitialized(editor.sessionStateId)) {
+        // A replacement renderer needs the initial directory scan, not only future changes.
+        editor.projectRoots.restore(editor.projectRoots.roots.map(({ pathname }) => ({ pathname })))
+      }
+      return this._initialization(editor)
+    })
     ipcMain.handle('mt::preferences::get', () => this._accessor.preferences.getAll())
     ipcMain.handle('mt::preferences::update', (_event, patch) => {
       const result = this._accessor.preferences.update(patch)
