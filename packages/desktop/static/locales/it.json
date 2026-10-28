@@ -820,7 +820,10 @@
         "options": "Opzioni",
         "reset": "Azzera",
         "unbind": "Scollega la combinazione"
-      }
+      },
+      "windowAndNavigation": "Finestre e navigazione",
+      "loadError": "Impossibile caricare le scorciatoie da tastiera.",
+      "reload": "Ricarica"
     },
     "selectFont": "Selezione caratteri",
     "spellchecker": {

@@ -820,7 +820,10 @@
         "options": "選項",
         "reset": "重設",
         "unbind": "解除綁定"
-      }
+      },
+      "windowAndNavigation": "視窗與導覽",
+      "loadError": "無法載入快捷鍵。",
+      "reload": "重新載入"
     },
     "selectFont": "選擇字型",
     "spellchecker": {

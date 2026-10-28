@@ -820,7 +820,10 @@
         "options": "Options",
         "reset": "Reset",
         "unbind": "Unbind"
-      }
+      },
+      "windowAndNavigation": "Window and navigation",
+      "loadError": "Could not load keyboard shortcuts.",
+      "reload": "Reload"
     },
     "selectFont": "Select Font",
     "spellchecker": {

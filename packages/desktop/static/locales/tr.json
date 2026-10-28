@@ -820,7 +820,10 @@
         "options": "Seçenekler",
         "reset": "Sıfırla",
         "unbind": "Bağlantıyı Kaldır"
-      }
+      },
+      "windowAndNavigation": "Pencere ve gezinme",
+      "loadError": "Klavye kısayolları yüklenemedi.",
+      "reload": "Yeniden yükle"
     },
     "selectFont": "Yazı Tipi Seç",
     "spellchecker": {

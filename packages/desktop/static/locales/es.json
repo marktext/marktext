@@ -820,7 +820,10 @@
         "options": "Opciones",
         "reset": "Restablecer",
         "unbind": "Desvincular"
-      }
+      },
+      "windowAndNavigation": "Ventanas y navegación",
+      "loadError": "No se pudieron cargar los atajos de teclado.",
+      "reload": "Volver a cargar"
     },
     "selectFont": "Seleccionar Fuente",
     "spellchecker": {

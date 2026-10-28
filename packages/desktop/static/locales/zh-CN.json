@@ -820,7 +820,10 @@
         "options": "选项",
         "reset": "重置",
         "unbind": "解绑"
-      }
+      },
+      "windowAndNavigation": "窗口与导航",
+      "loadError": "无法加载快捷键。",
+      "reload": "重新加载"
     },
     "selectFont": "选择字体",
     "spellchecker": {

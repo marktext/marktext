@@ -820,7 +820,10 @@
         "options": "Optionen",
         "reset": "Zurücksetzen",
         "unbind": "Aufheben"
-      }
+      },
+      "windowAndNavigation": "Fenster und Navigation",
+      "loadError": "Tastenkürzel konnten nicht geladen werden.",
+      "reload": "Neu laden"
     },
     "selectFont": "Schrift auswählen",
     "spellchecker": {

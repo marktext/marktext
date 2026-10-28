@@ -820,7 +820,10 @@
         "options": "オプション",
         "reset": "リセット",
         "unbind": "バインド解除"
-      }
+      },
+      "windowAndNavigation": "ウィンドウとナビゲーション",
+      "loadError": "キーボードショートカットを読み込めませんでした。",
+      "reload": "再読み込み"
     },
     "selectFont": "フォントの選択",
     "spellchecker": {

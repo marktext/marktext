@@ -820,7 +820,10 @@
         "options": "옵션",
         "reset": "재설정",
         "unbind": "바인딩 해제"
-      }
+      },
+      "windowAndNavigation": "창 및 탐색",
+      "loadError": "키보드 단축키를 불러오지 못했습니다.",
+      "reload": "다시 불러오기"
     },
     "selectFont": "글꼴 선택",
     "spellchecker": {
