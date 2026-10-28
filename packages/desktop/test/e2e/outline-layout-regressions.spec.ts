@@ -29,6 +29,7 @@ for (const position of ['left', 'right']) {
     if (position === 'right') await expect(page.locator('.document-outline')).toHaveClass(/is-right/)
     const win = await app.browserWindow(page)
     await win.evaluate(window => window.setContentSize(550, 800))
+    await expect.poll(() => page.evaluate(() => window.innerWidth)).toBe(550)
     await expect.poll(() => page.locator('.document-body').evaluate(el => el.clientWidth)).toBeGreaterThanOrEqual(320)
     const bounds = await page.evaluate(() => {
       const column = document.querySelector('.mu-container') as HTMLElement
