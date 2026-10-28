@@ -302,7 +302,7 @@
     "default": false
   },
   "fancyLists": {
-    "description": "Markdown-Enable pandoc's markdown extension fancy_lists.",
+    "description": "Markdown--Enable pandoc's markdown extension fancy_lists.",
     "type": "boolean",
     "default": false
   },

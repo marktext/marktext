@@ -160,7 +160,7 @@ export function toListDelimiter(value: string): ListDelimiter {
 }
 
 /** Marker style for each nesting depth of an academic outline. */
-export const OUTLINE_LADDER: readonly IListLevel[] = [
+const OUTLINE_LADDER: readonly IListLevel[] = [
     { style: 'upper-roman', delimiter: '.' },
     { style: 'upper-alpha', delimiter: '.' },
     { style: 'decimal', delimiter: '.' },

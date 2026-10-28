@@ -13,3 +13,12 @@ it('indexes startup restoration controls alongside existing preferences', () => 
     })
   }
 })
+
+it('routes the fancy-list search result to Markdown preferences', () => {
+  const entry = getTranslatedSearchContent().find(entry => entry.key === 'fancyLists')
+  expect(entry).toMatchObject({
+    routeCategory: 'markdown',
+    categoryEn: 'Markdown',
+    preference: 'preferences.search.items.fancyLists'
+  })
+})

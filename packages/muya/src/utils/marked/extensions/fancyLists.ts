@@ -8,7 +8,7 @@ import { configureListTokenizer, listRulesOf } from './listTokenizerRules';
 // Lists that open with a decimal `1.` or `1)` marker stay with marked's own
 // tokenizer.
 
-export interface IFancyListToken extends Tokens.List {
+interface IFancyListToken extends Tokens.List {
     style: ListStyle;
     delimiter: ListDelimiter;
 }

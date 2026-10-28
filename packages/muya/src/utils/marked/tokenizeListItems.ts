@@ -43,9 +43,8 @@ export default function tokenizeListItems(lexer: Lexer, list: Tokens.List): void
             inline.src = stripTaskPrefix(inline.src);
 
         const checkbox: Tokens.Checkbox = { type: 'checkbox', raw: `[${task[1]}] `, checked: item.checked };
-        if (list.loose) {
-            first.tokens ??= [];
-            first.tokens.unshift(checkbox);
+        if (first.type === 'paragraph') {
+            first.tokens!.unshift(checkbox);
         }
         else {
             item.tokens.unshift(checkbox);

@@ -11,6 +11,7 @@ import StateToMarkdown from '../state/stateToMarkdown';
 import { githubAlertBlockType } from '../utils/githubAlerts';
 import { getClipBoardHtml, getSanitizeClipboardHtml } from '../utils/marked';
 import { imageClipboardData } from './image';
+import { withMarkdownSource } from './markdownSource';
 import { CopyType } from './types';
 
 export interface IClipboardPayload {
@@ -436,7 +437,7 @@ export function writeClipboardData(
         }
 
         case CopyType.COPY_AS_RICH: {
-            event.clipboardData.setData('text/html', html);
+            event.clipboardData.setData('text/html', clipboard.muya.options?.fancyLists ? withMarkdownSource(html) : html);
             event.clipboardData.setData('text/plain', text);
             break;
         }
