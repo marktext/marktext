@@ -2,12 +2,12 @@ import { STATE_LIMITS } from '../types/applicationState'
 import type {
   ApplicationState,
   DocumentSnapshot,
-  DocumentViewState,
   PersistenceLimits,
   WindowSnapshot,
   WorkspaceFileState,
   WorkspaceRecentState
 } from '../types/applicationState'
+import type { DocumentViewState } from '../types/files'
 
 export interface WorkspaceCaptureOptions {
   savedDocuments?: ReadonlyMap<string, DocumentSnapshot>

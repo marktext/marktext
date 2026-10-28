@@ -1,14 +1,5 @@
 import type { PreferenceUpdateResult, UserPreferences, UserPreferencesPatch } from './preferences'
 import type { DocumentViewState, DiskBaseline, SaveFormatState } from './files'
-export type {
-  SourcePosition,
-  SourceSelection,
-  MuyaEndpoint,
-  MuyaSelection,
-  DocumentViewState,
-  DiskBaseline,
-  SaveFormatState
-} from './files'
 export type WindowStateId = string
 export type SessionId = string
 export type WorkspaceId = string
