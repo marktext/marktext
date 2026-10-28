@@ -639,11 +639,14 @@ export class SessionHost {
     await editor.sessionReady
     const id = editor.sessionStateId
     if (!id) throw new Error('Unmanaged window')
+    const context = this.contexts.get(id)
+    if (!context) throw new Error('Missing renderer context')
+    // Keep the published token valid during IO; publish its replacement without another IO gap.
+    const result = await this.owner().flush(id, context.contextToken)
     const initialized = await this.owner().initializeRenderer(id)
     this.rendererUnavailable.delete(id)
     this.rendererReady.delete(id)
     this.contexts.set(id, initialized.context)
-    const result = await this.owner().flush(id, initialized.context.contextToken)
     return {
       ...initialized,
       preferences: this.accessor.preferences.getAll(),

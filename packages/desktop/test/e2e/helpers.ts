@@ -253,11 +253,12 @@ export const waitForEditor = async(page: Page, timeout = 15000): Promise<void> =
 }
 
 export const delaySessionStateWrites = async(app: ElectronApplication, delayMs: number): Promise<void> => {
-  await app.evaluate((_, milliseconds) => {
+  await app.evaluate(({ ipcMain }, milliseconds) => {
     const filesystem = process.getBuiltinModule('fs') as typeof fs
     const rename = filesystem.rename
     filesystem.rename = ((source, target, callback) => {
       if (String(target).endsWith('application-state.json')) {
+        ipcMain.emit('test-session-state-write', source)
         setTimeout(() => rename(source, target, callback), milliseconds)
       } else {
         rename(source, target, callback)

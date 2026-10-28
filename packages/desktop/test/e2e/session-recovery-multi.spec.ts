@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import type * as FileSystem from 'node:fs'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -7,7 +8,10 @@ import {
   launchElectron,
   getMarkdownContent,
   expectNoRendererErrors,
-  sendIpcToRenderer
+  sendIpcToRenderer,
+  launchWithMarkdown,
+  openProjectFolder,
+  delaySessionStateWrites
 } from './helpers'
 
 const stop = async(app: ElectronApplication): Promise<void> => {
@@ -647,5 +651,39 @@ test('ten normal startup, edit, save or discard and quit cycles do not accumulat
   } finally {
     if (running) await stop(running)
     rmSync(directory, { recursive: true, force: true })
+  }
+})
+
+
+test('a new draft requested while workspace context is being refreshed is retained', async() => {
+  const launched = await launchWithMarkdown('# Existing file\n', {
+    preferences: { language: 'en' },
+    suppressErrorDialog: true
+  })
+  try {
+    await delaySessionStateWrites(launched.app, 150)
+    await launched.app.evaluate(({ BrowserWindow, ipcMain }) => {
+      const filesystem = process.getBuiltinModule('fs') as typeof FileSystem
+      let workspaceWrites = 0
+      ipcMain.on('test-session-state-write', (source: unknown) => {
+        const snapshot = JSON.parse(filesystem.readFileSync(String(source), 'utf8'))
+        if (!snapshot.session.windows.some((window: { workspace: unknown }) => window.workspace)) return
+        workspaceWrites++
+        if (workspaceWrites === 2) {
+          BrowserWindow.getAllWindows()[0].webContents.send(
+            'mt::new-untitled-tab', true, 'Draft during workspace change\n'
+          )
+        }
+      })
+    })
+    await openProjectFolder(
+      launched.app, launched.page, join(launched.filePath, '..'), launched.filePath
+    )
+    await expect(launched.page.locator('.tabs-container > li')).toHaveCount(2)
+    await expect(launched.page.getByRole('textbox', { name: 'Document', exact: true }))
+      .toContainText('Draft during workspace change')
+    await expectNoRendererErrors(launched.app)
+  } finally {
+    await launched.app.close()
   }
 })
