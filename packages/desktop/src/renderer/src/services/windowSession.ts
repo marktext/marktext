@@ -64,9 +64,11 @@ class WindowSession {
     const ipc = window.electron.ipcRenderer
     const interacted = (): void => {
       this._interactionEpoch++
+      // An unready editor must not apply its old view after the user starts interacting.
+      this._pendingRestoreId = null
     }
-    for (const name of ['pointerdown', 'keydown', 'beforeinput']) {
-      document.addEventListener(name, interacted, true)
+    for (const name of ['pointerdown', 'keydown', 'beforeinput', 'wheel']) {
+      document.addEventListener(name, interacted, { capture: true, passive: true })
       this._stops.push(() => document.removeEventListener(name, interacted, true))
     }
     const finishRename = (): void => {
