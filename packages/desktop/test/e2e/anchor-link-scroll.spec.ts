@@ -24,6 +24,7 @@ const scrollTop = (page: Page): Promise<number> =>
   })
 
 const modifierClickLink = async(page: Page): Promise<void> => {
+  // A synthetic click skips the pointer/keyboard events that cancel pending view restoration.
   await page.locator(LINK_WRAPPER).first().click({
     modifiers: [process.platform === 'darwin' ? 'Meta' : 'Control']
   })
@@ -47,9 +48,6 @@ test.describe('In-document anchor link click scrolls the editor (item 236)', () 
   })
 
   test('the rendered link resolves its href to the in-doc anchor and the heading is present', async() => {
-    // The link carries the bare anchor href via the snabbdom DOM property, and
-    // the destination heading (`## My Section`) is a top-level `.mu-container`
-    // child — exactly the set resolveTocHeadingElement enumerates by index.
     const wiring = await page.evaluate((selector) => {
       const link = document.querySelector(selector) as HTMLElement | null
       const heading = document.querySelector('.mu-container > h2')
@@ -83,9 +81,7 @@ test.describe('In-document anchor link click scrolls the editor (item 236)', () 
     // meaningful distance toward the off-screen heading.
     await expect.poll(() => scrollTop(page), { timeout: 8000 }).toBeGreaterThan(100)
 
-    // Settle to the final position, then assert the heading is parked below the
-    // editor viewport's top edge, proving the jump landed on the right element
-    // and accounted for the surrounding window layout.
+    // The heading must land at the editor's 24px navigation offset.
     const headingOffset = () => page.evaluate(() => {
       const container = document.querySelector('.editor-component')
       const heading = document.querySelector('.mu-container > h2')
@@ -94,8 +90,10 @@ test.describe('In-document anchor link click scrolls the editor (item 236)', () 
         heading.getBoundingClientRect().top - container.getBoundingClientRect().top
       )
     })
-    await expect.poll(headingOffset).toBeLessThanOrEqual(28)
-    await expect.poll(headingOffset).toBeGreaterThanOrEqual(20)
+    await expect.poll(async() => {
+      const offset = await headingOffset()
+      return offset === null ? Infinity : Math.abs(offset - 24)
+    }).toBeLessThanOrEqual(4)
 
     await expectNoRendererErrors(app)
   })
