@@ -1,9 +1,8 @@
-// Export TOC anchors must use the same slug generator as Muya heading IDs.
-import { escapeHTML, unescapeHTML, generateGithubSlug } from '@muyajs/core'
+import { escapeHTML, unescapeHTML } from '@muyajs/core'
 import academicTheme from '@/assets/themes/export/academic.theme.css?inline'
 import liberTheme from '@/assets/themes/export/liber.theme.css?inline'
 import { deepClone } from '../util'
-import { sanitize, EXPORT_DOMPURIFY_CONFIG } from '../util/dompurify'
+import { sanitize, EXPORT_DOMPURIFY_CONFIG, TOC_DOMPURIFY_CONFIG } from '../util/dompurify'
 
 export interface PdfCssOptions {
   type?: string
@@ -111,29 +110,13 @@ export interface TocEntry {
   lvl: number
   content: string
   contentHtml?: string
-  slug?: string
+  slug: string
 }
 
 export interface HtmlTocOptions {
   tocIncludeTopHeading?: boolean
   tocTitle?: string
   [key: string]: unknown
-}
-
-// Deduplicate over the full heading list before filtering, matching MarkdownToHtml
-// so every exported TOC anchor targets the same heading ID.
-const assignHeadingSlugs = (tocList: TocEntry[]): void => {
-  const seen = new Set<string>()
-  for (const entry of tocList) {
-    const base = generateGithubSlug(entry.content) || 'heading'
-    let slug = base
-    let n = 1
-    while (seen.has(slug)) {
-      slug = `${base}-${n++}`
-    }
-    seen.add(slug)
-    entry.slug = slug
-  }
 }
 
 const generateHtmlToc = (
@@ -156,8 +139,10 @@ const generateHtmlToc = (
   const shifted = tocList.shift() as TocEntry
   const { content, contentHtml, lvl, slug } = shifted
 
-  const label = contentHtml ?? content
-  let html = `<li><span><a class="toc-h${lvl}" href="#${slug}">${label}</a><span class="dots"></span></span>`
+  const label = contentHtml === undefined
+    ? escapeHTML(content)
+    : sanitize(contentHtml, TOC_DOMPURIFY_CONFIG)
+  let html = `<li><span><a class="toc-h${lvl}" href="#${escapeHTML(slug)}">${label}</a><span class="dots"></span></span>`
 
   if (tocList.length !== 0 && tocList[0].lvl > lvl) {
     html += '<ul>' + generateHtmlToc(tocList, lvl, options) + '</ul>'
@@ -169,7 +154,6 @@ const generateHtmlToc = (
 
 export const getHtmlToc = (toc: TocEntry[], options: HtmlTocOptions = {}): string => {
   const list = deepClone(toc)
-  assignHeadingSlugs(list)
   const tocList = generateHtmlToc(list, 0, options)
   if (!tocList) {
     return ''

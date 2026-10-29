@@ -189,8 +189,8 @@ describe('getHtmlToc', () => {
   it('renders a "Table of Contents" title and excludes the top H1 by default', async() => {
     const { getHtmlToc } = await loadPdf()
     const toc = [
-      { lvl: 1, content: 'Top' },
-      { lvl: 2, content: 'Sub' }
+      { lvl: 1, content: 'Top', slug: 'top' },
+      { lvl: 2, content: 'Sub', slug: 'sub' }
     ]
     const html = getHtmlToc(toc, {})
 
@@ -203,8 +203,8 @@ describe('getHtmlToc', () => {
   it('includes the top heading and honors a custom tocTitle', async() => {
     const { getHtmlToc } = await loadPdf()
     const toc = [
-      { lvl: 1, content: 'Top' },
-      { lvl: 2, content: 'Sub' }
+      { lvl: 1, content: 'Top', slug: 'top' },
+      { lvl: 2, content: 'Sub', slug: 'sub' }
     ]
     const html = getHtmlToc(toc, { tocTitle: 'Contents', tocIncludeTopHeading: true })
 
@@ -216,33 +216,33 @@ describe('getHtmlToc', () => {
   it('clones its input — repeated calls are stable (the helper shifts internally)', async() => {
     const { getHtmlToc } = await loadPdf()
     const toc = [
-      { lvl: 1, content: 'Top' },
-      { lvl: 2, content: 'Sub' }
+      { lvl: 1, content: 'Top', slug: 'top' },
+      { lvl: 2, content: 'Sub', slug: 'sub' }
     ]
     const first = getHtmlToc(toc, { tocIncludeTopHeading: true })
     const second = getHtmlToc(toc, { tocIncludeTopHeading: true })
 
     expect(second).toBe(first)
     expect(toc).toHaveLength(2)
-    expect(toc[0]).toEqual({ lvl: 1, content: 'Top' })
+    expect(toc[0]).toEqual({ lvl: 1, content: 'Top', slug: 'top' })
   })
 
-  it('dedups identical heading slugs in document order with -N suffixes', async() => {
+  it('uses assigned export IDs even when they differ from the heading text', async() => {
     const { getHtmlToc } = await loadPdf()
     const toc = [
-      { lvl: 2, content: 'Installation' },
-      { lvl: 2, content: 'Installation' }
+      { lvl: 2, content: 'Installation', slug: 'custom-id' },
+      { lvl: 2, content: 'Installation', slug: 'installation-2' }
     ]
     const html = getHtmlToc(toc, { tocIncludeTopHeading: true })
 
-    expect(html).toContain('href="#installation"')
-    expect(html).toContain('href="#installation-1"')
+    expect(html).toContain('href="#custom-id"')
+    expect(html).toContain('href="#installation-2"')
   })
 
   it('renders the engine `contentHtml` for entries when present (#3110)', async() => {
     const { getHtmlToc } = await loadPdf()
     const html = getHtmlToc(
-      [{ lvl: 2, content: 'Sub', contentHtml: '<strong>Sub</strong>' }],
+      [{ lvl: 2, content: 'Sub', contentHtml: '<strong>Sub</strong>', slug: 'sub' }],
       { tocIncludeTopHeading: true }
     )
 
@@ -251,7 +251,7 @@ describe('getHtmlToc', () => {
 
   it('returns an empty string when the TOC has no qualifying entries', async() => {
     const { getHtmlToc } = await loadPdf()
-    expect(getHtmlToc([{ lvl: 1, content: 'Only' }], {})).toBe('')
+    expect(getHtmlToc([{ lvl: 1, content: 'Only', slug: 'only' }], {})).toBe('')
     expect(getHtmlToc([], {})).toBe('')
   })
 })

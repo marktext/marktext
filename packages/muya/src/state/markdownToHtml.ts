@@ -30,6 +30,26 @@ const SOFT_NEWLINE_AS_SPACE_OVERRIDE = `
 }
 `;
 
+export interface IExportHeading {
+    lvl: number;
+    content: string;
+    contentHtml: string;
+    slug: string;
+}
+
+export interface IHtmlExport {
+    html: string;
+    /** Headings in document order, with the IDs assigned in `html`. */
+    headings: IExportHeading[];
+}
+
+export interface IHtmlExportOptions {
+    title?: string;
+    extraCSS?: string;
+    inlineStyles?: boolean;
+    dir?: string;
+}
+
 export class MarkdownToHtml {
     private _exportContainer: HTMLDivElement | null = null;
 
@@ -171,9 +191,20 @@ export class MarkdownToHtml {
             seen.add(slug);
             heading.id = slug;
         }
+
+        return [...headings].map(heading => ({
+            lvl: Number(heading.tagName.slice(1)),
+            content: heading.textContent ?? '',
+            contentHtml: heading.innerHTML,
+            slug: heading.id,
+        }));
     }
 
-    async renderHtml() {
+    async renderHtml(): Promise<string> {
+        return (await this.renderHtmlWithHeadings()).html;
+    }
+
+    async renderHtmlWithHeadings(): Promise<IHtmlExport> {
         const options: Partial<IMuyaOptions> = this._muya?.options ?? {};
         const footnote = options.footnote ?? false;
         let html = getHighlightHtml(this.markdown, {
@@ -203,12 +234,13 @@ export class MarkdownToHtml {
         document.body.appendChild(exportContainer);
 
         let result: string;
+        let headings: IExportHeading[];
         try {
             await this._renderMermaid();
             await this._renderDiagram();
 
             // Exported TOC links require matching heading IDs; spec conformance rendering omits this pass.
-            this._injectHeadingIds(exportContainer);
+            headings = this._injectHeadingIds(exportContainer);
 
             result = exportContainer.innerHTML;
         }
@@ -228,7 +260,7 @@ export class MarkdownToHtml {
             return `${def}${str}`;
         });
 
-        return `<article class="markdown-body">${result}</article>`;
+        return { html: `<article class="markdown-body">${result}</article>`, headings };
     }
 
     /**
@@ -243,15 +275,13 @@ export class MarkdownToHtml {
      * @param options.dir Text direction set on the root `<html>` (`rtl` / `auto`);
      * `ltr` is the HTML default and stays implicit.
      */
-    async generate(
-        options: {
-            title?: string;
-            extraCSS?: string;
-            inlineStyles?: boolean;
-            dir?: string;
-        } = {},
-    ) {
-        const html = await this.renderHtml();
+    async generate(options: IHtmlExportOptions = {}): Promise<string> {
+        return (await this.generateWithHeadings(options)).html;
+    }
+
+    /** Return the document and heading metadata from the same render pass. */
+    async generateWithHeadings(options: IHtmlExportOptions = {}): Promise<IHtmlExport> {
+        const { html, headings } = await this.renderHtmlWithHeadings();
         const { embedExportFonts } = await import('../utils/embedExportFonts');
 
         const { title = '', extraCSS = '', inlineStyles = true, dir } = options;
@@ -279,7 +309,7 @@ export class MarkdownToHtml {
             baseStyles = CDN_STYLESHEET_LINKS;
         }
 
-        return `<!DOCTYPE html>
+        const documentHtml = `<!DOCTYPE html>
 <html lang="en"${dirAttr}>
 <head>
   <meta charset="UTF-8">
@@ -293,5 +323,6 @@ ${baseStyles}
   ${html}
 </body>
 </html>`;
+        return { html: documentHtml, headings };
     }
 }
