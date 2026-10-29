@@ -167,6 +167,7 @@ function targetAt(muya: Muya, x: number, y: number): IPointTarget | null {
 }
 
 export class TextDrag {
+    private _eventIds: string[] = [];
     private _source: ITextDragSource | null = null;
     private _origin = { x: 0, y: 0 };
     private _point = { x: 0, y: 0 };
@@ -182,7 +183,8 @@ export class TextDrag {
         const { eventCenter, domNode } = _muya;
         const doc = domNode.ownerDocument;
         const attach = (target: HTMLElement | Document, name: string, handler: EventListener) => {
-            eventCenter.attachDOMEvent(target, name, handler, true);
+            const eventId = eventCenter.attachDOMEvent(target, name, handler, true);
+            this._eventIds.push(eventId);
         };
         attach(doc, 'mousedown', this._down);
         attach(doc, 'mousemove', this._move);
@@ -204,8 +206,8 @@ export class TextDrag {
             if (findContentDOM(event.target as Node))
                 event.preventDefault();
         });
-        eventCenter.on('read-only-changed', () => this.cancel());
-        eventCenter.on('json-change', () => this.cancel(false));
+        eventCenter.on('read-only-changed', this._readOnlyChanged);
+        eventCenter.on('json-change', this._jsonChanged);
     }
 
     get isDragging(): boolean {
@@ -214,10 +216,18 @@ export class TextDrag {
 
     destroy(): void {
         this.cancel(false);
-        this._muya.domNode.ownerDocument.defaultView?.removeEventListener('blur', this._blur);
+        const { eventCenter, domNode } = this._muya;
+        for (const eventId of this._eventIds)
+            eventCenter.detachDOMEvent(eventId);
+        this._eventIds = [];
+        eventCenter.off('read-only-changed', this._readOnlyChanged);
+        eventCenter.off('json-change', this._jsonChanged);
+        domNode.ownerDocument.defaultView?.removeEventListener('blur', this._blur);
     }
 
     private _blur = () => this.cancel();
+    private _readOnlyChanged = () => this.cancel();
+    private _jsonChanged = () => this.cancel(false);
 
     cancel(restore = true): void {
         const source = this._source;

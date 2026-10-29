@@ -4,7 +4,7 @@ import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
 import { createTextSelectionState } from '../../selection/state';
-import { canDropText, dropText, getTextDragSource } from '../dragDropText';
+import { canDropText, dropText, getTextDragSource, TextDrag } from '../dragDropText';
 
 vi.mock('../../utils/prism/index', () => ({
     default: {},
@@ -243,5 +243,44 @@ describe('single-content text moves', () => {
         expect(leaves().map(b => b.text)).toEqual(['ABCDE', 'Target']);
         expect(muya.getSelectedText()).toBe('BC');
         expect(muya.editor.history.getHistory().stack.undo).toHaveLength(0);
+    });
+});
+
+describe('text drag lifecycle', () => {
+    it('independently detaches its listeners without removing other editor listeners', () => {
+        muya.editor.textDrag!.destroy();
+        const { eventCenter, domNode } = muya;
+        const events = [...eventCenter.events];
+        const subscriptions = Object.fromEntries(Object.entries(eventCenter.listeners)
+            .map(([name, listeners]) => [name, [...listeners]]));
+        const drag = new TextDrag(muya);
+        const ownedEvents = eventCenter.events.filter(event => !events.includes(event));
+        const removeDocumentListener = vi.spyOn(document, 'removeEventListener');
+        const removeRootListener = vi.spyOn(domNode, 'removeEventListener');
+        const removeWindowListener = vi.spyOn(window, 'removeEventListener');
+        const [block] = leaves();
+        expect(block.domNode!.dispatchEvent(new Event('dragstart', { bubbles: true, cancelable: true }))).toBe(false);
+
+        drag.destroy();
+        expect(eventCenter.events).toEqual(events);
+        expect(eventCenter.listeners).toEqual(subscriptions);
+        for (const event of ownedEvents) {
+            const remove = event.target === document ? removeDocumentListener : removeRootListener;
+            expect(remove).toHaveBeenCalledWith(event.event, event.listener, event.capture);
+        }
+        expect(removeWindowListener).toHaveBeenCalledWith('blur', expect.any(Function));
+        expect(block.domNode!.dispatchEvent(new Event('dragstart', { bubbles: true, cancelable: true }))).toBe(true);
+
+        const cancel = vi.spyOn(drag, 'cancel');
+        eventCenter.emit('read-only-changed', false);
+        muya.transact(() => {
+            block.text += '!';
+        });
+        window.dispatchEvent(new Event('blur'));
+        expect(cancel).not.toHaveBeenCalled();
+        drag.destroy();
+        expect(eventCenter.events).toEqual(events);
+        expect(eventCenter.listeners).toEqual(subscriptions);
+        vi.restoreAllMocks();
     });
 });
