@@ -219,6 +219,7 @@ export interface CommonStyleOptions {
 
 export const addCommonStyle = (options: CommonStyleOptions): void => {
   const { codeFontFamily, codeFontSize, hideScrollbar } = options
+  const resolvedCodeFont = codeFontFamily ? `${codeFontFamily}, ${DEFAULT_CODE_FONT_FAMILY}` : DEFAULT_CODE_FONT_FAMILY
   let sheet = document.querySelector(`#${COMMON_STYLE_ID}`) as HTMLStyleElement | null
   if (!sheet) {
     sheet = document.createElement('style')
@@ -233,7 +234,7 @@ export const addCommonStyle = (options: CommonStyleOptions): void => {
 
   sheet.innerHTML = `${scrollbarStyle}
 .CodeMirror {
-font-family: ${codeFontFamily}, ${DEFAULT_CODE_FONT_FAMILY};
+font-family: ${resolvedCodeFont};
 font-size: ${codeFontSize}px;
 }
 

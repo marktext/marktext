@@ -7,7 +7,17 @@
     :disabled="disable"
   >
     <template #default="{ descriptionId }">
+      <font-stack
+        v-if="multiple"
+        :value="value"
+        :fonts="fontFamilies"
+        :description="description"
+        :description-id="descriptionId"
+        :disabled="disable"
+        :on-change="onChange"
+      />
       <el-autocomplete
+        v-else
         v-model="selectValue"
         :show-arrow="false"
         :aria-label="description"
@@ -43,11 +53,13 @@ import { useI18n } from 'vue-i18n'
 import SettingRow from '../settingRow.vue'
 import type { PrefControlProps } from '../types'
 import { withBundledFonts } from './bundledFonts'
+import FontStack from './fontStack.vue'
 
 const { t } = useI18n()
 
 interface FontTextBoxProps extends PrefControlProps<string> {
   onlyMonospace?: boolean
+  multiple?: boolean
 }
 
 const props = withDefaults(defineProps<FontTextBoxProps>(), {
@@ -55,7 +67,8 @@ const props = withDefaults(defineProps<FontTextBoxProps>(), {
   notes: '',
   more: '',
   disable: false,
-  onlyMonospace: false
+  onlyMonospace: false,
+  multiple: false
 })
 
 let defaultValue = props.value

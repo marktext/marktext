@@ -728,6 +728,9 @@
         "invalidKeybinding": "Invalid key combination"
       }
     },
+    "fontStack": {
+      "noMatches": "No matching fonts"
+    },
     "selectFont": "Select Font",
     "spellchecker": {
       "autoDetectDescription": "Automatically detect document language",

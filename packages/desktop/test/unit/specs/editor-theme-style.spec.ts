@@ -24,6 +24,12 @@ describe('theme.ts style injection helpers', () => {
   })
 
   describe('addCommonStyle', () => {
+    it('uses the built-in code fonts when no custom font is selected', () => {
+      addCommonStyle({ codeFontFamily: '', codeFontSize: 14 })
+      const css = styleHtml(COMMON_STYLE_ID)
+      expect(css).toContain(`font-family: ${DEFAULT_CODE_FONT_FAMILY};`)
+      expect(css).not.toContain('font-family: ,')
+    })
     it('injects code font-family/size onto the .CodeMirror selector', () => {
       addCommonStyle({ codeFontFamily: 'Courier New', codeFontSize: 24 })
 

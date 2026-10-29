@@ -85,9 +85,9 @@
     "type": "string"
   },
   "editorFontFamily": {
-    "description": "Editor--editor font family",
+    "description": "Editor--Editor font family. Empty uses the built-in fallback fonts.",
     "type": "string",
-    "pattern": "^[^\\s]+((-|\\s)*[^\\s])*$",
+    "pattern": "^(?:$|[^\\s]+((-|\\s)*[^\\s])*)$",
     "default": "Open Sans"
   },
   "fontSize": {
@@ -123,9 +123,9 @@
     "default": 14
   },
   "codeFontFamily": {
-    "description": "Editor--Font family used in code block",
+    "description": "Editor--Font family used in code block. Empty uses the built-in fallback fonts.",
     "type": "string",
-    "pattern": "^[^\\s]+((-|\\s)*[^\\s])*$",
+    "pattern": "^(?:$|[^\\s]+((-|\\s)*[^\\s])*)$",
     "default": "DejaVu Sans Mono"
   },
   "codeBlockLineNumbers": {

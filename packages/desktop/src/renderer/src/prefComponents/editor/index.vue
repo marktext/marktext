@@ -41,12 +41,14 @@
         />
         <font-text-box
           id="setting-editorFontFamily"
+          multiple
           :description="preferenceLabel('editorFontFamily')"
           :value="editorFontFamily"
           :on-change="(value) => onSelectChange('editorFontFamily', value)"
         />
         <font-text-box
           id="setting-codeFontFamily"
+          multiple
           :description="preferenceLabel('codeFontFamily')"
           :notes="preferenceNotes('codeFontFamily')"
           :only-monospace="true"
