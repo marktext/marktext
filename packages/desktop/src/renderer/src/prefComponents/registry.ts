@@ -309,6 +309,11 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
     "category": "images",
     "label": "preferences.image.folderSetting.relativeFolderName"
   },
+  "imageRelativeDirectoryBase": {
+    "section": "imageFolder",
+    "category": "images",
+    "label": "preferences.image.folderSetting.relativeCopyLocation"
+  },
   "treePathExcludePatterns": {
     "category": "general",
     "label": "preferences.general.sidebar.excludePatterns",

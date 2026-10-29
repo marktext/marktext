@@ -3,6 +3,17 @@ import { getTranslatedSearchContent, matchesSearch } from '../../../src/renderer
 
 vi.mock('../../../src/renderer/src/i18n', () => ({ t: (key: string) => key }))
 
+it('finds the relative image copy location by its key and label', () => {
+  const entries = getTranslatedSearchContent()
+  for (const query of ['imageRelativeDirectoryBase', 'Copy image relative to']) {
+    const result = entries.filter(entry => matchesSearch(entry, query))
+    expect(result).toContainEqual(expect.objectContaining({
+      key: 'imageRelativeDirectoryBase',
+      routeCategory: 'images'
+    }))
+  }
+})
+
 it('indexes startup restoration controls alongside existing preferences', () => {
   const entries = getTranslatedSearchContent()
   for (const key of ['autoSave', 'restoreLayoutState', 'restoreEditors', 'restoreViewState']) {

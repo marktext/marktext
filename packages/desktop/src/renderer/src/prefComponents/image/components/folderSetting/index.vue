@@ -37,7 +37,8 @@
       </template>
       <template #children>
         <CurSelect
-          :description="t('preferences.image.folderSetting.relativeCopyLocation')"
+          id="setting-imageRelativeDirectoryBase"
+          :description="preferenceLabel('imageRelativeDirectoryBase')"
           :value="imageRelativeDirectoryBase"
           :disable="!imagePreferRelativeDirectory"
           :options="imageRelativeDirectoryBaseOptions"
