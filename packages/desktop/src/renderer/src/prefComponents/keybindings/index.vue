@@ -3,14 +3,11 @@
     <h4>{{ t('preferences.keybindings.title') }}</h4>
     <setting-note class="shortcut-introduction">
       {{ t('preferences.keybindings.description') }}
-      <button
-        type="button"
-        class="plain-button shortcut-docs"
-        :aria-label="t('preferences.keybindings.online')"
-        @click="openKeybindingDocs"
-      >
-        <LinkIcon :size="14" />
-      </button>
+      <help-link
+        class="shortcut-docs"
+        href="https://marktext.me/docs/key-bindings"
+        :label="t('preferences.keybindings.online')"
+      />
     </setting-note>
     <div
       class="shortcut-content"
@@ -110,7 +107,7 @@ import notice from '@/services/notification'
 import { settingTargetId, openSetting } from '../settingLocation'
 import { acceleratorToLabel } from '@/util/accelerator'
 import { isMac } from '@/util'
-import LinkIcon from '@/components/icons/LinkIcon.vue'
+import HelpLink from '../common/helpLink.vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -140,9 +137,6 @@ const selectedShortcutId = ref<string | null>(null)
 const showDebugTools = Boolean(window.marktext?.env?.debug)
 onMounted(() => { void keybindings.ensureLoaded() })
 
-const openKeybindingDocs = (): void => {
-  window.electron.shell.openExternal('https://marktext.me/docs/key-bindings')
-}
 const restoreDefaults = (): void => {
   selectedShortcutId.value = null
   void keybindings.resetAll()
@@ -195,13 +189,8 @@ const dumpKeyboardInformation = (): void => {
 }
 .shortcut-introduction { margin: 20px 0 28px; }
 .shortcut-docs {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   margin-left: 4px;
   vertical-align: -2px;
-  border-radius: 4px;
-  color: var(--iconColor);
 }
 .shortcut-content { container-type: inline-size; }
 .shortcut-group + .shortcut-group { margin-top: 28px; }
@@ -267,10 +256,8 @@ const dumpKeyboardInformation = (): void => {
   white-space: nowrap;
 }
 .shortcut-accelerator.is-unbound { color: var(--editorColor50); }
-.shortcut-accelerator:not(:disabled):hover,
-.shortcut-docs:hover { background: var(--editorColor10); }
-.shortcut-accelerator:focus-visible,
-.shortcut-docs:focus-visible {
+.shortcut-accelerator:not(:disabled):hover { background: var(--editorColor10); }
+.shortcut-accelerator:focus-visible {
   outline: 2px solid var(--themeColor);
   outline-offset: 2px;
 }

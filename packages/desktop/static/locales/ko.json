@@ -444,8 +444,11 @@
         "action": "시작할 때",
         "restoreLastWindow": "마지막 활성 창 복원",
         "restoreLayoutState": "창 레이아웃 복원",
+        "restoreLayoutStateNote": "다시 시작할 때 창 크기, 위치 및 사이드바 등의 레이아웃을 복원합니다.",
         "restoreEditors": "열려 있던 파일 복원",
+        "restoreEditorsNote": "다시 시작할 때 이전 파일 탭을 다시 엽니다.",
         "restoreViewState": "읽기 위치 및 선택 영역 복원",
+        "restoreViewStateNote": "파일을 복원할 때 이전 읽기 위치와 선택 영역을 복원합니다.",
         "failure": "설정을 저장하지 못했습니다. 이전 설정이 유지됩니다."
       },
       "pandoc": {

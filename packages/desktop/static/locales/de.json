@@ -444,8 +444,11 @@
         "action": "Beim Start",
         "restoreLastWindow": "Das zuletzt aktive Fenster wiederherstellen",
         "restoreLayoutState": "Fensterlayout wiederherstellen",
+        "restoreLayoutStateNote": "Beim Neustart Fenstergröße, Position und Layout wie die Seitenleiste wiederherstellen.",
         "restoreEditors": "Geöffnete Dateien wiederherstellen",
+        "restoreEditorsNote": "Beim Neustart die vorherigen Datei-Tabs erneut öffnen.",
         "restoreViewState": "Lesepositionen und Auswahl wiederherstellen",
+        "restoreViewStateNote": "Beim Wiederherstellen einer Datei zur letzten Leseposition und Auswahl zurückkehren.",
         "failure": "Die Einstellungen konnten nicht gespeichert werden. Die bisherigen Einstellungen bleiben gültig."
       },
       "pandoc": {

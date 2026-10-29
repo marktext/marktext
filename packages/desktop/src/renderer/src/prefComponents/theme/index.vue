@@ -70,6 +70,7 @@
         <el-select
           v-if="pickerTarget === 'theme'"
           v-model="filter"
+          :show-arrow="false"
           :aria-label="t('preferences.theme.filterLabel')"
         >
           <el-option

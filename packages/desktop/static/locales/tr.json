@@ -444,8 +444,11 @@
         "action": "Başlangıçta",
         "restoreLastWindow": "Son etkin pencereyi geri yükle",
         "restoreLayoutState": "Pencere düzenini geri yükle",
+        "restoreLayoutStateNote": "Yeniden başlatıldığında pencere boyutunu, konumunu ve kenar çubuğu gibi düzen öğelerini geri yükler.",
         "restoreEditors": "Açık dosyaları geri yükle",
+        "restoreEditorsNote": "Yeniden başlatıldığında önceki dosya sekmelerini yeniden açar.",
         "restoreViewState": "Okuma konumlarını ve seçimleri geri yükle",
+        "restoreViewStateNote": "Dosya geri yüklendiğinde önceki okuma konumunu ve seçimi geri yükler.",
         "failure": "Ayarlar kaydedilemedi. Önceki ayarlar kullanılmaya devam ediyor."
       },
       "pandoc": {

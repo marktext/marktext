@@ -9,6 +9,7 @@
     <template #default="{ descriptionId }">
       <el-autocomplete
         v-model="selectValue"
+        :show-arrow="false"
         :aria-label="description"
         :aria-describedby="descriptionId"
         :disabled="disable"

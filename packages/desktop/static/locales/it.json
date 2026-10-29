@@ -444,8 +444,11 @@
         "action": "All’avvio",
         "restoreLastWindow": "Ripristina l’ultima finestra attiva",
         "restoreLayoutState": "Ripristina la disposizione delle finestre",
+        "restoreLayoutStateNote": "Ripristina dimensioni, posizione e disposizione degli elementi come la barra laterale al riavvio.",
         "restoreEditors": "Ripristina i file aperti",
+        "restoreEditorsNote": "Riapre le schede dei file precedenti al riavvio.",
         "restoreViewState": "Ripristina le posizioni di lettura e le selezioni",
+        "restoreViewStateNote": "Ripristina l’ultima posizione di lettura e la selezione quando viene ripristinato un file.",
         "failure": "Impossibile salvare le impostazioni. Restano in uso quelle precedenti."
       },
       "pandoc": {

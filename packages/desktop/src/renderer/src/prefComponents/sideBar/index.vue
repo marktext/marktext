@@ -6,6 +6,8 @@
     <section class="search-wrapper">
       <el-autocomplete
         v-model="state"
+        :show-arrow="false"
+        clearable
         value-key="preference"
         :debounce="0"
         popper-class="pref-autocomplete"
@@ -15,7 +17,7 @@
         :aria-label="t('preferences.search.placeholder')"
         @select="handleSelect"
       >
-        <template #suffix>
+        <template #prefix>
           <Search
             width="16"
             height="16"
@@ -126,9 +128,6 @@ onUnmounted(() => {
   border-color: var(--floatBorderColor);
   & .el-autocomplete-suggestion__wrap li:hover {
     background: var(--floatHoverColor);
-  }
-  & .popper__arrow {
-    display: none;
   }
   & li {
     line-height: normal;

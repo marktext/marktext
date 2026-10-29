@@ -444,8 +444,11 @@
         "action": "On startup",
         "restoreLastWindow": "Restore the last active window",
         "restoreLayoutState": "Restore window layout",
+        "restoreLayoutStateNote": "Restore window size, position, and layouts such as the sidebar on restart.",
         "restoreEditors": "Restore opened files",
+        "restoreEditorsNote": "Reopen the previous file tabs on restart.",
         "restoreViewState": "Restore reading positions and selections",
+        "restoreViewStateNote": "Return to the previous reading position and selection when restoring a file.",
         "failure": "The settings could not be saved. Your previous settings are still in use."
       },
       "pandoc": {

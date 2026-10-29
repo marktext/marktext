@@ -444,8 +444,11 @@
         "action": "啟動時",
         "restoreLastWindow": "還原最後使用的視窗",
         "restoreLayoutState": "還原視窗配置",
+        "restoreLayoutStateNote": "重新啟動時，還原視窗大小、位置及側邊欄等版面配置。",
         "restoreEditors": "還原已開啟的檔案",
+        "restoreEditorsNote": "重新啟動時，重新開啟上次的檔案分頁。",
         "restoreViewState": "還原閱讀位置與選取範圍",
+        "restoreViewStateNote": "還原檔案時，回到上次閱讀位置並還原選取範圍。",
         "failure": "無法儲存設定，仍使用先前的設定。"
       },
       "pandoc": {

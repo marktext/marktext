@@ -330,15 +330,18 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
   },
   "restoreLayoutState": {
     "category": "files",
-    "label": "preferences.general.startup.restoreLayoutState"
+    "label": "preferences.general.startup.restoreLayoutState",
+    "notes": "preferences.general.startup.restoreLayoutStateNote"
   },
   "restoreEditors": {
     "category": "files",
-    "label": "preferences.general.startup.restoreEditors"
+    "label": "preferences.general.startup.restoreEditors",
+    "notes": "preferences.general.startup.restoreEditorsNote"
   },
   "restoreViewState": {
     "category": "files",
-    "label": "preferences.general.startup.restoreViewState"
+    "label": "preferences.general.startup.restoreViewState",
+    "notes": "preferences.general.startup.restoreViewStateNote"
   },
   "spellcheckerEnabled": {
     "category": "editor",

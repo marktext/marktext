@@ -286,9 +286,6 @@ const handleDeleteClick = (selectedItem: CustomDictionaryWord): void => {
 .pref-spellchecker div.el-select-dropdown {
   background: var(--floatBgColor);
   border-color: var(--floatBorderColor);
-  & .popper__arrow {
-    display: none;
-  }
 }
 .pref-spellchecker input.el-input__inner {
   background: transparent;

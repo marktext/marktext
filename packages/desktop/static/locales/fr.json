@@ -444,8 +444,11 @@
         "action": "Au démarrage",
         "restoreLastWindow": "Restaurer la dernière fenêtre active",
         "restoreLayoutState": "Restaurer la disposition des fenêtres",
+        "restoreLayoutStateNote": "Restaurer la taille, la position et la disposition des éléments comme la barre latérale au redémarrage.",
         "restoreEditors": "Restaurer les fichiers ouverts",
+        "restoreEditorsNote": "Rouvrir les onglets de fichiers précédents au redémarrage.",
         "restoreViewState": "Restaurer les positions de lecture et les sélections",
+        "restoreViewStateNote": "Retrouver la dernière position de lecture et la sélection lors de la restauration d’un fichier.",
         "failure": "Les paramètres n’ont pas pu être enregistrés. Les paramètres précédents restent en vigueur."
       },
       "pandoc": {

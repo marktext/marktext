@@ -444,8 +444,11 @@
         "action": "起動時",
         "restoreLastWindow": "最後に使用したウィンドウを復元",
         "restoreLayoutState": "ウィンドウのレイアウトを復元",
+        "restoreLayoutStateNote": "再起動時に、ウィンドウのサイズ、位置、サイドバーなどのレイアウトを復元します。",
         "restoreEditors": "開いていたファイルを復元",
+        "restoreEditorsNote": "再起動時に、前回のファイルタブを開き直します。",
         "restoreViewState": "閲覧位置と選択範囲を復元",
+        "restoreViewStateNote": "ファイルの復元時に、前回の閲覧位置と選択範囲を復元します。",
         "failure": "設定を保存できませんでした。以前の設定を引き続き使用します。"
       },
       "pandoc": {

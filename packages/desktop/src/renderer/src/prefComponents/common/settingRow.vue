@@ -9,15 +9,11 @@
         class="pref-setting-name"
       >
         <span>{{ description }}</span>
-        <button
+        <help-link
           v-if="more"
-          type="button"
-          class="plain-button pref-help-link"
-          :aria-label="t('preferences.learnMore', { name: description })"
-          @click="openHelp"
-        >
-          <LinkIcon :size="14" />
-        </button>
+          :href="more"
+          :label="t('preferences.learnMore', { name: description })"
+        />
       </div>
       <setting-note
         v-if="notes"
@@ -37,18 +33,15 @@ import { useId } from 'vue'
 import SettingNote from './settingNote.vue'
 import './controlSizing.css'
 import { useI18n } from 'vue-i18n'
-import LinkIcon from '@/components/icons/LinkIcon.vue'
+import HelpLink from './helpLink.vue'
 import type { PrefControlBaseProps } from './types'
 
-const props = defineProps<PrefControlBaseProps & {
+defineProps<PrefControlBaseProps & {
   disabled?: boolean
   compact?: boolean
 }>()
 const { t } = useI18n()
 const notesId = `preference-note-${useId()}`
-const openHelp = (): void => {
-  if (props.more) window.electron.shell.openExternal(props.more)
-}
 </script>
 
 <style>
@@ -70,16 +63,6 @@ const openHelp = (): void => {
   gap: 4px;
   min-height: 32px;
   line-height: 1.5;
-}
-.pref-help-link {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  color: var(--iconColor);
-}
-.pref-help-link:hover,
-.pref-help-link:focus-visible {
-  color: var(--themeColor);
 }
 .pref-setting-label,
 .pref-setting-control {

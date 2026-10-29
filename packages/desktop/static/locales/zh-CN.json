@@ -444,8 +444,11 @@
         "action": "启动时",
         "restoreLastWindow": "恢复最后活动的窗口",
         "restoreLayoutState": "恢复窗口布局",
+        "restoreLayoutStateNote": "重新启动时，恢复窗口大小、位置及侧边栏等布局。",
         "restoreEditors": "恢复已打开的文件",
+        "restoreEditorsNote": "重新启动时，重新打开上次的文件标签页。",
         "restoreViewState": "恢复阅读位置和选区",
+        "restoreViewStateNote": "恢复文件时，回到上次阅读位置并还原选区。",
         "failure": "设置未能保存，仍使用之前的设置。"
       },
       "pandoc": {

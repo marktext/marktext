@@ -35,6 +35,7 @@
         :id="`setting-${key}`"
         :key="key"
         :description="t(`preferences.general.startup.${key}`)"
+        :notes="preferenceNotes(key)"
         :bool="value[key]"
         :disable="busy"
         :on-change="(checked) => save({ [key]: checked })"
@@ -56,6 +57,7 @@ import Compound from '../common/compound/index.vue'
 import CurSelect from '../common/select/index.vue'
 import Bool from '../common/bool/index.vue'
 import { useI18n } from 'vue-i18n'
+import { preferenceNotes } from '../registry'
 import type {
   RecoveryPreferences,
   StartupAction,

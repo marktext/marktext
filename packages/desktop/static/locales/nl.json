@@ -444,8 +444,11 @@
         "action": "Bij opstarten",
         "restoreLastWindow": "Het laatst actieve venster herstellen",
         "restoreLayoutState": "Vensterindeling herstellen",
+        "restoreLayoutStateNote": "Herstel bij het opnieuw starten de venstergrootte, positie en indeling, zoals de zijbalk.",
         "restoreEditors": "Geopende bestanden herstellen",
+        "restoreEditorsNote": "Open bij het opnieuw starten de vorige bestandstabbladen opnieuw.",
         "restoreViewState": "Leesposities en selecties herstellen",
+        "restoreViewStateNote": "Herstel de vorige leespositie en selectie bij het herstellen van een bestand.",
         "failure": "De instellingen konden niet worden opgeslagen. De vorige instellingen blijven in gebruik."
       },
       "pandoc": {

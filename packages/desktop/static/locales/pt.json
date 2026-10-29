@@ -444,8 +444,11 @@
         "action": "Ao iniciar",
         "restoreLastWindow": "Restaurar a última janela ativa",
         "restoreLayoutState": "Restaurar a disposição das janelas",
+        "restoreLayoutStateNote": "Restaurar o tamanho, a posição e a disposição de elementos como a barra lateral ao reiniciar.",
         "restoreEditors": "Restaurar os arquivos abertos",
+        "restoreEditorsNote": "Reabrir as abas de arquivos anteriores ao reiniciar.",
         "restoreViewState": "Restaurar as posições de leitura e seleções",
+        "restoreViewStateNote": "Restaurar a última posição de leitura e seleção ao restaurar um arquivo.",
         "failure": "Não foi possível salvar as configurações. As configurações anteriores continuam em uso."
       },
       "pandoc": {
