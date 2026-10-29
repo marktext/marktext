@@ -98,6 +98,14 @@ const createTree = (): FolderFixture =>
   ], [file('/project/root.md')])
 
 describe('expandAncestors', () => {
+  it('reveals a folder without expanding that folder or unrelated branches', () => {
+    const tree = createTree()
+    const chain = expandAncestors(tree, '/project/a/b')
+    expect(chain?.map(folder => folder.pathname)).toEqual(['/project/a'])
+    expect(tree.folders[0].isCollapsed).toBe(false)
+    expect(tree.folders[0].folders[0].isCollapsed).toBe(true)
+    expect(tree.folders[1].isCollapsed).toBe(true)
+  })
   it('expands exactly the folders leading to the file', () => {
     const tree = createTree()
 

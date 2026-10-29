@@ -3,6 +3,7 @@ import path from 'path'
 import log from 'electron-log'
 import { ensureDirSync, isDirectory2, isFile2 } from 'common/filesystem'
 import type { RecentDocument } from '@shared/types/ipc'
+import { containsPath } from 'common/filesystem/paths'
 
 export type { RecentDocument }
 
@@ -51,6 +52,15 @@ export class RecentDocumentsStore {
 
     this._writePaths(keptPaths.filter((documentPath) => documentPath !== pathname))
     return documents.filter((document) => document.pathname !== pathname)
+  }
+
+  relocate(source: string, destination: string): RecentDocument[] {
+    // Read before pruning: a moved directory's old children look like unavailable volumes.
+    const paths = this._readPaths().map(pathname => containsPath(source, pathname)
+      ? path.join(destination, path.relative(source, pathname))
+      : pathname)
+    this._writePaths(paths)
+    return this.read()
   }
 
   clear(): void {

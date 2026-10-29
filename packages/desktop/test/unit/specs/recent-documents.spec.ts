@@ -100,6 +100,26 @@ describe('RecentDocumentsStore', () => {
     expect(JSON.parse(fs.readFileSync(storagePath, 'utf-8'))).toEqual([c, a])
   })
 
+  it('relocates directory descendants without losing unavailable history or changing sibling prefixes', () => {
+    const store = new RecentDocumentsStore(storagePath)
+    const source = path.join(tempDir, 'chapter')
+    const destination = path.join(tempDir, 'archive')
+    fs.mkdirSync(source)
+    const child = path.join(source, 'a.md')
+    fs.writeFileSync(child, '')
+    const sibling = makeFile('chapter2.md')
+    store.add(child)
+    store.add(source)
+    store.add(sibling)
+    fs.renameSync(source, destination)
+    expect(store.relocate(source, destination).map(document => document.pathname)).toEqual([
+      sibling, destination, path.join(destination, 'a.md')
+    ])
+    expect(JSON.parse(fs.readFileSync(storagePath, 'utf8'))).toEqual([
+      sibling, destination, path.join(destination, 'a.md')
+    ])
+  })
+
   it('clears the list', () => {
     const store = new RecentDocumentsStore(storagePath)
     store.add(makeFile('a.md'))

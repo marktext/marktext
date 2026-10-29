@@ -168,7 +168,7 @@ export const expandAncestors = (tree: TreeFolder, pathname: string): TreeFolder[
     currentSubFolders = childFolder.folders
   }
 
-  const isTracked = currentFolder.files.some((f) =>
+  const isTracked = [...currentFolder.files, ...currentFolder.folders].some((f) =>
     window.fileUtils.isSamePathSync(f.pathname, pathname)
   )
   if (!isTracked) return null

@@ -88,6 +88,11 @@ class AppMenu {
     this.updateAppMenu(documents.map((document) => document.pathname))
   }
 
+  relocateRecentlyUsedDocuments(source: string, destination: string): void {
+    const documents = this._recentDocuments.relocate(source, destination)
+    this.updateAppMenu(documents.map(document => document.pathname))
+  }
+
   removeRecentlyUsedDocument(filePath: string): void {
     const documents = this._recentDocuments.remove(filePath)
     this.updateAppMenu(documents.map((document) => document.pathname))

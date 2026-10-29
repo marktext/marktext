@@ -41,6 +41,9 @@ import { CloseCoordinator } from './closeCoordinator'
 import { createStateId, createFileLocation, createWorkspaceDescriptor } from './identity'
 import { contentSha256 } from 'common/filesystem'
 import { applyWindowGeometry, captureWindowGeometry } from './windowGeometry'
+import type { SidebarMoveRequest, SidebarMoveResult } from '@shared/types/project'
+import { confirmAndMoveSidebarItem } from '../filesystem/sidebarMove'
+import { containsPath } from 'common/filesystem/paths'
 
 export interface StartupPath extends FileOpenOptions {
   path: string
@@ -86,7 +89,7 @@ export class SessionHost {
 
   constructor(private readonly _accessor: {
     preferences: Preference
-    menu: Pick<AppMenu, 'removeWindowMenu' | 'addRecentlyUsedDocument'>
+    menu: Pick<AppMenu, 'removeWindowMenu' | 'addRecentlyUsedDocument' | 'relocateRecentlyUsedDocuments'>
   }) {
     this._metadata = new ApplicationStateStore(app.getPath('userData'))
     this._recovery = new RecoveryStore(app.getPath('userData'))
@@ -1054,6 +1057,36 @@ export class SessionHost {
         if (current?.readOnly) await documentWrites.setReadOnly(sender.id, documentId, true)
       }
     }
+  }
+
+  moveSidebarItem(windowId: string, request: SidebarMoveRequest): Promise<SidebarMoveResult> {
+    return this._enqueueWindowOperation(windowId, async() => {
+      const root = this._editors.get(windowId)?.projectRoots.roots.find(root => root.key === request.rootKey)
+      if (!root || root.status !== 'ready') return { status: 'failed', message: t('sideBar.move.invalidTarget') }
+      const result = await confirmAndMoveSidebarItem(this._native(windowId), request, {
+        root: root.pathname,
+        checkAvailable: (source, destination) => {
+          if (root.status !== 'ready' || !this._editors.get(windowId)?.projectRoots.roots.includes(root)) {
+            throw new Error(t('sideBar.move.invalidTarget'))
+          }
+          for (const win of this._owner().getState().session.windows) {
+            for (const document of win.documents) {
+              if (document.resource.kind !== 'file') continue
+              const pathname = document.resource.location.canonicalPath
+              if (win.id !== windowId && containsPath(source, pathname)) {
+                throw new Error(t('sideBar.move.openElsewhere'))
+              }
+              if (containsPath(destination, pathname)) throw new Error(t('sideBar.move.destinationOpen'))
+            }
+          }
+        },
+        move: (source, destination, write) => this._moveResourceNow(windowId, source, destination, write)
+      })
+      if (result.status === 'moved') {
+        this._accessor.menu.relocateRecentlyUsedDocuments(request.source, result.destination)
+      }
+      return result
+    })
   }
 
   moveResource(

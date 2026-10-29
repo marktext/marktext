@@ -90,9 +90,11 @@
     <div
       ref="treeWrapper"
       class="project-trees tree-wrapper"
+      :aria-busy="movingTreeItem"
       :class="{ 'no-project': !roots.length }"
       tabindex="0"
       @mousedown="handleTreeMouseDown"
+      @click="focusTree"
       @focusout="handleTreeFocusOut"
       @keydown="handleTreeKeydown"
     >
@@ -100,6 +102,7 @@
         v-for="root in roots"
         :key="root.key"
         class="project-tree"
+        :data-tree-root="root.key"
       >
         <div
           :ref="
@@ -108,6 +111,8 @@
             }
           "
           class="title project-root"
+          :data-tree-path="root.tree.pathname"
+          data-tree-directory="true"
           role="button"
           tabindex="0"
           :title="root.error || root.pathname"
@@ -219,6 +224,7 @@ import File from './treeFile.vue'
 import OpenedFile from './treeOpenedTab.vue'
 import { MIN_VISIBLE_ROWS, useOpenedFilesResize } from './useOpenedFilesResize'
 import { useTabReorder } from '../useTabReorder'
+import { useTreeDragDrop } from './useTreeDragDrop'
 import IconTooltip from '@/components/iconTooltip/index.vue'
 import bus from '../../bus'
 import { showRootContextMenu } from '../../contextMenu/sideBar'
@@ -253,6 +259,7 @@ const rowRegistry: TreeRowRegistry = new Map()
 provide(TREE_ROW_REGISTRY_KEY, rowRegistry)
 
 const projectStore = useProjectStore()
+const { busy: movingTreeItem } = useTreeDragDrop(treeWrapper)
 const editorStore = useEditorStore()
 const layoutStore = useLayoutStore()
 const showOpenedFiles = computed({
@@ -436,11 +443,11 @@ const focusTree = (): void => {
   treeWrapper.value?.focus()
 }
 
-// preventDefault stops the browser's default mousedown focus move (to <body>)
-// from undoing the focus() call.
 const handleTreeMouseDown = (event: MouseEvent): void => {
   if (isEditableTarget(event.target)) return
-  if (event.button === 0) event.preventDefault()
+  // Draggable rows need the native mousedown action; the click handler restores tree focus afterward.
+  const draggableRow = event.target instanceof Element && event.target.closest('[draggable="true"]')
+  if (event.button === 0 && !draggableRow) event.preventDefault()
   focusTree()
 }
 
@@ -560,6 +567,20 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.tree-wrapper :deep(.tree-drop-target) {
+  background: var(--sideBarItemHoverBgColor);
+  outline: 1px solid var(--themeColor);
+  outline-offset: -1px;
+}
+
+.tree-wrapper :deep(.tree-drag-source) {
+  opacity: 0.5;
+}
+
+.tree-wrapper[aria-busy='true'] {
+  cursor: progress;
+}
+
 .list-enter-active,
 .list-leave-active {
   transition: all 0.2s;

@@ -3,6 +3,9 @@
     ref="fileEl"
     :title="file.pathname"
     class="side-bar-file"
+    :data-tree-path="file.pathname"
+    data-tree-directory="false"
+    :draggable="!renameCache && !projectStore.createCache.dirname"
     :style="{ 'padding-left': `${depth * 6 + 15}px`, opacity: file.isMarkdown ? 1 : 0.75 }"
     :class="[
       { current: currentFile?.pathname === file.pathname, active: file.id === activeItem.id }

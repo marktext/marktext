@@ -3,6 +3,9 @@
     <div
       ref="folderEl"
       class="folder-name"
+      :data-tree-path="folder.pathname"
+      data-tree-directory="true"
+      :draggable="!renameCache && !createCache.dirname"
       :style="{ 'padding-left': `${depth * 6 + 15}px` }"
       :class="[{ active: folder.id === activeItem.id }]"
       :title="folder.pathname"

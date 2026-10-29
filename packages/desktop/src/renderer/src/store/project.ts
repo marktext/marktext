@@ -113,6 +113,7 @@ export const useProjectStore = defineStore('project', () => {
   })
   let revision = 0
   const treeVersion = ref(0)
+  const movingSource = ref<string | null>(null)
 
   const preferencesStore = usePreferencesStore()
 
@@ -319,7 +320,10 @@ export const useProjectStore = defineStore('project', () => {
       }
       case 'unlink':
         unlinkFile(root.tree, change)
-        editorStore.SET_SAVE_STATUS_WHEN_REMOVE(change)
+        // Relocation preserves the save state; its old-path unlink is not an external deletion.
+        if (!movingSource.value || !isWithinRoot(movingSource.value, change.pathname)) {
+          editorStore.SET_SAVE_STATUS_WHEN_REMOVE(change)
+        }
         break
       case 'addDir':
         addDirectory(root.tree, change)
@@ -400,6 +404,15 @@ export const useProjectStore = defineStore('project', () => {
 
   function CHANGE_CLIPBOARD(data: ClipboardEntry | null): void {
     clipboard.value = data
+  }
+
+  async function RECONCILE_FAILED_MOVE(source: string): Promise<void> {
+    const editor = useEditorStore()
+    for (const tab of editor.tabs) {
+      if (!tab.pathname || !isWithinRoot(source, tab.pathname)) continue
+      const exists = await window.fileUtils.pathExists(tab.pathname)
+      if (!exists) editor.SET_SAVE_STATUS_WHEN_REMOVE({ pathname: tab.pathname })
+    }
   }
 
   // Rename and create share one "input is open" state, so they clear together.
@@ -651,6 +664,8 @@ export const useProjectStore = defineStore('project', () => {
     FILE_LABEL,
     APPLY_ROOTS,
     treeVersion,
+    movingSource,
+    RECONCILE_FAILED_MOVE,
     CAPTURE_PROJECT_VIEW,
     RESTORE_PROJECT_VIEW,
     LISTEN_FOR_LOAD_PROJECT,

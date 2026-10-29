@@ -1,0 +1,168 @@
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { expect, test } from '@playwright/test'
+import type { ElectronApplication, Page } from 'playwright'
+import { expectNoRendererErrors, launchElectron, sendIpcToRenderer } from './helpers'
+import type { IFileState } from '../../src/shared/types/files'
+
+let directory: string
+let app: ElectronApplication
+let page: Page
+const row = (pathname: string) => page.locator(`[data-tree-path=${JSON.stringify(pathname)}]`)
+const editorState = () => page.evaluate(() => {
+  const root = document.querySelector('#app') as Element & {
+    __vue_app__: { config: { globalProperties: { $pinia: { _s: Map<string, { tabs: IFileState[]; currentFile: IFileState }> } } } }
+  }
+  const editor = root.__vue_app__.config.globalProperties.$pinia._s.get('editor')
+  if (!editor) throw new Error('Editor store unavailable')
+  return { pathname: editor.currentFile.pathname, saved: editor.currentFile.isSaved, markdown: editor.currentFile.markdown,
+    tabs: editor.tabs.map(tab => ({ pathname: tab.pathname, saved: tab.isSaved })) }
+})
+const confirmMove = async(response: number) => {
+  await app.evaluate(({ dialog }, response) => {
+    dialog.showMessageBox = async() => ({ response, checkboxChecked: false })
+  }, response)
+}
+
+test.beforeEach(async() => {
+  directory = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'mt-drag-move-')))
+  fs.mkdirSync(path.join(directory, 'notes'))
+  fs.mkdirSync(path.join(directory, 'chapter'))
+  fs.writeFileSync(path.join(directory, 'draft.md'), 'Original text\n')
+  fs.writeFileSync(path.join(directory, 'chapter', 'child.md'), 'Child text\n')
+  fs.writeFileSync(path.join(directory, 'chapter', 'other.md'), 'Other text\n')
+  fs.writeFileSync(path.join(directory, 'chapter', '.hidden'), 'Hidden resource')
+  const launched = await launchElectron([directory], {
+    windowLayout: { showSideBar: true }, suppressErrorDialog: true,
+    preferences: { language: 'en', autoSave: false, openFilesInPreviewMode: false, autoRevealInSidebar: false }
+  })
+  app = launched.app
+  page = launched.page
+  await expect(row(path.join(directory, 'draft.md'))).toBeVisible()
+  await expect(page.locator('.root-status')).toHaveCount(0)
+  await confirmMove(0)
+})
+test.afterEach(async() => {
+  if (app) await app.close()
+  fs.rmSync(directory, { recursive: true, force: true })
+})
+
+test('native file drags preserve saved state and dirty edits and can return to the root', async() => {
+  const source = path.join(directory, 'draft.md')
+  const target = path.join(directory, 'notes')
+  const destination = path.join(target, 'draft.md')
+  await row(source).click()
+  await expect.poll(editorState).toMatchObject({ pathname: source, saved: true })
+  await row(source).dragTo(row(target))
+  await expect.poll(() => fs.existsSync(destination)).toBe(true)
+  await expect.poll(editorState).toMatchObject({ pathname: destination, saved: true })
+  await expect(row(destination)).toHaveClass(/active/)
+  expect(fs.existsSync(source)).toBe(false)
+  await row(destination).dragTo(row(directory))
+  await expect.poll(() => fs.existsSync(source)).toBe(true)
+  await expect.poll(editorState).toMatchObject({ pathname: source, saved: true })
+
+  const document = page.getByRole('textbox', { name: 'Document', exact: true })
+  await document.click()
+  await page.keyboard.press('ControlOrMeta+End')
+  await page.keyboard.type(' Unsaved changes')
+  await expect.poll(editorState).toMatchObject({ saved: false })
+  await row(source).dragTo(row(target))
+  await expect.poll(editorState).toMatchObject({ pathname: destination, saved: false })
+  await expect(document).toContainText('Unsaved changes')
+  await expect(page.locator('.tree-wrapper')).toHaveAttribute('aria-busy', 'false')
+  await sendIpcToRenderer(app, 'mt::editor-ask-file-save')
+  await expect.poll(() => fs.readFileSync(destination, 'utf8')).toContain('Unsaved changes')
+  expect(fs.existsSync(source)).toBe(false)
+  const recent = await page.evaluate(() => window.electron.ipcRenderer.invoke('mt::get-recently-used-documents'))
+  expect(recent.some(item => item.pathname === destination)).toBe(true)
+  expect(recent.some(item => item.pathname === source)).toBe(false)
+  await expectNoRendererErrors(app)
+})
+
+test('moves a folder with clean and dirty open descendants and hidden resources', async() => {
+  const source = path.join(directory, 'chapter')
+  const target = path.join(directory, 'notes')
+  const child = path.join(source, 'child.md')
+  await row(source).click()
+  await row(child).click()
+  await expect.poll(editorState).toMatchObject({ pathname: child })
+  await row(path.join(source, 'other.md')).click()
+  await expect.poll(editorState).toMatchObject({ pathname: path.join(source, 'other.md') })
+  await expect(page.getByRole('textbox', { name: 'Document', exact: true })).toContainText('Other text')
+  await page.getByRole('textbox', { name: 'Document', exact: true }).fill('Dirty folder content')
+  await expect.poll(editorState).toMatchObject({ saved: false })
+  await row(source).dragTo(row(target))
+  const destination = path.join(target, 'chapter')
+  await expect.poll(() => fs.existsSync(path.join(destination, '.hidden'))).toBe(true)
+  await expect.poll(editorState).toMatchObject({ pathname: path.join(destination, 'other.md'), saved: false,
+    tabs: expect.arrayContaining([
+      { pathname: path.join(destination, 'child.md'), saved: true },
+      { pathname: path.join(destination, 'other.md'), saved: false }
+    ]) })
+  expect(fs.existsSync(source)).toBe(false)
+  expect(fs.readFileSync(path.join(destination, '.hidden'), 'utf8')).toBe('Hidden resource')
+  await expect(row(destination)).toHaveClass(/active/)
+  await expect(page.locator('.tree-wrapper')).toHaveAttribute('aria-busy', 'false')
+  await sendIpcToRenderer(app, 'mt::editor-ask-file-save')
+  await expect.poll(() => fs.readFileSync(path.join(destination, 'other.md'), 'utf8')).toContain('Dirty folder content')
+  expect(fs.existsSync(source)).toBe(false)
+  await expectNoRendererErrors(app)
+})
+
+test('blocks a folder move while another window has an open descendant', async() => {
+  const child = path.join(directory, 'chapter', 'child.md')
+  const opened = app.waitForEvent('window')
+  await app.evaluate(({ app }, pathname) => {
+    const argv = ['marktext', '--new-window', pathname]
+    app.emit('second-instance', {}, argv, '/', { argv })
+  }, child)
+  const second = await opened
+  await expect(second.getByRole('textbox', { name: 'Document', exact: true })).toContainText('Child text')
+  await page.bringToFront()
+  await row(path.join(directory, 'chapter')).dragTo(row(path.join(directory, 'notes')))
+  await expect(page.getByText('Close this file and any documents inside this folder in other MarkText windows before moving it.')).toBeVisible()
+  expect(fs.existsSync(child)).toBe(true)
+  expect(fs.existsSync(path.join(directory, 'notes', 'chapter'))).toBe(false)
+  await expectNoRendererErrors(app)
+})
+
+test('autosave after a move writes the new path without recreating the old one', async() => {
+  const source = path.join(directory, 'draft.md')
+  const destination = path.join(directory, 'notes', 'draft.md')
+  await page.evaluate(async() => {
+    await window.electron.ipcRenderer.invoke('mt::preferences::update', { autoSave: true, autoSaveDelay: 1000 })
+  })
+  await row(source).click()
+  const document = page.getByRole('textbox', { name: 'Document', exact: true })
+  await expect(document).toContainText('Original text')
+  await document.fill('Pending autosave follows the move')
+  await expect.poll(editorState).toMatchObject({ saved: false })
+  await row(source).dragTo(row(path.join(directory, 'notes')))
+  await expect.poll(editorState).toMatchObject({ pathname: destination })
+  await expect(page.locator('.tree-wrapper')).toHaveAttribute('aria-busy', 'false')
+  await expect.poll(() => fs.readFileSync(destination, 'utf8')).toContain('Pending autosave follows the move')
+  expect(fs.existsSync(source)).toBe(false)
+  await document.fill('Autosaved at the new path')
+  await expect.poll(() => fs.readFileSync(destination, 'utf8')).toContain('Autosaved at the new path')
+  expect(fs.existsSync(source)).toBe(false)
+  await expectNoRendererErrors(app)
+})
+
+test('cancel and name conflicts preserve the original files', async() => {
+  const source = path.join(directory, 'draft.md')
+  const target = path.join(directory, 'notes')
+  await confirmMove(1)
+  await row(source).dragTo(row(target))
+  await expect(page.locator('.tree-wrapper')).toHaveAttribute('aria-busy', 'false')
+  expect(fs.existsSync(source)).toBe(true)
+  expect(fs.existsSync(path.join(target, 'draft.md'))).toBe(false)
+  await confirmMove(0)
+  fs.writeFileSync(path.join(target, 'draft.md'), 'Existing file')
+  await row(source).dragTo(row(target))
+  await expect(page.getByText('The destination already contains an item with this name. Rename it before trying again.')).toBeVisible()
+  expect(fs.readFileSync(source, 'utf8')).toBe('Original text\n')
+  expect(fs.readFileSync(path.join(target, 'draft.md'), 'utf8')).toBe('Existing file')
+  await expectNoRendererErrors(app)
+})

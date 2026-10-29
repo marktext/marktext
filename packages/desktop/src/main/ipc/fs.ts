@@ -7,6 +7,7 @@ import {
   isExecutableFile
 } from 'common/filesystem'
 import type { SerializedStat } from '@shared/types/files'
+import type { SidebarMoveRequest, SidebarMoveResult } from '@shared/types/project'
 import { copyFileWithContentHash } from '../filesystem'
 
 const serializeStat = (stats: Stats): SerializedStat => ({
@@ -37,8 +38,13 @@ const toBuffer = (data: unknown): unknown => {
 
 export interface FileOperations {
   move(sender: WebContents, src: string, dest: string, write: () => Promise<void>): Promise<void>
+  moveInProject(sender: WebContents, request: SidebarMoveRequest): Promise<SidebarMoveResult>
 }
 export const registerFsHandlers = (operations?: FileOperations): void => {
+  ipcMain.handle('mt::project-move-item', (event, request: SidebarMoveRequest) => {
+    if (!operations) throw new Error('Project operations unavailable')
+    return operations.moveInProject(event.sender, request)
+  })
   ipcMain.handle('mt::fs::is-file', (_e, p: string) => commonIsFile(p))
   ipcMain.handle('mt::fs::is-directory', (_e, p: string) => commonIsDirectory(p))
   ipcMain.handle('mt::fs::empty-dir', (_e, p: string) => fs.emptyDir(p))
