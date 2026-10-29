@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import en from '../../static/locales/en.json'
 import type { ElectronApplication, Page } from 'playwright'
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -42,12 +43,12 @@ test('settings search focuses the exact control, including repeated selections',
     const search = settings.locator('.pref-sidebar input')
     for (let attempt = 0; attempt < 2; attempt++) {
       await search.fill('editorLineWidth')
-      await settings.locator('.pref-autocomplete li').first().click()
+      await settings.locator('.pref-autocomplete').getByText(en.preferences.editor.textEditor.maxWidth, { exact: true }).click()
       await expect(settings.locator('#setting-editorLineWidth')).toBeFocused()
       await expect(settings.locator('#setting-editorLineWidth input')).toBeVisible()
     }
     await search.fill('imageRelativeDirectoryName')
-    await settings.locator('.pref-autocomplete li').first().click()
+    await settings.locator('.pref-autocomplete').getByText(en.preferences.image.folderSetting.relativeFolderName, { exact: true }).click()
     await expect(settings.locator('#setting-imageRelativeDirectoryName')).toBeFocused()
     await expectNoRendererErrors(app)
   } finally {

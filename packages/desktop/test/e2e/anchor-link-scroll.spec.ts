@@ -2,32 +2,6 @@ import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import { launchWithMarkdown, expectNoRendererErrors } from './helpers'
 
-// ---------------------------------------------------------------------------
-// Coverage backfill (checklist item 236). The store-level
-// githubSlug -> stableSlug lookup is unit-covered in
-// packages/desktop/test/unit/specs/editor-store-anchor.spec.ts
-// (FORMAT_LINK_CLICK), but nothing proves the real click -> scroll round-trip
-// in a live editor window.
-//
-// Mechanism under test:
-//   1. The engine renders `[go](#my-section)` as `span.mu-inline-rule.mu-link`
-//      with the href on the DOM `props.href` (no attribute) — see
-//      packages/muya/src/inlineRenderer/renderer/link.ts.
-//   2. A Cmd/Ctrl-click on that wrapper makes
-//      packages/muya/src/editor/linkMouseEvents.ts emit `format-click`
-//      ({ formatType: 'link', data: { href } }).
-//   3. editor.vue's `format-click` handler (gated on the same modifier) calls
-//      editorStore.FORMAT_LINK_CLICK, which strips the leading '#', finds the
-//      listToc entry whose githubSlug === 'my-section', and emits the bus event
-//      `scroll-to-header` with that entry's stable slug.
-//   4. editor.vue scrollToHeader resolves the heading by document-order index
-//      (resolveTocHeadingElement) and animatedScrollTo's the `.editor-component`
-//      scroll container to it.
-//
-// The slugs are NOT stamped onto the heading DOM, so this is the only path that
-// proves the index-based resolution works end-to-end in a real window.
-// ---------------------------------------------------------------------------
-
 const LINK_WRAPPER = 'span.mu-link'
 
 // Many filler paragraphs so the document overflows the viewport and the target
@@ -49,23 +23,11 @@ const scrollTop = (page: Page): Promise<number> =>
     return el ? el.scrollTop : -1
   })
 
-// Dispatch a real bubbling Cmd/Ctrl-click on the rendered anchor wrapper so the
-// engine's domNode click listener runs the full format-click pipeline. Both
-// modifier flags are set so the same event satisfies the macOS (metaKey) and
-// non-macOS (ctrlKey) branches of editor.vue's `ctrlOrMeta` check.
-const modifierClickLink = async(page: Page): Promise<boolean> =>
-  page.evaluate((selector) => {
-    const el = document.querySelector(selector) as HTMLElement | null
-    if (!el) return false
-    const evt = new MouseEvent('click', {
-      bubbles: true,
-      cancelable: true,
-      metaKey: true,
-      ctrlKey: true
-    })
-    el.dispatchEvent(evt)
-    return true
-  }, LINK_WRAPPER)
+const modifierClickLink = async(page: Page): Promise<void> => {
+  await page.locator(LINK_WRAPPER).first().click({
+    modifiers: [process.platform === 'darwin' ? 'Meta' : 'Control']
+  })
+}
 
 test.describe('In-document anchor link click scrolls the editor (item 236)', () => {
   let app: ElectronApplication
@@ -115,8 +77,7 @@ test.describe('In-document anchor link click scrolls the editor (item 236)', () 
     })
     await expect.poll(() => scrollTop(page)).toBe(0)
 
-    const clicked = await modifierClickLink(page)
-    expect(clicked).toBe(true)
+    await modifierClickLink(page)
 
     // animatedScrollTo runs over ~300ms; poll until the container has scrolled a
     // meaningful distance toward the off-screen heading.
@@ -125,8 +86,7 @@ test.describe('In-document anchor link click scrolls the editor (item 236)', () 
     // Settle to the final position, then assert the heading is parked below the
     // editor viewport's top edge, proving the jump landed on the right element
     // and accounted for the surrounding window layout.
-    await page.waitForTimeout(500)
-    const headingOffset = await page.evaluate(() => {
+    const headingOffset = () => page.evaluate(() => {
       const container = document.querySelector('.editor-component')
       const heading = document.querySelector('.mu-container > h2')
       if (!container || !heading) return null
@@ -134,9 +94,8 @@ test.describe('In-document anchor link click scrolls the editor (item 236)', () 
         heading.getBoundingClientRect().top - container.getBoundingClientRect().top
       )
     })
-    expect(headingOffset).not.toBeNull()
-    expect(headingOffset as number).toBeGreaterThanOrEqual(20)
-    expect(headingOffset as number).toBeLessThanOrEqual(28)
+    await expect.poll(headingOffset).toBeLessThanOrEqual(28)
+    await expect.poll(headingOffset).toBeGreaterThanOrEqual(20)
 
     await expectNoRendererErrors(app)
   })
