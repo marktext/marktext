@@ -694,16 +694,22 @@
     },
     "theme": {
       "title": "主題",
-      "followSystemTheme": "跟隨系統主題",
+      "followSystemTheme": "跟隨系統外觀",
       "followSystemNote": "跟隨系統主題時，下方主題列表無法切換。關閉後即可自由切換。",
       "modeThemes": "主題選擇",
       "lightModeTheme": "淺色模式主題",
       "darkModeTheme": "深色模式主題",
       "customCss": "自訂 CSS",
-      "importCustomThemes": "匯入自訂主題",
-      "importTheme": "匯入主題",
-      "openFolder": "開啟資料夾",
-      "openThemesFolder": "開啟主題資料夾"
+      "chooseTheme": "選擇主題",
+      "chooseFor": "選擇{name}",
+      "searchThemes": "搜尋主題",
+      "filterLabel": "主題類型",
+      "filter": {
+        "all": "全部",
+        "light": "淺色",
+        "dark": "深色"
+      },
+      "noResults": "沒有符合的主題。"
     },
     "keybindings": {
       "title": "按鍵綁定",

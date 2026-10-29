@@ -694,16 +694,22 @@
     },
     "theme": {
       "title": "Thema",
-      "followSystemTheme": "Systeemthema volgen",
+      "followSystemTheme": "Systeemweergave volgen",
       "followSystemNote": "Het systeemthema volgen vergrendelt de themalijst hieronder. Schakel dit uit om vrij van thema te wisselen.",
       "modeThemes": "Themaselectie",
       "lightModeTheme": "Thema lichte modus",
       "darkModeTheme": "Thema donkere modus",
       "customCss": "Aangepaste CSS",
-      "importCustomThemes": "Aangepaste thema's importeren",
-      "importTheme": "Thema importeren",
-      "openFolder": "Map openen",
-      "openThemesFolder": "Themamap openen"
+      "chooseTheme": "Thema kiezen",
+      "chooseFor": "{name} kiezen",
+      "searchThemes": "Thema’s zoeken",
+      "filterLabel": "Thematype",
+      "filter": {
+        "all": "Alle",
+        "light": "Licht",
+        "dark": "Donker"
+      },
+      "noResults": "Geen overeenkomende thema’s."
     },
     "keybindings": {
       "title": "Sneltoetsen",

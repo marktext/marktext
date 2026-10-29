@@ -694,16 +694,22 @@
     },
     "theme": {
       "title": "Tema",
-      "followSystemTheme": "Segui il tema di sistema",
+      "followSystemTheme": "Segui l’aspetto del sistema",
       "followSystemNote": "Se si segue il tema di sistema, viene impedito l’accesso al sottostante elenco di temi alternativi. Disattivare tale opzione per poter cambiare tema liberamente.",
       "modeThemes": "Selezione tema",
       "lightModeTheme": "Tema chiaro",
       "darkModeTheme": "Tema scuro",
       "customCss": "CSS personalizzato",
-      "importCustomThemes": "Importazione temi personalizzati",
-      "importTheme": "Importa tema",
-      "openFolder": "Apri cartella",
-      "openThemesFolder": "Apri cartella dei temi"
+      "chooseTheme": "Scegli tema",
+      "chooseFor": "Scegli {name}",
+      "searchThemes": "Cerca temi",
+      "filterLabel": "Tipo di tema",
+      "filter": {
+        "all": "Tutti",
+        "light": "Chiaro",
+        "dark": "Scuro"
+      },
+      "noResults": "Nessun tema corrispondente."
     },
     "keybindings": {
       "title": "Combinazione di tasti",

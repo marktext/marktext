@@ -39,3 +39,6 @@ export const themes: ReadonlyArray<ThemeDescriptor> = [
   { name: 'tokyo-night' },
   { name: 'tokyo-night-storm' }
 ]
+
+export const themeLabel = (name: string): string => name.split('-')
+  .map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')

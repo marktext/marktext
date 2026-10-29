@@ -3,520 +3,197 @@
     <h4 v-if="!embedded">
       {{ t('preferences.theme.title') }}
     </h4>
-    <Bool
+    <bool
       id="setting-followSystemTheme"
-      class="follow-system-theme"
       :description="preferenceLabel('followSystemTheme')"
+      :notes="followSystemTheme ? t('preferences.theme.followSystemNote') : ''"
       :bool="followSystemTheme"
-      :on-change="(value) => onSelectChange('followSystemTheme', value)"
+      :on-change="value => onSelectChange('followSystemTheme', value)"
     />
-
-    <div
-      v-if="followSystemTheme"
-      class="notes"
-    >
-      <!-- The marker is punctuation, not prose, so it stays out of the locale files. -->
-      <span aria-hidden="true">*</span> {{ t('preferences.theme.followSystemNote') }}
-    </div>
-
-    <div
-      v-if="followSystemTheme"
-      class="mode-themes-row"
-    >
-      <cur-select
-        id="setting-lightModeTheme"
-        :description="preferenceLabel('lightModeTheme')"
-        :value="lightModeTheme"
-        :options="lightThemeOptions"
-        :on-change="(value) => onSelectChange('lightModeTheme', value)"
+    <section id="setting-theme">
+      <theme-choice
+        v-if="!followSystemTheme"
+        :description="preferenceLabel('theme')"
+        :value="theme"
+        @choose="openPicker('theme')"
       />
-      <cur-select
-        id="setting-darkModeTheme"
-        :description="preferenceLabel('darkModeTheme')"
-        :value="darkModeTheme"
-        :options="darkThemeOptions"
-        :on-change="(value) => onSelectChange('darkModeTheme', value)"
-      />
-    </div>
-
-    <separator />
-
-    <section
-      id="setting-theme"
-      class="offcial-themes"
-    >
-      <div
-        v-for="themeItem of themes"
-        :key="themeItem.name"
-        class="theme"
-        :class="[
-          themeItem.name,
-          {
-            active: themeItem.name === theme,
-            disabled: followSystemTheme
-          }
-        ]"
-        @click="!followSystemTheme && onSelectChange('theme', themeItem.name)"
-      >
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <div v-html="themeItem.html" />
-      </div>
+      <template v-else>
+        <theme-choice
+          v-for="key in modeThemeKeys"
+          :id="`setting-${key}`"
+          :key="key"
+          :description="preferenceLabel(key)"
+          :value="key === 'lightModeTheme' ? lightModeTheme : darkModeTheme"
+          @choose="openPicker(key)"
+        />
+      </template>
     </section>
-
-    <div
+    <details
       id="setting-customCss"
       class="custom-css"
     >
-      <div class="description">
-        {{ t('preferences.theme.customCss') }}
-      </div>
+      <summary>{{ preferenceLabel('customCss') }}</summary>
       <textarea
         class="custom-css-input"
         rows="10"
-        :aria-label="t('preferences.theme.customCss')"
+        :aria-label="preferenceLabel('customCss')"
         :value="customCss"
-        @change="
-          (event: Event) =>
-            onSelectChange('customCss', (event.target as HTMLTextAreaElement).value)
-        "
+        @change="event => onSelectChange('customCss', (event.target as HTMLTextAreaElement).value)"
       />
-    </div>
-    <separator v-show="false" />
-    <section
-      v-show="false"
-      class="import-themes ag-underdevelop"
+    </details>
+    <el-dialog
+      v-model="pickerOpen"
+      class="theme-picker"
+      :title="t('preferences.theme.chooseFor', { name: preferenceLabel(pickerTarget) })"
+      width="min(800px, 90vw)"
+      destroy-on-close
     >
-      <div>
-        <span>{{ t('preferences.theme.openThemesFolder') }}</span>
-        <el-button size="small">
-          {{ t('preferences.theme.openFolder') }}
-        </el-button>
+      <div class="theme-picker-tools">
+        <el-input
+          v-model="query"
+          :aria-label="t('preferences.theme.searchThemes')"
+          :placeholder="t('preferences.theme.searchThemes')"
+          clearable
+        />
+        <el-select
+          v-if="pickerTarget === 'theme'"
+          v-model="filter"
+          :aria-label="t('preferences.theme.filterLabel')"
+        >
+          <el-option
+            v-for="option in filterOptions"
+            :key="option"
+            :value="option"
+            :label="t(`preferences.theme.filter.${option}`)"
+          />
+        </el-select>
       </div>
-
-      <div>
-        <span>{{ t('preferences.theme.importCustomThemes') }}</span>
-        <el-button size="small">
-          {{ t('preferences.theme.importTheme') }}
-        </el-button>
+      <p
+        v-if="visibleThemes.length === 0"
+        role="status"
+      >
+        {{ t('preferences.theme.noResults') }}
+      </p>
+      <div class="theme-picker-grid">
+        <button
+          v-for="item in visibleThemes"
+          :key="item.name"
+          type="button"
+          class="theme-option"
+          :class="{ active: selectedTheme === item.name }"
+          :aria-label="themeLabel(item.name)"
+          :aria-pressed="selectedTheme === item.name"
+          @click="selectTheme(item.name)"
+        >
+          <theme-preview :name="item.name" />
+          <span>{{ themeLabel(item.name) }}</span>
+        </button>
       </div>
-    </section>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{ embedded?: boolean }>()
-
-import { preferenceLabel } from '@/prefComponents/registry'
-
-import { ref, onMounted } from 'vue'
-import { usePreferencesStore } from '@/store/preferences'
-import type { PreferencesState } from '@/store/preferences'
+import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
-import { isDarkThemeId } from 'common/theme'
 import { useI18n } from 'vue-i18n'
-import themeMd from './theme.md?raw'
-import { themes as configThemes } from './config'
-import markdownToHtml from '@/util/markdownToHtml'
+import { isDarkThemeId } from 'common/theme'
+import { usePreferencesStore, type PreferencesState } from '@/store/preferences'
+import { preferenceLabel } from '../registry'
 import Bool from '../common/bool/index.vue'
-import CurSelect from '../common/select/index.vue'
-import Separator from '../common/separator/index.vue'
-import type { PrefSelectOption } from '../common/types'
+import ThemeChoice from './choice.vue'
+import ThemePreview from './preview.vue'
+import { themes, themeLabel } from './config'
 
-interface ThemePreview {
-  name: string
-  html: string
-}
-
-const themes = ref<ThemePreview[]>([])
-
+defineProps<{ embedded?: boolean }>()
 const { t } = useI18n()
-const preferenceStore = usePreferencesStore()
-
-const { followSystemTheme, lightModeTheme, darkModeTheme, theme, customCss } =
-  storeToRefs(preferenceStore)
-
-const themeOptions: PrefSelectOption<string>[] = configThemes.map((theme) => ({
-  label: theme.name
-    .split('-')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' '),
-  value: theme.name
+const store = usePreferencesStore()
+const { theme, followSystemTheme, lightModeTheme, darkModeTheme, customCss } = storeToRefs(store)
+const modeThemeKeys = ['lightModeTheme', 'darkModeTheme'] as const
+const filterOptions = ['all', 'light', 'dark'] as const
+type ThemeTarget = 'theme' | (typeof modeThemeKeys)[number]
+const pickerTarget = ref<ThemeTarget>('theme')
+const pickerOpen = ref(false)
+const query = ref('')
+const filter = ref<(typeof filterOptions)[number]>('all')
+const selectedTheme = computed(() => store[pickerTarget.value])
+const visibleThemes = computed(() => themes.filter(item => {
+  const mode = pickerTarget.value === 'theme' ? filter.value : pickerTarget.value === 'lightModeTheme' ? 'light' : 'dark'
+  const matchesMode = mode === 'all' || isDarkThemeId(item.name) === (mode === 'dark')
+  return matchesMode && themeLabel(item.name).toLocaleLowerCase().includes(query.value.trim().toLocaleLowerCase())
 }))
-
-const lightThemeOptions = themeOptions.filter((option) => !isDarkThemeId(option.value))
-const darkThemeOptions = themeOptions.filter((option) => isDarkThemeId(option.value))
-
-onMounted(async () => {
-  const newThemes: ThemePreview[] = []
-  for (const theme of configThemes) {
-    const html = await markdownToHtml(themeMd.replace(/{theme}/, theme.name))
-    newThemes.push({
-      name: theme.name,
-      html
-    })
-  }
-  themes.value = newThemes
-})
-
+const openPicker = (target: ThemeTarget): void => {
+  pickerTarget.value = target
+  query.value = ''
+  filter.value = 'all'
+  pickerOpen.value = true
+}
+const selectTheme = (name: string): void => {
+  onSelectChange(pickerTarget.value, name)
+  pickerOpen.value = false
+}
 const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
-  preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
+  store.SET_SINGLE_PREFERENCE({ type, value })
 }
 </script>
 
 <style>
-/* The toggle leads the panel now, so give its label a little more weight — this
-   instance only; `Bool` is shared by every preferences panel. */
-.pref-theme .follow-system-theme .description > span {
-  font-weight: 600;
-}
-
-.pref-theme .mode-themes-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
-.pref-theme .mode-themes-row > * {
-  flex: 1;
-  min-width: 0;
-}
-
-.offcial-themes {
-  margin-top: 12px;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  & .theme {
-    cursor: pointer;
-    width: 100%;
-    height: 110px;
-    margin: 0;
-    padding: 16px 18px 16px 32px;
-    overflow: hidden;
-    background: var(--editorBgColor);
-    color: var(--editorColor);
-    box-sizing: border-box;
-    box-shadow: 0 9px 28px -9px rgba(0, 0, 0, 0.4);
-    border-radius: 5px;
-    transition: opacity 0.2s ease;
-
-    &.dark {
-      color: rgba(255, 255, 255, 0.7);
-      background: #282828;
-      & a {
-        color: #409eff;
-      }
-    }
-    &.light {
-      color: rgba(0, 0, 0, 0.7);
-      background: rgba(255, 255, 255, 1);
-      & a {
-        color: rgba(33, 181, 111, 1);
-      }
-    }
-    &.graphite {
-      color: rgba(43, 48, 50, 0.7);
-      background: #f7f7f7;
-      & a {
-        color: rgb(104, 134, 170);
-      }
-    }
-    &.material-dark {
-      color: rgba(171, 178, 191, 0.8);
-      background: #34393f;
-      & a {
-        color: #f48237;
-      }
-    }
-    &.one-dark {
-      color: #9da5b4;
-      background: #282c34;
-      & a {
-        color: rgba(226, 192, 141, 1);
-      }
-    }
-    &.ulysses {
-      color: rgba(101, 101, 101, 0.7);
-      background: #f3f3f3;
-      & a {
-        color: rgb(12, 139, 186);
-      }
-    }
-
-    &.dracula {
-      color: #f8f8f2;
-      background: #282a36;
-      & a {
-        color: #bd93f9;
-      }
-    }
-    &.nord {
-      color: #d8dee9;
-      background: #2e3440;
-      & a {
-        color: #81a1c1;
-      }
-    }
-    &.catppuccin-mocha {
-      color: #cdd6f4;
-      background: #1e1e2e;
-      & a {
-        color: #89b4fa;
-      }
-    }
-    &.gruvbox-dark {
-      color: #ebdbb2;
-      background: #282828;
-      & a {
-        color: #83a598;
-      }
-    }
-    &.tokyo-night {
-      color: #c0caf5;
-      background: #1a1b26;
-      & a {
-        color: #7aa2f7;
-      }
-    }
-    &.tokyo-night-storm {
-      color: #c0caf5;
-      background: #24283b;
-      & a {
-        color: #7aa2f7;
-      }
-    }
-    &.solarized-dark {
-      color: #839496;
-      background: #002b36;
-      & a {
-        color: #268bd2;
-      }
-    }
-    &.ayu-dark {
-      color: #b3b1ad;
-      background: #0a0e14;
-      & a {
-        color: #39bae6;
-      }
-    }
-    &.ayu-mirage {
-      color: #cbccc6;
-      background: #1f2430;
-      & a {
-        color: #ffcc66;
-      }
-    }
-    &.everforest-dark {
-      color: #d3c6aa;
-      background: #2d353b;
-      & a {
-        color: #a7c080;
-      }
-    }
-    &.rose-pine {
-      color: #e0def4;
-      background: #191724;
-      & a {
-        color: #c4a7e7;
-      }
-    }
-    &.rose-pine-moon {
-      color: #e0def4;
-      background: #232136;
-      & a {
-        color: #c4a7e7;
-      }
-    }
-    &.monokai-pro {
-      color: #fcfcfa;
-      background: #2d2a2e;
-      & a {
-        color: #ffd866;
-      }
-    }
-    &.synthwave-84 {
-      color: #ffffff;
-      background: #262335;
-      & a {
-        color: #ff7edb;
-      }
-    }
-    &.horizon-dark {
-      color: #d5d8da;
-      background: #1c1e26;
-      & a {
-        color: #e95678;
-      }
-    }
-    &.palenight {
-      color: #a6accd;
-      background: #292d3e;
-      & a {
-        color: #82aaff;
-      }
-    }
-    &.oxocarbon-dark {
-      color: #f2f4f8;
-      background: #161616;
-      & a {
-        color: #78a9ff;
-      }
-    }
-    &.kanagawa {
-      color: #dcd7ba;
-      background: #1f1f28;
-      & a {
-        color: #7e9cd8;
-      }
-    }
-    &.nightfox {
-      color: #cdcecf;
-      background: #192330;
-      & a {
-        color: #719cd6;
-      }
-    }
-    &.cyberdream {
-      color: #ffffff;
-      background: #16181a;
-      & a {
-        color: #5ea1ff;
-      }
-    }
-
-    &.catppuccin-latte {
-      color: #4c4f69;
-      background: #eff1f5;
-      & a {
-        color: #1e66f5;
-      }
-    }
-    &.gruvbox-light {
-      color: #3c3836;
-      background: #fbf1c7;
-      & a {
-        color: #458588;
-      }
-    }
-    &.tokyo-night-light {
-      color: #343b58;
-      background: #d5d6db;
-      & a {
-        color: #34548a;
-      }
-    }
-    &.solarized-light {
-      color: #657b83;
-      background: #fdf6e3;
-      & a {
-        color: #268bd2;
-      }
-    }
-    &.ayu-light {
-      color: #575f66;
-      background: #fafafa;
-      & a {
-        color: #399ee6;
-      }
-    }
-    &.everforest-light {
-      color: #5c6a72;
-      background: #fdf6e3;
-      & a {
-        color: #8da101;
-      }
-    }
-    &.rose-pine-dawn {
-      color: #575279;
-      background: #faf4ed;
-      & a {
-        color: #907aa9;
-      }
-    }
-
-    &.disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    /* Use an outline to avoid changing the layout on selection. */
-    &.active {
-      box-shadow: var(--floatShadow);
-      outline: 2px solid var(--themeColor);
-      outline-offset: -2px;
-    }
-
-    &.disabled.active {
-      opacity: 0.7;
-    }
-  }
-  & h3 {
-    position: relative;
-    margin: 0;
-    font-size: 16px;
-    color: currentColor;
-    cursor: pointer;
-    &::before {
-      content: 'h3';
-      position: absolute;
-      top: 4px;
-      left: -20px;
-      display: block;
-      width: 10px;
-      height: 10px;
-      font-size: 12px;
-      opacity: 0.5;
-    }
-  }
-  & p {
-    margin: 6px 0 0;
-    font-size: 12px;
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
 .custom-css {
-  margin: 20px 0;
+  margin: 24px 0;
+  color: var(--editorColor);
   font-size: 14px;
-  color: var(--editorColor);
-  & .description {
-    margin-bottom: 10px;
-  }
-  & .custom-css-input {
-    width: 100%;
-    background: transparent;
-    color: var(--editorColor);
-    border: 1px solid var(--editorColor10);
-    border-radius: 4px;
-    padding: 8px 10px;
-    font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', Consolas, monospace;
-    font-size: 12px;
-    line-height: 1.5;
-    box-sizing: border-box;
-    resize: vertical;
-  }
-  & .custom-css-input:focus {
-    outline: none;
-    border-color: var(--themeColor);
-  }
 }
-
-.import-themes {
-  padding: 10px 0;
-  display: flex;
-  justify-content: space-around;
+.custom-css summary { cursor: pointer; }
+.custom-css-input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid var(--editorColor10);
+  border-radius: 4px;
+  background: transparent;
   color: var(--editorColor);
-  & > div {
-    display: flex;
-    flex-direction: column;
-    & > span {
-      display: inline-block;
-      margin-bottom: 20px;
-    }
-  }
+  resize: vertical;
+  font-family: monospace;
+}
+.theme-picker {
+  background: var(--floatBgColor);
+  color: var(--editorColor);
+  --el-text-color-primary: var(--editorColor);
+  --el-text-color-regular: var(--editorColor);
+  --el-bg-color: var(--floatBgColor);
+  --el-fill-color-blank: var(--floatBgColor);
+  --el-border-color: var(--floatBorderColor);
+}
+.theme-picker-tools {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.theme-picker-tools .el-select { max-width: 180px; }
+.theme-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  max-height: 55vh;
+  overflow-y: auto;
+  padding: 4px;
+}
+.theme-option {
+  border: 1px solid var(--editorColor10);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--editorColor);
+  font: inherit;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+}
+.theme-option > span:last-child { display: block; padding: 8px; }
+.theme-option.active,
+.theme-option:focus-visible,
+.theme-option:hover {
+  outline: 2px solid var(--themeColor);
+  outline-offset: 1px;
 }
 </style>

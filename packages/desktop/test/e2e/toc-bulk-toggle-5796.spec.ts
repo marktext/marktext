@@ -75,7 +75,9 @@ test('bulk folds survive tab switches, content edits and source mode', async() =
 
 test('commands reveal a hidden outline without modifying or scrolling the document', async() => {
   const editor = page.locator('.mu-editor')
-  await editor.click()
+  const heading = editor.locator('.mu-atx-heading').first()
+  await heading.locator('.mu-plain-text').click()
+  await expect(heading).toHaveClass(/mu-active/)
   const before = await editor.evaluate(el => ({ html: el.innerHTML, scroll: el.scrollTop }))
   await clickMenuById(app, 'tocMenuItem')
   await page.mouse.move(1200, 500)

@@ -694,16 +694,22 @@
     },
     "theme": {
       "title": "Тема",
-      "followSystemTheme": "Следовать системной теме",
+      "followSystemTheme": "Следовать оформлению системы",
       "followSystemNote": "Следование системной теме блокирует список тем ниже. Отключите это, чтобы свободно менять тему.",
       "modeThemes": "Выбор темы",
       "lightModeTheme": "Тема светлого режима",
       "darkModeTheme": "Тема тёмного режима",
       "customCss": "Пользовательский CSS",
-      "importCustomThemes": "Импорт пользовательских тем",
-      "importTheme": "Импортировать тему",
-      "openFolder": "Открыть папку",
-      "openThemesFolder": "Открыть папку тем"
+      "chooseTheme": "Выбрать тему",
+      "chooseFor": "Выбрать {name}",
+      "searchThemes": "Поиск тем",
+      "filterLabel": "Тип темы",
+      "filter": {
+        "all": "Все",
+        "light": "Светлые",
+        "dark": "Тёмные"
+      },
+      "noResults": "Подходящих тем нет."
     },
     "keybindings": {
       "title": "Горячие клавиши",

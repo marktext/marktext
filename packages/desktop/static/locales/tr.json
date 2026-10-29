@@ -694,16 +694,22 @@
     },
     "theme": {
       "title": "Tema",
-      "followSystemTheme": "Sistem Temasını Takip Et",
+      "followSystemTheme": "Sistem görünümünü izle",
       "followSystemNote": "Sistem temasını izlemek aşağıdaki tema listesini kilitler. Serbestçe tema değiştirmek için bunu kapatın.",
       "modeThemes": "Tema Seçimi",
       "lightModeTheme": "Açık mod teması",
       "darkModeTheme": "Koyu mod teması",
       "customCss": "Özel CSS",
-      "importCustomThemes": "Özel temaları içe aktar",
-      "importTheme": "Temayı İçe Aktar",
-      "openFolder": "Klasör Aç",
-      "openThemesFolder": "Temalar klasörünü aç"
+      "chooseTheme": "Tema seç",
+      "chooseFor": "{name} seç",
+      "searchThemes": "Tema ara",
+      "filterLabel": "Tema türü",
+      "filter": {
+        "all": "Tümü",
+        "light": "Açık",
+        "dark": "Koyu"
+      },
+      "noResults": "Eşleşen tema bulunamadı."
     },
     "keybindings": {
       "title": "Kısayol Tuşları",
