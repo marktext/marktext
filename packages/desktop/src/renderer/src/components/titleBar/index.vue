@@ -1,12 +1,10 @@
 <template>
   <div>
     <div
-      v-if="showTitleBar"
       class="title-bar-editor-bg"
       :class="{ 'tabs-visible': showTabBar }"
     />
     <div
-      v-if="showTitleBar"
       class="title-bar"
       :class="[
         { active: active },
@@ -16,6 +14,7 @@
       ]"
     >
       <div
+        v-if="showTitle"
         class="title"
         @dblclick.stop="toggleMaxmizeOnMacOS"
       >
@@ -151,7 +150,7 @@ import { storeToRefs } from 'pinia'
 import { minimizePath, restorePath, maximizePath, closePath } from '../../assets/window-controls.js'
 import { PATH_SEPARATOR } from '../../config'
 import { isMac as isOsxPlatform } from '@/util'
-import { shouldShowInAppTitleBar } from './visibility'
+import { shouldShowInAppTitle } from './visibility'
 import { pathBreadcrumb } from './pathBreadcrumb'
 import { buildWindowTitle } from './windowTitle'
 import { useEditorStore } from '@/store/editor'
@@ -216,8 +215,8 @@ const showCustomTitleBar = computed(() => {
   return titleBarStyle.value === 'custom' && !isOsx
 })
 
-const showTitleBar = computed(() => {
-  return shouldShowInAppTitleBar(titleBarStyle.value, isOsx)
+const showTitle = computed(() => {
+  return shouldShowInAppTitle(titleBarStyle.value, isOsx)
 })
 
 const maximizeLabel = computed(() =>
