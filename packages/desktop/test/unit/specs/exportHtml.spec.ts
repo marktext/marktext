@@ -121,6 +121,20 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
     expect(out).not.toMatch(/<p>\s*\[TOC\]\s*<\/p>/i)
   })
 
+  it.each([
+    '<p class="toc-marker">[TOC]</p>',
+    '<p data-align="center"> [toc] </p>',
+    '<p title="a > b">[TOC]</p>'
+  ])('expands a TOC paragraph with attributes: %s', async(marker) => {
+    const toc = getHtmlToc(TOC, {})
+    const out = await exportStyledHTML(NO_MUYA, `# Getting Started\n\n${marker}\n\n## Installation`, { toc })
+    const doc = new DOMParser().parseFromString(out, 'text/html')
+
+    expect(doc.querySelector('.toc-container')).not.toBeNull()
+    expect(doc.querySelector('article')?.textContent).not.toMatch(/\[toc\]/i)
+    expect(doc.querySelectorAll('.toc-container')).toHaveLength(1)
+  })
+
   it('dedups repeated headings: two "Installation" → installation / installation-1, with matching anchors', async() => {
     const toc = getHtmlToc(TOC, {})
     const out = await exportStyledHTML(NO_MUYA, MD, { toc })

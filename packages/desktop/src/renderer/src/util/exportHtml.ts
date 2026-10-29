@@ -124,6 +124,7 @@ const createTableBody = (article: string): string =>
 
 // Match a standalone `[TOC]` line (mirrors legacy marked TOC block token).
 const TOC_REG = /^ {0,3}\[TOC\] *$/im
+const TOC_PARAGRAPH_REG = /<p\b(?:[^>"']|"[^"]*"|'[^']*')*>\s*\[TOC\]\s*<\/p>/i
 
 // Match the `href="…"` of an <a> tag in the (already sanitized, double-quoted)
 // engine output, so relative local links can be rewritten to absolute `file://`
@@ -180,11 +181,11 @@ export const exportStyledHTML = async(
 
   // Inject the TOC at the `[TOC]` marker (legacy behaviour: only appears when
   // the document explicitly contains `[TOC]`). The marker is rendered as a
-  // paragraph by marked, so replace the rendered `<p>[TOC]</p>` first, falling
+  // paragraph by marked, so replace it regardless of paragraph attributes, falling
   // back to a raw `[TOC]` if present.
   if (toc) {
-    if (/<p>\s*\[TOC\]\s*<\/p>/i.test(article)) {
-      article = article.replace(/<p>\s*\[TOC\]\s*<\/p>/i, () => toc)
+    if (TOC_PARAGRAPH_REG.test(article)) {
+      article = article.replace(TOC_PARAGRAPH_REG, () => toc)
     } else if (TOC_REG.test(article)) {
       article = article.replace(TOC_REG, () => toc)
     }
