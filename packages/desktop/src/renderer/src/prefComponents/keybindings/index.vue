@@ -30,74 +30,85 @@
           </button>
         </icon-tooltip>.
       </div>
-      <el-table
-        :data="keybindingList"
-        style="width: 100%"
+      <section
+        v-for="group in groups"
+        :key="group.id"
+        class="shortcut-group"
+        :aria-labelledby="`shortcut-group-${group.id}`"
       >
-        <el-table-column
-          prop="description"
-          :label="t('preferences.keybindings.table.description')"
-          min-width="220"
+        <h5 :id="`shortcut-group-${group.id}`">
+          {{ t(commandGroupLabels[group.id]) }}
+        </h5>
+        <el-table
+          :data="group.commands"
+          row-key="id"
+          style="width: 100%"
         >
-          <template #default="scope">
-            <span :id="settingTargetId(keybindingKey(scope.row.id))">{{ scope.row.description }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="accelerator"
-          :label="t('preferences.keybindings.table.keyCombination')"
-          min-width="160"
-        />
-        <el-table-column
-          :label="t('preferences.keybindings.table.options')"
-          min-width="90"
-        >
-          <template #default="scope">
-            <icon-tooltip :content="t('preferences.keybindings.table.edit')">
-              <el-button
-                type="text"
-                size="small"
-                :aria-label="t('preferences.keybindings.table.edit')"
-                :disabled="isSaving"
-                @click="handleEditClick(scope.$index, scope.row)"
-              >
-                <Edit
-                  width="14"
-                  height="14"
-                />
-              </el-button>
-            </icon-tooltip>
-            <icon-tooltip :content="t('preferences.keybindings.table.reset')">
-              <el-button
-                type="text"
-                size="small"
-                :aria-label="t('preferences.keybindings.table.reset')"
-                :disabled="isSaving"
-                @click="handleResetClick(scope.$index, scope.row)"
-              >
-                <RefreshRight
-                  width="14"
-                  height="14"
-                />
-              </el-button>
-            </icon-tooltip>
-            <icon-tooltip :content="t('preferences.keybindings.table.unbind')">
-              <el-button
-                type="text"
-                size="small"
-                :aria-label="t('preferences.keybindings.table.unbind')"
-                :disabled="isSaving"
-                @click="handleUnbindClick(scope.$index, scope.row)"
-              >
-                <Delete
-                  width="14"
-                  height="14"
-                />
-              </el-button>
-            </icon-tooltip>
-          </template>
-        </el-table-column>
-      </el-table>
+          <el-table-column
+            prop="description"
+            :label="t('preferences.keybindings.table.description')"
+            min-width="220"
+          >
+            <template #default="scope">
+              <span :id="settingTargetId(keybindingKey(scope.row.id))">{{ scope.row.description }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="accelerator"
+            :label="t('preferences.keybindings.table.keyCombination')"
+            min-width="160"
+          />
+          <el-table-column
+            :label="t('preferences.keybindings.table.options')"
+            min-width="90"
+          >
+            <template #default="scope">
+              <icon-tooltip :content="t('preferences.keybindings.table.edit')">
+                <el-button
+                  type="text"
+                  size="small"
+                  :aria-label="t('preferences.keybindings.table.edit')"
+                  :disabled="isSaving"
+                  @click="handleEditClick(scope.$index, scope.row)"
+                >
+                  <Edit
+                    width="14"
+                    height="14"
+                  />
+                </el-button>
+              </icon-tooltip>
+              <icon-tooltip :content="t('preferences.keybindings.table.reset')">
+                <el-button
+                  type="text"
+                  size="small"
+                  :aria-label="t('preferences.keybindings.table.reset')"
+                  :disabled="isSaving"
+                  @click="handleResetClick(scope.$index, scope.row)"
+                >
+                  <RefreshRight
+                    width="14"
+                    height="14"
+                  />
+                </el-button>
+              </icon-tooltip>
+              <icon-tooltip :content="t('preferences.keybindings.table.unbind')">
+                <el-button
+                  type="text"
+                  size="small"
+                  :aria-label="t('preferences.keybindings.table.unbind')"
+                  :disabled="isSaving"
+                  @click="handleUnbindClick(scope.$index, scope.row)"
+                >
+                  <Delete
+                    width="14"
+                    height="14"
+                  />
+                </el-button>
+              </icon-tooltip>
+            </template>
+          </el-table-column>
+        </el-table>
+      </section>
     </section>
     <section class="footer">
       <separator />
@@ -132,13 +143,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import Separator from '../common/separator/index.vue'
 import KeyInputDialog from './key-input-dialog.vue'
 import type { UiKeybinding } from './KeybindingConfigurator'
 import { useKeybindingsStore } from '@/store/keybindings'
-import { keybindingKey } from './groups'
+import { commandGroups, commandGroupLabels, getCommandGroup, keybindingKey } from './groups'
 import { settingTargetId } from '../settingLocation'
 import { Edit, RefreshRight, Delete } from '@element-plus/icons-vue'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
@@ -148,6 +159,10 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 const keybindings = useKeybindingsStore()
 const { commands: keybindingList, saving: isSaving, loading, loadError } = storeToRefs(keybindings)
+const groups = computed(() => commandGroups.map(id => ({
+  id,
+  commands: keybindingList.value.filter(command => getCommandGroup(command.id) === id)
+})).filter(group => group.commands.length > 0))
 const selectedShortcutId = ref<string | null>(null)
 const showDebugTools = Boolean(window.marktext?.env?.debug)
 onMounted(() => { void keybindings.ensureLoaded() })
