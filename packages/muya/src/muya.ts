@@ -1579,6 +1579,7 @@ export class Muya {
     }
 
     destroy() {
+        this.editor.textDrag?.destroy();
         this.editor.selection.cancel();
         this.editor.transactions.cancel();
         this._cancelReadingLink();
