@@ -14,7 +14,7 @@
       ]"
     >
       <div
-        v-if="showTitle"
+        v-if="titleBarStyle !== 'native' || isOsx"
         class="title"
         @dblclick.stop="toggleMaxmizeOnMacOS"
       >
@@ -150,7 +150,6 @@ import { storeToRefs } from 'pinia'
 import { minimizePath, restorePath, maximizePath, closePath } from '../../assets/window-controls.js'
 import { PATH_SEPARATOR } from '../../config'
 import { isMac as isOsxPlatform } from '@/util'
-import { shouldShowInAppTitle } from './visibility'
 import { pathBreadcrumb } from './pathBreadcrumb'
 import { buildWindowTitle } from './windowTitle'
 import { useEditorStore } from '@/store/editor'
@@ -213,10 +212,6 @@ const paths = computed(() => pathBreadcrumb(props.pathname ?? '', PATH_SEPARATOR
 
 const showCustomTitleBar = computed(() => {
   return titleBarStyle.value === 'custom' && !isOsx
-})
-
-const showTitle = computed(() => {
-  return shouldShowInAppTitle(titleBarStyle.value, isOsx)
 })
 
 const maximizeLabel = computed(() =>
