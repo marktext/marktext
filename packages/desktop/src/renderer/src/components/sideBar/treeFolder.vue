@@ -70,6 +70,7 @@ import bus from '../../bus'
 import File from './treeFile.vue'
 import { ArrowRight } from '@element-plus/icons-vue'
 import type { TreeFolderNode } from './types'
+import { useTreeRow } from './rowRegistry'
 
 const props = defineProps<{
   folder: TreeFolderNode
@@ -79,6 +80,7 @@ const props = defineProps<{
 const projectStore = useProjectStore()
 
 const folderEl = ref<HTMLDivElement | null>(null)
+useTreeRow(() => props.folder.pathname, folderEl)
 const renameInput = ref<HTMLInputElement | null>(null)
 const input = ref<HTMLInputElement | null>(null)
 

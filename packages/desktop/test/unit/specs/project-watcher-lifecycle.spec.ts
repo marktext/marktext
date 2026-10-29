@@ -134,4 +134,36 @@ describe('project watcher lifecycle (#2222)', () => {
       type: 'unlink', change: { pathname: '/project/a.md' }
     })
   })
+
+  it('reconciles a suppressed deletion through the normal observer and renderer path on failure', async() => {
+    vi.spyOn(fs, 'stat').mockRejectedValue(Object.assign(new Error('Missing'), { code: 'ENOENT' }))
+    const send = vi.fn()
+    const observeFile = vi.fn()
+    const win = { id: 1, webContents: { send } }
+    const watcher = new Watcher({ getItem: () => [] } as never, observeFile)
+    watcher.watch(win as never, '/project/a.md', 'file')
+    await expect(watcher.withIgnoredFileDeletions(win as never, ['/project/a.md'], async() => {
+      mocks.instances[0].emit('unlink', '/project/a.md')
+      expect(send).not.toHaveBeenCalled()
+      throw new Error('Move failed')
+    })).rejects.toThrow('Move failed')
+    const deletion = { type: 'unlink', change: { pathname: '/project/a.md' } }
+    expect(observeFile).toHaveBeenCalledExactlyOnceWith(win, deletion)
+    expect(send).toHaveBeenCalledExactlyOnceWith('mt::update-file', deletion)
+  })
+
+  it('does not replay a suppressed deletion if the source exists again after failure', async() => {
+    vi.spyOn(fs, 'stat').mockResolvedValue({} as never)
+    const send = vi.fn()
+    const observeFile = vi.fn()
+    const win = { id: 1, webContents: { send } }
+    const watcher = new Watcher({ getItem: () => [] } as never, observeFile)
+    watcher.watch(win as never, '/project/a.md', 'file')
+    await expect(watcher.withIgnoredFileDeletions(win as never, ['/project/a.md'], async() => {
+      mocks.instances[0].emit('unlink', '/project/a.md')
+      throw new Error('Move failed')
+    })).rejects.toThrow('Move failed')
+    expect(send).not.toHaveBeenCalled()
+    expect(observeFile).not.toHaveBeenCalled()
+  })
 })

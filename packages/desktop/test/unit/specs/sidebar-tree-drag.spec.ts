@@ -3,7 +3,7 @@ import { createApp, h, nextTick, reactive, ref, type App } from 'vue'
 import path from 'node:path'
 import { useTreeDragDrop } from '../../../src/renderer/src/components/sideBar/useTreeDragDrop'
 
-const mocks = vi.hoisted(() => ({ project: {} as Record<string, unknown>, invoke: vi.fn(), notify: vi.fn() }))
+const mocks = vi.hoisted(() => ({ project: {} as Record<string, unknown>, invoke: vi.fn(), notify: vi.fn(), reveal: vi.fn() }))
 vi.mock('@/store/project', () => ({ useProjectStore: () => mocks.project }))
 vi.mock('@/services/notification', () => ({ default: { notify: mocks.notify } }))
 vi.mock('@/i18n', () => ({ t: (key: string) => key }))
@@ -32,19 +32,21 @@ beforeEach(() => {
   vi.useFakeTimers()
   mocks.invoke.mockReset().mockResolvedValue({ status: 'canceled' })
   mocks.notify.mockReset()
+  mocks.reveal.mockReset()
   Object.defineProperty(window, 'path', { configurable: true, value: path.posix })
   Object.defineProperty(window, 'electron', { configurable: true, value: { ipcRenderer: { invoke: mocks.invoke } } })
   mocks.project = reactive({
     roots: [{ key: '/root', status: 'ready', tree: { ...folder('/root'), folders: [folder('/root/notes')] } }],
     renameCache: null, createCache: {}, movingSource: null, treeVersion: 0,
     SET_FOLDER_COLLAPSED: vi.fn(), FIND_ROOT: vi.fn(), TREE_PATH: (value: string) => value,
+    FIND_TREE_NODE: (pathname: string) => folder(pathname),
     REVEAL_PATH: vi.fn(), CHANGE_ACTIVE_ITEM: vi.fn()
   })
   host = document.createElement('div')
   document.body.append(host)
   app = createApp({ setup() {
     const container = ref<HTMLElement | null>(null)
-    busy = useTreeDragDrop(container).busy
+    busy = useTreeDragDrop(container, mocks.reveal).busy
     return () => h('div', { ref: container, class: 'viewport' }, [
       h('div', { 'data-tree-root': '/root' }, [
         h('div', { 'data-tree-path': '/root', 'data-tree-directory': 'true', id: 'root' }),
@@ -71,6 +73,14 @@ afterEach(() => {
 })
 
 describe('sidebar drag session', () => {
+  it('submits moved-item reveal to the shared controller without selecting or scrolling itself', async() => {
+    mocks.invoke.mockResolvedValue({ status: 'moved', destination: '/root/notes/a.md' })
+    fire(source, 'dragstart')
+    fire(target, 'drop')
+    await nextTick()
+    expect(mocks.reveal).toHaveBeenCalledExactlyOnceWith('/root/notes/a.md')
+    expect(mocks.project.CHANGE_ACTIVE_ITEM).not.toHaveBeenCalled()
+  })
   it('moves only an internally started drag and suppresses repeated drops', async() => {
     fire(target, 'drop')
     expect(mocks.invoke).not.toHaveBeenCalled()

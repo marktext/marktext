@@ -7,7 +7,8 @@ import {
   unlinkDirectory,
   resortTree,
   updateFileMtime,
-  expandAncestors
+  expandAncestors,
+  findTreeNode
 } from './treeCtrl'
 import { usePreferencesStore } from './preferences'
 import bus from '../bus'
@@ -143,6 +144,11 @@ export const useProjectStore = defineStore('project', () => {
     return root && base && base !== root.pathname
       ? window.path.join(root.pathname, window.path.relative(base, pathname))
       : pathname
+  }
+
+  function FIND_TREE_NODE(pathname: string) {
+    const root = FIND_ROOT(pathname)
+    return root ? findTreeNode(root.tree, TREE_PATH(pathname)) : undefined
   }
 
   function GET_DEFAULT_DIRECTORY(): string {
@@ -406,15 +412,6 @@ export const useProjectStore = defineStore('project', () => {
     clipboard.value = data
   }
 
-  async function RECONCILE_FAILED_MOVE(source: string): Promise<void> {
-    const editor = useEditorStore()
-    for (const tab of editor.tabs) {
-      if (!tab.pathname || !isWithinRoot(source, tab.pathname)) continue
-      const exists = await window.fileUtils.pathExists(tab.pathname)
-      if (!exists) editor.SET_SAVE_STATUS_WHEN_REMOVE({ pathname: tab.pathname })
-    }
-  }
-
   // Rename and create share one "input is open" state, so they clear together.
   function CLEAR_NAME_INPUT_STATE(): void {
     createCache.value = {}
@@ -659,13 +656,13 @@ export const useProjectStore = defineStore('project', () => {
     FIND_ROOT,
     ROOT_BASE,
     TREE_PATH,
+    FIND_TREE_NODE,
     GET_DEFAULT_DIRECTORY,
     ROOT_LABEL,
     FILE_LABEL,
     APPLY_ROOTS,
     treeVersion,
     movingSource,
-    RECONCILE_FAILED_MOVE,
     CAPTURE_PROJECT_VIEW,
     RESTORE_PROJECT_VIEW,
     LISTEN_FOR_LOAD_PROJECT,

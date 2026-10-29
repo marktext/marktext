@@ -5,6 +5,9 @@ import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import { delaySessionStateWrites, expectNoRendererErrors, launchElectron, openProjectFolder, sendIpcToRenderer } from './helpers'
 import type { IFileState } from '../../src/shared/types/files'
+import type { ApplicationState } from '../../src/shared/types/applicationState'
+import type * as ExtraFs from 'fs-extra'
+import type { MoveOptions } from 'fs-extra'
 
 let directory: string
 let app: ElectronApplication
@@ -164,15 +167,17 @@ test('a document can be dragged back to a symlink workspace root', async() => {
   const alias = `${directory}-alias`
   fs.symlinkSync(directory, alias, 'junction')
   try {
-    fs.renameSync(path.join(directory, 'draft.md'), path.join(directory, 'notes', 'draft.md'))
     fs.writeFileSync(path.join(directory, 'anchor.md'), 'Workspace marker\n')
     await openProjectFolder(app, page, alias, path.join(alias, 'anchor.md'))
     const linkedRow = (name: string) => page.locator(`[data-tree-path=${JSON.stringify(path.join(alias, name))}]`)
-    await linkedRow('notes').click()
-    await linkedRow('notes/draft.md').click()
+    await linkedRow('draft.md').click()
     await expect(page.getByRole('textbox', { name: 'Document', exact: true })).toContainText('Original text')
+    await linkedRow('draft.md').dragTo(linkedRow('notes'))
+    await expect(linkedRow('notes/draft.md')).toHaveClass(/active/)
     await linkedRow('notes/draft.md').dragTo(linkedRow(''))
     await expect.poll(() => fs.existsSync(path.join(directory, 'draft.md'))).toBe(true)
+    const recent = await page.evaluate(() => window.electron.ipcRenderer.invoke('mt::get-recently-used-documents'))
+    expect(recent.some(item => item.pathname === path.join(directory, 'draft.md'))).toBe(true)
     await expect(linkedRow('draft.md')).toHaveClass(/active/)
     await expect.poll(editorState).toMatchObject({ saved: true, missing: [], fileChangeNotifications: [] })
     expect(fs.existsSync(path.join(directory, 'notes', 'draft.md'))).toBe(false)
@@ -180,6 +185,67 @@ test('a document can be dragged back to a symlink workspace root', async() => {
   } finally {
     fs.unlinkSync(alias)
   }
+})
+
+test('explicit moved-folder reveal wins over automatic active-file reveal', async() => {
+  const source = path.join(directory, 'chapter')
+  for (let index = 0; index < 60; index++) {
+    fs.writeFileSync(path.join(source, `z-${index.toString().padStart(2, '0')}.md`), `Document ${index}\n`)
+  }
+  await page.evaluate(() => window.electron.ipcRenderer.invoke('mt::preferences::update', {
+    autoRevealInSidebar: true, fileSortBy: 'title', fileSortOrder: 'asc'
+  }))
+  await row(source).click()
+  await row(path.join(source, 'z-59.md')).click()
+  await expect(page.getByRole('textbox', { name: 'Document', exact: true })).toContainText('Document 59')
+  await page.locator('.tree-wrapper').evaluate(element => { element.scrollTop = 0 })
+  await row(source).click()
+  await row(source).dragTo(row(path.join(directory, 'notes')))
+  const destination = path.join(directory, 'notes', 'chapter')
+  await expect(row(destination)).toHaveClass(/active/)
+  await expect(page.locator('.tree-wrapper')).toHaveAttribute('aria-busy', 'false')
+  fs.writeFileSync(path.join(directory, 'zz-late.md'), 'Late tree update\n')
+  await expect(row(path.join(directory, 'zz-late.md'))).toBeAttached()
+  await expect.poll(async() => {
+    const folder = await row(destination).boundingBox()
+    const viewport = await page.locator('.tree-wrapper').boundingBox()
+    return !!folder && !!viewport && folder.y >= viewport.y && folder.y + folder.height <= viewport.y + viewport.height
+  }).toBe(true)
+  await expectNoRendererErrors(app)
+})
+
+test('a failed move reconciles a source deleted while watcher events are suppressed', async() => {
+  const source = path.join(directory, 'draft.md')
+  await row(source).click()
+  await expect.poll(editorState).toMatchObject({ pathname: source, saved: true, missing: [] })
+  await app.evaluate(({ app }, source) => {
+    const modules = process.getBuiltinModule('module')
+    const filesystem = process.getBuiltinModule('fs') as typeof fs
+    const require = modules.createRequire(`${app.getAppPath()}/package.json`)
+    const extra = require('fs-extra') as typeof ExtraFs
+    const move = extra.move
+    extra.move = (async(src: string, dest: string, options: MoveOptions) => {
+      if (src === source) {
+        filesystem.unlinkSync(src)
+        await new Promise(resolve => setTimeout(resolve, 700))
+        throw new Error('Injected move failure after source deletion')
+      }
+      return move(src, dest, options)
+    }) as typeof extra.move
+  }, source)
+  await row(source).dragTo(row(path.join(directory, 'notes')))
+  await expect(page.locator('.tree-wrapper')).toHaveAttribute('aria-busy', 'false')
+  await expect.poll(editorState).toMatchObject({ saved: false, missing: [source], fileChangeNotifications: [source] })
+  expect(fs.existsSync(source)).toBe(false)
+  expect(fs.existsSync(path.join(directory, 'notes', 'draft.md'))).toBe(false)
+  await expect.poll(() => app.evaluate(({ app }, source) => {
+    const filesystem = process.getBuiltinModule('fs') as typeof fs
+    const paths = process.getBuiltinModule('path') as typeof path
+    const state = JSON.parse(filesystem.readFileSync(paths.join(app.getPath('userData'), 'state', 'application-state.json'), 'utf8')) as ApplicationState
+    return state.session.windows.flatMap(window => window.documents).find(document =>
+      document.resource.kind === 'file' && document.resource.location.path === source)?.content.kind
+  }, source)).toBe('recovery')
+  await expectNoRendererErrors(app)
 })
 
 test('autosave after a move writes the new path without recreating the old one', async() => {

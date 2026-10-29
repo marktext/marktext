@@ -46,6 +46,7 @@ interface WatcherEntry {
   pathname: string
   type: WatchType
   close: () => void
+  reportMissing: () => void
 }
 
 const readSequences = new WeakMap<BrowserWindow, Map<string, number>>()
@@ -240,18 +241,37 @@ class Watcher {
     this.watchers = {}
   }
 
-  /** Suppresses rename unlinks until open documents have relocated and rebound their file watches. */
+  /** Suppresses rename unlinks until watches rebind; failed moves recheck disk before reporting missing files. */
   async withIgnoredFileDeletions(
     win: BrowserWindow,
     pathnames: readonly string[],
     operation: () => Promise<void>
   ): Promise<void> {
     const barrier = { windowId: win.id, pathnames }
+    let failed = false
     this._fileDeletionBarriers.add(barrier)
     try {
       await operation()
+    } catch (error) {
+      failed = true
+      throw error
     } finally {
       this._fileDeletionBarriers.delete(barrier)
+      if (failed) await this._reportMissingFiles(win, pathnames)
+    }
+  }
+
+  private async _reportMissingFiles(win: BrowserWindow, pathnames: readonly string[]): Promise<void> {
+    const files = Object.values(this.watchers).filter(entry => entry.win.id === win.id && entry.type === 'file' &&
+      pathnames.some(pathname => path.relative(pathname, entry.pathname) === ''))
+    for (const file of files) {
+      try {
+        await fsPromises.stat(file.pathname)
+      } catch (error) {
+        const code = (error as NodeJS.ErrnoException).code
+        if (code === 'ENOENT' || code === 'ENOTDIR') file.reportMissing()
+        else log.warn('Could not reconcile file after a failed move:', error)
+      }
     }
   }
 
@@ -426,7 +446,8 @@ class Watcher {
       watcher,
       pathname: watchPath,
       type,
-      close: closeFn
+      close: closeFn,
+      reportMissing: () => unlink(win, watchPath, type, emit)
     }
 
     return closeFn

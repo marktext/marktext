@@ -105,11 +105,7 @@
         :data-tree-root="root.key"
       >
         <div
-          :ref="
-            (el) => {
-              if (el) rootRows.set(root.key, el as HTMLElement)
-            }
-          "
+          :ref="el => registerRootRow(root, el as HTMLElement | null)"
           class="title project-root"
           :data-tree-path="root.tree.pathname"
           data-tree-directory="true"
@@ -259,7 +255,6 @@ const rowRegistry: TreeRowRegistry = new Map()
 provide(TREE_ROW_REGISTRY_KEY, rowRegistry)
 
 const projectStore = useProjectStore()
-const { busy: movingTreeItem } = useTreeDragDrop(treeWrapper)
 const editorStore = useEditorStore()
 const layoutStore = useLayoutStore()
 const showOpenedFiles = computed({
@@ -364,6 +359,17 @@ const focusRoot = (key: unknown): void => {
   else document.querySelector<HTMLButtonElement>('.side-bar .add-folder-button')?.focus()
 }
 
+const registerRootRow = (root: RootView, row: HTMLElement | null): void => {
+  const pathname = toRowKey(root.tree.pathname)
+  if (row) {
+    rootRows.set(root.key, row)
+    rowRegistry.set(pathname, row)
+  } else {
+    rootRows.delete(root.key)
+    rowRegistry.delete(pathname)
+  }
+}
+
 const toggleOpenedFiles = (): void => {
   showOpenedFiles.value = !showOpenedFiles.value
 }
@@ -392,27 +398,44 @@ const scrollRowIntoView = (container: HTMLElement, row: HTMLElement): void => {
   if (scrollTop !== null) container.scrollTop = scrollTop
 }
 
-// Reveals only: the caret, the tree selection and `activeItem` stay untouched.
-// `force` (the "Show in Side Bar" command) ignores the preference.
+// An explicit reveal owns tree-update retries until the user navigates to another document or clicks the tree.
+let explicitReveal: { pathname: string; select: boolean; documentId: string | undefined } | null = null
+let revealVersion = 0
+
 const revealPath = async (
   pathname: string | null | undefined,
-  { force = false }: { force?: boolean } = {}
+  { force = false, select = false }: { force?: boolean; select?: boolean } = {}
 ): Promise<void> => {
   if (!pathname) return
+  if (force) {
+    explicitReveal = { pathname, select, documentId: editorStore.currentFile?.id }
+  } else {
+    if (projectStore.movingSource) return
+    if (explicitReveal && explicitReveal.documentId === editorStore.currentFile?.id) {
+      pathname = explicitReveal.pathname
+      select = explicitReveal.select
+      force = true
+    } else explicitReveal = null
+  }
+  const version = ++revealVersion
   // Initial restoration keeps deliberate folds until the user navigates to another tab.
   if (!force && projectStore.restoringSession) return
   if (!force && !preferencesStore.autoRevealInSidebar) return
   const root = projectStore.FIND_ROOT(pathname)
   if (!root || root.status !== 'ready') return
+  const node = projectStore.FIND_TREE_NODE(pathname)
+  if (!node) return
   if (root.tree.isCollapsed) {
     if (!force) return
     projectStore.SET_FOLDER_COLLAPSED(root.tree, false)
   }
   // Hidden views have no visible row to scroll into view.
   if (!layoutStore.showSideBar || layoutStore.rightColumn !== 'files') return
-  if (!projectStore.REVEAL_PATH(pathname)) return
+  if (node !== root.tree && !projectStore.REVEAL_PATH(pathname)) return
+  if (select) projectStore.CHANGE_ACTIVE_ITEM(node)
 
   await nextTick()
+  if (version !== revealVersion || (!force && projectStore.movingSource)) return
   const container = treeWrapper.value
   // Hidden views report a zero-size viewport.
   if (!container || container.offsetParent === null) return
@@ -424,6 +447,10 @@ const revealPath = async (
 const handleRevealPath = (pathname: unknown): void => {
   revealPath(typeof pathname === 'string' ? pathname : null, { force: true })
 }
+
+const { busy: movingTreeItem } = useTreeDragDrop(treeWrapper, pathname => {
+  void revealPath(pathname, { force: true, select: true })
+})
 
 const handleInputFocus = (): void => {
   const root = roots.value.find((root) => root.pathname === createCacheDirname.value)
@@ -450,6 +477,8 @@ const handleTreeClick = (event: MouseEvent): void => {
 
 const handleTreeMouseDown = (event: MouseEvent): void => {
   if (isEditableTarget(event.target)) return
+  explicitReveal = null
+  revealVersion++
   // Draggable rows need the native mousedown action; the click handler restores tree focus afterward.
   const draggableRow = event.target instanceof Element && event.target.closest('[draggable="true"]')
   if (event.button === 0 && !draggableRow) event.preventDefault()
@@ -531,7 +560,7 @@ const handleTreeKeydown = (event: KeyboardEvent): void => {
 // The row can arrive after the tab does: opening a project delivers its
 // contents incrementally, so every tree change is a new chance to reveal.
 watch(
-  () => [projectStore.treeVersion, editorStore.currentFile?.pathname] as const,
+  () => [projectStore.treeVersion, editorStore.currentFile?.pathname, projectStore.movingSource] as const,
   ([, pathname]) => {
     revealPath(pathname)
   },

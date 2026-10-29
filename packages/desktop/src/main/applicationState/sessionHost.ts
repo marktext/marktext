@@ -45,6 +45,7 @@ import { applyWindowGeometry, captureWindowGeometry } from './windowGeometry'
 import type { SidebarMoveRequest, SidebarMoveResult } from '@shared/types/project'
 import { confirmAndMoveSidebarItem } from '../filesystem/sidebarMove'
 import { containsPath } from 'common/filesystem/paths'
+import { relocateResourcePath, type ResourceMove } from 'common/filesystem/resourceMove'
 
 export interface StartupPath extends FileOpenOptions {
   path: string
@@ -1065,7 +1066,7 @@ export class SessionHost {
     return this._enqueueWindowOperation(windowId, async() => {
       const root = this._editors.get(windowId)?.projectRoots.roots.find(root => root.key === request.rootKey)
       if (!root || root.status !== 'ready') return { status: 'failed', message: t('sideBar.move.invalidTarget') }
-      const result = await confirmAndMoveSidebarItem(this._native(windowId), request, {
+      return confirmAndMoveSidebarItem(this._native(windowId), request, {
         root: root.pathname,
         checkAvailable: (source, destination) => {
           if (root.status !== 'ready' || !this._editors.get(windowId)?.projectRoots.roots.includes(root)) {
@@ -1082,12 +1083,11 @@ export class SessionHost {
             }
           }
         },
-        move: (source, destination, write) => this._moveResourceNow(windowId, source, destination, write)
+        move: (_source, destination, write) => this._moveResourceNow(windowId, {
+          source: createFileLocation(request.source),
+          destination: createFileLocation(destination)
+        }, write)
       })
-      if (result.status === 'moved') {
-        this._accessor.menu.relocateRecentlyUsedDocuments(request.source, result.destination)
-      }
-      return result
     })
   }
 
@@ -1098,32 +1098,28 @@ export class SessionHost {
     move: () => Promise<void>
   ): Promise<void> {
     return this._enqueueWindowOperation(windowId, () =>
-      this._moveResourceNow(windowId, source, target, move)
+      this._moveResourceNow(windowId, {
+        source: createFileLocation(source), destination: createFileLocation(target)
+      }, move)
     )
   }
 
   private async _moveResourceNow(
     windowId: string,
-    source: string,
-    target: string,
+    relocation: ResourceMove,
     move: () => Promise<void>
   ): Promise<void> {
-    const canonical = createFileLocation(source).canonicalPath
     const affected =
       this._owner()
         .getWindow(windowId)
         ?.documents.flatMap((document) => {
           if (document.resource.kind !== 'file') return []
-          const relative = path.relative(canonical, document.resource.location.canonicalPath)
-          return relative === '' ||
-            (!relative.startsWith(`..${path.sep}`) &&
-              relative !== '..' &&
-              !path.isAbsolute(relative))
-            ? [{ document, destination: path.join(path.resolve(target), relative) }]
-            : []
+          const destination = relocateResourcePath(document.resource.location.canonicalPath, relocation)
+          return destination === null ? [] : [{ document, destination }]
         }) ?? []
     if (!affected.length) {
       await move()
+      this._accessor.menu.relocateRecentlyUsedDocuments(relocation)
       return
     }
     await this._requestCheckpoint(windowId)
@@ -1162,6 +1158,7 @@ export class SessionHost {
         })
       }
     )
+    this._accessor.menu.relocateRecentlyUsedDocuments(relocation)
   }
 
   async renameDocument(windowId: string, documentId: string, destination: string): Promise<void> {
@@ -1191,7 +1188,8 @@ export class SessionHost {
       if (choice.response !== 0) return
     }
     await this.moveResource(windowId, source, target, () => rename(source, target))
-    this._accessor.menu.addRecentlyUsedDocument(target)
+    const moved = this._owner().getDocument(documentId)
+    if (moved.resource.kind === 'file') this._accessor.menu.addRecentlyUsedDocument(moved.resource.location.path)
   }
 
   async moveDocument(windowId: string, documentId: string): Promise<void> {

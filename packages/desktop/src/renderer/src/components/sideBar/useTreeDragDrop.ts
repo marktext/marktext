@@ -1,9 +1,7 @@
-import { computed, nextTick, onMounted, onUnmounted, watch, type Ref } from 'vue'
+import { computed, onMounted, onUnmounted, type Ref } from 'vue'
 import { useProjectStore } from '@/store/project'
 import notice from '@/services/notification'
 import { t } from '@/i18n'
-import { computeRevealScrollTop } from '@/util/revealTreeRow'
-import type { TreeFileNode, TreeFolderNode } from './types'
 
 const ROW_SELECTOR = '[data-tree-path]'
 const DRAG_TYPE = 'application/x-marktext-tree-item'
@@ -17,20 +15,10 @@ interface DragRow {
   directory: boolean
 }
 
-const findNode = (folder: TreeFolderNode, pathname: string): TreeFolderNode | TreeFileNode | undefined => {
-  if (folder.pathname === pathname) return folder
-  const file = folder.files.find(file => file.pathname === pathname)
-  if (file) return file
-  for (const child of folder.folders) {
-    const found = findNode(child, pathname)
-    if (found) return found
-  }
-}
-
 /** Rows expose paths and directory flags through data-tree-*; their root container supplies the root key.
  * Only a session started in this mounted tree can issue a move request.
  */
-export const useTreeDragDrop = (container: Ref<HTMLElement | null>) => {
+export const useTreeDragDrop = (container: Ref<HTMLElement | null>, requestReveal: (pathname: string) => void) => {
   const project = useProjectStore()
   const busy = computed(() => project.movingSource !== null)
   let source: DragRow | null = null
@@ -38,7 +26,6 @@ export const useTreeDragDrop = (container: Ref<HTMLElement | null>) => {
   let expandTimer: ReturnType<typeof setTimeout> | undefined
   let scrollFrame = 0
   let pointerY = 0
-  let pendingReveal: string | null = null
   let disposed = false
 
   const rowAt = (event: Event): DragRow | null => {
@@ -98,7 +85,6 @@ export const useTreeDragDrop = (container: Ref<HTMLElement | null>) => {
     }
     finishDrag()
     source = row
-    pendingReveal = null
     event.dataTransfer.setData(DRAG_TYPE, row.pathname)
     event.dataTransfer.effectAllowed = 'move'
     row.element.classList.add('tree-drag-source')
@@ -120,35 +106,9 @@ export const useTreeDragDrop = (container: Ref<HTMLElement | null>) => {
     target = row
     row.element.classList.add('tree-drop-target')
     expandTimer = setTimeout(() => {
-      const root = project.roots.find(root => root.key === row.rootKey)
-      const node = root ? findNode(root.tree, row.pathname) : undefined
+      const node = project.FIND_TREE_NODE(row.pathname)
       if (node?.isDirectory) project.SET_FOLDER_COLLAPSED(node, false)
     }, EXPAND_DELAY_MS)
-  }
-
-  const revealMovedItem = async(): Promise<void> => {
-    const pathname = pendingReveal
-    const root = pathname ? project.FIND_ROOT(pathname) : undefined
-    if (!pathname || !root) return
-    const node = findNode(root.tree, project.TREE_PATH(pathname))
-    if (!node) return
-    pendingReveal = null
-    project.SET_FOLDER_COLLAPSED(root.tree, false)
-    project.REVEAL_PATH(pathname)
-    project.CHANGE_ACTIVE_ITEM(node)
-    await nextTick()
-    const viewport = container.value
-    const row = Array.from(viewport?.querySelectorAll<HTMLElement>(ROW_SELECTOR) ?? [])
-      .find(row => row.dataset.treePath === node.pathname)
-    if (!viewport || !row) return
-    const scrollTop = computeRevealScrollTop({
-      rowTopInContent: row.getBoundingClientRect().top - viewport.getBoundingClientRect().top + viewport.scrollTop,
-      rowHeight: row.getBoundingClientRect().height,
-      viewportHeight: viewport.clientHeight,
-      scrollHeight: viewport.scrollHeight,
-      scrollTop: viewport.scrollTop
-    })
-    if (scrollTop !== null) viewport.scrollTop = scrollTop
   }
 
   const drop = async(event: DragEvent): Promise<void> => {
@@ -166,12 +126,10 @@ export const useTreeDragDrop = (container: Ref<HTMLElement | null>) => {
       const result = await window.electron.ipcRenderer.invoke('mt::project-move-item', request)
       if (disposed) return
       if (result.status === 'moved') {
-        pendingReveal = result.destination
-        await revealMovedItem()
+        requestReveal(result.destination)
         notice.notify({ title: t('sideBar.move.title'), message: t('sideBar.move.completed'), type: 'primary' })
       } else if (result.status === 'failed') {
         notice.notify({ title: t('sideBar.move.title'), message: result.message, type: 'error' })
-        await project.RECONCILE_FAILED_MOVE(request.source)
         await window.electron.ipcRenderer.invoke('mt::project-retry-root', request.rootKey)
       }
     } catch (error) {
@@ -208,7 +166,6 @@ export const useTreeDragDrop = (container: Ref<HTMLElement | null>) => {
     }
   }
 
-  watch(() => project.treeVersion, () => { void revealMovedItem() })
   onMounted(() => {
     const viewport = container.value
     if (!viewport) return

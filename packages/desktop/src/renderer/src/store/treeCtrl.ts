@@ -30,6 +30,16 @@ interface TreeFile {
 
 type AddFileInput = Omit<TreeFile, 'id'>
 
+export const findTreeNode = (tree: TreeFolder, pathname: string): TreeFolder | TreeFile | undefined => {
+  if (tree.pathname === pathname) return tree
+  const file = tree.files.find(file => file.pathname === pathname)
+  if (file) return file
+  for (const folder of tree.folders) {
+    const node = findTreeNode(folder, pathname)
+    if (node) return node
+  }
+}
+
 const safeTime = (v: number | undefined): number => (v !== undefined && isFinite(v) ? v : 0)
 
 const makeFileComparator = (sortBy: string, sortOrder: string) =>
