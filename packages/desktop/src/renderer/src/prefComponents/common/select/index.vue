@@ -10,6 +10,8 @@
     <template #default="{ descriptionId }">
       <el-select
         v-model="selectValue"
+        :show-arrow="false"
+        popper-class="pref-dropdown"
         :aria-label="description || ariaLabel"
         :aria-describedby="descriptionId"
         :disabled="disable"
@@ -71,9 +73,6 @@ li.el-select-dropdown__item.is-selected {
 div.el-select-dropdown {
   background: var(--floatBgColor);
   border-color: var(--floatBorderColor);
-  & .popper__arrow {
-    display: none;
-  }
 }
 .el-select__wrapper.is-focused {
   box-shadow: 0 0 0 1px var(--themeColor) inset;

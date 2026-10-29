@@ -91,11 +91,10 @@ test('shortcut conflict notices name and reveal the command occupying the bindin
     const settings = await openSettings(app, page)
     await settings.locator('.pref-sidebar input').fill('file.save')
     await settings.locator('.pref-autocomplete li').first().click()
-    const row = settings.locator('[id="setting-keybinding-file.save"]').locator('xpath=ancestor::tr')
-    await row.getByRole('button', { name: 'Edit', exact: true }).click()
-    const recorder = settings.locator('.key-input-dialog input:visible')
+    const row = settings.locator('[id="setting-keybinding-file.save"]').locator('xpath=ancestor::li')
+    await row.getByRole('button', { name: 'Edit shortcut for Save', exact: true }).click()
+    const recorder = settings.locator('.shortcut-recorder')
     await recorder.press(process.platform === 'darwin' ? 'Meta+O' : 'Control+O')
-    await recorder.press('Enter')
     const notice = settings.locator('.mt-notification')
     await expect(notice.locator('.mt-notification__text')).toContainText('Open')
     await notice.getByRole('button', { name: /^View / }).click()
@@ -142,6 +141,141 @@ test('theme picker keeps fixed and system theme choices separate and preserves c
   }
 })
 
+test('Pandoc and PicGo share explicit checking, found, missing and failed states', async() => {
+  const { app, page } = await launchWithMarkdown('# Command detection\n', {
+    preferences: { language: 'en', imageInsertAction: 'upload' }, suppressErrorDialog: true
+  })
+  try {
+    const probes = await app.evaluateHandle(({ ipcMain }) => {
+      const state = {
+        picgo: false,
+        pandoc: null as string | null,
+        fail: false,
+        block: false,
+        release: undefined as ((found: boolean) => void) | undefined
+      }
+      ipcMain.removeHandler('mt::pandoc::command')
+      ipcMain.handle('mt::pandoc::command', () => ({ command: state.pandoc }))
+      ipcMain.removeHandler('mt::cmd::exists')
+      ipcMain.handle('mt::cmd::exists', (_event, name: string) => {
+        if (name !== 'picgo') return true
+        if (state.fail) throw new Error('Simulated command detection failure')
+        if (state.block) return new Promise<boolean>(resolve => { state.release = resolve })
+        return state.picgo
+      })
+      return state
+    })
+    const settings = await openSettings(app, page)
+    await settings.getByRole('button', { name: 'Images & export', exact: true }).click()
+    const pandoc = settings.locator('.pref-general .command-detection')
+    const picgo = settings.locator('.picgo .command-detection')
+    await expect(pandoc).toHaveAttribute('data-state', 'not-found')
+    await expect(picgo).toHaveAttribute('data-state', 'not-found')
+    await probes.evaluate(state => { state.picgo = true; state.pandoc = '/test/pandoc'; state.block = true })
+    await picgo.getByRole('button', { name: 'Check again', exact: true }).click()
+    await expect(picgo).toHaveAttribute('data-state', 'checking')
+    await expect(picgo.getByRole('status')).toHaveText('Checking…')
+    await expect(picgo.getByRole('button')).toBeDisabled()
+    await probes.evaluate(state => { state.block = false; state.release?.(state.picgo) })
+    await expect(picgo).toHaveAttribute('data-state', 'found')
+    await pandoc.getByRole('button', { name: 'Check again', exact: true }).click()
+    await expect(pandoc).toHaveAttribute('data-state', 'found')
+    await expect(pandoc.getByRole('status')).toContainText('/test/pandoc')
+    await probes.evaluate(state => { state.fail = true })
+    await picgo.getByRole('button', { name: 'Check again', exact: true }).click()
+    await expect(picgo).toHaveAttribute('data-state', 'failed')
+    await settings.locator('.debug-info summary').click()
+    await expect(settings.locator('.debug-info pre')).toContainText('Simulated command detection failure')
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
+test('uploader keeps its complete offline guide and persists a custom script', async() => {
+  const { app, page } = await launchWithMarkdown('# Uploader settings\n', {
+    preferences: { language: 'en', imageInsertAction: 'path' }, suppressErrorDialog: true
+  })
+  try {
+    let settings = await openSettings(app, page)
+    await settings.locator('.pref-sidebar input').fill('imageUploader')
+    await settings.locator('.pref-autocomplete li').first().click()
+    const guide = settings.locator('.uploader-guide')
+    await expect(guide).not.toHaveAttribute('open', '')
+    await guide.locator('summary').click()
+    await expect(guide.locator('code').filter({ hasText: 'picgo set uploader' })).toBeVisible()
+    await expect(guide.locator('code').filter({ hasText: 'picgo config' })).toBeVisible()
+    await settings.locator('#setting-imageUploader .el-select__wrapper').click()
+    await settings.getByRole('option', { name: 'CLI Script', exact: true }).click()
+    const script = settings.locator('#setting-cliScript input')
+    await script.fill(process.execPath)
+    const dataDirectory = await app.evaluate(({ app }) => app.getPath('userData'))
+    const savedScript = () => JSON.parse(readFileSync(join(dataDirectory, 'dataCenter.json'), 'utf8')).cliScript
+    await expect.poll(savedScript).toBe(process.execPath)
+    await expect(settings.locator('#setting-imageUploader').getByRole('button', { name: 'Save', exact: true })).toHaveCount(0)
+    await expect(settings.locator('#setting-cliScript .el-input__wrapper')).toHaveCSS('height', '36px')
+    await expect(settings.locator('#setting-imageUploader .el-select__wrapper')).toHaveCSS('height', '36px')
+    await script.fill(join(dataDirectory, 'missing-script'))
+    await expect(settings.locator('#setting-cliScript [role="alert"]')).toBeVisible()
+    expect(savedScript()).toBe(process.execPath)
+    await expect.poll(async() => (await preferences(app)).imageInsertAction).toBe('path')
+    await closeSettings(app, settings)
+    await expect.poll(() => app.windows().length).toBe(1)
+    settings = await openSettings(app, page)
+    await settings.locator('.pref-sidebar input').fill('imageUploader')
+    await settings.locator('.pref-autocomplete li').first().click()
+    await expect(settings.locator('#setting-cliScript input')).toHaveValue(process.execPath)
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
+test('image insertion behavior switches its related settings and preserves search access', async() => {
+  const { app, page } = await launchWithMarkdown('# Image settings\n', {
+    preferences: { language: 'en', imageInsertAction: 'path' }, suppressErrorDialog: true
+  })
+  try {
+    const settings = await openSettings(app, page)
+    await settings.getByRole('button', { name: 'Images & export', exact: true }).click()
+    await expect(settings.getByRole('heading', { name: 'Image', exact: true })).toBeVisible()
+    const folder = settings.locator('.image-folder')
+    const uploader = settings.locator('#setting-imageUploader')
+    await expect(folder).toBeVisible()
+    await expect(uploader).toHaveCount(0)
+    const chooseAction = async(label: string) => {
+      await settings.locator('#setting-imageInsertAction .el-select__wrapper').click()
+      await settings.getByRole('option', { name: label, exact: true }).click()
+    }
+    await chooseAction('Upload to cloud')
+    await expect(uploader).toBeVisible()
+    await expect(folder).toHaveCount(0)
+    await expect.poll(async() => (await preferences(app)).imageInsertAction).toBe('upload')
+    await settings.locator('.pref-sidebar input').fill('imageRelativeDirectoryBase')
+    await settings.locator('.pref-autocomplete li').first().click()
+    const copyLocation = settings.locator('#setting-imageRelativeDirectoryBase')
+    await expect(copyLocation).toBeFocused()
+    await expect(copyLocation.getByRole('combobox', { name: 'Copy image relative to', exact: true })).toBeVisible()
+    await expect.poll(async() => (await preferences(app)).imageInsertAction).toBe('upload')
+    await chooseAction('Copy to folder')
+    await expect(folder).toBeVisible()
+    await expect(uploader).toHaveCount(0)
+    await chooseAction('Use absolute path')
+    await expect(folder).toBeVisible()
+    await expect(uploader).toHaveCount(0)
+    await settings.locator('.pref-sidebar input').fill('imageUploader')
+    await settings.locator('.pref-autocomplete li').first().click()
+    await expect(uploader).toBeFocused()
+    await expect.poll(async() => (await preferences(app)).imageInsertAction).toBe('path')
+    await chooseAction('Copy to folder')
+    await expect(uploader).toHaveCount(0)
+    await expect(folder).toBeVisible()
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
 test('file-tree rule tags retain glob commas when adding and reopening settings', async() => {
   const { app, page } = await launchWithMarkdown('# Exclusion rules\n', {
     preferences: { language: 'en', treePathExcludePatterns: ['**/{drafts,archive}/**'] },
@@ -149,7 +283,7 @@ test('file-tree rule tags retain glob commas when adding and reopening settings'
   })
   try {
     let settings = await openSettings(app, page)
-    await settings.getByRole('button', { name: 'Files & saving', exact: true }).click()
+    await settings.getByRole('button', { name: 'General', exact: true }).click()
     const rules = settings.locator('.exclude-patterns')
     await expect(rules.locator('.el-tag__content')).toHaveText(['**/{drafts,archive}/**'])
     const input = rules.getByRole('textbox', { name: 'New exclusion rule', exact: true })
@@ -163,7 +297,10 @@ test('file-tree rule tags retain glob commas when adding and reopening settings'
     await closeSettings(app, settings)
     await expect.poll(() => app.windows().length).toBe(1)
     settings = await openSettings(app, page)
-    await settings.getByRole('button', { name: 'Files & saving', exact: true }).click()
+    await settings.locator('.pref-sidebar input').fill('treePathExcludePatterns')
+    await settings.locator('.pref-autocomplete li').first().click()
+    await expect(settings).toHaveURL(/preference\/general/)
+    await expect(settings.locator('#setting-treePathExcludePatterns')).toBeFocused()
     await expect(settings.locator('.exclude-patterns .el-tag__content'))
       .toHaveText([' **/{cache,backup}/** '])
     await expectNoRendererErrors(app)
@@ -188,7 +325,7 @@ test('actual settings clicks persist autosave and language and update the editor
 
     await settings.getByRole('button', { name: 'General', exact: true }).click()
     const language = settings.locator('.pref-select-item').filter({
-      has: settings.getByRole('combobox', { name: 'Language', exact: true })
+      has: settings.getByRole('combobox', { name: 'Interface language', exact: true })
     })
     await language.locator('.el-select__wrapper').click()
     await settings.getByRole('option', { name: '简体中文', exact: true }).click()
@@ -215,7 +352,7 @@ test('startup settings use shared controls and persist policy, switches and fold
     const settings = await openSettings(app, page)
     await settings.getByRole('button', { name: 'Files & saving', exact: true }).click()
     const startup = settings.locator('.recovery-settings')
-    await expect(startup.locator('h6.title')).toHaveText('Startup Options')
+    await expect(startup.locator('h6.title')).toHaveText('Startup and recovery')
     await expect(startup.locator('.el-switch')).toHaveCount(3)
     await expect(startup.locator('select')).toHaveCount(0)
     await expect(startup.locator('.startup-directory')).toHaveCount(0)

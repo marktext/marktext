@@ -11,6 +11,7 @@ export interface UiKeybinding {
   id: string
   description: string
   accelerator: string
+  defaultAccelerator: string
   type: ShortcutType
 }
 
@@ -60,12 +61,13 @@ export default class KeybindingConfigurator {
     // Overwrite accelerator if key is present (empty string unset old binding).
     let accelerator: string
     if (userAccelerator != null) {
-      type = SHORTCUT_TYPE_USER
-      accelerator = userAccelerator
+      const isDefault = this._isDefaultBinding(id, userAccelerator)
+      type = isDefault ? SHORTCUT_TYPE_DEFAULT : SHORTCUT_TYPE_USER
+      accelerator = isDefault ? defaultKeybindings.get(id) ?? '' : userAccelerator
     } else {
       accelerator = defaultKeybindings.get(id) ?? ''
     }
-    return { id, description, accelerator, type }
+    return { id, description, accelerator, defaultAccelerator: defaultKeybindings.get(id) ?? '', type }
   }
 
   getKeybindings(): UiKeybinding[] {
@@ -116,10 +118,9 @@ export default class KeybindingConfigurator {
       return false
     }
 
-    entry.accelerator = accelerator
-    entry.type = this._isDefaultBinding(id, accelerator)
-      ? SHORTCUT_TYPE_DEFAULT
-      : SHORTCUT_TYPE_USER
+    const isDefault = this._isDefaultBinding(id, accelerator)
+    entry.accelerator = isDefault ? entry.defaultAccelerator : accelerator
+    entry.type = isDefault ? SHORTCUT_TYPE_DEFAULT : SHORTCUT_TYPE_USER
     this.isDirty = true
     return true
   }
@@ -168,6 +169,8 @@ export default class KeybindingConfigurator {
   }
 
   _isDefaultBinding(id: string, accelerator: string): boolean {
-    return this.defaultKeybindings.get(id) === accelerator
+    const defaultAccelerator = this.defaultKeybindings.get(id) ?? ''
+    if (!defaultAccelerator || !accelerator) return defaultAccelerator === accelerator
+    return isEqualAccelerator(defaultAccelerator, accelerator)
   }
 }

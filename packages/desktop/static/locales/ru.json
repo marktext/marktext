@@ -430,10 +430,12 @@
         "hideScrollbars": "Скрыть полосы прокрутки",
         "openFilesInNewWindow": "Открывать файлы в новом окне",
         "openFoldersInNewWindow": "Открывать папки в новом окне",
-        "zoom": "Масштаб"
+        "zoom": "Масштаб",
+        "openFilesInNewWindowNote": "Если включено, файлы открываются в новом окне. Если выключено, они открываются во вкладках текущего окна.",
+        "openFoldersInNewWindowNote": "Если включено, папки открываются в новом окне. Если выключено, они заменяют папку в текущем окне."
       },
       "startup": {
-        "title": "Параметры запуска",
+        "title": "Запуск и восстановление",
         "openDefaultDirectory": "Открыть выбранную папку",
         "openLastFolder": "Открыть последнюю рабочую область",
         "restoreAll": "Восстановить все окна",
@@ -442,8 +444,11 @@
         "action": "При запуске",
         "restoreLastWindow": "Восстановить последнее активное окно",
         "restoreLayoutState": "Восстановить расположение окон",
+        "restoreLayoutStateNote": "При перезапуске восстанавливать размер, положение окна и расположение элементов, например боковой панели.",
         "restoreEditors": "Восстановить открытые файлы",
+        "restoreEditorsNote": "При перезапуске заново открывать предыдущие вкладки файлов.",
         "restoreViewState": "Восстановить позиции чтения и выделения",
+        "restoreViewStateNote": "При восстановлении файла возвращаться к прежней позиции чтения и выделению.",
         "failure": "Не удалось сохранить настройки. Продолжают действовать предыдущие настройки."
       },
       "pandoc": {
@@ -451,11 +456,10 @@
         "description": "Включить преобразование Pandoc",
         "detailedDescription": "Показывает команды преобразования в меню. Требуется установленный Pandoc.",
         "found": "Найден: {path}",
-        "notFound": "Не найден",
-        "recheck": "Проверить снова"
+        "notFound": "Не найден"
       },
       "sidebar": {
-        "title": "Боковая панель",
+        "title": "Боковая панель и оглавление",
         "wrapTextInToc": "Переносить текст в оглавлении",
         "tocPosition": "Расположение оглавления",
         "tocLeft": "Слева",
@@ -484,25 +488,24 @@
           "newestFirst": "Сначала новые"
         }
       },
-      "misc": {
-        "title": "Разное",
-        "language": {
-          "title": "Язык",
-          "english": "English",
-          "chinese": "简体中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "Язык",
+        "english": "English",
+        "chinese": "简体中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "Язык интерфейса"
+      },
+      "openingMode": "Режим открытия"
     },
     "editor": {
       "title": "Редактор",
@@ -511,7 +514,7 @@
         "fontSize": "Размер шрифта",
         "lineHeight": "Высота строки",
         "fontFamily": "Семейство шрифтов",
-        "maxWidth": "Макс. ширина",
+        "maxWidth": "Максимальная ширина содержимого редактора",
         "maxWidthNotes": "Максимальная ширина содержимого редактора. Введите число с суффиксом px, ch (символы) или %, например 800px, 80ch или 60%. Оставьте пустым для ширины по умолчанию.",
         "maxWidthInvalid": "Введите число с суффиксом px, ch или %, например 800px.",
         "codeFontFamily": "Шрифт кода",
@@ -519,12 +522,12 @@
       },
       "codeBlock": {
         "title": "Блок кода",
-        "fontSize": "Размер шрифта",
+        "fontSize": "Размер шрифта блоков кода",
         "showLineNumbers": "Показывать номера строк",
         "removeEmptyLines": "Удалять пустые строки"
       },
       "writingBehavior": {
-        "title": "Поведение при вводе",
+        "title": "Настройки написания",
         "autoCloseBrackets": "Автоматически закрывать скобки",
         "autoCompleteMarkdown": "Дополнять парные маркеры Markdown",
         "autoCloseQuotes": "Автоматически закрывать кавычки"
@@ -574,7 +577,7 @@
       "folderSetting": {
         "title": "Настройки папки",
         "globalFolder": "Глобальная папка изображений",
-        "open": "Открыть",
+        "open": "Выбрать папку…",
         "showInFolder": "Показать в папке",
         "preferRelative": "Предпочитать относительную папку",
         "relativeCopyLocation": "Копировать изображение относительно",
@@ -585,22 +588,19 @@
       },
       "uploader": {
         "title": "Загрузчик изображений",
-        "currentUploader": "Текущий загрузчик: {name}",
-        "picgoNotInstalled": "PicGo не установлен",
-        "picgoInstalled": "PicGo установлен",
-        "picgoDetectionFailed": "Не удалось определить PicGo",
+        "picgoNotInstalled": "PicGo-Core не установлен",
+        "picgoInstalled": "PicGo-Core установлен",
+        "picgoDetectionFailed": "Не удалось определить PicGo-Core",
         "debugInfo": "Отладочная информация",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Выберите способ установки:",
-        "retestPicgo": "Проверить снова",
         "lastDetectionTime": "Время последней проверки",
-        "picgoDetection": "Проверка PicGo",
         "usageGuide": {
-          "title": "Краткое руководство по PicGo",
+          "title": "Краткое руководство по PicGo-Core",
           "step1": "Настроить загрузчик",
-          "step1Description": "Используйте следующую команду для настройки загрузчика PicGo:",
+          "step1Description": "Используйте следующую команду для настройки загрузчика PicGo-Core:",
           "step2": "Загрузить изображения",
           "step2Description": "Используйте следующую команду для загрузки изображений:",
           "step3": "Просмотреть конфигурацию",
@@ -608,19 +608,15 @@
           "documentation": "Открыть полную документацию"
         },
         "lastSuccessTime": "Время последнего успеха",
-        "neverDetected": "Никогда не обнаружено",
-        "neverSuccessful": "Никогда не успешно",
         "scriptDescription": "Описание скрипта",
         "scriptLocation": "Расположение скрипта",
-        "save": "Сохранить",
-        "saveConfig": "Сохранить конфигурацию",
-        "scriptConfigSaved": "Конфигурация скрипта сохранена",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI-скрипт"
         },
         "pleaseInstall": "Пожалуйста, установите",
-        "scriptPath": "Путь к скрипту"
+        "scriptPath": "Путь к скрипту",
+        "invalidScript": "Укажите путь к существующему исполняемому скрипту."
       },
       "defaultBehavior": "Поведение по умолчанию после вставки или перетаскивания изображения в MarkText"
     },
@@ -630,7 +626,6 @@
         "title": "Расширения",
         "superSubScript": "Верхний/нижний индекс",
         "footnote": "Сноска",
-        "footnoteNotes": "Примечания к сноскам",
         "texMathDollars": "TeX-формулы с $ и $$",
         "texMathGfm": "GitHub TeX-формулы ($`…`$ и ```math)",
         "texMathSingleBackslash": "TeX-формулы с одинарным обратным слешем",
@@ -695,7 +690,7 @@
     "theme": {
       "title": "Тема",
       "followSystemTheme": "Следовать оформлению системы",
-      "followSystemNote": "Следование системной теме блокирует список тем ниже. Отключите это, чтобы свободно менять тему.",
+      "followSystemNote": "Ниже можно выбрать отдельные темы для тёмного и светлого режимов.",
       "modeThemes": "Выбор темы",
       "lightModeTheme": "Тема светлого режима",
       "darkModeTheme": "Тема тёмного режима",
@@ -713,33 +708,25 @@
     },
     "keybindings": {
       "title": "Горячие клавиши",
-      "description": "Настройте сочетания клавиш",
-      "save": "Сохранить",
+      "description": "Чтобы изменить сочетание клавиш, выберите его, затем нажмите новое сочетание",
       "restoreDefaults": "Восстановить значения по умолчанию",
       "debugOptions": "Параметры отладки",
       "dumpKeyboardInfo": "Выгрузить информацию о клавиатуре",
       "failedToSave": "Не удалось сохранить горячие клавиши",
-      "keyInputDialog": {
-        "instructions": "Нажмите сочетание клавиш, которое хотите назначить",
-        "invalidKeybinding": "Недопустимое сочетание клавиш",
-        "placeholder": "Нажмите клавиши..."
-      },
-      "online": "В сети",
+      "online": "Документация по сочетаниям клавиш",
       "saveError": "Ошибка при сохранении горячих клавиш",
       "shortcutInUse": "Сочетание уже используется",
       "shortcutInUseMessage": "{accelerator} уже назначено команде {commands}.",
-      "table": {
-        "description": "Описание",
-        "edit": "Изменить",
-        "keyCombination": "Сочетание клавиш",
-        "options": "Параметры",
-        "reset": "Сбросить",
-        "unbind": "Отвязать"
-      },
       "windowAndNavigation": "Окна и навигация",
       "loadError": "Не удалось загрузить сочетания клавиш.",
       "reload": "Загрузить заново",
-      "viewConflict": "Показать {name}"
+      "viewConflict": "Показать {name}",
+      "editShortcut": "Изменить сочетание клавиш для {name}",
+      "unbound": "Не назначено",
+      "recorder": {
+        "placeholder": "Нажмите сочетание клавиш",
+        "invalidKeybinding": "Недопустимое сочетание клавиш"
+      }
     },
     "selectFont": "Выбрать шрифт",
     "spellchecker": {
@@ -762,6 +749,11 @@
       "taskCascade": "Отметка родительской задачи обновляет подзадачи; изменение подзадач обновляет родительскую задачу.",
       "markdownPairs": "При вводе дополняет парные маркеры Markdown: звёздочки, подчёркивания и обратные кавычки.",
       "lineEndings": "Для новых файлов и смешанных или неопределённых окончаний строк. Файлы LF и CRLF сохраняют обнаруженный формат."
+    },
+    "commandDetection": {
+      "checking": "Проверка…",
+      "recheck": "Проверить снова",
+      "failed": "Ошибка обнаружения. Повторите проверку."
     }
   },
   "about": {

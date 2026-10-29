@@ -430,10 +430,12 @@
         "hideScrollbars": "スクロールバーを隠す",
         "openFilesInNewWindow": "新しいウィンドウでファイルを開く",
         "openFoldersInNewWindow": "新しいウィンドウでフォルダーを開く",
-        "zoom": "ズーム"
+        "zoom": "ズーム",
+        "openFilesInNewWindowNote": "有効にすると、ファイルを新しいウィンドウで開きます。無効にすると、現在のウィンドウのタブで開きます。",
+        "openFoldersInNewWindowNote": "有効にすると、フォルダーを新しいウィンドウで開きます。無効にすると、現在のウィンドウのフォルダーを置き換えて開きます。"
       },
       "startup": {
-        "title": "起動",
+        "title": "起動と復元",
         "openDefaultDirectory": "選択したフォルダーを開く",
         "openLastFolder": "前回のワークスペースを開く",
         "restoreAll": "すべてのウィンドウを復元",
@@ -442,8 +444,11 @@
         "action": "起動時",
         "restoreLastWindow": "最後に使用したウィンドウを復元",
         "restoreLayoutState": "ウィンドウのレイアウトを復元",
+        "restoreLayoutStateNote": "再起動時に、ウィンドウのサイズ、位置、サイドバーなどのレイアウトを復元します。",
         "restoreEditors": "開いていたファイルを復元",
+        "restoreEditorsNote": "再起動時に、前回のファイルタブを開き直します。",
         "restoreViewState": "閲覧位置と選択範囲を復元",
+        "restoreViewStateNote": "ファイルの復元時に、前回の閲覧位置と選択範囲を復元します。",
         "failure": "設定を保存できませんでした。以前の設定を引き続き使用します。"
       },
       "pandoc": {
@@ -451,11 +456,10 @@
         "description": "Pandoc 形式変換を有効化",
         "detailedDescription": "メニューに形式変換コマンドを表示します。Pandoc のインストールが必要です。",
         "found": "検出: {path}",
-        "notFound": "見つかりません",
-        "recheck": "再検出"
+        "notFound": "見つかりません"
       },
       "sidebar": {
-        "title": "サイドバー",
+        "title": "サイドバーと目次",
         "wrapTextInToc": "目次でテキストを折り返し",
         "tocPosition": "目次の位置",
         "tocLeft": "左側",
@@ -484,25 +488,24 @@
           "newestFirst": "新しい順"
         }
       },
-      "misc": {
-        "title": "その他",
-        "language": {
-          "title": "言語",
-          "english": "English",
-          "chinese": "简体中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "言語",
+        "english": "English",
+        "chinese": "简体中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "表示言語"
+      },
+      "openingMode": "開くモード"
     },
     "editor": {
       "title": "エディタ",
@@ -511,7 +514,7 @@
         "fontSize": "フォントサイズ",
         "lineHeight": "行の高さ",
         "fontFamily": "フォントファミリー",
-        "maxWidth": "最大幅",
+        "maxWidth": "エディター内容の最大幅",
         "maxWidthNotes": "エディターコンテンツの最大幅。数値の後に単位 px、ch (文字数)、% のいずれかを付けて入力します (例 : 800px、80ch、60%)。空欄の場合は既定の幅を使用します。",
         "maxWidthInvalid": "数値の後に px、ch、% のいずれかを付けて入力してください (例 : 800px)。",
         "codeFontFamily": "コードのフォント",
@@ -519,12 +522,12 @@
       },
       "codeBlock": {
         "title": "コードブロック",
-        "fontSize": "フォントサイズ",
+        "fontSize": "コードブロックのフォントサイズ",
         "showLineNumbers": "行番号を表示",
         "removeEmptyLines": "空行を削除"
       },
       "writingBehavior": {
-        "title": "書き込み動作",
+        "title": "執筆設定",
         "autoCloseBrackets": "括弧を自動で閉じる",
         "autoCompleteMarkdown": "Markdown 記号のペアを自動補完",
         "autoCloseQuotes": "引用符を自動で閉じる"
@@ -574,7 +577,7 @@
       "folderSetting": {
         "title": "フォルダーの設定",
         "globalFolder": "グローバル画像フォルダー",
-        "open": "開く",
+        "open": "フォルダーを選択…",
         "showInFolder": "フォルダーの表示",
         "preferRelative": "相対ディレクトリを優先",
         "relativeCopyLocation": "画像の相対コピー先",
@@ -585,21 +588,19 @@
       },
       "uploader": {
         "title": "画像アップローダー",
-        "currentUploader": "現在のアップローダー: {name}",
-        "picgoNotInstalled": "PicGo がインストールされていません",
-        "picgoInstalled": "PicGo がインストールされています",
-        "picgoDetectionFailed": "PicGo 検出に失敗しました",
+        "picgoNotInstalled": "PicGo-Core がインストールされていません",
+        "picgoInstalled": "PicGo-Core がインストールされています",
+        "picgoDetectionFailed": "PicGo-Core 検出に失敗しました",
         "debugInfo": "デバッグ情報",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "インストール方法の選択 :",
-        "retestPicgo": "再テスト",
         "lastDetectionTime": "最後の検出時間",
         "usageGuide": {
-          "title": "PicGo 基本使用ガイド",
+          "title": "PicGo-Core 基本使用ガイド",
           "step1": "アップローダーの設定",
-          "step1Description": "以下のコマンドを使用して PicGo アップローダーを設定してください :",
+          "step1Description": "以下のコマンドを使用して PicGo-Core アップローダーを設定してください :",
           "step2": "画像をアップロード",
           "step2Description": "以下のコマンドを使用して画像をアップロードしてください :",
           "step3": "設定を表示",
@@ -608,19 +609,14 @@
         },
         "scriptDescription": "スクリプトの説明",
         "scriptLocation": "スクリプトの場所",
-        "save": "保存",
-        "saveConfig": "設定を保存",
-        "scriptConfigSaved": "スクリプト設定が保存されました",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI スクリプト"
         },
         "pleaseInstall": "インストールしてください",
         "scriptPath": "スクリプトパス",
-        "picgoDetection": "PicGo 検出",
         "lastSuccessTime": "最後の成功時刻",
-        "neverDetected": "検出されたことがない",
-        "neverSuccessful": "成功したことがない"
+        "invalidScript": "存在する実行可能なスクリプトのパスを入力してください。"
       },
       "defaultBehavior": "MarkText に画像を貼り付けまたはドラッグした後のデフォルト動作"
     },
@@ -630,7 +626,6 @@
         "title": "拡張機能",
         "superSubScript": "上付き/下付き文字",
         "footnote": "脚注",
-        "footnoteNotes": "脚注",
         "texMathDollars": "$ と $$ による TeX 数式",
         "texMathGfm": "GitHub の TeX 数式（$`…`$ と ```math）",
         "texMathSingleBackslash": "単一バックスラッシュの TeX 数式",
@@ -695,7 +690,7 @@
     "theme": {
       "title": "テーマ",
       "followSystemTheme": "システムの外観に合わせる",
-      "followSystemNote": "システムテーマに従っている間は、下のテーマ一覧を切り替えられません。オフにすると自由に切り替えられます。",
+      "followSystemNote": "以下でダークモードとライトモードのテーマをそれぞれ選択できます。",
       "modeThemes": "テーマの選択",
       "lightModeTheme": "ライトモードのテーマ",
       "darkModeTheme": "ダークモードのテーマ",
@@ -713,33 +708,25 @@
     },
     "keybindings": {
       "title": "キーバインド",
-      "description": "キーバインドのカスタマイズ",
-      "save": "保存",
+      "description": "ショートカットを変更するには、キーの組み合わせを選択してから、新しい組み合わせを押してください",
       "restoreDefaults": "デフォルトに復元",
       "debugOptions": "デバッグオプション",
       "dumpKeyboardInfo": "キーボード情報をダンプ",
       "failedToSave": "キーバインドの保存に失敗",
-      "keyInputDialog": {
-        "instructions": "割り当てたいキーの組み合わせを押してください",
-        "invalidKeybinding": "無効なキーバインド",
-        "placeholder": "キーを押してください..."
-      },
-      "online": "オンライン",
+      "online": "キーボードショートカットのドキュメント",
       "saveError": "キーバインドの保存エラー",
       "shortcutInUse": "ショートカットが使用中",
       "shortcutInUseMessage": "{accelerator} はすでに「{commands}」に割り当てられています。",
-      "table": {
-        "description": "説明",
-        "edit": "編集",
-        "keyCombination": "キーの組み合わせ",
-        "options": "オプション",
-        "reset": "リセット",
-        "unbind": "バインド解除"
-      },
       "windowAndNavigation": "ウィンドウとナビゲーション",
       "loadError": "キーボードショートカットを読み込めませんでした。",
       "reload": "再読み込み",
-      "viewConflict": "「{name}」を表示"
+      "viewConflict": "「{name}」を表示",
+      "editShortcut": "{name} のショートカットを編集",
+      "unbound": "未割り当て",
+      "recorder": {
+        "placeholder": "キーの組み合わせを押す",
+        "invalidKeybinding": "無効なキーバインド"
+      }
     },
     "selectFont": "フォントの選択",
     "spellchecker": {
@@ -762,6 +749,11 @@
       "taskCascade": "親タスクのチェックを変更すると子タスクも更新され、子タスクの変更は親タスクに反映されます。",
       "markdownPairs": "入力中のアスタリスク、アンダースコア、バッククォートなどの Markdown 記号をペアで補完します。",
       "lineEndings": "新規ファイルと改行が混在または検出できないファイルに使用します。既存の LF・CRLF ファイルは検出された形式を保持します。"
+    },
+    "commandDetection": {
+      "checking": "検出中…",
+      "recheck": "再検出",
+      "failed": "検出に失敗しました。再検出してください。"
     }
   },
   "about": {

@@ -13,13 +13,13 @@
     />
     <div>
       <el-button
-        size="mini"
+        size="default"
         @click="modifyImageFolderPath(undefined)"
       >
         {{ t('preferences.image.folderSetting.open') }}
       </el-button>
       <el-button
-        size="mini"
+        size="default"
         @click="openImageFolder"
       >
         {{ t('preferences.image.folderSetting.showInFolder') }}
@@ -37,7 +37,8 @@
       </template>
       <template #children>
         <CurSelect
-          :description="t('preferences.image.folderSetting.relativeCopyLocation')"
+          id="setting-imageRelativeDirectoryBase"
+          :description="preferenceLabel('imageRelativeDirectoryBase')"
           :value="imageRelativeDirectoryBase"
           :disable="!imagePreferRelativeDirectory"
           :options="imageRelativeDirectoryBaseOptions"

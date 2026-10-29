@@ -17,9 +17,9 @@
         class="input"
         :class="{ error: invalidInput }"
         :placeholder="defaultValue"
-        size="small"
         clearable
         @input="handleInput"
+        @change="flushPending"
       />
       <div
         v-if="invalidInput && errorMessage"
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 import SettingRow from '../settingRow.vue'
 import type { PrefControlBaseProps } from '../types'
 
@@ -43,6 +43,7 @@ interface TextBoxProps extends PrefControlBaseProps {
   defaultValue?: string
   emitTime?: number
   regexValidator?: RegExp
+  validate?: (value: string) => boolean | Promise<boolean>
   errorMessage?: string
 }
 
@@ -58,38 +59,63 @@ const props = withDefaults(defineProps<TextBoxProps>(), {
 })
 
 let inputTimer: ReturnType<typeof setTimeout> | null = null
+let revision = 0
+let pending: { value: string; revision: number } | null = null
 const inputText = ref(props.input)
 const invalidInput = ref(false)
 
-watch(
-  () => props.input,
-  (value, oldValue) => {
-    if (value !== oldValue) {
-      inputText.value = value
+const clearTimer = (): void => {
+  if (inputTimer) clearTimeout(inputTimer)
+  inputTimer = null
+}
+
+watch(() => props.input, value => {
+  revision++
+  clearTimer()
+  pending = null
+  inputText.value = value
+  invalidInput.value = false
+})
+
+const validateAndEmit = async(edit: { value: string; revision: number }): Promise<void> => {
+  let valid = true
+  if (props.validate) {
+    try {
+      valid = await props.validate(edit.value)
+    } catch {
+      valid = false
     }
   }
-)
+  if (edit.revision !== revision) return
+  invalidInput.value = !valid
+  if (valid) props.onChange(edit.value)
+}
 
-const handleInput = (value: string) => {
-  const result = props.regexValidator.test(value)
-  invalidInput.value = !result
+const flushPending = (): void => {
+  clearTimer()
+  const edit = pending
+  pending = null
+  if (edit) void validateAndEmit(edit)
+}
 
-  if (result) {
-    if (inputTimer) {
-      clearTimeout(inputTimer)
-    }
-
-    if (props.emitTime === 0) {
-      props.onChange(value)
-      return
-    }
-
-    inputTimer = setTimeout(() => {
-      inputTimer = null
-      props.onChange(value)
-    }, props.emitTime)
+const handleInput = (value: string): void => {
+  revision++
+  clearTimer()
+  pending = null
+  const valid = props.regexValidator.test(value)
+  invalidInput.value = !valid
+  if (!valid) return
+  pending = { value, revision }
+  if (props.emitTime === 0) {
+    flushPending()
+  } else {
+    inputTimer = setTimeout(flushPending, props.emitTime)
   }
 }
+
+// Leaving a category must not drop an edit that is still waiting for its debounce.
+onBeforeUnmount(flushPending)
+
 </script>
 
 <style>

@@ -2,14 +2,10 @@
   <section class="exclude-patterns">
     <h6>
       <span>{{ t('preferences.general.sidebar.excludePatterns') }}</span>
-      <button
-        type="button"
-        class="plain-button pattern-help"
-        :aria-label="t('preferences.general.sidebar.patternHelp')"
-        @click="openHelp"
-      >
-        <LinkIcon :size="14" />
-      </button>
+      <help-link
+        href="https://github.com/isaacs/minimatch"
+        :label="t('preferences.general.sidebar.patternHelp')"
+      />
     </h6>
     <p class="notes">
       {{ t('preferences.general.sidebar.excludePatternsNotes') }}
@@ -37,7 +33,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import LinkIcon from '@/components/icons/LinkIcon.vue'
+import HelpLink from '../common/helpLink.vue'
 import type { PreferenceUpdateResult, UserPreferences } from '@shared/types/preferences'
 
 const props = defineProps<{
@@ -81,9 +77,6 @@ const updatePatterns = (value: string[] | undefined): void => {
   draft.value = ''
   void save(next)
 }
-const openHelp = (): void => {
-  window.electron.shell.openExternal('https://github.com/isaacs/minimatch')
-}
 </script>
 
 <style scoped>
@@ -95,17 +88,6 @@ const openHelp = (): void => {
   align-items: center;
   gap: 4px;
   margin-bottom: 8px;
-}
-.pattern-help {
-  display: inline-flex;
-  align-items: center;
-  color: var(--iconColor);
-  opacity: 0.7;
-}
-.pattern-help:hover,
-.pattern-help:focus-visible {
-  color: var(--themeColor);
-  opacity: 1;
 }
 .exclude-patterns :deep(.el-input-tag) {
   --el-fill-color-blank: transparent;

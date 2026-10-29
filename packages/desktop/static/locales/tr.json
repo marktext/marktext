@@ -430,10 +430,12 @@
         "hideScrollbars": "Kaydırma çubuklarını gizle",
         "openFilesInNewWindow": "Dosyaları yeni pencerede aç",
         "openFoldersInNewWindow": "Klasörleri yeni pencerede aç",
-        "zoom": "Yakınlaştırma"
+        "zoom": "Yakınlaştırma",
+        "openFilesInNewWindowNote": "Etkinleştirildiğinde dosyalar yeni bir pencerede açılır. Devre dışı bırakıldığında geçerli pencerenin sekmelerinde açılır.",
+        "openFoldersInNewWindowNote": "Etkinleştirildiğinde klasörler yeni bir pencerede açılır. Devre dışı bırakıldığında geçerli penceredeki klasörün yerini alır."
       },
       "startup": {
-        "title": "Başlangıç Seçenekleri",
+        "title": "Başlangıç ve kurtarma",
         "openDefaultDirectory": "Seçilen klasörü aç",
         "openLastFolder": "Son çalışma alanını aç",
         "restoreAll": "Tüm pencereleri geri yükle",
@@ -442,8 +444,11 @@
         "action": "Başlangıçta",
         "restoreLastWindow": "Son etkin pencereyi geri yükle",
         "restoreLayoutState": "Pencere düzenini geri yükle",
+        "restoreLayoutStateNote": "Yeniden başlatıldığında pencere boyutunu, konumunu ve kenar çubuğu gibi düzen öğelerini geri yükler.",
         "restoreEditors": "Açık dosyaları geri yükle",
+        "restoreEditorsNote": "Yeniden başlatıldığında önceki dosya sekmelerini yeniden açar.",
         "restoreViewState": "Okuma konumlarını ve seçimleri geri yükle",
+        "restoreViewStateNote": "Dosya geri yüklendiğinde önceki okuma konumunu ve seçimi geri yükler.",
         "failure": "Ayarlar kaydedilemedi. Önceki ayarlar kullanılmaya devam ediyor."
       },
       "pandoc": {
@@ -451,11 +456,10 @@
         "description": "Pandoc dönüşümünü etkinleştir",
         "detailedDescription": "Menüde biçim dönüştürme komutlarını gösterir. Pandoc kurulmuş olmalıdır.",
         "found": "Bulundu: {path}",
-        "notFound": "Bulunamadı",
-        "recheck": "Yeniden Denetle"
+        "notFound": "Bulunamadı"
       },
       "sidebar": {
-        "title": "Kenar Çubuğu",
+        "title": "Kenar çubuğu ve içindekiler",
         "wrapTextInToc": "İçindekilerde metni kaydır",
         "tocPosition": "İçindekilerin konumu",
         "tocLeft": "Sol",
@@ -484,25 +488,24 @@
           "newestFirst": "Önce En Yeni"
         }
       },
-      "misc": {
-        "title": "Çeşitli",
-        "language": {
-          "title": "Dil",
-          "english": "English",
-          "chinese": "简体中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "Dil",
+        "english": "English",
+        "chinese": "简体中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "Arayüz dili"
+      },
+      "openingMode": "Açılış modu"
     },
     "editor": {
       "title": "Düzenleyici",
@@ -511,7 +514,7 @@
         "fontSize": "Yazı tipi boyutu",
         "lineHeight": "Satır yüksekliği",
         "fontFamily": "Yazı tipi ailesi",
-        "maxWidth": "Maksimum genişlik",
+        "maxWidth": "Düzenleyici içeriğinin en fazla genişliği",
         "maxWidthNotes": "Düzenleyici içeriğinin maksimum genişliği. Bir sayının ardından px, ch (karakter) veya % girin, örneğin 800px, 80ch veya 60%. Varsayılan genişliği kullanmak için boş bırakın.",
         "maxWidthInvalid": "Bir sayının ardından px, ch veya % girin, örneğin 800px.",
         "codeFontFamily": "Kod yazı tipi",
@@ -519,12 +522,12 @@
       },
       "codeBlock": {
         "title": "Kod Bloğu",
-        "fontSize": "Yazı tipi boyutu",
+        "fontSize": "Kod bloğu yazı tipi boyutu",
         "showLineNumbers": "Satır numaralarını göster",
         "removeEmptyLines": "Boş satırları kaldır"
       },
       "writingBehavior": {
-        "title": "Yazma Davranışı",
+        "title": "Yazım tercihleri",
         "autoCloseBrackets": "Parantezleri otomatik kapat",
         "autoCompleteMarkdown": "Markdown işaretlerini çift olarak tamamla",
         "autoCloseQuotes": "Tırnakları otomatik kapat"
@@ -574,7 +577,7 @@
       "folderSetting": {
         "title": "Klasör Ayarı",
         "globalFolder": "Genel görsel klasörü",
-        "open": "Aç",
+        "open": "Klasör seç…",
         "showInFolder": "Klasörde Göster",
         "preferRelative": "Göreli klasörü tercih et",
         "relativeCopyLocation": "Görseli şuna göre kopyala",
@@ -585,22 +588,19 @@
       },
       "uploader": {
         "title": "Görsel Yükleyici",
-        "currentUploader": "Geçerli Yükleyici: {name}",
-        "picgoNotInstalled": "PicGo yüklü değil",
-        "picgoInstalled": "PicGo yüklü",
-        "picgoDetectionFailed": "PicGo algılaması başarısız",
+        "picgoNotInstalled": "PicGo-Core yüklü değil",
+        "picgoInstalled": "PicGo-Core yüklü",
+        "picgoDetectionFailed": "PicGo-Core algılaması başarısız",
         "debugInfo": "Hata Ayıklama Bilgisi",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Yükleme yöntemini seçin:",
-        "retestPicgo": "Yeniden Test Et",
         "lastDetectionTime": "Son Algılama Zamanı",
-        "picgoDetection": "PicGo Algılama",
         "usageGuide": {
-          "title": "PicGo Temel Kullanım Kılavuzu",
+          "title": "PicGo-Core Temel Kullanım Kılavuzu",
           "step1": "Yükleyiciyi Yapılandır",
-          "step1Description": "PicGo yükleyicisini yapılandırmak için aşağıdaki komutu kullanın:",
+          "step1Description": "PicGo-Core yükleyicisini yapılandırmak için aşağıdaki komutu kullanın:",
           "step2": "Görselleri Yükle",
           "step2Description": "Görselleri yüklemek için aşağıdaki komutu kullanın:",
           "step3": "Yapılandırmayı Görüntüle",
@@ -608,19 +608,15 @@
           "documentation": "Tam belgeleri görüntüle"
         },
         "lastSuccessTime": "Son başarı zamanı",
-        "neverDetected": "Hiç algılanmadı",
-        "neverSuccessful": "Hiç başarılı olmadı",
         "scriptDescription": "Betik Açıklaması",
         "scriptLocation": "Betik Konumu",
-        "save": "Kaydet",
-        "saveConfig": "Yapılandırmayı Kaydet",
-        "scriptConfigSaved": "Betik yapılandırması kaydedildi",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI Betiği"
         },
         "pleaseInstall": "Lütfen yükleyin",
-        "scriptPath": "Betik yolu"
+        "scriptPath": "Betik yolu",
+        "invalidScript": "Var olan ve çalıştırılabilir bir betiğin yolunu girin."
       },
       "defaultBehavior": "Görseli MarkText'e yapıştırdıktan veya sürükledikten sonraki varsayılan davranış"
     },
@@ -630,7 +626,6 @@
         "title": "Uzantılar",
         "superSubScript": "Üst/Alt Simge",
         "footnote": "Dipnot",
-        "footnoteNotes": "Dipnot notları",
         "texMathDollars": "$ ve $$ ile TeX matematiği",
         "texMathGfm": "GitHub TeX matematiği ($`…`$ ve ```math)",
         "texMathSingleBackslash": "Tek ters eğik çizgili TeX matematiği",
@@ -695,7 +690,7 @@
     "theme": {
       "title": "Tema",
       "followSystemTheme": "Sistem görünümünü izle",
-      "followSystemNote": "Sistem temasını izlemek aşağıdaki tema listesini kilitler. Serbestçe tema değiştirmek için bunu kapatın.",
+      "followSystemNote": "Aşağıda koyu ve açık modlar için ayrı temalar seçebilirsiniz.",
       "modeThemes": "Tema Seçimi",
       "lightModeTheme": "Açık mod teması",
       "darkModeTheme": "Koyu mod teması",
@@ -713,33 +708,25 @@
     },
     "keybindings": {
       "title": "Kısayol Tuşları",
-      "description": "Klavye kısayollarını özelleştir",
-      "save": "Kaydet",
+      "description": "Kısayolu değiştirmek için tuş birleşimini seçin, ardından yeni tuş birleşimine basın",
       "restoreDefaults": "Varsayılanları geri yükle",
       "debugOptions": "Hata Ayıklama Seçenekleri",
       "dumpKeyboardInfo": "Klavye Bilgilerini Dök",
       "failedToSave": "Kısayol tuşları kaydedilemedi",
-      "keyInputDialog": {
-        "instructions": "Atamak istediğiniz tuş kombinasyonuna basın",
-        "invalidKeybinding": "Geçersiz tuş kombinasyonu",
-        "placeholder": "Tuşlara basın..."
-      },
-      "online": "Çevrimiçi",
+      "online": "Klavye kısayolları belgeleri",
       "saveError": "Kısayol tuşları kaydedilirken hata",
       "shortcutInUse": "Kısayol kullanımda",
       "shortcutInUseMessage": "{accelerator} zaten {commands} komutuna atanmış.",
-      "table": {
-        "description": "Açıklama",
-        "edit": "Düzenle",
-        "keyCombination": "Tuş Kombinasyonu",
-        "options": "Seçenekler",
-        "reset": "Sıfırla",
-        "unbind": "Bağlantıyı Kaldır"
-      },
       "windowAndNavigation": "Pencere ve gezinme",
       "loadError": "Klavye kısayolları yüklenemedi.",
       "reload": "Yeniden yükle",
-      "viewConflict": "{name} komutunu göster"
+      "viewConflict": "{name} komutunu göster",
+      "editShortcut": "{name} için kısayolu düzenle",
+      "unbound": "Atanmamış",
+      "recorder": {
+        "placeholder": "Tuş birleşimine basın",
+        "invalidKeybinding": "Geçersiz tuş kombinasyonu"
+      }
     },
     "selectFont": "Yazı Tipi Seç",
     "spellchecker": {
@@ -762,6 +749,11 @@
       "taskCascade": "Üst görevi işaretlemek alt görevleri günceller; alt görevlerin değişmesi üst görevi günceller.",
       "markdownPairs": "Yazarken yıldız, alt çizgi ve ters tırnak gibi Markdown işaretlerini çift olarak tamamlar.",
       "lineEndings": "Yeni dosyalarda ve karışık veya algılanamayan satır sonlarında kullanılır. LF veya CRLF dosyaları algılanan biçimini korur."
+    },
+    "commandDetection": {
+      "checking": "Denetleniyor…",
+      "recheck": "Yeniden denetle",
+      "failed": "Algılama başarısız. Yeniden denetleyin."
     }
   },
   "about": {

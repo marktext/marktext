@@ -430,10 +430,12 @@
         "hideScrollbars": "Masquer les barres de défilement",
         "openFilesInNewWindow": "Ouvrir les fichiers dans une nouvelle fenêtre",
         "openFoldersInNewWindow": "Ouvrir les dossiers dans une nouvelle fenêtre",
-        "zoom": "Zoom"
+        "zoom": "Zoom",
+        "openFilesInNewWindowNote": "Si cette option est activée, les fichiers s’ouvrent dans une nouvelle fenêtre. Sinon, ils s’ouvrent dans des onglets de la fenêtre actuelle.",
+        "openFoldersInNewWindowNote": "Si cette option est activée, les dossiers s’ouvrent dans une nouvelle fenêtre. Sinon, ils remplacent le dossier de la fenêtre actuelle."
       },
       "startup": {
-        "title": "Démarrage",
+        "title": "Démarrage et restauration",
         "openDefaultDirectory": "Ouvrir le dossier sélectionné",
         "openLastFolder": "Ouvrir le dernier espace de travail",
         "restoreAll": "Restaurer toutes les fenêtres",
@@ -442,8 +444,11 @@
         "action": "Au démarrage",
         "restoreLastWindow": "Restaurer la dernière fenêtre active",
         "restoreLayoutState": "Restaurer la disposition des fenêtres",
+        "restoreLayoutStateNote": "Restaurer la taille, la position et la disposition des éléments comme la barre latérale au redémarrage.",
         "restoreEditors": "Restaurer les fichiers ouverts",
+        "restoreEditorsNote": "Rouvrir les onglets de fichiers précédents au redémarrage.",
         "restoreViewState": "Restaurer les positions de lecture et les sélections",
+        "restoreViewStateNote": "Retrouver la dernière position de lecture et la sélection lors de la restauration d’un fichier.",
         "failure": "Les paramètres n’ont pas pu être enregistrés. Les paramètres précédents restent en vigueur."
       },
       "pandoc": {
@@ -451,11 +456,10 @@
         "description": "Activer la conversion Pandoc",
         "detailedDescription": "Affiche les commandes de conversion dans le menu. Nécessite l’installation de Pandoc.",
         "found": "Trouvé : {path}",
-        "notFound": "Introuvable",
-        "recheck": "Revérifier"
+        "notFound": "Introuvable"
       },
       "sidebar": {
-        "title": "Barre latérale",
+        "title": "Barre latérale et table des matières",
         "wrapTextInToc": "Retour à la ligne dans la table des matières",
         "tocPosition": "Position de la table des matières",
         "tocLeft": "À gauche",
@@ -484,25 +488,24 @@
           "newestFirst": "Plus récent en premier"
         }
       },
-      "misc": {
-        "title": "Divers",
-        "language": {
-          "title": "Langue",
-          "english": "English",
-          "chinese": "简体中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "Langue",
+        "english": "English",
+        "chinese": "简体中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "Langue de l’interface"
+      },
+      "openingMode": "Mode d’ouverture"
     },
     "editor": {
       "title": "Éditeur",
@@ -511,7 +514,7 @@
         "fontSize": "Taille de police",
         "lineHeight": "Hauteur de ligne",
         "fontFamily": "Famille de police",
-        "maxWidth": "Largeur maximale",
+        "maxWidth": "Largeur maximale du contenu de l’éditeur",
         "maxWidthNotes": "Largeur maximale du contenu de l'éditeur. Saisissez un nombre suivi de px, ch (caractères) ou %, par exemple 800px, 80ch ou 60%. Laissez vide pour utiliser la largeur par défaut.",
         "maxWidthInvalid": "Saisissez un nombre suivi de px, ch ou %, par exemple 800px.",
         "codeFontFamily": "Police du code",
@@ -519,12 +522,12 @@
       },
       "codeBlock": {
         "title": "Bloc de code",
-        "fontSize": "Taille de police",
+        "fontSize": "Taille de police des blocs de code",
         "showLineNumbers": "Afficher les numéros de ligne",
         "removeEmptyLines": "Supprimer les lignes vides"
       },
       "writingBehavior": {
-        "title": "Comportement d'écriture",
+        "title": "Préférences de rédaction",
         "autoCloseBrackets": "Fermeture automatique des crochets",
         "autoCompleteMarkdown": "Compléter les paires de marqueurs Markdown",
         "autoCloseQuotes": "Fermeture automatique des guillemets"
@@ -574,7 +577,7 @@
       "folderSetting": {
         "title": "Paramètres de dossier",
         "globalFolder": "Dossier d'images global",
-        "open": "Ouvrir",
+        "open": "Choisir un dossier…",
         "showInFolder": "Afficher dans le dossier",
         "preferRelative": "Préférer le répertoire relatif",
         "relativeCopyLocation": "Copier l'image relativement à",
@@ -585,21 +588,19 @@
       },
       "uploader": {
         "title": "Téléchargeur d'images",
-        "currentUploader": "Téléverseur actuel : {name}",
-        "picgoNotInstalled": "PicGo non installé",
-        "picgoInstalled": "PicGo installé",
-        "picgoDetectionFailed": "Échec de la détection PicGo",
+        "picgoNotInstalled": "PicGo-Core non installé",
+        "picgoInstalled": "PicGo-Core installé",
+        "picgoDetectionFailed": "Échec de la détection PicGo-Core",
         "debugInfo": "Informations de débogage",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Choisir la méthode d'installation :",
-        "retestPicgo": "Retester",
         "lastDetectionTime": "Dernière détection",
         "usageGuide": {
-          "title": "Guide d'utilisation de base PicGo",
+          "title": "Guide d'utilisation de base PicGo-Core",
           "step1": "Configurer l'uploader",
-          "step1Description": "Utilisez la commande suivante pour configurer l'uploader PicGo :",
+          "step1Description": "Utilisez la commande suivante pour configurer l'uploader PicGo-Core :",
           "step2": "Télécharger des images",
           "step2Description": "Utilisez la commande suivante pour télécharger des images :",
           "step3": "Voir la configuration",
@@ -608,19 +609,14 @@
         },
         "scriptDescription": "Description du script",
         "scriptLocation": "Emplacement du script",
-        "save": "Enregistrer",
-        "saveConfig": "Enregistrer la configuration",
-        "scriptConfigSaved": "Configuration du script enregistrée",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "Script CLI"
         },
         "pleaseInstall": "Veuillez installer",
         "scriptPath": "Chemin du script",
-        "picgoDetection": "Détection PicGo",
         "lastSuccessTime": "Dernière heure de succès",
-        "neverDetected": "Jamais détecté",
-        "neverSuccessful": "Jamais réussi"
+        "invalidScript": "Saisissez le chemin d’un script existant et exécutable."
       },
       "defaultBehavior": "Comportement par défaut après avoir collé ou glissé une image dans MarkText"
     },
@@ -630,7 +626,6 @@
         "title": "Extensions",
         "superSubScript": "Exposant/Indice",
         "footnote": "Note de bas de page",
-        "footnoteNotes": "Notes de bas de page",
         "texMathDollars": "Maths TeX avec $ et $$",
         "texMathGfm": "Maths TeX de GitHub ($`…`$ et ```math)",
         "texMathSingleBackslash": "Maths TeX avec barre oblique inverse simple",
@@ -695,7 +690,7 @@
     "theme": {
       "title": "Thème",
       "followSystemTheme": "Suivre l’apparence du système",
-      "followSystemNote": "Suivre le thème du système verrouille la liste des thèmes ci-dessous. Désactivez cette option pour changer librement de thème.",
+      "followSystemNote": "Choisissez ci-dessous un thème pour le mode sombre et un autre pour le mode clair.",
       "modeThemes": "Sélection du thème",
       "lightModeTheme": "Thème en mode clair",
       "darkModeTheme": "Thème en mode sombre",
@@ -713,33 +708,25 @@
     },
     "keybindings": {
       "title": "Raccourcis clavier",
-      "description": "Personnaliser les raccourcis clavier",
-      "save": "Enregistrer",
+      "description": "Pour modifier un raccourci, sélectionnez sa combinaison de touches, puis appuyez sur la nouvelle combinaison",
       "restoreDefaults": "Restaurer les valeurs par défaut",
       "debugOptions": "Options de débogage",
       "dumpKeyboardInfo": "Vider les informations du clavier",
       "failedToSave": "Échec de l'enregistrement des raccourcis clavier",
-      "keyInputDialog": {
-        "instructions": "Appuyez sur la combinaison de touches que vous souhaitez assigner",
-        "invalidKeybinding": "Raccourci clavier invalide",
-        "placeholder": "Appuyez sur les touches..."
-      },
-      "online": "En ligne",
+      "online": "Documentation des raccourcis clavier",
       "saveError": "Erreur lors de l'enregistrement des raccourcis clavier",
       "shortcutInUse": "Raccourci en cours d'utilisation",
       "shortcutInUseMessage": "{accelerator} est déjà attribué à {commands}.",
-      "table": {
-        "description": "Description",
-        "edit": "Modifier",
-        "keyCombination": "Combinaison de touches",
-        "options": "Options",
-        "reset": "Réinitialiser",
-        "unbind": "Délier"
-      },
       "windowAndNavigation": "Fenêtres et navigation",
       "loadError": "Impossible de charger les raccourcis clavier.",
       "reload": "Recharger",
-      "viewConflict": "Voir {name}"
+      "viewConflict": "Voir {name}",
+      "editShortcut": "Modifier le raccourci de {name}",
+      "unbound": "Non attribué",
+      "recorder": {
+        "placeholder": "Appuyez sur la combinaison de touches",
+        "invalidKeybinding": "Raccourci clavier invalide"
+      }
     },
     "selectFont": "Sélectionner une police",
     "spellchecker": {
@@ -762,6 +749,11 @@
       "taskCascade": "Cocher une tâche parente met à jour ses sous-tâches ; modifier les sous-tâches met à jour leur parent.",
       "markdownPairs": "Complète les paires de marqueurs Markdown, comme les astérisques, les tirets bas et les accents graves, pendant la saisie.",
       "lineEndings": "Utilisée pour les nouveaux fichiers et les fins de ligne mixtes ou non détectées. Les fichiers LF ou CRLF conservent leur format détecté."
+    },
+    "commandDetection": {
+      "checking": "Vérification…",
+      "recheck": "Vérifier à nouveau",
+      "failed": "La détection a échoué. Veuillez réessayer."
     }
   },
   "about": {

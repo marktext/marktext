@@ -430,10 +430,12 @@
         "hideScrollbars": "스크롤바 숨기기",
         "openFilesInNewWindow": "새 창에서 파일 열기",
         "openFoldersInNewWindow": "새 창에서 폴더 열기",
-        "zoom": "확대/축소"
+        "zoom": "확대/축소",
+        "openFilesInNewWindowNote": "켜면 파일을 새 창에서 엽니다. 끄면 현재 창의 탭에서 엽니다.",
+        "openFoldersInNewWindowNote": "켜면 폴더를 새 창에서 엽니다. 끄면 현재 창의 폴더를 바꿔서 엽니다."
       },
       "startup": {
-        "title": "시작",
+        "title": "시작 및 복원",
         "openDefaultDirectory": "선택한 폴더 열기",
         "openLastFolder": "마지막 작업 공간 열기",
         "restoreAll": "모든 창 복원",
@@ -442,8 +444,11 @@
         "action": "시작할 때",
         "restoreLastWindow": "마지막 활성 창 복원",
         "restoreLayoutState": "창 레이아웃 복원",
+        "restoreLayoutStateNote": "다시 시작할 때 창 크기, 위치 및 사이드바 등의 레이아웃을 복원합니다.",
         "restoreEditors": "열려 있던 파일 복원",
+        "restoreEditorsNote": "다시 시작할 때 이전 파일 탭을 다시 엽니다.",
         "restoreViewState": "읽기 위치 및 선택 영역 복원",
+        "restoreViewStateNote": "파일을 복원할 때 이전 읽기 위치와 선택 영역을 복원합니다.",
         "failure": "설정을 저장하지 못했습니다. 이전 설정이 유지됩니다."
       },
       "pandoc": {
@@ -451,11 +456,10 @@
         "description": "Pandoc 형식 변환 활성화",
         "detailedDescription": "메뉴에 형식 변환 명령을 표시합니다. Pandoc을 설치해야 합니다.",
         "found": "찾음: {path}",
-        "notFound": "찾을 수 없음",
-        "recheck": "다시 확인"
+        "notFound": "찾을 수 없음"
       },
       "sidebar": {
-        "title": "사이드바",
+        "title": "사이드바 및 목차",
         "wrapTextInToc": "목차에서 텍스트 줄바꿈",
         "tocPosition": "목차 위치",
         "tocLeft": "왼쪽",
@@ -484,25 +488,24 @@
           "newestFirst": "최신 순"
         }
       },
-      "misc": {
-        "title": "기타",
-        "language": {
-          "title": "언어",
-          "english": "English",
-          "chinese": "简体中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "언어",
+        "english": "English",
+        "chinese": "简体中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "인터페이스 언어"
+      },
+      "openingMode": "열기 모드"
     },
     "editor": {
       "title": "편집기",
@@ -511,7 +514,7 @@
         "fontSize": "글꼴 크기",
         "lineHeight": "줄 높이",
         "fontFamily": "글꼴 패밀리",
-        "maxWidth": "최대 너비",
+        "maxWidth": "편집기 콘텐츠 최대 너비",
         "maxWidthNotes": "편집기 콘텐츠의 최대 너비입니다. 숫자 뒤에 px, ch(문자 수) 또는 % 단위를 붙여 입력하세요(예: 800px, 80ch, 60%). 비워 두면 기본 너비를 사용합니다.",
         "maxWidthInvalid": "숫자 뒤에 px, ch 또는 %를 붙여 입력하세요(예: 800px).",
         "codeFontFamily": "코드 글꼴",
@@ -519,12 +522,12 @@
       },
       "codeBlock": {
         "title": "코드 블록",
-        "fontSize": "글꼴 크기",
+        "fontSize": "코드 블록 글꼴 크기",
         "showLineNumbers": "줄 번호 보기",
         "removeEmptyLines": "빈 줄 제거"
       },
       "writingBehavior": {
-        "title": "작성 동작",
+        "title": "작성 환경설정",
         "autoCloseBrackets": "괄호 자동 닫기",
         "autoCompleteMarkdown": "Markdown 기호 쌍 자동 완성",
         "autoCloseQuotes": "따옴표 자동 닫기"
@@ -574,7 +577,7 @@
       "folderSetting": {
         "title": "폴더 설정",
         "globalFolder": "전역 이미지 폴더",
-        "open": "열기",
+        "open": "폴더 선택…",
         "showInFolder": "폴더에서 보기",
         "preferRelative": "상대 디렉터리 선호",
         "relativeCopyLocation": "이미지 상대 복사 기준",
@@ -585,21 +588,19 @@
       },
       "uploader": {
         "title": "이미지 업로더",
-        "currentUploader": "현재 업로더: {name}",
-        "picgoNotInstalled": "PicGo가 설치되지 않음",
-        "picgoInstalled": "PicGo가 설치됨",
-        "picgoDetectionFailed": "PicGo 감지 실패",
+        "picgoNotInstalled": "PicGo-Core가 설치되지 않음",
+        "picgoInstalled": "PicGo-Core가 설치됨",
+        "picgoDetectionFailed": "PicGo-Core 감지 실패",
         "debugInfo": "디버그 정보",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "설치 방법 선택:",
-        "retestPicgo": "다시 테스트",
         "lastDetectionTime": "마지막 감지 시간",
         "usageGuide": {
-          "title": "PicGo 기본 사용 가이드",
+          "title": "PicGo-Core 기본 사용 가이드",
           "step1": "업로더 구성",
-          "step1Description": "다음 명령을 사용하여 PicGo 업로더를 구성하세요:",
+          "step1Description": "다음 명령을 사용하여 PicGo-Core 업로더를 구성하세요:",
           "step2": "이미지 업로드",
           "step2Description": "다음 명령을 사용하여 이미지를 업로드하세요:",
           "step3": "구성 보기",
@@ -608,19 +609,14 @@
         },
         "scriptDescription": "스크립트 설명",
         "scriptLocation": "스크립트 위치",
-        "save": "저장",
-        "saveConfig": "구성 저장",
-        "scriptConfigSaved": "스크립트 구성 저장됨",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI 스크립트"
         },
         "pleaseInstall": "설치하세요",
         "scriptPath": "스크립트 경로",
-        "picgoDetection": "PicGo 감지",
         "lastSuccessTime": "마지막 성공 시간",
-        "neverDetected": "감지된 적 없음",
-        "neverSuccessful": "성공한 적 없음"
+        "invalidScript": "실행 가능한 기존 스크립트의 경로를 입력하세요."
       },
       "defaultBehavior": "이미지를 MarkText에 붙여넣거나 드래그한 후의 기본 동작"
     },
@@ -630,7 +626,6 @@
         "title": "확장",
         "superSubScript": "위/아래 첨자",
         "footnote": "각주",
-        "footnoteNotes": "각주 노트",
         "texMathDollars": "$ 및 $$ TeX 수식",
         "texMathGfm": "GitHub TeX 수식($`…`$ 및 ```math)",
         "texMathSingleBackslash": "단일 백슬래시 TeX 수식",
@@ -695,7 +690,7 @@
     "theme": {
       "title": "테마",
       "followSystemTheme": "시스템 모양 따르기",
-      "followSystemNote": "시스템 테마를 따르는 동안에는 아래 테마 목록을 전환할 수 없습니다. 끄면 자유롭게 전환할 수 있습니다.",
+      "followSystemNote": "아래에서 다크 모드와 라이트 모드의 테마를 각각 선택할 수 있습니다.",
       "modeThemes": "테마 선택",
       "lightModeTheme": "라이트 모드 테마",
       "darkModeTheme": "다크 모드 테마",
@@ -713,33 +708,25 @@
     },
     "keybindings": {
       "title": "키 바인딩",
-      "description": "키보드 단축키 사용자 정의",
-      "save": "저장",
+      "description": "단축키를 변경하려면 키 조합을 선택한 다음 새 키 조합을 누르세요",
       "restoreDefaults": "기본값 복원",
       "debugOptions": "디버그 옵션",
       "dumpKeyboardInfo": "키보드 정보 덤프",
       "failedToSave": "키 바인딩 저장 실패",
-      "keyInputDialog": {
-        "instructions": "할당하려는 키 조합을 누르세요",
-        "invalidKeybinding": "잘못된 키 조합",
-        "placeholder": "키를 누르세요..."
-      },
-      "online": "온라인",
+      "online": "키보드 단축키 문서",
       "saveError": "키 바인딩 저장 오류",
       "shortcutInUse": "사용 중인 단축키",
       "shortcutInUseMessage": "{accelerator}은(는) 이미 {commands}에 할당되어 있습니다.",
-      "table": {
-        "description": "설명",
-        "edit": "편집",
-        "keyCombination": "키 조합",
-        "options": "옵션",
-        "reset": "재설정",
-        "unbind": "바인딩 해제"
-      },
       "windowAndNavigation": "창 및 탐색",
       "loadError": "키보드 단축키를 불러오지 못했습니다.",
       "reload": "다시 불러오기",
-      "viewConflict": "{name} 보기"
+      "viewConflict": "{name} 보기",
+      "editShortcut": "{name} 단축키 수정",
+      "unbound": "할당되지 않음",
+      "recorder": {
+        "placeholder": "키 조합을 누르세요",
+        "invalidKeybinding": "잘못된 키 조합"
+      }
     },
     "selectFont": "글꼴 선택",
     "spellchecker": {
@@ -762,6 +749,11 @@
       "taskCascade": "상위 작업을 체크하면 하위 작업도 갱신되고, 하위 작업을 변경하면 상위 작업도 갱신됩니다.",
       "markdownPairs": "입력할 때 별표, 밑줄, 백틱 등의 Markdown 기호 쌍을 자동 완성합니다.",
       "lineEndings": "새 파일과 줄바꿈이 혼합되거나 감지되지 않는 파일에 적용됩니다. 기존 LF 또는 CRLF 파일은 감지된 형식을 유지합니다."
+    },
+    "commandDetection": {
+      "checking": "확인 중…",
+      "recheck": "다시 확인",
+      "failed": "감지에 실패했습니다. 다시 확인하세요."
     }
   },
   "about": {

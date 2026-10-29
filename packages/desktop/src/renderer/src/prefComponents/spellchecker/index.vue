@@ -5,14 +5,17 @@
     </h4>
     <compound>
       <template #head>
+        <h6 class="title">
+          {{ t('preferences.spellchecker.title') }}
+        </h6>
+      </template>
+      <template #children>
         <bool
           id="setting-spellcheckerEnabled"
           :description="preferenceLabel('spellcheckerEnabled')"
           :bool="spellcheckerEnabled"
           :on-change="handleSpellcheckerEnabled"
         />
-      </template>
-      <template #children>
         <bool
           id="setting-spellcheckerNoUnderline"
           :description="preferenceLabel('spellcheckerNoUnderline')"
@@ -283,18 +286,10 @@ const handleDeleteClick = (selectedItem: CustomDictionaryWord): void => {
 .pref-spellchecker div.el-select-dropdown {
   background: var(--floatBgColor);
   border-color: var(--floatBorderColor);
-  & .popper__arrow {
-    display: none;
-  }
 }
 .pref-spellchecker input.el-input__inner {
-  height: 30px;
   background: transparent;
   color: var(--editorColor);
   border-color: var(--editorColor10);
-}
-.pref-spellchecker .el-input__icon,
-.pref-spellchecker .el-input__inner {
-  line-height: 30px;
 }
 </style>

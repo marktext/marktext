@@ -21,6 +21,16 @@
           :on-change="(value) => onSelectChange('fontSize', value)"
         />
         <range
+          id="setting-codeFontSize"
+          :description="preferenceLabel('codeFontSize')"
+          :value="codeFontSize"
+          :min="12"
+          :max="28"
+          unit="px"
+          :step="1"
+          :on-change="(value) => onSelectChange('codeFontSize', value)"
+        />
+        <range
           id="setting-lineHeight"
           :description="preferenceLabel('lineHeight')"
           :value="lineHeight"
@@ -56,40 +66,26 @@
       </template>
     </compound>
 
-    <compound v-if="show('code') || show('typography')">
+    <compound v-if="show('code')">
       <template #head>
         <h6 class="title">
           {{ t('preferences.editor.codeBlock.title') }}
         </h6>
       </template>
       <template #children>
-        <range
-          v-if="show('typography')"
-          id="setting-codeFontSize"
-          :description="preferenceLabel('codeFontSize')"
-          :value="codeFontSize"
-          :min="12"
-          :max="28"
-          unit="px"
-          :step="1"
-          :on-change="(value) => onSelectChange('codeFontSize', value)"
-        />
         <bool
-          v-if="show('code')"
           id="setting-codeBlockLineNumbers"
           :description="preferenceLabel('codeBlockLineNumbers')"
           :bool="codeBlockLineNumbers"
           :on-change="(value) => onSelectChange('codeBlockLineNumbers', value)"
         />
         <bool
-          v-if="show('code')"
           id="setting-trimUnnecessaryCodeBlockEmptyLines"
           :description="preferenceLabel('trimUnnecessaryCodeBlockEmptyLines')"
           :bool="trimUnnecessaryCodeBlockEmptyLines"
           :on-change="(value) => onSelectChange('trimUnnecessaryCodeBlockEmptyLines', value)"
         />
         <bool
-          v-if="show('code')"
           id="setting-wrapCodeBlocks"
           :description="preferenceLabel('wrapCodeBlocks')"
           :bool="wrapCodeBlocks"
@@ -131,6 +127,20 @@
           :value="tabSize"
           :options="getTabSizeOptions()"
           :on-change="(value) => onSelectChange('tabSize', value)"
+        />
+        <cur-select
+          id="setting-textDirection"
+          :description="preferenceLabel('textDirection')"
+          :value="textDirection"
+          :options="getTextDirectionOptions()"
+          :on-change="(value) => onSelectChange('textDirection', value)"
+        />
+        <bool
+          id="setting-autoCheck"
+          :description="preferenceLabel('autoCheck')"
+          :notes="preferenceNotes('autoCheck')"
+          :bool="autoCheck"
+          :on-change="(value) => onSelectChange('autoCheck', value)"
         />
       </template>
     </compound>
@@ -179,6 +189,8 @@
       </template>
     </compound>
 
+    <slot name="before-misc" />
+
     <compound v-if="show('writing')">
       <template #head>
         <h6 class="title">
@@ -186,13 +198,6 @@
         </h6>
       </template>
       <template #children>
-        <cur-select
-          id="setting-textDirection"
-          :description="preferenceLabel('textDirection')"
-          :value="textDirection"
-          :options="getTextDirectionOptions()"
-          :on-change="(value) => onSelectChange('textDirection', value)"
-        />
         <bool
           id="setting-hideQuickInsertHint"
           :description="preferenceLabel('hideQuickInsertHint')"
@@ -204,13 +209,6 @@
           :description="preferenceLabel('hideLinkPopup')"
           :bool="hideLinkPopup"
           :on-change="(value) => onSelectChange('hideLinkPopup', value)"
-        />
-        <bool
-          id="setting-autoCheck"
-          :description="preferenceLabel('autoCheck')"
-          :notes="preferenceNotes('autoCheck')"
-          :bool="autoCheck"
-          :on-change="(value) => onSelectChange('autoCheck', value)"
         />
         <bool
           id="setting-sourceCodeLineNumbers"

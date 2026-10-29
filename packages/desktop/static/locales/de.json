@@ -430,10 +430,12 @@
         "hideScrollbars": "Bildlaufleisten ausblenden",
         "openFilesInNewWindow": "Dateien in neuem Fenster öffnen",
         "openFoldersInNewWindow": "Ordner in neuem Fenster öffnen",
-        "zoom": "Zoom"
+        "zoom": "Zoom",
+        "openFilesInNewWindowNote": "Wenn aktiviert, werden Dateien in einem neuen Fenster geöffnet. Andernfalls werden sie in Tabs im aktuellen Fenster geöffnet.",
+        "openFoldersInNewWindowNote": "Wenn aktiviert, werden Ordner in einem neuen Fenster geöffnet. Andernfalls ersetzen sie den Ordner im aktuellen Fenster."
       },
       "startup": {
-        "title": "Start",
+        "title": "Start und Wiederherstellung",
         "openDefaultDirectory": "Ausgewählten Ordner öffnen",
         "openLastFolder": "Letzten Arbeitsbereich öffnen",
         "restoreAll": "Alle Fenster wiederherstellen",
@@ -442,8 +444,11 @@
         "action": "Beim Start",
         "restoreLastWindow": "Das zuletzt aktive Fenster wiederherstellen",
         "restoreLayoutState": "Fensterlayout wiederherstellen",
+        "restoreLayoutStateNote": "Beim Neustart Fenstergröße, Position und Layout wie die Seitenleiste wiederherstellen.",
         "restoreEditors": "Geöffnete Dateien wiederherstellen",
+        "restoreEditorsNote": "Beim Neustart die vorherigen Datei-Tabs erneut öffnen.",
         "restoreViewState": "Lesepositionen und Auswahl wiederherstellen",
+        "restoreViewStateNote": "Beim Wiederherstellen einer Datei zur letzten Leseposition und Auswahl zurückkehren.",
         "failure": "Die Einstellungen konnten nicht gespeichert werden. Die bisherigen Einstellungen bleiben gültig."
       },
       "pandoc": {
@@ -451,11 +456,10 @@
         "description": "Pandoc-Konvertierung aktivieren",
         "detailedDescription": "Zeigt Konvertierungsbefehle im Menü an. Pandoc muss installiert sein.",
         "found": "Gefunden: {path}",
-        "notFound": "Nicht gefunden",
-        "recheck": "Erneut prüfen"
+        "notFound": "Nicht gefunden"
       },
       "sidebar": {
-        "title": "Seitenleiste",
+        "title": "Seitenleiste und Inhaltsverzeichnis",
         "wrapTextInToc": "Text im Inhaltsverzeichnis umbrechen",
         "tocPosition": "Position des Inhaltsverzeichnisses",
         "tocLeft": "Links",
@@ -484,25 +488,24 @@
           "newestFirst": "Neueste zuerst"
         }
       },
-      "misc": {
-        "title": "Verschiedenes",
-        "language": {
-          "title": "Sprache",
-          "english": "English",
-          "chinese": "简体中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "Sprache",
+        "english": "English",
+        "chinese": "简体中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "Oberflächensprache"
+      },
+      "openingMode": "Öffnungsmodus"
     },
     "editor": {
       "title": "Editor",
@@ -511,7 +514,7 @@
         "fontSize": "Schriftgröße",
         "lineHeight": "Zeilenhöhe",
         "fontFamily": "Schriftfamilie",
-        "maxWidth": "Maximale Breite",
+        "maxWidth": "Maximale Breite des Editorinhalts",
         "maxWidthNotes": "Maximale Breite des Editor-Inhalts. Geben Sie eine Zahl gefolgt von px, ch (Zeichen) oder % ein, z. B. 800px, 80ch oder 60%. Leer lassen, um die Standardbreite zu verwenden.",
         "maxWidthInvalid": "Geben Sie eine Zahl gefolgt von px, ch oder % ein, z. B. 800px.",
         "codeFontFamily": "Code-Schriftart",
@@ -519,12 +522,12 @@
       },
       "codeBlock": {
         "title": "Code-Block",
-        "fontSize": "Schriftgröße",
+        "fontSize": "Schriftgröße für Codeblöcke",
         "showLineNumbers": "Zeilennummern anzeigen",
         "removeEmptyLines": "Leere Zeilen entfernen"
       },
       "writingBehavior": {
-        "title": "Schreibverhalten",
+        "title": "Schreibeinstellungen",
         "autoCloseBrackets": "Klammern automatisch schließen",
         "autoCompleteMarkdown": "Markdown-Zeichen paarweise ergänzen",
         "autoCloseQuotes": "Anführungszeichen automatisch schließen"
@@ -574,7 +577,7 @@
       "folderSetting": {
         "title": "Ordnereinstellungen",
         "globalFolder": "Globaler Bilderordner",
-        "open": "Öffnen",
+        "open": "Ordner auswählen…",
         "showInFolder": "Im Ordner anzeigen",
         "preferRelative": "Relatives Verzeichnis bevorzugen",
         "relativeCopyLocation": "Bild relativ kopieren zu",
@@ -585,21 +588,19 @@
       },
       "uploader": {
         "title": "Bild-Uploader",
-        "currentUploader": "Aktueller Uploader: {name}",
-        "picgoNotInstalled": "PicGo nicht installiert",
-        "picgoInstalled": "PicGo installiert",
-        "picgoDetectionFailed": "PicGo-Erkennung fehlgeschlagen",
+        "picgoNotInstalled": "PicGo-Core nicht installiert",
+        "picgoInstalled": "PicGo-Core installiert",
+        "picgoDetectionFailed": "PicGo-Core-Erkennung fehlgeschlagen",
         "debugInfo": "Debug-Informationen",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Installationsmethode wählen:",
-        "retestPicgo": "Erneut testen",
         "lastDetectionTime": "Letzte Erkennungszeit",
         "usageGuide": {
-          "title": "PicGo Grundlegende Anleitung",
+          "title": "PicGo-Core Grundlegende Anleitung",
           "step1": "Uploader konfigurieren",
-          "step1Description": "Verwenden Sie den folgenden Befehl, um den PicGo-Uploader zu konfigurieren:",
+          "step1Description": "Verwenden Sie den folgenden Befehl, um den PicGo-Core-Uploader zu konfigurieren:",
           "step2": "Bilder hochladen",
           "step2Description": "Verwenden Sie den folgenden Befehl, um Bilder hochzuladen:",
           "step3": "Konfiguration anzeigen",
@@ -608,19 +609,14 @@
         },
         "scriptDescription": "Skriptbeschreibung",
         "scriptLocation": "Skriptort",
-        "save": "Speichern",
-        "saveConfig": "Konfiguration speichern",
-        "scriptConfigSaved": "Skriptkonfiguration gespeichert",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI-Skript"
         },
         "pleaseInstall": "Bitte installieren",
         "scriptPath": "Skriptpfad",
-        "picgoDetection": "PicGo-Erkennung",
         "lastSuccessTime": "Letzte erfolgreiche Zeit",
-        "neverDetected": "Nie erkannt",
-        "neverSuccessful": "Nie erfolgreich"
+        "invalidScript": "Gib den Pfad zu einem vorhandenen ausführbaren Skript ein."
       },
       "defaultBehavior": "Standardverhalten nach dem Einfügen oder Ziehen eines Bildes in MarkText"
     },
@@ -630,7 +626,6 @@
         "title": "Erweiterungen",
         "superSubScript": "Hoch-/Tiefgestellt",
         "footnote": "Fußnote",
-        "footnoteNotes": "Fußnoten",
         "texMathDollars": "TeX-Mathematik mit $ und $$",
         "texMathGfm": "GitHub-TeX-Mathematik ($`…`$ und ```math)",
         "texMathSingleBackslash": "TeX-Mathematik mit einfachem Backslash",
@@ -695,7 +690,7 @@
     "theme": {
       "title": "Design",
       "followSystemTheme": "Systemdarstellung folgen",
-      "followSystemNote": "Wenn Sie dem Systemthema folgen, ist die Themenliste unten gesperrt. Deaktivieren Sie dies, um Themen frei zu wechseln.",
+      "followSystemNote": "Wähle unten separate Designs für den dunklen und hellen Modus.",
       "modeThemes": "Design-Auswahl",
       "lightModeTheme": "Helles Modus-Design",
       "darkModeTheme": "Dunkles Modus-Design",
@@ -713,33 +708,25 @@
     },
     "keybindings": {
       "title": "Tastenkürzel",
-      "description": "Tastenkürzel anpassen",
-      "save": "Speichern",
+      "description": "Wähle zum Ändern eines Tastenkürzels die Tastenkombination aus und drücke dann die neue Kombination",
       "restoreDefaults": "Standardwerte wiederherstellen",
       "debugOptions": "Debug-Optionen",
       "dumpKeyboardInfo": "Tastatur-Informationen ausgeben",
       "failedToSave": "Speichern der Tastenkürzel fehlgeschlagen",
-      "keyInputDialog": {
-        "instructions": "Drücken Sie die Tastenkombination, die Sie zuweisen möchten",
-        "invalidKeybinding": "Ungültiges Tastenkürzel",
-        "placeholder": "Tasten drücken..."
-      },
-      "online": "Online",
+      "online": "Dokumentation der Tastenkürzel",
       "saveError": "Fehler beim Speichern der Tastenkürzel",
       "shortcutInUse": "Tastenkürzel wird verwendet",
       "shortcutInUseMessage": "{accelerator} ist bereits {commands} zugewiesen.",
-      "table": {
-        "description": "Beschreibung",
-        "edit": "Bearbeiten",
-        "keyCombination": "Tastenkombination",
-        "options": "Optionen",
-        "reset": "Zurücksetzen",
-        "unbind": "Aufheben"
-      },
       "windowAndNavigation": "Fenster und Navigation",
       "loadError": "Tastenkürzel konnten nicht geladen werden.",
       "reload": "Neu laden",
-      "viewConflict": "{name} anzeigen"
+      "viewConflict": "{name} anzeigen",
+      "editShortcut": "Tastenkürzel für {name} bearbeiten",
+      "unbound": "Nicht zugewiesen",
+      "recorder": {
+        "placeholder": "Tastenkombination drücken",
+        "invalidKeybinding": "Ungültiges Tastenkürzel"
+      }
     },
     "selectFont": "Schrift auswählen",
     "spellchecker": {
@@ -762,6 +749,11 @@
       "taskCascade": "Das Markieren einer übergeordneten Aufgabe aktualisiert ihre Unteraufgaben und umgekehrt.",
       "markdownPairs": "Ergänzt beim Tippen gepaarte Markdown-Zeichen wie Sternchen, Unterstriche und Backticks.",
       "lineEndings": "Gilt für neue Dateien sowie gemischte oder nicht erkannte Zeilenenden. Dateien mit erkanntem LF oder CRLF behalten ihr Format."
+    },
+    "commandDetection": {
+      "checking": "Wird geprüft…",
+      "recheck": "Erneut prüfen",
+      "failed": "Erkennung fehlgeschlagen. Bitte erneut prüfen."
     }
   },
   "about": {

@@ -6,16 +6,15 @@
     <div class="pref-compound-body">
       <slot name="children" />
     </div>
-    <div
-      v-if="notes"
-      class="notes"
-    >
+    <setting-note v-if="notes">
       {{ notes }}
-    </div>
+    </setting-note>
   </section>
 </template>
 
 <script setup lang="ts">
+import SettingNote from '../settingNote.vue'
+
 defineProps<{
   notes?: string
 }>()

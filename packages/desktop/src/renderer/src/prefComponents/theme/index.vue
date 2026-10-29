@@ -3,31 +3,43 @@
     <h4 v-if="!embedded">
       {{ t('preferences.theme.title') }}
     </h4>
-    <bool
-      id="setting-followSystemTheme"
-      :description="preferenceLabel('followSystemTheme')"
-      :notes="followSystemTheme ? t('preferences.theme.followSystemNote') : ''"
-      :bool="followSystemTheme"
-      :on-change="value => onSelectChange('followSystemTheme', value)"
-    />
-    <section id="setting-theme">
-      <theme-choice
-        v-if="!followSystemTheme"
-        :description="preferenceLabel('theme')"
-        :value="theme"
-        @choose="openPicker('theme')"
-      />
-      <template v-else>
-        <theme-choice
-          v-for="key in modeThemeKeys"
-          :id="`setting-${key}`"
-          :key="key"
-          :description="preferenceLabel(key)"
-          :value="key === 'lightModeTheme' ? lightModeTheme : darkModeTheme"
-          @choose="openPicker(key)"
-        />
+    <compound>
+      <template #head>
+        <h6 class="title">
+          {{ t('preferences.theme.title') }}
+        </h6>
       </template>
-    </section>
+      <template #children>
+        <bool
+          id="setting-followSystemTheme"
+          :description="preferenceLabel('followSystemTheme')"
+          :notes="followSystemTheme ? t('preferences.theme.followSystemNote') : ''"
+          :bool="followSystemTheme"
+          :on-change="value => onSelectChange('followSystemTheme', value)"
+        />
+        <section id="setting-theme">
+          <theme-choice
+            v-if="!followSystemTheme"
+            :description="preferenceLabel('theme')"
+            :value="theme"
+            @choose="openPicker('theme')"
+          />
+          <div
+            v-else
+            class="theme-mode-choices"
+          >
+            <theme-choice
+              v-for="key in modeThemeKeys"
+              :id="`setting-${key}`"
+              :key="key"
+              :description="preferenceLabel(key)"
+              :value="key === 'lightModeTheme' ? lightModeTheme : darkModeTheme"
+              @choose="openPicker(key)"
+            />
+          </div>
+        </section>
+      </template>
+    </compound>
     <details
       id="setting-customCss"
       class="custom-css"
@@ -58,6 +70,8 @@
         <el-select
           v-if="pickerTarget === 'theme'"
           v-model="filter"
+          :show-arrow="false"
+          popper-class="pref-dropdown"
           :aria-label="t('preferences.theme.filterLabel')"
         >
           <el-option
@@ -101,6 +115,7 @@ import { isDarkThemeId } from 'common/theme'
 import { usePreferencesStore, type PreferencesState } from '@/store/preferences'
 import { preferenceLabel } from '../registry'
 import Bool from '../common/bool/index.vue'
+import Compound from '../common/compound/index.vue'
 import ThemeChoice from './choice.vue'
 import ThemePreview from './preview.vue'
 import { themes, themeLabel } from './config'
@@ -164,6 +179,25 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   --el-bg-color: var(--floatBgColor);
   --el-fill-color-blank: var(--floatBgColor);
   --el-border-color: var(--floatBorderColor);
+}
+.theme-mode-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin: 16px 0;
+}
+.theme-mode-choices > .pref-setting-row {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  margin: 0;
+}
+@container (max-width: 480px) {
+  .theme-mode-choices { grid-template-columns: minmax(0, 1fr); }
+}
+.theme-picker .el-input__inner {
+  background: transparent;
+  border: none;
+  color: var(--editorColor);
 }
 .theme-picker-tools {
   display: flex;

@@ -430,10 +430,12 @@
         "hideScrollbars": "隱藏捲軸",
         "openFilesInNewWindow": "在新視窗中開啟檔案",
         "openFoldersInNewWindow": "在新視窗中開啟資料夾",
-        "zoom": "縮放"
+        "zoom": "縮放",
+        "openFilesInNewWindowNote": "啟用後，檔案會在新視窗中開啟；停用後，會在目前視窗的分頁中開啟。",
+        "openFoldersInNewWindowNote": "啟用後，資料夾會在新視窗中開啟；停用後，會在目前視窗中開啟並取代目前的資料夾。"
       },
       "startup": {
-        "title": "啟動",
+        "title": "啟動與還原",
         "openDefaultDirectory": "開啟指定資料夾",
         "openLastFolder": "開啟上次工作區",
         "restoreAll": "還原全部視窗",
@@ -442,8 +444,11 @@
         "action": "啟動時",
         "restoreLastWindow": "還原最後使用的視窗",
         "restoreLayoutState": "還原視窗配置",
+        "restoreLayoutStateNote": "重新啟動時，還原視窗大小、位置及側邊欄等版面配置。",
         "restoreEditors": "還原已開啟的檔案",
+        "restoreEditorsNote": "重新啟動時，重新開啟上次的檔案分頁。",
         "restoreViewState": "還原閱讀位置與選取範圍",
+        "restoreViewStateNote": "還原檔案時，回到上次閱讀位置並還原選取範圍。",
         "failure": "無法儲存設定，仍使用先前的設定。"
       },
       "pandoc": {
@@ -451,13 +456,12 @@
         "description": "啟用 Pandoc 格式轉換",
         "detailedDescription": "在選單中顯示格式轉換命令，需要先安裝 Pandoc。",
         "found": "已找到：{path}",
-        "notFound": "未找到",
-        "recheck": "重新檢測"
+        "notFound": "未找到"
       },
       "sidebar": {
-        "title": "側邊欄",
+        "title": "側邊欄與目錄",
         "wrapTextInToc": "在目錄中換行文字",
-        "tocPosition": "預設大綱位置",
+        "tocPosition": "預設目錄位置",
         "tocLeft": "左側",
         "tocRight": "右側",
         "showOpenedFiles": "顯示已開啟的檔案",
@@ -484,25 +488,24 @@
           "newestFirst": "從新到舊"
         }
       },
-      "misc": {
-        "title": "其他",
-        "language": {
-          "title": "語言",
-          "english": "English",
-          "chinese": "簡體中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "語言",
+        "english": "English",
+        "chinese": "簡體中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "介面語言"
+      },
+      "openingMode": "開啟模式"
     },
     "editor": {
       "title": "編輯器",
@@ -511,7 +514,7 @@
         "fontSize": "字型大小",
         "lineHeight": "行高",
         "fontFamily": "字型系列",
-        "maxWidth": "最大寬度",
+        "maxWidth": "編輯器內容最大寬度",
         "maxWidthNotes": "編輯器內容的最大寬度。數字後需帶單位 px、ch（字元數）或 %，例如 800px、80ch、60%。留空則使用預設寬度。",
         "maxWidthInvalid": "請輸入數字並帶上單位 px、ch 或 %，例如 800px。",
         "codeFontFamily": "程式碼字型",
@@ -519,12 +522,12 @@
       },
       "codeBlock": {
         "title": "程式碼區塊",
-        "fontSize": "字型大小",
+        "fontSize": "程式碼區塊字型大小",
         "showLineNumbers": "顯示行號",
         "removeEmptyLines": "移除空行"
       },
       "writingBehavior": {
-        "title": "寫作行為",
+        "title": "寫作偏好",
         "autoCloseBrackets": "自動關閉括號",
         "autoCompleteMarkdown": "自動補全 Markdown 成對標記",
         "autoCloseQuotes": "自動關閉引號"
@@ -574,7 +577,7 @@
       "folderSetting": {
         "title": "資料夾設定",
         "globalFolder": "全域圖片資料夾",
-        "open": "開啟",
+        "open": "選擇資料夾…",
         "showInFolder": "在資料夾中顯示",
         "preferRelative": "偏好相對目錄",
         "relativeCopyLocation": "圖片相對複製到",
@@ -585,21 +588,19 @@
       },
       "uploader": {
         "title": "圖片上傳器",
-        "currentUploader": "目前上傳器：{name}",
-        "picgoNotInstalled": "PicGo 未安裝",
-        "picgoInstalled": "PicGo 已安裝",
-        "picgoDetectionFailed": "PicGo 偵測失敗",
+        "picgoNotInstalled": "PicGo-Core 未安裝",
+        "picgoInstalled": "PicGo-Core 已安裝",
+        "picgoDetectionFailed": "PicGo-Core 偵測失敗",
         "debugInfo": "除錯資訊",
         "npmInstallCommand": "npm install picgo",
         "yarnInstallCommand": "yarn add picgo",
         "pnpmInstallCommand": "pnpm add picgo",
         "chooseInstallMethod": "選擇安裝方法：",
-        "retestPicgo": "重新檢測",
         "lastDetectionTime": "上次檢測時間",
         "usageGuide": {
-          "title": "PicGo 基本使用說明",
+          "title": "PicGo-Core 基本使用說明",
           "step1": "設定上傳器",
-          "step1Description": "使用以下命令設定 PicGo 上傳器：",
+          "step1Description": "使用以下命令設定 PicGo-Core 上傳器：",
           "step2": "上傳圖片",
           "step2Description": "使用以下命令上傳圖片：",
           "step3": "檢視設定",
@@ -608,19 +609,14 @@
         },
         "scriptDescription": "腳本描述",
         "scriptLocation": "腳本位置",
-        "save": "儲存",
-        "saveConfig": "儲存設定",
-        "scriptConfigSaved": "腳本設定已儲存",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI 腳本"
         },
         "pleaseInstall": "請安裝",
         "scriptPath": "腳本路徑",
-        "picgoDetection": "PicGo 偵測",
         "lastSuccessTime": "上次成功時間",
-        "neverDetected": "從未偵測",
-        "neverSuccessful": "從未成功"
+        "invalidScript": "請輸入存在且可執行的指令碼路徑。"
       },
       "defaultBehavior": "貼上或拖曳圖片到 MarkText 後的預設行為"
     },
@@ -630,7 +626,6 @@
         "title": "擴充功能",
         "superSubScript": "上標/下標",
         "footnote": "腳註",
-        "footnoteNotes": "腳註備註",
         "texMathDollars": "使用 $ 與 $$ 的 TeX 數學公式",
         "texMathGfm": "GitHub 的 TeX 數學公式（$`…`$ 與 ```math）",
         "texMathSingleBackslash": "使用單反斜線分隔符的 TeX 數學公式",
@@ -695,7 +690,7 @@
     "theme": {
       "title": "主題",
       "followSystemTheme": "跟隨系統外觀",
-      "followSystemNote": "跟隨系統主題時，下方主題列表無法切換。關閉後即可自由切換。",
+      "followSystemNote": "可以在下方分別選擇深色模式和淺色模式下的主題。",
       "modeThemes": "主題選擇",
       "lightModeTheme": "淺色模式主題",
       "darkModeTheme": "深色模式主題",
@@ -713,33 +708,25 @@
     },
     "keybindings": {
       "title": "按鍵綁定",
-      "description": "自訂鍵盤快捷鍵",
-      "save": "儲存",
+      "description": "若要變更快捷鍵，請選取組合鍵，然後按下新的組合鍵",
       "restoreDefaults": "還原預設值",
       "debugOptions": "除錯選項",
       "dumpKeyboardInfo": "傾印鍵盤資訊",
       "failedToSave": "儲存按鍵綁定失敗",
-      "keyInputDialog": {
-        "instructions": "按下您要指派的按鍵組合",
-        "invalidKeybinding": "無效的按鍵組合",
-        "placeholder": "按下按鍵…"
-      },
-      "online": "線上",
+      "online": "快捷鍵文件",
       "saveError": "儲存按鍵綁定時發生錯誤",
       "shortcutInUse": "快捷鍵使用中",
       "shortcutInUseMessage": "{accelerator} 已被「{commands}」使用。",
-      "table": {
-        "description": "描述",
-        "edit": "編輯",
-        "keyCombination": "按鍵組合",
-        "options": "選項",
-        "reset": "重設",
-        "unbind": "解除綁定"
-      },
       "windowAndNavigation": "視窗與導覽",
       "loadError": "無法載入快捷鍵。",
       "reload": "重新載入",
-      "viewConflict": "檢視「{name}」"
+      "viewConflict": "檢視「{name}」",
+      "editShortcut": "修改「{name}」的快捷鍵",
+      "unbound": "未綁定",
+      "recorder": {
+        "placeholder": "按下組合鍵",
+        "invalidKeybinding": "無效的按鍵組合"
+      }
     },
     "selectFont": "選擇字型",
     "spellchecker": {
@@ -762,6 +749,11 @@
       "taskCascade": "勾選或取消父任務時同步更新子任務；子任務狀態變更時同步更新父任務。",
       "markdownPairs": "輸入星號、底線、反引號等 Markdown 標記時，自動補全配對標記。",
       "lineEndings": "用於新檔案及換行符號混合或無法偵測的檔案。既有 LF 或 CRLF 檔案保留偵測到的格式。"
+    },
+    "commandDetection": {
+      "checking": "偵測中…",
+      "recheck": "重新偵測",
+      "failed": "偵測失敗，請重新偵測。"
     }
   },
   "about": {

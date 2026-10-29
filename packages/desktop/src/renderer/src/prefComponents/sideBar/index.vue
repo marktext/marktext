@@ -6,16 +6,18 @@
     <section class="search-wrapper">
       <el-autocomplete
         v-model="state"
+        :show-arrow="false"
+        clearable
         value-key="preference"
         :debounce="0"
-        popper-class="pref-autocomplete"
+        popper-class="pref-dropdown pref-autocomplete"
         :fetch-suggestions="querySearch"
         :placeholder="t('preferences.search.placeholder')"
         :trigger-on-focus="false"
         :aria-label="t('preferences.search.placeholder')"
         @select="handleSelect"
       >
-        <template #suffix>
+        <template #prefix>
           <Search
             width="16"
             height="16"
@@ -54,6 +56,7 @@ import { useI18n } from 'vue-i18n'
 import { useKeybindingsStore } from '@/store/keybindings'
 import { getKeybindingSearchContent } from './keybindingSearch'
 import { openSetting } from '../settingLocation'
+import '../common/dropdownAppearance.css'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -119,20 +122,9 @@ onUnmounted(() => {
   & .el-input__inner {
     border: none;
     background: transparent;
-    height: 28px;
-    line-height: 28px;
-    font-size: 13px;
   }
 }
 .pref-autocomplete {
-  background: var(--floatBgColor);
-  border-color: var(--floatBorderColor);
-  & .el-autocomplete-suggestion__wrap li:hover {
-    background: var(--floatHoverColor);
-  }
-  & .popper__arrow {
-    display: none;
-  }
   & li {
     line-height: normal;
     padding: 7px;

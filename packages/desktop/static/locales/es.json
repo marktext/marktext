@@ -430,10 +430,12 @@
         "hideScrollbars": "Ocultar barras de desplazamiento",
         "openFilesInNewWindow": "Abrir archivos en nueva ventana",
         "openFoldersInNewWindow": "Abrir carpetas en nueva ventana",
-        "zoom": "Zoom"
+        "zoom": "Zoom",
+        "openFilesInNewWindowNote": "Si se activa, los archivos se abren en una ventana nueva. Si se desactiva, se abren en pestañas de la ventana actual.",
+        "openFoldersInNewWindowNote": "Si se activa, las carpetas se abren en una ventana nueva. Si se desactiva, reemplazan la carpeta de la ventana actual."
       },
       "startup": {
-        "title": "Inicio",
+        "title": "Inicio y recuperación",
         "openDefaultDirectory": "Abrir la carpeta seleccionada",
         "openLastFolder": "Abrir el último espacio de trabajo",
         "restoreAll": "Restaurar todas las ventanas",
@@ -442,8 +444,11 @@
         "action": "Al iniciar",
         "restoreLastWindow": "Restaurar la última ventana activa",
         "restoreLayoutState": "Restaurar la disposición de las ventanas",
+        "restoreLayoutStateNote": "Restaurar el tamaño, la posición y la disposición de elementos como la barra lateral al reiniciar.",
         "restoreEditors": "Restaurar los archivos abiertos",
+        "restoreEditorsNote": "Volver a abrir las pestañas de archivos anteriores al reiniciar.",
         "restoreViewState": "Restaurar las posiciones de lectura y las selecciones",
+        "restoreViewStateNote": "Recuperar la última posición de lectura y selección al restaurar un archivo.",
         "failure": "No se pudo guardar la configuración. Se mantiene la configuración anterior."
       },
       "pandoc": {
@@ -451,11 +456,10 @@
         "description": "Activar la conversión con Pandoc",
         "detailedDescription": "Muestra comandos de conversión en el menú. Requiere instalar Pandoc.",
         "found": "Encontrado: {path}",
-        "notFound": "No encontrado",
-        "recheck": "Volver a comprobar"
+        "notFound": "No encontrado"
       },
       "sidebar": {
-        "title": "Barra Lateral",
+        "title": "Barra lateral e índice",
         "wrapTextInToc": "Ajustar texto en tabla de contenidos",
         "tocPosition": "Posición de la tabla de contenido",
         "tocLeft": "Izquierda",
@@ -484,25 +488,24 @@
           "newestFirst": "Más reciente primero"
         }
       },
-      "misc": {
-        "title": "Misceláneos",
-        "language": {
-          "title": "Idioma",
-          "english": "English",
-          "chinese": "简体中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "Idioma",
+        "english": "English",
+        "chinese": "简体中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "Idioma de la interfaz"
+      },
+      "openingMode": "Modo de apertura"
     },
     "editor": {
       "title": "Editor",
@@ -511,7 +514,7 @@
         "fontSize": "Tamaño de fuente",
         "lineHeight": "Altura de línea",
         "fontFamily": "Familia de fuente",
-        "maxWidth": "Ancho máximo",
+        "maxWidth": "Anchura máxima del contenido del editor",
         "maxWidthNotes": "Ancho máximo del contenido del editor. Introduce un número seguido de px, ch (caracteres) o %, por ejemplo 800px, 80ch o 60%. Déjalo vacío para usar el ancho predeterminado.",
         "maxWidthInvalid": "Introduce un número seguido de px, ch o %, por ejemplo 800px.",
         "codeFontFamily": "Fuente del código",
@@ -519,12 +522,12 @@
       },
       "codeBlock": {
         "title": "Bloque de Código",
-        "fontSize": "Tamaño de fuente",
+        "fontSize": "Tamaño de fuente de los bloques de código",
         "showLineNumbers": "Mostrar números de línea",
         "removeEmptyLines": "Eliminar líneas vacías"
       },
       "writingBehavior": {
-        "title": "Comportamiento de Escritura",
+        "title": "Preferencias de escritura",
         "autoCloseBrackets": "Cerrar corchetes automáticamente",
         "autoCompleteMarkdown": "Completar pares de marcadores Markdown",
         "autoCloseQuotes": "Cerrar comillas automáticamente"
@@ -574,7 +577,7 @@
       "folderSetting": {
         "title": "Configuración de Carpeta",
         "globalFolder": "Carpeta global de imágenes",
-        "open": "Abrir",
+        "open": "Seleccionar carpeta…",
         "showInFolder": "Mostrar en Carpeta",
         "preferRelative": "Preferir directorio relativo",
         "relativeCopyLocation": "Copiar imagen relativa a",
@@ -585,21 +588,19 @@
       },
       "uploader": {
         "title": "Subidor de Imágenes",
-        "currentUploader": "Subidor actual: {name}",
-        "picgoNotInstalled": "PicGo no está instalado",
-        "picgoInstalled": "PicGo está instalado",
-        "picgoDetectionFailed": "Falló la detección de PicGo",
+        "picgoNotInstalled": "PicGo-Core no está instalado",
+        "picgoInstalled": "PicGo-Core está instalado",
+        "picgoDetectionFailed": "Falló la detección de PicGo-Core",
         "debugInfo": "Información de Depuración",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Elegir método de instalación:",
-        "retestPicgo": "Volver a probar",
         "lastDetectionTime": "Última detección",
         "usageGuide": {
-          "title": "Guía básica de uso de PicGo",
+          "title": "Guía básica de uso de PicGo-Core",
           "step1": "Configurar cargador",
-          "step1Description": "Use el siguiente comando para configurar el cargador PicGo:",
+          "step1Description": "Use el siguiente comando para configurar el cargador PicGo-Core:",
           "step2": "Subir imágenes",
           "step2Description": "Use el siguiente comando para subir imágenes:",
           "step3": "Ver configuración",
@@ -608,19 +609,14 @@
         },
         "scriptDescription": "Descripción del Script",
         "scriptLocation": "Ubicación del Script",
-        "save": "Guardar",
-        "saveConfig": "Guardar Configuración",
-        "scriptConfigSaved": "Configuración de script guardada",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "Script CLI"
         },
         "pleaseInstall": "Por favor instala",
         "scriptPath": "Ruta del script",
-        "picgoDetection": "Detección de PicGo",
         "lastSuccessTime": "Última vez exitosa",
-        "neverDetected": "Nunca detectado",
-        "neverSuccessful": "Nunca exitoso"
+        "invalidScript": "Introduce la ruta de un script existente y ejecutable."
       },
       "defaultBehavior": "El comportamiento predeterminado después de pegar o arrastrar la imagen a MarkText"
     },
@@ -630,7 +626,6 @@
         "title": "Extensiones",
         "superSubScript": "Super/Sub script",
         "footnote": "Nota al pie",
-        "footnoteNotes": "Notas al pie",
         "texMathDollars": "Matemáticas TeX con $ y $$",
         "texMathGfm": "Matemáticas TeX de GitHub ($`…`$ y ```math)",
         "texMathSingleBackslash": "Matemáticas TeX con barra invertida simple",
@@ -695,7 +690,7 @@
     "theme": {
       "title": "Tema",
       "followSystemTheme": "Seguir la apariencia del sistema",
-      "followSystemNote": "Seguir el tema del sistema bloquea la lista de temas de abajo. Desactívalo para cambiar de tema libremente.",
+      "followSystemNote": "Puedes elegir abajo temas distintos para los modos oscuro y claro.",
       "modeThemes": "Selección de Tema",
       "lightModeTheme": "Tema de modo claro",
       "darkModeTheme": "Tema de modo oscuro",
@@ -713,33 +708,25 @@
     },
     "keybindings": {
       "title": "Atajos de Teclado",
-      "description": "Personalizar atajos de teclado",
-      "save": "Guardar",
+      "description": "Para cambiar un atajo, selecciona la combinación de teclas y pulsa la nueva combinación",
       "restoreDefaults": "Restaurar predeterminados",
       "debugOptions": "Opciones de Depuración",
       "dumpKeyboardInfo": "Volcar Información del Teclado",
       "failedToSave": "Error al guardar atajos de teclado",
-      "keyInputDialog": {
-        "instructions": "Presiona la combinación de teclas que quieres asignar",
-        "invalidKeybinding": "Combinación de teclas inválida",
-        "placeholder": "Presiona teclas..."
-      },
-      "online": "En línea",
+      "online": "Documentación de atajos de teclado",
       "saveError": "Error al guardar atajos de teclado",
       "shortcutInUse": "Atajo en uso",
       "shortcutInUseMessage": "{accelerator} ya está asignado a {commands}.",
-      "table": {
-        "description": "Descripción",
-        "edit": "Editar",
-        "keyCombination": "Combinación de Teclas",
-        "options": "Opciones",
-        "reset": "Restablecer",
-        "unbind": "Desvincular"
-      },
       "windowAndNavigation": "Ventanas y navegación",
       "loadError": "No se pudieron cargar los atajos de teclado.",
       "reload": "Volver a cargar",
-      "viewConflict": "Ver {name}"
+      "viewConflict": "Ver {name}",
+      "editShortcut": "Editar el atajo de {name}",
+      "unbound": "Sin asignar",
+      "recorder": {
+        "placeholder": "Pulsa la combinación de teclas",
+        "invalidKeybinding": "Combinación de teclas inválida"
+      }
     },
     "selectFont": "Seleccionar Fuente",
     "spellchecker": {
@@ -762,6 +749,11 @@
       "taskCascade": "Marcar una tarea principal actualiza sus subtareas; cambiar las subtareas actualiza la tarea principal.",
       "markdownPairs": "Completa pares de marcadores Markdown, como asteriscos, guiones bajos y acentos graves, al escribir.",
       "lineEndings": "Se usa en archivos nuevos y con finales de línea mixtos o no detectados. Los archivos LF o CRLF conservan el formato detectado."
+    },
+    "commandDetection": {
+      "checking": "Comprobando…",
+      "recheck": "Volver a comprobar",
+      "failed": "La detección ha fallado. Vuelve a comprobar."
     }
   },
   "about": {

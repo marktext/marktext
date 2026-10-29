@@ -430,10 +430,12 @@
         "hideScrollbars": "Schuifbalken verbergen",
         "openFilesInNewWindow": "Bestanden in nieuw venster openen",
         "openFoldersInNewWindow": "Mappen in nieuw venster openen",
-        "zoom": "Zoom"
+        "zoom": "Zoom",
+        "openFilesInNewWindowNote": "Indien ingeschakeld, openen bestanden in een nieuw venster. Anders openen ze in tabbladen in het huidige venster.",
+        "openFoldersInNewWindowNote": "Indien ingeschakeld, openen mappen in een nieuw venster. Anders vervangen ze de map in het huidige venster."
       },
       "startup": {
-        "title": "Opstartopties",
+        "title": "Opstarten en herstellen",
         "openDefaultDirectory": "Geselecteerde map openen",
         "openLastFolder": "Laatste werkruimte openen",
         "restoreAll": "Alle vensters herstellen",
@@ -442,8 +444,11 @@
         "action": "Bij opstarten",
         "restoreLastWindow": "Het laatst actieve venster herstellen",
         "restoreLayoutState": "Vensterindeling herstellen",
+        "restoreLayoutStateNote": "Herstel bij het opnieuw starten de venstergrootte, positie en indeling, zoals de zijbalk.",
         "restoreEditors": "Geopende bestanden herstellen",
+        "restoreEditorsNote": "Open bij het opnieuw starten de vorige bestandstabbladen opnieuw.",
         "restoreViewState": "Leesposities en selecties herstellen",
+        "restoreViewStateNote": "Herstel de vorige leespositie en selectie bij het herstellen van een bestand.",
         "failure": "De instellingen konden niet worden opgeslagen. De vorige instellingen blijven in gebruik."
       },
       "pandoc": {
@@ -451,11 +456,10 @@
         "description": "Pandoc-conversie inschakelen",
         "detailedDescription": "Toont conversieopdrachten in het menu. Pandoc moet geïnstalleerd zijn.",
         "found": "Gevonden: {path}",
-        "notFound": "Niet gevonden",
-        "recheck": "Opnieuw controleren"
+        "notFound": "Niet gevonden"
       },
       "sidebar": {
-        "title": "Zijbalk",
+        "title": "Zijbalk en inhoudsopgave",
         "wrapTextInToc": "Tekstterugloop in inhoudsopgave",
         "tocPosition": "Positie van de inhoudsopgave",
         "tocLeft": "Links",
@@ -484,25 +488,24 @@
           "newestFirst": "Nieuwste eerst"
         }
       },
-      "misc": {
-        "title": "Diversen",
-        "language": {
-          "title": "Taal",
-          "english": "English",
-          "chinese": "简体中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "Taal",
+        "english": "English",
+        "chinese": "简体中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "Interfacetaal"
+      },
+      "openingMode": "Openingsmodus"
     },
     "editor": {
       "title": "Editor",
@@ -511,7 +514,7 @@
         "fontSize": "Lettergrootte",
         "lineHeight": "Regelhoogte",
         "fontFamily": "Lettertypefamilie",
-        "maxWidth": "Maximale breedte",
+        "maxWidth": "Maximale breedte van de editorinhoud",
         "maxWidthNotes": "Maximale breedte van editorinhoud. Voer een getal in gevolgd door px, ch (tekens) of %, bijvoorbeeld 800px, 80ch of 60%. Laat leeg om de standaardbreedte te gebruiken.",
         "maxWidthInvalid": "Voer een getal in gevolgd door px, ch of %, bijvoorbeeld 800px.",
         "codeFontFamily": "Lettertype voor code",
@@ -519,12 +522,12 @@
       },
       "codeBlock": {
         "title": "Codeblok",
-        "fontSize": "Lettergrootte",
+        "fontSize": "Lettergrootte van codeblokken",
         "showLineNumbers": "Regelnummers tonen",
         "removeEmptyLines": "Lege regels verwijderen"
       },
       "writingBehavior": {
-        "title": "Schrijfgedrag",
+        "title": "Schrijfvoorkeuren",
         "autoCloseBrackets": "Haakjes automatisch sluiten",
         "autoCompleteMarkdown": "Markdown-markeringen als paar aanvullen",
         "autoCloseQuotes": "Aanhalingstekens automatisch sluiten"
@@ -574,7 +577,7 @@
       "folderSetting": {
         "title": "Mapinstelling",
         "globalFolder": "Globale afbeeldingsmap",
-        "open": "Openen",
+        "open": "Map kiezen…",
         "showInFolder": "Tonen in map",
         "preferRelative": "Relatieve map prefereren",
         "relativeCopyLocation": "Afbeelding kopiëren relatief aan",
@@ -585,22 +588,19 @@
       },
       "uploader": {
         "title": "Afbeeldings-uploader",
-        "currentUploader": "Huidige uploader: {name}",
-        "picgoNotInstalled": "PicGo is niet geïnstalleerd",
-        "picgoInstalled": "PicGo is geïnstalleerd",
-        "picgoDetectionFailed": "PicGo-detectie mislukt",
+        "picgoNotInstalled": "PicGo-Core is niet geïnstalleerd",
+        "picgoInstalled": "PicGo-Core is geïnstalleerd",
+        "picgoDetectionFailed": "PicGo-Core-detectie mislukt",
         "debugInfo": "Foutopsporingsinformatie",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Kies installatiemethode:",
-        "retestPicgo": "Opnieuw testen",
         "lastDetectionTime": "Laatste detectietijd",
-        "picgoDetection": "PicGo-detectie",
         "usageGuide": {
-          "title": "PicGo basisgebruikshandleiding",
+          "title": "PicGo-Core basisgebruikshandleiding",
           "step1": "Uploader configureren",
-          "step1Description": "Gebruik de volgende opdracht om PicGo-uploader te configureren:",
+          "step1Description": "Gebruik de volgende opdracht om PicGo-Core-uploader te configureren:",
           "step2": "Afbeeldingen uploaden",
           "step2Description": "Gebruik de volgende opdracht om afbeeldingen te uploaden:",
           "step3": "Configuratie bekijken",
@@ -608,19 +608,15 @@
           "documentation": "Volledige documentatie bekijken"
         },
         "lastSuccessTime": "Laatste succestijd",
-        "neverDetected": "Nooit gedetecteerd",
-        "neverSuccessful": "Nooit succesvol",
         "scriptDescription": "Scriptbeschrijving",
         "scriptLocation": "Scriptlocatie",
-        "save": "Opslaan",
-        "saveConfig": "Configuratie opslaan",
-        "scriptConfigSaved": "Scriptconfiguratie opgeslagen",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI-script"
         },
         "pleaseInstall": "Installeer a.u.b.",
-        "scriptPath": "Scriptpad"
+        "scriptPath": "Scriptpad",
+        "invalidScript": "Voer het pad naar een bestaand uitvoerbaar script in."
       },
       "defaultBehavior": "Het standaardgedrag na plakken of slepen van een afbeelding naar MarkText"
     },
@@ -630,7 +626,6 @@
         "title": "Extensies",
         "superSubScript": "Super-/subscript",
         "footnote": "Voetnoot",
-        "footnoteNotes": "Voetnoten",
         "texMathDollars": "TeX-wiskunde met $ en $$",
         "texMathGfm": "GitHub TeX-wiskunde ($`…`$ en ```math)",
         "texMathSingleBackslash": "TeX-wiskunde met enkele backslash",
@@ -695,7 +690,7 @@
     "theme": {
       "title": "Thema",
       "followSystemTheme": "Systeemweergave volgen",
-      "followSystemNote": "Het systeemthema volgen vergrendelt de themalijst hieronder. Schakel dit uit om vrij van thema te wisselen.",
+      "followSystemNote": "Kies hieronder afzonderlijke thema’s voor de donkere en lichte modus.",
       "modeThemes": "Themaselectie",
       "lightModeTheme": "Thema lichte modus",
       "darkModeTheme": "Thema donkere modus",
@@ -713,33 +708,25 @@
     },
     "keybindings": {
       "title": "Sneltoetsen",
-      "description": "Sneltoetsen aanpassen",
-      "save": "Opslaan",
+      "description": "Selecteer de toetsencombinatie en druk op de nieuwe combinatie om een sneltoets te wijzigen",
       "restoreDefaults": "Standaardwaarden herstellen",
       "debugOptions": "Foutopsporingsopties",
       "dumpKeyboardInfo": "Toetsenbordinformatie exporteren",
       "failedToSave": "Opslaan van sneltoetsen mislukt",
-      "keyInputDialog": {
-        "instructions": "Druk de gewenste toetscombinatie in",
-        "invalidKeybinding": "Ongeldige toetscombinatie",
-        "placeholder": "Druk toetsen in..."
-      },
-      "online": "Online",
+      "online": "Documentatie over sneltoetsen",
       "saveError": "Fout bij opslaan sneltoetsen",
       "shortcutInUse": "Sneltoets in gebruik",
       "shortcutInUseMessage": "{accelerator} is al toegewezen aan {commands}.",
-      "table": {
-        "description": "Beschrijving",
-        "edit": "Bewerken",
-        "keyCombination": "Toetscombinatie",
-        "options": "Opties",
-        "reset": "Herstellen",
-        "unbind": "Loskoppelen"
-      },
       "windowAndNavigation": "Vensters en navigatie",
       "loadError": "Sneltoetsen konden niet worden geladen.",
       "reload": "Opnieuw laden",
-      "viewConflict": "{name} bekijken"
+      "viewConflict": "{name} bekijken",
+      "editShortcut": "Sneltoets voor {name} bewerken",
+      "unbound": "Niet toegewezen",
+      "recorder": {
+        "placeholder": "Druk op de toetsencombinatie",
+        "invalidKeybinding": "Ongeldige toetscombinatie"
+      }
     },
     "selectFont": "Lettertype selecteren",
     "spellchecker": {
@@ -762,6 +749,11 @@
       "taskCascade": "Een bovenliggende taak aanvinken werkt subtaken bij; gewijzigde subtaken werken hun bovenliggende taak bij.",
       "markdownPairs": "Vult tijdens het typen paren Markdown-markeringen aan, zoals sterretjes, underscores en backticks.",
       "lineEndings": "Voor nieuwe bestanden en gemengde of niet-herkende regeleinden. LF- en CRLF-bestanden behouden hun gedetecteerde formaat."
+    },
+    "commandDetection": {
+      "checking": "Controleren…",
+      "recheck": "Opnieuw controleren",
+      "failed": "Detectie mislukt. Controleer opnieuw."
     }
   },
   "about": {

@@ -430,10 +430,12 @@
         "hideScrollbars": "隐藏滚动条",
         "openFilesInNewWindow": "在新窗口中打开文件",
         "openFoldersInNewWindow": "在新窗口中打开文件夹",
-        "zoom": "缩放"
+        "zoom": "缩放",
+        "openFilesInNewWindowNote": "启用后，文件在新窗口中打开；关闭后，在当前窗口的标签页中打开。",
+        "openFoldersInNewWindowNote": "启用后，文件夹在新窗口中打开；关闭后，在当前窗口中打开并替换当前文件夹。"
       },
       "startup": {
-        "title": "启动",
+        "title": "启动与恢复",
         "openDefaultDirectory": "打开指定文件夹",
         "openLastFolder": "打开上次工作区",
         "restoreAll": "恢复全部窗口",
@@ -442,8 +444,11 @@
         "action": "启动时",
         "restoreLastWindow": "恢复最后活动的窗口",
         "restoreLayoutState": "恢复窗口布局",
+        "restoreLayoutStateNote": "重新启动时，恢复窗口大小、位置及侧边栏等布局。",
         "restoreEditors": "恢复已打开的文件",
+        "restoreEditorsNote": "重新启动时，重新打开上次的文件标签页。",
         "restoreViewState": "恢复阅读位置和选区",
+        "restoreViewStateNote": "恢复文件时，回到上次阅读位置并还原选区。",
         "failure": "设置未能保存，仍使用之前的设置。"
       },
       "pandoc": {
@@ -451,13 +456,12 @@
         "description": "启用 Pandoc 格式转换",
         "detailedDescription": "在菜单中显示格式转换命令，需要先安装 Pandoc。",
         "found": "已找到：{path}",
-        "notFound": "未找到",
-        "recheck": "重新检测"
+        "notFound": "未找到"
       },
       "sidebar": {
-        "title": "侧边栏",
+        "title": "侧边栏和目录",
         "wrapTextInToc": "在目录中换行文本",
-        "tocPosition": "默认大纲位置",
+        "tocPosition": "默认目录位置",
         "tocLeft": "左侧",
         "tocRight": "右侧",
         "showOpenedFiles": "显示已打开文件",
@@ -484,25 +488,24 @@
           "newestFirst": "从新到旧"
         }
       },
-      "misc": {
-        "title": "杂项",
-        "language": {
-          "title": "语言",
-          "english": "English",
-          "chinese": "简体中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "语言",
+        "english": "English",
+        "chinese": "简体中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "界面语言"
+      },
+      "openingMode": "打开模式"
     },
     "editor": {
       "title": "编辑器",
@@ -511,7 +514,7 @@
         "fontSize": "字体大小",
         "lineHeight": "行高",
         "fontFamily": "字体系列",
-        "maxWidth": "最大宽度",
+        "maxWidth": "编辑器内容最大宽度",
         "maxWidthNotes": "编辑器内容的最大宽度。数字后需带单位 px、ch（字符数）或 %，例如 800px、80ch、60%。留空则使用默认宽度。",
         "maxWidthInvalid": "请输入数字并带上单位 px、ch 或 %，例如 800px。",
         "codeFontFamily": "代码字体",
@@ -519,12 +522,12 @@
       },
       "codeBlock": {
         "title": "代码块",
-        "fontSize": "字体大小",
+        "fontSize": "代码块字体大小",
         "showLineNumbers": "显示行号",
         "removeEmptyLines": "删除空行"
       },
       "writingBehavior": {
-        "title": "写作行为",
+        "title": "写作偏好",
         "autoCloseBrackets": "自动关闭括号",
         "autoCompleteMarkdown": "自动补全 Markdown 成对标记",
         "autoCloseQuotes": "自动关闭引号"
@@ -574,7 +577,7 @@
       "folderSetting": {
         "title": "文件夹设置",
         "globalFolder": "全局图片文件夹",
-        "open": "打开",
+        "open": "选择文件夹…",
         "showInFolder": "在文件夹中显示",
         "preferRelative": "首选相对目录",
         "relativeCopyLocation": "图片相对复制到",
@@ -585,22 +588,19 @@
       },
       "uploader": {
         "title": "图片上传器",
-        "currentUploader": "当前上传器：{name}",
-        "picgoNotInstalled": "PicGo 未安装",
-        "picgoInstalled": "PicGo 已安装",
-        "picgoDetectionFailed": "PicGo 检测失败",
+        "picgoNotInstalled": "PicGo-Core 未安装",
+        "picgoInstalled": "PicGo-Core 已安装",
+        "picgoDetectionFailed": "PicGo-Core 检测失败",
         "debugInfo": "调试信息",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "选择安装方式：",
-        "retestPicgo": "重新检测",
         "lastDetectionTime": "上次检测时间",
-        "picgoDetection": "PicGo 检测",
         "usageGuide": {
-          "title": "PicGo 基本使用说明",
+          "title": "PicGo-Core 基本使用说明",
           "step1": "配置上传器",
-          "step1Description": "使用以下命令配置 PicGo 上传器：",
+          "step1Description": "使用以下命令配置 PicGo-Core 上传器：",
           "step2": "上传图片",
           "step2Description": "使用以下命令上传图片：",
           "step3": "查看配置",
@@ -608,19 +608,15 @@
           "documentation": "查看完整文档"
         },
         "lastSuccessTime": "上次成功时间",
-        "neverDetected": "从未检测",
-        "neverSuccessful": "从未成功",
         "scriptDescription": "脚本描述",
         "scriptLocation": "脚本位置",
-        "save": "保存",
-        "saveConfig": "保存配置",
-        "scriptConfigSaved": "脚本配置已保存",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": "CLI 脚本"
         },
         "pleaseInstall": "请安装",
-        "scriptPath": "脚本路径"
+        "scriptPath": "脚本路径",
+        "invalidScript": "请输入存在且可执行的脚本路径。"
       },
       "defaultBehavior": "粘贴或拖拽图片到 MarkText 后的默认行为"
     },
@@ -630,7 +626,6 @@
         "title": "扩展",
         "superSubScript": "上标/下标",
         "footnote": "脚注",
-        "footnoteNotes": "脚注注释",
         "texMathDollars": "使用 $ 和 $$ 的 TeX 数学公式",
         "texMathGfm": "GitHub 的 TeX 数学公式（$`…`$ 和 ```math）",
         "texMathSingleBackslash": "使用单反斜杠分隔符的 TeX 数学公式",
@@ -695,7 +690,7 @@
     "theme": {
       "title": "主题",
       "followSystemTheme": "跟随系统外观",
-      "followSystemNote": "跟随系统主题时，下方主题列表不可切换。关闭后即可自由切换。",
+      "followSystemNote": "可以在下方分别选择深色模式和浅色模式下的主题。",
       "modeThemes": "主题选择",
       "lightModeTheme": "浅色模式主题",
       "darkModeTheme": "深色模式主题",
@@ -713,33 +708,25 @@
     },
     "keybindings": {
       "title": "快捷键",
-      "description": "自定义键盘快捷键",
-      "save": "保存",
+      "description": "要更改快捷键，请选中组合键，然后按下新的组合键",
       "restoreDefaults": "恢复默认",
       "debugOptions": "调试选项",
       "dumpKeyboardInfo": "转储键盘信息",
       "failedToSave": "保存快捷键失败",
-      "keyInputDialog": {
-        "instructions": "按下您要分配的组合键",
-        "invalidKeybinding": "无效的组合键",
-        "placeholder": "按键…"
-      },
-      "online": "在线",
+      "online": "快捷键文档",
       "saveError": "保存快捷键时出错",
       "shortcutInUse": "快捷键正在使用",
       "shortcutInUseMessage": "{accelerator} 已被“{commands}”使用。",
-      "table": {
-        "description": "描述",
-        "edit": "编辑",
-        "keyCombination": "组合键",
-        "options": "选项",
-        "reset": "重置",
-        "unbind": "解绑"
-      },
       "windowAndNavigation": "窗口与导航",
       "loadError": "无法加载快捷键。",
       "reload": "重新加载",
-      "viewConflict": "查看“{name}”"
+      "viewConflict": "查看“{name}”",
+      "editShortcut": "修改“{name}”的快捷键",
+      "unbound": "未绑定",
+      "recorder": {
+        "placeholder": "按下组合键",
+        "invalidKeybinding": "无效的组合键"
+      }
     },
     "selectFont": "选择字体",
     "spellchecker": {
@@ -756,12 +743,17 @@
       "defaultLanguage": "默认语言",
       "enableSpellChecking": "启用拼写检查",
       "hideMarksForErrors": "隐藏拼写错误标记",
-      "title": "拼写检查器"
+      "title": "拼写检查"
     },
     "explanations": {
       "taskCascade": "勾选或取消父任务时同步更新子任务；子任务状态变化时同步更新父任务。",
       "markdownPairs": "输入星号、下划线、反引号等 Markdown 标记时，自动补全配对标记。",
       "lineEndings": "用于新文件及混合或无法检测换行符的文件。已有 LF 或 CRLF 文件保留检测到的格式。"
+    },
+    "commandDetection": {
+      "checking": "检测中…",
+      "recheck": "重新检测",
+      "failed": "检测失败，请重新检测。"
     }
   },
   "about": {

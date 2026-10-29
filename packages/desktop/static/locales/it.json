@@ -430,10 +430,12 @@
         "hideScrollbars": "Nascondi le barre di scorrimento",
         "openFilesInNewWindow": "Apri i file in una nuova finestra",
         "openFoldersInNewWindow": "Apri le cartelle in una nuova finestra",
-        "zoom": "Zoom"
+        "zoom": "Zoom",
+        "openFilesInNewWindowNote": "Se attivata, i file si aprono in una nuova finestra. Altrimenti, si aprono in schede nella finestra corrente.",
+        "openFoldersInNewWindowNote": "Se attivata, le cartelle si aprono in una nuova finestra. Altrimenti, sostituiscono la cartella nella finestra corrente."
       },
       "startup": {
-        "title": "Opzioni di avvio",
+        "title": "Avvio e ripristino",
         "openDefaultDirectory": "Apri la cartella selezionata",
         "openLastFolder": "Apri l’ultimo spazio di lavoro",
         "restoreAll": "Ripristina tutte le finestre",
@@ -442,8 +444,11 @@
         "action": "All’avvio",
         "restoreLastWindow": "Ripristina l’ultima finestra attiva",
         "restoreLayoutState": "Ripristina la disposizione delle finestre",
+        "restoreLayoutStateNote": "Ripristina dimensioni, posizione e disposizione degli elementi come la barra laterale al riavvio.",
         "restoreEditors": "Ripristina i file aperti",
+        "restoreEditorsNote": "Riapre le schede dei file precedenti al riavvio.",
         "restoreViewState": "Ripristina le posizioni di lettura e le selezioni",
+        "restoreViewStateNote": "Ripristina l’ultima posizione di lettura e la selezione quando viene ripristinato un file.",
         "failure": "Impossibile salvare le impostazioni. Restano in uso quelle precedenti."
       },
       "pandoc": {
@@ -451,11 +456,10 @@
         "description": "Abilita la conversione Pandoc",
         "detailedDescription": "Mostra i comandi di conversione nel menu. Richiede l’installazione di Pandoc.",
         "found": "Trovato in: {path}",
-        "notFound": "Non trovato",
-        "recheck": "Controlla nuovamente"
+        "notFound": "Non trovato"
       },
       "sidebar": {
-        "title": "Barra laterale",
+        "title": "Barra laterale e indice",
         "wrapTextInToc": "Vai a capo nel sommario",
         "tocPosition": "Posizione del sommario",
         "tocLeft": "Sinistra",
@@ -484,25 +488,24 @@
           "newestFirst": "Prima il più recente"
         }
       },
-      "misc": {
-        "title": "Varie",
-        "language": {
-          "title": "Lingua",
-          "english": "English",
-          "chinese": "简体中文",
-          "traditionalChinese": "繁體中文",
-          "spanish": "Español",
-          "french": "Français",
-          "german": "Deutsch",
-          "japanese": "日本語",
-          "korean": "한국어",
-          "dutch": "Nederlands",
-          "portuguese": "Português",
-          "turkish": "Türkçe",
-          "russian": "Русский",
-          "italian": "Italiano"
-        }
-      }
+      "language": {
+        "title": "Lingua",
+        "english": "English",
+        "chinese": "简体中文",
+        "traditionalChinese": "繁體中文",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "dutch": "Nederlands",
+        "portuguese": "Português",
+        "turkish": "Türkçe",
+        "russian": "Русский",
+        "italian": "Italiano",
+        "label": "Lingua dell’interfaccia"
+      },
+      "openingMode": "Modalità di apertura"
     },
     "editor": {
       "title": "Editor",
@@ -511,7 +514,7 @@
         "fontSize": "Dimensione caratteri",
         "lineHeight": "Altezza riga",
         "fontFamily": "Famiglia di caratteri",
-        "maxWidth": "Larghezza massima",
+        "maxWidth": "Larghezza massima del contenuto dell’editor",
         "maxWidthNotes": "Larghezza massima del contenuto dell’editor. Inserire un numero seguito da: px (pixel), ch (caratteri) o % (percentuale). Per esempio: 800px, 80ch o 60%. Se la casella rimane vuota, viene usata la larghezza predefinita.",
         "maxWidthInvalid": "Inserisci un numero seguito da px, ch o %. Per esempio: 800px.",
         "codeFontFamily": "Famiglia di caratteri per la rappresentazione di codice",
@@ -519,12 +522,12 @@
       },
       "codeBlock": {
         "title": "Blocco di codice",
-        "fontSize": "Dimensione caratteri",
+        "fontSize": "Dimensione caratteri dei blocchi di codice",
         "showLineNumbers": "Mostra il numero di linea",
         "removeEmptyLines": "Rimozione delle linee vuote"
       },
       "writingBehavior": {
-        "title": "Comportamento in scrittura",
+        "title": "Preferenze di scrittura",
         "autoCloseBrackets": "Chiusura automatica delle parentesi",
         "autoCompleteMarkdown": "Completa le coppie di marcatori Markdown",
         "autoCloseQuotes": "Chiusura automatica delle virgolette"
@@ -574,7 +577,7 @@
       "folderSetting": {
         "title": "Impostazione cartella",
         "globalFolder": "Cartella globale per le immagini",
-        "open": "Apri",
+        "open": "Scegli cartella…",
         "showInFolder": "Mostra nella cartella",
         "preferRelative": "Preferenza per una destinazione ‘relativa’ delle immagini",
         "relativeCopyLocation": "Copia l’immagine relativamente",
@@ -585,22 +588,19 @@
       },
       "uploader": {
         "title": "Caricatore di immagini",
-        "currentUploader": "Caricatore corrente: {name}",
-        "picgoNotInstalled": "PicGo non è installato",
-        "picgoInstalled": "PicGo è installato",
-        "picgoDetectionFailed": "Rilevamento di PicGo non riuscito",
+        "picgoNotInstalled": "PicGo-Core non è installato",
+        "picgoInstalled": "PicGo-Core è installato",
+        "picgoDetectionFailed": "Rilevamento di PicGo-Core non riuscito",
         "debugInfo": "Informazioni di debug",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Scegli il metodo di installazione:",
-        "retestPicgo": "Riprova",
         "lastDetectionTime": "Ultimo rilevamento",
-        "picgoDetection": "Rilevamento di PicGo",
         "usageGuide": {
-          "title": "Guida rapida di PicGo",
+          "title": "Guida rapida di PicGo-Core",
           "step1": "Configura il caricatore",
-          "step1Description": "Usa il seguente comando per configurare il caricatore PicGo:",
+          "step1Description": "Usa il seguente comando per configurare il caricatore PicGo-Core:",
           "step2": "Carica le immagini",
           "step2Description": "Usa il seguente comando per caricare le immagini:",
           "step3": "Visualizza configurazione",
@@ -608,19 +608,15 @@
           "documentation": "Visualizza la documentazione completa"
         },
         "lastSuccessTime": "Ultima esecuzione riuscita",
-        "neverDetected": "Mai rilevato",
-        "neverSuccessful": "Mai riuscito",
         "scriptDescription": "Descrizione script",
         "scriptLocation": "Localizzazione script",
-        "save": "Salva",
-        "saveConfig": "Salva configurazione",
-        "scriptConfigSaved": "Script di configurazione salvato",
         "services": {
-          "picgo": "PicGo",
+          "picgo": "PicGo-Core",
           "cliScript": " Script CLI"
         },
         "pleaseInstall": "Installare, prego…",
-        "scriptPath": "Percorso (path) dello script"
+        "scriptPath": "Percorso (path) dello script",
+        "invalidScript": "Inserisci il percorso di uno script esistente ed eseguibile."
       },
       "defaultBehavior": "Comportamento predefinito dopo aver incollato o trascinato un’immagine in MarkText"
     },
@@ -630,7 +626,6 @@
         "title": "Estensioni",
         "superSubScript": "Apice/Pedice",
         "footnote": "Nota a piè di pagina",
-        "footnoteNotes": "Informazioni sulle Note a piè di pagina.",
         "texMathDollars": "Espressioni matematiche TeX con: $ e $$",
         "texMathGfm": "Espressioni matematiche TeX tipo GitHub: ($`…`$ e ```math)",
         "texMathSingleBackslash": "Delimitatori di espressione matematica TeX con singola barra rovesciata",
@@ -695,7 +690,7 @@
     "theme": {
       "title": "Tema",
       "followSystemTheme": "Segui l’aspetto del sistema",
-      "followSystemNote": "Se si segue il tema di sistema, viene impedito l’accesso al sottostante elenco di temi alternativi. Disattivare tale opzione per poter cambiare tema liberamente.",
+      "followSystemNote": "Scegli qui sotto temi distinti per le modalità scura e chiara.",
       "modeThemes": "Selezione tema",
       "lightModeTheme": "Tema chiaro",
       "darkModeTheme": "Tema scuro",
@@ -713,33 +708,25 @@
     },
     "keybindings": {
       "title": "Combinazione di tasti",
-      "description": "Personalizza le scorciatoie da tastiera",
-      "save": "Salva",
+      "description": "Per modificare una scorciatoia, seleziona la combinazione di tasti e premi la nuova combinazione",
       "restoreDefaults": "Ripristina i valori predefiniti",
       "debugOptions": "Opzioni di debug",
       "dumpKeyboardInfo": "Scarica informazioni sulla tastiera",
       "failedToSave": "Salvataggio della combinazione di tasti non riuscito",
-      "keyInputDialog": {
-        "instructions": "Premere la combinazione di tasti che si vuole assegnare",
-        "invalidKeybinding": "Combinazione di tasti non valida",
-        "placeholder": "Premere i tasti…"
-      },
-      "online": "Online",
+      "online": "Documentazione delle scorciatoie da tastiera",
       "saveError": "Errore durante il salvataggio della combinazione di tasti",
       "shortcutInUse": "Scorciatoia già in uso",
       "shortcutInUseMessage": "{accelerator} è già assegnato a {commands}.",
-      "table": {
-        "description": "Descrizione",
-        "edit": "Modifica",
-        "keyCombination": "Combinazione di tasti",
-        "options": "Opzioni",
-        "reset": "Azzera",
-        "unbind": "Scollega la combinazione"
-      },
       "windowAndNavigation": "Finestre e navigazione",
       "loadError": "Impossibile caricare le scorciatoie da tastiera.",
       "reload": "Ricarica",
-      "viewConflict": "Visualizza {name}"
+      "viewConflict": "Visualizza {name}",
+      "editShortcut": "Modifica scorciatoia per {name}",
+      "unbound": "Non assegnata",
+      "recorder": {
+        "placeholder": "Premi la combinazione di tasti",
+        "invalidKeybinding": "Combinazione di tasti non valida"
+      }
     },
     "selectFont": "Selezione caratteri",
     "spellchecker": {
@@ -762,6 +749,11 @@
       "taskCascade": "Selezionare un’attività principale aggiorna le sottoattività; modificarle aggiorna l’attività principale.",
       "markdownPairs": "Completa le coppie di marcatori Markdown, come asterischi, trattini bassi e accenti gravi, durante la digitazione.",
       "lineEndings": "Usata per nuovi file e file con terminazioni miste o non rilevate. I file LF o CRLF mantengono il formato rilevato."
+    },
+    "commandDetection": {
+      "checking": "Verifica in corso…",
+      "recheck": "Verifica di nuovo",
+      "failed": "Rilevamento non riuscito. Riprova."
     }
   },
   "about": {

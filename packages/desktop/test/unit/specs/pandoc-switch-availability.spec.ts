@@ -49,8 +49,11 @@ describe('Pandoc switch availability', () => {
   it('defines the messages the pane reads on its own', () => {
     const messages = JSON.parse(readFileSync(join(pkg, 'static/locales/en.json'), 'utf8'))
     const general = messages.preferences.general.pandoc as Record<string, string>
-    for (const key of ['title', 'description', 'detailedDescription', 'recheck']) {
+    for (const key of ['title', 'description', 'detailedDescription']) {
       expect(general[key]).toBeTypeOf('string')
+    }
+    for (const key of ['checking', 'recheck', 'failed']) {
+      expect(messages.preferences.commandDetection[key]).toBeTypeOf('string')
     }
   })
 })

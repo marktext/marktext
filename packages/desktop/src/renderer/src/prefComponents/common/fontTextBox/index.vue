@@ -9,11 +9,12 @@
     <template #default="{ descriptionId }">
       <el-autocomplete
         v-model="selectValue"
+        :show-arrow="false"
         :aria-label="description"
         :aria-describedby="descriptionId"
         :disabled="disable"
         class="font-autocomplete"
-        popper-class="font-autocomplete-popper"
+        popper-class="pref-dropdown font-autocomplete-popper"
         :fetch-suggestions="querySearch"
         :placeholder="t('preferences.selectFont')"
         @select="handleSelect"
@@ -96,11 +97,3 @@ onMounted(async () => {
   fontFamilies.value = withBundledFonts(systemFonts, props.onlyMonospace)
 })
 </script>
-
-<style>
-.font-autocomplete-popper {
-  background: var(--floatBgColor);
-  border-color: var(--floatBorderColor);
-  color: var(--editorColor);
-}
-</style>

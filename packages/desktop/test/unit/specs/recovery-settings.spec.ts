@@ -60,7 +60,7 @@ describe('startup recovery settings', () => {
       preferences: { ...RECOVERY_DEFAULTS, ...patch } as UserPreferences
     }))
     const { root, value } = mount(update)
-    expect(root.querySelector('.pref-compound-item h6.title')?.textContent).toBe('Startup Options')
+    expect(root.querySelector('.pref-compound-item h6.title')?.textContent).toBe('Startup and recovery')
     expect(root.querySelectorAll('.el-switch')).toHaveLength(3)
     expect(root.querySelector('select')).toBeNull()
     expect(root.querySelector('.startup-directory')).toBeNull()

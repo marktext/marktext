@@ -9,10 +9,12 @@ export interface PreferenceDefinition {
   platform?: 'mac' | 'other'
   aliases?: string[]
   fallback?: string
+  section?: 'imageFolder' | 'imageUploader'
 }
 
 // IDs are persisted keys where available; auxiliary controls use stable UI IDs.
 export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
+  "imageInsertAction": { "category": "images", "label": "preferences.image.defaultBehavior" },
   "defaultOpenMode": {
     "category": "general",
     "label": "readingMode.defaultMode",
@@ -38,42 +40,44 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
   },
   "openFilesInNewWindow": {
     "category": "general",
-    "label": "preferences.general.window.openFilesInNewWindow"
+    "label": "preferences.general.window.openFilesInNewWindow",
+    "notes": "preferences.general.window.openFilesInNewWindowNote"
   },
   "openFolderInNewWindow": {
     "category": "general",
-    "label": "preferences.general.window.openFoldersInNewWindow"
+    "label": "preferences.general.window.openFoldersInNewWindow",
+    "notes": "preferences.general.window.openFoldersInNewWindowNote"
   },
   "zoom": {
     "category": "appearance",
     "label": "preferences.general.window.zoom"
   },
   "tocPosition": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.tocPosition"
   },
   "wordWrapInToc": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.wrapTextInToc"
   },
   "openedFilesInSidebar": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.showOpenedFiles"
   },
   "autoRevealInSidebar": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.autoReveal"
   },
   "openFilesInPreviewMode": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.openFilesInPreviewMode"
   },
   "fileSortBy": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.fileSortBy.title"
   },
   "fileSortOrder": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.fileSortOrder.title"
   },
   "showPandocConvert": {
@@ -82,7 +86,7 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
   },
   "language": {
     "category": "general",
-    "label": "preferences.general.misc.language.title"
+    "label": "preferences.general.language.label"
   },
   "fontSize": {
     "category": "appearance",
@@ -211,8 +215,7 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
   },
   "footnote": {
     "category": "markdown",
-    "label": "preferences.markdown.extensions.footnote",
-    "notes": "preferences.markdown.extensions.footnoteNotes"
+    "label": "preferences.markdown.extensions.footnote"
   },
   "texMathDollars": {
     "category": "markdown",
@@ -297,15 +300,22 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
     "fallback": "followSystemTheme"
   },
   "imagePreferRelativeDirectory": {
+    "section": "imageFolder",
     "category": "images",
     "label": "preferences.image.folderSetting.preferRelative"
   },
   "imageRelativeDirectoryName": {
+    "section": "imageFolder",
     "category": "images",
     "label": "preferences.image.folderSetting.relativeFolderName"
   },
+  "imageRelativeDirectoryBase": {
+    "section": "imageFolder",
+    "category": "images",
+    "label": "preferences.image.folderSetting.relativeCopyLocation"
+  },
   "treePathExcludePatterns": {
-    "category": "files",
+    "category": "general",
     "label": "preferences.general.sidebar.excludePatterns",
     "notes": "preferences.general.sidebar.excludePatternsNotes"
   },
@@ -320,15 +330,18 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
   },
   "restoreLayoutState": {
     "category": "files",
-    "label": "preferences.general.startup.restoreLayoutState"
+    "label": "preferences.general.startup.restoreLayoutState",
+    "notes": "preferences.general.startup.restoreLayoutStateNote"
   },
   "restoreEditors": {
     "category": "files",
-    "label": "preferences.general.startup.restoreEditors"
+    "label": "preferences.general.startup.restoreEditors",
+    "notes": "preferences.general.startup.restoreEditorsNote"
   },
   "restoreViewState": {
     "category": "files",
-    "label": "preferences.general.startup.restoreViewState"
+    "label": "preferences.general.startup.restoreViewState",
+    "notes": "preferences.general.startup.restoreViewStateNote"
   },
   "spellcheckerEnabled": {
     "category": "editor",
@@ -359,14 +372,17 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
     "label": "preferences.theme.customCss"
   },
   "imageUploader": {
+    "section": "imageUploader",
     "category": "images",
     "label": "preferences.image.uploader.title"
   },
   "imageFolderPath": {
+    "section": "imageFolder",
     "category": "images",
     "label": "preferences.image.folderSetting.globalFolder"
   },
   "cliScript": {
+    "section": "imageUploader",
     "category": "images",
     "label": "preferences.image.uploader.scriptLocation",
     "fallback": "imageUploader"
