@@ -19,13 +19,12 @@
           <LinkIcon :size="14" />
         </button>
       </div>
-      <div
+      <setting-note
         v-if="notes"
         :id="notesId"
-        class="notes"
       >
         {{ notes }}
-      </div>
+      </setting-note>
     </div>
     <div class="pref-setting-control">
       <slot :description-id="notes ? notesId : undefined" />
@@ -35,6 +34,7 @@
 
 <script setup lang="ts">
 import { useId } from 'vue'
+import SettingNote from './settingNote.vue'
 import './controlSizing.css'
 import { useI18n } from 'vue-i18n'
 import LinkIcon from '@/components/icons/LinkIcon.vue'

@@ -1,17 +1,17 @@
 <template>
   <div class="pref-keybindings">
     <h4>{{ t('preferences.keybindings.title') }}</h4>
-    <div class="shortcut-introduction">
-      <p>{{ t('preferences.keybindings.description') }}</p>
+    <setting-note class="shortcut-introduction">
+      {{ t('preferences.keybindings.description') }}
       <button
         type="button"
         class="plain-button shortcut-docs"
         :aria-label="t('preferences.keybindings.online')"
         @click="openKeybindingDocs"
       >
-        <LinkIcon :size="16" />
+        <LinkIcon :size="14" />
       </button>
-    </div>
+    </setting-note>
     <div
       class="shortcut-content"
       :aria-busy="loading"
@@ -100,6 +100,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, watch, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
+import SettingNote from '../common/settingNote.vue'
 import ShortcutRecorder from './shortcutRecorder.vue'
 import type { UiKeybinding } from './KeybindingConfigurator'
 import { useKeybindingsStore } from '@/store/keybindings'
@@ -192,27 +193,16 @@ const dumpKeyboardInformation = (): void => {
   margin-bottom: var(--shortcut-footer-height);
   color: var(--editorColor);
 }
-.shortcut-introduction {
-  margin: 20px 0 28px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--editorColor80);
-  font-size: 14px;
-  line-height: 1.6;
-}
-.shortcut-introduction p { margin: 0; }
+.shortcut-introduction { margin: 20px 0 28px; }
 .shortcut-docs {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  border-radius: 6px;
-  color: var(--editorColor80);
+  margin-left: 4px;
+  vertical-align: -2px;
+  border-radius: 4px;
+  color: var(--iconColor);
 }
-
 .shortcut-content { container-type: inline-size; }
 .shortcut-group + .shortcut-group { margin-top: 28px; }
 .shortcut-group h5 {
