@@ -1,7 +1,19 @@
 <template>
   <div class="pref-keybindings">
     <h4>{{ t('preferences.keybindings.title') }}</h4>
-    <section class="keybindings">
+    <p
+      v-if="loadError"
+      role="alert"
+    >
+      {{ t('preferences.keybindings.loadError') }}
+      <el-button @click="keybindings.ensureLoaded()">
+        {{ t('preferences.keybindings.reload') }}
+      </el-button>
+    </p>
+    <section
+      class="keybindings"
+      :aria-busy="loading"
+    >
       <div class="text">
         {{ t('preferences.keybindings.description') }}
         <icon-tooltip :content="t('preferences.keybindings.online')">
@@ -26,7 +38,11 @@
           prop="description"
           :label="t('preferences.keybindings.table.description')"
           min-width="220"
-        />
+        >
+          <template #default="scope">
+            <span :id="settingTargetId(keybindingKey(scope.row.id))">{{ scope.row.description }}</span>
+          </template>
+        </el-table-column>
         <el-table-column
           prop="accelerator"
           :label="t('preferences.keybindings.table.keyCombination')"
@@ -116,141 +132,40 @@
 </template>
 
 <script setup lang="ts">
-import log from 'electron-log'
-import { setKeyboardLayout } from 'common/localShortcut'
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import Separator from '../common/separator/index.vue'
 import KeyInputDialog from './key-input-dialog.vue'
-import KeybindingConfigurator from './KeybindingConfigurator'
 import type { UiKeybinding } from './KeybindingConfigurator'
-import notice from '@/services/notification'
+import { useKeybindingsStore } from '@/store/keybindings'
+import { keybindingKey } from './groups'
+import { settingTargetId } from '../settingLocation'
 import { Edit, RefreshRight, Delete } from '@element-plus/icons-vue'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
 import IconTooltip from '@/components/iconTooltip/index.vue'
 import { useI18n } from 'vue-i18n'
 
-const { t, locale } = useI18n()
-
-const showDebugTools = ref<boolean>(false)
-const keybindingConfigurator = ref<KeybindingConfigurator | null>(null)
+const { t } = useI18n()
+const keybindings = useKeybindingsStore()
+const { commands: keybindingList, saving: isSaving, loading, loadError } = storeToRefs(keybindings)
 const selectedShortcutId = ref<string | null>(null)
-const isSaving = ref(false)
-const keybindingList = ref<UiKeybinding[]>([])
-
-const rebuildKeybindingList = (): void => {
-  if (keybindingConfigurator.value) {
-    keybindingList.value = keybindingConfigurator.value.rebuildKeybindingList()
-  }
-}
-
-watch(locale, () => {
-  rebuildKeybindingList()
-})
-
-onMounted(() => {
-  window.electron.ipcRenderer
-    .invoke('mt::keybinding-get-keyboard-info')
-    .then(({ layout, keymap }) => {
-      // Update the key mapper to prevent problems on non-US keyboards.
-      setKeyboardLayout(layout, keymap)
-    })
-    .catch((error) => log.error('Error while loading keyboard information for settings:', error))
-
-  window.electron.ipcRenderer
-    .invoke('mt::keybinding-get-pref-keybindings')
-    .then(({ defaultKeybindings, userKeybindings }) => {
-      const configurator = new KeybindingConfigurator(defaultKeybindings, userKeybindings)
-      keybindingConfigurator.value = configurator
-      keybindingList.value = configurator.getKeybindings()
-    })
-    .catch((error) => log.error('Error while loading keyboard information for settings:', error))
-
-  // Show keyboard debugging tools which has been moved from CLI because we
-  // need an active window on Windows.
-  showDebugTools.value = Boolean(window.marktext?.env?.debug)
-})
-
-onUnmounted(() => {
-  keybindingList.value = []
-  keybindingConfigurator.value = null
-})
+const showDebugTools = Boolean(window.marktext?.env?.debug)
+onMounted(() => { void keybindings.ensureLoaded() })
 
 const openKeybindingDocs = (): void => {
-  window.electron.shell.openExternal(
-    'https://marktext.me/docs/key-bindings'
-  )
+  window.electron.shell.openExternal('https://marktext.me/docs/key-bindings')
 }
-
-const persistKeybindings = async(save: () => Promise<boolean>): Promise<void> => {
-  if (isSaving.value) return
-  isSaving.value = true
-  try {
-    if (await save()) return
-  } catch (error) {
-    log.error(error)
-  } finally {
-    isSaving.value = false
-  }
-  notice.notify({
-    title: t('preferences.keybindings.failedToSave'),
-    type: 'error',
-    message: t('preferences.keybindings.saveError')
-  })
+const restoreDefaults = (): void => { void keybindings.resetAll() }
+const handleEditClick = (_index: number, entry: UiKeybinding): void => {
+  if (!isSaving.value) selectedShortcutId.value = entry.id
 }
-
-const saveKeybindings = (): void => {
-  const configurator = keybindingConfigurator.value
-  if (configurator) void persistKeybindings(() => configurator.save())
-}
-
-const restoreDefaults = (): void => {
-  const configurator = keybindingConfigurator.value
-  if (configurator) void persistKeybindings(() => configurator.resetAll())
-}
-
-const handleEditClick = (index: number, entry: UiKeybinding | undefined): void => {
-  if (!isSaving.value && index >= 0 && entry) {
-    selectedShortcutId.value = entry.id
-  }
-}
-
-const handleResetClick = (_index: number, entry: UiKeybinding): void => {
-  if (isSaving.value || !keybindingConfigurator.value) return
-  const { id } = entry
-  const success = keybindingConfigurator.value.resetToDefault(id)
-  if (!success) {
-    handleDuplicateShortcut(id, keybindingConfigurator.value.getDefaultAccelerator(id) ?? '')
-  } else {
-    saveKeybindings()
-  }
-}
-
-const handleUnbindClick = (_index: number, entry: UiKeybinding): void => {
-  if (isSaving.value) return
-  if (keybindingConfigurator.value?.unbind(entry.id)) saveKeybindings()
-}
-
+const handleResetClick = (_index: number, entry: UiKeybinding): void => { void keybindings.reset(entry.id) }
+const handleUnbindClick = (_index: number, entry: UiKeybinding): void => { void keybindings.unbind(entry.id) }
 const onKeybinding = (value: string | null): void => {
-  const selectedId = selectedShortcutId.value
-  if (!isSaving.value && value && selectedId && keybindingConfigurator.value) {
-    const success = keybindingConfigurator.value.change(selectedId, value)
-    if (!success) {
-      handleDuplicateShortcut(selectedId, value)
-    } else {
-      saveKeybindings()
-    }
-  }
+  const id = selectedShortcutId.value
   selectedShortcutId.value = null
+  if (id && value) void keybindings.change(id, value)
 }
-
-const handleDuplicateShortcut = (_id: string, accelerator: string): void => {
-  notice.notify({
-    title: t('preferences.keybindings.shortcutInUse'),
-    type: 'warning',
-    message: t('preferences.keybindings.shortcutInUseMessage', { accelerator })
-  })
-}
-
 const dumpKeyboardInformation = (): void => {
   window.electron.ipcRenderer.send('mt::keybinding-debug-dump-keyboard-info')
 }

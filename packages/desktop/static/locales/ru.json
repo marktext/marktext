@@ -820,7 +820,10 @@
         "options": "Параметры",
         "reset": "Сбросить",
         "unbind": "Отвязать"
-      }
+      },
+      "windowAndNavigation": "Окна и навигация",
+      "loadError": "Не удалось загрузить сочетания клавиш.",
+      "reload": "Загрузить заново"
     },
     "selectFont": "Выбрать шрифт",
     "spellchecker": {

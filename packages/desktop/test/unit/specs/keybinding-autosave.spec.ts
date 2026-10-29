@@ -1,156 +1,87 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import { dirname, resolve } from 'node:path'
-import { parse, compileScript } from 'vue/compiler-sfc'
-import { ref } from 'vue'
-import ts from 'typescript'
-import KeybindingConfigurator from '@/prefComponents/keybindings/KeybindingConfigurator'
-import type { UiKeybinding } from '@/prefComponents/keybindings/KeybindingConfigurator'
+import { createPinia, setActivePinia } from 'pinia'
+import { useKeybindingsStore } from '@/store/keybindings'
 
-vi.mock('@/commands/descriptions', () => ({ default: (id: string) => id }))
+const { notify } = vi.hoisted(() => ({ notify: vi.fn() }))
+vi.mock('@/services/notification', () => ({ default: { notify } }))
+vi.mock('electron-log', () => ({ default: { error: vi.fn() } }))
+vi.mock('common/localShortcut', () => ({ setKeyboardLayout: vi.fn() }))
 vi.mock('@/util', () => ({ isMac: true }))
+vi.mock('@/i18n', async() => {
+  const { ref } = await import('vue')
+  return { t: (key: string) => key, i18n: { global: { locale: ref('en') } } }
+})
 
-interface Bindings {
-  keybindingConfigurator: { value: KeybindingConfigurator | null }
-  selectedShortcutId: { value: string | null }
-  isSaving: { value: boolean }
-  onKeybinding: (value: string | null) => void
-  handleResetClick: (index: number, entry: UiKeybinding) => void
-  handleUnbindClick: (index: number, entry: UiKeybinding) => void
-  restoreDefaults: () => void
-}
-
-// The unit runner has no Vue SFC plugin; execute the real setup with Vue refs
-// and the real configurator, replacing only the surrounding UI services.
-const source = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)),
-  '../../../src/renderer/src/prefComponents/keybindings/index.vue'), 'utf8')
-const { descriptor } = parse(source)
-const compiled = compileScript(descriptor, { id: 'keybinding-autosave' })
-const syntax = ts.createSourceFile('keybindings.ts', compiled.content, ts.ScriptTarget.Latest, true)
-const noImports = syntax.statements
-  .filter((statement) => !ts.isImportDeclaration(statement))
-  .map((statement) => statement.getFullText(syntax))
-  .join('\n')
-const js = ts.transpileModule(noImports, {
-  compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 }
-}).outputText
-const factory = new Function('__deps', 'exports', 'module', `
-  const { _defineComponent, ref, onMounted, onUnmounted, watch, useI18n,
-    log, notice, KeybindingConfigurator, setKeyboardLayout, Separator,
-    KeyInputDialog, Edit, RefreshRight, Delete, LinkIcon, IconTooltip } = __deps
-  ${js}
-  return module.exports
-`) as (deps: Record<string, unknown>, exports: object, module: object) => {
-  default: { setup: (props: object, ctx: { expose: () => void }) => Bindings }
-}
-
-const boot = () => {
-  const invoke = vi.fn().mockResolvedValue(true)
+const boot = async() => {
+  setActivePinia(createPinia())
+  notify.mockClear()
+  const save = vi.fn().mockResolvedValue(true)
+  const invoke = vi.fn(async(channel: string, bindings?: unknown) => {
+    if (channel === 'mt::keybinding-get-keyboard-info') return { layout: {}, keymap: {} }
+    if (channel === 'mt::keybinding-get-pref-keybindings') return {
+      defaultKeybindings: new Map([['file.save', 'Ctrl+S'], ['file.open-file', 'Ctrl+O']]),
+      userKeybindings: new Map([['file.save', 'Ctrl+Alt+S']])
+    }
+    if (channel === 'mt::keybinding-save-user-keybindings') return save(bindings)
+    throw new Error(channel)
+  })
   vi.stubGlobal('electron', { ipcRenderer: { invoke } })
-  const notify = vi.fn()
-  const logError = vi.fn()
-  const module = { exports: {} }
-  const component = factory({
-    _defineComponent: (options: unknown) => options,
-    ref,
-    onMounted: () => {},
-    onUnmounted: () => {},
-    watch: () => {},
-    useI18n: () => ({ t: (key: string) => key, locale: ref('en') }),
-    log: { error: logError },
-    notice: { notify },
-    KeybindingConfigurator
-  }, module.exports, module).default
-  const bindings = component.setup({}, { expose: () => {} })
-  bindings.keybindingConfigurator.value = new KeybindingConfigurator(
-    new Map([['file.save', 'Ctrl+S'], ['file.open', 'Ctrl+O']]),
-    new Map([['file.save', 'Ctrl+Alt+S']])
-  )
-  const entry = bindings.keybindingConfigurator.value.getKeybindings()
-    .find((entry) => entry.id === 'file.save')
-  if (!entry) throw new Error('Missing save shortcut')
-  return { bindings, invoke, notify, logError, entry }
+  const store = useKeybindingsStore()
+  await Promise.all([store.ensureLoaded(), store.ensureLoaded()])
+  return { store, save, invoke }
 }
-
 afterEach(() => vi.unstubAllGlobals())
 
-describe('keybinding settings autosave', () => {
-  it('persists a confirmed edit without a separate save action', async() => {
-    const { bindings, invoke } = boot()
-    bindings.selectedShortcutId.value = 'file.save'
-    bindings.onKeybinding('Ctrl+Shift+S')
-    await vi.waitFor(() => expect(bindings.isSaving.value).toBe(false))
-    expect(invoke).toHaveBeenCalledWith('mt::keybinding-save-user-keybindings',
-      new Map([['file.save', 'Ctrl+Shift+S']]))
-    expect(bindings.selectedShortcutId.value).toBeNull()
+describe('shared shortcut persistence and search data', () => {
+  it('loads once before opening the shortcut page and persists a confirmed edit', async() => {
+    const { store, save, invoke } = await boot()
+    expect(invoke.mock.calls.filter(([channel]) => channel === 'mt::keybinding-get-pref-keybindings')).toHaveLength(1)
+    await store.change('file.save', 'Ctrl+Shift+S')
+    expect(save).toHaveBeenCalledWith(new Map([['file.save', 'Ctrl+Shift+S']]))
+    expect(store.commands.find(command => command.id === 'file.save')?.accelerator).toBe('Ctrl+Shift+S')
   })
-
-  it('persists unbinding and resetting a single shortcut', async() => {
-    const { bindings, invoke, entry } = boot()
-    bindings.handleUnbindClick(0, entry)
-    await vi.waitFor(() => expect(bindings.isSaving.value).toBe(false))
-    expect(invoke).toHaveBeenLastCalledWith('mt::keybinding-save-user-keybindings',
-      new Map([['file.save', '']]))
-    bindings.handleResetClick(0, entry)
-    await vi.waitFor(() => expect(bindings.isSaving.value).toBe(false))
-    expect(invoke).toHaveBeenLastCalledWith('mt::keybinding-save-user-keybindings', new Map())
+  it('persists unbinding, resetting a single shortcut and restoring all defaults', async() => {
+    const { store, save } = await boot()
+    await store.unbind('file.save')
+    expect(save).toHaveBeenLastCalledWith(new Map([['file.save', '']]))
+    await store.reset('file.save')
+    expect(save).toHaveBeenLastCalledWith(new Map())
+    await store.change('file.save', 'Ctrl+Shift+S')
+    await store.resetAll()
+    expect(save).toHaveBeenLastCalledWith(new Map())
   })
-
-  it('persists restoring all defaults', async() => {
-    const { bindings, invoke } = boot()
-    bindings.restoreDefaults()
-    await vi.waitFor(() => expect(bindings.isSaving.value).toBe(false))
-    expect(invoke).toHaveBeenCalledWith('mt::keybinding-save-user-keybindings', new Map())
-  })
-
-  it('rejects conflicts and ignores cancelled edits without saving', () => {
-    const { bindings, invoke, notify, entry } = boot()
-    bindings.selectedShortcutId.value = 'file.save'
-    bindings.onKeybinding('Ctrl+O')
-    expect(entry.accelerator).toBe('Ctrl+Alt+S')
+  it('rejects conflicts without saving and accepts a command’s own binding', async() => {
+    const { store, save } = await boot()
+    await store.change('file.save', 'Ctrl+O')
+    expect(save).not.toHaveBeenCalled()
     expect(notify).toHaveBeenCalledWith(expect.objectContaining({ type: 'warning' }))
-    bindings.selectedShortcutId.value = 'file.save'
-    bindings.onKeybinding(null)
-    expect(invoke).not.toHaveBeenCalled()
+    expect(store.commands.find(command => command.id === 'file.save')?.accelerator).toBe('Ctrl+Alt+S')
+    await store.change('file.save', 'Ctrl+Alt+S')
+    expect(save).toHaveBeenCalledOnce()
   })
-
-  it('accepts the existing shortcut without reporting a conflict', async() => {
-    const { bindings, notify } = boot()
-    bindings.selectedShortcutId.value = 'file.save'
-    bindings.onKeybinding('Ctrl+Alt+S')
-    await vi.waitFor(() => expect(bindings.isSaving.value).toBe(false))
-    expect(notify).not.toHaveBeenCalled()
-  })
-
-  it('prevents overlapping saves until the current write finishes', async() => {
-    const { bindings, invoke, entry } = boot()
-    let finish!: (success: boolean) => void
-    invoke.mockImplementationOnce(() => new Promise<boolean>((resolve) => { finish = resolve }))
-    bindings.handleUnbindClick(0, entry)
-    expect(bindings.isSaving.value).toBe(true)
-    bindings.handleResetClick(0, entry)
-    bindings.restoreDefaults()
-    expect(invoke).toHaveBeenCalledTimes(1)
-    expect(entry.accelerator).toBe('')
+  it('prevents overlapping saves and publishes search data only after acknowledgement', async() => {
+    const { store, save } = await boot()
+    let finish: (success: boolean) => void = () => {}
+    save.mockImplementationOnce(() => new Promise<boolean>(resolve => { finish = resolve }))
+    const pending = store.unbind('file.save')
+    expect(store.saving).toBe(true)
+    await store.reset('file.save')
+    await store.resetAll()
+    expect(save).toHaveBeenCalledOnce()
+    expect(store.commands.find(command => command.id === 'file.save')?.accelerator).toBe('Ctrl+Alt+S')
     finish(true)
-    await vi.waitFor(() => expect(bindings.isSaving.value).toBe(false))
-    bindings.handleResetClick(0, entry)
-    await vi.waitFor(() => expect(bindings.isSaving.value).toBe(false))
-    expect(invoke).toHaveBeenCalledTimes(2)
+    await pending
+    expect(store.commands.find(command => command.id === 'file.save')?.accelerator).toBe('')
   })
-
-  it.each(['false', 'rejected'])('reports a %s save and allows retrying', async(failure) => {
-    const { bindings, invoke, notify, entry } = boot()
-    if (failure === 'false') invoke.mockResolvedValueOnce(false)
-    else invoke.mockRejectedValueOnce(new Error('IPC failure'))
-    bindings.handleUnbindClick(0, entry)
-    await vi.waitFor(() => expect(notify).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'error' })
-    ))
-    expect(bindings.isSaving.value).toBe(false)
-    bindings.handleUnbindClick(0, entry)
-    await vi.waitFor(() => expect(bindings.isSaving.value).toBe(false))
-    expect(invoke).toHaveBeenCalledTimes(2)
+  it.each(['false', 'rejected'])('restores confirmed bindings after a %s save', async(failure) => {
+    const { store, save } = await boot()
+    if (failure === 'false') save.mockResolvedValueOnce(false)
+    else save.mockRejectedValueOnce(new Error('IPC failure'))
+    await store.unbind('file.save')
+    expect(store.commands.find(command => command.id === 'file.save')?.accelerator).toBe('Ctrl+Alt+S')
+    expect(notify).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+    expect(store.saving).toBe(false)
+    await store.unbind('file.save')
+    expect(save).toHaveBeenCalledTimes(2)
   })
 })

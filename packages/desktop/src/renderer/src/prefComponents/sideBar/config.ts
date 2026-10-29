@@ -8,6 +8,7 @@ import {
   Operation as KeyBindingIcon
 } from '@element-plus/icons-vue'
 
+import { isEqualAccelerator } from 'common/keybinding'
 import schema from '@shared/preferences/schema.json'
 import type { PreferenceSchemaEntry } from '@shared/types/preferences'
 import { t } from '@/i18n'
@@ -105,6 +106,8 @@ export const getTranslatedSearchContent = (): SearchEntry[] =>
     })
 
 export const matchesSearch = (entry: SearchEntry, query: string): boolean => {
+  const acceleratorQuery = query.trim().replace(/⌘/g, 'Command+').replace(/⌃/g, 'Ctrl+').replace(/⇧/g, 'Shift+').replace(/⌥/g, 'Alt+')
+  if (entry.accelerator && isEqualAccelerator(entry.accelerator, acceleratorQuery)) return true
   const content = [entry.preference, entry.category, entry.preferenceEn, entry.categoryEn, ...entry.keywords]
     .join(' ').toLocaleLowerCase()
   return query.trim().toLocaleLowerCase().split(/\s+/).every(word => content.includes(word))

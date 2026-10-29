@@ -820,7 +820,10 @@
         "options": "Options",
         "reset": "Réinitialiser",
         "unbind": "Délier"
-      }
+      },
+      "windowAndNavigation": "Fenêtres et navigation",
+      "loadError": "Impossible de charger les raccourcis clavier.",
+      "reload": "Recharger"
     },
     "selectFont": "Sélectionner une police",
     "spellchecker": {

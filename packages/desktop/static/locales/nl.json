@@ -820,7 +820,10 @@
         "options": "Opties",
         "reset": "Herstellen",
         "unbind": "Loskoppelen"
-      }
+      },
+      "windowAndNavigation": "Vensters en navigatie",
+      "loadError": "Sneltoetsen konden niet worden geladen.",
+      "reload": "Opnieuw laden"
     },
     "selectFont": "Lettertype selecteren",
     "spellchecker": {

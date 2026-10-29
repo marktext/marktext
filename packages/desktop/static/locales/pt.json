@@ -820,7 +820,10 @@
         "options": "Opções",
         "reset": "Resetar",
         "unbind": "Desvincular"
-      }
+      },
+      "windowAndNavigation": "Janelas e navegação",
+      "loadError": "Não foi possível carregar os atalhos de teclado.",
+      "reload": "Recarregar"
     },
     "selectFont": "Selecionar Fonte",
     "spellchecker": {

@@ -23,7 +23,7 @@
         </template>
         <template #default="{ item }">
           <div class="name">
-            {{ item.category }}
+            {{ item.category }}<span v-if="item.accelerator"> · {{ item.accelerator }}</span>
           </div>
           <span class="addr">{{ item.preference }}</span>
         </template>
@@ -51,6 +51,8 @@ import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
+import { useKeybindingsStore } from '@/store/keybindings'
+import { getKeybindingSearchContent } from './keybindingSearch'
 import { openSetting } from '../settingLocation'
 
 const { t } = useI18n()
@@ -58,7 +60,8 @@ const router = useRouter()
 const route = useRoute()
 const currentCategory = computed(() => String(route.name || 'general'))
 const state = ref('')
-const entries = computed(() => getTranslatedSearchContent())
+const keybindings = useKeybindingsStore()
+const entries = computed(() => [...getTranslatedSearchContent(), ...getKeybindingSearchContent(keybindings.commands)])
 
 const querySearch = (query: string, callback: (results: SearchEntry[]) => void): void => {
   callback(entries.value.filter(entry => matchesSearch(entry, query)))
@@ -75,6 +78,7 @@ const onIpcCategoryChange = (_event: unknown, category: unknown): void => {
   if (target) void router.push({ path: target.path })
 }
 onMounted(() => {
+  void keybindings.ensureLoaded()
   window.electron.ipcRenderer.on('settings::change-tab', onIpcCategoryChange)
 })
 onUnmounted(() => {

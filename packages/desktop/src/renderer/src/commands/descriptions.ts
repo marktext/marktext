@@ -163,6 +163,8 @@ const COMMAND_KEY_MAP: Record<string, string> = {
   'spellchecker.switch-language': 'commands.spellchecker.switchLanguage'
 }
 
+export const commandLabelKey = (id: string): string => COMMAND_KEY_MAP[id] ?? id
+
 export default (id: string): string => {
   // Resolve descriptions on each call so language changes take effect immediately.
   return id in COMMAND_KEY_MAP ? t(COMMAND_KEY_MAP[id]) : id
