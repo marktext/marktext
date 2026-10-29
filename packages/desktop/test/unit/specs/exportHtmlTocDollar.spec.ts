@@ -28,7 +28,7 @@ const exportWithToc = async(markdown: string): Promise<string> => {
   muya.init()
   hosts.push(muya.domNode)
 
-  return exportStyledHTML(muya, muya.getMarkdown(), { toc: {} })
+  return exportStyledHTML(muya, muya.getMarkdown(), { tocOptions: {} })
 }
 
 const tocLinks = (html: string): string[] => {
@@ -44,7 +44,7 @@ describe('exportStyledHTML — source document headings', () => {
     muya.init()
     hosts.push(muya.domNode)
 
-    const out = await exportStyledHTML(muya, '# New title\n\n[TOC]\n\n## New section', { toc: {} })
+    const out = await exportStyledHTML(muya, '# New title\n\n[TOC]\n\n## New section', { tocOptions: {} })
 
     expect(tocLinks(out)).toEqual(['New section'])
     expect(out).not.toContain('Old section')

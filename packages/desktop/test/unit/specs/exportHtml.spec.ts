@@ -98,8 +98,8 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
   ].join('\n')
 
   it('replaces the rendered <p>[TOC]</p> with the toc list', async() => {
-    const toc = {}
-    const out = await exportStyledHTML(NO_MUYA, MD, { toc })
+    const tocOptions = {}
+    const out = await exportStyledHTML(NO_MUYA, MD, { tocOptions })
 
     expect(out).toContain('toc-container')
     expect(out).toContain('Table of Contents')
@@ -107,8 +107,8 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
   })
 
   it('dedups repeated headings: two "Installation" → installation / installation-1, with matching anchors', async() => {
-    const toc = {}
-    const out = await exportStyledHTML(NO_MUYA, MD, { toc })
+    const tocOptions = {}
+    const out = await exportStyledHTML(NO_MUYA, MD, { tocOptions })
 
     const ids = [...out.matchAll(/<h[1-6][^>]*\sid="([^"]+)"/g)].map((m) => m[1])
     expect(ids).toEqual([
@@ -125,8 +125,8 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
   })
 
   it('a heading with inline markup produces a TOC anchor that matches the heading id (#4811)', async() => {
-    const toc = {}
-    const out = await exportStyledHTML(NO_MUYA, MD, { toc })
+    const tocOptions = {}
+    const out = await exportStyledHTML(NO_MUYA, MD, { tocOptions })
 
     const hrefs = [...out.matchAll(/href="#([^"]+)"/g)].map((m) => m[1])
     const ids = [...out.matchAll(/<h[1-6][^>]*\sid="([^"]+)"/g)].map((m) => m[1])
@@ -137,7 +137,7 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
   })
 
   it('uses exported IDs when a nested heading consumes a duplicate slug', async() => {
-    const out = await exportStyledHTML(NO_MUYA, '[TOC]\n\n> ## Intro\n\n## Intro', { toc: {} })
+    const out = await exportStyledHTML(NO_MUYA, '[TOC]\n\n> ## Intro\n\n## Intro', { tocOptions: {} })
     const doc = new DOMParser().parseFromString(out, 'text/html')
     const headings = [...doc.querySelectorAll('h2')]
     const links = [...doc.querySelectorAll('.toc-container a')]
@@ -148,7 +148,7 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
 
   it('preserves explicit HTML heading IDs and their collisions', async() => {
     const markdown = '[TOC]\n\n<h2 id="intro">Custom title</h2>\n\n## Intro'
-    const out = await exportStyledHTML(NO_MUYA, markdown, { toc: {} })
+    const out = await exportStyledHTML(NO_MUYA, markdown, { tocOptions: {} })
     const doc = new DOMParser().parseFromString(out, 'text/html')
 
     expect([...doc.querySelectorAll('.toc-container a')].map(link => [link.textContent, link.getAttribute('href')]))
@@ -156,7 +156,7 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
   })
 
   it('escapes explicit heading IDs when writing TOC href attributes', async() => {
-    const out = await exportStyledHTML(NO_MUYA, '[TOC]\n\n<h2 id="a&quot;b">Quoted</h2>', { toc: {} })
+    const out = await exportStyledHTML(NO_MUYA, '[TOC]\n\n<h2 id="a&quot;b">Quoted</h2>', { tocOptions: {} })
     const doc = new DOMParser().parseFromString(out, 'text/html')
     const link = doc.querySelector('.toc-container a')
 
@@ -167,7 +167,7 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
 
   it('keeps heading formatting without nesting source links inside TOC links', async() => {
     const markdown = '[TOC]\n\n## Use **bold** and [a link](https://example.com)'
-    const out = await exportStyledHTML(NO_MUYA, markdown, { toc: {} })
+    const out = await exportStyledHTML(NO_MUYA, markdown, { tocOptions: {} })
     const doc = new DOMParser().parseFromString(out, 'text/html')
     const links = doc.querySelectorAll('.toc-container a')
 
@@ -178,9 +178,9 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
   })
 
   it('does not inject the toc when the document has no [TOC] marker', async() => {
-    const toc = {}
+    const tocOptions = {}
     const out = await exportStyledHTML(NO_MUYA, '# Getting Started\n\n## Installation\n', {
-      toc
+      tocOptions
     })
 
     expect(out).not.toContain('toc-container')

@@ -27,7 +27,7 @@ export interface ExportStyledHtmlOptions {
   printOptimization?: boolean
   extraCss?: string
   /** Include a TOC at `[TOC]`, using headings from the exported document. */
-  toc?: HtmlTocOptions
+  tocOptions?: HtmlTocOptions
   header?: HeaderFooterPart | null
   footer?: HeaderFooterPart | null
   headerFooterStyled?: boolean
@@ -155,7 +155,7 @@ export const exportStyledHTML = async(
   markdown: string,
   options: ExportStyledHtmlOptions = {}
 ): Promise<string> => {
-  const { title = '', toc: tocOptions, header, footer, headerFooterStyled, dir } = options
+  const { title = '', tocOptions, header, footer, headerFooterStyled, dir } = options
   let { extraCss = '' } = options
 
   const appendHeaderFooter = !!header || !!footer
