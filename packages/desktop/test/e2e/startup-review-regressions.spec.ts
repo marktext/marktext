@@ -126,6 +126,8 @@ test('an explicit TOC position preference moves the live outline and survives re
   const opened = app.waitForEvent('window')
   await page.evaluate(() => window.electron.ipcRenderer.send('mt::open-setting-window'))
   const settings = await opened
+  await settings.locator('.pref-sidebar input').fill('tocPosition')
+  await settings.locator('.pref-autocomplete').getByText('Default table of contents position', { exact: true }).click()
   const select = settings.locator('.pref-select-item').filter({
     has: settings.getByRole('combobox', { name: 'Default table of contents position', exact: true })
   })

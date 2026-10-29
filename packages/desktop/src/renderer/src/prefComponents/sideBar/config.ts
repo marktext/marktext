@@ -1,13 +1,4 @@
-import {
-  Setting as GeneralIcon,
-  Edit as EditorIcon,
-  Document as MarkdownIcon,
-  Brush as ThemeIcon,
-  Picture as ImageIcon,
-  Reading as SpellIcon,
-  Operation as KeyBindingIcon
-} from '@element-plus/icons-vue'
-
+import { preferenceCategories } from '../categories'
 import { isEqualAccelerator } from 'common/keybinding'
 import schema from '@shared/preferences/schema.json'
 import type { PreferenceSchemaEntry } from '@shared/types/preferences'
@@ -35,51 +26,12 @@ export interface SearchEntry {
   accelerator?: string
 }
 
-export const getCategory = (): PrefCategory[] => [
-  {
-    name: t('preferences.categories.general'),
-    label: 'general',
-    icon: GeneralIcon,
-    path: '/preference/general'
-  },
-  {
-    name: t('preferences.categories.editor'),
-    label: 'editor',
-    icon: EditorIcon,
-    path: '/preference/editor'
-  },
-  {
-    name: t('preferences.categories.markdown'),
-    label: 'markdown',
-    icon: MarkdownIcon,
-    path: '/preference/markdown'
-  },
-  {
-    name: t('preferences.categories.spelling'),
-    label: 'spelling',
-    icon: SpellIcon,
-    path: '/preference/spelling'
-  },
-  {
-    name: t('preferences.categories.theme'),
-    label: 'theme',
-    icon: ThemeIcon,
-    path: '/preference/theme'
-  },
-  {
-    name: t('preferences.categories.image'),
-    label: 'image',
-    icon: ImageIcon,
-    path: '/preference/image'
-  },
-  {
-    name: t('preferences.categories.keybindings'),
-    label: 'keybindings',
-    icon: KeyBindingIcon,
-    path: '/preference/keybindings'
-  }
-]
-
+export const getCategory = (): PrefCategory[] => preferenceCategories.map(category => ({
+  name: t(`preferences.categories.${category.id}`),
+  label: category.id,
+  icon: category.icon,
+  path: `/preference/${category.id}`
+}))
 
 const preferencesSchema: Record<string, PreferenceSchemaEntry> = schema
 
@@ -100,7 +52,7 @@ export const getTranslatedSearchContent = (): SearchEntry[] =>
         routeCategory: category,
         description: entry?.description ?? `${categoryEn}--${preferenceEn}`,
         enum: entry?.enum,
-        keywords: [key, preferenceNotes(key), entry?.description ?? '', definition.notes ? englishText(definition.notes) : ''],
+        keywords: [key, ...(definition.aliases ?? []), preferenceNotes(key), entry?.description ?? '', definition.notes ? englishText(definition.notes) : ''],
         kind: 'setting' as const
       }
     })

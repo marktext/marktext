@@ -14,6 +14,13 @@ const openSettings = async(app: ElectronApplication, editor: Page): Promise<Page
   return settings
 }
 
+const closeSettings = async(app: ElectronApplication, settings: Page): Promise<void> => {
+  const window = await app.browserWindow(settings)
+  const closed = settings.waitForEvent('close')
+  await window.evaluate(window => window.close())
+  await closed
+}
+
 const preferences = async(app: ElectronApplication): Promise<Record<string, unknown>> => {
   const directory = await app.evaluate(({ app }) => app.getPath('userData'))
   return JSON.parse(readFileSync(join(directory, 'preferences.json'), 'utf8'))
@@ -65,6 +72,7 @@ test('file-tree rule tags retain glob commas when adding and reopening settings'
   })
   try {
     let settings = await openSettings(app, page)
+    await settings.getByRole('button', { name: 'Files & saving', exact: true }).click()
     const rules = settings.locator('.exclude-patterns')
     await expect(rules.locator('.el-tag__content')).toHaveText(['**/{drafts,archive}/**'])
     const input = rules.getByRole('textbox', { name: 'New exclusion rule', exact: true })
@@ -75,9 +83,10 @@ test('file-tree rule tags retain glob commas when adding and reopening settings'
     await rules.locator('.el-tag__close').first().click()
     await expect.poll(async() => (await preferences(app)).treePathExcludePatterns)
       .toEqual([' **/{cache,backup}/** '])
-    await settings.evaluate(() => window.electron.windowControl.close())
+    await closeSettings(app, settings)
     await expect.poll(() => app.windows().length).toBe(1)
     settings = await openSettings(app, page)
+    await settings.getByRole('button', { name: 'Files & saving', exact: true }).click()
     await expect(settings.locator('.exclude-patterns .el-tag__content'))
       .toHaveText([' **/{cache,backup}/** '])
     await expectNoRendererErrors(app)
@@ -93,12 +102,14 @@ test('actual settings clicks persist autosave and language and update the editor
   })
   try {
     const settings = await openSettings(app, page)
+    await settings.getByRole('button', { name: 'Files & saving', exact: true }).click()
     const autoSave = settings.getByRole('switch', { name: 'Auto save', exact: true })
     await expect(autoSave).not.toBeChecked()
     await autoSave.locator('..').click()
     await expect(autoSave).toBeChecked()
     await expect.poll(async() => (await preferences(app)).autoSave).toBe(true)
 
+    await settings.getByRole('button', { name: 'General', exact: true }).click()
     const language = settings.locator('.pref-select-item').filter({
       has: settings.getByRole('combobox', { name: 'Language', exact: true })
     })
@@ -106,6 +117,7 @@ test('actual settings clicks persist autosave and language and update the editor
     await settings.getByRole('option', { name: '简体中文', exact: true }).click()
     await expect(settings.locator('.pref-general h4')).toHaveText('通用')
     await expect.poll(async() => (await preferences(app)).language).toBe('zh-CN')
+    await settings.getByRole('button', { name: '文件与保存', exact: true }).click()
     await expect(settings.getByRole('switch', { name: '自动保存', exact: true })).toBeChecked()
 
     await page.locator('[contenteditable=true]').first().fill('Saved after enabling autosave')
@@ -124,6 +136,7 @@ test('startup settings use shared controls and persist policy, switches and fold
   })
   try {
     const settings = await openSettings(app, page)
+    await settings.getByRole('button', { name: 'Files & saving', exact: true }).click()
     const startup = settings.locator('.recovery-settings')
     await expect(startup.locator('h6.title')).toHaveText('Startup Options')
     await expect(startup.locator('.el-switch')).toHaveCount(3)

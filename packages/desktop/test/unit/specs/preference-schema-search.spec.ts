@@ -5,10 +5,10 @@ vi.mock('../../../src/renderer/src/i18n', () => ({ t: (key: string) => key }))
 
 it('indexes startup restoration controls alongside existing preferences', () => {
   const entries = getTranslatedSearchContent()
-  for (const key of ['autoSave', 'language', 'restoreLayoutState', 'restoreEditors', 'restoreViewState']) {
+  for (const key of ['autoSave', 'restoreLayoutState', 'restoreEditors', 'restoreViewState']) {
     expect(entries.find(entry => entry.key === key)).toMatchObject({
-      routeCategory: 'general',
-      categoryEn: 'General',
+      routeCategory: 'files',
+      categoryEn: 'Files',
       description: expect.any(String)
     })
   }

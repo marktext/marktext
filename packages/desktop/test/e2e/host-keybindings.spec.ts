@@ -246,7 +246,7 @@ test.describe('host-owned keybindings', () => {
     const settingsWindow = app.waitForEvent('window')
     await app.evaluate(({ ipcMain }) => ipcMain.emit('app-create-settings-window', 'keybindings'))
     const settings = await settingsWindow
-    await settings.getByText('Keybindings', { exact: true }).click()
+    await settings.getByRole('button', { name: 'Keyboard shortcuts', exact: true }).click()
     await expect(settings.locator('.pref-keybindings .footer').getByRole('button', {
       name: 'Save', exact: true
     })).toHaveCount(0)
@@ -288,7 +288,7 @@ test.describe('host-owned keybindings', () => {
     const settingsWindow = app.waitForEvent('window')
     await app.evaluate(({ ipcMain }) => ipcMain.emit('app-create-settings-window'))
     const settings = await settingsWindow
-    await settings.getByText('Keybindings', { exact: true }).click()
+    await settings.getByRole('button', { name: 'Keyboard shortcuts', exact: true }).click()
     const bold = settings.locator('.el-table__row').filter({
       has: settings.getByText('Bold', { exact: true })
     })

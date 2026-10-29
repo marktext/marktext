@@ -15,7 +15,7 @@ const openEditorPreferences = async(app: ElectronApplication): Promise<Page> => 
   const settings = await settingsWindow
   await settings.waitForSelector('.pref-container', { timeout: 15000 })
   await settings.evaluate(() => {
-    location.hash = '#/preference/editor'
+    location.hash = '#/preference/appearance'
   })
   await settings.waitForSelector(MAX_WIDTH_INPUT, { timeout: 15000 })
   return settings
