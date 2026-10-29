@@ -158,6 +158,68 @@ describe('single-content text moves', () => {
         },
     );
 
+    it.each([
+        ['- A[x] foo\n\n  Target', 0, 1],
+        ['1. A[x] foo\n\n   Target', 0, 1],
+        ['- Before\n- A[x] foo\n- Target', 1, 2],
+        ['1. Before\n2. A[x] foo\n3. Target', 1, 2],
+        ['- Target\n- A[x] foo\n- After', 1, 0],
+        ['> - A[x] foo\n>\n>   Target', 0, 1],
+        ['- A[x] foo\n\n  - Target', 0, 1],
+        ['- Before\n- A[x] foo\n\n  ```js\n  code\n  ```\n\n  Target', 1, 4],
+        ['- Before\n- A[x] foo\n- Target\n- Target', 1, 3],
+        ['- Before\n- A[x] foo\n\n  # Heading\n\n  Target', 1, 3],
+    ])('keeps the destination through source task conversion in %s', (markdown, sourceIndex, targetIndex) => {
+        muya.setContent(markdown);
+        const before = muya.getMarkdown();
+        const contents = leaves();
+        const drag = source(contents[sourceIndex], 0, 1);
+        dropText(muya, drag, target(contents[targetIndex], 0), false);
+        expect(leaves().map(block => block.text)).toContain('ATarget');
+        expect(leaves().map(block => block.text)).toContain('foo');
+        expect(muya.getSelectedText()).toBe('A');
+        const after = muya.getMarkdown();
+        expect(muya.editor.history.getHistory().stack.undo).toHaveLength(1);
+        muya.undo();
+        expect(muya.getMarkdown()).toBe(before);
+        expect(muya.getSelectedText()).toBe('A');
+        muya.redo();
+        expect(muya.getMarkdown()).toBe(after);
+        expect(muya.getSelectedText()).toBe('A');
+    });
+
+    it.each(['A# Heading\nbody', 'A> Quote\nbody', 'A- Item\nbody', 'A---\nbody', 'A    code\nbody'])('keeps a later target after splitting source %s', (text) => {
+        const [a, b] = leaves();
+        muya.transact(() => {
+            a.text = text;
+        });
+        const before = muya.getMarkdown();
+        dropText(muya, source(a, 0, 1), target(b, 0), false);
+        expect(leaves().at(-1)?.text).toBe('ATarget');
+        expect(muya.getSelectedText()).toBe('A');
+        const after = muya.getMarkdown();
+        muya.undo();
+        expect(muya.getMarkdown()).toBe(before);
+        muya.redo();
+        expect(muya.getMarkdown()).toBe(after);
+        expect(muya.getSelectedText()).toBe('A');
+    });
+
+    it('retains the edited source when target task conversion rebuilds its container', () => {
+        muya.setContent('- [x foo\n\n  ] Target');
+        const before = muya.getMarkdown();
+        const [destination, origin] = leaves();
+        dropText(muya, source(origin, 0, 1), target(destination, 2), false);
+        expect(leaves().map(block => block.text)).toEqual(['foo', ' Target']);
+        const after = muya.getMarkdown();
+        expect(after).toContain('- [x] foo');
+        muya.undo();
+        expect(muya.getMarkdown()).toBe(before);
+        expect(muya.getSelectedText()).toBe(']');
+        muya.redo();
+        expect(muya.getMarkdown()).toBe(after);
+    });
+
     it('rejects stale and read-only moves', () => {
         const [a, b] = leaves();
         const drag = source(a);

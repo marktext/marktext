@@ -65,6 +65,31 @@ test('moves selected text through mouse events and undoes in one step', async ({
     await expect.poll(() => getMarkdown(page)).toBe('ADE\n\nTargetBC\n');
 });
 
+for (const scenario of [
+    { markdown: '- A[x] foo\n\n  Target', source: 0, target: 1 },
+    { markdown: '1. Before\n2. A[x] foo\n3. Target', source: 1, target: 2 },
+]) {
+    test(`moves through source task conversion in ${scenario.markdown}`, async ({ page }) => {
+        const errors: string[] = [];
+        page.on('pageerror', error => errors.push(error.message));
+        await page.evaluate(markdown => window.muya!.setContent(markdown), scenario.markdown);
+        const before = await getMarkdown(page);
+        await startDrag(page, await points(page, scenario.source, scenario.target, 0, 1));
+        await page.mouse.up();
+        await expect.poll(() => getMarkdown(page)).toContain('TargetA');
+        await expect.poll(() => page.evaluate(() => window.muya!.getSelectedText())).toBe('A');
+        expect(await getMarkdown(page)).toContain('[x] foo');
+        const after = await getMarkdown(page);
+        await page.evaluate(() => window.muya!.undo());
+        await expect.poll(() => getMarkdown(page)).toBe(before);
+        await expect.poll(() => page.evaluate(() => window.muya!.getSelectedText())).toBe('A');
+        await page.evaluate(() => window.muya!.redo());
+        await expect.poll(() => getMarkdown(page)).toBe(after);
+        await expect.poll(() => page.evaluate(() => window.muya!.getSelectedText())).toBe('A');
+        expect(errors).toEqual([]);
+    });
+}
+
 test('switches copying with the platform modifier without moving the source', async ({ page }) => {
     await page.evaluate(() => window.muya!.setContent('ABCDE\n\nTarget'));
     await startDrag(page, await points(page));

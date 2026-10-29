@@ -108,6 +108,34 @@ for (const [offset, expected] of [[0, 'BCADE'], [5, 'ADEBC']] as const) {
   })
 }
 
+for (const scenario of [
+  { name: 'same-item paragraph', markdown: '- A[x] foo\n\n  Target', source: 0, target: 1 },
+  { name: 'ordered-list tail', markdown: '1. Before\n2. A[x] foo\n3. Target', source: 1, target: 2 }
+]) {
+  test(`source task conversion preserves ${scenario.name} destination`, async() => {
+    await withDocument(`${scenario.markdown}\n`, async({ app, page, filePath }) => {
+      const errors: string[] = []
+      page.on('pageerror', error => errors.push(error.message))
+      const before = await markdown(page)
+      await beginDrag(page, await dragPoints(page, scenario.source, 0, 1, scenario.target, 0))
+      await page.mouse.up()
+      await expect.poll(() => contentTexts(page)).toContain('ATarget')
+      expect(await selectedText(page)).toBe('A')
+      const after = await markdown(page)
+      expect(after).toContain('[x] foo')
+      await sendIpcToRenderer(app, 'mt::editor-ask-file-save')
+      await expect.poll(() => readFile(filePath, 'utf8')).toBe(after)
+      await clickMenuById(app, 'undoMenuItem')
+      await expect.poll(() => markdown(page)).toBe(before)
+      expect(await selectedText(page)).toBe('A')
+      await clickMenuById(app, 'redoMenuItem')
+      await expect.poll(() => markdown(page)).toBe(after)
+      expect(await selectedText(page)).toBe('A')
+      expect(errors).toEqual([])
+    })
+  })
+}
+
 for (const [copy, offset, expected] of [
   [false, 1, 'ABCDE'], [false, 2, 'ABCDE'], [false, 3, 'ABCDE'],
   [true, 2, 'ABCDE'], [true, 1, 'ABCBCDE'], [true, 3, 'ABCBCDE']
@@ -208,8 +236,14 @@ for (const action of ['Escape', 'outside', 'blur', 'read-only', 'replace']) {
       if (action === 'Escape') await page.keyboard.press('Escape')
       if (action === 'outside') await page.mouse.move(5, 5)
       if (action === 'blur') {
-        const window = await app.browserWindow(page)
-        await window.evaluate(window => window.blur())
+        if (process.platform === 'linux') {
+          // Xvfb CI cannot reliably transfer native window focus.
+          await page.locator('.mu-editor').evaluate(node => (node as HTMLElement).blur())
+        } else {
+          const window = await app.browserWindow(page)
+          await window.evaluate(window => window.blur())
+        }
+        await expect(page.locator('.mu-text-drag-preview')).toHaveCount(0)
       }
       if (action === 'read-only') {
         await clickMenuById(app, 'readOnlyModeMenuItem')

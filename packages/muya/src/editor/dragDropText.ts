@@ -74,6 +74,36 @@ export function canDropText(muya: Muya, source: ITextDragSource, target: IAnchor
     return true;
 }
 
+function contentBlocks(muya: Muya): Content[] {
+    const blocks: Content[] = [];
+    let block = muya.editor.scrollPage!.firstContentInDescendant();
+    while (block) {
+        blocks.push(block);
+        block = block.nextContentInContext() ?? null;
+    }
+    return blocks;
+}
+
+function bookmarkTarget(muya: Muya, source: Content, target: Content): () => Content {
+    const blocks = contentBlocks(muya);
+    const index = blocks.indexOf(target);
+    const beforeSource = index < blocks.indexOf(source);
+    const distanceFromEnd = blocks.length - index;
+    const text = target.text;
+
+    return () => {
+        if (muya.isBlockInDocument(target))
+            return target;
+        // Conversions may split the source and rebuild its siblings, but retain
+        // other leaves in order. Count from the end that does not cross the source.
+        const current = contentBlocks(muya);
+        const resolved = current[beforeSource ? index : current.length - distanceFromEnd];
+        if (!resolved || resolved.text !== text || resolved.blockName !== target.blockName)
+            throw new Error('Text drag destination lost during source conversion');
+        return resolved;
+    };
+}
+
 export function dropText(muya: Muya, source: ITextDragSource, target: IAnchorFocusInfo, copy: boolean): void {
     if (!canDropText(muya, source, target, copy))
         return;
@@ -85,19 +115,22 @@ export function dropText(muya: Muya, source: ITextDragSource, target: IAnchorFoc
     const offset = target.offset - (!copy && target.block === block && target.offset > end ? end - start : 0);
 
     muya.editor.transact(() => {
+        let destination = target.block;
         if (!copy) {
             block.text = original.slice(0, start) + original.slice(end);
             block.update();
         }
-        target.block.text = target.block.text.slice(0, offset) + text + target.block.text.slice(offset);
         // Conversion handlers require a local cursor, even for the leaf losing the text.
-        if (!copy && block !== target.block && block.blockName !== 'codeblock.content') {
+        if (!copy && block !== destination && block.blockName !== 'codeblock.content') {
+            const resolveTarget = bookmarkTarget(muya, block, destination);
             block.setCursor(start, start, true);
             (block as Format).checkInlineUpdate();
+            destination = resolveTarget();
         }
-        target.block.setCursor(offset, offset + text.length, true);
-        if (target.block.blockName !== 'codeblock.content')
-            (target.block as Format).checkInlineUpdate();
+        destination.text = destination.text.slice(0, offset) + text + destination.text.slice(offset);
+        destination.setCursor(offset, offset + text.length, true);
+        if (destination.blockName !== 'codeblock.content')
+            (destination as Format).checkInlineUpdate();
     }, true, source.selection);
 }
 
