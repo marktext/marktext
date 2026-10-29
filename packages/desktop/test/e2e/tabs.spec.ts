@@ -93,6 +93,45 @@ test.describe('Tab management', () => {
     expect(after).toBeGreaterThan(before)
   })
 
+  for (const closeWith of ['button', 'command'] as const) {
+    test(`Closing the last tab with the ${closeWith} returns to the initial page`, async() => {
+      const launched = await launchWithMarkdown('# Last tab\n', {
+        windowLayout: { showTabBar: true },
+        preferences: { language: 'en' }
+      })
+      const lastApp = launched.app
+      const lastPage = launched.page
+      try {
+        await expect(lastPage.locator(tabSelector)).toHaveCount(1)
+        if (closeWith === 'button') {
+          await lastPage.locator(`${tabSelector} .close-icon`).click()
+        } else {
+          await sendIpcToRenderer(lastApp, 'mt::editor-close-tab')
+        }
+        await expect(lastPage.locator(tabSelector)).toHaveCount(0)
+        await expect(lastPage.locator('.recent-files-projects')).toContainText(
+          'You have no tabs open.'
+        )
+        await expect(lastPage.locator('.editor-with-tabs')).toHaveCount(0)
+        expect(lastApp.windows()).toHaveLength(1)
+
+        await lastPage.reload()
+        await expect(lastPage.locator('.recent-files-projects')).toBeVisible()
+        await expect(lastPage.locator(tabSelector)).toHaveCount(0)
+
+        await lastPage.getByRole('button', { name: 'New File', exact: true }).click()
+        await expect(lastPage.locator(tabSelector)).toHaveCount(1)
+        await expect(lastPage.locator('.recent-files-projects')).toHaveCount(0)
+        await typeIntoEditor(lastPage, 'After closing the last tab')
+        await expect
+          .poll(async() => (await getMarkdownContent(lastPage, lastApp)).trim())
+          .toBe('After closing the last tab')
+      } finally {
+        await lastApp.close()
+      }
+    })
+  }
+
   test('Creating a new untitled tab auto-focuses the editor', async() => {
     // Drop focus first so the assertion proves the NEW tab grabbed focus rather
     // than inheriting a stale one from the previously active editor.
@@ -404,17 +443,15 @@ test.describe('Tab management', () => {
       ids = await readTabIds(cPage)
       expect(ids.length).toBeGreaterThanOrEqual(3)
       expect(await callEditorStoreAction(cPage, 'CLOSE_SAVED_TABS')).toBe(true)
-      await expect.poll(() => readTabIds(cPage).then(current => current.length), { timeout: 5000 }).toBe(1)
-      expect((await readTabIds(cPage)).some(id => ids.includes(id))).toBe(false)
-      await expect(cPage.locator('.tabs-container > li.unsaved')).toHaveCount(0)
+      await expect(cPage.locator(tabSelector)).toHaveCount(0)
+      await expect(cPage.locator('.recent-files-projects')).toBeVisible()
 
       await openSavedTabs(['final A\n', 'final B\n', 'final C\n'])
       ids = await readTabIds(cPage)
       expect(ids.length).toBeGreaterThanOrEqual(3)
       expect(await callEditorStoreAction(cPage, 'CLOSE_ALL_TABS')).toBe(true)
-      await expect.poll(() => readTabIds(cPage).then(current => current.length), { timeout: 5000 }).toBe(1)
-      expect((await readTabIds(cPage)).some(id => ids.includes(id))).toBe(false)
-      await expect(cPage.locator('.tabs-container > li.unsaved')).toHaveCount(0)
+      await expect(cPage.locator(tabSelector)).toHaveCount(0)
+      await expect(cPage.locator('.recent-files-projects')).toBeVisible()
     } finally {
       await cApp.close()
     }
