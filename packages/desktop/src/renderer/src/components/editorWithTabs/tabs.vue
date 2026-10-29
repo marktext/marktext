@@ -22,7 +22,7 @@
           }"
           :data-id="file.id"
           @click.stop="selectFile(file)"
-          @click.middle="closeTab(file.id)"
+          @click.middle.stop.prevent="removeFileInTab(file)"
           @contextmenu.prevent="handleContextMenu($event, file)"
         >
           <el-icon
@@ -67,13 +67,11 @@
 import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { storeToRefs } from 'pinia'
-import autoScroll from 'dom-autoscroller'
-import dragula from 'dragula'
+import { useTabReorder } from '../useTabReorder'
 import { Plus, Close, Lock } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import IconTooltip from '@/components/iconTooltip/index.vue'
 import { showContextMenu } from '../../contextMenu/tabs'
-import bus from '../../bus'
 import type { IFileState } from '@shared/types/files'
 
 const { t } = useI18n()
@@ -81,21 +79,9 @@ const editorStore = useEditorStore()
 
 const { currentFile, tabs } = storeToRefs(editorStore)
 
-interface AutoScroller {
-  readonly down: boolean
-  destroy: (forceCleanAnimation?: boolean) => void
-}
-
-// Pointer travel, in CSS pixels, that separates a click from a tab drag.
-// Matches the platform drag thresholds (Blink 3px, Win32 SM_CXDRAG 4px) with a
-// little slack for trackpad drift.
-const DRAG_THRESHOLD_PX = 5
-
 const tabContainer = ref<HTMLElement | null>(null)
 const tabDropContainer = ref<HTMLElement | null>(null)
-let autoScroller: AutoScroller | null = null
-let drake: dragula.Drake | null = null
-
+useTabReorder(tabDropContainer, tabContainer, 'horizontal')
 
 const selectFile = (file: IFileState) => {
   if (file.id !== currentFile.value?.id) {
@@ -143,49 +129,6 @@ const handleTabScroll = (event: WheelEvent) => {
   tabsEl.scrollLeft = newLeft
 }
 
-const closeTab = (tabId: unknown) => {
-  const tab = tabs.value.find((f) => f.id === tabId)
-  if (tab) {
-    editorStore.CLOSE_TAB(tab)
-  }
-}
-
-const closeOthers = (tabId: unknown) => {
-  const tab = tabs.value.find((f) => f.id === tabId)
-  if (tab) {
-    editorStore.CLOSE_OTHER_TABS(tab)
-  }
-}
-
-const closeSaved = () => {
-  editorStore.CLOSE_SAVED_TABS()
-}
-
-const closeAll = () => {
-  editorStore.CLOSE_ALL_TABS()
-}
-
-const rename = (tabId: unknown) => {
-  const tab = tabs.value.find((f) => f.id === tabId)
-  if (tab && tab.pathname) {
-    editorStore.RENAME_FILE(tab)
-  }
-}
-
-const copyPath = (tabId: unknown) => {
-  const tab = tabs.value.find((f) => f.id === tabId)
-  if (tab && tab.pathname) {
-    window.electron.clipboard.writeText(tab.pathname)
-  }
-}
-
-const showInFolder = (tabId: unknown) => {
-  const tab = tabs.value.find((f) => f.id === tabId)
-  if (tab && tab.pathname) {
-    window.electron.shell.showItemInFolder(tab.pathname)
-  }
-}
-
 const handleContextMenu = (event: MouseEvent, tab: IFileState) => {
   if (tab.id) {
     showContextMenu(event, tab)
@@ -200,78 +143,11 @@ watch(
 )
 
 onMounted(() => {
-  bus.on('TABS::close-this', closeTab)
-  bus.on('TABS::close-others', closeOthers)
-  bus.on('TABS::close-saved', closeSaved)
-  bus.on('TABS::close-all', closeAll)
-  bus.on('TABS::rename', rename)
-  bus.on('TABS::copy-path', copyPath)
-  bus.on('TABS::show-in-folder', showInFolder)
-
-  const tabsEl = tabContainer.value
-  if (!tabsEl || !tabDropContainer.value) return
-
-  tabsEl.addEventListener('wheel', handleTabScroll)
-
-  drake = dragula([tabDropContainer.value], {
-    direction: 'horizontal',
-    revertOnSpill: true,
-    mirrorContainer: tabDropContainer.value,
-    ignoreInputTextSelection: false,
-    // dragula's own default is 0, i.e. a single pixel of pointer drift between
-    // press and release turns a click into a drag. The drag then swallows the
-    // `click` entirely — its mirror element takes the mouseup and is removed
-    // before the browser can retarget — so `selectFile` never runs and the tab
-    // refuses to activate (#4895). Require a deliberate movement instead.
-    slideFactorX: DRAG_THRESHOLD_PX,
-    slideFactorY: DRAG_THRESHOLD_PX
-  }).on('drop', (el, _target, _source, sibling) => {
-    const droppedId = el?.getAttribute('data-id')
-    // This should be the next tab (tab | ... | el | sibling | tab | ...) but may be
-    // the mirror image or null (tab | ... | el | sibling or null) if last tab.
-    const nextTabId = sibling ? sibling.getAttribute('data-id') : null
-    const isLastTab = !sibling || sibling.classList.contains('gu-mirror')
-    if (!droppedId || (sibling && !nextTabId)) {
-      console.error('Tab reorder error: invalid tab IDs')
-      return
-    }
-
-    editorStore.EXCHANGE_TABS_BY_ID({
-      fromId: droppedId,
-      toId: isLastTab ? null : nextTabId
-    })
-  })
-
-  autoScroller = autoScroll([tabsEl], {
-    margin: 20,
-    maxSpeed: 6,
-    scrollWhenOutside: false,
-    autoScroll: () => {
-      return autoScroller!.down && drake?.dragging
-    }
-  })
+  tabContainer.value?.addEventListener('wheel', handleTabScroll)
 })
 
 onBeforeUnmount(() => {
-  const tabsEl = tabContainer.value
-  if (tabsEl) {
-    tabsEl.removeEventListener('wheel', handleTabScroll)
-  }
-
-  if (autoScroller) {
-    autoScroller.destroy(true)
-  }
-  if (drake) {
-    drake.destroy()
-  }
-
-  bus.off('TABS::close-this', closeTab)
-  bus.off('TABS::close-others', closeOthers)
-  bus.off('TABS::close-saved', closeSaved)
-  bus.off('TABS::close-all', closeAll)
-  bus.off('TABS::rename', rename)
-  bus.off('TABS::copy-path', copyPath)
-  bus.off('TABS::show-in-folder', showInFolder)
+  tabContainer.value?.removeEventListener('wheel', handleTabScroll)
 })
 </script>
 
@@ -436,20 +312,4 @@ onBeforeUnmount(() => {
   }
 }
 
-.gu-mirror {
-  position: fixed !important;
-  margin: 0 !important;
-  z-index: 9999 !important;
-  opacity: 0.8;
-  cursor: grabbing;
-}
-.gu-hide {
-  display: none !important;
-}
-.gu-unselectable {
-  user-select: none !important;
-}
-.gu-transit {
-  opacity: 0.2;
-}
 </style>

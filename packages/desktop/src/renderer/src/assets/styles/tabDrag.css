@@ -1,0 +1,25 @@
+.gu-mirror {
+  position: fixed !important;
+  box-sizing: border-box;
+  margin: 0 !important;
+  z-index: 9999 !important;
+  opacity: 0.85;
+  pointer-events: none;
+  cursor: grabbing;
+  background: var(--floatBgColor);
+  box-shadow: var(--floatShadow);
+}
+
+.gu-hide {
+  display: none !important;
+}
+
+.gu-unselectable,
+.gu-unselectable * {
+  user-select: none !important;
+  cursor: grabbing !important;
+}
+
+.gu-transit {
+  opacity: 0.2;
+}
