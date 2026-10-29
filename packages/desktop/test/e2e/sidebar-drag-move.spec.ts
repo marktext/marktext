@@ -3,7 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { expectNoRendererErrors, launchElectron, sendIpcToRenderer } from './helpers'
+import { delaySessionStateWrites, expectNoRendererErrors, launchElectron, openProjectFolder, sendIpcToRenderer } from './helpers'
 import type { IFileState } from '../../src/shared/types/files'
 
 let directory: string
@@ -17,6 +17,8 @@ const editorState = () => page.evaluate(() => {
   const editor = root.__vue_app__.config.globalProperties.$pinia._s.get('editor')
   if (!editor) throw new Error('Editor store unavailable')
   return { pathname: editor.currentFile.pathname, saved: editor.currentFile.isSaved, markdown: editor.currentFile.markdown,
+    missing: editor.tabs.filter(tab => tab.diskMissing).map(tab => tab.pathname),
+    fileChangeNotifications: editor.tabs.filter(tab => tab.notifications.some(item => item.exclusiveType === 'file_changed')).map(tab => tab.pathname),
     tabs: editor.tabs.map(tab => ({ pathname: tab.pathname, saved: tab.isSaved })) }
 })
 const confirmMove = async(response: number) => {
@@ -126,6 +128,58 @@ test('blocks a folder move while another window has an open descendant', async()
   expect(fs.existsSync(child)).toBe(true)
   expect(fs.existsSync(path.join(directory, 'notes', 'chapter'))).toBe(false)
   await expectNoRendererErrors(app)
+})
+
+test('moving two clean open descendants preserves saved state during slow session persistence', async() => {
+  const source = path.join(directory, 'chapter')
+  const target = path.join(directory, 'notes')
+  await row(source).click()
+  await row(path.join(source, 'child.md')).click()
+  await expect(page.getByRole('textbox', { name: 'Document', exact: true })).toContainText('Child text')
+  await row(path.join(source, 'other.md')).click()
+  await expect(page.getByRole('textbox', { name: 'Document', exact: true })).toContainText('Other text')
+  await expect.poll(editorState).toMatchObject({ tabs: [
+    { pathname: path.join(source, 'child.md'), saved: true },
+    { pathname: path.join(source, 'other.md'), saved: true }
+  ] })
+  await delaySessionStateWrites(app, 700)
+  await row(source).dragTo(row(target))
+  await expect(page.locator('.tree-wrapper')).toHaveAttribute('aria-busy', 'false', { timeout: 20000 })
+  const destination = path.join(target, 'chapter')
+  await expect.poll(editorState).toMatchObject({ tabs: [
+    { pathname: path.join(destination, 'child.md'), saved: true },
+    { pathname: path.join(destination, 'other.md'), saved: true }
+  ], missing: [], fileChangeNotifications: [] })
+  expect(fs.existsSync(source)).toBe(false)
+  const removed = path.join(destination, 'child.md')
+  fs.unlinkSync(removed)
+  await expect.poll(editorState).toMatchObject({ tabs: [
+    { pathname: removed, saved: false },
+    { pathname: path.join(destination, 'other.md'), saved: true }
+  ], missing: [removed], fileChangeNotifications: [removed] })
+  await expectNoRendererErrors(app)
+})
+
+test('a document can be dragged back to a symlink workspace root', async() => {
+  const alias = `${directory}-alias`
+  fs.symlinkSync(directory, alias, 'junction')
+  try {
+    fs.renameSync(path.join(directory, 'draft.md'), path.join(directory, 'notes', 'draft.md'))
+    fs.writeFileSync(path.join(directory, 'anchor.md'), 'Workspace marker\n')
+    await openProjectFolder(app, page, alias, path.join(alias, 'anchor.md'))
+    const linkedRow = (name: string) => page.locator(`[data-tree-path=${JSON.stringify(path.join(alias, name))}]`)
+    await linkedRow('notes').click()
+    await linkedRow('notes/draft.md').click()
+    await expect(page.getByRole('textbox', { name: 'Document', exact: true })).toContainText('Original text')
+    await linkedRow('notes/draft.md').dragTo(linkedRow(''))
+    await expect.poll(() => fs.existsSync(path.join(directory, 'draft.md'))).toBe(true)
+    await expect(linkedRow('draft.md')).toHaveClass(/active/)
+    await expect.poll(editorState).toMatchObject({ saved: true, missing: [], fileChangeNotifications: [] })
+    expect(fs.existsSync(path.join(directory, 'notes', 'draft.md'))).toBe(false)
+    await expectNoRendererErrors(app)
+  } finally {
+    fs.unlinkSync(alias)
+  }
 })
 
 test('autosave after a move writes the new path without recreating the old one', async() => {

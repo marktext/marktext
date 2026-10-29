@@ -6,6 +6,7 @@ import debounce from 'lodash/debounce'
 import type Preference from '../preferences'
 import type AppMenu from '../menu'
 import type EditorWindow from '../windows/editor'
+import type WindowManager from '../app/windowManager'
 import type { FileOpenOptions } from '../windows/editor'
 import { loadMarkdownFile, loadCliMarkdownFile, writeMarkdownFile } from '../filesystem/markdown'
 import { t } from '../i18n'
@@ -90,6 +91,7 @@ export class SessionHost {
   constructor(private readonly _accessor: {
     preferences: Preference
     menu: Pick<AppMenu, 'removeWindowMenu' | 'addRecentlyUsedDocument' | 'relocateRecentlyUsedDocuments'>
+    windowManager: Pick<WindowManager, 'withIgnoredFileDeletions'>
   }) {
     this._metadata = new ApplicationStateStore(app.getPath('userData'))
     this._recovery = new RecoveryStore(app.getPath('userData'))
@@ -1134,25 +1136,30 @@ export class SessionHost {
       async() => {
         if (affected.some(({ document }) => this._owner().hasPendingSave(document.id)))
           throw new Error('Cannot move a document while saving')
-        await move()
-        await this._owner().settlePendingSaves(affected.map(({ document }) => document.id))
-        for (const { document, destination } of affected) {
-          const previous = document.resource.kind === 'file' ? document.resource.location.path : ''
-          const result = await this._owner().relocateDocument(
-            windowId,
-            document.id,
-            createFileLocation(destination),
-            path.basename(destination)
-          )
-          this._editors.get(windowId)?.changeOpenedFilePath(destination, previous)
-          this._native(windowId).webContents.send(
-            'mt::state::document-relocated',
-            this._owner().getDocument(document.id),
-            this._owner().getState().revision
-          )
-          if (result.status !== 'persisted')
-            this.report(new Error('Recovery metadata unavailable after move'), windowId)
-        }
+        const oldPaths = affected.flatMap(({ document }) => document.resource.kind === 'file'
+          ? [document.resource.location.path, document.resource.location.canonicalPath]
+          : [])
+        await this._accessor.windowManager.withIgnoredFileDeletions(this._native(windowId), oldPaths, async() => {
+          await move()
+          await this._owner().settlePendingSaves(affected.map(({ document }) => document.id))
+          for (const { document, destination } of affected) {
+            const previous = document.resource.kind === 'file' ? document.resource.location.path : ''
+            const result = await this._owner().relocateDocument(
+              windowId,
+              document.id,
+              createFileLocation(destination),
+              path.basename(destination)
+            )
+            this._editors.get(windowId)?.changeOpenedFilePath(destination, previous)
+            this._native(windowId).webContents.send(
+              'mt::state::document-relocated',
+              this._owner().getDocument(document.id),
+              this._owner().getState().revision
+            )
+            if (result.status !== 'persisted')
+              this.report(new Error('Recovery metadata unavailable after move'), windowId)
+          }
+        })
       }
     )
   }

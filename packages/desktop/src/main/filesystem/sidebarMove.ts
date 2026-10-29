@@ -11,12 +11,14 @@ export const prepareSidebarMove = async(root: string, request: SidebarMoveReques
   if (![root, source, targetDirectory].every(value => typeof value === 'string' && path.isAbsolute(value))) {
     throw new Error(t('sideBar.move.invalidTarget'))
   }
-  const [realRoot, realSource, realTarget, sourceStat, targetStat] = await Promise.all([
+  const [realRoot, realSource, realTarget, sourceStat, targetEntry] = await Promise.all([
     fs.realpath(root), fs.realpath(source), fs.realpath(targetDirectory),
     fs.lstat(source), fs.lstat(targetDirectory)
   ])
+  const targetIsRoot = path.relative(root, targetDirectory) === ''
+  const targetStat = targetIsRoot ? await fs.stat(targetDirectory) : targetEntry
   // Comparing relative paths permits an aliased workspace root, but rejects links below it.
-  const linkedPath = sourceStat.isSymbolicLink() || targetStat.isSymbolicLink() ||
+  const linkedPath = sourceStat.isSymbolicLink() || (targetEntry.isSymbolicLink() && !targetIsRoot) ||
     path.relative(root, source) !== path.relative(realRoot, realSource) ||
     path.relative(root, targetDirectory) !== path.relative(realRoot, realTarget)
   const outsideRoot = !containsPath(realRoot, realSource) || !containsPath(realRoot, realTarget)

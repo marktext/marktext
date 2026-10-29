@@ -228,6 +228,7 @@ const unlinkDir = (win: BrowserWindow, pathname: string, type: WatchType, emit: 
 class Watcher {
   private _preferences: Preference
   private _ignoreChangeEvents: IgnoreEntry[]
+  private readonly _fileDeletionBarriers = new Set<{ windowId: number; pathnames: readonly string[] }>()
   watchers: Record<string, WatcherEntry>
 
   constructor(
@@ -237,6 +238,21 @@ class Watcher {
     this._preferences = preferences
     this._ignoreChangeEvents = []
     this.watchers = {}
+  }
+
+  /** Suppresses rename unlinks until open documents have relocated and rebound their file watches. */
+  async withIgnoredFileDeletions(
+    win: BrowserWindow,
+    pathnames: readonly string[],
+    operation: () => Promise<void>
+  ): Promise<void> {
+    const barrier = { windowId: win.id, pathnames }
+    this._fileDeletionBarriers.add(barrier)
+    try {
+      await operation()
+    } finally {
+      this._fileDeletionBarriers.delete(barrier)
+    }
   }
 
   watch(win: BrowserWindow, watchPath: string, type: WatchType = 'dir', context?: ProjectRootWatch): () => void {
@@ -299,7 +315,16 @@ class Watcher {
     let initialScan = true
     const emit: WatchEmit = (channel, payload) => {
       if (disposed || win.isDestroyed?.()) return
-      if (channel === 'mt::update-file') this._onFileChange?.(win, payload as FileWatchChange)
+      if (channel === 'mt::update-file') {
+        const event = payload as FileWatchChange
+        const movingDeletion = event.type === 'unlink' && [...this._fileDeletionBarriers].some(
+          barrier => barrier.windowId === win.id && barrier.pathnames.some(
+            pathname => path.relative(pathname, event.change.pathname) === ''
+          )
+        )
+        if (movingDeletion) return
+        this._onFileChange?.(win, event)
+      }
       win.webContents.send(channel, channel === 'mt::update-object-tree' && context
         ? { ...(payload as object), rootKey: context.rootKey, watchToken: context.watchToken }
         : payload)

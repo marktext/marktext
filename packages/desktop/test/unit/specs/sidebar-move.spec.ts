@@ -134,6 +134,29 @@ describe('sidebar disk movement', () => {
 })
 
 describe('sidebar move path boundaries', () => {
+  it('moves a document back to a symlink workspace root without allowing links below that root', async() => {
+    const alias = `${root}-alias`
+    await fs.symlink(root, alias, 'junction')
+    try {
+      await fs.rename(source, path.join(targetDirectory, 'draft.md'))
+      const linkedRequest = {
+        rootKey: root,
+        source: path.join(alias, 'notes', 'draft.md'),
+        targetDirectory: alias
+      }
+      const result = await confirmAndMoveSidebarItem(fakeWindow, linkedRequest, { ...operations(), root: alias })
+      expect(result).toEqual({ status: 'moved', destination: source })
+      expect(await fs.readFile(source, 'utf8')).toBe('original')
+      expect(await fs.pathExists(path.join(targetDirectory, 'draft.md'))).toBe(false)
+      await fs.symlink(root, path.join(root, 'back-to-root'), 'junction')
+      await expect(prepareSidebarMove(alias, {
+        rootKey: root, source: path.join(alias, 'draft.md'), targetDirectory: path.join(alias, 'back-to-root')
+      })).rejects.toThrow()
+    } finally {
+      await fs.remove(alias)
+    }
+  })
+
   it('rejects root movement, same parent, outside targets and directory descendants', async() => {
     await expect(prepareSidebarMove(root, { ...request(), source: root })).rejects.toThrow()
     await expect(prepareSidebarMove(root, { ...request(), targetDirectory: root })).rejects.toThrow()

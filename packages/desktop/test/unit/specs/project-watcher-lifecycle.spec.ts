@@ -76,4 +76,62 @@ describe('project watcher lifecycle (#2222)', () => {
     mocks.instances[0].emit('unlinkDir', '/project')
     expect(onStatus).toHaveBeenCalledWith('unavailable')
   })
+
+  it('ignores only affected open-file deletions while a move is in progress', async() => {
+    const send = vi.fn()
+    const observeFile = vi.fn()
+    const win = { id: 1, webContents: { send } }
+    const watcher = new Watcher({ getItem: () => [] } as never, observeFile)
+    watcher.watch(win as never, '/project/chapter/a.md', 'file')
+    watcher.watch(win as never, '/project/chapter/b.md', 'file')
+    watcher.watch(win as never, '/project/unrelated.md', 'file')
+    watcher.watch(win as never, '/project', 'dir')
+    let finish = () => {}
+    const moving = watcher.withIgnoredFileDeletions(win as never, [
+      '/project/chapter/a.md', '/project/chapter/b.md'
+    ], () => new Promise<void>(resolve => { finish = resolve }))
+
+    mocks.instances[0].emit('unlink', '/project/chapter/a.md')
+    mocks.instances[1].emit('unlink', '/project/chapter/b.md')
+    expect(send).not.toHaveBeenCalled()
+    expect(observeFile).not.toHaveBeenCalled()
+
+    mocks.instances[2].emit('unlink', '/project/unrelated.md')
+    expect(observeFile).toHaveBeenCalledExactlyOnceWith(win, {
+      type: 'unlink', change: { pathname: '/project/unrelated.md' }
+    })
+    mocks.instances[3].emit('unlink', '/project/chapter/a.md')
+    expect(send).toHaveBeenCalledWith('mt::update-object-tree', {
+      type: 'unlink', change: { pathname: '/project/chapter/a.md' }
+    })
+
+    finish()
+    await moving
+    mocks.instances[0].emit('unlink', '/project/chapter/a.md')
+    expect(observeFile).toHaveBeenLastCalledWith(win, {
+      type: 'unlink', change: { pathname: '/project/chapter/a.md' }
+    })
+  })
+
+  it('keeps other windows observable and releases the deletion barrier after failure', async() => {
+    const observeFile = vi.fn()
+    const send = vi.fn()
+    const win = { id: 1, webContents: { send } }
+    const other = { id: 2, webContents: { send } }
+    const watcher = new Watcher({ getItem: () => [] } as never, observeFile)
+    watcher.watch(win as never, '/project/a.md', 'file')
+    watcher.watch(other as never, '/project/a.md', 'file')
+    await expect(watcher.withIgnoredFileDeletions(win as never, ['/project/a.md'], async() => {
+      mocks.instances[0].emit('unlink', '/project/a.md')
+      mocks.instances[1].emit('unlink', '/project/a.md')
+      expect(observeFile).toHaveBeenCalledExactlyOnceWith(other, {
+        type: 'unlink', change: { pathname: '/project/a.md' }
+      })
+      throw new Error('Move failed')
+    })).rejects.toThrow('Move failed')
+    mocks.instances[0].emit('unlink', '/project/a.md')
+    expect(observeFile).toHaveBeenLastCalledWith(win, {
+      type: 'unlink', change: { pathname: '/project/a.md' }
+    })
+  })
 })
