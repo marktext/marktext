@@ -11,6 +11,7 @@
       <el-select
         v-model="selectValue"
         :show-arrow="false"
+        popper-class="pref-dropdown"
         :aria-label="description || ariaLabel"
         :aria-describedby="descriptionId"
         :disabled="disable"

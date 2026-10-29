@@ -10,7 +10,7 @@
         clearable
         value-key="preference"
         :debounce="0"
-        popper-class="pref-autocomplete"
+        popper-class="pref-dropdown pref-autocomplete"
         :fetch-suggestions="querySearch"
         :placeholder="t('preferences.search.placeholder')"
         :trigger-on-focus="false"
@@ -56,6 +56,7 @@ import { useI18n } from 'vue-i18n'
 import { useKeybindingsStore } from '@/store/keybindings'
 import { getKeybindingSearchContent } from './keybindingSearch'
 import { openSetting } from '../settingLocation'
+import '../common/dropdownAppearance.css'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -124,11 +125,6 @@ onUnmounted(() => {
   }
 }
 .pref-autocomplete {
-  background: var(--floatBgColor);
-  border-color: var(--floatBorderColor);
-  & .el-autocomplete-suggestion__wrap li:hover {
-    background: var(--floatHoverColor);
-  }
   & li {
     line-height: normal;
     padding: 7px;

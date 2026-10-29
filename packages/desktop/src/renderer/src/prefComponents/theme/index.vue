@@ -71,6 +71,7 @@
           v-if="pickerTarget === 'theme'"
           v-model="filter"
           :show-arrow="false"
+          popper-class="pref-dropdown"
           :aria-label="t('preferences.theme.filterLabel')"
         >
           <el-option

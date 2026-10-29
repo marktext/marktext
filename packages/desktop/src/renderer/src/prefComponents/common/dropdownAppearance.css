@@ -1,0 +1,6 @@
+.pref-dropdown {
+  --el-bg-color-overlay: var(--floatBgColor);
+  --el-border-color-light: var(--floatBorderColor);
+  --el-text-color-regular: var(--editorColor);
+  --el-fill-color-light: var(--floatHoverColor);
+}
