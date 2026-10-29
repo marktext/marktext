@@ -150,7 +150,8 @@ abstract class BaseFloat {
     // tableChessboard → `(row, column)`). `never[]` in the contravariant
     // arg position accepts any concrete callback shape.
     show(reference: ReferenceElement, cb: (...args: never[]) => void = noop) {
-        if (this.muya.isReadOnly)
+        // Queued selection notifications must not reopen tools over a text drop target.
+        if (this.muya.isReadOnly || this.muya.editor?.textDrag?.isDragging)
             return;
         const { floatBox } = this;
         const { eventCenter } = this.muya;

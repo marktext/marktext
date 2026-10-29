@@ -27,6 +27,7 @@ import { getBlock } from '../utils/dom';
 import logger from '../utils/logger';
 import { isIndentShortcut, isTabKey } from '../utils/tab';
 import { attachDragDropImageHandlers } from './dragDropImage';
+import { TextDrag } from './dragDropText';
 import { attachLinkMouseHandlers } from './linkMouseEvents';
 import { handleIndentShortcut, handleTabSelection, shouldHandleIndentation } from './tab';
 import { EditTransactions } from './transactions';
@@ -281,6 +282,7 @@ export class Editor {
     clipboard: Clipboard;
     history: History;
     scrollPage: Nullable<ScrollPage> = null;
+    textDrag: TextDrag | null = null;
 
     private _activeContentBlock: Nullable<Content> = null;
     private _inputSelection: Nullable<TSelectionState> | undefined;
@@ -343,6 +345,7 @@ export class Editor {
         // as a new `![](src)` block. Cleanup is likewise handled by
         // `detachAllDomEvents`.
         attachDragDropImageHandlers(muya);
+        this.textDrag = new TextDrag(muya);
         if (options.focus !== false)
             this.focus();
     }
@@ -653,6 +656,7 @@ export class Editor {
     }
 
     setContent(content: TState[] | string, autoFocus = false) {
+        this.textDrag?.cancel(false);
         this.transactions.assertStandalone();
         this.transactions.cancel();
         this.selection.cancel();

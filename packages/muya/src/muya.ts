@@ -45,6 +45,7 @@ import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
 import './assets/styles/githubAlerts.css';
+import './assets/styles/dragDropText.css';
 import './assets/styles/prismjs/light.theme.css';
 
 export interface IMuyaPluginConstructor {
@@ -1579,6 +1580,7 @@ export class Muya {
     }
 
     destroy() {
+        this.editor.textDrag?.destroy();
         this.editor.selection.cancel();
         this.editor.transactions.cancel();
         this._cancelReadingLink();
