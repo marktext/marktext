@@ -46,6 +46,8 @@ test('settings search focuses the exact control, including repeated selections',
       await settings.locator('.pref-autocomplete').getByText(en.preferences.editor.textEditor.maxWidth, { exact: true }).click()
       await expect(settings.locator('#setting-editorLineWidth')).toBeFocused()
       await expect(settings.locator('#setting-editorLineWidth input')).toBeVisible()
+      // Autocomplete defers blur handling; finish closing before the next search.
+      await expect(settings.locator('.pref-autocomplete')).toBeHidden()
     }
     await search.fill('imageRelativeDirectoryName')
     await settings.locator('.pref-autocomplete').getByText(en.preferences.image.folderSetting.relativeFolderName, { exact: true }).click()
