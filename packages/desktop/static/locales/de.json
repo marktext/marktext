@@ -444,16 +444,16 @@
         "sourceCodeLineNumbers": "Zeilennummern im Quellcode-Modus anzeigen",
         "trimUnnecessaryCodeBlockEmptyLines": "Leere Zeilen am Anfang und Ende des Codeblocks entfernen",
         "autoPairBracket": "Automatische Klammern beim Bearbeiten",
-        "autoPairMarkdownSyntax": "Markdown-Syntax automatisch vervollständigen",
+        "autoPairMarkdownSyntax": "Markdown-Zeichen paarweise ergänzen",
         "autoPairQuote": "Automatische Vervollständigung von Anführungszeichen",
-        "endOfLine": "Das Zeilenendezeichen am Ende jeder Zeile. Der Standardwert ist default, der das Standard-Zeilenendezeichen Ihres Betriebssystems auswählt",
+        "endOfLine": "Standard-Zeilenende für Dateien",
         "defaultEncoding": "Die Standard-Dateikodierung",
         "autoGuessEncoding": "Versuchen, die Dateikodierung beim Öffnen von Dateien automatisch zu erraten",
         "trimTrailingNewline": "Die Option zum Entfernen nachfolgender Zeilenumbrüche",
         "textDirection": "Die Schreibrichtung des Textes",
         "hideQuickInsertHint": "Hinweis zum schnellen Erstellen von Absätzen ausblenden",
         "hideLinkPopup": "Link-Popup ausblenden, wenn der Cursor über dem Link schwebt",
-        "autoCheck": "Ob verwandte Aufgabe automatisch geprüft werden soll",
+        "autoCheck": "Über- und Unteraufgaben gemeinsam markieren",
         "preferLooseListItem": "Der bevorzugte Listentyp",
         "bulletListMarker": "Die Markierung in Aufzählungslisten",
         "orderListDelimiter": "Das Trennzeichen in geordneten Listen",
@@ -491,7 +491,7 @@
         "imageRelativeDirectoryName": "Der relative Bildordner-Name",
         "fileSortOrder": "Sortierreihenfolge für Dateien in geöffneten Ordnern: aufsteigend oder absteigend.",
         "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen.",
-        "showPandocConvert": "Pandoc-Konvertierungsmenü anzeigen. Erfordert eine Pandoc-Installation."
+        "showPandocConvert": "Pandoc-Konvertierung aktivieren"
       }
     },
     "categories": {
@@ -539,8 +539,8 @@
       },
       "pandoc": {
         "title": "Pandoc-Konvertierung",
-        "description": "Pandoc-Konvertierungsmenü anzeigen",
-        "detailedDescription": "Erfordert eine Pandoc-Installation",
+        "description": "Pandoc-Konvertierung aktivieren",
+        "detailedDescription": "Zeigt Konvertierungsbefehle im Menü an. Pandoc muss installiert sein.",
         "found": "Gefunden: {path}",
         "notFound": "Nicht gefunden",
         "recheck": "Erneut prüfen"
@@ -617,14 +617,14 @@
       "writingBehavior": {
         "title": "Schreibverhalten",
         "autoCloseBrackets": "Klammern automatisch schließen",
-        "autoCompleteMarkdown": "Markdown automatisch vervollständigen",
+        "autoCompleteMarkdown": "Markdown-Zeichen paarweise ergänzen",
         "autoCloseQuotes": "Anführungszeichen automatisch schließen"
       },
       "fileRepresentation": {
         "title": "Dateidarstellung",
         "tabWidth": "Eingabe mit der Tabulatortaste",
         "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
-        "lineSeparator": "Zeilentrenner",
+        "lineSeparator": "Standard-Zeilenende für Dateien",
         "defaultEncoding": "Standard-Kodierung",
         "autoDetectEncoding": "Kodierung automatisch erkennen",
         "trailingNewlines": {
@@ -649,7 +649,7 @@
         },
         "hideQuickInsertHint": "Schnelleinfügung-Hinweis ausblenden",
         "hideLinkPopup": "Link-Popup ausblenden",
-        "autoCheck": "Automatische Überprüfung",
+        "autoCheck": "Über- und Unteraufgaben gemeinsam markieren",
         "autoNormalizeLineEndings": "Zeilenenden beim Öffnen automatisch auf LF normalisieren",
         "wrapCodeBlocks": "Code-Blöcke umbrechen",
         "sourceCodeLineNumbers": "Zeilennummern im Quellcode-Modus anzeigen"
@@ -838,6 +838,11 @@
       "enableSpellChecking": "Rechtschreibprüfung aktivieren",
       "hideMarksForErrors": "Markierungen für Rechtschreibfehler ausblenden",
       "title": "Rechtschreibprüfung"
+    },
+    "explanations": {
+      "taskCascade": "Das Markieren einer übergeordneten Aufgabe aktualisiert ihre Unteraufgaben und umgekehrt.",
+      "markdownPairs": "Ergänzt beim Tippen gepaarte Markdown-Zeichen wie Sternchen, Unterstriche und Backticks.",
+      "lineEndings": "Gilt für neue Dateien sowie gemischte oder nicht erkannte Zeilenenden. Dateien mit erkanntem LF oder CRLF behalten ihr Format."
     }
   },
   "about": {

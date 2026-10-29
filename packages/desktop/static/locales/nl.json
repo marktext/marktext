@@ -443,16 +443,16 @@
         "sourceCodeLineNumbers": "Regelnummers tonen in broncodeweergave",
         "trimUnnecessaryCodeBlockEmptyLines": "Lege regels aan begin en einde van codeblokken verwijderen",
         "autoPairBracket": "Automatisch haakjes aanvullen bij bewerken",
-        "autoPairMarkdownSyntax": "Markdown-syntax automatisch aanvullen",
+        "autoPairMarkdownSyntax": "Markdown-markeringen als paar aanvullen",
         "autoPairQuote": "Automatisch aanhalingstekens aanvullen",
-        "endOfLine": "Het regeleindeteken aan het einde van elke regel",
+        "endOfLine": "Standaard regeleinde voor bestanden",
         "defaultEncoding": "De standaard bestandscodering",
         "autoGuessEncoding": "Probeer automatisch de bestandscodering te detecteren",
         "trimTrailingNewline": "Optie voor afsluitende lege regels",
         "textDirection": "De schrijfrichting van de tekst",
         "hideQuickInsertHint": "Hint voor snel invoegen verbergen",
         "hideLinkPopup": "Link-popup verbergen als cursor op link staat",
-        "autoCheck": "Automatisch gerelateerde taak aanvinken",
+        "autoCheck": "Bovenliggende taken en subtaken koppelen",
         "preferLooseListItem": "Het voorkeurs lijsttype",
         "bulletListMarker": "Het teken voor opsommingslijsten",
         "orderListDelimiter": "Het scheidingsteken voor genummerde lijsten",
@@ -491,7 +491,7 @@
         "autoNormalizeLineEndings": "Regeleindes automatisch normaliseren bij het openen van bestanden. Indien uitgeschakeld worden bestanden ongewijzigd geopend.",
         "fileSortOrder": "Sorteervolgorde voor bestanden in geopende mappen: oplopend of aflopend.",
         "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk.",
-        "showPandocConvert": "Het Pandoc-conversiemenu tonen. Vereist een installatie van Pandoc."
+        "showPandocConvert": "Pandoc-conversie inschakelen"
       }
     },
     "categories": {
@@ -539,8 +539,8 @@
       },
       "pandoc": {
         "title": "Pandoc-conversie",
-        "description": "Het Pandoc-conversiemenu tonen",
-        "detailedDescription": "Vereist een installatie van Pandoc",
+        "description": "Pandoc-conversie inschakelen",
+        "detailedDescription": "Toont conversieopdrachten in het menu. Pandoc moet geïnstalleerd zijn.",
         "found": "Gevonden: {path}",
         "notFound": "Niet gevonden",
         "recheck": "Opnieuw controleren"
@@ -617,14 +617,14 @@
       "writingBehavior": {
         "title": "Schrijfgedrag",
         "autoCloseBrackets": "Haakjes automatisch sluiten",
-        "autoCompleteMarkdown": "Markdown automatisch aanvullen",
+        "autoCompleteMarkdown": "Markdown-markeringen als paar aanvullen",
         "autoCloseQuotes": "Aanhalingstekens automatisch sluiten"
       },
       "fileRepresentation": {
         "title": "Bestandsweergave",
         "tabWidth": "Invoer met de Tab-toets",
         "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
-        "lineSeparator": "Regelscheidingsteken",
+        "lineSeparator": "Standaard regeleinde voor bestanden",
         "defaultEncoding": "Standaardcodering",
         "autoDetectEncoding": "Codering automatisch detecteren",
         "trailingNewlines": {
@@ -649,7 +649,7 @@
         },
         "hideQuickInsertHint": "Hint snel invoegen verbergen",
         "hideLinkPopup": "Link-popup verbergen",
-        "autoCheck": "Automatisch aanvinken",
+        "autoCheck": "Bovenliggende taken en subtaken koppelen",
         "autoNormalizeLineEndings": "Regeleindes automatisch normaliseren naar LF bij openen",
         "wrapCodeBlocks": "Codeblokken terugloopbaar",
         "sourceCodeLineNumbers": "Regelnummers tonen in broncodeweergave"
@@ -838,6 +838,11 @@
       "enableSpellChecking": "Spellingcontrole inschakelen",
       "hideMarksForErrors": "Markering voor spelfouten verbergen",
       "title": "Spellingcontrole"
+    },
+    "explanations": {
+      "taskCascade": "Een bovenliggende taak aanvinken werkt subtaken bij; gewijzigde subtaken werken hun bovenliggende taak bij.",
+      "markdownPairs": "Vult tijdens het typen paren Markdown-markeringen aan, zoals sterretjes, underscores en backticks.",
+      "lineEndings": "Voor nieuwe bestanden en gemengde of niet-herkende regeleinden. LF- en CRLF-bestanden behouden hun gedetecteerde formaat."
     }
   },
   "about": {

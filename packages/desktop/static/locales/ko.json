@@ -444,16 +444,16 @@
         "sourceCodeLineNumbers": "소스 코드 모드에서 줄 번호 표시",
         "trimUnnecessaryCodeBlockEmptyLines": "코드 블록의 시작과 끝에 있는 빈 줄 제거",
         "autoPairBracket": "편집 시 자동으로 괄호 쌍 만들기",
-        "autoPairMarkdownSyntax": "마크다운 구문 자동 완성",
+        "autoPairMarkdownSyntax": "Markdown 기호 쌍 자동 완성",
         "autoPairQuote": "따옴표 자동 완성",
-        "endOfLine": "각 줄 끝에서 사용되는 줄바꿈 문자. 기본값은 default로, 운영 체제의 기본 줄바꿈 문자를 선택합니다",
+        "endOfLine": "파일 기본 줄바꿈 형식",
         "defaultEncoding": "기본 파일 인코딩",
         "autoGuessEncoding": "파일을 열 때 파일 인코딩을 자동으로 추측하려고 시도",
         "trimTrailingNewline": "후행 줄바꿈 제거 옵션",
         "textDirection": "텍스트 쓰기 방향",
         "hideQuickInsertHint": "빠르게 단락을 만들기 위한 힌트 숨기기",
         "hideLinkPopup": "커서가 링크 위에 호버할 때 링크 팝업 숨기기",
-        "autoCheck": "관련 작업을 자동으로 확인할지 여부",
+        "autoCheck": "상위·하위 작업 체크 연동",
         "preferLooseListItem": "선호하는 목록 유형",
         "bulletListMarker": "글머리 기호 목록에서 사용되는 마커",
         "orderListDelimiter": "순서가 있는 목록에서 사용되는 구분자",
@@ -491,7 +491,7 @@
         "imageRelativeDirectoryName": "상대 이미지 폴더 이름",
         "fileSortOrder": "열린 폴더의 파일 정렬 순서: 오름차순 또는 내림차순",
         "openedFilesInSidebar": "사이드바에 열린 파일을 표시할지 여부",
-        "showPandocConvert": "Pandoc 변환 메뉴를 표시합니다. Pandoc이 설치되어 있어야 합니다."
+        "showPandocConvert": "Pandoc 형식 변환 활성화"
       }
     },
     "categories": {
@@ -539,8 +539,8 @@
       },
       "pandoc": {
         "title": "Pandoc 변환",
-        "description": "Pandoc 변환 메뉴 표시",
-        "detailedDescription": "Pandoc이 설치되어 있어야 합니다",
+        "description": "Pandoc 형식 변환 활성화",
+        "detailedDescription": "메뉴에 형식 변환 명령을 표시합니다. Pandoc을 설치해야 합니다.",
         "found": "찾음: {path}",
         "notFound": "찾을 수 없음",
         "recheck": "다시 확인"
@@ -617,14 +617,14 @@
       "writingBehavior": {
         "title": "작성 동작",
         "autoCloseBrackets": "괄호 자동 닫기",
-        "autoCompleteMarkdown": "마크다운 자동 완성",
+        "autoCompleteMarkdown": "Markdown 기호 쌍 자동 완성",
         "autoCloseQuotes": "따옴표 자동 닫기"
       },
       "fileRepresentation": {
         "title": "파일 표현",
         "tabWidth": "Tab 키 입력",
         "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
-        "lineSeparator": "줄 구분자",
+        "lineSeparator": "파일 기본 줄바꿈 형식",
         "defaultEncoding": "기본 인코딩",
         "autoDetectEncoding": "인코딩 자동 감지",
         "trailingNewlines": {
@@ -649,7 +649,7 @@
         },
         "hideQuickInsertHint": "빠른 삽입 힌트 숨기기",
         "hideLinkPopup": "링크 팝업 숨기기",
-        "autoCheck": "자동 확인",
+        "autoCheck": "상위·하위 작업 체크 연동",
         "autoNormalizeLineEndings": "열 때 줄 바꿈을 자동으로 LF로 정규화",
         "wrapCodeBlocks": "코드 블록 줄바꿈",
         "sourceCodeLineNumbers": "소스 코드 모드에서 줄 번호 표시"
@@ -838,6 +838,11 @@
       "enableSpellChecking": "맞춤법 검사 활성화",
       "hideMarksForErrors": "맞춤법 오류 표시 숨기기",
       "title": "맞춤법 검사기"
+    },
+    "explanations": {
+      "taskCascade": "상위 작업을 체크하면 하위 작업도 갱신되고, 하위 작업을 변경하면 상위 작업도 갱신됩니다.",
+      "markdownPairs": "입력할 때 별표, 밑줄, 백틱 등의 Markdown 기호 쌍을 자동 완성합니다.",
+      "lineEndings": "새 파일과 줄바꿈이 혼합되거나 감지되지 않는 파일에 적용됩니다. 기존 LF 또는 CRLF 파일은 감지된 형식을 유지합니다."
     }
   },
   "about": {

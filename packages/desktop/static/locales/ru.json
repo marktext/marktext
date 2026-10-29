@@ -443,16 +443,16 @@
         "sourceCodeLineNumbers": "Показывать номера строк в режиме исходного кода",
         "trimUnnecessaryCodeBlockEmptyLines": "Обрезать пустые строки в начале и конце блока кода",
         "autoPairBracket": "Автоматически закрывать скобки при редактировании",
-        "autoPairMarkdownSyntax": "Автодополнение синтаксиса markdown",
+        "autoPairMarkdownSyntax": "Дополнять парные маркеры Markdown",
         "autoPairQuote": "Автоматическое закрытие кавычек",
-        "endOfLine": "Символ перевода строки в конце каждой строки. Значение по умолчанию — default, выбирает системный перевод строки",
+        "endOfLine": "Окончание строки по умолчанию",
         "defaultEncoding": "Кодировка файлов по умолчанию",
         "autoGuessEncoding": "Пытаться автоматически определить кодировку файла при открытии",
         "trimTrailingNewline": "Опция обрезки завершающего перевода строки",
         "textDirection": "Направление письма",
         "hideQuickInsertHint": "Скрывать подсказку быстрого создания абзацев",
         "hideLinkPopup": "Скрывать всплывающее окно ссылки при наведении курсора на ссылку",
-        "autoCheck": "Автоматически отмечать связанные задачи",
+        "autoCheck": "Связать отметки родительских и дочерних задач",
         "preferLooseListItem": "Предпочитаемый тип списка",
         "bulletListMarker": "Маркер маркированного списка",
         "orderListDelimiter": "Разделитель нумерованного списка",
@@ -491,7 +491,7 @@
         "autoNormalizeLineEndings": "Автоматически нормализовать концы строк при открытии файлов. Если отключено, файлы открываются как есть.",
         "fileSortOrder": "Порядок сортировки файлов в открытых папках: по возрастанию или убыванию.",
         "openedFilesInSidebar": "Показывать открытые файлы на боковой панели.",
-        "showPandocConvert": "Показывать меню конвертации Pandoc. Требуется установленный Pandoc."
+        "showPandocConvert": "Включить преобразование Pandoc"
       }
     },
     "categories": {
@@ -539,8 +539,8 @@
       },
       "pandoc": {
         "title": "Конвертация Pandoc",
-        "description": "Показывать меню конвертации Pandoc",
-        "detailedDescription": "Требуется установленный Pandoc",
+        "description": "Включить преобразование Pandoc",
+        "detailedDescription": "Показывает команды преобразования в меню. Требуется установленный Pandoc.",
         "found": "Найден: {path}",
         "notFound": "Не найден",
         "recheck": "Проверить снова"
@@ -617,14 +617,14 @@
       "writingBehavior": {
         "title": "Поведение при вводе",
         "autoCloseBrackets": "Автоматически закрывать скобки",
-        "autoCompleteMarkdown": "Автодополнение markdown",
+        "autoCompleteMarkdown": "Дополнять парные маркеры Markdown",
         "autoCloseQuotes": "Автоматически закрывать кавычки"
       },
       "fileRepresentation": {
         "title": "Представление файла",
         "tabWidth": "Ввод клавишей Tab",
         "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
-        "lineSeparator": "Разделитель строк",
+        "lineSeparator": "Окончание строки по умолчанию",
         "defaultEncoding": "Кодировка по умолчанию",
         "autoDetectEncoding": "Автоопределение кодировки",
         "trailingNewlines": {
@@ -649,7 +649,7 @@
         },
         "hideQuickInsertHint": "Скрыть подсказку быстрой вставки",
         "hideLinkPopup": "Скрыть всплывающее окно ссылки",
-        "autoCheck": "Автопроверка",
+        "autoCheck": "Связать отметки родительских и дочерних задач",
         "autoNormalizeLineEndings": "Автонормализация концов строк в LF при открытии",
         "wrapCodeBlocks": "Переносить блоки кода",
         "sourceCodeLineNumbers": "Показывать номера строк в режиме исходного кода"
@@ -838,6 +838,11 @@
       "enableSpellChecking": "Включить проверку орфографии",
       "hideMarksForErrors": "Скрывать пометки орфографических ошибок",
       "title": "Проверка орфографии"
+    },
+    "explanations": {
+      "taskCascade": "Отметка родительской задачи обновляет подзадачи; изменение подзадач обновляет родительскую задачу.",
+      "markdownPairs": "При вводе дополняет парные маркеры Markdown: звёздочки, подчёркивания и обратные кавычки.",
+      "lineEndings": "Для новых файлов и смешанных или неопределённых окончаний строк. Файлы LF и CRLF сохраняют обнаруженный формат."
     }
   },
   "about": {

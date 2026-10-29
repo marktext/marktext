@@ -443,16 +443,16 @@
         "sourceCodeLineNumbers": "Show line numbers in source code mode",
         "trimUnnecessaryCodeBlockEmptyLines": "Trim the beginning and ending empty lines in code block",
         "autoPairBracket": "Automatically brackets when editing",
-        "autoPairMarkdownSyntax": "Autocomplete markdown syntax",
+        "autoPairMarkdownSyntax": "Auto-pair Markdown markers",
         "autoPairQuote": "Automatic completion of quotes",
-        "endOfLine": "The newline character used at the end of each line. The default value is default, which selects your operating system's default newline character",
+        "endOfLine": "Default file line ending",
         "defaultEncoding": "The default file encoding",
         "autoGuessEncoding": "Try to automatically guess the file encoding when opening files",
         "trimTrailingNewline": "The trim trailing newline option",
         "textDirection": "The writing text direction",
         "hideQuickInsertHint": "Hide hint for quickly creating paragraphs",
         "hideLinkPopup": "Hide link popup when the cursor is hover on the link",
-        "autoCheck": "Whether to automatically check related task",
+        "autoCheck": "Link parent and child tasks",
         "preferLooseListItem": "The preferred list type",
         "bulletListMarker": "The marker used in bullet list",
         "orderListDelimiter": "The delimiter used in order list",
@@ -491,7 +491,7 @@
         "autoNormalizeLineEndings": "Automatically normalize line endings when opening files. When disabled, files are opened as-is.",
         "fileSortOrder": "Sort order for files in opened folders: ascending or descending.",
         "openedFilesInSidebar": "Whether to show opened files in the sidebar.",
-        "showPandocConvert": "Show the Pandoc conversion menu. Requires Pandoc to be installed."
+        "showPandocConvert": "Enable Pandoc conversion"
       }
     },
     "categories": {
@@ -539,8 +539,8 @@
       },
       "pandoc": {
         "title": "Pandoc Conversion",
-        "description": "Show the Pandoc conversion menu",
-        "detailedDescription": "Requires Pandoc to be installed",
+        "description": "Enable Pandoc conversion",
+        "detailedDescription": "Show format conversion commands in the menu. Requires Pandoc to be installed.",
         "found": "Found: {path}",
         "notFound": "Not found",
         "recheck": "Re-check"
@@ -617,14 +617,14 @@
       "writingBehavior": {
         "title": "Writing Behavior",
         "autoCloseBrackets": "Auto close brackets",
-        "autoCompleteMarkdown": "Auto complete markdown",
+        "autoCompleteMarkdown": "Auto-pair Markdown markers",
         "autoCloseQuotes": "Auto close quotes"
       },
       "fileRepresentation": {
         "title": "File Representation",
         "tabWidth": "Tab key input",
         "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
-        "lineSeparator": "Line separator",
+        "lineSeparator": "Default file line ending",
         "defaultEncoding": "Default encoding",
         "autoDetectEncoding": "Auto detect encoding",
         "trailingNewlines": {
@@ -649,7 +649,7 @@
         },
         "hideQuickInsertHint": "Hide quick insert hint",
         "hideLinkPopup": "Hide link popup",
-        "autoCheck": "Auto check",
+        "autoCheck": "Link parent and child tasks",
         "autoNormalizeLineEndings": "Auto-normalize line endings to LF on open",
         "wrapCodeBlocks": "Wrap code blocks",
         "sourceCodeLineNumbers": "Show line numbers in source code mode"
@@ -838,6 +838,11 @@
       "enableSpellChecking": "Enable spell checking",
       "hideMarksForErrors": "Hide marks for spelling errors",
       "title": "Spell Checker"
+    },
+    "explanations": {
+      "taskCascade": "Checking a parent updates its subtasks; changing subtasks updates their parent.",
+      "markdownPairs": "Complete paired Markdown markers such as asterisks, underscores and backticks as you type.",
+      "lineEndings": "Used for new files and files with mixed or undetected line endings. Existing LF or CRLF files keep their detected format."
     }
   },
   "about": {

@@ -97,6 +97,7 @@
         />
         <bool
           :description="t('preferences.editor.writingBehavior.autoCompleteMarkdown')"
+          :notes="t('preferences.explanations.markdownPairs')"
           :bool="autoPairMarkdownSyntax"
           :on-change="(value) => onSelectChange('autoPairMarkdownSyntax', value)"
         />
@@ -124,6 +125,7 @@
         />
         <cur-select
           :description="t('preferences.editor.fileRepresentation.lineSeparator')"
+          :notes="t('preferences.explanations.lineEndings')"
           :value="endOfLine"
           :options="getEndOfLineOptions()"
           :on-change="(value) => onSelectChange('endOfLine', value)"
@@ -178,6 +180,7 @@
         />
         <bool
           :description="t('preferences.editor.misc.autoCheck')"
+          :notes="t('preferences.explanations.taskCascade')"
           :bool="autoCheck"
           :on-change="(value) => onSelectChange('autoCheck', value)"
         />

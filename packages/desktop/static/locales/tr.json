@@ -443,16 +443,16 @@
         "sourceCodeLineNumbers": "Kaynak kod modunda satır numaralarını göster",
         "trimUnnecessaryCodeBlockEmptyLines": "Kod bloğundaki baştaki ve sondaki boş satırları kırp",
         "autoPairBracket": "Düzenlerken parantezleri otomatik tamamla",
-        "autoPairMarkdownSyntax": "Markdown söz dizimini otomatik tamamla",
+        "autoPairMarkdownSyntax": "Markdown işaretlerini çift olarak tamamla",
         "autoPairQuote": "Tırnak işaretlerini otomatik tamamla",
-        "endOfLine": "Her satırın sonunda kullanılan yeni satır karakteri. Varsayılan değer, işletim sisteminizin varsayılan yeni satır karakterini seçen 'default' değeridir",
+        "endOfLine": "Varsayılan dosya satır sonu",
         "defaultEncoding": "Varsayılan dosya kodlaması",
         "autoGuessEncoding": "Dosyaları açarken dosya kodlamasını otomatik olarak tahmin etmeyi dene",
         "trimTrailingNewline": "Sondaki yeni satırı kırpma seçeneği",
         "textDirection": "Metin yazım yönü",
         "hideQuickInsertHint": "Paragrafları hızlı oluşturma ipucunu gizle",
         "hideLinkPopup": "İmleç bağlantının üzerine geldiğinde bağlantı açılır penceresini gizle",
-        "autoCheck": "İlgili görevin otomatik olarak işaretlenip işaretlenmeyeceği",
+        "autoCheck": "Üst ve alt görevlerin işaretlerini bağla",
         "preferLooseListItem": "Tercih edilen liste türü",
         "bulletListMarker": "Sırasız listede kullanılan işaret",
         "orderListDelimiter": "Sıralı listede kullanılan ayraç",
@@ -491,7 +491,7 @@
         "autoNormalizeLineEndings": "Dosyaları açarken yeni satır karakterlerini otomatik olarak normalleştir. Devre dışı bırakıldığında dosyalar olduğu gibi açılır.",
         "fileSortOrder": "Açık klasörlerdeki dosyaların sıralama düzeni: artan veya azalan.",
         "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği.",
-        "showPandocConvert": "Pandoc dönüştürme menüsünü gösterir. Pandoc kurulu olmalıdır."
+        "showPandocConvert": "Pandoc dönüşümünü etkinleştir"
       }
     },
     "categories": {
@@ -539,8 +539,8 @@
       },
       "pandoc": {
         "title": "Pandoc Dönüştürme",
-        "description": "Pandoc dönüştürme menüsünü göster",
-        "detailedDescription": "Pandoc kurulu olmalıdır",
+        "description": "Pandoc dönüşümünü etkinleştir",
+        "detailedDescription": "Menüde biçim dönüştürme komutlarını gösterir. Pandoc kurulmuş olmalıdır.",
         "found": "Bulundu: {path}",
         "notFound": "Bulunamadı",
         "recheck": "Yeniden Denetle"
@@ -617,14 +617,14 @@
       "writingBehavior": {
         "title": "Yazma Davranışı",
         "autoCloseBrackets": "Parantezleri otomatik kapat",
-        "autoCompleteMarkdown": "Markdown'u otomatik tamamla",
+        "autoCompleteMarkdown": "Markdown işaretlerini çift olarak tamamla",
         "autoCloseQuotes": "Tırnakları otomatik kapat"
       },
       "fileRepresentation": {
         "title": "Dosya Gösterimi",
         "tabWidth": "Tab tuşu girdisi",
         "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
-        "lineSeparator": "Satır ayırıcı",
+        "lineSeparator": "Varsayılan dosya satır sonu",
         "defaultEncoding": "Varsayılan kodlama",
         "autoDetectEncoding": "Kodlamayı otomatik algıla",
         "trailingNewlines": {
@@ -649,7 +649,7 @@
         },
         "hideQuickInsertHint": "Hızlı ekleme ipucunu gizle",
         "hideLinkPopup": "Bağlantı açılır penceresini gizle",
-        "autoCheck": "Otomatik işaretle",
+        "autoCheck": "Üst ve alt görevlerin işaretlerini bağla",
         "autoNormalizeLineEndings": "Açılışta satır sonlarını LF'ye otomatik normalleştir",
         "wrapCodeBlocks": "Kod bloklarını kaydır",
         "sourceCodeLineNumbers": "Kaynak kod modunda satır numaralarını göster"
@@ -838,6 +838,11 @@
       "enableSpellChecking": "Yazım denetimini etkinleştir",
       "hideMarksForErrors": "Yazım hataları için işaretleri gizle",
       "title": "Yazım Denetleyici"
+    },
+    "explanations": {
+      "taskCascade": "Üst görevi işaretlemek alt görevleri günceller; alt görevlerin değişmesi üst görevi günceller.",
+      "markdownPairs": "Yazarken yıldız, alt çizgi ve ters tırnak gibi Markdown işaretlerini çift olarak tamamlar.",
+      "lineEndings": "Yeni dosyalarda ve karışık veya algılanamayan satır sonlarında kullanılır. LF veya CRLF dosyaları algılanan biçimini korur."
     }
   },
   "about": {
