@@ -14,6 +14,13 @@ const openSettings = async(app: ElectronApplication, editor: Page): Promise<Page
   return settings
 }
 
+const closeSettings = async(app: ElectronApplication, settings: Page): Promise<void> => {
+  const window = await app.browserWindow(settings)
+  const closed = settings.waitForEvent('close')
+  await window.evaluate(window => window.close())
+  await closed
+}
+
 const preferences = async(app: ElectronApplication): Promise<Record<string, unknown>> => {
   const directory = await app.evaluate(({ app }) => app.getPath('userData'))
   return JSON.parse(readFileSync(join(directory, 'preferences.json'), 'utf8'))
@@ -76,7 +83,7 @@ test('file-tree rule tags retain glob commas when adding and reopening settings'
     await rules.locator('.el-tag__close').first().click()
     await expect.poll(async() => (await preferences(app)).treePathExcludePatterns)
       .toEqual([' **/{cache,backup}/** '])
-    await settings.evaluate(() => window.electron.windowControl.close())
+    await closeSettings(app, settings)
     await expect.poll(() => app.windows().length).toBe(1)
     settings = await openSettings(app, page)
     await settings.getByRole('button', { name: 'Files & saving', exact: true }).click()
