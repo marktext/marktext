@@ -116,6 +116,7 @@ onMounted(() => {
       -webkit-app-region: drag;
     }
     & .pref-setting {
+      container-type: inline-size;
       padding: 50px 40px;
       padding-top: var(--titleBarHeight);
       flex: 1;

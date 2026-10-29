@@ -1,52 +1,29 @@
 <template>
-  <section
+  <setting-row
     class="pref-switch-item"
-    :class="{ 'ag-underdevelop': disable }"
+    :description="description"
+    :notes="supportingNotes"
+    :more="more"
+    :disabled="disable"
+    compact
   >
-    <div
-      class="description"
-      style="display: flex; align-items: center"
-    >
-      <span>{{ description }}:</span>
-      <icon-tooltip
-        v-if="more"
-        :content="t('preferences.learnMore', { name: description })"
-      >
-        <button
-          type="button"
-          class="plain-button"
-          :aria-label="t('preferences.learnMore', { name: description })"
-          @click="handleMoreClick"
-        >
-          <LinkIcon :size="14" />
-        </button>
-      </icon-tooltip>
-      <span
-        v-if="supportingNotes"
-        class="notes"
-      >
-        {{ supportingNotes }}
-      </span>
-    </div>
-    <el-switch
-      v-model="status"
-      :aria-label="description"
-      :disabled="disable"
-    />
-  </section>
+    <template #default="{ descriptionId }">
+      <el-switch
+        v-model="status"
+        :aria-label="description"
+        :aria-describedby="descriptionId"
+        :disabled="disable"
+      />
+    </template>
+  </setting-row>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-import LinkIcon from '@/components/icons/LinkIcon.vue'
-import IconTooltip from '@/components/iconTooltip/index.vue'
+import SettingRow from '../settingRow.vue'
 import type { PrefControlBaseProps } from '../types'
 
-const { t } = useI18n()
-
 interface BoolProps extends PrefControlBaseProps {
-  notes?: string
   bool: boolean
   onChange: (value: boolean) => void
   detailedDescription?: string
@@ -67,41 +44,9 @@ const status = computed({
   set: (value: boolean | string | number) => props.onChange(Boolean(value))
 })
 
-const handleMoreClick = () => {
-  if (typeof props.more === 'string') {
-    window.electron.shell.openExternal(props.more)
-  }
-}
-
 </script>
 
 <style>
-.pref-switch-item {
-  font-size: 14px;
-  user-select: none;
-  margin: 12px 0;
-  color: var(--editorColor);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  & .description {
-    & svg {
-      margin-left: 4px;
-      cursor: pointer;
-      opacity: 0.7;
-      color: var(--iconColor);
-    }
-    & svg:hover {
-      color: var(--themeColor);
-    }
-    & > .notes {
-      display: inline;
-      margin: 0 0 0 8px;
-    }
-  }
-}
-
 span.el-switch__core::after {
   top: 3px;
   left: 7px;

@@ -1,6 +1,8 @@
 
 export interface PrefControlBaseProps {
   description?: string
+  notes?: string
+  wide?: boolean
   /** External URL opened when the info icon is clicked. */
   more?: string
   /** When true, the control renders disabled / under-development. */
