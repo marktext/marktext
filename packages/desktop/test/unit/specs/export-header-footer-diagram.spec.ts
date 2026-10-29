@@ -17,8 +17,8 @@ const FULL_DOC =
 
 vi.mock('@muyajs/core', () => ({
   MarkdownToHtml: class {
-    async generate(): Promise<string> {
-      return FULL_DOC
+    async generateWithHeadings() {
+      return { html: FULL_DOC, headings: [] }
     }
   }
 }))

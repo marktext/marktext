@@ -132,7 +132,7 @@ import { isMac, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath, copyImageToClipboard, readImagePng, clipboardImagePath } from '@/util/clipboard'
 import { dataURLToFile } from '@/util/dataURLToFile'
-import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
+import { getCssForOptions, type PdfCssOptions } from '@/util/pdf'
 import {
   getTocHeadingScrollTop,
   resolveTocHeadingElement,
@@ -1191,6 +1191,8 @@ interface ExportOptions {
   footer?: unknown
   headerFooterStyled?: unknown
   htmlTitle?: string
+  tocTitle?: string
+  tocIncludeTopHeading?: boolean
   pageSize?: string
   pageSizeWidth?: number
   pageSizeHeight?: number
@@ -1211,7 +1213,10 @@ const handleExport = async (options: unknown) => {
 
   editorStore.flushActiveEditor()
   const extraCss = await getCssForOptions(opts as unknown as PdfCssOptions)
-  const htmlToc = getHtmlToc(muya.getTOC(), opts as unknown as HtmlTocOptions)
+  const tocOptions = {
+    tocTitle: opts.tocTitle,
+    tocIncludeTopHeading: opts.tocIncludeTopHeading
+  }
   // The hidden WYSIWYG engine keeps its pre-source-mode document until the handoff.
   const markdown = sourceCode.value ? (editorStore.currentFile?.markdown ?? '') : muya.getMarkdown()
   const header = (opts.header ?? null) as HeaderFooterPart | null
@@ -1224,7 +1229,7 @@ const handleExport = async (options: unknown) => {
           title: htmlTitle || '',
           printOptimization: false,
           extraCss,
-          toc: htmlToc,
+          tocOptions,
           dir: props.textDirection
         })
         editorStore.EXPORT({ type, content })
@@ -1254,7 +1259,7 @@ const handleExport = async (options: unknown) => {
           title: '',
           printOptimization: true,
           extraCss,
-          toc: htmlToc,
+          tocOptions,
           header,
           footer,
           headerFooterStyled: headerFooterStyled as boolean | undefined,
@@ -1280,7 +1285,7 @@ const handleExport = async (options: unknown) => {
           title: '',
           printOptimization: true,
           extraCss,
-          toc: htmlToc,
+          tocOptions,
           header,
           footer,
           headerFooterStyled: headerFooterStyled as boolean | undefined,

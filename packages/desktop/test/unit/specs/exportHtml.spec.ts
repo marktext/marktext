@@ -31,7 +31,6 @@ vi.hoisted(() => {
 })
 
 import { exportStyledHTML } from '@/util/exportHtml'
-import { getHtmlToc, type TocEntry } from '@/util/pdf'
 
 // `exportStyledHTML(muya, markdown, options)` renders through the real
 // `@muyajs/core` `MarkdownToHtml` engine (which runs in jsdom). The first arg is
@@ -82,11 +81,6 @@ describe('exportStyledHTML — wrapper parity', () => {
 })
 
 describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
-  // Mirror what `muya.getTOC()` returns ({ lvl, content } per heading, content
-  // being the heading's rendered plain text — inline markdown stripped (#4811)).
-  // `getHtmlToc` re-slugs `content`; the engine slugs each heading's rendered
-  // textContent — both via the SAME `generateGithubSlug` over the same plain
-  // text, so the anchors line up even for headings authored with formatting.
   const MD = [
     '# Getting Started',
     '',
@@ -103,18 +97,9 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
     '## Use **bold** and [a link](http://x)'
   ].join('\n')
 
-  const TOC: TocEntry[] = [
-    { lvl: 1, content: 'Getting Started' },
-    { lvl: 2, content: 'Installation' },
-    { lvl: 2, content: 'Installation' },
-    // getTOC() strips the `**bold**` / `[a link](http://x)` markup to the
-    // rendered text before it reaches the export TOC.
-    { lvl: 2, content: 'Use bold and a link' }
-  ]
-
   it('replaces the rendered <p>[TOC]</p> with the toc list', async() => {
-    const toc = getHtmlToc(TOC, {})
-    const out = await exportStyledHTML(NO_MUYA, MD, { toc })
+    const tocOptions = {}
+    const out = await exportStyledHTML(NO_MUYA, MD, { tocOptions })
 
     expect(out).toContain('toc-container')
     expect(out).toContain('Table of Contents')
@@ -122,8 +107,8 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
   })
 
   it('dedups repeated headings: two "Installation" → installation / installation-1, with matching anchors', async() => {
-    const toc = getHtmlToc(TOC, {})
-    const out = await exportStyledHTML(NO_MUYA, MD, { toc })
+    const tocOptions = {}
+    const out = await exportStyledHTML(NO_MUYA, MD, { tocOptions })
 
     const ids = [...out.matchAll(/<h[1-6][^>]*\sid="([^"]+)"/g)].map((m) => m[1])
     expect(ids).toEqual([
@@ -140,26 +125,82 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
   })
 
   it('a heading with inline markup produces a TOC anchor that matches the heading id (#4811)', async() => {
-    const toc = getHtmlToc(TOC, {})
-    const out = await exportStyledHTML(NO_MUYA, MD, { toc })
+    const tocOptions = {}
+    const out = await exportStyledHTML(NO_MUYA, MD, { tocOptions })
 
     const hrefs = [...out.matchAll(/href="#([^"]+)"/g)].map((m) => m[1])
     const ids = [...out.matchAll(/<h[1-6][^>]*\sid="([^"]+)"/g)].map((m) => m[1])
 
-    // getHtmlToc slugs the plain-text content "Use bold and a link" that
-    // getTOC() now yields → "use-bold-and-a-link", and the engine slugs the
-    // heading's rendered textContent to the same "use-bold-and-a-link". They
-    // converge, so the anchor is a live link in the exported document. The old
-    // raw-markdown slug "use-bold-and-a-linkhttpx" (a dead link) is gone.
     expect(hrefs).toContain('use-bold-and-a-link')
     expect(ids).toContain('use-bold-and-a-link')
     expect(hrefs).not.toContain('use-bold-and-a-linkhttpx')
   })
 
+  it('uses exported IDs when a nested heading consumes a duplicate slug', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '[TOC]\n\n> ## Intro\n\n## Intro', { tocOptions: {} })
+    const doc = new DOMParser().parseFromString(out, 'text/html')
+    const headings = [...doc.querySelectorAll('h2')]
+    const links = [...doc.querySelectorAll('.toc-container a')]
+
+    expect(headings.map(heading => heading.id)).toEqual(['intro', 'intro-1'])
+    expect(links.map(link => link.getAttribute('href'))).toEqual(['#intro', '#intro-1'])
+  })
+
+  it('preserves explicit HTML heading IDs and their collisions', async() => {
+    const markdown = '[TOC]\n\n<h2 id="intro">Custom title</h2>\n\n## Intro'
+    const out = await exportStyledHTML(NO_MUYA, markdown, { tocOptions: {} })
+    const doc = new DOMParser().parseFromString(out, 'text/html')
+
+    expect([...doc.querySelectorAll('.toc-container a')].map(link => [link.textContent, link.getAttribute('href')]))
+      .toEqual([['Custom title', '#intro'], ['Intro', '#intro-1']])
+  })
+
+  it('escapes explicit heading IDs when writing TOC href attributes', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '[TOC]\n\n<h2 id="a&quot;b">Quoted</h2>', { tocOptions: {} })
+    const doc = new DOMParser().parseFromString(out, 'text/html')
+    const link = doc.querySelector('.toc-container a')
+
+    expect(doc.querySelector('h2')?.id).toBe('a"b')
+    expect(link?.getAttribute('href')).toBe('#a"b')
+    expect(link?.getAttributeNames()).toEqual(['class', 'href'])
+  })
+
+  it('keeps heading formatting without nesting source links inside TOC links', async() => {
+    const markdown = '[TOC]\n\n## Use **bold** and [a link](https://example.com)'
+    const out = await exportStyledHTML(NO_MUYA, markdown, { tocOptions: {} })
+    const doc = new DOMParser().parseFromString(out, 'text/html')
+    const links = doc.querySelectorAll('.toc-container a')
+
+    expect(links).toHaveLength(1)
+    expect(links[0].textContent).toBe('Use bold and a link')
+    expect(links[0].querySelector('strong')?.textContent).toBe('bold')
+    expect(links[0].getAttribute('href')).toBe(`#${doc.querySelector('h2')?.id}`)
+  })
+
+  it.each([
+    ['![Logo](./logo.png)', 'Logo'],
+    ['$x^2$', 'x^2'],
+    [String.raw`$\frac{a}{b}$ and $\alpha_1$`, String.raw`\frac{a}{b} and \alpha_1`],
+    ['$x < y$', 'x < y'],
+    ['![A < B & C](./logo.png)', 'A < B & C'],
+    ['**Energy** $E = mc^2$ and ![Logo](./logo.png)', 'Energy E = mc^2 and Logo']
+  ])('keeps a readable TOC label for %s', async(heading, expectedLabel) => {
+    const out = await exportStyledHTML(NO_MUYA, `[TOC]\n\n## ${heading}`, { tocOptions: {} })
+    const doc = new DOMParser().parseFromString(out, 'text/html')
+    const link = doc.querySelector('.toc-container a')
+
+    expect(link?.textContent).toBe(expectedLabel)
+    expect(link?.getAttribute('href')).toBe(`#${doc.querySelector('h2')?.id}`)
+    expect(link?.querySelector('img, .katex, a')).toBeNull()
+    if (heading.includes('**Energy**')) {
+      expect(link?.querySelector('strong')?.textContent).toBe('Energy')
+    }
+  })
+
   it('does not inject the toc when the document has no [TOC] marker', async() => {
-    const toc = getHtmlToc(TOC, {})
+    const tocOptions = {}
     const out = await exportStyledHTML(NO_MUYA, '# Getting Started\n\n## Installation\n', {
-      toc
+      tocOptions
     })
 
     expect(out).not.toContain('toc-container')

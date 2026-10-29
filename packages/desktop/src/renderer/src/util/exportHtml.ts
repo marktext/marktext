@@ -13,6 +13,7 @@ import type { Muya } from '@muyajs/core'
 import { MarkdownToHtml } from '@muyajs/core'
 import { sanitize, EXPORT_DOMPURIFY_CONFIG } from './dompurify'
 import { resolveLocalLinkHref } from './resolveLinkHref'
+import { getHtmlToc, type HtmlTocOptions } from './pdf'
 
 export interface HeaderFooterPart {
   type?: number
@@ -25,8 +26,8 @@ export interface ExportStyledHtmlOptions {
   title?: string
   printOptimization?: boolean
   extraCss?: string
-  /** Pre-rendered TOC HTML (from `getHtmlToc`). Injected at `[TOC]`. */
-  toc?: string
+  /** Include a TOC at `[TOC]`, using headings from the exported document. */
+  tocOptions?: HtmlTocOptions
   header?: HeaderFooterPart | null
   footer?: HeaderFooterPart | null
   headerFooterStyled?: boolean
@@ -163,7 +164,7 @@ export const exportStyledHTML = async(
   markdown: string,
   options: ExportStyledHtmlOptions = {}
 ): Promise<string> => {
-  const { title = '', toc = '', header, footer, headerFooterStyled, dir } = options
+  const { title = '', tocOptions, header, footer, headerFooterStyled, dir } = options
   let { extraCss = '' } = options
 
   const appendHeaderFooter = !!header || !!footer
@@ -173,12 +174,13 @@ export const exportStyledHTML = async(
 
   // Render the engine's full HTML document. We re-extract its <article> body so
   // we can inject the TOC / header-footer, then re-emit the document shell.
-  const fullDoc = await new MarkdownToHtml(markdown, muya).generate({
+  const { html: fullDoc, headings } = await new MarkdownToHtml(markdown, muya).generateWithHeadings({
     title,
     extraCSS: extraCss,
     dir
   })
 
+  const toc = tocOptions ? getHtmlToc(headings, tocOptions) : ''
   const articleMatch = /<article class="markdown-body">([\s\S]*)<\/article>/.exec(fullDoc)
   let article = articleMatch ? articleMatch[1] : fullDoc
 

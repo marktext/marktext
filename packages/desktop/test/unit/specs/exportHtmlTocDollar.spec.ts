@@ -14,7 +14,6 @@ vi.hoisted(() => {
 
 import { Muya } from '@muyajs/core'
 import { exportStyledHTML } from '@/util/exportHtml'
-import { getHtmlToc } from '@/util/pdf'
 
 const hosts: HTMLElement[] = []
 
@@ -29,14 +28,28 @@ const exportWithToc = async(markdown: string): Promise<string> => {
   muya.init()
   hosts.push(muya.domNode)
 
-  const toc = getHtmlToc(muya.getTOC(), {})
-  return exportStyledHTML(muya, muya.getMarkdown(), { toc })
+  return exportStyledHTML(muya, muya.getMarkdown(), { tocOptions: {} })
 }
 
 const tocLinks = (html: string): string[] => {
   const list = /<ul class="toc-list">([\s\S]*?)<\/ul><\/div>/.exec(html)?.[1] ?? ''
   return [...list.matchAll(/<a class="toc-h\d" href="#[^"]*">([\s\S]*?)<\/a>/g)].map(m => m[1])
 }
+
+describe('exportStyledHTML — source document headings', () => {
+  it('uses current Markdown when the editor still contains an older document', async() => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const muya = new Muya(host, { markdown: '# Old title\n\n## Old section' } as ConstructorParameters<typeof Muya>[1])
+    muya.init()
+    hosts.push(muya.domNode)
+
+    const out = await exportStyledHTML(muya, '# New title\n\n[TOC]\n\n## New section', { tocOptions: {} })
+
+    expect(tocLinks(out)).toEqual(['New section'])
+    expect(out).not.toContain('Old section')
+  })
+})
 
 describe('exportStyledHTML — [TOC] with $ in heading text', () => {
   it.each([
