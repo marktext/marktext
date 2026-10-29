@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 
 import { describe, expect, it } from 'vitest';
+import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
+import { sanitize } from '../../utils';
 import { MarkdownToHtml } from '../markdownToHtml';
 
 describe('export heading metadata', () => {
@@ -31,6 +33,22 @@ describe('export heading metadata', () => {
             slug: heading.id,
         })));
         expect(document.querySelector('.mu-render-container')).toBeNull();
+    });
+
+    it('retains formula source after MathML is stripped, without changing its rendered content', async () => {
+        const { html, headings } = await new MarkdownToHtml('## $x < y$').generateWithHeadings();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const math = doc.querySelector('h2 .katex');
+
+        expect(math?.getAttribute('aria-label')).toBe('x < y');
+        expect(math?.querySelector('.katex-html')).not.toBeNull();
+        expect(math?.querySelector('math, annotation')).toBeNull();
+        const labelDoc = new DOMParser().parseFromString(headings[0].contentHtml, 'text/html');
+        expect(labelDoc.querySelector('.katex')?.getAttribute('aria-label')).toBe('x < y');
+        expect(headings[0].slug).toBe(doc.querySelector('h2')?.id);
+
+        const raw = '<span class="katex"><math><semantics><annotation encoding="application/x-tex">x</annotation></semantics></math></span>';
+        expect(sanitize(raw, EXPORT_DOMPURIFY_CONFIG, false)).not.toContain('aria-label');
     });
 
     it('does not retain headings between renders of the same exporter', async () => {

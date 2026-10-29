@@ -119,6 +119,20 @@ export interface HtmlTocOptions {
   [key: string]: unknown
 }
 
+const getTocLabel = ({ content, contentHtml }: TocEntry): string => {
+  if (contentHtml === undefined) return escapeHTML(content)
+
+  const template = document.createElement('template')
+  template.innerHTML = contentHtml
+  for (const image of template.content.querySelectorAll('img')) {
+    image.replaceWith(document.createTextNode(image.getAttribute('alt') ?? ''))
+  }
+  for (const math of template.content.querySelectorAll('.katex')) {
+    math.replaceWith(document.createTextNode(math.getAttribute('aria-label') ?? math.textContent ?? ''))
+  }
+  return sanitize(template.innerHTML, TOC_DOMPURIFY_CONFIG)
+}
+
 const generateHtmlToc = (
   tocList: TocEntry[],
   currentLevel: number,
@@ -137,11 +151,9 @@ const generateHtmlToc = (
   }
 
   const shifted = tocList.shift() as TocEntry
-  const { content, contentHtml, lvl, slug } = shifted
+  const { lvl, slug } = shifted
 
-  const label = contentHtml === undefined
-    ? escapeHTML(content)
-    : sanitize(contentHtml, TOC_DOMPURIFY_CONFIG)
+  const label = getTocLabel(shifted)
   let html = `<li><span><a class="toc-h${lvl}" href="#${escapeHTML(slug)}">${label}</a><span class="dots"></span></span>`
 
   if (tocList.length !== 0 && tocList[0].lvl > lvl) {

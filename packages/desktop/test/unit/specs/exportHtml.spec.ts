@@ -177,6 +177,26 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
     expect(links[0].getAttribute('href')).toBe(`#${doc.querySelector('h2')?.id}`)
   })
 
+  it.each([
+    ['![Logo](./logo.png)', 'Logo'],
+    ['$x^2$', 'x^2'],
+    [String.raw`$\frac{a}{b}$ and $\alpha_1$`, String.raw`\frac{a}{b} and \alpha_1`],
+    ['$x < y$', 'x < y'],
+    ['![A < B & C](./logo.png)', 'A < B & C'],
+    ['**Energy** $E = mc^2$ and ![Logo](./logo.png)', 'Energy E = mc^2 and Logo']
+  ])('keeps a readable TOC label for %s', async(heading, expectedLabel) => {
+    const out = await exportStyledHTML(NO_MUYA, `[TOC]\n\n## ${heading}`, { tocOptions: {} })
+    const doc = new DOMParser().parseFromString(out, 'text/html')
+    const link = doc.querySelector('.toc-container a')
+
+    expect(link?.textContent).toBe(expectedLabel)
+    expect(link?.getAttribute('href')).toBe(`#${doc.querySelector('h2')?.id}`)
+    expect(link?.querySelector('img, .katex, a')).toBeNull()
+    if (heading.includes('**Energy**')) {
+      expect(link?.querySelector('strong')?.textContent).toBe('Energy')
+    }
+  })
+
   it('does not inject the toc when the document has no [TOC] marker', async() => {
     const tocOptions = {}
     const out = await exportStyledHTML(NO_MUYA, '# Getting Started\n\n## Installation\n', {
