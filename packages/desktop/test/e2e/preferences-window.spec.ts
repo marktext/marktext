@@ -219,7 +219,7 @@ test('uploader keeps its complete offline guide and persists a custom script', a
     await expect(settings.locator('#setting-cliScript [role="alert"]')).toBeVisible()
     expect(savedScript()).toBe(process.execPath)
     await expect.poll(async() => (await preferences(app)).imageInsertAction).toBe('path')
-    await settings.evaluate(() => window.electron.windowControl.close())
+    await closeSettings(app, settings)
     await expect.poll(() => app.windows().length).toBe(1)
     settings = await openSettings(app, page)
     await settings.locator('.pref-sidebar input').fill('imageUploader')
