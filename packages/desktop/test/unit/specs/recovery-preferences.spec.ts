@@ -16,6 +16,15 @@ afterEach(() =>
 )
 
 describe('tolerant preference persistence', () => {
+  it.each(['editorFontFamily', 'codeFontFamily'] as const)('persists an empty %s as no custom font', key => {
+    const directory = profile()
+    const file = new PreferenceFile(directory)
+    expect(file.update({ [key]: 'Arial' }).status).toBe('persisted')
+    expect(file.update({ [key]: '' }).status).toBe('persisted')
+    expect(new PreferenceFile(directory).get()[key]).toBe('')
+    expect(file.update({ [key]: '   ' }).status).toBe('failed')
+    expect(file.get()[key]).toBe('')
+  })
   it('loads and saves file-tree rules without splitting commas or rewriting patterns', () => {
     const directory = profile()
     const patterns = ['**/{drafts,archive}/**', '*.tmp', ' leading space.md', '']

@@ -728,6 +728,9 @@
         "invalidKeybinding": "Raccourci clavier invalide"
       }
     },
+    "fontStack": {
+      "noMatches": "Aucune police correspondante"
+    },
     "selectFont": "Sélectionner une police",
     "spellchecker": {
       "autoDetectDescription": "Détecter automatiquement la langue du document",

@@ -252,7 +252,8 @@ const toSequenceTheme = (value: string): IMuyaOptions['sequenceTheme'] =>
 const defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
 const resolveEditorFont = (family: string): string =>
   family ? `${family}, ${defaultFontFamily}` : defaultFontFamily
-const resolveCodeFont = (family: string): string => `${family}, ${DEFAULT_CODE_FONT_FAMILY}`
+const resolveCodeFont = (family: string): string =>
+  family ? `${family}, ${DEFAULT_CODE_FONT_FAMILY}` : DEFAULT_CODE_FONT_FAMILY
 const selectionChange = ref<ISelectionChangePayload | null>(null)
 // `shallowRef`: the engine instance is `markRaw`d anyway, and a deep ref
 // would map `Muya` through `UnwrapRef` and lose the class's own type.

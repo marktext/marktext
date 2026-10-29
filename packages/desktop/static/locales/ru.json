@@ -728,6 +728,9 @@
         "invalidKeybinding": "Недопустимое сочетание клавиш"
       }
     },
+    "fontStack": {
+      "noMatches": "Подходящие шрифты не найдены"
+    },
     "selectFont": "Выбрать шрифт",
     "spellchecker": {
       "autoDetectDescription": "Автоматически определять язык документа",

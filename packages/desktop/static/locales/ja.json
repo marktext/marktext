@@ -728,6 +728,9 @@
         "invalidKeybinding": "無効なキーバインド"
       }
     },
+    "fontStack": {
+      "noMatches": "一致するフォントがありません"
+    },
     "selectFont": "フォントの選択",
     "spellchecker": {
       "autoDetectDescription": "文書の言語を自動検出",

@@ -728,6 +728,9 @@
         "invalidKeybinding": "无效的组合键"
       }
     },
+    "fontStack": {
+      "noMatches": "没有匹配的字体"
+    },
     "selectFont": "选择字体",
     "spellchecker": {
       "autoDetectDescription": "自动检测文档语言",

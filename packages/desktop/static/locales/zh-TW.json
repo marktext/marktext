@@ -728,6 +728,9 @@
         "invalidKeybinding": "無效的按鍵組合"
       }
     },
+    "fontStack": {
+      "noMatches": "沒有符合的字型"
+    },
     "selectFont": "選擇字型",
     "spellchecker": {
       "autoDetectDescription": "自動偵測文件語言",

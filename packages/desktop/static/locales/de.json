@@ -728,6 +728,9 @@
         "invalidKeybinding": "Ungültiges Tastenkürzel"
       }
     },
+    "fontStack": {
+      "noMatches": "Keine passenden Schriftarten"
+    },
     "selectFont": "Schrift auswählen",
     "spellchecker": {
       "autoDetectDescription": "Sprache des Dokuments automatisch erkennen",

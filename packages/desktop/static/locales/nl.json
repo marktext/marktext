@@ -728,6 +728,9 @@
         "invalidKeybinding": "Ongeldige toetscombinatie"
       }
     },
+    "fontStack": {
+      "noMatches": "Geen overeenkomende lettertypen"
+    },
     "selectFont": "Lettertype selecteren",
     "spellchecker": {
       "autoDetectDescription": "Documenttaal automatisch detecteren",
