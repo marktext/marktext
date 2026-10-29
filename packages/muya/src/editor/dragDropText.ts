@@ -7,7 +7,6 @@ import { findContentDOM, resolveEndpoint } from '../selection/dom';
 import { createTextSelectionState } from '../selection/state';
 import { SelectionType } from '../selection/types';
 import { atxHeadingBodyRange } from '../state/headings';
-import './dragDropText.css';
 
 const TEXT_BLOCKS = new Set([
     'paragraph.content',

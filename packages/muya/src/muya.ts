@@ -45,6 +45,7 @@ import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
 import './assets/styles/githubAlerts.css';
+import './assets/styles/dragDropText.css';
 import './assets/styles/prismjs/light.theme.css';
 
 export interface IMuyaPluginConstructor {
