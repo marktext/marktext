@@ -218,6 +218,7 @@ import Folder from './treeFolder.vue'
 import File from './treeFile.vue'
 import OpenedFile from './treeOpenedTab.vue'
 import { MIN_VISIBLE_ROWS, useOpenedFilesResize } from './useOpenedFilesResize'
+import { useTabReorder } from '../useTabReorder'
 import IconTooltip from '@/components/iconTooltip/index.vue'
 import bus from '../../bus'
 import { showRootContextMenu } from '../../contextMenu/sideBar'
@@ -303,6 +304,8 @@ const {
         persist: (preferredHeightPx) => layoutStore.SET_OPENED_FILES({ preferredHeightPx })
   }
 )
+
+useTabReorder(openedFilesList, openedFilesList, 'vertical')
 
 const saveAll = (isClose: boolean): void => {
   editorStore.ASK_FOR_SAVE_ALL(isClose)
@@ -627,7 +630,8 @@ onUnmounted(() => {
   cursor: pointer;
 }
 .opened-files .opened-files-list {
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   flex: 1;
 }
 

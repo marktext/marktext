@@ -10,7 +10,10 @@
         unsaved: !file.isSaved
       }
     ]"
+    :data-id="file.id"
     @click="selectFile(file)"
+    @click.middle.stop.prevent="removeFileInTab(file)"
+    @contextmenu.stop.prevent="showContextMenu($event, file)"
   >
     <button
       type="button"
@@ -31,6 +34,7 @@ import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useEditorStore } from '@/store/editor'
 import { Close } from '@element-plus/icons-vue'
+import { showContextMenu } from '../../contextMenu/tabs'
 import type { TabDescriptor } from './types'
 
 defineProps<{
@@ -59,6 +63,8 @@ const removeFileInTab = (file: TabDescriptor): void => {
      share its center line. */
   --indicator-center: 21px;
   display: flex;
+  box-sizing: border-box;
+  min-width: 0;
   user-select: none;
   height: 28px;
   line-height: 28px;
