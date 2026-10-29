@@ -144,6 +144,14 @@ const rewriteAnchorHrefs = (html: string): string =>
     return resolved === href ? match : `${pre}${resolved}${post}`
   })
 
+export const injectHtmlToc = (article: string, toc: string): string => {
+  if (!toc) return article
+  if (TOC_PARAGRAPH_REG.test(article)) {
+    return article.replace(TOC_PARAGRAPH_REG, () => toc)
+  }
+  return article.replace(TOC_REG, () => toc)
+}
+
 /**
  * Build a styled, standalone HTML document equivalent to legacy muyajs
  * `exportStyledHTML`. Renders markdown through the new engine, injects the TOC
@@ -179,17 +187,7 @@ export const exportStyledHTML = async(
   // document is moved out of the source folder (#1688).
   article = rewriteAnchorHrefs(article)
 
-  // Inject the TOC at the `[TOC]` marker (legacy behaviour: only appears when
-  // the document explicitly contains `[TOC]`). The marker is rendered as a
-  // paragraph by marked, so replace it regardless of paragraph attributes, falling
-  // back to a raw `[TOC]` if present.
-  if (toc) {
-    if (TOC_PARAGRAPH_REG.test(article)) {
-      article = article.replace(TOC_PARAGRAPH_REG, () => toc)
-    } else if (TOC_REG.test(article)) {
-      article = article.replace(TOC_REG, () => toc)
-    }
-  }
+  article = injectHtmlToc(article, toc)
 
   let bodyHtml: string
   if (!appendHeaderFooter) {
