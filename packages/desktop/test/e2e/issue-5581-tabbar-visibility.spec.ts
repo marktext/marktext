@@ -57,9 +57,9 @@ test.describe('Issue #5581 tab bar visibility', () => {
 
       for (let count = 2; count > remaining; count--) {
         await sendIpcToRenderer(app, 'mt::editor-close-tab')
-        await expect(tabs).toHaveCount(Math.max(1, count - 1))
-        if (count === 1) await expect(tabs.first()).toHaveAttribute('title', '')
+        await expect(tabs).toHaveCount(count - 1)
       }
+      if (remaining === 0) await expect(page.locator('.recent-files-projects')).toBeVisible()
       await expectTabBar(app, page, false)
 
       await openFile(app, path.join(directory, 'first.md'))
