@@ -721,7 +721,7 @@
       "online": "Online",
       "saveError": "Fout bij opslaan sneltoetsen",
       "shortcutInUse": "Sneltoets in gebruik",
-      "shortcutInUseMessage": "Deze sneltoets is al toegewezen aan {accelerator}",
+      "shortcutInUseMessage": "{accelerator} is al toegewezen aan {commands}.",
       "table": {
         "description": "Beschrijving",
         "edit": "Bewerken",
@@ -732,7 +732,8 @@
       },
       "windowAndNavigation": "Vensters en navigatie",
       "loadError": "Sneltoetsen konden niet worden geladen.",
-      "reload": "Opnieuw laden"
+      "reload": "Opnieuw laden",
+      "viewConflict": "{name} bekijken"
     },
     "selectFont": "Lettertype selecteren",
     "spellchecker": {

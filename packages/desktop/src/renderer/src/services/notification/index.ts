@@ -36,6 +36,7 @@ export interface NotifyOptions {
   message?: string
   type?: NotificationType
   showConfirm?: boolean
+  actions?: Array<{ label: string; onClick: () => void }>
 }
 
 interface NotificationService {
@@ -54,7 +55,8 @@ const notification: NotificationService = {
     title = '',
     message = '',
     type = 'primary',
-    showConfirm = false
+    showConfirm = false,
+    actions = []
   }: NotifyOptions): Promise<void> {
     const notificationType = TYPE_CLASS[type] ? type : 'primary'
     let handle: NotificationHandle | null = null
@@ -89,7 +91,18 @@ const notification: NotificationService = {
       innerHTML: sanitize(message, EXPORT_DOMPURIFY_CONFIG)
     })
     const confirmButton = showConfirm ? createConfirmButton(confirm) : null
-    const body = h('div', { class: 'mt-notification__body' }, [text, confirmButton])
+    const actionButtons = actions.map(action => h('button', {
+      type: 'button',
+      class: 'plain-button mt-notification__action',
+      onClick: (event: MouseEvent) => {
+        event.preventDefault()
+        event.stopPropagation()
+        action.onClick()
+        settle(true)
+        handle?.close()
+      }
+    }, action.label))
+    const body = h('div', { class: 'mt-notification__body' }, [text, ...actionButtons, confirmButton])
 
     handle = ElNotification({
       title,

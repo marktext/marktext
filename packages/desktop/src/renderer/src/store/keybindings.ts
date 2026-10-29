@@ -12,6 +12,7 @@ export const useKeybindingsStore = defineStore('preference-keybindings', () => {
   const loading = ref(false)
   const loadError = ref(false)
   const saving = ref(false)
+  const conflict = shallowRef<{ accelerator: string; commands: UiKeybinding[] } | null>(null)
   let pending: Promise<void> | undefined
 
   const refresh = (): void => {
@@ -46,19 +47,12 @@ export const useKeybindingsStore = defineStore('preference-keybindings', () => {
     return pending
   }
 
-  const notifyConflict = (accelerator: string): void => {
-    notice.notify({
-      title: t('preferences.keybindings.shortcutInUse'),
-      type: 'warning',
-      message: t('preferences.keybindings.shortcutInUseMessage', { accelerator })
-    })
-  }
-
   const persist = async(operation: (config: KeybindingConfigurator) => Promise<boolean>): Promise<void> => {
     const config = configurator.value
     if (!config || saving.value) return
     const before = config.getKeybindings().map(entry => ({ ...entry }))
     const wasDirty = config.isDirty
+    conflict.value = null
     saving.value = true
     try {
       const saved = await operation(config)
@@ -81,9 +75,10 @@ export const useKeybindingsStore = defineStore('preference-keybindings', () => {
   const change = async(id: string, accelerator: string): Promise<void> => {
     const config = configurator.value
     if (!config || saving.value) return
-    const conflict = config._isDuplicate(id, accelerator)
-    if (conflict) {
-      notifyConflict(accelerator)
+    conflict.value = null
+    const occupied = config.getConflicts(id, accelerator)
+    if (occupied.length > 0) {
+      conflict.value = { accelerator, commands: occupied.map(command => ({ ...command })) }
       return
     }
     await persist(async(current) => {
@@ -99,5 +94,5 @@ export const useKeybindingsStore = defineStore('preference-keybindings', () => {
   const unbind = async(id: string): Promise<void> => { await change(id, '') }
   const resetAll = async(): Promise<void> => { await persist(current => current.resetAll()) }
 
-  return { commands, loading, loadError, saving, ensureLoaded, change, reset, unbind, resetAll }
+  return { commands, loading, loadError, saving, conflict, ensureLoaded, change, reset, unbind, resetAll }
 })

@@ -721,7 +721,7 @@
       "online": "온라인",
       "saveError": "키 바인딩 저장 오류",
       "shortcutInUse": "사용 중인 단축키",
-      "shortcutInUseMessage": "이 단축키는 이미 {accelerator}에 할당되어 있습니다",
+      "shortcutInUseMessage": "{accelerator}은(는) 이미 {commands}에 할당되어 있습니다.",
       "table": {
         "description": "설명",
         "edit": "편집",
@@ -732,7 +732,8 @@
       },
       "windowAndNavigation": "창 및 탐색",
       "loadError": "키보드 단축키를 불러오지 못했습니다.",
-      "reload": "다시 불러오기"
+      "reload": "다시 불러오기",
+      "viewConflict": "{name} 보기"
     },
     "selectFont": "글꼴 선택",
     "spellchecker": {

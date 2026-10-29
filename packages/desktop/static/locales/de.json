@@ -721,7 +721,7 @@
       "online": "Online",
       "saveError": "Fehler beim Speichern der Tastenkürzel",
       "shortcutInUse": "Tastenkürzel wird verwendet",
-      "shortcutInUseMessage": "Dieses Tastenkürzel ist bereits {accelerator} zugeordnet",
+      "shortcutInUseMessage": "{accelerator} ist bereits {commands} zugewiesen.",
       "table": {
         "description": "Beschreibung",
         "edit": "Bearbeiten",
@@ -732,7 +732,8 @@
       },
       "windowAndNavigation": "Fenster und Navigation",
       "loadError": "Tastenkürzel konnten nicht geladen werden.",
-      "reload": "Neu laden"
+      "reload": "Neu laden",
+      "viewConflict": "{name} anzeigen"
     },
     "selectFont": "Schrift auswählen",
     "spellchecker": {

@@ -721,7 +721,7 @@
       "online": "在线",
       "saveError": "保存快捷键时出错",
       "shortcutInUse": "快捷键正在使用",
-      "shortcutInUseMessage": "此快捷键已分配给 {accelerator}",
+      "shortcutInUseMessage": "{accelerator} 已被“{commands}”使用。",
       "table": {
         "description": "描述",
         "edit": "编辑",
@@ -732,7 +732,8 @@
       },
       "windowAndNavigation": "窗口与导航",
       "loadError": "无法加载快捷键。",
-      "reload": "重新加载"
+      "reload": "重新加载",
+      "viewConflict": "查看“{name}”"
     },
     "selectFont": "选择字体",
     "spellchecker": {

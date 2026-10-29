@@ -721,7 +721,7 @@
       "online": "Online",
       "saveError": "Error saving keybindings",
       "shortcutInUse": "Shortcut in use",
-      "shortcutInUseMessage": "This shortcut is already assigned to {accelerator}",
+      "shortcutInUseMessage": "{accelerator} is already assigned to {commands}.",
       "table": {
         "description": "Description",
         "edit": "Edit",
@@ -732,7 +732,8 @@
       },
       "windowAndNavigation": "Window and navigation",
       "loadError": "Could not load keyboard shortcuts.",
-      "reload": "Reload"
+      "reload": "Reload",
+      "viewConflict": "View {name}"
     },
     "selectFont": "Select Font",
     "spellchecker": {

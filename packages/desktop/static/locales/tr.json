@@ -721,7 +721,7 @@
       "online": "Çevrimiçi",
       "saveError": "Kısayol tuşları kaydedilirken hata",
       "shortcutInUse": "Kısayol kullanımda",
-      "shortcutInUseMessage": "Bu kısayol zaten {accelerator} öğesine atanmış",
+      "shortcutInUseMessage": "{accelerator} zaten {commands} komutuna atanmış.",
       "table": {
         "description": "Açıklama",
         "edit": "Düzenle",
@@ -732,7 +732,8 @@
       },
       "windowAndNavigation": "Pencere ve gezinme",
       "loadError": "Klavye kısayolları yüklenemedi.",
-      "reload": "Yeniden yükle"
+      "reload": "Yeniden yükle",
+      "viewConflict": "{name} komutunu göster"
     },
     "selectFont": "Yazı Tipi Seç",
     "spellchecker": {

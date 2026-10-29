@@ -143,14 +143,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import Separator from '../common/separator/index.vue'
 import KeyInputDialog from './key-input-dialog.vue'
 import type { UiKeybinding } from './KeybindingConfigurator'
 import { useKeybindingsStore } from '@/store/keybindings'
 import { commandGroups, commandGroupLabels, getCommandGroup, keybindingKey } from './groups'
-import { settingTargetId } from '../settingLocation'
+import { useRouter } from 'vue-router'
+import notice from '@/services/notification'
+import { settingTargetId, openSetting } from '../settingLocation'
 import { Edit, RefreshRight, Delete } from '@element-plus/icons-vue'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
 import IconTooltip from '@/components/iconTooltip/index.vue'
@@ -158,11 +160,27 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const keybindings = useKeybindingsStore()
-const { commands: keybindingList, saving: isSaving, loading, loadError } = storeToRefs(keybindings)
+const { commands: keybindingList, saving: isSaving, loading, loadError, conflict } = storeToRefs(keybindings)
 const groups = computed(() => commandGroups.map(id => ({
   id,
   commands: keybindingList.value.filter(command => getCommandGroup(command.id) === id)
 })).filter(group => group.commands.length > 0))
+const router = useRouter()
+watch(conflict, (value) => {
+  if (!value) return
+  notice.notify({
+    type: 'warning',
+    title: t('preferences.keybindings.shortcutInUse'),
+    message: t('preferences.keybindings.shortcutInUseMessage', {
+      accelerator: value.accelerator,
+      commands: value.commands.map(command => command.description).join(', ')
+    }),
+    actions: value.commands.map(command => ({
+      label: t('preferences.keybindings.viewConflict', { name: command.description }),
+      onClick: () => { void openSetting(router, 'keybindings', keybindingKey(command.id)) }
+    }))
+  })
+})
 const selectedShortcutId = ref<string | null>(null)
 const showDebugTools = Boolean(window.marktext?.env?.debug)
 onMounted(() => { void keybindings.ensureLoaded() })

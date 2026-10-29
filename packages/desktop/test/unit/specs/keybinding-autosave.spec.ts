@@ -54,7 +54,7 @@ describe('shared shortcut persistence and search data', () => {
     const { store, save } = await boot()
     await store.change('file.save', 'Ctrl+O')
     expect(save).not.toHaveBeenCalled()
-    expect(notify).toHaveBeenCalledWith(expect.objectContaining({ type: 'warning' }))
+    expect(store.conflict?.commands.map(command => command.id)).toEqual(['file.open-file'])
     expect(store.commands.find(command => command.id === 'file.save')?.accelerator).toBe('Ctrl+Alt+S')
     await store.change('file.save', 'Ctrl+Alt+S')
     expect(save).toHaveBeenCalledOnce()

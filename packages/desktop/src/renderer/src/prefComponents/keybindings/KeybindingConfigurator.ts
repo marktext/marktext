@@ -156,13 +156,15 @@ export default class KeybindingConfigurator {
     return this.defaultKeybindings.get(id)
   }
 
-  _isDuplicate(id: string, accelerator: string): boolean {
-    return (
-      accelerator !== '' &&
-      this.keybindingList.some((entry) =>
-        entry.id !== id && isEqualAccelerator(entry.accelerator, accelerator)
-      )
+  getConflicts(id: string, accelerator: string): UiKeybinding[] {
+    if (!accelerator) return []
+    return this.keybindingList.filter(entry =>
+      entry.id !== id && isEqualAccelerator(entry.accelerator, accelerator)
     )
+  }
+
+  _isDuplicate(id: string, accelerator: string): boolean {
+    return this.getConflicts(id, accelerator).length > 0
   }
 
   _isDefaultBinding(id: string, accelerator: string): boolean {

@@ -721,7 +721,7 @@
       "online": "Online",
       "saveError": "Errore durante il salvataggio della combinazione di tasti",
       "shortcutInUse": "Scorciatoia già in uso",
-      "shortcutInUseMessage": "Questa scorciatoia è già stata assegnata a {accelerator}",
+      "shortcutInUseMessage": "{accelerator} è già assegnato a {commands}.",
       "table": {
         "description": "Descrizione",
         "edit": "Modifica",
@@ -732,7 +732,8 @@
       },
       "windowAndNavigation": "Finestre e navigazione",
       "loadError": "Impossibile caricare le scorciatoie da tastiera.",
-      "reload": "Ricarica"
+      "reload": "Ricarica",
+      "viewConflict": "Visualizza {name}"
     },
     "selectFont": "Selezione caratteri",
     "spellchecker": {
