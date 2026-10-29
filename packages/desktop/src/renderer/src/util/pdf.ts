@@ -119,6 +119,13 @@ export interface HtmlTocOptions {
   [key: string]: unknown
 }
 
+// Exported inline diffs depend on .idiff styles; other source classes are removed before sanitizing.
+const EXPORT_TOC_LABEL_CONFIG = {
+  ...TOC_DOMPURIFY_CONFIG,
+  ALLOWED_TAGS: [...TOC_DOMPURIFY_CONFIG.ALLOWED_TAGS, 'ins'],
+  ALLOWED_ATTR: ['class']
+}
+
 const getTocLabel = ({ content, contentHtml }: TocEntry): string => {
   if (contentHtml === undefined) return escapeHTML(content)
 
@@ -130,7 +137,14 @@ const getTocLabel = ({ content, contentHtml }: TocEntry): string => {
   for (const math of template.content.querySelectorAll('.katex')) {
     math.replaceWith(document.createTextNode(math.getAttribute('aria-label') ?? math.textContent ?? ''))
   }
-  return sanitize(template.innerHTML, TOC_DOMPURIFY_CONFIG)
+  for (const element of template.content.querySelectorAll('[class]')) {
+    const diffClass = element.matches('ins.idiff.addition')
+      ? 'idiff addition'
+      : element.matches('del.idiff.deletion') ? 'idiff deletion' : ''
+    element.removeAttribute('class')
+    if (diffClass) element.className = diffClass
+  }
+  return sanitize(template.innerHTML, EXPORT_TOC_LABEL_CONFIG)
 }
 
 const generateHtmlToc = (

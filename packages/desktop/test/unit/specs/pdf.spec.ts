@@ -249,6 +249,21 @@ describe('getHtmlToc', () => {
     expect(html).toContain('<strong>Sub</strong>')
   })
 
+  it('preserves inline diff styling while stripping unrelated classes and attributes', async() => {
+    const { getHtmlToc } = await loadPdf()
+    const html = getHtmlToc([{
+      lvl: 2,
+      slug: 'changes',
+      content: 'added removed',
+      contentHtml: '<ins class="idiff addition extra" onclick="alert(1)">added</ins> <del class="idiff deletion">removed</del> <span class="page-footer" style="color:red">plain</span>'
+    }])
+    const doc = new DOMParser().parseFromString(html, 'text/html')
+
+    expect(doc.querySelector('.toc-container ins')?.className).toBe('idiff addition')
+    expect(doc.querySelector('.toc-container del')?.className).toBe('idiff deletion')
+    expect(doc.querySelector('.toc-container [onclick], .toc-container [style], .page-footer, .extra')).toBeNull()
+  })
+
   it('returns an empty string when the TOC has no qualifying entries', async() => {
     const { getHtmlToc } = await loadPdf()
     expect(getHtmlToc([{ lvl: 1, content: 'Only', slug: 'only' }], {})).toBe('')
