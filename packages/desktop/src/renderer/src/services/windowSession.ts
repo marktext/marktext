@@ -548,18 +548,11 @@ class WindowSession {
 
   private async _close(ids: string[]): Promise<void> {
     if (!ids.length || !this._context) return
-    const result = await window.electron.ipcRenderer.invoke(
+    await window.electron.ipcRenderer.invoke(
       'mt::state::close-documents',
       this._context.contextToken,
       ids
     )
-    if (result.status === 'closed' && this._editor.tabs.length === 0) {
-      await window.electron.ipcRenderer.invoke('mt::state::register-untitled', {
-        contextToken: this._context.contextToken,
-        title: '',
-        selected: true
-      })
-    }
   }
 
   private _failure(error: unknown): void {
