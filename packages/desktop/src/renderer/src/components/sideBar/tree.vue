@@ -94,7 +94,7 @@
       :class="{ 'no-project': !roots.length }"
       tabindex="0"
       @mousedown="handleTreeMouseDown"
-      @click="focusTree"
+      @click="handleTreeClick"
       @focusout="handleTreeFocusOut"
       @keydown="handleTreeKeydown"
     >
@@ -441,6 +441,11 @@ const handleInputEnter = (): void => {
 
 const focusTree = (): void => {
   treeWrapper.value?.focus()
+}
+
+const handleTreeClick = (event: MouseEvent): void => {
+  if (isEditableTarget(event.target)) return
+  focusTree()
 }
 
 const handleTreeMouseDown = (event: MouseEvent): void => {
