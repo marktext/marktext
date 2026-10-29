@@ -728,6 +728,9 @@
         "invalidKeybinding": "Combinação de teclas inválida"
       }
     },
+    "fontStack": {
+      "noMatches": "Nenhuma fonte correspondente"
+    },
     "selectFont": "Selecionar Fonte",
     "spellchecker": {
       "autoDetectDescription": "Detectar automaticamente o idioma do documento",

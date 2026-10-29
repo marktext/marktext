@@ -728,6 +728,9 @@
         "invalidKeybinding": "Combinazione di tasti non valida"
       }
     },
+    "fontStack": {
+      "noMatches": "Nessun carattere corrispondente"
+    },
     "selectFont": "Selezione caratteri",
     "spellchecker": {
       "autoDetectDescription": "Rilevamento automatico della lingua del documento",

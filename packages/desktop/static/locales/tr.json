@@ -728,6 +728,9 @@
         "invalidKeybinding": "Geçersiz tuş kombinasyonu"
       }
     },
+    "fontStack": {
+      "noMatches": "Eşleşen yazı tipi yok"
+    },
     "selectFont": "Yazı Tipi Seç",
     "spellchecker": {
       "autoDetectDescription": "Belge dilini otomatik olarak algıla",

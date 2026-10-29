@@ -728,6 +728,9 @@
         "invalidKeybinding": "잘못된 키 조합"
       }
     },
+    "fontStack": {
+      "noMatches": "일치하는 글꼴이 없습니다"
+    },
     "selectFont": "글꼴 선택",
     "spellchecker": {
       "autoDetectDescription": "문서 언어 자동 감지",
