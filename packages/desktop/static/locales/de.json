@@ -453,8 +453,7 @@
         "description": "Pandoc-Konvertierung aktivieren",
         "detailedDescription": "Zeigt Konvertierungsbefehle im Menü an. Pandoc muss installiert sein.",
         "found": "Gefunden: {path}",
-        "notFound": "Nicht gefunden",
-        "recheck": "Erneut prüfen"
+        "notFound": "Nicht gefunden"
       },
       "sidebar": {
         "title": "Seitenleiste und Inhaltsverzeichnis",
@@ -594,7 +593,6 @@
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Installationsmethode wählen:",
-        "retestPicgo": "Erneut testen",
         "lastDetectionTime": "Letzte Erkennungszeit",
         "usageGuide": {
           "title": "PicGo-Core Grundlegende Anleitung",
@@ -614,10 +612,7 @@
         },
         "pleaseInstall": "Bitte installieren",
         "scriptPath": "Skriptpfad",
-        "picgoDetection": "PicGo-Core-Erkennung",
         "lastSuccessTime": "Letzte erfolgreiche Zeit",
-        "neverDetected": "Nie erkannt",
-        "neverSuccessful": "Nie erfolgreich",
         "invalidScript": "Gib den Pfad zu einem vorhandenen ausführbaren Skript ein."
       },
       "defaultBehavior": "Standardverhalten nach dem Einfügen oder Ziehen eines Bildes in MarkText"
@@ -751,6 +746,11 @@
       "taskCascade": "Das Markieren einer übergeordneten Aufgabe aktualisiert ihre Unteraufgaben und umgekehrt.",
       "markdownPairs": "Ergänzt beim Tippen gepaarte Markdown-Zeichen wie Sternchen, Unterstriche und Backticks.",
       "lineEndings": "Gilt für neue Dateien sowie gemischte oder nicht erkannte Zeilenenden. Dateien mit erkanntem LF oder CRLF behalten ihr Format."
+    },
+    "commandDetection": {
+      "checking": "Wird geprüft…",
+      "recheck": "Erneut prüfen",
+      "failed": "Erkennung fehlgeschlagen. Bitte erneut prüfen."
     }
   },
   "about": {

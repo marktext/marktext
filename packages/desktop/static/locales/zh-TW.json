@@ -453,8 +453,7 @@
         "description": "啟用 Pandoc 格式轉換",
         "detailedDescription": "在選單中顯示格式轉換命令，需要先安裝 Pandoc。",
         "found": "已找到：{path}",
-        "notFound": "未找到",
-        "recheck": "重新檢測"
+        "notFound": "未找到"
       },
       "sidebar": {
         "title": "側邊欄與目錄",
@@ -594,7 +593,6 @@
         "yarnInstallCommand": "yarn add picgo",
         "pnpmInstallCommand": "pnpm add picgo",
         "chooseInstallMethod": "選擇安裝方法：",
-        "retestPicgo": "重新檢測",
         "lastDetectionTime": "上次檢測時間",
         "usageGuide": {
           "title": "PicGo-Core 基本使用說明",
@@ -614,10 +612,7 @@
         },
         "pleaseInstall": "請安裝",
         "scriptPath": "腳本路徑",
-        "picgoDetection": "PicGo-Core 偵測",
         "lastSuccessTime": "上次成功時間",
-        "neverDetected": "從未偵測",
-        "neverSuccessful": "從未成功",
         "invalidScript": "請輸入存在且可執行的指令碼路徑。"
       },
       "defaultBehavior": "貼上或拖曳圖片到 MarkText 後的預設行為"
@@ -751,6 +746,11 @@
       "taskCascade": "勾選或取消父任務時同步更新子任務；子任務狀態變更時同步更新父任務。",
       "markdownPairs": "輸入星號、底線、反引號等 Markdown 標記時，自動補全配對標記。",
       "lineEndings": "用於新檔案及換行符號混合或無法偵測的檔案。既有 LF 或 CRLF 檔案保留偵測到的格式。"
+    },
+    "commandDetection": {
+      "checking": "偵測中…",
+      "recheck": "重新偵測",
+      "failed": "偵測失敗，請重新偵測。"
     }
   },
   "about": {

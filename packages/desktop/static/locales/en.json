@@ -453,8 +453,7 @@
         "description": "Enable Pandoc conversion",
         "detailedDescription": "Show format conversion commands in the menu. Requires Pandoc to be installed.",
         "found": "Found: {path}",
-        "notFound": "Not found",
-        "recheck": "Re-check"
+        "notFound": "Not found"
       },
       "sidebar": {
         "title": "Sidebar and table of contents",
@@ -594,9 +593,7 @@
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Choose installation method:",
-        "retestPicgo": "Retest",
         "lastDetectionTime": "Last Detection Time",
-        "picgoDetection": "PicGo-Core Detection",
         "usageGuide": {
           "title": "PicGo-Core Basic Usage Guide",
           "step1": "Configure Uploader",
@@ -608,8 +605,6 @@
           "documentation": "View full documentation"
         },
         "lastSuccessTime": "Last success time",
-        "neverDetected": "Never detected",
-        "neverSuccessful": "Never successful",
         "scriptDescription": "Script Description",
         "scriptLocation": "Script Location",
         "services": {
@@ -751,6 +746,11 @@
       "taskCascade": "Checking a parent updates its subtasks; changing subtasks updates their parent.",
       "markdownPairs": "Complete paired Markdown markers such as asterisks, underscores and backticks as you type.",
       "lineEndings": "Used for new files and files with mixed or undetected line endings. Existing LF or CRLF files keep their detected format."
+    },
+    "commandDetection": {
+      "checking": "Checking…",
+      "recheck": "Check again",
+      "failed": "Detection failed. Please check again."
     }
   },
   "about": {

@@ -453,8 +453,7 @@
         "description": "Activer la conversion Pandoc",
         "detailedDescription": "Affiche les commandes de conversion dans le menu. Nécessite l’installation de Pandoc.",
         "found": "Trouvé : {path}",
-        "notFound": "Introuvable",
-        "recheck": "Revérifier"
+        "notFound": "Introuvable"
       },
       "sidebar": {
         "title": "Barre latérale et table des matières",
@@ -594,7 +593,6 @@
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Choisir la méthode d'installation :",
-        "retestPicgo": "Retester",
         "lastDetectionTime": "Dernière détection",
         "usageGuide": {
           "title": "Guide d'utilisation de base PicGo-Core",
@@ -614,10 +612,7 @@
         },
         "pleaseInstall": "Veuillez installer",
         "scriptPath": "Chemin du script",
-        "picgoDetection": "Détection PicGo-Core",
         "lastSuccessTime": "Dernière heure de succès",
-        "neverDetected": "Jamais détecté",
-        "neverSuccessful": "Jamais réussi",
         "invalidScript": "Saisissez le chemin d’un script existant et exécutable."
       },
       "defaultBehavior": "Comportement par défaut après avoir collé ou glissé une image dans MarkText"
@@ -751,6 +746,11 @@
       "taskCascade": "Cocher une tâche parente met à jour ses sous-tâches ; modifier les sous-tâches met à jour leur parent.",
       "markdownPairs": "Complète les paires de marqueurs Markdown, comme les astérisques, les tirets bas et les accents graves, pendant la saisie.",
       "lineEndings": "Utilisée pour les nouveaux fichiers et les fins de ligne mixtes ou non détectées. Les fichiers LF ou CRLF conservent leur format détecté."
+    },
+    "commandDetection": {
+      "checking": "Vérification…",
+      "recheck": "Vérifier à nouveau",
+      "failed": "La détection a échoué. Veuillez réessayer."
     }
   },
   "about": {

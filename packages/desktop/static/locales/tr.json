@@ -453,8 +453,7 @@
         "description": "Pandoc dönüşümünü etkinleştir",
         "detailedDescription": "Menüde biçim dönüştürme komutlarını gösterir. Pandoc kurulmuş olmalıdır.",
         "found": "Bulundu: {path}",
-        "notFound": "Bulunamadı",
-        "recheck": "Yeniden Denetle"
+        "notFound": "Bulunamadı"
       },
       "sidebar": {
         "title": "Kenar çubuğu ve içindekiler",
@@ -594,9 +593,7 @@
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Yükleme yöntemini seçin:",
-        "retestPicgo": "Yeniden Test Et",
         "lastDetectionTime": "Son Algılama Zamanı",
-        "picgoDetection": "PicGo-Core Algılama",
         "usageGuide": {
           "title": "PicGo-Core Temel Kullanım Kılavuzu",
           "step1": "Yükleyiciyi Yapılandır",
@@ -608,8 +605,6 @@
           "documentation": "Tam belgeleri görüntüle"
         },
         "lastSuccessTime": "Son başarı zamanı",
-        "neverDetected": "Hiç algılanmadı",
-        "neverSuccessful": "Hiç başarılı olmadı",
         "scriptDescription": "Betik Açıklaması",
         "scriptLocation": "Betik Konumu",
         "services": {
@@ -751,6 +746,11 @@
       "taskCascade": "Üst görevi işaretlemek alt görevleri günceller; alt görevlerin değişmesi üst görevi günceller.",
       "markdownPairs": "Yazarken yıldız, alt çizgi ve ters tırnak gibi Markdown işaretlerini çift olarak tamamlar.",
       "lineEndings": "Yeni dosyalarda ve karışık veya algılanamayan satır sonlarında kullanılır. LF veya CRLF dosyaları algılanan biçimini korur."
+    },
+    "commandDetection": {
+      "checking": "Denetleniyor…",
+      "recheck": "Yeniden denetle",
+      "failed": "Algılama başarısız. Yeniden denetleyin."
     }
   },
   "about": {

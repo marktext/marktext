@@ -18,3 +18,5 @@ export interface PrefSelectOption<T = string | number> {
   label: string
   value: T
 }
+
+export type CommandDetectionState = 'checking' | 'found' | 'not-found' | 'failed'

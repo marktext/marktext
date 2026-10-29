@@ -141,6 +141,57 @@ test('theme picker keeps fixed and system theme choices separate and preserves c
   }
 })
 
+test('Pandoc and PicGo share explicit checking, found, missing and failed states', async() => {
+  const { app, page } = await launchWithMarkdown('# Command detection\n', {
+    preferences: { language: 'en', imageInsertAction: 'upload' }, suppressErrorDialog: true
+  })
+  try {
+    const probes = await app.evaluateHandle(({ ipcMain }) => {
+      const state = {
+        picgo: false,
+        pandoc: null as string | null,
+        fail: false,
+        block: false,
+        release: undefined as ((found: boolean) => void) | undefined
+      }
+      ipcMain.removeHandler('mt::pandoc::command')
+      ipcMain.handle('mt::pandoc::command', () => ({ command: state.pandoc }))
+      ipcMain.removeHandler('mt::cmd::exists')
+      ipcMain.handle('mt::cmd::exists', (_event, name: string) => {
+        if (name !== 'picgo') return true
+        if (state.fail) throw new Error('Simulated command detection failure')
+        if (state.block) return new Promise<boolean>(resolve => { state.release = resolve })
+        return state.picgo
+      })
+      return state
+    })
+    const settings = await openSettings(app, page)
+    await settings.getByRole('button', { name: 'Images & export', exact: true }).click()
+    const pandoc = settings.locator('.pref-general .command-detection')
+    const picgo = settings.locator('.picgo .command-detection')
+    await expect(pandoc).toHaveAttribute('data-state', 'not-found')
+    await expect(picgo).toHaveAttribute('data-state', 'not-found')
+    await probes.evaluate(state => { state.picgo = true; state.pandoc = '/test/pandoc'; state.block = true })
+    await picgo.getByRole('button', { name: 'Check again', exact: true }).click()
+    await expect(picgo).toHaveAttribute('data-state', 'checking')
+    await expect(picgo.getByRole('status')).toHaveText('Checking…')
+    await expect(picgo.getByRole('button')).toBeDisabled()
+    await probes.evaluate(state => { state.block = false; state.release?.(state.picgo) })
+    await expect(picgo).toHaveAttribute('data-state', 'found')
+    await pandoc.getByRole('button', { name: 'Check again', exact: true }).click()
+    await expect(pandoc).toHaveAttribute('data-state', 'found')
+    await expect(pandoc.getByRole('status')).toContainText('/test/pandoc')
+    await probes.evaluate(state => { state.fail = true })
+    await picgo.getByRole('button', { name: 'Check again', exact: true }).click()
+    await expect(picgo).toHaveAttribute('data-state', 'failed')
+    await settings.locator('.debug-info summary').click()
+    await expect(settings.locator('.debug-info pre')).toContainText('Simulated command detection failure')
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
 test('uploader keeps its complete offline guide and persists a custom script', async() => {
   const { app, page } = await launchWithMarkdown('# Uploader settings\n', {
     preferences: { language: 'en', imageInsertAction: 'path' }, suppressErrorDialog: true

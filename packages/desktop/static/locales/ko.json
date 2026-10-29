@@ -453,8 +453,7 @@
         "description": "Pandoc 형식 변환 활성화",
         "detailedDescription": "메뉴에 형식 변환 명령을 표시합니다. Pandoc을 설치해야 합니다.",
         "found": "찾음: {path}",
-        "notFound": "찾을 수 없음",
-        "recheck": "다시 확인"
+        "notFound": "찾을 수 없음"
       },
       "sidebar": {
         "title": "사이드바 및 목차",
@@ -594,7 +593,6 @@
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "설치 방법 선택:",
-        "retestPicgo": "다시 테스트",
         "lastDetectionTime": "마지막 감지 시간",
         "usageGuide": {
           "title": "PicGo-Core 기본 사용 가이드",
@@ -614,10 +612,7 @@
         },
         "pleaseInstall": "설치하세요",
         "scriptPath": "스크립트 경로",
-        "picgoDetection": "PicGo-Core 감지",
         "lastSuccessTime": "마지막 성공 시간",
-        "neverDetected": "감지된 적 없음",
-        "neverSuccessful": "성공한 적 없음",
         "invalidScript": "실행 가능한 기존 스크립트의 경로를 입력하세요."
       },
       "defaultBehavior": "이미지를 MarkText에 붙여넣거나 드래그한 후의 기본 동작"
@@ -751,6 +746,11 @@
       "taskCascade": "상위 작업을 체크하면 하위 작업도 갱신되고, 하위 작업을 변경하면 상위 작업도 갱신됩니다.",
       "markdownPairs": "입력할 때 별표, 밑줄, 백틱 등의 Markdown 기호 쌍을 자동 완성합니다.",
       "lineEndings": "새 파일과 줄바꿈이 혼합되거나 감지되지 않는 파일에 적용됩니다. 기존 LF 또는 CRLF 파일은 감지된 형식을 유지합니다."
+    },
+    "commandDetection": {
+      "checking": "확인 중…",
+      "recheck": "다시 확인",
+      "failed": "감지에 실패했습니다. 다시 확인하세요."
     }
   },
   "about": {

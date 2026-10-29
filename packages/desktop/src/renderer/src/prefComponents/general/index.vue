@@ -205,17 +205,11 @@
           :disable="pandocDisabled"
           :on-change="(value) => onSelectChange('showPandocConvert', value)"
         />
-        <div class="notes">
-          {{ pandocStatus }}
-          <el-button
-            class="pandoc-recheck"
-            size="small"
-            :loading="isProbing"
-            @click="probePandoc"
-          >
-            {{ t('preferences.general.pandoc.recheck') }}
-          </el-button>
-        </div>
+        <command-detection
+          :state="pandocDetectionState"
+          :message="pandocStatus"
+          @check="probePandoc"
+        />
       </template>
     </compound>
   </div>
@@ -233,6 +227,8 @@ import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
 import type { PreferencesState } from '@/store/preferences'
 import Compound from '../common/compound/index.vue'
+import CommandDetection from '../common/commandDetection.vue'
+import type { CommandDetectionState } from '../common/types'
 import Range from '../common/range/index.vue'
 import CurSelect from '../common/select/index.vue'
 import Bool from '../common/bool/index.vue'
@@ -289,10 +285,17 @@ const {
 
 const pandocProbe = ref<PandocCommandInfo | null>(null)
 const isProbing = ref(false)
+const probeFailed = ref(false)
+const pandocDetectionState = computed<CommandDetectionState>(() => {
+  if (isProbing.value || !pandocProbe.value) return 'checking'
+  if (probeFailed.value) return 'failed'
+  return pandocProbe.value.command ? 'found' : 'not-found'
+})
 
 const pandocSwitch = computed(() => pandocSwitchState(pandocProbe.value, showPandocConvert.value))
 
 const pandocStatus = computed<string>(() => {
+  if (probeFailed.value) return t('preferences.commandDetection.failed')
   const { note, path } = pandocSwitch.value
   if (!note) return ''
   return path ? t(note, { path }) : t(note)
@@ -301,11 +304,13 @@ const pandocStatus = computed<string>(() => {
 const pandocDisabled = computed<boolean>(() => pandocSwitch.value.disabled)
 
 const probePandoc = async (): Promise<void> => {
+  if (isProbing.value) return
   isProbing.value = true
+  probeFailed.value = false
   try {
     pandocProbe.value = await window.electron.ipcRenderer.invoke('mt::pandoc::command')
   } catch {
-    // Main answers `{ command: null }` when its own lookup fails; a broken channel reads the same.
+    probeFailed.value = true
     pandocProbe.value = { command: null }
   } finally {
     isProbing.value = false
@@ -325,14 +330,3 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
 }
 
 </script>
-
-<style scoped>
-
-
-
-/* The note line is italic; this button inside it is not. */
-.pref-general .pandoc-recheck {
-  margin-left: 8px;
-  font-style: normal;
-}
-</style>

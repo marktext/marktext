@@ -453,8 +453,7 @@
         "description": "Pandoc-conversie inschakelen",
         "detailedDescription": "Toont conversieopdrachten in het menu. Pandoc moet geïnstalleerd zijn.",
         "found": "Gevonden: {path}",
-        "notFound": "Niet gevonden",
-        "recheck": "Opnieuw controleren"
+        "notFound": "Niet gevonden"
       },
       "sidebar": {
         "title": "Zijbalk en inhoudsopgave",
@@ -594,9 +593,7 @@
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Kies installatiemethode:",
-        "retestPicgo": "Opnieuw testen",
         "lastDetectionTime": "Laatste detectietijd",
-        "picgoDetection": "PicGo-Core-detectie",
         "usageGuide": {
           "title": "PicGo-Core basisgebruikshandleiding",
           "step1": "Uploader configureren",
@@ -608,8 +605,6 @@
           "documentation": "Volledige documentatie bekijken"
         },
         "lastSuccessTime": "Laatste succestijd",
-        "neverDetected": "Nooit gedetecteerd",
-        "neverSuccessful": "Nooit succesvol",
         "scriptDescription": "Scriptbeschrijving",
         "scriptLocation": "Scriptlocatie",
         "services": {
@@ -751,6 +746,11 @@
       "taskCascade": "Een bovenliggende taak aanvinken werkt subtaken bij; gewijzigde subtaken werken hun bovenliggende taak bij.",
       "markdownPairs": "Vult tijdens het typen paren Markdown-markeringen aan, zoals sterretjes, underscores en backticks.",
       "lineEndings": "Voor nieuwe bestanden en gemengde of niet-herkende regeleinden. LF- en CRLF-bestanden behouden hun gedetecteerde formaat."
+    },
+    "commandDetection": {
+      "checking": "Controleren…",
+      "recheck": "Opnieuw controleren",
+      "failed": "Detectie mislukt. Controleer opnieuw."
     }
   },
   "about": {

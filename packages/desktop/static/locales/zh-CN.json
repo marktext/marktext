@@ -453,8 +453,7 @@
         "description": "启用 Pandoc 格式转换",
         "detailedDescription": "在菜单中显示格式转换命令，需要先安装 Pandoc。",
         "found": "已找到：{path}",
-        "notFound": "未找到",
-        "recheck": "重新检测"
+        "notFound": "未找到"
       },
       "sidebar": {
         "title": "侧边栏和目录",
@@ -594,9 +593,7 @@
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "选择安装方式：",
-        "retestPicgo": "重新检测",
         "lastDetectionTime": "上次检测时间",
-        "picgoDetection": "PicGo-Core 检测",
         "usageGuide": {
           "title": "PicGo-Core 基本使用说明",
           "step1": "配置上传器",
@@ -608,8 +605,6 @@
           "documentation": "查看完整文档"
         },
         "lastSuccessTime": "上次成功时间",
-        "neverDetected": "从未检测",
-        "neverSuccessful": "从未成功",
         "scriptDescription": "脚本描述",
         "scriptLocation": "脚本位置",
         "services": {
@@ -751,6 +746,11 @@
       "taskCascade": "勾选或取消父任务时同步更新子任务；子任务状态变化时同步更新父任务。",
       "markdownPairs": "输入星号、下划线、反引号等 Markdown 标记时，自动补全配对标记。",
       "lineEndings": "用于新文件及混合或无法检测换行符的文件。已有 LF 或 CRLF 文件保留检测到的格式。"
+    },
+    "commandDetection": {
+      "checking": "检测中…",
+      "recheck": "重新检测",
+      "failed": "检测失败，请重新检测。"
     }
   },
   "about": {

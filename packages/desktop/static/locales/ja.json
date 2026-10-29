@@ -453,8 +453,7 @@
         "description": "Pandoc 形式変換を有効化",
         "detailedDescription": "メニューに形式変換コマンドを表示します。Pandoc のインストールが必要です。",
         "found": "検出: {path}",
-        "notFound": "見つかりません",
-        "recheck": "再検出"
+        "notFound": "見つかりません"
       },
       "sidebar": {
         "title": "サイドバーと目次",
@@ -594,7 +593,6 @@
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "インストール方法の選択 :",
-        "retestPicgo": "再テスト",
         "lastDetectionTime": "最後の検出時間",
         "usageGuide": {
           "title": "PicGo-Core 基本使用ガイド",
@@ -614,10 +612,7 @@
         },
         "pleaseInstall": "インストールしてください",
         "scriptPath": "スクリプトパス",
-        "picgoDetection": "PicGo-Core 検出",
         "lastSuccessTime": "最後の成功時刻",
-        "neverDetected": "検出されたことがない",
-        "neverSuccessful": "成功したことがない",
         "invalidScript": "存在する実行可能なスクリプトのパスを入力してください。"
       },
       "defaultBehavior": "MarkText に画像を貼り付けまたはドラッグした後のデフォルト動作"
@@ -751,6 +746,11 @@
       "taskCascade": "親タスクのチェックを変更すると子タスクも更新され、子タスクの変更は親タスクに反映されます。",
       "markdownPairs": "入力中のアスタリスク、アンダースコア、バッククォートなどの Markdown 記号をペアで補完します。",
       "lineEndings": "新規ファイルと改行が混在または検出できないファイルに使用します。既存の LF・CRLF ファイルは検出された形式を保持します。"
+    },
+    "commandDetection": {
+      "checking": "検出中…",
+      "recheck": "再検出",
+      "failed": "検出に失敗しました。再検出してください。"
     }
   },
   "about": {

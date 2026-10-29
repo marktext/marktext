@@ -453,8 +453,7 @@
         "description": "Включить преобразование Pandoc",
         "detailedDescription": "Показывает команды преобразования в меню. Требуется установленный Pandoc.",
         "found": "Найден: {path}",
-        "notFound": "Не найден",
-        "recheck": "Проверить снова"
+        "notFound": "Не найден"
       },
       "sidebar": {
         "title": "Боковая панель и оглавление",
@@ -594,9 +593,7 @@
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Выберите способ установки:",
-        "retestPicgo": "Проверить снова",
         "lastDetectionTime": "Время последней проверки",
-        "picgoDetection": "Проверка PicGo-Core",
         "usageGuide": {
           "title": "Краткое руководство по PicGo-Core",
           "step1": "Настроить загрузчик",
@@ -608,8 +605,6 @@
           "documentation": "Открыть полную документацию"
         },
         "lastSuccessTime": "Время последнего успеха",
-        "neverDetected": "Никогда не обнаружено",
-        "neverSuccessful": "Никогда не успешно",
         "scriptDescription": "Описание скрипта",
         "scriptLocation": "Расположение скрипта",
         "services": {
@@ -751,6 +746,11 @@
       "taskCascade": "Отметка родительской задачи обновляет подзадачи; изменение подзадач обновляет родительскую задачу.",
       "markdownPairs": "При вводе дополняет парные маркеры Markdown: звёздочки, подчёркивания и обратные кавычки.",
       "lineEndings": "Для новых файлов и смешанных или неопределённых окончаний строк. Файлы LF и CRLF сохраняют обнаруженный формат."
+    },
+    "commandDetection": {
+      "checking": "Проверка…",
+      "recheck": "Проверить снова",
+      "failed": "Ошибка обнаружения. Повторите проверку."
     }
   },
   "about": {

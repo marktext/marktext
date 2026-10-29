@@ -453,8 +453,7 @@
         "description": "Abilita la conversione Pandoc",
         "detailedDescription": "Mostra i comandi di conversione nel menu. Richiede l’installazione di Pandoc.",
         "found": "Trovato in: {path}",
-        "notFound": "Non trovato",
-        "recheck": "Controlla nuovamente"
+        "notFound": "Non trovato"
       },
       "sidebar": {
         "title": "Barra laterale e indice",
@@ -594,9 +593,7 @@
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Scegli il metodo di installazione:",
-        "retestPicgo": "Riprova",
         "lastDetectionTime": "Ultimo rilevamento",
-        "picgoDetection": "Rilevamento di PicGo-Core",
         "usageGuide": {
           "title": "Guida rapida di PicGo-Core",
           "step1": "Configura il caricatore",
@@ -608,8 +605,6 @@
           "documentation": "Visualizza la documentazione completa"
         },
         "lastSuccessTime": "Ultima esecuzione riuscita",
-        "neverDetected": "Mai rilevato",
-        "neverSuccessful": "Mai riuscito",
         "scriptDescription": "Descrizione script",
         "scriptLocation": "Localizzazione script",
         "services": {
@@ -751,6 +746,11 @@
       "taskCascade": "Selezionare un’attività principale aggiorna le sottoattività; modificarle aggiorna l’attività principale.",
       "markdownPairs": "Completa le coppie di marcatori Markdown, come asterischi, trattini bassi e accenti gravi, durante la digitazione.",
       "lineEndings": "Usata per nuovi file e file con terminazioni miste o non rilevate. I file LF o CRLF mantengono il formato rilevato."
+    },
+    "commandDetection": {
+      "checking": "Verifica in corso…",
+      "recheck": "Verifica di nuovo",
+      "failed": "Rilevamento non riuscito. Riprova."
     }
   },
   "about": {
