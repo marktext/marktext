@@ -124,6 +124,7 @@ const createTableBody = (article: string): string =>
 
 // Match a standalone `[TOC]` line (mirrors legacy marked TOC block token).
 const TOC_REG = /^ {0,3}\[TOC\] *$/im
+const TOC_PARAGRAPH_REG = /<p\b(?:[^>"']|"[^"]*"|'[^']*')*>\s*\[TOC\]\s*<\/p>/i
 
 // Match the `href="…"` of an <a> tag in the (already sanitized, double-quoted)
 // engine output, so relative local links can be rewritten to absolute `file://`
@@ -142,6 +143,14 @@ const rewriteAnchorHrefs = (html: string): string =>
     const resolved = resolveLocalLinkHref(href)
     return resolved === href ? match : `${pre}${resolved}${post}`
   })
+
+export const injectHtmlToc = (article: string, toc: string): string => {
+  if (!toc) return article
+  if (TOC_PARAGRAPH_REG.test(article)) {
+    return article.replace(TOC_PARAGRAPH_REG, () => toc)
+  }
+  return article.replace(TOC_REG, () => toc)
+}
 
 /**
  * Build a styled, standalone HTML document equivalent to legacy muyajs
@@ -178,17 +187,7 @@ export const exportStyledHTML = async(
   // document is moved out of the source folder (#1688).
   article = rewriteAnchorHrefs(article)
 
-  // Inject the TOC at the `[TOC]` marker (legacy behaviour: only appears when
-  // the document explicitly contains `[TOC]`). The marker is rendered as a
-  // paragraph by marked, so replace the rendered `<p>[TOC]</p>` first, falling
-  // back to a raw `[TOC]` if present.
-  if (toc) {
-    if (/<p>\s*\[TOC\]\s*<\/p>/i.test(article)) {
-      article = article.replace(/<p>\s*\[TOC\]\s*<\/p>/i, () => toc)
-    } else if (TOC_REG.test(article)) {
-      article = article.replace(TOC_REG, () => toc)
-    }
-  }
+  article = injectHtmlToc(article, toc)
 
   let bodyHtml: string
   if (!appendHeaderFooter) {
