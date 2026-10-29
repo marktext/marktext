@@ -9,27 +9,31 @@
       </template>
       <template #children>
         <bool
-          :description="t('preferences.markdown.lists.preferLooseListItem')"
+          id="setting-preferLooseListItem"
+          :description="preferenceLabel('preferLooseListItem')"
           :bool="preferLooseListItem"
           :on-change="(value) => onSelectChange('preferLooseListItem', value)"
           more="https://spec.commonmark.org/0.29/#loose"
         />
         <cur-select
-          :description="t('preferences.markdown.lists.bulletListMarker')"
+          id="setting-bulletListMarker"
+          :description="preferenceLabel('bulletListMarker')"
           :value="bulletListMarker"
           :options="bulletListMarkerOptions"
           :on-change="(value) => onSelectChange('bulletListMarker', value)"
           more="https://spec.commonmark.org/0.29/#bullet-list-marker"
         />
         <cur-select
-          :description="t('preferences.markdown.lists.orderListDelimiter')"
+          id="setting-orderListDelimiter"
+          :description="preferenceLabel('orderListDelimiter')"
           :value="orderListDelimiter"
           :options="orderListDelimiterOptions"
           :on-change="(value) => onSelectChange('orderListDelimiter', value)"
           more="https://spec.commonmark.org/0.29/#ordered-list"
         />
         <cur-select
-          :description="t('preferences.markdown.lists.listIndentation.title')"
+          id="setting-listIndentation"
+          :description="preferenceLabel('listIndentation')"
           :value="listIndentation"
           :options="getListIndentationOptions()"
           :on-change="(value) => onSelectChange('listIndentation', value)"
@@ -45,74 +49,86 @@
       </template>
       <template #children>
         <cur-select
-          :description="t('preferences.markdown.extensions.frontmatterType.title')"
+          id="setting-frontmatterType"
+          :description="preferenceLabel('frontmatterType')"
           :value="frontmatterType"
           :options="getFrontmatterTypeOptions()"
           :on-change="(value) => onSelectChange('frontmatterType', value)"
         />
         <bool
-          :description="t('preferences.markdown.extensions.superSubScript')"
+          id="setting-superSubScript"
+          :description="preferenceLabel('superSubScript')"
           :bool="superSubScript"
           :on-change="(value) => onSelectChange('superSubScript', value)"
           more="https://pandoc.org/MANUAL.html#superscripts-and-subscripts"
         />
         <bool
-          :description="t('preferences.markdown.extensions.footnote')"
-          :notes="t('preferences.markdown.extensions.footnoteNotes')"
+          id="setting-footnote"
+          :description="preferenceLabel('footnote')"
+          :notes="preferenceNotes('footnote')"
           :bool="footnote"
           :on-change="(value) => onSelectChange('footnote', value)"
           more="https://pandoc.org/MANUAL.html#footnotes"
         />
         <bool
-          :description="t('preferences.markdown.extensions.texMathDollars')"
+          id="setting-texMathDollars"
+          :description="preferenceLabel('texMathDollars')"
           :bool="texMathDollars"
           :on-change="(value) => onSelectChange('texMathDollars', value)"
           more="https://pandoc.org/MANUAL.html#extension-tex_math_dollars"
         />
         <bool
-          :description="t('preferences.markdown.extensions.texMathGfm')"
+          id="setting-texMathGfm"
+          :description="preferenceLabel('texMathGfm')"
           :bool="texMathGfm"
           :on-change="(value) => onSelectChange('texMathGfm', value)"
           more="https://pandoc.org/MANUAL.html#extension-tex_math_gfm"
         />
         <bool
-          :description="t('preferences.markdown.extensions.texMathSingleBackslash')"
+          id="setting-texMathSingleBackslash"
+          :description="preferenceLabel('texMathSingleBackslash')"
           :bool="texMathSingleBackslash"
           :on-change="(value) => onSelectChange('texMathSingleBackslash', value)"
           more="https://pandoc.org/MANUAL.html#extension-tex_math_single_backslash"
         />
         <bool
-          :description="t('preferences.markdown.extensions.texMathDoubleBackslash')"
+          id="setting-texMathDoubleBackslash"
+          :description="preferenceLabel('texMathDoubleBackslash')"
           :bool="texMathDoubleBackslash"
           :on-change="(value) => onSelectChange('texMathDoubleBackslash', value)"
           more="https://pandoc.org/MANUAL.html#extension-tex_math_double_backslash"
         />
         <bool
-          :description="t('preferences.markdown.extensions.fancyLists')"
+          id="setting-fancyLists"
+          :description="preferenceLabel('fancyLists')"
           :bool="fancyLists"
           :on-change="(value) => onSelectChange('fancyLists', value)"
           more="https://pandoc.org/MANUAL.html#extension-fancy_lists"
         />
         <bool
-          :description="t('preferences.markdown.extensions.highlightSyntax')"
+          id="setting-highlightSyntax"
+          :description="preferenceLabel('highlightSyntax')"
           :bool="highlightSyntax"
           :on-change="(value) => onSelectChange('highlightSyntax', value)"
           more="https://www.markdownguide.org/extended-syntax/#highlight"
         />
         <bool
-          :description="t('preferences.markdown.extensions.inlineDiff')"
+          id="setting-inlineDiff"
+          :description="preferenceLabel('inlineDiff')"
           :bool="inlineDiff"
           :on-change="(value) => onSelectChange('inlineDiff', value)"
           more="https://docs.gitlab.com/user/markdown/#inline-diff"
         />
         <bool
-          :description="t('preferences.markdown.extensions.githubAlerts')"
+          id="setting-githubAlerts"
+          :description="preferenceLabel('githubAlerts')"
           :bool="githubAlerts"
           :on-change="(value) => onSelectChange('githubAlerts', value)"
           more="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts"
         />
         <bool
-          :description="t('preferences.markdown.extensions.multilineBlockquote')"
+          id="setting-multilineBlockquote"
+          :description="preferenceLabel('multilineBlockquote')"
           :bool="multilineBlockquote"
           :on-change="(value) => onSelectChange('multilineBlockquote', value)"
           more="https://docs.gitlab.com/user/markdown/#multiline-blockquote"
@@ -128,12 +144,14 @@
       </template>
       <template #children>
         <bool
-          :description="t('preferences.markdown.compatibility.enableHtml')"
+          id="setting-isHtmlEnabled"
+          :description="preferenceLabel('isHtmlEnabled')"
           :bool="isHtmlEnabled"
           :on-change="(value) => onSelectChange('isHtmlEnabled', value)"
         />
         <bool
-          :description="t('preferences.markdown.compatibility.softNewlineAsSpace')"
+          id="setting-softNewlineAsSpace"
+          :description="preferenceLabel('softNewlineAsSpace')"
           :bool="softNewlineAsSpace"
           :on-change="(value) => onSelectChange('softNewlineAsSpace', value)"
         />
@@ -148,28 +166,32 @@
       </template>
       <template #children>
         <cur-select
-          :description="t('preferences.markdown.diagrams.mermaidLightTheme.title')"
+          id="setting-mermaidLightTheme"
+          :description="preferenceLabel('mermaidLightTheme')"
           :value="mermaidLightTheme"
           :options="getMermaidThemeOptions()"
           :on-change="(value) => onSelectChange('mermaidLightTheme', value)"
           more="https://mermaid.js.org/config/theming.html"
         />
         <cur-select
-          :description="t('preferences.markdown.diagrams.mermaidDarkTheme.title')"
+          id="setting-mermaidDarkTheme"
+          :description="preferenceLabel('mermaidDarkTheme')"
           :value="mermaidDarkTheme"
           :options="getMermaidThemeOptions()"
           :on-change="(value) => onSelectChange('mermaidDarkTheme', value)"
           more="https://mermaid.js.org/config/theming.html"
         />
         <cur-select
-          :description="t('preferences.markdown.diagrams.sequenceTheme.title')"
+          id="setting-sequenceTheme"
+          :description="preferenceLabel('sequenceTheme')"
           :value="sequenceTheme"
           :options="getSequenceThemeOptions()"
           :on-change="(value) => onSelectChange('sequenceTheme', value)"
           more="https://bramp.github.io/js-sequence-diagrams/"
         />
         <text-box
-          :description="t('preferences.markdown.diagrams.plantumlServer.title')"
+          id="setting-plantumlServer"
+          :description="preferenceLabel('plantumlServer')"
           :input="plantumlServer"
           :on-change="(value) => onSelectChange('plantumlServer', value)"
           :default-value="'https://www.plantuml.com/plantuml'"
@@ -185,7 +207,8 @@
       </template>
       <template #children>
         <cur-select
-          :description="t('preferences.markdown.misc.preferHeadingStyle.title')"
+          id="setting-preferHeadingStyle"
+          :description="preferenceLabel('preferHeadingStyle')"
           :value="preferHeadingStyle"
           :options="getPreferHeadingStyleOptions()"
           :on-change="(value) => onSelectChange('preferHeadingStyle', value)"
@@ -197,6 +220,8 @@
 </template>
 
 <script setup lang="ts">
+import { preferenceLabel, preferenceNotes } from '@/prefComponents/registry'
+
 import { useI18n } from 'vue-i18n'
 import Compound from '../common/compound/index.vue'
 import { usePreferencesStore } from '@/store/preferences'

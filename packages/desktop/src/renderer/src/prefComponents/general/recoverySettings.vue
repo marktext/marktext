@@ -9,6 +9,7 @@
     </template>
     <template #children>
       <cur-select
+        id="setting-startUpAction"
         :description="t('preferences.general.startup.action')"
         :value="value.startUpAction"
         :options="actionOptions"
@@ -17,6 +18,7 @@
       />
       <div
         v-if="value.startUpAction === 'folder'"
+        id="setting-defaultDirectoryToOpen"
         class="startup-directory"
       >
         <el-button
@@ -30,6 +32,7 @@
       </div>
       <bool
         v-for="key in options"
+        :id="`setting-${key}`"
         :key="key"
         :description="t(`preferences.general.startup.${key}`)"
         :bool="value[key]"

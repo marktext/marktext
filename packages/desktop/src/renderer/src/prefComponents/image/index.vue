@@ -11,8 +11,8 @@
       />
     </section>
     <Separator />
-    <FolderSetting v-if="imageInsertAction === 'folder' || imageInsertAction === 'path'" />
-    <Uploader v-if="imageInsertAction === 'upload'" />
+    <FolderSetting />
+    <Uploader />
   </div>
 </template>
 

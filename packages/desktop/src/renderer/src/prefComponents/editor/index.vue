@@ -9,7 +9,8 @@
       </template>
       <template #children>
         <range
-          :description="t('preferences.editor.textEditor.fontSize')"
+          id="setting-fontSize"
+          :description="preferenceLabel('fontSize')"
           :value="fontSize"
           :min="12"
           :max="32"
@@ -18,7 +19,8 @@
           :on-change="(value) => onSelectChange('fontSize', value)"
         />
         <range
-          :description="t('preferences.editor.textEditor.lineHeight')"
+          id="setting-lineHeight"
+          :description="preferenceLabel('lineHeight')"
           :value="lineHeight"
           :min="1.2"
           :max="2.0"
@@ -26,20 +28,23 @@
           :on-change="(value) => onSelectChange('lineHeight', value)"
         />
         <font-text-box
-          :description="t('preferences.editor.textEditor.fontFamily')"
+          id="setting-editorFontFamily"
+          :description="preferenceLabel('editorFontFamily')"
           :value="editorFontFamily"
           :on-change="(value) => onSelectChange('editorFontFamily', value)"
         />
         <font-text-box
-          :description="t('preferences.editor.textEditor.codeFontFamily')"
-          :notes="t('preferences.editor.textEditor.codeFontFamilyNotes')"
+          id="setting-codeFontFamily"
+          :description="preferenceLabel('codeFontFamily')"
+          :notes="preferenceNotes('codeFontFamily')"
           :only-monospace="true"
           :value="codeFontFamily"
           :on-change="(value) => onSelectChange('codeFontFamily', value)"
         />
         <text-box
-          :description="t('preferences.editor.textEditor.maxWidth')"
-          :notes="t('preferences.editor.textEditor.maxWidthNotes')"
+          id="setting-editorLineWidth"
+          :description="preferenceLabel('editorLineWidth')"
+          :notes="preferenceNotes('editorLineWidth')"
           :input="editorLineWidth"
           default-value="800px / 80ch / 60%"
           :regex-validator="/^(?:$|[0-9]+(?:ch|px|%)$)/"
@@ -57,7 +62,8 @@
       </template>
       <template #children>
         <range
-          :description="t('preferences.editor.codeBlock.fontSize')"
+          id="setting-codeFontSize"
+          :description="preferenceLabel('codeFontSize')"
           :value="codeFontSize"
           :min="12"
           :max="28"
@@ -66,17 +72,20 @@
           :on-change="(value) => onSelectChange('codeFontSize', value)"
         />
         <bool
-          :description="t('preferences.editor.codeBlock.showLineNumbers')"
+          id="setting-codeBlockLineNumbers"
+          :description="preferenceLabel('codeBlockLineNumbers')"
           :bool="codeBlockLineNumbers"
           :on-change="(value) => onSelectChange('codeBlockLineNumbers', value)"
         />
         <bool
-          :description="t('preferences.editor.codeBlock.removeEmptyLines')"
+          id="setting-trimUnnecessaryCodeBlockEmptyLines"
+          :description="preferenceLabel('trimUnnecessaryCodeBlockEmptyLines')"
           :bool="trimUnnecessaryCodeBlockEmptyLines"
           :on-change="(value) => onSelectChange('trimUnnecessaryCodeBlockEmptyLines', value)"
         />
         <bool
-          :description="t('preferences.editor.misc.wrapCodeBlocks')"
+          id="setting-wrapCodeBlocks"
+          :description="preferenceLabel('wrapCodeBlocks')"
           :bool="wrapCodeBlocks"
           :on-change="(value) => onSelectChange('wrapCodeBlocks', value)"
         />
@@ -91,18 +100,21 @@
       </template>
       <template #children>
         <bool
-          :description="t('preferences.editor.writingBehavior.autoCloseBrackets')"
+          id="setting-autoPairBracket"
+          :description="preferenceLabel('autoPairBracket')"
           :bool="autoPairBracket"
           :on-change="(value) => onSelectChange('autoPairBracket', value)"
         />
         <bool
-          :description="t('preferences.editor.writingBehavior.autoCompleteMarkdown')"
-          :notes="t('preferences.explanations.markdownPairs')"
+          id="setting-autoPairMarkdownSyntax"
+          :description="preferenceLabel('autoPairMarkdownSyntax')"
+          :notes="preferenceNotes('autoPairMarkdownSyntax')"
           :bool="autoPairMarkdownSyntax"
           :on-change="(value) => onSelectChange('autoPairMarkdownSyntax', value)"
         />
         <bool
-          :description="t('preferences.editor.writingBehavior.autoCloseQuotes')"
+          id="setting-autoPairQuote"
+          :description="preferenceLabel('autoPairQuote')"
           :bool="autoPairQuote"
           :on-change="(value) => onSelectChange('autoPairQuote', value)"
         />
@@ -117,37 +129,43 @@
       </template>
       <template #children>
         <cur-select
-          :description="t('preferences.editor.fileRepresentation.tabWidth')"
-          :notes="t('preferences.editor.fileRepresentation.tabInputNotes')"
+          id="setting-tabSize"
+          :description="preferenceLabel('tabSize')"
+          :notes="preferenceNotes('tabSize')"
           :value="tabSize"
           :options="getTabSizeOptions()"
           :on-change="(value) => onSelectChange('tabSize', value)"
         />
         <cur-select
-          :description="t('preferences.editor.fileRepresentation.lineSeparator')"
-          :notes="t('preferences.explanations.lineEndings')"
+          id="setting-endOfLine"
+          :description="preferenceLabel('endOfLine')"
+          :notes="preferenceNotes('endOfLine')"
           :value="endOfLine"
           :options="getEndOfLineOptions()"
           :on-change="(value) => onSelectChange('endOfLine', value)"
         />
         <cur-select
-          :description="t('preferences.editor.fileRepresentation.defaultEncoding')"
+          id="setting-defaultEncoding"
+          :description="preferenceLabel('defaultEncoding')"
           :value="defaultEncoding"
           :options="defaultEncodingOptions"
           :on-change="(value) => onSelectChange('defaultEncoding', value)"
         />
         <bool
-          :description="t('preferences.editor.fileRepresentation.autoDetectEncoding')"
+          id="setting-autoGuessEncoding"
+          :description="preferenceLabel('autoGuessEncoding')"
           :bool="autoGuessEncoding"
           :on-change="(value) => onSelectChange('autoGuessEncoding', value)"
         />
         <bool
-          :description="t('preferences.editor.misc.autoNormalizeLineEndings')"
+          id="setting-autoNormalizeLineEndings"
+          :description="preferenceLabel('autoNormalizeLineEndings')"
           :bool="autoNormalizeLineEndings"
           :on-change="(value) => onSelectChange('autoNormalizeLineEndings', value)"
         />
         <cur-select
-          :description="t('preferences.editor.fileRepresentation.trailingNewlines.title')"
+          id="setting-trimTrailingNewline"
+          :description="preferenceLabel('trimTrailingNewline')"
           :value="trimTrailingNewline"
           :options="getTrimTrailingNewlineOptions()"
           :on-change="(value) => onSelectChange('trimTrailingNewline', value)"
@@ -163,29 +181,34 @@
       </template>
       <template #children>
         <cur-select
-          :description="t('preferences.editor.misc.textDirection.title')"
+          id="setting-textDirection"
+          :description="preferenceLabel('textDirection')"
           :value="textDirection"
           :options="getTextDirectionOptions()"
           :on-change="(value) => onSelectChange('textDirection', value)"
         />
         <bool
-          :description="t('preferences.editor.misc.hideQuickInsertHint')"
+          id="setting-hideQuickInsertHint"
+          :description="preferenceLabel('hideQuickInsertHint')"
           :bool="hideQuickInsertHint"
           :on-change="(value) => onSelectChange('hideQuickInsertHint', value)"
         />
         <bool
-          :description="t('preferences.editor.misc.hideLinkPopup')"
+          id="setting-hideLinkPopup"
+          :description="preferenceLabel('hideLinkPopup')"
           :bool="hideLinkPopup"
           :on-change="(value) => onSelectChange('hideLinkPopup', value)"
         />
         <bool
-          :description="t('preferences.editor.misc.autoCheck')"
-          :notes="t('preferences.explanations.taskCascade')"
+          id="setting-autoCheck"
+          :description="preferenceLabel('autoCheck')"
+          :notes="preferenceNotes('autoCheck')"
           :bool="autoCheck"
           :on-change="(value) => onSelectChange('autoCheck', value)"
         />
         <bool
-          :description="t('preferences.editor.misc.sourceCodeLineNumbers')"
+          id="setting-sourceCodeLineNumbers"
+          :description="preferenceLabel('sourceCodeLineNumbers')"
           :bool="sourceCodeLineNumbers"
           :on-change="(value) => onSelectChange('sourceCodeLineNumbers', value)"
         />
@@ -195,6 +218,8 @@
 </template>
 
 <script setup lang="ts">
+import { preferenceLabel, preferenceNotes } from '@/prefComponents/registry'
+
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'

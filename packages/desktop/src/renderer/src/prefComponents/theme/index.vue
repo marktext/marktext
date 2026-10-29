@@ -2,8 +2,9 @@
   <div class="pref-theme">
     <h4>{{ t('preferences.theme.title') }}</h4>
     <Bool
+      id="setting-followSystemTheme"
       class="follow-system-theme"
-      :description="t('preferences.theme.followSystemTheme')"
+      :description="preferenceLabel('followSystemTheme')"
       :bool="followSystemTheme"
       :on-change="(value) => onSelectChange('followSystemTheme', value)"
     />
@@ -21,13 +22,15 @@
       class="mode-themes-row"
     >
       <cur-select
-        :description="t('preferences.theme.lightModeTheme')"
+        id="setting-lightModeTheme"
+        :description="preferenceLabel('lightModeTheme')"
         :value="lightModeTheme"
         :options="lightThemeOptions"
         :on-change="(value) => onSelectChange('lightModeTheme', value)"
       />
       <cur-select
-        :description="t('preferences.theme.darkModeTheme')"
+        id="setting-darkModeTheme"
+        :description="preferenceLabel('darkModeTheme')"
         :value="darkModeTheme"
         :options="darkThemeOptions"
         :on-change="(value) => onSelectChange('darkModeTheme', value)"
@@ -36,7 +39,10 @@
 
     <separator />
 
-    <section class="offcial-themes">
+    <section
+      id="setting-theme"
+      class="offcial-themes"
+    >
       <div
         v-for="themeItem of themes"
         :key="themeItem.name"
@@ -55,7 +61,10 @@
       </div>
     </section>
 
-    <div class="custom-css">
+    <div
+      id="setting-customCss"
+      class="custom-css"
+    >
       <div class="description">
         {{ t('preferences.theme.customCss') }}
       </div>
@@ -93,6 +102,8 @@
 </template>
 
 <script setup lang="ts">
+import { preferenceLabel } from '@/prefComponents/registry'
+
 import { ref, onMounted } from 'vue'
 import { usePreferencesStore } from '@/store/preferences'
 import type { PreferencesState } from '@/store/preferences'

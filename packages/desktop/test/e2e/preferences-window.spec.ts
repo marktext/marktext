@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import en from '../../static/locales/en.json'
 import type { ElectronApplication, Page } from 'playwright'
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -27,6 +28,28 @@ test('the full settings window indexes searchable controls without renderer exce
     const settings = await openSettings(app, page)
     await settings.locator('.pref-sidebar input').fill('auto')
     await expect(settings.locator('.pref-autocomplete li').first()).toBeVisible()
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
+test('settings search focuses the exact control, including repeated selections', async() => {
+  const { app, page } = await launchWithMarkdown('# Search preferences\n', {
+    preferences: { language: 'en' }, suppressErrorDialog: true
+  })
+  try {
+    const settings = await openSettings(app, page)
+    const search = settings.locator('.pref-sidebar input')
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await search.fill('editorLineWidth')
+      await settings.locator('.pref-autocomplete').getByText(en.preferences.editor.textEditor.maxWidth, { exact: true }).click()
+      await expect(settings.locator('#setting-editorLineWidth')).toBeFocused()
+      await expect(settings.locator('#setting-editorLineWidth input')).toBeVisible()
+    }
+    await search.fill('imageRelativeDirectoryName')
+    await settings.locator('.pref-autocomplete').getByText(en.preferences.image.folderSetting.relativeFolderName, { exact: true }).click()
+    await expect(settings.locator('#setting-imageRelativeDirectoryName')).toBeFocused()
     await expectNoRendererErrors(app)
   } finally {
     await app.close()
