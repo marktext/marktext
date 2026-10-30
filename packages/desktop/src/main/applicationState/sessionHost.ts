@@ -6,6 +6,7 @@ import debounce from 'lodash/debounce'
 import type Preference from '../preferences'
 import type AppMenu from '../menu'
 import type EditorWindow from '../windows/editor'
+import type WindowManager from '../app/windowManager'
 import type { FileOpenOptions } from '../windows/editor'
 import { loadMarkdownFile, loadCliMarkdownFile, writeMarkdownFile } from '../filesystem/markdown'
 import { t } from '../i18n'
@@ -41,6 +42,10 @@ import { CloseCoordinator } from './closeCoordinator'
 import { createStateId, createFileLocation, createWorkspaceDescriptor } from './identity'
 import { contentSha256 } from 'common/filesystem'
 import { applyWindowGeometry, captureWindowGeometry } from './windowGeometry'
+import type { SidebarMoveRequest, SidebarMoveResult } from '@shared/types/project'
+import { confirmAndMoveSidebarItem } from '../filesystem/sidebarMove'
+import { containsPath } from 'common/filesystem/paths'
+import { relocateResourcePath, type ResourceMove } from 'common/filesystem/resourceMove'
 
 export interface StartupPath extends FileOpenOptions {
   path: string
@@ -86,7 +91,8 @@ export class SessionHost {
 
   constructor(private readonly _accessor: {
     preferences: Preference
-    menu: Pick<AppMenu, 'removeWindowMenu' | 'addRecentlyUsedDocument'>
+    menu: Pick<AppMenu, 'removeWindowMenu' | 'addRecentlyUsedDocument' | 'relocateRecentlyUsedDocuments'>
+    windowManager: Pick<WindowManager, 'withIgnoredFileDeletions'>
   }) {
     this._metadata = new ApplicationStateStore(app.getPath('userData'))
     this._recovery = new RecoveryStore(app.getPath('userData'))
@@ -1056,6 +1062,35 @@ export class SessionHost {
     }
   }
 
+  moveSidebarItem(windowId: string, request: SidebarMoveRequest): Promise<SidebarMoveResult> {
+    return this._enqueueWindowOperation(windowId, async() => {
+      const root = this._editors.get(windowId)?.projectRoots.roots.find(root => root.key === request.rootKey)
+      if (!root || root.status !== 'ready') return { status: 'failed', message: t('sideBar.move.invalidTarget') }
+      return confirmAndMoveSidebarItem(this._native(windowId), request, {
+        root: root.pathname,
+        checkAvailable: (source, destination) => {
+          if (root.status !== 'ready' || !this._editors.get(windowId)?.projectRoots.roots.includes(root)) {
+            throw new Error(t('sideBar.move.invalidTarget'))
+          }
+          for (const win of this._owner().getState().session.windows) {
+            for (const document of win.documents) {
+              if (document.resource.kind !== 'file') continue
+              const pathname = document.resource.location.canonicalPath
+              if (win.id !== windowId && containsPath(source, pathname)) {
+                throw new Error(t('sideBar.move.openElsewhere'))
+              }
+              if (containsPath(destination, pathname)) throw new Error(t('sideBar.move.destinationOpen'))
+            }
+          }
+        },
+        move: (_source, destination, write) => this._moveResourceNow(windowId, {
+          source: createFileLocation(request.source),
+          destination: createFileLocation(destination)
+        }, write)
+      })
+    })
+  }
+
   moveResource(
     windowId: string,
     source: string,
@@ -1063,32 +1098,28 @@ export class SessionHost {
     move: () => Promise<void>
   ): Promise<void> {
     return this._enqueueWindowOperation(windowId, () =>
-      this._moveResourceNow(windowId, source, target, move)
+      this._moveResourceNow(windowId, {
+        source: createFileLocation(source), destination: createFileLocation(target)
+      }, move)
     )
   }
 
   private async _moveResourceNow(
     windowId: string,
-    source: string,
-    target: string,
+    relocation: ResourceMove,
     move: () => Promise<void>
   ): Promise<void> {
-    const canonical = createFileLocation(source).canonicalPath
     const affected =
       this._owner()
         .getWindow(windowId)
         ?.documents.flatMap((document) => {
           if (document.resource.kind !== 'file') return []
-          const relative = path.relative(canonical, document.resource.location.canonicalPath)
-          return relative === '' ||
-            (!relative.startsWith(`..${path.sep}`) &&
-              relative !== '..' &&
-              !path.isAbsolute(relative))
-            ? [{ document, destination: path.join(path.resolve(target), relative) }]
-            : []
+          const destination = relocateResourcePath(document.resource.location.canonicalPath, relocation)
+          return destination === null ? [] : [{ document, destination }]
         }) ?? []
     if (!affected.length) {
       await move()
+      this._accessor.menu.relocateRecentlyUsedDocuments(relocation)
       return
     }
     await this._requestCheckpoint(windowId)
@@ -1101,27 +1132,33 @@ export class SessionHost {
       async() => {
         if (affected.some(({ document }) => this._owner().hasPendingSave(document.id)))
           throw new Error('Cannot move a document while saving')
-        await move()
-        await this._owner().settlePendingSaves(affected.map(({ document }) => document.id))
-        for (const { document, destination } of affected) {
-          const previous = document.resource.kind === 'file' ? document.resource.location.path : ''
-          const result = await this._owner().relocateDocument(
-            windowId,
-            document.id,
-            createFileLocation(destination),
-            path.basename(destination)
-          )
-          this._editors.get(windowId)?.changeOpenedFilePath(destination, previous)
-          this._native(windowId).webContents.send(
-            'mt::state::document-relocated',
-            this._owner().getDocument(document.id),
-            this._owner().getState().revision
-          )
-          if (result.status !== 'persisted')
-            this.report(new Error('Recovery metadata unavailable after move'), windowId)
-        }
+        const oldPaths = affected.flatMap(({ document }) => document.resource.kind === 'file'
+          ? [document.resource.location.path, document.resource.location.canonicalPath]
+          : [])
+        await this._accessor.windowManager.withIgnoredFileDeletions(this._native(windowId), oldPaths, async() => {
+          await move()
+          await this._owner().settlePendingSaves(affected.map(({ document }) => document.id))
+          for (const { document, destination } of affected) {
+            const previous = document.resource.kind === 'file' ? document.resource.location.path : ''
+            const result = await this._owner().relocateDocument(
+              windowId,
+              document.id,
+              createFileLocation(destination),
+              path.basename(destination)
+            )
+            this._editors.get(windowId)?.changeOpenedFilePath(destination, previous)
+            this._native(windowId).webContents.send(
+              'mt::state::document-relocated',
+              this._owner().getDocument(document.id),
+              this._owner().getState().revision
+            )
+            if (result.status !== 'persisted')
+              this.report(new Error('Recovery metadata unavailable after move'), windowId)
+          }
+        })
       }
     )
+    this._accessor.menu.relocateRecentlyUsedDocuments(relocation)
   }
 
   async renameDocument(windowId: string, documentId: string, destination: string): Promise<void> {
@@ -1151,7 +1188,8 @@ export class SessionHost {
       if (choice.response !== 0) return
     }
     await this.moveResource(windowId, source, target, () => rename(source, target))
-    this._accessor.menu.addRecentlyUsedDocument(target)
+    const moved = this._owner().getDocument(documentId)
+    if (moved.resource.kind === 'file') this._accessor.menu.addRecentlyUsedDocument(moved.resource.location.path)
   }
 
   async moveDocument(windowId: string, documentId: string): Promise<void> {

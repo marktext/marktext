@@ -3,6 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { RecentDocumentsStore, isVolumeRootPath } from 'main_renderer/menu/recentDocuments'
+import { createFileLocation } from 'main_renderer/applicationState/identity'
 
 describe('isVolumeRootPath', () => {
   it('recognizes mount roots below the standard volume containers', () => {
@@ -100,6 +101,28 @@ describe('RecentDocumentsStore', () => {
     expect(JSON.parse(fs.readFileSync(storagePath, 'utf-8'))).toEqual([c, a])
   })
 
+  it('relocates directory descendants without losing unavailable history or changing sibling prefixes', () => {
+    const store = new RecentDocumentsStore(storagePath)
+    const source = path.join(tempDir, 'chapter')
+    const destination = path.join(tempDir, 'archive')
+    fs.mkdirSync(source)
+    const child = path.join(source, 'a.md')
+    fs.writeFileSync(child, '')
+    const sibling = makeFile('chapter2.md')
+    store.add(child)
+    store.add(source)
+    store.add(sibling)
+    const move = { source: createFileLocation(source), destination: createFileLocation(destination) }
+    fs.renameSync(source, destination)
+    const target = move.destination.path
+    expect(store.relocate(move).map(document => document.pathname)).toEqual([
+      sibling, target, path.join(target, 'a.md')
+    ])
+    expect(JSON.parse(fs.readFileSync(storagePath, 'utf8'))).toEqual([
+      sibling, target, path.join(target, 'a.md')
+    ])
+  })
+
   it('clears the list', () => {
     const store = new RecentDocumentsStore(storagePath)
     store.add(makeFile('a.md'))
@@ -108,5 +131,29 @@ describe('RecentDocumentsStore', () => {
 
     expect(store.read()).toEqual([])
     expect(JSON.parse(fs.readFileSync(storagePath, 'utf-8'))).toEqual([])
+  })
+
+  it('keeps recent files through consecutive moves in a symlink workspace', () => {
+    const store = new RecentDocumentsStore(storagePath)
+    const alias = `${tempDir}-alias`
+    fs.symlinkSync(tempDir, alias, 'junction')
+    try {
+      makeFile('draft.md')
+      const realRoot = fs.realpathSync(tempDir)
+      const source = path.join(realRoot, 'draft.md')
+      const folder = path.join(realRoot, 'notes')
+      fs.mkdirSync(folder)
+      const destination = path.join(folder, 'draft.md')
+      store.add(path.join(alias, 'draft.md'))
+      const intoFolder = { source: createFileLocation(path.join(alias, 'draft.md')), destination: createFileLocation(destination) }
+      fs.renameSync(source, destination)
+      store.relocate(intoFolder)
+      const intoRoot = { source: createFileLocation(path.join(alias, 'notes', 'draft.md')), destination: createFileLocation(source) }
+      fs.renameSync(destination, source)
+      store.relocate(intoRoot)
+      expect(store.read()).toContainEqual({ pathname: intoRoot.destination.path, isDirectory: false })
+    } finally {
+      fs.unlinkSync(alias)
+    }
   })
 })

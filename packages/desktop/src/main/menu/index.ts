@@ -14,6 +14,7 @@ import type Preference from '../preferences'
 import type Keybindings from '../keyboard/shortcutHandler'
 import type { UserPreferencesPatch } from '@shared/types/preferences'
 import { RecentDocumentsStore, type RecentDocument } from './recentDocuments'
+import type { ResourceMove } from 'common/filesystem/resourceMove'
 
 const RECENTLY_USED_DOCUMENTS_FILE_NAME = 'recently-used-documents.json'
 
@@ -86,6 +87,11 @@ class AppMenu {
 
     const documents = this._recentDocuments.add(filePath)
     this.updateAppMenu(documents.map((document) => document.pathname))
+  }
+
+  relocateRecentlyUsedDocuments(move: ResourceMove): void {
+    const documents = this._recentDocuments.relocate(move)
+    this.updateAppMenu(documents.map(document => document.pathname))
   }
 
   removeRecentlyUsedDocument(filePath: string): void {

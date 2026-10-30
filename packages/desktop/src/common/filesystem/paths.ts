@@ -145,6 +145,12 @@ export const isSamePathSync = (
   return false
 }
 
+export const containsPath = (directory: string, pathname: string): boolean => {
+  const relative = path.relative(directory, pathname)
+  return relative === '' ||
+    (relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative))
+}
+
 export const isChildOfDirectory = (dir: string, child: string): boolean => {
   if (!dir || !child) return false
   const relative = path.relative(dir, child)

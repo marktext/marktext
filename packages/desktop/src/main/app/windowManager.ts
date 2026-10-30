@@ -101,6 +101,14 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     this._listenForIpcMain()
   }
 
+  withIgnoredFileDeletions(
+    win: BrowserWindow,
+    pathnames: readonly string[],
+    operation: () => Promise<void>
+  ): Promise<void> {
+    return this._watcher.withIgnoredFileDeletions(win, pathnames, operation)
+  }
+
   add(window: BaseWindow): void {
     const windowId = window.id as number
     this._windows.set(windowId, window)

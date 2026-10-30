@@ -30,6 +30,16 @@ interface TreeFile {
 
 type AddFileInput = Omit<TreeFile, 'id'>
 
+export const findTreeNode = (tree: TreeFolder, pathname: string): TreeFolder | TreeFile | undefined => {
+  if (window.fileUtils.isSamePathSync(tree.pathname, pathname)) return tree
+  const file = tree.files.find(file => window.fileUtils.isSamePathSync(file.pathname, pathname))
+  if (file) return file
+  for (const folder of tree.folders) {
+    const node = findTreeNode(folder, pathname)
+    if (node) return node
+  }
+}
+
 const safeTime = (v: number | undefined): number => (v !== undefined && isFinite(v) ? v : 0)
 
 const makeFileComparator = (sortBy: string, sortOrder: string) =>
@@ -168,7 +178,7 @@ export const expandAncestors = (tree: TreeFolder, pathname: string): TreeFolder[
     currentSubFolders = childFolder.folders
   }
 
-  const isTracked = currentFolder.files.some((f) =>
+  const isTracked = [...currentFolder.files, ...currentFolder.folders].some((f) =>
     window.fileUtils.isSamePathSync(f.pathname, pathname)
   )
   if (!isTracked) return null

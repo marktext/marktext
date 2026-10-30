@@ -1,4 +1,4 @@
-import type { ProjectRootsSnapshot, ProjectTreeEvent } from './project'
+import type { ProjectRootsSnapshot, ProjectTreeEvent, SidebarMoveRequest, SidebarMoveResult } from './project'
 /**
  * Cross-process IPC contract: invoke returns a Promise, send is fire-and-forget,
  * sync returns directly, and main events push payloads to renderer listeners.
@@ -61,6 +61,7 @@ export interface IpcInvokeChannels extends StateIpcInvokeChannels {
   'mt::dialog::show-save': { args: [request: SaveDialogRequest]; ret: string | null }
   'mt::fonts::list': { args: []; ret: string[] }
   'mt::fs-trash-item': { args: [pathname: string]; ret: boolean }
+  'mt::project-move-item': { args: [request: SidebarMoveRequest]; ret: SidebarMoveResult }
   'mt::fs::copy': { args: [src: string, dest: string]; ret: void }
   'mt::fs::copy-with-content-hash': { args: [src: string, outputDir: string]; ret: string }
   'mt::fs::empty-dir': { args: [path: string]; ret: void }
