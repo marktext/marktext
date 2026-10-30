@@ -18,7 +18,11 @@ interface DragRow {
 /** Rows expose paths and directory flags through data-tree-*; their root container supplies the root key.
  * Only a session started in this mounted tree can issue a move request.
  */
-export const useTreeDragDrop = (container: Ref<HTMLElement | null>, requestReveal: (pathname: string) => void) => {
+export const useTreeDragDrop = (
+  container: Ref<HTMLElement | null>,
+  requestReveal: (pathname: string) => void,
+  findRow: (pathname: string) => HTMLElement | undefined
+) => {
   const project = useProjectStore()
   const busy = computed(() => project.movingSource !== null)
   let source: DragRow | null = null
@@ -36,6 +40,15 @@ export const useTreeDragDrop = (container: Ref<HTMLElement | null>, requestRevea
     const pathname = element.dataset.treePath
     if (!rootKey || !pathname) return null
     return { element, pathname, rootKey, directory: element.dataset.treeDirectory === 'true' }
+  }
+
+  const targetAt = (event: Event): DragRow | null => {
+    const row = rowAt(event)
+    if (!row || row.directory) return row
+    const pathname = window.path.dirname(row.pathname)
+    const element = findRow(pathname)
+    if (!element || !container.value?.contains(element)) return null
+    return { element, pathname, rootKey: row.rootKey, directory: true }
   }
 
   const validTarget = (row: DragRow | null): row is DragRow => {
@@ -97,7 +110,7 @@ export const useTreeDragDrop = (container: Ref<HTMLElement | null>, requestRevea
     event.stopPropagation()
     pointerY = event.clientY
     if (!scrollFrame) scrollFrame = requestAnimationFrame(scroll)
-    const row = rowAt(event)
+    const row = targetAt(event)
     const valid = validTarget(row)
     if (event.dataTransfer) event.dataTransfer.dropEffect = valid ? 'move' : 'none'
     if (target?.element === row?.element && valid) return
@@ -115,7 +128,7 @@ export const useTreeDragDrop = (container: Ref<HTMLElement | null>, requestRevea
     if (!source) return
     event.preventDefault()
     event.stopPropagation()
-    const row = rowAt(event)
+    const row = targetAt(event)
     const request = validTarget(row)
       ? { rootKey: source.rootKey, source: source.pathname, targetDirectory: row.pathname }
       : null

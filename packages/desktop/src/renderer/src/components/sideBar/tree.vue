@@ -406,8 +406,8 @@ const revealPath = async (
   pathname: string | null | undefined,
   { force = false, select = false }: { force?: boolean; select?: boolean } = {}
 ): Promise<void> => {
-  if (!pathname) return
   if (force) {
+    if (!pathname) return
     explicitReveal = { pathname, select, documentId: editorStore.currentFile?.id }
   } else {
     if (projectStore.movingSource) return
@@ -417,6 +417,7 @@ const revealPath = async (
       force = true
     } else explicitReveal = null
   }
+  if (!pathname) return
   const version = ++revealVersion
   // Initial restoration keeps deliberate folds until the user navigates to another tab.
   if (!force && projectStore.restoringSession) return
@@ -450,7 +451,7 @@ const handleRevealPath = (pathname: unknown): void => {
 
 const { busy: movingTreeItem } = useTreeDragDrop(treeWrapper, pathname => {
   void revealPath(pathname, { force: true, select: true })
-})
+}, findRow)
 
 const handleInputFocus = (): void => {
   const root = roots.value.find((root) => root.pathname === createCacheDirname.value)

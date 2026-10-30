@@ -86,6 +86,32 @@ test('native file drags preserve saved state and dirty edits and can return to t
   await expectNoRendererErrors(app)
 })
 
+for (const name of ['draft.md', 'notes']) {
+  test(`native ${name === 'notes' ? 'folder' : 'file'} drag onto a file moves into its parent folder`, async() => {
+    const source = path.join(directory, name)
+    const folder = path.join(directory, 'chapter')
+    const anchor = path.join(folder, 'child.md')
+    await row(folder).click()
+    await expect(row(anchor)).toBeVisible()
+    await row(source).dragTo(row(anchor))
+    const destination = path.join(folder, name)
+    await expect.poll(() => fs.existsSync(destination)).toBe(true)
+    await expect(row(destination)).toHaveClass(/active/)
+    expect(fs.existsSync(source)).toBe(false)
+
+    const rootFile = path.join(directory, 'return.md')
+    fs.writeFileSync(rootFile, 'Root drop target\n')
+    await expect(row(rootFile)).toBeVisible()
+    await row(destination).dragTo(row(rootFile))
+    await expect.poll(() => fs.existsSync(source)).toBe(true)
+    await expect(row(source)).toHaveClass(/active/)
+    expect(fs.existsSync(destination)).toBe(false)
+    expect(fs.readFileSync(anchor, 'utf8')).toBe('Child text\n')
+    expect(fs.readFileSync(rootFile, 'utf8')).toBe('Root drop target\n')
+    await expectNoRendererErrors(app)
+  })
+}
+
 test('moves a folder with clean and dirty open descendants and hidden resources', async() => {
   const source = path.join(directory, 'chapter')
   const target = path.join(directory, 'notes')

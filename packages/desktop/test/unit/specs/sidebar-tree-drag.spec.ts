@@ -46,13 +46,18 @@ beforeEach(() => {
   document.body.append(host)
   app = createApp({ setup() {
     const container = ref<HTMLElement | null>(null)
-    busy = useTreeDragDrop(container, mocks.reveal).busy
+    busy = useTreeDragDrop(container, mocks.reveal, pathname =>
+      Array.from(host.querySelectorAll<HTMLElement>('[data-tree-path]')).find(row => row.dataset.treePath === pathname)
+    ).busy
     return () => h('div', { ref: container, class: 'viewport' }, [
       h('div', { 'data-tree-root': '/root' }, [
         h('div', { 'data-tree-path': '/root', 'data-tree-directory': 'true', id: 'root' }),
         h('div', { 'data-tree-path': '/root/a.md', 'data-tree-directory': 'false', draggable: true, id: 'source' }),
         h('div', { 'data-tree-path': '/root/notes', 'data-tree-directory': 'true', draggable: true, id: 'target' }),
-        h('div', { 'data-tree-path': '/root/notes/child', 'data-tree-directory': 'true', draggable: true, id: 'child' })
+        h('div', { 'data-tree-path': '/root/notes/child', 'data-tree-directory': 'true', draggable: true, id: 'child' }),
+        h('div', { 'data-tree-path': '/root/notes/anchor.md', 'data-tree-directory': 'false', draggable: true, id: 'anchor' }),
+        h('div', { 'data-tree-path': '/root/notes/second.md', 'data-tree-directory': 'false', draggable: true, id: 'second' }),
+        h('div', { 'data-tree-path': '/root/notes/child/deep.md', 'data-tree-directory': 'false', draggable: true, id: 'deep' })
       ]),
       h('div', { 'data-tree-root': '/other' }, [
         h('div', { 'data-tree-path': '/other', 'data-tree-directory': 'true', id: 'other' })
@@ -100,7 +105,7 @@ describe('sidebar drag session', () => {
     expect(source.classList.contains('tree-drag-source')).toBe(false)
   })
 
-  it('rejects current parent, files, descendants, roots as sources and cross-root targets', () => {
+  it('rejects current parent, descendants, roots as sources and cross-root targets', () => {
     fire(source, 'dragstart')
     for (const row of [source, element('#root'), element('#other')]) {
       const dt = transfer()
@@ -115,6 +120,37 @@ describe('sidebar drag session', () => {
     fire(element('#root'), 'dragstart')
     fire(target, 'drop')
     expect(mocks.invoke).not.toHaveBeenCalled()
+  })
+
+  it('resolves file hover and drop to the containing folder and keeps its hover timer', () => {
+    fire(source, 'dragstart')
+    const dt = transfer()
+    fire(element('#anchor'), 'dragover', dt)
+    expect(dt.dropEffect).toBe('move')
+    expect(target.classList.contains('tree-drop-target')).toBe(true)
+    expect(element('#anchor').classList.contains('tree-drop-target')).toBe(false)
+    vi.advanceTimersByTime(400)
+    fire(element('#second'), 'dragover')
+    vi.advanceTimersByTime(300)
+    expect(mocks.project.SET_FOLDER_COLLAPSED).toHaveBeenCalledOnce()
+    fire(element('#anchor'), 'drop')
+    expect(mocks.invoke).toHaveBeenCalledExactlyOnceWith('mt::project-move-item', {
+      rootKey: '/root', source: '/root/a.md', targetDirectory: '/root/notes'
+    })
+  })
+
+  it('allows dropping a folder on a root file but rejects files in itself or descendants', () => {
+    fire(target, 'dragstart')
+    for (const id of ['#anchor', '#deep']) {
+      const dt = transfer()
+      fire(element(id), 'dragover', dt)
+      expect(dt.dropEffect).toBe('none')
+    }
+    fire(element('#child'), 'dragstart')
+    fire(source, 'drop')
+    expect(mocks.invoke).toHaveBeenCalledExactlyOnceWith('mt::project-move-item', {
+      rootKey: '/root', source: '/root/notes/child', targetDirectory: '/root'
+    })
   })
 
   it('expands after sustained hover and cancels timers when the drag leaves', () => {

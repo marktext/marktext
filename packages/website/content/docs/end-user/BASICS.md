@@ -56,7 +56,7 @@ MarkText also has support to open a directory via <kbd>CmdOrCtrl</kbd>+<kbd>Shif
 
 ### Move files and folders
 
-In the 0.24.0 development version, drag a file or subfolder onto another folder in the same sidebar root, then confirm the move. Drop onto the root's heading to move an item back to the root. Hover over a collapsed folder to expand it, or hold near the tree's upper or lower edge to scroll. Moving a folder includes all its contents, including resources hidden from the sidebar.
+In the 0.24.0 development version, drag a file or subfolder onto another folder in the same sidebar root, then confirm the move. Drop onto the root's heading to move an item back to the root. Hover over a collapsed folder to expand it, or hold near the tree's upper or lower edge to scroll. Dropping onto a file moves the dragged item into that file's parent folder; the receiving folder is highlighted during the drag. Moving a folder includes all its contents, including resources hidden from the sidebar.
 
 This changes the actual location on disk. Open documents keep their edits and save to the new path. Relative links and image paths are not rewritten and may need updating. Existing destination names are never intentionally replaced or merged. Close affected documents in other MarkText windows before moving them. Multiple selections, cross-root or cross-volume moves, linked paths, drag-to-copy and custom ordering are not supported by this interaction.
 
