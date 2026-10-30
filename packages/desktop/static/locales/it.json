@@ -431,8 +431,8 @@
         "openFilesInNewWindow": "Apri i file in una nuova finestra",
         "openFoldersInNewWindow": "Apri le cartelle in una nuova finestra",
         "zoom": "Zoom",
-        "openFilesInNewWindowNote": "Se si attiva, i file si aprono in una nuova finestra. Altrimenti, si aprono in schede nella finestra corrente.",
-        "openFoldersInNewWindowNote": "Se si attiva, le cartelle si aprono in una nuova finestra. Altrimenti, sostituiscono la cartella nella finestra corrente."
+        "openFilesInNewWindowNote": "Se attivata, i file si aprono in una nuova finestra. Altrimenti, si aprono in schede nella finestra corrente.",
+        "openFoldersInNewWindowNote": "Se attivata, le cartelle si aprono in una nuova finestra. Altrimenti, sostituiscono la cartella nella finestra corrente."
       },
       "startup": {
         "title": "Avvio e ripristino",
@@ -529,14 +529,14 @@
       "writingBehavior": {
         "title": "Preferenze di scrittura",
         "autoCloseBrackets": "Chiusura automatica delle parentesi",
-        "autoCompleteMarkdown": "Completa le coppie di marcatori Markdown",
+        "autoCompleteMarkdown": "Completamento delle coppie di marcatori Markdown",
         "autoCloseQuotes": "Chiusura automatica delle virgolette"
       },
       "fileRepresentation": {
         "title": "Rappresentazione dei file",
-        "tabWidth": "Inserimento con il tasto Tab",
-        "tabInputNotes": "Scegli tra spazi e un vero carattere di tabulazione (Tab). Le tabulazioni esistenti simulano le vere tabulazioni utilizzando 1-4 spazi. Negli elenchi e nelle tabelle il tasto Tab regola invece, rispettivamente, il livello di nidificazione e consente il passaggio da una cella all’altra.",
-        "lineSeparator": "Fine riga predefinita dei file",
+        "tabWidth": "Uso del tasto Tab (tabulazione)",
+        "tabInputNotes": "Per inserire una tabulazione scegliere se usare il carattere \"Spazio\" o il tasto di tabulazione (Tab). Infatti le tabulazioni possono essere simulate utilizzando 1-4 spazi. Inoltre il tasto Tab usato negli elenchi, ne determina il livello di nidificazione, mentre all’interno delle tabelle consente lo spostamento del cursore da una cella all’altra.",
+        "lineSeparator": "Fine riga dei file",
         "defaultEncoding": "Codifica predefinita",
         "autoDetectEncoding": "Rilevamento automatico della codifica",
         "trailingNewlines": {
@@ -555,7 +555,7 @@
       "misc": {
         "title": "Varie",
         "textDirection": {
-          "title": "Direzione testo",
+          "title": "Direzione del testo",
           "ltr": "Sinistra → Destra",
           "rtl": "Destra → Sinistra"
         },
@@ -626,7 +626,7 @@
         "title": "Estensioni",
         "superSubScript": "Apice/Pedice",
         "footnote": "Nota a piè di pagina",
-        "texMathDollars": "Espressioni matematiche TeX con: $ e $$",
+        "texMathDollars": "Espressioni matematiche TeX: $ e $$",
         "texMathGfm": "Espressioni matematiche TeX tipo GitHub: ($`…`$ e ```math)",
         "texMathSingleBackslash": "Delimitatori di espressione matematica TeX con singola barra rovesciata",
         "texMathDoubleBackslash": "Delimitatori di espressione matematica TeX con doppia barra rovesciata",
@@ -751,7 +751,7 @@
     "explanations": {
       "taskCascade": "Selezionando un’attività principale vengono aggiornate le sotto-attività; modificando queste ultime, viene aggiornata l’attività principale.",
       "markdownPairs": "Completa le coppie di marcatori Markdown, come asterischi, trattini bassi e accenti gravi, direttamente durante la digitazione.",
-      "lineEndings": "Usata per nuovi file e file con terminazioni miste o non rilevate. I file LF o CRLF mantengono il formato rilevato."
+      "lineEndings": "Usato per nuovi file e per i file a terminazione mista o non rilevata. I file con LF o con CRLF mantengono il formato rilevato."
     },
     "commandDetection": {
       "checking": "Verifica in corso…",
