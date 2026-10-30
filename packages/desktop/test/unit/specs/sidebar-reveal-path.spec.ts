@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
 vi.hoisted(() => {
@@ -44,7 +44,7 @@ vi.mock('@/services/notification', () => ({
   default: { notify: vi.fn(), name: 'notify' }
 }))
 
-import { expandAncestors } from '@/store/treeCtrl'
+import { expandAncestors, findTreeNode } from '@/store/treeCtrl'
 import { useProjectStore } from '@/store/project'
 
 interface FileFixture {
@@ -96,6 +96,40 @@ const createTree = (): FolderFixture =>
     folder('/project/a', [folder('/project/a/b', [], [file('/project/a/b/deep.md')])]),
     folder('/project/c', [], [file('/project/c/other.md')])
   ], [file('/project/root.md')])
+
+describe('findTreeNode path identity', () => {
+  afterEach(() => vi.restoreAllMocks())
+
+  it.each(['/PROJECT', '/project/A', '/project/a/b/DEEP.md'])('matches %s on a case-insensitive filesystem', pathname => {
+    vi.spyOn(window.fileUtils, 'isSamePathSync').mockImplementation((a, b) => a.toLowerCase() === b.toLowerCase())
+    const tree = createTree()
+    const node = findTreeNode(tree, pathname)
+    expect(node?.pathname).toBe(pathname.toLowerCase())
+  })
+
+  it('keeps differently cased paths distinct on a case-sensitive filesystem', () => {
+    vi.spyOn(window.fileUtils, 'isSamePathSync').mockImplementation((a, b) => a === b)
+    const tree = createTree()
+    tree.files.push(file('/project/ROOT.md'))
+    expect(findTreeNode(tree, '/project/root.md')).toBe(tree.files[0])
+    expect(findTreeNode(tree, '/project/ROOT.md')).toBe(tree.files[1])
+    expect(findTreeNode(tree, '/project/Root.md')).toBeUndefined()
+  })
+
+  it('finds a differently cased file before revealing its ancestors', () => {
+    vi.spyOn(window.fileUtils, 'isSamePathSync').mockImplementation((a, b) => a.toLowerCase() === b.toLowerCase())
+    setActivePinia(createPinia())
+    const store = useProjectStore()
+    const tree = createTree()
+    store.APPLY_ROOTS({ revision: 1, roots: [{ key: tree.pathname, pathname: tree.pathname, watchToken: 'root', status: 'ready' }], reason: 'restore' })
+    store.roots[0].tree = tree
+
+    expect(store.FIND_TREE_NODE('/project/a/b/DEEP.md')?.pathname).toBe('/project/a/b/deep.md')
+    expect(store.REVEAL_PATH('/project/a/b/DEEP.md')).toBe(true)
+    expect(store.roots[0].tree.folders[0].folders[0].isCollapsed).toBe(false)
+    expect(store.roots[0].tree.folders[1].isCollapsed).toBe(true)
+  })
+})
 
 describe('expandAncestors', () => {
   it('reveals a folder without expanding that folder or unrelated branches', () => {
