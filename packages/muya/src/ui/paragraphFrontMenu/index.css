@@ -129,3 +129,27 @@
 .mu-front-menu li.turn-into-menu .turn-into-item .icon-wrapper:hover {
     background: var(--float-hover-color);
 }
+
+.mu-front-menu > ul li.item > .arrow {
+    margin-left: 12px;
+
+    color: var(--editor-color);
+}
+
+.mu-front-menu li.item .copy-as-menu {
+    position: absolute;
+    top: -10px;
+    left: 100%;
+
+    display: none;
+    min-width: 140px;
+    padding: 10px 0;
+
+    background-color: var(--float-bg-color);
+    border-radius: 2px;
+    box-shadow: var(--float-shadow);
+}
+
+.mu-front-menu li.item.copy-as:hover > .copy-as-menu {
+    display: block;
+}

@@ -383,6 +383,29 @@ export function getClipboardData(clipboard: Clipboard): IClipboardPayload {
     return { html, text };
 }
 
+// What each copy type puts on the clipboard, from the copied Markdown and its rendered HTML.
+function formatClipboardPayload(clipboard: Clipboard, copyType: CopyType, text: string, html: string): IClipboardPayload {
+    const { options } = clipboard.muya;
+    switch (copyType) {
+        case CopyType.COPY_AS_HTML:
+            return { html: '', text: getSanitizeClipboardHtml(text, buildHtmlOptions(options ?? {})) };
+
+        case CopyType.COPY_AS_RICH:
+            return { html: options?.fancyLists ? withMarkdownSource(html) : html, text };
+
+        default:
+            return { html: '', text };
+    }
+}
+
+// A whole block, fences and all, as the block menu's Copy as copies it (#5808).
+export function getBlockClipboardData(clipboard: Clipboard, block: Parent, copyType: CopyType): IClipboardPayload {
+    const text = clipboardMarkdown(clipboard, [block.getState()]);
+    const html = copyType === CopyType.COPY_AS_RICH ? getClipBoardHtml(text, buildHtmlOptions(clipboard.muya.options)) : '';
+
+    return formatClipboardPayload(clipboard, copyType, text, html);
+}
+
 export function writeClipboardData(
     clipboard: Clipboard,
     event: ClipboardEvent,
@@ -415,31 +438,7 @@ export function writeClipboardData(
     if (text.length === 0)
         return;
 
-    switch (copyType) {
-        case CopyType.NORMAL:
-        case CopyType.COPY_AS_MARKDOWN:
-        case CopyType.COPY_CODE_CONTENT: {
-            event.clipboardData.setData('text/html', '');
-            event.clipboardData.setData('text/plain', text);
-            break;
-        }
-
-        case CopyType.COPY_AS_HTML: {
-            event.clipboardData.setData('text/html', '');
-            event.clipboardData.setData(
-                'text/plain',
-                getSanitizeClipboardHtml(
-                    text,
-                    buildHtmlOptions(clipboard.muya.options ?? {}),
-                ),
-            );
-            break;
-        }
-
-        case CopyType.COPY_AS_RICH: {
-            event.clipboardData.setData('text/html', clipboard.muya.options?.fancyLists ? withMarkdownSource(html) : html);
-            event.clipboardData.setData('text/plain', text);
-            break;
-        }
-    }
+    const payload = formatClipboardPayload(clipboard, copyType, text, html);
+    event.clipboardData.setData('text/html', payload.html);
+    event.clipboardData.setData('text/plain', payload.text);
 }

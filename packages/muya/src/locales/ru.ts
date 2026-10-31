@@ -102,6 +102,10 @@ export const ru = {
         'Duplicate': 'Дублировать',
         'New Paragraph': 'Новый абзац',
         'Delete': 'Удалить',
+        'Copy as': 'Копировать как',
+        'Markdown': 'Markdown',
+        'HTML': 'HTML',
+        'Rich Text': 'С форматированием',
         // imageToolbar
         'Edit Image': 'Изменить изображение',
         'Inline Image': 'Встроенное изображение',

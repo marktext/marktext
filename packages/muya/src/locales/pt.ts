@@ -102,6 +102,10 @@ export const pt = {
         'Duplicate': 'Duplicar',
         'New Paragraph': 'Novo parágrafo',
         'Delete': 'Excluir',
+        'Copy as': 'Copiar como',
+        'Markdown': 'Markdown',
+        'HTML': 'HTML',
+        'Rich Text': 'Rich Text',
         // imageToolbar
         'Edit Image': 'Editar imagem',
         'Inline Image': 'Imagem em linha',

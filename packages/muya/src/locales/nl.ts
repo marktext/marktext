@@ -97,6 +97,10 @@ export const nl = {
         'Duplicate': 'Dupliceren',
         'New Paragraph': 'Nieuwe alinea',
         'Delete': 'Verwijderen',
+        'Copy as': 'Kopiëren als',
+        'Markdown': 'Markdown',
+        'HTML': 'HTML',
+        'Rich Text': 'Opgemaakte tekst',
         // imageToolbar
         'Edit Image': 'Afbeelding bewerken',
         'Inline Image': 'Inline afbeelding',
