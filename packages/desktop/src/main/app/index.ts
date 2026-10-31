@@ -47,6 +47,8 @@ class App {
   private _windowManager: WindowManager
   private _themeListenerRegistered: boolean
   private _initialArgumentsConsumed = false
+  private _startupComplete = false
+  private _pendingOpenRequests: { paths: PathInfo[]; forceNewWindow: boolean }[] = []
 
   constructor(accessor: Accessor, args: Partial<CliArgs>) {
     this._accessor = accessor
@@ -66,7 +68,7 @@ class App {
     }
 
     app.on('second-instance', (_event, argv, workingDirectory, additionalData) => {
-      const { _openFilesCache, _windowManager } = this
+      const { _windowManager } = this
       // `argv` lists switches before the other arguments and adds switches of its
       // own, which separates `--user-data-dir <dir>` from its value (#3020), so
       // parse the unchanged copy a second instance sends as additional data.
@@ -93,9 +95,8 @@ class App {
         return
       }
 
-      _openFilesCache.push(...buf)
-      if (_openFilesCache.length) {
-        this._openFilesToOpen()
+      if (buf.length) {
+        this._openPathList(buf)
       } else {
         const activeWindow = _windowManager.getActiveWindow()
         if (activeWindow) {
@@ -313,6 +314,12 @@ class App {
       const host = this._accessor.sessionHost
       const paths = _openFilesCache.splice(0)
       void host.start(paths, prepared => this._createEditorWindow(null, [], [], {}, {}, prepared), args['--new-window'] === true)
+        .then(() => {
+          this._startupComplete = true
+          for (const { paths, forceNewWindow } of this._pendingOpenRequests.splice(0)) {
+            this._openPathList(paths, forceNewWindow)
+          }
+        })
         .catch(error => host.report(error))
     }
 
@@ -399,6 +406,12 @@ class App {
 
   /** CLI --new-window groups the explicit targets in one fresh window. */
   private _openPathList(pathsToOpen: PathInfo[], forceNewWindow: boolean = false): void {
+    // Explorer can send more launches before the first session has a window to reuse (#5953).
+    if (!this._startupComplete) {
+      this._pendingOpenRequests.push({ paths: pathsToOpen.splice(0), forceNewWindow })
+      return
+    }
+
     const { _windowManager } = this
     const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
 
