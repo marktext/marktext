@@ -42,3 +42,11 @@ jobs:
 
       - name: Run E2E Tests
         run: xvfb-run --auto-servernum pnpm test:e2e
+
+      - name: Upload E2E failure traces
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: desktop-e2e-failures
+          path: packages/desktop/test-results/
+          retention-days: 7

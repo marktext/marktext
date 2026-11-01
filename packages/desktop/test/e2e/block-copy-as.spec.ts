@@ -10,6 +10,7 @@ test('the block menu copies a whole block as Markdown, HTML or Rich Text (#5808)
       await page.locator(target).first().hover()
       await page.locator('.mu-front-button').click()
       const menu = page.locator('.mu-front-menu')
+      await expect(menu.locator('..')).toHaveCSS('opacity', '1')
       await menu.locator('li.copy-as').hover()
       await menu.locator(`li.copy-as-${format}`).click()
       await expect(menu.locator('..')).toHaveCSS('opacity', '0') // hide() moves the float off-screen
