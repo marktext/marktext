@@ -106,6 +106,9 @@
 
 .mu-front-menu li.turn-into-menu {
     padding: 0 15px;
+
+    /* Wrap the icons at the width the text rows set, keeping room for the Copy as submenu. */
+    contain: inline-size;
 }
 
 .mu-front-menu li.turn-into-menu .turn-into-item {

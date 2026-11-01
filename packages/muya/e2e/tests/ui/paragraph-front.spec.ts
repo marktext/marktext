@@ -195,4 +195,19 @@ test.describe('paragraph front menu — Turn Into', () => {
         // Block-quote IS an allowed target for a non-empty paragraph.
         await expect(page.locator(`${menu} .turn-into-item.block-quote`)).toHaveCount(1);
     });
+
+    test('Copy as submenu stays inside a narrow viewport', async ({ page }) => {
+        // An empty paragraph offers every Turn Into icon; they must wrap
+        // instead of widening the menu past room for the submenu.
+        await page.setViewportSize({ width: 480, height: 720 });
+        await page.evaluate(() => window.muya!.setContent(''));
+        await openFrontMenu(page);
+
+        await page.locator(`${floats.paragraphFrontMenu} li.copy-as`).hover();
+        const formats = page.locator(`${floats.paragraphFrontMenu} .copy-as-menu li.item`);
+        await expect(formats).toHaveCount(3);
+        for (const format of await formats.all()) {
+            await expect(format).toBeInViewport({ ratio: 1 });
+        }
+    });
 });
