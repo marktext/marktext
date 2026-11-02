@@ -2,6 +2,7 @@
 
 import type Format from '../../block/base/format';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { tokenizer } from '../../inlineRenderer/lexer';
 import { Muya } from '../../muya';
 import { SelectionDirection } from '../../selection/types';
 import { getImageInfo } from '../../utils/image';
@@ -121,6 +122,19 @@ describe('internal image paste precedence', () => {
         await target.editor.clipboard.pasteHandler(pasteEvent(data));
         expect(action).toHaveBeenCalledWith('file:///docs/assets/source.png');
         expect(target.getMarkdown()).toBe('![alt](assets/copied.png "caption")\n');
+    });
+
+    it('preserves decoded title text when a cross-document paste rewrites the source', async () => {
+        const data = copyData('![alt](assets/source.png "a &quot;b&quot; &amp;quot;")');
+        const target = boot('![old](assets/old.png)', '/elsewhere/target.md', {
+            clipboardImageAction: vi.fn().mockResolvedValue('assets/copied.png'),
+        });
+        selectImage(target);
+        await target.editor.clipboard.pasteHandler(pasteEvent(data));
+        expect(tokenizer(target.getMarkdown().trim())[0]).toMatchObject({
+            type: 'image',
+            attrs: { src: 'assets/copied.png', title: 'a "b" &quot;' },
+        });
     });
 
     it('keeps an absolute working reference when the host cannot persist a cross-document asset', async () => {

@@ -640,17 +640,9 @@ export class Editor {
     private _restoreSelection(selection: Nullable<TSelectionState>) {
         if (!selection)
             return;
-        const restored = this.selection.setSelection(selection);
-        if (!restored) {
+        const restored = this.selection.setSelection(selection, { render: true });
+        if (!restored)
             this.scrollPage?.firstContentInDescendant()?.setCursor(0, 0, true);
-            return;
-        }
-        const textSelection = this.selection.getTextSelection();
-        if (textSelection?.isSelectionInSameBlock) {
-            // Replaying a block hides source-only spans, including an editable link title.
-            const { anchor, focus } = textSelection;
-            anchor.block.setCursor(anchor.offset, focus.offset, true);
-        }
     }
 
     /**

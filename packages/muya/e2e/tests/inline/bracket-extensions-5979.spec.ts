@@ -65,12 +65,12 @@ for (const [diff, selector] of [['[+added+]', editor.inlineDiffAddition], ['[-re
     }
 }
 
-test('1000 nested images render the outer image and retain their source', async ({ page }) => {
+test('5000 nested images render the outer image and retain their source', async ({ page }) => {
     await page.route('https://example.test/outer.png', route => route.fulfill({
         contentType: 'image/svg+xml',
         body: '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>',
     }));
-    const source = `${'!['.repeat(1000)}x${'](a.png)'.repeat(999)}](https://example.test/outer.png)`;
+    const source = `${'!['.repeat(5000)}x${'](a.png)'.repeat(4999)}](https://example.test/outer.png)`;
     const elapsed = await page.evaluate((source) => {
         const start = performance.now();
         window.muya!.setContent(source);

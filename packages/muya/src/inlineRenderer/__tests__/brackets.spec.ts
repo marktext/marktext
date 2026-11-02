@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { BracketScanner } from '../brackets';
 import { generator, tokenizer } from '../lexer';
-import { decodeLinkAttribute, parseSrcAndTitle } from '../linkDestination';
+import { decodeLinkAttribute, encodeLinkTitle, parseSrcAndTitle } from '../linkDestination';
 import { normalizeReferenceLabel } from '../referenceLabel';
 
 const definition = { href: '/target', title: 'reference title' };
@@ -60,6 +60,14 @@ describe('shared bracket scanning', () => {
 });
 
 describe('commonMark link tails', () => {
+    it.each(['a "quoted" title', 'C:\\photos\\', '&quot; &#34; &amp;', 'two\nlines'])('round-trips a decoded title %j through Markdown', (title) => {
+        const source = `[label](/target "${encodeLinkTitle(title)}")`;
+        const tokens = tokenizer(source);
+        expect(tokens).toHaveLength(1);
+        expect(tokens[0]).toMatchObject({ type: 'link', title });
+        expect(generator(tokens)).toBe(source);
+    });
+
     it.each(['\n', '\r', '\r\n'])('accepts a %j line ending around a title', (lineEnding) => {
         const tail = parseSrcAndTitle(` /uri${lineEnding} \"two${lineEnding}lines\" ${lineEnding})`);
         expect(tail).toMatchObject({ src: '/uri', title: `two${lineEnding}lines` });

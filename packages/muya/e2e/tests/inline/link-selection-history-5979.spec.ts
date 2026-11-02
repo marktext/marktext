@@ -13,6 +13,48 @@ async function selectionState(page: Page) {
     return page.evaluate(() => window.muya!.getSelectionState());
 }
 
+for (const backward of [false, true]) {
+    test(`cross-block title selection restores visible endpoints (backward: ${backward})`, async ({ page }) => {
+        const first = '[first](/one "first title")';
+        const second = '[second](/two "second title")';
+        const source = `${first}\n\n${second}\n`;
+        await page.evaluate(({ source, backward }) => {
+            const muya = window.muya!;
+            muya.setContent(source);
+            const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+            const second = first.nextContentInContext()!;
+            const anchor = { path: first.path, offset: first.text.indexOf('title') + 2 };
+            const focus = { path: second.path, offset: second.text.indexOf('title') + 2 };
+            muya.editor.activeContentBlock = null;
+            first.update({ block: first, anchor, focus: anchor });
+            second.update({ block: second, anchor: focus, focus });
+            muya.setSelection({ kind: 'text' as import('@muyajs/core').SelectionType.TEXT, anchor: backward ? focus : anchor, focus: backward ? anchor : focus });
+        }, { source, backward });
+        const before = await selectionState(page);
+        await expectVisibleSelection(page);
+        await page.keyboard.press('Delete');
+        const changed = await getMarkdown(page);
+        expect(changed).not.toBe(source);
+        const after = await selectionState(page);
+
+        await page.evaluate(() => window.muya!.undo());
+        expect(await getMarkdown(page)).toBe(source);
+        expect(await selectionState(page)).toEqual(before);
+        await expectVisibleSelection(page);
+
+        await page.evaluate(() => window.muya!.redo());
+        expect(await getMarkdown(page)).toBe(changed);
+        expect(await selectionState(page)).toEqual(after);
+        await expectVisibleSelection(page);
+
+        await page.evaluate(() => window.muya!.undo());
+        await page.keyboard.press('ArrowRight');
+        await page.keyboard.type('Y');
+        const offset = second.indexOf('title') + 2;
+        expect(await getMarkdown(page)).toBe(`${first}\n\n${second.slice(0, offset)}Y${second.slice(offset)}\n`);
+    });
+}
+
 async function expectVisibleSelection(page: Page) {
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     const endpoints = await page.evaluate((hiddenSyntax) => {

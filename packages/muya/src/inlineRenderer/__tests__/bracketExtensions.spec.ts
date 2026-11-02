@@ -99,15 +99,15 @@ describe('bracket resolution with extensions enabled', () => {
 });
 
 describe('nested image performance', () => {
-    it('handles 1000 image descriptions without blocking the editor', () => {
-        const source = `${'!['.repeat(1000)}x${'](a.png)'.repeat(1000)}`;
+    it.each([1000, 5000])('handles %i image descriptions without blocking the editor', (depth) => {
+        const source = `${'!['.repeat(depth)}x${'](a.png)'.repeat(depth)}`;
         const start = performance.now();
         const tokens = tokenizer(source, { options: OPTIONS });
         const elapsed = performance.now() - start;
-        process.stdout.write(`nested images (1000, ${source.length} characters): ${elapsed.toFixed(1)} ms\n`);
+        process.stdout.write(`nested images (${depth}, ${source.length} characters): ${elapsed.toFixed(1)} ms\n`);
         expect(tokens).toHaveLength(1);
         expect(tokens[0]).toMatchObject({ type: 'image', attrs: { src: 'a.png', alt: 'x' } });
         expect(generator(tokens)).toBe(source);
-        expect(elapsed).toBeLessThan(500);
+        expect(elapsed).toBeLessThan(depth === 1000 ? 500 : 2000);
     });
 });

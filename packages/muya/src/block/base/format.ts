@@ -27,6 +27,7 @@ import {
     THEMATIC_BREAK_STATE,
 } from '../../config';
 import { generator, tokenizer } from '../../inlineRenderer/lexer';
+import { encodeLinkTitle } from '../../inlineRenderer/linkDestination';
 import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
 import { contentPath } from '../../selection/state';
@@ -480,7 +481,7 @@ class Format extends Content {
                 imageText += encodeImageSrc(src);
 
             if (title)
-                imageText += ` "${title}"`;
+                imageText += ` "${encodeLinkTitle(title)}"`;
 
             imageText += ')';
         }

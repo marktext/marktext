@@ -180,7 +180,7 @@ class Selection {
         return selection?.kind === SelectionType.IMAGE ? selection : null;
     }
 
-    setSelection(state: TSelectionState | null): boolean {
+    setSelection(state: TSelectionState | null, { render = false }: { render?: boolean } = {}): boolean {
         if (state !== null && !isSelectionState(state))
             return false;
         const selection = state ? this._resolve(state) : null;
@@ -199,6 +199,8 @@ class Selection {
                 const { anchor, focus } = selection;
                 const { anchorBlock, focusBlock } = selection.context;
                 this._muya.editor.activeContentBlock = anchorBlock === focusBlock ? anchorBlock : null;
+                if (render)
+                    this._renderTextSelection(selection);
                 this._text.setSelection(
                     {
                         ...anchor,
@@ -224,6 +226,13 @@ class Selection {
         }
         this.notify();
         return true;
+    }
+
+    private _renderTextSelection({ anchor, focus, context: { anchorBlock, focusBlock } }: ITextSelection): void {
+        // Rebuilt blocks hide source syntax; expose both endpoints before mapping them to DOM nodes.
+        anchorBlock.update({ block: anchorBlock, anchor, focus: anchorBlock === focusBlock ? focus : anchor });
+        if (anchorBlock !== focusBlock)
+            focusBlock.update({ block: focusBlock, anchor: focus, focus });
     }
 
     clear() {

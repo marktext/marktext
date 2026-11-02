@@ -68,6 +68,11 @@ export function decodeLinkAttribute(text: string): string {
     });
 }
 
+// Escaping ampersands prevents literal entity text from being decoded on the next edit.
+export function encodeLinkTitle(title: string): string {
+    return title.replace(/[\\"&]/g, char => `\\${char}`);
+}
+
 /**
  * Index of the `>` closing the pointy-bracket destination that opens at
  * `start`, or -1 when there is none — an unescaped `<` or a line ending

@@ -56,3 +56,32 @@ test('changing the image URL preserves the source description (#5981)', async ({
         return window.muya!.getMarkdown();
     })).toBe(`![foo *bar*](${image})\n`);
 });
+
+for (const [encoded, title] of [
+    ['a &quot;b&quot;', 'a "b"'],
+    ['&amp;quot; &amp;#34;', '&quot; &#34;'],
+    [String.raw`a \"b\" \\`, 'a "b" \\'],
+]) {
+    test(`editing an image URL preserves title ${encoded} through undo and redo`, async ({ page }) => {
+        await page.route('**/example.test/**', route => route.fulfill({ contentType: 'image/png', body: png }));
+        const source = `![foo *bar*](<> "${encoded}")\n`;
+        await page.evaluate(source => window.muya!.setContent(source), source);
+        await page.locator(editor.emptyImage).click();
+        const sourceInput = page.locator(`${floats.imageEditTool} input.src`);
+        await sourceInput.fill(image);
+        await sourceInput.press('Enter');
+        const rendered = page.locator(`${editor.paragraph} img`);
+        await expect(rendered).toHaveAttribute('title', title);
+        await expect(rendered).toHaveAttribute('alt', 'foo bar');
+        const changed = await page.evaluate(() => { window.muya!.flush(); return window.muya!.getMarkdown(); });
+
+        await page.evaluate(() => window.muya!.undo());
+        expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(source);
+        await page.evaluate(() => window.muya!.redo());
+        expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(changed);
+        await expect(rendered).toHaveAttribute('title', title);
+
+        await page.evaluate(source => window.muya!.setContent(source), changed);
+        await expect(rendered).toHaveAttribute('title', title);
+    });
+}

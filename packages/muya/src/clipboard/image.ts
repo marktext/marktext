@@ -1,6 +1,7 @@
 import type { TSelectableImageToken } from '../utils/image';
 import type Clipboard from './index';
 import { tokenizer } from '../inlineRenderer/lexer';
+import { encodeLinkTitle } from '../inlineRenderer/linkDestination';
 import { SelectionType } from '../selection/types';
 import { escapeHTML, getUniqueId } from '../utils';
 import { encodeImageSrc, getImageSrc } from '../utils/image';
@@ -78,7 +79,7 @@ export function readClipboardImage(html: string, text: string): IClipboardImage 
 function withImageSource(markdown: string, src: string): string {
     const token = imageToken(markdown)!;
     if (token.type === 'image') {
-        const title = token.title ? ` "${token.title.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"` : '';
+        const title = token.title ? ` "${encodeLinkTitle(token.title)}"` : '';
         return `![${token.alt}${token.backlash.first}](${encodeImageSrc(src)}${title})`;
     }
     return `<img ${Object.entries({ ...token.attrs, src })
