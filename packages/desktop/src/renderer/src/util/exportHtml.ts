@@ -35,8 +35,7 @@ export interface ExportStyledHtmlOptions {
   dir?: string
 }
 
-// Ported verbatim from legacy muyajs `headerFooterStyle.css` so the page
-// header/footer table lays out the same in the exported document.
+// Derived from legacy muyajs `headerFooterStyle.css` for the exported page table.
 const HEADER_FOOTER_CSS = `
 :root { --footerHeaderBorderColor: #1c1c1c; }
 table.page-container { width: 100%; border-collapse: collapse; }
@@ -44,8 +43,8 @@ table.page-container > tbody,
 table.page-container > tbody > tr,
 table.page-container > tbody > tr > td { display: block; width: 100vw; }
 table.page-container > tbody > tr > td { overflow-wrap: anywhere; }
-table.page-container > thead,
-table.page-container > tfoot { display: table-header-group; }
+table.page-container > thead { display: table-header-group; }
+table.page-container > tfoot { display: table-footer-group; }
 .page-header .hf-container,
 .page-footer-fake .hf-container,
 .page-footer .hf-container { display: flex; justify-content: space-between; font-size: 0.75em; font-weight: 400; }
