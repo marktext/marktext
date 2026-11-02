@@ -42,12 +42,13 @@ export const commonMarkRules = {
     reference_link: /^\[((?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking
     reference_image: /^!\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
+    // Consume multiline tags before considering hard breaks in their attributes (§6.7).
     html_tag:
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation
-    /^(<!--[\s\S]*?-->|(<([a-z][a-z\d-]*)[^\n<>]*>)(?:([\s\S]*?)(<\/\3 *>))?)/i, // raw html
+    /^(<!--[\s\S]*?-->|(<([a-z][a-z\d-]*)[^<>]*>)(?:([\s\S]*?)(<\/\3 *>))?)/i,
     html_escape: new RegExp(`^(${escapeCharacters.join('|')})`, 'i'),
     soft_line_break: /^(\n)(?!\n)/,
-    hard_line_break: /^( {2,})(\n)(?!\n)/,
+    hard_line_break: /^( {2,}|\\)(\n)(?!\n)( *)/,
 
     // patched math marker `$`
     backlash: /^(\\)([\\`*{}[\]()#+\-.!_>~:|<$])/,

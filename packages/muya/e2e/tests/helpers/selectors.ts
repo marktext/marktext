@@ -27,6 +27,7 @@ export const editor = {
     // packages/muya/src/inlineRenderer/renderer/softLineBreak.ts +
     // CLASS_NAMES.MU_SOFT_LINE_BREAK in packages/muya/src/config/index.ts.
     softLineBreak: '.mu-soft-line-break',
+    hardLineBreak: '.mu-hard-line-break',
     hardLineBreakSpace: '.mu-hard-line-break-space',
     blockQuote: '.mu-block-quote',
     bulletList: '.mu-bullet-list',

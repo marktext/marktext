@@ -415,7 +415,7 @@ class Format extends Content {
         if (!anchor || !focus)
             return false;
         const offsets = [anchor.offset, focus.offset];
-        const NO_NEED_TOKEN_REG = /text|hard_line_break|soft_line_break/;
+        const NO_NEED_TOKEN_REG = /text|soft_line_break/;
 
         for (const token of tokenizer(text, {
             labels,

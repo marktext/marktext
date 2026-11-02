@@ -35,7 +35,6 @@ const OPTIONS = {
 // passing fails the suite, so compliance can only go up. None of these are
 // destination bugs — they are pre-existing gaps in neighboring inline rules.
 const EXPECTED_FAILURES = new Map<number, string>([
-    [491, 'html_tag: the spec allows a tag to span a line ending, `html_tag` does not'],
     [493, 'html_tag: `<foo\\>` is not a valid tag, but `html_tag` accepts any `[^\\n<>]*` attribute run'],
     [494, 'html_tag: `<b)c>` is not a valid tag, but `html_tag` accepts any `[^\\n<>]*` attribute run'],
     [503, 'entity references in a destination are not decoded — the marked-based export path has the same gap'],

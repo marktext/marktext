@@ -740,18 +740,15 @@ function trySoftLineBreak(state: ILexState): boolean {
     return true;
 }
 
-function tryHardLineBreak(state: ILexState): boolean {
-    const hardTo = state.inlineRules.hard_line_break.exec(state.src);
-    if (!hardTo)
-        return false;
-
+function consumeHardLineBreak(state: ILexState, hardTo: RegExpExecArray): void {
     const len = hardTo[0].length;
     pushPending(state);
     state.tokens.push({
         type: 'hard_line_break',
         raw: hardTo[0],
-        spaces: hardTo[1], // The space in hard line break
-        lineBreak: hardTo[2], // \n
+        marker: hardTo[1],
+        lineBreak: hardTo[2],
+        leadingSpaces: hardTo[3],
         isAtEnd: hardTo.input.length === hardTo[0].length,
         parent: state.tokens,
         range: {
@@ -761,8 +758,6 @@ function tryHardLineBreak(state: ILexState): boolean {
     });
     state.src = state.src.substring(len);
     state.pos += len;
-
-    return true;
 }
 
 function tryTailHeader(state: ILexState): boolean {
@@ -794,7 +789,8 @@ function tryTailHeader(state: ILexState): boolean {
 }
 
 // The fixed, priority-ordered inline-rule handler list the tokenizer loop
-// iterates. This array order IS the rule-precedence contract.
+// iterates. Hard breaks are matched afterwards so escapes and enclosing
+// constructs consume their source first.
 const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryBackslashMath,
     tryBacklash,
@@ -811,7 +807,6 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryAutoLink,
     tryHtmlTag,
     trySoftLineBreak,
-    tryHardLineBreak,
     tryTailHeader,
 ];
 
@@ -854,6 +849,12 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         }
         if (consumed)
             continue;
+
+        const hardBreak = state.inlineRules.hard_line_break.exec(state.src);
+        if (hardBreak) {
+            consumeHardLineBreak(state, hardBreak);
+            continue;
+        }
 
         if (!state.pending)
             state.pendingStartPos = state.pos;
