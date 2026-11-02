@@ -28,8 +28,8 @@ export const commonMarkRules = {
     // rules here on each line they fire: rewriting these patterns to please
     // the linter would risk parser regressions, and the input is the user's
     // own document, not untrusted network data.
-    // eslint-disable-next-line regexp/no-misleading-capturing-group
-    inline_code: /^(`{1,3})([^`]+|.{2,})\1/,
+    // Both delimiters must be complete runs; a longer run cannot donate a suffix/prefix.
+    inline_code: /^(`+)(?!`)([\s\S]*?[^`])\1(?!`)/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation, regexp/no-misleading-capturing-group
     image: /^(!\[)(.*?)(\\*)\]\((.*)(\\*)\)/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation, regexp/no-misleading-capturing-group

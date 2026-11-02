@@ -89,7 +89,8 @@ function protectedLength(src: string, index: number, context: IScanContext): num
                 || lengthOf(matchAt(rules.backlash, src, index));
 
         case '`':
-            return lengthOf(matchAt(rules.inline_code, src, index));
+            return lengthOf(matchAt(rules.inline_code, src, index))
+                || /^`+/.exec(src.substring(index))![0].length;
 
         case '$':
             return dollarMathLength(src, index, context);

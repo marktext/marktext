@@ -269,7 +269,7 @@ function tryDelimiterSpan(state: ILexState): boolean {
 // rule would otherwise swallow `` $`e=mc^2`$ `` whole, backticks and all.
 // It carries its own marker shape but produces an ordinary `inline_math` token.
 function tryChunks(state: ILexState): boolean {
-    const chunks = ['inline_math_gfm', 'inline_code', 'mark', 'inline_diff', 'emoji', 'inline_math'] as const;
+    const chunks = ['inline_math_gfm', 'mark', 'inline_diff', 'emoji', 'inline_math'] as const;
 
     for (const rule of chunks) {
         if (rule === 'inline_math' && !state.texMathDollars)
@@ -810,6 +810,25 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryTailHeader,
 ];
 
+function consumeCodeSpan(state: ILexState, match: RegExpExecArray): void {
+    let content = match[2].replace(/\r\n?|\n/g, ' ');
+    if (content.startsWith(' ') && content.endsWith(' ') && /[^ ]/.test(content))
+        content = content.slice(1, -1);
+
+    pushPending(state);
+    state.tokens.push({
+        type: 'inline_code',
+        raw: match[0],
+        marker: match[1],
+        content,
+        backlash: '',
+        parent: state.tokens,
+        range: { start: state.pos, end: state.pos + match[0].length },
+    });
+    state.pos += match[0].length;
+    state.src = state.src.substring(match[0].length);
+}
+
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, delimiterSpans: Map<number, IDelimiterSpan> | null = null, allowAutolinks = top) {
     const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = options;
     const state: ILexState = {
@@ -840,6 +859,23 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         consumeBeginRules(state, beginRules);
 
     while (state.src.length) {
+        const backticks = /^`+/.exec(state.src);
+        if (backticks) {
+            const code = state.inlineRules.inline_code.exec(state.src);
+            if (code) {
+                consumeCodeSpan(state, code);
+            }
+            else {
+                // Retrying inside an unmatched run would invent a shorter opener.
+                if (!state.pending)
+                    state.pendingStartPos = state.pos;
+                state.pending += backticks[0];
+                state.src = state.src.substring(backticks[0].length);
+                state.pos += backticks[0].length;
+            }
+            continue;
+        }
+
         let consumed = false;
         for (const handler of INLINE_HANDLERS) {
             if (handler(state)) {

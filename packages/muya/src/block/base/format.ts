@@ -238,10 +238,13 @@ function clearFormat(token: Token, cursor: IContentCursor) {
         case 'inline_diff': {
             const { parent, range } = token;
             const index = parent.indexOf(token);
+            const content = token.type === 'inline_code'
+                ? token.raw.slice(token.marker.length, -token.marker.length)
+                : token.content;
             const newToken: TextToken = {
                 type: 'text',
-                raw: token.content,
-                content: token.content,
+                raw: content,
+                content,
                 parent,
                 range, // the range is wrong, but it will not be used.
             };

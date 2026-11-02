@@ -126,6 +126,14 @@ export function lowerPriority(src: string, offset: number, rules: Rules) {
 
         const text = src.substring(i);
 
+        if (text[0] === '`' && rules.inline_code) {
+            const code = rules.inline_code.exec(text);
+            if (code && i + code[0].length > offset)
+                return false;
+            i += (code?.[0] ?? /^`+/.exec(text)![0]).length - 1;
+            continue;
+        }
+
         for (const [, regexp] of Object.entries(rules)) {
             const to = regexp.exec(text);
             if (to && to[0].length <= offset - i)
@@ -272,7 +280,9 @@ export function matchBracketed(
     if (!to || !isLengthEven(to[3]) || !isLengthEven(to[5]))
         return null;
 
-    if (veto && !lowerPriority(src.substring(index), to[0].length, veto))
+    // A construct crossing the text's closing bracket prevents that bracket from closing the link.
+    const textEnd = to[1].length + to[2].length + to[3].length;
+    if (veto && !lowerPriority(src.substring(index), textEnd, veto))
         return null;
 
     return to;
@@ -295,7 +305,8 @@ export function matchReference(
         return null;
     }
 
-    if (veto && !lowerPriority(src.substring(index), to[0].length, veto))
+    const textEnd = 1 + to[1].length + to[2].length;
+    if (veto && !lowerPriority(src.substring(index), textEnd, veto))
         return null;
 
     return to;

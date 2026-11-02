@@ -70,9 +70,17 @@ code.mu-inline-rule {
     color: var(--editor-color);
     font-size: 0.8em;
     font-family: var(--mu-code-font-family, var(--mu-default-code-font-family));
+    white-space: pre-wrap;
 
     background-color: var(--code-block-bg-color);
     border-radius: 3px;
+}
+
+/* Generated spaces leave the original line ending available to source-based selection. */
+.mu-code-line-break.mu-code-normalized::before {
+    white-space: pre-wrap;
+
+    content: ' ';
 }
 
 /* GitLab inline diff, matching GitLab's own `.idiff` rendering: a coloured

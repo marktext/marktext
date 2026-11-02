@@ -12,11 +12,6 @@
             "reason": "Incomplete ASCII punctuation escaping or precedence against other inline constructs.",
             "fingerprint": "de3ae6885edaab0ff6244aac3e3bd9984903c7536b433deab6c7b29c001091a8"
         },
-        "commonmark:17": {
-            "status": "known-difference",
-            "reason": "Incomplete ASCII punctuation escaping or precedence against other inline constructs.",
-            "fingerprint": "f6a4dcce77d173a86311be45faf7ec0b840847c33c2d4a4f7ad5bc515dc23e3a"
-        },
         "commonmark:18": {
             "status": "uncovered",
             "reason": "Block adapter does not support: code"
@@ -93,56 +88,6 @@
             "status": "known-difference",
             "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
             "fingerprint": "ca8cab36425aa1ac23f2511b913c97811375ce9262108c360f336a9682c5377f"
-        },
-        "commonmark:329": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "1e84669496cf0d6409ca60124cb66e7cec01c4342b28a7ad21febd9c0f010b00"
-        },
-        "commonmark:330": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "f1fe7326381522bdecfdd9b52432b8dda393627ee0e968330017350a66b4369d"
-        },
-        "commonmark:331": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "154488aa1a5b927bb4704dc3dce723dba633e9c1c5ebc08031162750477aac44"
-        },
-        "commonmark:335": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "be84f357f5780150e1b3a8c722ee3289652613579cfb439404490aea41367055"
-        },
-        "commonmark:336": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "d01a035a07420b2a3b3f985e2c06824edc4c1f184048a3eb37e75ecc8b8bfe4d"
-        },
-        "commonmark:337": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "348b7e29225e69f51b8826a4224963019a373354c9f804ccb1bab2ab5ac11436"
-        },
-        "commonmark:340": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "b14568084e8d76269777b808d9b275f0a72449ced644732bc92d06dd84224bed"
-        },
-        "commonmark:342": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "09155d5b30af09c867237f097051bdd5c68a342c1a32e2aa23338c9bc9ffb365"
-        },
-        "commonmark:347": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "bacfd74fbe52ae60d56ac9d03ff86c8f370c419c9d074cdcf969111b31feb758"
-        },
-        "commonmark:349": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "e2a7f363f4e7f3095c23f9cd13882e56e2284badbed548fa19e5dccfc0753ab5"
         },
         "commonmark:354": {
             "status": "known-difference",
@@ -369,16 +314,6 @@
             "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
             "fingerprint": "0e7763b13da1605b73797e2cef46eb65ed542ceedaf476a9dde4fa6c65d899b7"
         },
-        "commonmark:640": {
-            "status": "known-difference",
-            "reason": "Hard-break boundary or whitespace semantics differ.",
-            "fingerprint": "6058eca1946d48046d26fcd80d595326790685ec89a30b5b88b59d30adaa6012"
-        },
-        "commonmark:641": {
-            "status": "known-difference",
-            "reason": "Hard-break boundary or whitespace semantics differ.",
-            "fingerprint": "6f913e437cf742e630c4ced4a151b1a553e63c9beda38ca17e48398d10349968"
-        },
         "commonmark:645": {
             "status": "known-difference",
             "reason": "Hard-break boundary or whitespace semantics differ.",
@@ -398,11 +333,6 @@
             "status": "known-difference",
             "reason": "Incomplete ASCII punctuation escaping or precedence against other inline constructs.",
             "fingerprint": "de3ae6885edaab0ff6244aac3e3bd9984903c7536b433deab6c7b29c001091a8"
-        },
-        "gfm:313": {
-            "status": "known-difference",
-            "reason": "Incomplete ASCII punctuation escaping or precedence against other inline constructs.",
-            "fingerprint": "f6a4dcce77d173a86311be45faf7ec0b840847c33c2d4a4f7ad5bc515dc23e3a"
         },
         "gfm:314": {
             "status": "uncovered",
@@ -480,56 +410,6 @@
             "status": "known-difference",
             "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
             "fingerprint": "ca8cab36425aa1ac23f2511b913c97811375ce9262108c360f336a9682c5377f"
-        },
-        "gfm:339": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "1e84669496cf0d6409ca60124cb66e7cec01c4342b28a7ad21febd9c0f010b00"
-        },
-        "gfm:340": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "f1fe7326381522bdecfdd9b52432b8dda393627ee0e968330017350a66b4369d"
-        },
-        "gfm:341": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "154488aa1a5b927bb4704dc3dce723dba633e9c1c5ebc08031162750477aac44"
-        },
-        "gfm:345": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "be84f357f5780150e1b3a8c722ee3289652613579cfb439404490aea41367055"
-        },
-        "gfm:346": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "d01a035a07420b2a3b3f985e2c06824edc4c1f184048a3eb37e75ecc8b8bfe4d"
-        },
-        "gfm:347": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "348b7e29225e69f51b8826a4224963019a373354c9f804ccb1bab2ab5ac11436"
-        },
-        "gfm:350": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "b14568084e8d76269777b808d9b275f0a72449ced644732bc92d06dd84224bed"
-        },
-        "gfm:352": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "09155d5b30af09c867237f097051bdd5c68a342c1a32e2aa23338c9bc9ffb365"
-        },
-        "gfm:357": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "bacfd74fbe52ae60d56ac9d03ff86c8f370c419c9d074cdcf969111b31feb758"
-        },
-        "gfm:359": {
-            "status": "known-difference",
-            "reason": "Backtick-run matching, code whitespace normalization, or code/link precedence.",
-            "fingerprint": "e2a7f363f4e7f3095c23f9cd13882e56e2284badbed548fa19e5dccfc0753ab5"
         },
         "gfm:398": {
             "status": "version-difference",
@@ -809,16 +689,6 @@
         "gfm:652": {
             "status": "uncovered",
             "reason": "Block adapter does not support: html"
-        },
-        "gfm:660": {
-            "status": "known-difference",
-            "reason": "Hard-break boundary or whitespace semantics differ.",
-            "fingerprint": "6058eca1946d48046d26fcd80d595326790685ec89a30b5b88b59d30adaa6012"
-        },
-        "gfm:661": {
-            "status": "known-difference",
-            "reason": "Hard-break boundary or whitespace semantics differ.",
-            "fingerprint": "6f913e437cf742e630c4ced4a151b1a553e63c9beda38ca17e48398d10349968"
         },
         "gfm:665": {
             "status": "known-difference",
