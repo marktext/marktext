@@ -1,3 +1,4 @@
+import type { ICodeSpanMatch } from './codeSpan';
 import type { IDelimiterSpan } from './delimiters';
 import type { BeginRules, InlineRules } from './rules';
 import type {
@@ -10,6 +11,7 @@ import type {
 import escapeCharactersMap from '../config/escapeCharacter';
 import { escapeHTML, isLengthEven } from '../utils';
 import { validEmoji } from '../utils/emoji';
+import { codeSpanContent, CodeSpanScanner } from './codeSpan';
 import { scanDelimiterSpans } from './delimiters';
 import { parseSrcAndTitle } from './linkDestination';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
@@ -31,6 +33,7 @@ const disallowedHtmlTag
 // `src`/`pos` advance as input is consumed; `pending`/`pendingStartPos`
 // accumulate plain text between matched tokens; `tokens` collects the output.
 interface ILexState {
+    codeSpans?: CodeSpanScanner;
     originSrc: string;
     src: string;
     pos: number;
@@ -223,6 +226,7 @@ function tryDelimiterSpan(state: ILexState): boolean {
         state.labels,
         state.options,
         state.allowAutolinks,
+        state.codeSpans,
     );
 
     const span = state.delimiterSpans.get(state.pos);
@@ -293,7 +297,7 @@ function tryChunks(state: ILexState): boolean {
                 const prevChar = state.originSrc[state.pos - 1];
                 if (
                     (prevChar && /\w/.test(prevChar))
-                    || !lowerPriority(state.src, to[0].length, emojiValidateRules)
+                    || !lowerPriority(state.originSrc, state.pos - state.basePos + to[0].length, emojiValidateRules, state.pos - state.basePos, state.codeSpans)
                 ) {
                     return false;
                 }
@@ -441,7 +445,7 @@ function tryImage(state: ILexState): boolean {
 }
 
 function tryLink(state: ILexState): boolean {
-    const linkTo = matchBracketed(state.inlineRules.link, state.src, 0, linkValidateRules);
+    const linkTo = matchBracketed(state.inlineRules.link, state.originSrc, state.pos - state.basePos, linkValidateRules, state.codeSpans);
     if (!linkTo)
         return false;
 
@@ -488,10 +492,11 @@ function tryLink(state: ILexState): boolean {
 function tryReferenceLink(state: ILexState): boolean {
     const rLinkTo = matchReference(
         state.inlineRules.reference_link,
-        state.src,
-        0,
+        state.originSrc,
+        state.pos - state.basePos,
         state.labels,
         linkValidateRules,
+        state.codeSpans,
     );
     if (!rLinkTo)
         return false;
@@ -810,28 +815,31 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryTailHeader,
 ];
 
-function consumeCodeSpan(state: ILexState, match: RegExpExecArray): void {
-    let content = match[2].replace(/\r\n?|\n/g, ' ');
-    if (content.startsWith(' ') && content.endsWith(' ') && /[^ ]/.test(content))
-        content = content.slice(1, -1);
+function consumeCodeSpan(state: ILexState, match: ICodeSpanMatch): void {
+    const length = match.end - (state.pos - state.basePos);
+    const raw = state.src.slice(0, length);
+    const { markerLength } = match;
+    const { content, leading, trailing } = codeSpanContent(raw.slice(markerLength, -markerLength));
 
     pushPending(state);
     state.tokens.push({
         type: 'inline_code',
-        raw: match[0],
-        marker: match[1],
+        raw,
+        marker: raw.slice(0, markerLength),
         content,
+        contentRange: { start: state.pos + markerLength + leading, end: state.pos + length - markerLength - trailing },
         backlash: '',
         parent: state.tokens,
-        range: { start: state.pos, end: state.pos + match[0].length },
+        range: { start: state.pos, end: state.pos + length },
     });
-    state.pos += match[0].length;
-    state.src = state.src.substring(match[0].length);
+    state.pos += length;
+    state.src = state.src.substring(length);
 }
 
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, delimiterSpans: Map<number, IDelimiterSpan> | null = null, allowAutolinks = top) {
     const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = options;
     const state: ILexState = {
+        codeSpans: src.includes('`') ? new CodeSpanScanner(src) : undefined,
         originSrc: src,
         src,
         pos,
@@ -859,19 +867,18 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         consumeBeginRules(state, beginRules);
 
     while (state.src.length) {
-        const backticks = /^`+/.exec(state.src);
-        if (backticks) {
-            const code = state.inlineRules.inline_code.exec(state.src);
-            if (code) {
+        if (state.src[0] === '`') {
+            const code = state.codeSpans!.read(state.pos - state.basePos)!;
+            if (code.closed) {
                 consumeCodeSpan(state, code);
             }
             else {
                 // Retrying inside an unmatched run would invent a shorter opener.
                 if (!state.pending)
                     state.pendingStartPos = state.pos;
-                state.pending += backticks[0];
-                state.src = state.src.substring(backticks[0].length);
-                state.pos += backticks[0].length;
+                state.pending += state.src.slice(0, code.markerLength);
+                state.src = state.src.substring(code.markerLength);
+                state.pos += code.markerLength;
             }
             continue;
         }

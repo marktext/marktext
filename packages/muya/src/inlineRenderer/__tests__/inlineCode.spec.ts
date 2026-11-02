@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 
+import { marked } from 'marked';
 import { describe, expect, it } from 'vitest';
 import { generator, tokenizer, tokensToInlineHtml, tokensToPlainText } from '../lexer';
 
@@ -53,5 +54,43 @@ describe('live code spans (#5978)', () => {
         const tokens = tokenizer('[` a `](/url) [text](/`url`)');
         expect(tokens.map(token => token.type)).toEqual(['link', 'text', 'link']);
         expect(tokensToInlineHtml(tokens)).toBe('<code>a</code> text');
+    });
+
+    it('keeps many unmatched run lengths literal', () => {
+        const source = Array.from({ length: 256 }, (_, i) => `${'`'.repeat(i + 1)}x`).join('');
+        const tokens = tokenizer(source, { hasBeginRules: false });
+        expect(tokens.map(token => token.type)).toEqual(['text']);
+        expect(generator(tokens)).toBe(source);
+    });
+
+    it.each([
+        ['\\``x`', '<code>x</code>', '`'],
+        ['\\```x``', '<code>x</code>', '`'],
+        ['\\``x`` y`', '<code>x`` y</code>', '`'],
+    ])('allows the unescaped suffix of %j to open code', (source, html, prefix) => {
+        const tokens = tokenizer(source, { hasBeginRules: false });
+        expect(tokensToInlineHtml(tokens)).toBe(prefix + html);
+        expect(generator(tokens)).toBe(source);
+    });
+
+    it('agrees with the independent export parser on generated code and escape combinations', () => {
+        const alphabet = ['`', '\\', 'a', ' ', '\n', '\t', '\u00A0', '😀'];
+        let seed = 5978;
+        const next = () => {
+            seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+            return seed;
+        };
+        for (let i = 0; i < 5000; i++) {
+            let source = '';
+            const length = next() % 80;
+            for (let j = 0; j < length; j++)
+                source += alphabet[(next() >>> 16) % alphabet.length];
+            const tokens = tokenizer(source, { hasBeginRules: false });
+            const expected = marked.Lexer.lexInline(source, { gfm: false })
+                .flatMap(token => token.type === 'codespan' && 'text' in token ? [{ raw: token.raw, content: token.text }] : []);
+            const actual = tokens.flatMap(token => token.type === 'inline_code' ? [{ raw: token.raw, content: token.content }] : []);
+            expect(actual, JSON.stringify(source)).toEqual(expected);
+            expect(generator(tokens)).toBe(source);
+        }
     });
 });

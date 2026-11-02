@@ -76,13 +76,6 @@ code.mu-inline-rule {
     border-radius: 3px;
 }
 
-/* Generated spaces leave the original line ending available to source-based selection. */
-.mu-code-line-break.mu-code-normalized::before {
-    white-space: pre-wrap;
-
-    content: ' ';
-}
-
 /* GitLab inline diff, matching GitLab's own `.idiff` rendering: a coloured
    wash instead of underline / strikethrough. `mu-inline-diff-*` keeps GFM
    `~~del~~` (also a plain `del.mu-inline-rule`) unaffected. */

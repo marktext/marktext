@@ -1,5 +1,7 @@
+import type { ICodeSpanMatch } from './codeSpan';
 import type { Labels, Rules } from './types';
 import { isLengthEven } from '../utils';
+import { CodeSpanScanner } from './codeSpan';
 import { parseSrcAndTitle } from './linkDestination';
 
 const AUTO_LINK_BOUNDARY = /[* _~(]/;
@@ -107,10 +109,11 @@ function validWidthAndHeight(value: string) {
     return num >= 0 ? num.toString() : '';
 }
 
-export function lowerPriority(src: string, offset: number, rules: Rules) {
+export function lowerPriority(src: string, offset: number, rules: Rules, start = 0, codeSpans?: CodeSpanScanner) {
     let i;
+    const patterns = Object.values(rules);
 
-    for (i = 0; i < offset; i++) {
+    for (i = start; i < offset; i++) {
         // A character preceded by an odd number of backslashes is escaped
         // (e.g. `\$`), so it cannot open a higher-priority construct such as
         // inline math/code and must not lower the surrounding emphasis.
@@ -122,15 +125,16 @@ export function lowerPriority(src: string, offset: number, rules: Rules) {
 
         const text = src.substring(i);
 
-        if (text[0] === '`' && rules.inline_code) {
-            const code = rules.inline_code.exec(text);
-            if (code && i + code[0].length > offset)
+        if (text[0] === '`') {
+            codeSpans ??= new CodeSpanScanner(src);
+            const code: ICodeSpanMatch = codeSpans.read(i)!;
+            if (code.closed && code.end > offset)
                 return false;
-            i += (code?.[0] ?? /^`+/.exec(text)![0]).length - 1;
+            i = code.end - 1;
             continue;
         }
 
-        for (const [, regexp] of Object.entries(rules)) {
+        for (const regexp of patterns) {
             const to = regexp.exec(text);
             if (to && to[0].length > offset - i)
                 return false;
@@ -272,6 +276,7 @@ export function matchBracketed(
     src: string,
     index: number,
     veto: Rules | null,
+    codeSpans?: CodeSpanScanner,
 ) {
     const to = matchAt(pattern, src, index);
     correctUrl(to);
@@ -280,7 +285,7 @@ export function matchBracketed(
 
     // A construct crossing the text's closing bracket prevents that bracket from closing the link.
     const textEnd = to[1].length + to[2].length + to[3].length;
-    if (veto && !lowerPriority(src.substring(index), textEnd, veto))
+    if (veto && !lowerPriority(src, index + textEnd, veto, index, codeSpans))
         return null;
 
     return to;
@@ -292,6 +297,7 @@ export function matchReference(
     index: number,
     labels: Labels,
     veto: Rules | null,
+    codeSpans?: CodeSpanScanner,
 ) {
     const to = matchAt(pattern, src, index);
     if (
@@ -304,7 +310,7 @@ export function matchReference(
     }
 
     const textEnd = 1 + to[1].length + to[2].length;
-    if (veto && !lowerPriority(src.substring(index), textEnd, veto))
+    if (veto && !lowerPriority(src, index + textEnd, veto, index, codeSpans))
         return null;
 
     return to;

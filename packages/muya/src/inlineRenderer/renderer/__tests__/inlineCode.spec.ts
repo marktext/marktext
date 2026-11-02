@@ -37,10 +37,10 @@ describe('inline code source and display whitespace', () => {
         expect(container.textContent).toBe(source);
         expect([...container.querySelectorAll('.mu-highlight')].map(node => node.textContent).join('')).toBe(source);
         const code = container.querySelector('code')!;
-        expect(code.firstElementChild!.classList.contains(active ? 'mu-gray' : 'mu-hide')).toBe(true);
-        expect(code.firstElementChild!.textContent).toBe('\r\n');
-        expect(code.lastElementChild!.textContent).toBe('\r\n');
-        expect(code.querySelectorAll('.mu-code-normalized')).toHaveLength(active ? 0 : 2);
+        expect(container.firstElementChild!.classList.contains(active ? 'mu-gray' : 'mu-hide')).toBe(true);
+        expect(container.firstElementChild!.textContent).toBe('``\r\n');
+        expect(container.lastElementChild!.textContent).toBe('\r\n``');
+        expect(code.querySelectorAll('.mu-soft-newline-as-space')).toHaveLength(active ? 0 : 2);
     });
 
     it.each(['`  `', '`\u00A0`', '`\t`'])('keeps all-space and non-ASCII whitespace visible in %j', (source) => {

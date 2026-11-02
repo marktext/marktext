@@ -28,8 +28,6 @@ export const commonMarkRules = {
     // rules here on each line they fire: rewriting these patterns to please
     // the linter would risk parser regressions, and the input is the user's
     // own document, not untrusted network data.
-    // Both delimiters must be complete runs; a longer run cannot donate a suffix/prefix.
-    inline_code: /^(`+)(?!`)([\s\S]*?[^`])\1(?!`)/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation, regexp/no-misleading-capturing-group
     image: /^(!\[)(.*?)(\\*)\]\((.*)(\\*)\)/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation, regexp/no-misleading-capturing-group
@@ -185,8 +183,7 @@ const rawHtmlToken = new RegExp(`^(?:${[
     /<!\[CDATA\[[\s\S]*?\]\]>/.source,
 ].join('|')})`);
 
-export const linkValidateRules: Pick<InlineRules, 'inline_code' | 'html_tag' | 'auto_link'> = {
-    inline_code: inlineRules.inline_code,
+export const linkValidateRules: Pick<InlineRules, 'html_tag' | 'auto_link'> = {
     html_tag: rawHtmlToken,
     auto_link: inlineRules.auto_link,
 };
