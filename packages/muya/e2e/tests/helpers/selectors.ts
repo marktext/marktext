@@ -37,6 +37,7 @@ export const editor = {
     thematicBreak: '.mu-thematic-break',
     codeBlock: '.mu-code-block',
     inlineCode: 'code.mu-inline-rule',
+    hiddenSyntax: '.mu-hide',
     inlineDiffAddition: 'ins.mu-inline-diff-addition',
     inlineDiffDeletion: 'del.mu-inline-diff-deletion',
     fenceCode: '.mu-fence-code',
