@@ -14,6 +14,7 @@ async function selectionState(page: Page) {
 }
 
 async function expectVisibleSelection(page: Page) {
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     const endpoints = await page.evaluate((hiddenSyntax) => {
         const selection = document.getSelection()!;
         const endpoints: Array<[Node, number]> = [
@@ -38,15 +39,17 @@ for (const sample of [
     { name: 'multiline title insertion', source: multiline, anchor: multiline.indexOf('title') + 2 },
     { name: 'single-line title insertion', source: singleLine, anchor: singleLine.indexOf('title') + 2 },
     { name: 'link destination insertion', source: multiline, anchor: multiline.indexOf('/edit-target') + 5 },
-    { name: 'nested link opener deletion', source: nested, anchor: innerStart, delete: true },
+    { name: 'nested link opener deletion', source: nested, anchor: innerStart, key: 'Delete' },
+    { name: 'nested link opener backspace', source: nested, anchor: innerStart + 1, key: 'Backspace' },
     { name: 'nested link range replacement', source: nested, anchor: innerStart, focus: innerEnd },
     { name: 'backward nested link range replacement', source: nested, anchor: innerEnd, focus: innerStart },
 ]) {
     test(`${sample.name} restores visible selection through undo and redo`, async ({ page }) => {
         const focus = sample.focus ?? sample.anchor;
-        const start = Math.min(sample.anchor, focus);
-        const end = sample.delete ? start + 1 : Math.max(sample.anchor, focus);
-        const inserted = sample.delete ? '' : 'X';
+        const selectionStart = Math.min(sample.anchor, focus);
+        const start = sample.key === 'Backspace' ? selectionStart - 1 : selectionStart;
+        const end = sample.key ? start + 1 : Math.max(sample.anchor, focus);
+        const inserted = sample.key ? '' : 'X';
         const changed = sample.source.slice(0, start) + inserted + sample.source.slice(end);
         const documentMarkdown = (source: string) => `before\n\n${source}\n\nafter\n`;
         await page.evaluate(({ source, anchor, focus }) => {
@@ -57,8 +60,8 @@ for (const sample of [
         }, { source: documentMarkdown(sample.source), anchor: sample.anchor, focus });
         const before = await selectionState(page);
         await expectVisibleSelection(page);
-        if (sample.delete)
-            await page.keyboard.press('Delete');
+        if (sample.key)
+            await page.keyboard.press(sample.key);
         else
             await page.keyboard.type(inserted);
         await expect.poll(() => getMarkdown(page)).toBe(documentMarkdown(changed));
@@ -76,7 +79,8 @@ for (const sample of [
 
         await page.evaluate(() => window.muya!.undo());
         await page.keyboard.type('Y');
-        const replacementEnd = sample.delete ? start : end;
-        expect(await getMarkdown(page)).toBe(documentMarkdown(`${sample.source.slice(0, start)}Y${sample.source.slice(replacementEnd)}`));
+        const replacementStart = sample.key ? selectionStart : start;
+        const replacementEnd = sample.key ? selectionStart : end;
+        expect(await getMarkdown(page)).toBe(documentMarkdown(`${sample.source.slice(0, replacementStart)}Y${sample.source.slice(replacementEnd)}`));
     });
 }
