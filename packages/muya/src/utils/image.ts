@@ -172,6 +172,8 @@ export async function checkImageContentType(url: string): Promise<boolean | null
 // untouched, so encode them explicitly.
 export function encodeImageSrc(src: string): string {
     return src
+        // Preserve literal entities and escapes when the destination is parsed again.
+        .replace(/[\\&]/g, char => `\\${char}`)
         .replace(/ /g, encodeURI(' '))
         .replace(/#/g, encodeURIComponent('#'))
         .replace(/\(/g, '%28')
