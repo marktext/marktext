@@ -2,6 +2,7 @@ import type { ISyntaxRenderOptions, ReferenceImageToken } from '../types';
 import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
 import { getImageSrc } from '../../utils/image';
+import { normalizeReferenceLabel } from '../referenceLabel';
 
 // reference_image
 export default function referenceImage(
@@ -20,10 +21,7 @@ export default function referenceImage(
     const tag = this.highlight(h, block, start, end, token);
     const { label, backlash, attrs: { alt } } = token;
     const rawSrc = label + backlash.second;
-    let href = '';
-    let title = '';
-    if (this.parent.labels.has(rawSrc.toLowerCase()))
-        ({ href, title } = this.parent.labels.get(rawSrc.toLowerCase())!);
+    const { href = '', title = '' } = this.parent.labels.get(normalizeReferenceLabel(rawSrc)) ?? {};
 
     const imageSrc = getImageSrc(href);
     const { src } = imageSrc;

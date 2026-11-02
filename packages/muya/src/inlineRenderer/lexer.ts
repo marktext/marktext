@@ -1,6 +1,6 @@
+import type { ImageMatch, LinkMatch } from './brackets';
 import type { ICodeSpanMatch } from './codeSpan';
 import type { IDelimiterSpan } from './delimiters';
-import type { ImageMatch } from './imageLabel';
 import type { BeginRules, InlineRules } from './rules';
 import type {
     CodeEmojiMathToken,
@@ -12,18 +12,15 @@ import type {
 import escapeCharactersMap from '../config/escapeCharacter';
 import { escapeHTML, isLengthEven } from '../utils';
 import { validEmoji } from '../utils/emoji';
+import { BracketScanner } from './brackets';
 import { codeSpanContent, CodeSpanScanner } from './codeSpan';
 import { scanDelimiterSpans } from './delimiters';
-import { matchImage } from './imageLabel';
-import { parseSrcAndTitle } from './linkDestination';
-import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
+import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules } from './rules';
 import { applySearchHighlights } from './searchHighlights';
 import {
     getAttributes,
     lowerPriority,
-    matchBracketed,
     matchExtendedAutoLink,
-    matchReference,
 } from './utils';
 
 // const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'a_link', 'reference_link', 'html_tag']
@@ -36,6 +33,7 @@ const disallowedHtmlTag
 // accumulate plain text between matched tokens; `tokens` collects the output.
 interface ILexState {
     codeSpans?: CodeSpanScanner;
+    brackets: BracketScanner;
     originSrc: string;
     src: string;
     pos: number;
@@ -229,6 +227,7 @@ function tryDelimiterSpan(state: ILexState): boolean {
         state.options,
         state.allowAutolinks,
         state.codeSpans,
+        state.brackets,
     );
 
     const span = state.delimiterSpans.get(state.pos);
@@ -262,6 +261,7 @@ function tryDelimiterSpan(state: ILexState): boolean {
             state.options,
             state.delimiterSpans,
             state.allowAutolinks,
+            state.brackets,
         ),
         backlash,
     });
@@ -274,10 +274,14 @@ function tryDelimiterSpan(state: ILexState): boolean {
 // `inline_math_gfm` goes first: both math forms open on `$`, and the dollar
 // rule would otherwise swallow `` $`e=mc^2`$ `` whole, backticks and all.
 // It carries its own marker shape but produces an ordinary `inline_math` token.
-function tryChunks(state: ILexState): boolean {
-    const chunks = ['inline_math_gfm', 'mark', 'inline_diff', 'emoji', 'inline_math'] as const;
+const CHUNK_RULES = ['inline_math_gfm', 'mark', 'inline_diff', 'emoji', 'inline_math'] as const;
+interface IChunkMatch {
+    rule: typeof CHUNK_RULES[number];
+    to: RegExpExecArray;
+}
 
-    for (const rule of chunks) {
+function matchChunk(state: ILexState): IChunkMatch | null {
+    for (const rule of CHUNK_RULES) {
         if (rule === 'inline_math' && !state.texMathDollars)
             continue;
         if (rule === 'inline_math_gfm' && !state.texMathGfm)
@@ -301,55 +305,58 @@ function tryChunks(state: ILexState): boolean {
                     (prevChar && /\w/.test(prevChar))
                     || !lowerPriority(state.originSrc, state.pos - state.basePos + to[0].length, emojiValidateRules, state.pos - state.basePos, state.codeSpans)
                 ) {
-                    return false;
+                    return null;
                 }
             }
-            pushPending(state);
-            const range = {
-                start: state.pos,
-                end: state.pos + to[0].length,
-            };
-            const marker = to[1];
-            if (rule === 'mark') {
-                state.tokens.push({
-                    type: rule,
-                    raw: to[0],
-                    range,
-                    marker,
-                    parent: state.tokens,
-                    children: tokenizerFac(
-                        to[2],
-                        null,
-                        state.inlineRules,
-                        state.pos + to[1].length,
-                        false,
-                        state.labels,
-                        state.options,
-                        null,
-                        state.allowAutolinks,
-                    ),
-                    backlash: to[3],
-                });
-            }
-            else {
-                state.tokens.push({
-                    type: rule === 'inline_math_gfm' ? 'inline_math' : rule,
-                    raw: to[0],
-                    range,
-                    marker,
-                    parent: state.tokens,
-                    content: to[2],
-                    backlash: to[3],
-                });
-            }
-            state.src = state.src.substring(to[0].length);
-            state.pos = state.pos + to[0].length;
-
-            return true;
+            return { rule, to };
         }
     }
 
-    return false;
+    return null;
+}
+
+function consumeChunk(state: ILexState, { rule, to }: IChunkMatch): void {
+    pushPending(state);
+    const range = {
+        start: state.pos,
+        end: state.pos + to[0].length,
+    };
+    const marker = to[1];
+    if (rule === 'mark') {
+        state.tokens.push({
+            type: rule,
+            raw: to[0],
+            range,
+            marker,
+            parent: state.tokens,
+            children: tokenizerFac(
+                to[2],
+                null,
+                state.inlineRules,
+                state.pos + to[1].length,
+                false,
+                state.labels,
+                state.options,
+                null,
+                state.allowAutolinks,
+                state.brackets,
+            ),
+            backlash: to[3],
+        });
+    }
+    else {
+        state.tokens.push({
+            type: rule === 'inline_math_gfm' ? 'inline_math' : rule,
+            raw: to[0],
+            range,
+            marker,
+            parent: state.tokens,
+            content: to[2],
+            backlash: to[3],
+        });
+    }
+    state.src = state.src.substring(to[0].length);
+    state.pos = state.pos + to[0].length;
 }
 
 function trySuperSubScript(state: ILexState): boolean {
@@ -414,6 +421,9 @@ function consumeImage(state: ILexState, match: ImageMatch): void {
         false,
         state.labels,
         state.options,
+        null,
+        false,
+        state.brackets,
     ), '\n');
     const common = {
         raw: match.raw,
@@ -448,94 +458,54 @@ function consumeImage(state: ILexState, match: ImageMatch): void {
     state.pos += match.raw.length;
 }
 
-function tryLink(state: ILexState): boolean {
-    const linkTo = matchBracketed(state.inlineRules.link, state.originSrc, state.pos - state.basePos, linkValidateRules, state.codeSpans);
-    if (!linkTo)
-        return false;
-
-    const tail = parseSrcAndTitle(linkTo[4]);
-    if (!tail)
-        return false;
-
-    const { src: href, title } = tail;
-    pushPending(state);
-    state.tokens.push({
-        type: 'link',
-        raw: linkTo[0],
-        marker: linkTo[1],
-        hrefAndTitle: linkTo[4],
-        href,
-        title,
+function consumeLink(state: ILexState, match: LinkMatch): void {
+    const common = {
+        raw: match.raw,
         parent: state.tokens,
-        anchor: linkTo[2],
-        range: {
-            start: state.pos,
-            end: state.pos + linkTo[0].length,
-        },
+        anchor: match.description,
+        range: { start: state.pos, end: state.pos + match.raw.length },
         children: tokenizerFac(
-            linkTo[2],
-            null,
-            state.inlineRules,
-            state.pos + linkTo[1].length,
-            false,
-            state.labels,
-            state.options,
-        ),
-        backlash: {
-            first: linkTo[3],
-            second: linkTo[5],
-        },
-    });
-
-    state.src = state.src.substring(linkTo[0].length);
-    state.pos = state.pos + linkTo[0].length;
-
-    return true;
-}
-
-function tryReferenceLink(state: ILexState): boolean {
-    const rLinkTo = matchReference(
-        state.inlineRules.reference_link,
-        state.originSrc,
-        state.pos - state.basePos,
-        state.labels,
-        linkValidateRules,
-        state.codeSpans,
-    );
-    if (!rLinkTo)
-        return false;
-
-    pushPending(state);
-    state.tokens.push({
-        type: 'reference_link',
-        raw: rLinkTo[0],
-        isFullLink: !!rLinkTo[3],
-        parent: state.tokens,
-        anchor: rLinkTo[1],
-        backlash: {
-            first: rLinkTo[2],
-            second: rLinkTo[4] || '',
-        },
-        label: rLinkTo[3] || rLinkTo[1],
-        range: {
-            start: state.pos,
-            end: state.pos + rLinkTo[0].length,
-        },
-        children: tokenizerFac(
-            rLinkTo[1],
+            match.description,
             null,
             state.inlineRules,
             state.pos + 1,
             false,
             state.labels,
             state.options,
+            null,
+            false,
+            state.brackets,
         ),
-    });
+        backlash: { first: '', second: '' },
+    };
+    pushPending(state);
+    if (match.type === 'link') {
+        state.tokens.push({
+            ...common,
+            type: 'link',
+            marker: '[',
+            hrefAndTitle: match.srcAndTitle + match.backlash.second,
+            href: match.tail.src,
+            title: match.tail.title,
+        });
+    }
+    else {
+        state.tokens.push({
+            ...common,
+            type: 'reference_link',
+            label: match.label,
+            isFullLink: match.isFullLink,
+        });
+    }
+    state.src = state.src.substring(match.raw.length);
+    state.pos += match.raw.length;
+}
 
-    state.src = state.src.substring(rLinkTo[0].length);
-    state.pos = state.pos + rLinkTo[0].length;
-
-    return true;
+function consumeBracket(state: ILexState, match: ImageMatch | LinkMatch): void {
+    if (match.type === 'image' || match.type === 'reference_image')
+        consumeImage(state, match);
+    else
+        consumeLink(state, match);
 }
 
 function tryHtmlEscape(state: ILexState): boolean {
@@ -673,6 +643,9 @@ function tryHtmlTag(state: ILexState): boolean {
                         false,
                         state.labels,
                         state.options,
+                        null,
+                        false,
+                        state.brackets,
                     )
                 : [],
             range: {
@@ -762,11 +735,8 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryBackslashMath,
     tryBacklash,
     tryDelimiterSpan,
-    tryChunks,
     trySuperSubScript,
     tryFootnote,
-    tryLink,
-    tryReferenceLink,
     tryHtmlEscape,
     tryAutoLinkExtension,
     tryAutoLink,
@@ -774,7 +744,16 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryTailHeader,
 ];
 
-function consumeCodeSpan(state: ILexState, match: ICodeSpanMatch): void {
+function consumeBacktickRun(state: ILexState, match: ICodeSpanMatch): void {
+    if (!match.closed) {
+        // Retrying inside an unmatched run would invent a shorter opener.
+        if (!state.pending)
+            state.pendingStartPos = state.pos;
+        state.pending += state.src.slice(0, match.markerLength);
+        state.src = state.src.substring(match.markerLength);
+        state.pos += match.markerLength;
+        return;
+    }
     const length = match.end - (state.pos - state.basePos);
     const raw = state.src.slice(0, length);
     const { markerLength } = match;
@@ -795,10 +774,12 @@ function consumeCodeSpan(state: ILexState, match: ICodeSpanMatch): void {
     state.src = state.src.substring(length);
 }
 
-function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, delimiterSpans: Map<number, IDelimiterSpan> | null = null, allowAutolinks = top) {
+function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, delimiterSpans: Map<number, IDelimiterSpan> | null = null, allowAutolinks = top, brackets?: BracketScanner) {
     const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = options;
+    const codeSpans = src.includes('`') ? new CodeSpanScanner(src) : undefined;
     const state: ILexState = {
-        codeSpans: src.includes('`') ? new CodeSpanScanner(src) : undefined,
+        codeSpans,
+        brackets: brackets ?? new BracketScanner(src, labels, codeSpans, { rules: inlineRules, options, offset: pos }),
         originSrc: src,
         src,
         pos,
@@ -828,23 +809,20 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
     while (state.src.length) {
         if (state.src[0] === '`') {
             const code = state.codeSpans!.read(state.pos - state.basePos)!;
-            if (code.closed) {
-                consumeCodeSpan(state, code);
-            }
-            else {
-                // Retrying inside an unmatched run would invent a shorter opener.
-                if (!state.pending)
-                    state.pendingStartPos = state.pos;
-                state.pending += state.src.slice(0, code.markerLength);
-                state.src = state.src.substring(code.markerLength);
-                state.pos += code.markerLength;
-            }
+            consumeBacktickRun(state, code);
             continue;
         }
 
-        const image = matchImage(state.originSrc, state.pos - state.basePos, state.labels, state.codeSpans);
-        if (image) {
-            consumeImage(state, image);
+        // Enabled square-bracket extensions own their markers before link consumption.
+        const chunk = matchChunk(state);
+        if (chunk) {
+            consumeChunk(state, chunk);
+            continue;
+        }
+
+        const bracket = state.brackets.read(state.pos, state.basePos + state.originSrc.length);
+        if (bracket) {
+            consumeBracket(state, bracket);
             continue;
         }
 

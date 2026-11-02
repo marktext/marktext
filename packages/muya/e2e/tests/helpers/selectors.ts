@@ -37,6 +37,8 @@ export const editor = {
     thematicBreak: '.mu-thematic-break',
     codeBlock: '.mu-code-block',
     inlineCode: 'code.mu-inline-rule',
+    inlineDiffAddition: 'ins.mu-inline-diff-addition',
+    inlineDiffDeletion: 'del.mu-inline-diff-deletion',
     fenceCode: '.mu-fence-code',
     // The leaf node that holds the actual code text inside a code block.
     // Prism highlight `<span class="token …">` runs are appended here.

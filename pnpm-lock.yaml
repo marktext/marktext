@@ -300,6 +300,9 @@ importers:
       dompurify:
         specifier: ^3.4.17
         version: 3.4.17
+      entities:
+        specifier: 7.0.1
+        version: 7.0.1
       fast-diff:
         specifier: ^1.3.0
         version: 1.3.0
@@ -406,9 +409,6 @@ importers:
       commonmark-spec:
         specifier: 0.31.2
         version: 0.31.2
-      entities:
-        specifier: 7.0.1
-        version: 7.0.1
       eslint:
         specifier: ^10.13.0
         version: 10.13.0(jiti@2.7.0)

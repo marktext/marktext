@@ -3,6 +3,7 @@ import type { Labels, ReferenceImageToken, ReferenceLinkToken, Token } from '../
 import { escapeAttribute, escapeText } from 'entities';
 import { Tokenizer } from 'parse5';
 import escapeCharactersMap from '../../src/config/escapeCharacter';
+import { normalizeReferenceLabel } from '../../src/inlineRenderer/referenceLabel';
 
 export type SemanticEvent
     = | { type: 'open'; tag: string; attrs: Array<[string, string]>; selfClosing?: true }
@@ -115,7 +116,7 @@ function image(src: string, title: string, alt: string): string {
 }
 
 function referenceHtml(token: ReferenceLinkToken | ReferenceImageToken, labels: Labels, children: string): string {
-    const definition = labels.get((token.label + token.backlash.second).toLowerCase());
+    const definition = labels.get(normalizeReferenceLabel(token.label + token.backlash.second));
     if (!definition)
         throw new Error(`Unresolved reference token: ${token.raw}`);
     return token.type === 'reference_link'

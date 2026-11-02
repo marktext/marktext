@@ -116,3 +116,6 @@ command again. Generation does not make an unexplained difference acceptable.
 Keep coverage limitations explicit when expanding the adapter. Browser interaction
 tests are still required when changing marker visibility, caret behavior or DOM
 rendering; this suite cannot replace them.
+
+See [the #5979 reproduction report](links-5979.md) for the per-case link fixes
+and their shared implementation with image PR #5986.

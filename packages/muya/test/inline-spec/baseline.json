@@ -52,11 +52,6 @@
             "status": "uncovered",
             "reason": "Block adapter does not support: html"
         },
-        "commonmark:32": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "abb42e71e50e655944eafcf58e02c623faa5f79cc13435e89910b717b3456684"
-        },
         "commonmark:33": {
             "status": "known-difference",
             "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
@@ -94,115 +89,10 @@
             "reason": "Delimiter boundaries differ from the normative punctuation/flanking rules.",
             "fingerprint": "ebc18e84b5361b99057094ecab062059a5418b17f60c19b5a66e95aadb30669f"
         },
-        "commonmark:493": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "24f751658e94ef3535cd06546901959afb6bd9d6ca4730728f9b96f2ffcf1247"
-        },
-        "commonmark:494": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "cd1cf6efb522d7b1cf3b9c93bb6020cee11f6939e78df183f3300cf7b075e155"
-        },
-        "commonmark:503": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "9f385a284611de46d58e71a6d33285bca03b378e33528cbba06b07350b3895ef"
-        },
-        "commonmark:506": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "34981d5d3ea4c67a160d88658e18354ce6161b9b34f6ef683076c6c72c545174"
-        },
-        "commonmark:510": {
-            "status": "known-difference",
-            "reason": "Multiline inline link destinations/titles are still parsed as literal text; soft-break whitespace now conforms.",
-            "fingerprint": "8ebf91348bc549cf07fecd49625bde4f65151b2b3df2102ffb5994ffacb5e6fb"
-        },
-        "commonmark:513": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "9d4012dd151a596782b67b6a1be7c185851b1b87a6316159a10b80175a73c450"
-        },
-        "commonmark:515": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "cd81d2e4a9c74db6c162243c8d36c7f750b13964f5ecd388e290769b9a7c238e"
-        },
-        "commonmark:518": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "76d316ee219b6c1428821fc2210478f2cc1ed1af09591f23c99e2307981daafb"
-        },
-        "commonmark:519": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "5c04057e4df61d7ef6e089a5a8f48be0948930306bde25f2e59c24d72eae821c"
-        },
-        "commonmark:520": {
-            "status": "known-difference",
-            "reason": "The outer image destination is correct, but nested links inside its description are still accepted instead of leaving the outer link syntax literal.",
-            "fingerprint": "c3c492d6344bf8d22cb5f4ed3a39e10bf69e62c2ee2951538d9948d45cf81ac0"
-        },
-        "commonmark:528": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "acffb9bdc870656b1e7c52d94df6632073083c336829a278bd8b6ebd0889f1e4"
-        },
-        "commonmark:529": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "b5ff6c3de43eedc45a466bafb57d5a54304dada00fbcdd8b6dc00c5f466afc22"
-        },
-        "commonmark:532": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "1970377c173ed5f562170dd432a34f0a571c7a22d6a96ced2a359d0066cef127"
-        },
-        "commonmark:533": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "a156b2274d6d359522cf54f65d6328f703e38014c7db3834611c1e409c63eaf0"
-        },
-        "commonmark:540": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "fa5b47fa8f2c9fc8a5d527e904a5033b027e86ef3f320624e53941fa275618fa"
-        },
-        "commonmark:541": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "ccfcd74f68b6aec17be2a303ebc12537bf576e44b65ce86227d60631868c1c8e"
-        },
-        "commonmark:550": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "e898493a4f61f6243423ec800c9199e13d15d476a4669071097f283936be02af"
-        },
-        "commonmark:602": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "feff8bb0ca340d7553e52cc1db56dd5416e112f82658a3d4d53167d5f76ec404"
-        },
-        "commonmark:606": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "fa76d0b09dd7dc59ab7d899a6053b6487a4adbf93004c5c8a160da440bfe5ee0"
-        },
         "commonmark:608": {
             "status": "extension-difference",
             "reason": "The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.",
             "fingerprint": "51be9641c3e08f57f7c91b95d070bfaff719dfee3ac8840ae54b64947e516ea7"
-        },
-        "commonmark:609": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "2c36bfd5877115f1825c526e589e13df201c0e745e9ca51f75463df4b9773b66"
-        },
-        "commonmark:610": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "acf129eaa7c31af1603ed549b3d7b82d4b1ca49ecb54dd2ad924f0d68ec3eb72"
         },
         "commonmark:611": {
             "status": "extension-difference",
@@ -314,11 +204,6 @@
             "status": "uncovered",
             "reason": "Block adapter does not support: html"
         },
-        "gfm:328": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "abb42e71e50e655944eafcf58e02c623faa5f79cc13435e89910b717b3456684"
-        },
         "gfm:329": {
             "status": "known-difference",
             "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
@@ -396,110 +281,10 @@
             "reason": "The same Markdown matches CommonMark 0.31.2; the GFM 0.29-gfm fixture expects older semantics.",
             "fingerprint": "414783a5b0b9da7125d6a47ead61e7409744c980d615ef54a63e38da82fad8b3"
         },
-        "gfm:502": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "24f751658e94ef3535cd06546901959afb6bd9d6ca4730728f9b96f2ffcf1247"
-        },
-        "gfm:503": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "cd1cf6efb522d7b1cf3b9c93bb6020cee11f6939e78df183f3300cf7b075e155"
-        },
-        "gfm:511": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "9f385a284611de46d58e71a6d33285bca03b378e33528cbba06b07350b3895ef"
-        },
-        "gfm:514": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "34981d5d3ea4c67a160d88658e18354ce6161b9b34f6ef683076c6c72c545174"
-        },
-        "gfm:518": {
-            "status": "known-difference",
-            "reason": "Multiline inline link destinations/titles are still parsed as literal text; soft-break whitespace now conforms.",
-            "fingerprint": "8ebf91348bc549cf07fecd49625bde4f65151b2b3df2102ffb5994ffacb5e6fb"
-        },
-        "gfm:521": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "9d4012dd151a596782b67b6a1be7c185851b1b87a6316159a10b80175a73c450"
-        },
-        "gfm:523": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "cd81d2e4a9c74db6c162243c8d36c7f750b13964f5ecd388e290769b9a7c238e"
-        },
-        "gfm:526": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "76d316ee219b6c1428821fc2210478f2cc1ed1af09591f23c99e2307981daafb"
-        },
-        "gfm:527": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "5c04057e4df61d7ef6e089a5a8f48be0948930306bde25f2e59c24d72eae821c"
-        },
-        "gfm:528": {
-            "status": "known-difference",
-            "reason": "The outer image destination is correct, but nested links inside its description are still accepted instead of leaving the outer link syntax literal.",
-            "fingerprint": "c3c492d6344bf8d22cb5f4ed3a39e10bf69e62c2ee2951538d9948d45cf81ac0"
-        },
-        "gfm:536": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "acffb9bdc870656b1e7c52d94df6632073083c336829a278bd8b6ebd0889f1e4"
-        },
-        "gfm:537": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "b5ff6c3de43eedc45a466bafb57d5a54304dada00fbcdd8b6dc00c5f466afc22"
-        },
-        "gfm:540": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "1970377c173ed5f562170dd432a34f0a571c7a22d6a96ced2a359d0066cef127"
-        },
-        "gfm:541": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "a156b2274d6d359522cf54f65d6328f703e38014c7db3834611c1e409c63eaf0"
-        },
-        "gfm:549": {
-            "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "ccfcd74f68b6aec17be2a303ebc12537bf576e44b65ce86227d60631868c1c8e"
-        },
-        "gfm:558": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "e898493a4f61f6243423ec800c9199e13d15d476a4669071097f283936be02af"
-        },
-        "gfm:610": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "ea2835ec2ab4aee5dd2623ea3558c48afd17bd2c417103b411d55aa4e67a4420"
-        },
-        "gfm:614": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "fa76d0b09dd7dc59ab7d899a6053b6487a4adbf93004c5c8a160da440bfe5ee0"
-        },
         "gfm:616": {
             "status": "extension-difference",
             "reason": "The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.",
             "fingerprint": "ff2ed2c195971bc750fbc734e6d323142677ca03881c0c86a59188286439c0b0"
-        },
-        "gfm:617": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "2c36bfd5877115f1825c526e589e13df201c0e745e9ca51f75463df4b9773b66"
-        },
-        "gfm:618": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "acf129eaa7c31af1603ed549b3d7b82d4b1ca49ecb54dd2ad924f0d68ec3eb72"
         },
         "gfm:619": {
             "status": "extension-difference",
