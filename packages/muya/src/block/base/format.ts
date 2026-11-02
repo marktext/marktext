@@ -37,6 +37,7 @@ import { COLOR_SPAN_CLOSE_TAG, colorPropertyOf, colorSpanOpenTag, isColorStyleEm
 import { correctImageSrc, encodeImageSrc, getImageInfo, isImageToken } from '../../utils/image';
 import { minSpacesAfterMarker, parseListMarker, toListDelimiter } from '../../utils/listMarker';
 import logger from '../../utils/logger';
+import { quoteMarkdownTitle } from '../../utils/markdownEscape';
 
 interface IOffset {
     offset: number;
@@ -480,7 +481,7 @@ class Format extends Content {
                 imageText += encodeImageSrc(src);
 
             if (title)
-                imageText += ` "${title}"`;
+                imageText += ` ${quoteMarkdownTitle(title)}`;
 
             imageText += ')';
         }

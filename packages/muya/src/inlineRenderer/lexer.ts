@@ -14,7 +14,7 @@ import { decodeCharacterReference } from '../utils/markdownEscape';
 import { codeSpanContent, CodeSpanScanner } from './codeSpan';
 import { scanDelimiterSpans } from './delimiters';
 import { parseSrcAndTitle } from './linkDestination';
-import { matchHtmlTag } from './rawHtml';
+import { HtmlTagScanner } from './rawHtml';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
 import { applySearchHighlights } from './searchHighlights';
 import {
@@ -650,7 +650,7 @@ function tryAutoLink(state: ILexState): boolean {
     return true;
 }
 
-function consumeHtmlTag(state: ILexState, html: NonNullable<ReturnType<typeof matchHtmlTag>>): void {
+function consumeHtmlTag(state: ILexState, html: NonNullable<ReturnType<HtmlTagScanner['read']>>): void {
     pushPending(state);
     state.tokens.push({
         type: 'html_tag',
@@ -806,6 +806,8 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         inlineDiff: inlineDiff ?? false,
     };
 
+    const htmlTags = new HtmlTagScanner(src, state.codeSpans);
+
     if (beginRules && state.pos === 0)
         consumeBeginRules(state, beginRules);
 
@@ -842,7 +844,7 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         if (consumed)
             continue;
 
-        const html = state.src[0] === '<' ? matchHtmlTag(state.originSrc, state.pos - state.basePos, state.codeSpans) : null;
+        const html = state.src[0] === '<' ? htmlTags.read(state.pos - state.basePos) : null;
         if (html) {
             consumeHtmlTag(state, html);
             continue;

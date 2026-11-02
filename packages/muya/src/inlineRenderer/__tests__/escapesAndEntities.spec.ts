@@ -28,6 +28,7 @@ describe('commonMark escapes and character references (#5977, #5982)', () => {
         ['&#X22;&#XD06;&#xcab;', '"ആಫ'],
         ['&#x1F600;&#1114111;', '😀\u{10FFFF}'],
         ['&#xD800;&#55296;&#x110000;&#9999999;', '����'],
+        ['&nbsp;&ensp;&emsp;', '\u00A0\u2002\u2003'],
         ['&#128;', '\u0080'],
         ['&#9;foo&#10;bar', '\tfoo\nbar'],
         ['&nbsp &x; &#; &#x; &#87654321; &#x0000000; &madeup; &aMp;', '&nbsp &x; &#; &#x; &#87654321; &#x0000000; &madeup; &aMp;'],

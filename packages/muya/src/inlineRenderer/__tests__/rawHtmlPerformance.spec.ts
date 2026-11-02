@@ -3,13 +3,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { generator, tokenizer } from '../lexer';
 
-const indexing = vi.hoisted(() => ({ characters: 0 }));
+const indexing = vi.hoisted(() => ({ characters: 0, reads: 0 }));
 
 vi.mock('../codeSpan', async (importOriginal) => {
     const actual = await importOriginal<typeof import('../codeSpan')>();
     return {
         ...actual,
         CodeSpanScanner: class extends actual.CodeSpanScanner {
+            override read(index: number) {
+                indexing.reads++;
+                return super.read(index);
+            }
+
             constructor(source: string) {
                 super(source);
                 indexing.characters += source.length;
@@ -20,6 +25,7 @@ vi.mock('../codeSpan', async (importOriginal) => {
 
 beforeEach(() => {
     indexing.characters = 0;
+    indexing.reads = 0;
 });
 
 describe('code-span indexing in HTML-heavy paragraphs', () => {
@@ -31,5 +37,15 @@ describe('code-span indexing in HTML-heavy paragraphs', () => {
         expect(tokens.filter(token => token.type === 'html_tag')).toHaveLength(count);
         // Bound indexing work independently of CI speed.
         expect(indexing.characters).toBeLessThanOrEqual(source.length * 2);
+    }, 20_000);
+});
+
+describe('unmatched HTML wrappers', () => {
+    it.each([1000, 2000, 4000, 8000])('bounds code-span reads for %i protected closers', (count) => {
+        const source = '<span>`</span>` '.repeat(count);
+        const tokens = tokenizer(source, { hasBeginRules: false });
+        expect(generator(tokens)).toBe(source);
+        expect(tokens.filter(token => token.type === 'html_tag')).toHaveLength(count);
+        expect(indexing.reads).toBeLessThanOrEqual(count * 4);
     }, 20_000);
 });

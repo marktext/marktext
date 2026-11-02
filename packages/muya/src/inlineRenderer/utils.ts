@@ -4,6 +4,9 @@ import { decodeHTMLAttribute } from 'entities';
 import { isLengthEven } from '../utils';
 import { CodeSpanScanner } from './codeSpan';
 import { parseSrcAndTitle } from './linkDestination';
+import { matchAt } from './matchAt';
+
+export { matchAt } from './matchAt';
 
 const AUTO_LINK_BOUNDARY = /[* _~(]/;
 
@@ -247,19 +250,6 @@ export function correctUrl(token: string[] | null) {
             }
         }
     }
-}
-
-const stickyPatterns = new WeakMap<RegExp, RegExp>();
-
-export function matchAt(pattern: RegExp, src: string, index: number) {
-    let sticky = stickyPatterns.get(pattern);
-    if (!sticky) {
-        sticky = new RegExp(pattern.source.replace(/^\^/, ''), `${pattern.flags}y`);
-        stickyPatterns.set(pattern, sticky);
-    }
-    sticky.lastIndex = index;
-
-    return sticky.exec(src);
 }
 
 export function matchBracketed(

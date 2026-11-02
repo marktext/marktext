@@ -4,6 +4,7 @@ import { tokenizer } from '../inlineRenderer/lexer';
 import { SelectionType } from '../selection/types';
 import { escapeHTML, getUniqueId } from '../utils';
 import { encodeImageSrc, getImageSrc, isImageToken } from '../utils/image';
+import { quoteMarkdownTitle } from '../utils/markdownEscape';
 
 export interface IClipboardImage {
     version: 1;
@@ -78,7 +79,7 @@ export function readClipboardImage(html: string, text: string): IClipboardImage 
 function withImageSource(markdown: string, src: string): string {
     const token = imageToken(markdown)!;
     if (token.type === 'image') {
-        const title = token.title ? ` "${token.title.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"` : '';
+        const title = token.title ? ` ${quoteMarkdownTitle(token.title)}` : '';
         return `![${token.alt}${token.backlash.first}](${encodeImageSrc(src)}${title})`;
     }
     return `<img ${Object.entries({ ...token.attrs, src })

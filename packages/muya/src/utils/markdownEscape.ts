@@ -22,3 +22,12 @@ const markdownEscape = new RegExp(`\\\\(${ASCII_PUNCTUATION.source})|${CHARACTER
 export function decodeMarkdownString(text: string): string {
     return text.replace(markdownEscape, (raw: string, punctuation: string | undefined) => punctuation ?? decodeCharacterReference(raw));
 }
+
+/** Protect literal attribute values from the Markdown decoder when generating source. */
+export function escapeMarkdownString(text: string): string {
+    return text.replace(/[\\&]/g, '\\$&');
+}
+
+export function quoteMarkdownTitle(title: string): string {
+    return `"${escapeMarkdownString(title).replace(/"/g, '\\$&')}"`;
+}

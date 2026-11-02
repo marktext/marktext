@@ -1,5 +1,7 @@
 import type { HTMLTagToken } from './types';
+import { VOID_HTML_TAGS } from '../config';
 import { CodeSpanScanner } from './codeSpan';
+import { matchAt } from './matchAt';
 
 const htmlSpace = /[ \t]*(?:(?:\r\n?|\n)[ \t]*)?/.source;
 const htmlTagName = /[A-Za-z][A-Za-z\d-]*/.source;
@@ -19,8 +21,7 @@ const htmlTokenPattern = [
 
 export const rawHtmlToken = new RegExp(`^(?:${htmlTokenPattern})`);
 
-const VOID_TAGS = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
-const htmlTokenAt = new RegExp(htmlTokenPattern, 'y');
+const voidTags = new Set<string>(VOID_HTML_TAGS);
 
 interface IHtmlMatch {
     raw: string;
@@ -31,67 +32,89 @@ interface IHtmlMatch {
     content?: string;
 }
 
-function matchingClose(src: string, start: number, tag: string, codeSpans?: CodeSpanScanner): { start: number; end: number } | undefined {
-    let depth = 1;
-    let index = start;
-    while (index < src.length) {
-        if (src[index] === '\\') {
-            index += 2;
-            continue;
-        }
-        if (src[index] === '`') {
-            codeSpans ??= new CodeSpanScanner(src);
-            index = codeSpans!.read(index)!.end;
-            continue;
-        }
-        htmlTokenAt.lastIndex = index;
-        const match = src[index] === '<' ? htmlTokenAt.exec(src) : null;
-        if (!match) {
-            index++;
-            continue;
-        }
-        const name = /^<\/?([A-Z][A-Z\d-]*)/i.exec(match[0])?.[1].toLowerCase();
-        if (name === tag) {
-            if (match[0].startsWith('</'))
-                depth--;
-            else if (!match[0].endsWith('/>'))
-                depth++;
-            if (depth === 0)
-                return { start: index, end: index + match[0].length };
-        }
-        index += match[0].length;
-    }
+interface IHtmlClose {
+    start: number;
+    end: number;
 }
 
-/** Offsets and the optional shared code-span index refer to the complete tokenizer source. */
-export function matchHtmlTag(src: string, index = 0, codeSpans?: CodeSpanScanner): IHtmlMatch | null {
-    htmlTokenAt.lastIndex = index;
-    const match = htmlTokenAt.exec(src);
-    if (!match)
-        return null;
+function tagName(raw: string): string | undefined {
+    return /^<\/?([A-Z][A-Z\d-]*)/i.exec(raw)?.[1].toLowerCase();
+}
 
-    const openTag = match[0];
-    const name = /^<\/?([A-Z][A-Z\d-]*)/i.exec(openTag)?.[1].toLowerCase();
-    if (!name) {
-        const kind = openTag.startsWith('<!--')
-            ? 'comment'
-            : openTag.startsWith('<?')
-                ? 'processing-instruction'
-                : openTag.startsWith('<![CDATA[') ? 'cdata' : 'declaration';
-        return { raw: openTag, openTag, tag: '<!---->', kind };
+/** Paired tags are a display convenience; recognition and precedence remain atomic. */
+export class HtmlTagScanner {
+    private _closers = new Map<number, IHtmlClose>();
+    private _indexedOpeners = new Set<number>();
+
+    constructor(private _source: string, private _codeSpans?: CodeSpanScanner) {}
+
+    read(index: number): IHtmlMatch | null {
+        const match = matchAt(rawHtmlToken, this._source, index);
+        if (!match)
+            return null;
+        const openTag = match[0];
+        const name = tagName(openTag);
+        if (!name) {
+            const kind = openTag.startsWith('<!--')
+                ? 'comment'
+                : openTag.startsWith('<?')
+                    ? 'processing-instruction'
+                    : openTag.startsWith('<![CDATA[') ? 'cdata' : 'declaration';
+            return { raw: openTag, openTag, tag: '<!---->', kind };
+        }
+        const kind = openTag.startsWith('</') ? 'closing-tag' : 'tag';
+        let close: IHtmlClose | undefined;
+        if (kind === 'tag' && !voidTags.has(name) && !openTag.endsWith('/>')) {
+            // A backtick inside math or a link URL can hide later openers from an earlier scan.
+            if (!this._indexedOpeners.has(index))
+                this._indexClosers(index);
+            close = this._closers.get(index);
+        }
+        return {
+            raw: close ? this._source.slice(index, close.end) : openTag,
+            tag: name,
+            kind,
+            openTag,
+            closeTag: close ? this._source.slice(close.start, close.end) : undefined,
+            content: close ? this._source.slice(index + openTag.length, close.start) : undefined,
+        };
     }
-    const kind = openTag.startsWith('</') ? 'closing-tag' : 'tag';
-    const close = kind === 'tag' && !VOID_TAGS.has(name) && !openTag.endsWith('/>')
-        ? matchingClose(src, index + openTag.length, name, codeSpans)
-        : undefined;
 
-    // Paired tags are a rendering convenience; recognition and precedence use atomic tokens.
-    return {
-        raw: close ? src.slice(index, close.end) : openTag,
-        tag: name,
-        kind,
-        openTag,
-        closeTag: close ? src.slice(close.start, close.end) : undefined,
-        content: close ? src.slice(index + openTag.length, close.start) : undefined,
-    };
+    private _indexClosers(index: number): void {
+        const openers = new Map<string, number[]>();
+        const src = this._source;
+        // Index successful and unmatched openers together so missing closers cannot rescan a suffix.
+        while (index < src.length) {
+            if (src[index] === '\\') {
+                index += 2;
+                continue;
+            }
+            if (src[index] === '`') {
+                this._codeSpans ??= new CodeSpanScanner(src);
+                index = this._codeSpans.read(index)!.end;
+                continue;
+            }
+            const match = src[index] === '<' ? matchAt(rawHtmlToken, src, index) : null;
+            if (!match) {
+                index++;
+                continue;
+            }
+            const raw = match[0];
+            const name = tagName(raw);
+            if (name && !voidTags.has(name)) {
+                const stack = openers.get(name) ?? [];
+                if (raw.startsWith('</')) {
+                    const opener = stack.pop();
+                    if (opener !== undefined)
+                        this._closers.set(opener, { start: index, end: index + raw.length });
+                }
+                else if (!raw.endsWith('/>')) {
+                    this._indexedOpeners.add(index);
+                    stack.push(index);
+                    openers.set(name, stack);
+                }
+            }
+            index += raw.length;
+        }
+    }
 }

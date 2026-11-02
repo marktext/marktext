@@ -80,3 +80,12 @@ describe('commonMark raw HTML grammar (#5980)', () => {
         }
     });
 });
+
+it.each(['', '<i>first</i> '])('pairs HTML after a backtick owned by math: %j', (prefix) => {
+    const source = `${prefix}$\`math$ <span>body</span> \`tail\``;
+    const tokens = tokenizer(source, { hasBeginRules: false });
+    expect(tokens.some(token => token.type === 'inline_math')).toBe(true);
+    expect(tokens.find(token => token.type === 'html_tag' && token.tag === 'span'))
+        .toMatchObject({ raw: '<span>body</span>', closeTag: '</span>' });
+    expect(generator(tokens)).toBe(source);
+});

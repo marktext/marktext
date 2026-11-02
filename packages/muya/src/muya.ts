@@ -41,6 +41,7 @@ import { getBlock } from './utils/dom';
 import { GITHUB_ALERT_TYPES, githubAlertBlockType, githubAlertMarker } from './utils/githubAlerts';
 import { encodeImageSrc } from './utils/image';
 import { toListDelimiter } from './utils/listMarker';
+import { escapeMarkdownString } from './utils/markdownEscape';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
@@ -1084,9 +1085,9 @@ export class Muya {
         // Keep valid data URLs intact; incomplete data prefixes must be encoded as paths.
         let imgUrl: string;
         if (URL_REG.test(src))
-            imgUrl = encodeURI(src);
+            imgUrl = escapeMarkdownString(encodeURI(src));
         else if (DATA_URL_REG.test(src))
-            imgUrl = src;
+            imgUrl = escapeMarkdownString(src);
         else
             imgUrl = encodeImageSrc(src);
 

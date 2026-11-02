@@ -3,6 +3,7 @@ import { isWin } from '../config/index';
 import { tokenizer } from '../inlineRenderer/lexer';
 import { findContentDOM, getOffsetOfParagraph } from '../selection/dom';
 import { ABSOLUTE_LOCAL_REG, encodeDirnameForUrl, localPathToFileUrl, resolveRelativePath } from './fileUrl';
+import { escapeMarkdownString } from './markdownEscape';
 
 export type TSelectableImageToken = ImageToken | (HTMLTagToken & { tag: 'img'; kind?: 'tag' });
 
@@ -171,7 +172,7 @@ export async function checkImageContentType(url: string): Promise<boolean | null
 // unbalanced `)` truncates the path (#3060). `encodeURIComponent` leaves `(`/`)`
 // untouched, so encode them explicitly.
 export function encodeImageSrc(src: string): string {
-    return src
+    return escapeMarkdownString(src)
         .replace(/ /g, encodeURI(' '))
         .replace(/#/g, encodeURIComponent('#'))
         .replace(/\(/g, '%28')
