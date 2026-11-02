@@ -80,6 +80,14 @@ describe('editor window file bookkeeping', () => {
       .toEqual([{ id: null, score: 0 }, { id: null, score: 0 }])
   })
 
+  it('scores files in a folder whose name starts with two dots', () => {
+    const editor = new EditorWindow(makeAccessor() as unknown as Accessor)
+    editor.addToOpenedFiles('/project/note.md')
+
+    expect(editor.getCandidateScores(['/project/..drafts/todo.md', '/other/todo.md']))
+      .toEqual([{ id: null, score: 1 }, { id: null, score: 0 }])
+  })
+
   it('clears file ownership on destruction', () => {
     const editor = new EditorWindow(makeAccessor() as unknown as Accessor)
     editor.addToOpenedFiles('/project/note.md')
