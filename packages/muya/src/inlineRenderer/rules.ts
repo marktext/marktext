@@ -166,16 +166,27 @@ export const emojiValidateRules: EmojiValidateRules = (Object.keys(inlineRules) 
     }
 }, {} as EmojiValidateRules);
 
-// Veto set used when validating a tentative `[text](url)` / reference link.
-// Per CommonMark §6.6 only code spans, raw HTML tags and `<...>` autolinks bind
-// more tightly than a link, so only those may defer a link that overlaps them
-// (CM 0.29 examples 520/521). Using the full `validateRules` here is wrong: a
-// GFM extended (bare-URL) autolink or the link rule's own greedy destination
-// match would extend past the tentative link and veto it, dropping links such
-// as `[t](https://x)、` or `[t](https://x)foo` and the first of two links on a
-// line (#4671).
+// Only code spans, raw HTML tokens and angle-bracket autolinks can consume a
+// link-text bracket (CommonMark §6.3). Bare autolinks and the greedy link
+// destination rule must not veto the link (#4671).
+// CommonMark §6.6 makes each raw HTML token atomic, not the paired elements
+// grouped by the renderer's html_tag rule; a closing tag may be in a link's URL.
+const htmlSpace = /[ \t]*(?:(?:\r\n?|\n)[ \t]*)?/.source;
+const htmlTagName = /[A-Za-z][A-Za-z\d-]*/.source;
+const htmlAttributeName = /[A-Za-z_:][\w.:-]*/.source;
+const htmlAttributeValue = /(?:"[^"]*"|'[^']*'|[^ \t\r\n"'=<>`]+)/.source;
+const htmlAttribute = `(?=[ \\t\\r\\n])${htmlSpace}${htmlAttributeName}(?:${htmlSpace}=${htmlSpace}${htmlAttributeValue})?`;
+const rawHtmlToken = new RegExp(`^(?:${[
+    `<${htmlTagName}(?:${htmlAttribute})*${htmlSpace}/?>`,
+    `</${htmlTagName}${htmlSpace}>`,
+    /<!--(?:>|->|[\s\S]*?-->)/.source,
+    /<\?[\s\S]*?\?>/.source,
+    /<![A-Za-z][^>]*>/.source,
+    /<!\[CDATA\[[\s\S]*?\]\]>/.source,
+].join('|')})`);
+
 export const linkValidateRules: Pick<InlineRules, 'inline_code' | 'html_tag' | 'auto_link'> = {
     inline_code: inlineRules.inline_code,
-    html_tag: inlineRules.html_tag,
+    html_tag: rawHtmlToken,
     auto_link: inlineRules.auto_link,
 };

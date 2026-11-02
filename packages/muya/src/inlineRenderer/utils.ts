@@ -109,12 +109,8 @@ function validWidthAndHeight(value: string) {
 
 export function lowerPriority(src: string, offset: number, rules: Rules) {
     let i;
-    const ignoreIndex: number[] = [];
 
     for (i = 0; i < offset; i++) {
-        if (ignoreIndex.includes(i))
-            continue;
-
         // A character preceded by an odd number of backslashes is escaped
         // (e.g. `\$`), so it cannot open a higher-priority construct such as
         // inline math/code and must not lower the surrounding emphasis.
@@ -136,11 +132,13 @@ export function lowerPriority(src: string, offset: number, rules: Rules) {
 
         for (const [, regexp] of Object.entries(rules)) {
             const to = regexp.exec(text);
-            if (to && to[0].length <= offset - i)
-                ignoreIndex.push(i + to[0].length - 1);
-
             if (to && to[0].length > offset - i)
                 return false;
+            if (to) {
+                // Backticks and brackets inside an HTML token cannot open another construct.
+                i += to[0].length - 1;
+                break;
+            }
         }
     }
 
