@@ -17,7 +17,8 @@ import InlineRenderer from '../inlineRenderer';
 import { Search } from '../search';
 import Selection from '../selection';
 import { findContentDOM } from '../selection/dom';
-import { createTextSelectionState } from '../selection/state';
+import { createTextSelectionState, isLegalOffset, isSelectionState, resolveEndpoint } from '../selection/state';
+import { SelectionType } from '../selection/types';
 import JSONState from '../state';
 import { createChangePayload } from '../state/changePayload';
 import { stateAtPath } from '../state/paths';
@@ -640,7 +641,23 @@ export class Editor {
     private _restoreSelection(selection: Nullable<TSelectionState>) {
         if (!selection)
             return;
-        const restored = this.selection.setSelection(selection, { render: true });
+        if (isSelectionState(selection) && selection.kind === SelectionType.TEXT) {
+            const anchor = resolveEndpoint(this._muya, selection.anchor);
+            const focus = resolveEndpoint(this._muya, selection.focus);
+            if (
+                anchor && focus
+                && isLegalOffset(anchor.block.text, anchor.offset)
+                && isLegalOffset(focus.block.text, focus.offset)
+            ) {
+                const sameBlock = anchor.block === focus.block;
+                this.activeContentBlock = sameBlock ? anchor.block : null;
+                // Rebuilt blocks hide source syntax; expose the saved endpoints before mapping them to DOM nodes.
+                anchor.block.update({ block: anchor.block, anchor, focus: sameBlock ? focus : anchor });
+                if (!sameBlock)
+                    focus.block.update({ block: focus.block, anchor: focus, focus });
+            }
+        }
+        const restored = this.selection.setSelection(selection);
         if (!restored)
             this.scrollPage?.firstContentInDescendant()?.setCursor(0, 0, true);
     }
