@@ -120,7 +120,7 @@ function referenceHtml(token: ReferenceLinkToken | ReferenceImageToken, labels: 
         throw new Error(`Unresolved reference token: ${token.raw}`);
     return token.type === 'reference_link'
         ? link(definition.href, definition.title, children)
-        : image(definition.href, definition.title, token.alt);
+        : image(definition.href, definition.title, token.attrs.alt);
 }
 
 function leafHtml(token: Token, literalExtensions: boolean): string | undefined {
@@ -165,7 +165,7 @@ export function tokensToHtml(tokens: Token[], labels: Labels, literalExtensions 
             case 'link':
                 return link(token.href, token.title, children);
             case 'image':
-                return image(token.attrs.src, token.title, token.alt);
+                return image(token.attrs.src, token.title, token.attrs.alt);
             case 'reference_link':
             case 'reference_image':
                 return referenceHtml(token, labels, children);

@@ -40,12 +40,13 @@ export const commonMarkRules = {
     reference_link: /^\[((?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking
     reference_image: /^!\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
+    // CDATA must stay atomic: its brackets cannot open links or images (#5981).
     // Consume multiline tags before considering hard breaks in their attributes (§6.7).
     html_tag:
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation
-    /^(<!--[\s\S]*?-->|(<([a-z][a-z\d-]*)[^<>]*>)(?:([\s\S]*?)(<\/\3 *>))?)/i,
+    /^(<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|(<([a-z][a-z\d-]*)[^<>]*>)(?:([\s\S]*?)(<\/\3 *>))?)/i,
     html_escape: new RegExp(`^(${escapeCharacters.join('|')})`, 'i'),
-    soft_line_break: /^(\n)(?!\n)/,
+    soft_line_break: /^[ \t]*(\n)(?!\n)[ \t]*/,
     hard_line_break: /^( {2,}|\\)(\n)(?!\n)( *)/,
 
     // patched math marker `$`

@@ -1,5 +1,6 @@
 import type { ICodeSpanMatch } from './codeSpan';
 import type { IDelimiterSpan } from './delimiters';
+import type { ImageMatch } from './imageLabel';
 import type { BeginRules, InlineRules } from './rules';
 import type {
     CodeEmojiMathToken,
@@ -13,6 +14,7 @@ import { escapeHTML, isLengthEven } from '../utils';
 import { validEmoji } from '../utils/emoji';
 import { codeSpanContent, CodeSpanScanner } from './codeSpan';
 import { scanDelimiterSpans } from './delimiters';
+import { matchImage } from './imageLabel';
 import { parseSrcAndTitle } from './linkDestination';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
 import { applySearchHighlights } from './searchHighlights';
@@ -403,45 +405,47 @@ function tryFootnote(state: ILexState): boolean {
     return true;
 }
 
-function tryImage(state: ILexState): boolean {
-    const imageTo = matchBracketed(state.inlineRules.image, state.src, 0, null);
-    if (!imageTo)
-        return false;
-
-    const tail = parseSrcAndTitle(imageTo[4]);
-    if (!tail)
-        return false;
-
-    const { src: imageSrc, title } = tail;
-    pushPending(state);
-    state.tokens.push({
-        type: 'image',
-        raw: imageTo[0],
-        marker: imageTo[1],
-        srcAndTitle: imageTo[4],
-        // This `attrs` used for render image.
-        attrs: {
-            src: imageSrc + encodeURI(imageTo[5]),
-            title,
-            alt: imageTo[2] + encodeURI(imageTo[3]),
-        },
-        src: imageSrc,
-        title,
+function consumeImage(state: ILexState, match: ImageMatch): void {
+    const alt = tokensToPlainText(tokenizerFac(
+        match.description,
+        null,
+        state.inlineRules,
+        state.pos + 2,
+        false,
+        state.labels,
+        state.options,
+    ), '\n');
+    const common = {
+        raw: match.raw,
+        alt: match.alt,
+        backlash: match.backlash,
         parent: state.tokens,
-        range: {
-            start: state.pos,
-            end: state.pos + imageTo[0].length,
-        },
-        alt: imageTo[2],
-        backlash: {
-            first: imageTo[3],
-            second: imageTo[5],
-        },
-    });
-    state.src = state.src.substring(imageTo[0].length);
-    state.pos = state.pos + imageTo[0].length;
-
-    return true;
+        range: { start: state.pos, end: state.pos + match.raw.length },
+    };
+    pushPending(state);
+    if (match.type === 'image') {
+        const { src, title } = match.tail;
+        state.tokens.push({
+            ...common,
+            type: 'image',
+            marker: '![',
+            srcAndTitle: match.srcAndTitle,
+            attrs: { src, title, alt },
+            src,
+            title,
+        });
+    }
+    else {
+        state.tokens.push({
+            ...common,
+            type: 'reference_image',
+            attrs: { alt },
+            label: match.label,
+            isFullLink: match.isFullLink,
+        });
+    }
+    state.src = state.src.substring(match.raw.length);
+    state.pos += match.raw.length;
 }
 
 function tryLink(state: ILexState): boolean {
@@ -530,42 +534,6 @@ function tryReferenceLink(state: ILexState): boolean {
 
     state.src = state.src.substring(rLinkTo[0].length);
     state.pos = state.pos + rLinkTo[0].length;
-
-    return true;
-}
-
-function tryReferenceImage(state: ILexState): boolean {
-    const rImageTo = matchReference(
-        state.inlineRules.reference_image,
-        state.src,
-        0,
-        state.labels,
-        null,
-    );
-    if (!rImageTo)
-        return false;
-
-    pushPending(state);
-
-    state.tokens.push({
-        type: 'reference_image',
-        raw: rImageTo[0],
-        isFullLink: !!rImageTo[3],
-        parent: state.tokens,
-        alt: rImageTo[1],
-        backlash: {
-            first: rImageTo[2],
-            second: rImageTo[4] || '',
-        },
-        label: rImageTo[3] || rImageTo[1],
-        range: {
-            start: state.pos,
-            end: state.pos + rImageTo[0].length,
-        },
-    });
-
-    state.src = state.src.substring(rImageTo[0].length);
-    state.pos = state.pos + rImageTo[0].length;
 
     return true;
 }
@@ -721,11 +689,7 @@ function tryHtmlTag(state: ILexState): boolean {
     return false;
 }
 
-function trySoftLineBreak(state: ILexState): boolean {
-    const softTo = state.inlineRules.soft_line_break.exec(state.src);
-    if (!softTo)
-        return false;
-
+function consumeSoftLineBreak(state: ILexState, softTo: RegExpExecArray): void {
     const len = softTo[0].length;
     pushPending(state);
     state.tokens.push({
@@ -741,8 +705,6 @@ function trySoftLineBreak(state: ILexState): boolean {
     });
     state.src = state.src.substring(len);
     state.pos += len;
-
-    return true;
 }
 
 function consumeHardLineBreak(state: ILexState, hardTo: RegExpExecArray): void {
@@ -803,15 +765,12 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryChunks,
     trySuperSubScript,
     tryFootnote,
-    tryImage,
     tryLink,
     tryReferenceLink,
-    tryReferenceImage,
     tryHtmlEscape,
     tryAutoLinkExtension,
     tryAutoLink,
     tryHtmlTag,
-    trySoftLineBreak,
     tryTailHeader,
 ];
 
@@ -883,6 +842,12 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
             continue;
         }
 
+        const image = matchImage(state.originSrc, state.pos - state.basePos, state.labels, state.codeSpans);
+        if (image) {
+            consumeImage(state, image);
+            continue;
+        }
+
         let consumed = false;
         for (const handler of INLINE_HANDLERS) {
             if (handler(state)) {
@@ -896,6 +861,12 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         const hardBreak = state.inlineRules.hard_line_break.exec(state.src);
         if (hardBreak) {
             consumeHardLineBreak(state, hardBreak);
+            continue;
+        }
+
+        const softBreak = state.inlineRules.soft_line_break.exec(state.src);
+        if (softBreak) {
+            consumeSoftLineBreak(state, softBreak);
             continue;
         }
 
@@ -990,7 +961,7 @@ function leafTokenToPlainText(token: Token): string {
 
         case 'image':
         case 'reference_image':
-            return token.alt;
+            return token.attrs.alt;
 
         case 'html_tag':
             return token.content ?? '';
@@ -1028,13 +999,15 @@ function leafTokenToPlainText(token: Token): string {
 // (state/markdownToHtml.ts injects ids from `heading.textContent`). The TOC uses
 // it to show and slug headings by their rendered text instead of raw source
 // (#4811).
-export function tokensToPlainText(tokens: Token[]): string {
+export function tokensToPlainText(tokens: Token[], lineBreak = ' '): string {
     let result = '';
 
     for (const token of tokens) {
         result += 'children' in token && token.children
-            ? tokensToPlainText(token.children)
-            : leafTokenToPlainText(token);
+            ? tokensToPlainText(token.children, lineBreak)
+            : token.type === 'soft_line_break' || token.type === 'hard_line_break'
+                ? lineBreak
+                : leafTokenToPlainText(token);
     }
 
     return result;

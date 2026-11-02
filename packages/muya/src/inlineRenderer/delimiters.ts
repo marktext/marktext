@@ -3,6 +3,7 @@ import type { InlineRules } from './rules';
 import type { ITokenizerFacOptions, Labels } from './types';
 import { codePointBefore, codePointCharAt, pairDelimiters } from '../utils/delimiters';
 import { CodeSpanScanner } from './codeSpan';
+import { matchImage } from './imageLabel';
 import { BACKSLASH_MATH_RULES, linkValidateRules } from './rules';
 import {
     CJK_REG,
@@ -101,8 +102,7 @@ function protectedLength(src: string, index: number, context: IScanContext): num
                 || lengthOf(matchAt(rules.html_tag, src, index));
 
         case '!':
-            return lengthOf(matchBracketed(rules.image, src, index, null))
-                || lengthOf(matchReference(rules.reference_image, src, index, labels, null));
+            return matchImage(src, index, labels, context.codeSpans)?.raw.length ?? 0;
 
         case '[':
             return lengthOf(matchBracketed(rules.link, src, index, linkValidateRules, context.codeSpans))

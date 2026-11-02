@@ -18,7 +18,7 @@ export default function referenceImage(
     const imageClass = CLASS_NAMES.MU_IMAGE_MARKED_TEXT;
     const { start, end } = token.range;
     const tag = this.highlight(h, block, start, end, token);
-    const { label, backlash, alt } = token;
+    const { label, backlash, attrs: { alt } } = token;
     const rawSrc = label + backlash.second;
     let href = '';
     let title = '';
@@ -34,7 +34,7 @@ export default function referenceImage(
     if (src) {
         ({ id, isSuccess, url: resolvedSrc } = this.loadImageAsync(
             imageSrc,
-            { alt },
+            { alt, title },
             className,
             CLASS_NAMES.MU_COPY_REMOVE,
         ));

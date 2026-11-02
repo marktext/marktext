@@ -187,7 +187,7 @@ export default function image(
         const renderImage = () => {
             const data = {
                 props: {
-                    alt: alt.replace(/[`*{}[\]()#+\-.!_>~:|<$]/g, ''),
+                    alt,
                     src: imgSrc,
                     title,
                 },
@@ -212,11 +212,7 @@ export default function image(
             ? [
                     h(wrapperSelector, data, [
                         ...imageIcons,
-                        renderImageContainer(
-                            // An image description has inline elements as its contents.
-                            // When an image is rendered to HTML, this is used as the image’s alt attribute.
-                            renderImage(),
-                        ),
+                        renderImageContainer(renderImage()),
                     ]),
                 ]
             : [h(wrapperSelector, data, [...imageIcons, renderImageContainer()])];
