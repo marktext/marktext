@@ -17,6 +17,7 @@ describe('reference label normalization (#5979)', () => {
         ['ᾈ', 'ἀι'],
         ['İ', 'i\u0307'],
         ['𐐀', '𐐨'],
+        ['𐵐', '𐵰'],
         ['\tFoo\n  BAR\r\n baz\u00A0', 'foo bar baz'],
     ])('resolves %j against %j for links and images', (sourceLabel, definitionLabel) => {
         const key = normalizeReferenceLabel(definitionLabel);

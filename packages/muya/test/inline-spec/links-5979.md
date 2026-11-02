@@ -98,3 +98,14 @@ The review regression suite covers all enabled math delimiter forms, inline and
 reference tails, both diff variants, disabled-extension controls, nested source
 offsets, and the 1,000-level image case. Chromium also checks rendering, source
 round-tripping and the disabled-extension modes after reloading content.
+
+## Supported Node runtime compatibility
+
+The first CI run exposed a module-loading failure on the older Node runtime.
+Vite converted Unicode mapping keys into named ESM exports, including
+`export const ꟎ = "꟏"`, whose identifier is rejected by older JavaScript parsers.
+This was reproduced locally on Node 20.19.5; the same module loaded on the newer
+local Node runtime. Keeping the mappings under an ASCII `mappings` property
+prevents those named exports without changing any folding values. The full
+974-case live-spec suite and both bracket regression files pass on Node 20.19.5,
+including a label containing a newly added Unicode letter.
