@@ -70,6 +70,39 @@ test('deleting the marker and undoing preserves the newline and caret offsets', 
     await expect.poll(() => getMarkdown(page)).toBe('foo\nbar\n');
 });
 
+test('arrow navigation shows and hides the backslash without changing the document', async ({ page }) => {
+    await page.evaluate(() => {
+        window.muya!.setContent('foo\\\nbar');
+        window.muya!.editor.scrollPage!.firstContentInDescendant()!.setCursor(2, 2, true);
+    });
+    const marker = page.locator(editor.hardLineBreakSpace).locator('span');
+    await expect(marker).toHaveClass(/mu-hide/);
+    await page.keyboard.press('ArrowRight');
+    await expect(marker).toHaveClass(/mu-gray/);
+    await page.keyboard.press('ArrowLeft');
+    await expect(marker).toHaveClass(/mu-hide/);
+    expect(await getMarkdown(page)).toBe('foo\\\nbar\n');
+});
+
+test('clicking between paragraphs updates backslash visibility', async ({ page }) => {
+    await page.evaluate(() => {
+        window.muya!.setContent('foo\\\nbar\n\nA much longer paragraph with the caret well beyond the hard break range.');
+        window.muya!.editor.scrollPage!.firstContentInDescendant()!.setCursor(4, 4, true);
+    });
+    const marker = page.locator(editor.hardLineBreakSpace).locator('span');
+    await expect(marker).toHaveClass(/mu-gray/);
+    await page.locator(editor.paragraphContent).nth(1).click();
+    await expect(marker).toHaveClass(/mu-hide/);
+    const target = await page.locator(editor.paragraphContent).first().evaluate((element) => {
+        const range = document.createRange();
+        range.selectNodeContents(element.firstChild!);
+        const rect = range.getBoundingClientRect();
+        return { x: rect.right - 1, y: rect.y + rect.height / 2 };
+    });
+    await page.mouse.click(target.x, target.y);
+    await expect(marker).toHaveClass(/mu-gray/);
+});
+
 test('typing after a trailing backslash and Shift+Enter retains the hard break', async ({ page }) => {
     await page.evaluate(() => {
         window.muya!.setContent('foo\\');
