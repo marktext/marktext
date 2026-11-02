@@ -2,6 +2,7 @@ import type { IDelimiterRun, IDelimiterSpan } from '../utils/delimiters';
 import type { InlineRules } from './rules';
 import type { ITokenizerFacOptions, Labels } from './types';
 import { codePointBefore, codePointCharAt, pairDelimiters } from '../utils/delimiters';
+import { CodeSpanScanner } from './codeSpan';
 import { BACKSLASH_MATH_RULES, linkValidateRules } from './rules';
 import {
     CJK_REG,
@@ -16,6 +17,7 @@ import {
 export type { IDelimiterSpan } from '../utils/delimiters';
 
 interface IScanContext {
+    codeSpans?: CodeSpanScanner;
     rules: InlineRules;
     labels: Labels;
     options: ITokenizerFacOptions;
@@ -89,7 +91,7 @@ function protectedLength(src: string, index: number, context: IScanContext): num
                 || lengthOf(matchAt(rules.backlash, src, index));
 
         case '`':
-            return lengthOf(matchAt(rules.inline_code, src, index));
+            return context.codeSpans!.read(index)!.end - index;
 
         case '$':
             return dollarMathLength(src, index, context);
@@ -103,8 +105,8 @@ function protectedLength(src: string, index: number, context: IScanContext): num
                 || lengthOf(matchReference(rules.reference_image, src, index, labels, null));
 
         case '[':
-            return lengthOf(matchBracketed(rules.link, src, index, linkValidateRules))
-                || lengthOf(matchReference(rules.reference_link, src, index, labels, linkValidateRules));
+            return lengthOf(matchBracketed(rules.link, src, index, linkValidateRules, context.codeSpans))
+                || lengthOf(matchReference(rules.reference_link, src, index, labels, linkValidateRules, context.codeSpans));
 
         default:
             return autoLinkLength(src, index, context);
@@ -163,8 +165,10 @@ export function scanDelimiterSpans(
     labels: Labels,
     options: ITokenizerFacOptions,
     allowAutolinks: boolean,
+    codeSpans = src.includes('`') ? new CodeSpanScanner(src) : undefined,
 ): Map<number, IDelimiterSpan> {
     const runs = collectRuns(src, {
+        codeSpans,
         rules,
         labels,
         options,

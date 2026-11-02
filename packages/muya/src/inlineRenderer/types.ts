@@ -126,7 +126,10 @@ export type StrongEmToken = IBaseToken & {
 export type CodeEmojiMathToken = IBaseToken & {
     type: 'inline_code' | 'emoji' | 'inline_math';
     marker: string;
+    // Code uses CommonMark-normalized text; raw and range retain the editable source.
     content: string;
+    // For code spans, source offsets excluding the one-space boundary padding.
+    contentRange?: ITokenRange;
     backlash: string;
 };
 

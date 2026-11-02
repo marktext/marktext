@@ -70,6 +70,7 @@ code.mu-inline-rule {
     color: var(--editor-color);
     font-size: 0.8em;
     font-family: var(--mu-code-font-family, var(--mu-default-code-font-family));
+    white-space: pre-wrap;
 
     background-color: var(--code-block-bg-color);
     border-radius: 3px;
