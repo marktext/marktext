@@ -20,6 +20,7 @@ Run from the marktext repo root.
 - `pnpm -C packages/muya build` — `tsc && vite build`, emits `lib/{es,umd,cjs}` and `lib/types`.
 - `pnpm -C packages/muya test` / `pnpm -C packages/muya coverage` — Vitest unit tests (co-located under `src/**/__tests__/`). Single file: `pnpm -C packages/muya exec vitest run path/to/file.test.ts`.
 - `pnpm -C packages/muya test:spec` — CommonMark 0.31 + GFM 0.29-gfm fixture suites against `renderToStaticHTML(..., { sanitize: false })`. `test:spec:commonmark` / `test:spec:gfm` scope to one suite. Pass/fail counts are locked by `test/spec/expected-failures.json`: any listed example that starts passing fails the suite (remove it from the list); any unlisted example that starts failing fails the suite. Compliance can only go up. Current counts and section breakdowns live in `test/spec/conformance.md`; update them when the expected-failure list changes.
+- `pnpm -C packages/muya test:inline-spec` — separate live-lexer comparison against official inline examples, with a reviewed difference baseline and a JSON report in `test-results/inline-spec/`. Run `test:inline-spec:types` to typecheck the harness. See `test/inline-spec/README.md` for coverage, normalization, product/version differences and baseline maintenance; export conformance numbers do not measure this path.
 - `pnpm -C packages/muya lint` / `pnpm -C packages/muya lint:fix` — ESLint over `src test` (antfu config; rules below).
 - `pnpm -C packages/muya lint:types` — `tsc --noEmit`.
 - `pnpm -C packages/muya lint:css` — Stylelint over `src/**/*.css`.

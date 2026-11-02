@@ -404,8 +404,11 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5(vitest@5.0.5)
       commonmark-spec:
-        specifier: ^0.31.2
+        specifier: 0.31.2
         version: 0.31.2
+      entities:
+        specifier: 7.0.1
+        version: 7.0.1
       eslint:
         specifier: ^10.13.0
         version: 10.13.0(jiti@2.7.0)
@@ -421,6 +424,9 @@ importers:
       madge:
         specifier: ^8.0.0
         version: 8.0.0(typescript@6.0.3)
+      parse5:
+        specifier: 8.0.1
+        version: 8.0.1
       stylelint:
         specifier: ^17.16.0
         version: 17.16.0(typescript@6.0.3)
