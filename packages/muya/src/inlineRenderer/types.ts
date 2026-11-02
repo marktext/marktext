@@ -258,8 +258,10 @@ export type SoftLineBreakToken = IBaseToken & {
 
 export type HardLineBreakToken = IBaseToken & {
     type: 'hard_line_break';
-    spaces: string; // The space in hard line break
-    lineBreak: string; // \n
+    marker: string;
+    lineBreak: string;
+    // Retained for source offsets; CommonMark ignores indentation after a hard break.
+    leadingSpaces: string;
     isAtEnd: boolean;
 };
 
