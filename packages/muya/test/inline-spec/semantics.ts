@@ -170,6 +170,7 @@ export function tokensToHtml(tokens: Token[], labels: Labels, literalExtensions 
             case 'reference_image':
                 return referenceHtml(token, labels, children);
             case 'html_tag':
+                // Rebuilding valid tags here would hide malformed source; parsed fields have a separate audit.
                 return token.closeTag && token.children ? token.openTag + children + token.closeTag : token.raw;
             default:
                 throw new Error(`Unadapted lexer token: ${token.type}`);

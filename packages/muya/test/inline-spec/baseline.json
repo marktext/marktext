@@ -151,13 +151,13 @@
         },
         "commonmark:493": {
             "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "8289fec2a80cc2aff3405d2324ad84c708c5addd3477c108f800233a6dbd6d31"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "24f751658e94ef3535cd06546901959afb6bd9d6ca4730728f9b96f2ffcf1247"
         },
         "commonmark:494": {
             "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "ffcee5c8b7106d583e9cfffb4163fac0b9469d6dd4c7b02e11fb9a391f0ef19b"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "cd1cf6efb522d7b1cf3b9c93bb6020cee11f6939e78df183f3300cf7b075e155"
         },
         "commonmark:503": {
             "status": "known-difference",
@@ -286,13 +286,13 @@
         },
         "commonmark:602": {
             "status": "known-difference",
-            "reason": "Angle-bracket autolink recognition or URL/email boundaries differ.",
-            "fingerprint": "ea846c574e9597ee9d9ee923bd2bf44dd2a5eebccd13cef54fd3502963639cda"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "feff8bb0ca340d7553e52cc1db56dd5416e112f82658a3d4d53167d5f76ec404"
         },
         "commonmark:606": {
             "status": "known-difference",
-            "reason": "Angle-bracket autolink recognition or URL/email boundaries differ.",
-            "fingerprint": "a870eac1213382ce3cbe5c3929e9b3864d49c1ed96d95c5b2bf55c54e9e8228b"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "fa76d0b09dd7dc59ab7d899a6053b6487a4adbf93004c5c8a160da440bfe5ee0"
         },
         "commonmark:608": {
             "status": "extension-difference",
@@ -301,13 +301,13 @@
         },
         "commonmark:609": {
             "status": "known-difference",
-            "reason": "Angle-bracket autolink recognition or URL/email boundaries differ.",
-            "fingerprint": "561710983ca57952acb97ca4484861e94cf83e72a9f98cb2c49e5fabd93dad7d"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "2c36bfd5877115f1825c526e589e13df201c0e745e9ca51f75463df4b9773b66"
         },
         "commonmark:610": {
             "status": "known-difference",
-            "reason": "Angle-bracket autolink recognition or URL/email boundaries differ.",
-            "fingerprint": "1d70aca66656d68f3e70ec07f98ed4e686b41725c1576d4851020927f2d9c1ea"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "acf129eaa7c31af1603ed549b3d7b82d4b1ca49ecb54dd2ad924f0d68ec3eb72"
         },
         "commonmark:611": {
             "status": "extension-difference",
@@ -331,8 +331,8 @@
         },
         "commonmark:620": {
             "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "94a6cec06ef480af3908cefbeddad09df74cf702a5201b6d323b13711620b1c0"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "9c1d374fc5cb462a885c1a8750ce1ecf4620f033e00b5473971798c0b276d5a0"
         },
         "commonmark:621": {
             "status": "known-difference",
@@ -578,13 +578,13 @@
         },
         "gfm:502": {
             "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "8289fec2a80cc2aff3405d2324ad84c708c5addd3477c108f800233a6dbd6d31"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "24f751658e94ef3535cd06546901959afb6bd9d6ca4730728f9b96f2ffcf1247"
         },
         "gfm:503": {
             "status": "known-difference",
-            "reason": "Bracket matching, link nesting/precedence, multiline tails, or destination/title decoding.",
-            "fingerprint": "ffcee5c8b7106d583e9cfffb4163fac0b9469d6dd4c7b02e11fb9a391f0ef19b"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "cd1cf6efb522d7b1cf3b9c93bb6020cee11f6939e78df183f3300cf7b075e155"
         },
         "gfm:511": {
             "status": "known-difference",
@@ -708,13 +708,13 @@
         },
         "gfm:610": {
             "status": "known-difference",
-            "reason": "Angle-bracket autolink recognition or URL/email boundaries differ.",
-            "fingerprint": "a9d97d6a5e44d4644b4df19430d356dc356bb8998902e70a06e7f6aff2c7a364"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "ea2835ec2ab4aee5dd2623ea3558c48afd17bd2c417103b411d55aa4e67a4420"
         },
         "gfm:614": {
             "status": "known-difference",
-            "reason": "Angle-bracket autolink recognition or URL/email boundaries differ.",
-            "fingerprint": "a870eac1213382ce3cbe5c3929e9b3864d49c1ed96d95c5b2bf55c54e9e8228b"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "fa76d0b09dd7dc59ab7d899a6053b6487a4adbf93004c5c8a160da440bfe5ee0"
         },
         "gfm:616": {
             "status": "extension-difference",
@@ -723,13 +723,13 @@
         },
         "gfm:617": {
             "status": "known-difference",
-            "reason": "Angle-bracket autolink recognition or URL/email boundaries differ.",
-            "fingerprint": "561710983ca57952acb97ca4484861e94cf83e72a9f98cb2c49e5fabd93dad7d"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "2c36bfd5877115f1825c526e589e13df201c0e745e9ca51f75463df4b9773b66"
         },
         "gfm:618": {
             "status": "known-difference",
-            "reason": "Angle-bracket autolink recognition or URL/email boundaries differ.",
-            "fingerprint": "1d70aca66656d68f3e70ec07f98ed4e686b41725c1576d4851020927f2d9c1ea"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "acf129eaa7c31af1603ed549b3d7b82d4b1ca49ecb54dd2ad924f0d68ec3eb72"
         },
         "gfm:619": {
             "status": "extension-difference",
@@ -768,8 +768,8 @@
         },
         "gfm:639": {
             "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "94a6cec06ef480af3908cefbeddad09df74cf702a5201b6d323b13711620b1c0"
+            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
+            "fingerprint": "9c1d374fc5cb462a885c1a8750ce1ecf4620f033e00b5473971798c0b276d5a0"
         },
         "gfm:640": {
             "status": "known-difference",

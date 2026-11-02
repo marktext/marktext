@@ -54,6 +54,24 @@ are repaired by the projection. Unsupported token kinds fail the suite instead
 of silently falling back to raw text. This is a lexer semantic projection, not a
 test of DOM rendering, sanitization, CSS, selection, or clipboard behavior.
 
+Raw HTML retains its source serialization for syntax comparison, but that alone
+cannot validate the lexer's parsed `tag` and `attrs`. A separate recursive check
+compares those fields against an independent parse5 tokenization of the raw
+token, without DOM tree repairs. Tag names are case-insensitive, and retained
+attributes use HTML-decoded values. Missing, unexpected or changed retained
+attributes (including `href` and `src`) are differences even when the raw HTML
+projection still matches the official example. These differences are reported in
+`htmlFields`, participate in classification and enter the baseline fingerprint.
+
+The editor deliberately drops attributes outside `WHITELIST_ATTRIBUTES`,
+normalizes `width`/`height`, and supplies empty `title`/`src`/`alt` defaults for
+images. Those policies are explicitly recorded in `htmlAttributePolicies`
+(`attribute-whitelist`, `dimension-normalization`, `image-default`) rather than
+being mistaken for parsing errors. Dimension normalization itself is outside this
+comparison. A filtered attribute never exempts a retained attribute on the same
+token from checking. The report's `rawHtml` summary distinguishes examples with
+field differences from examples containing these policies.
+
 Both the projection and official expected HTML pass through parse5's **tokenizer**,
 not its DOM tree builder. The resulting ordered open/close/text/break/comment
 events retain nesting and unmatched tags without browser repair. Attribute order,
@@ -71,9 +89,10 @@ containment. These checks are never allowed to fail through the baseline.
 ## Maintaining the baseline
 
 `baseline.json` records only nonconforming or uncovered examples, with a reason.
-Covered differences also have a fingerprint of the actual and expected semantics
-and adapted source. New differences, changed differences, newly conforming cases,
-and newly covered cases fail the test so they cannot silently change the report.
+Covered differences also have a fingerprint of the actual and expected semantics,
+adapted source and any raw HTML parsed-field differences. New differences,
+changed differences, newly conforming cases, and newly covered cases fail the
+test so they cannot silently change the report.
 Passing cases have no baseline entry. Reason text may be refined without changing
 the comparison contract.
 

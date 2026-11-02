@@ -27,6 +27,11 @@ afterAll(() => {
         versions: { commonmark: baseline.commonmarkVersion, gfm: baseline.gfmVersion },
         profile: 'Live lexer with optional MarkText extensions disabled; always-enabled GFM/emoji behavior is reported separately.',
         scope: 'Official inline sections, including escapes/entities. Unsupported block shapes are uncovered, never passes. No rendering/interaction conformance is implied.',
+        rawHtml: {
+            examplesWithFieldDifferences: results.filter(result => result.htmlFields.length > 0).length,
+            examplesWithAttributePolicies: results.filter(result => result.htmlAttributePolicies.length > 0).length,
+            scope: 'Parsed tags and retained attributes are checked independently of raw HTML syntax. Whitelist exclusions, dimension normalization and empty image defaults are recorded in htmlAttributePolicies, not as spec defects.',
+        },
         summary: summarize(results),
         results: results.map(result => ({
             ...result,
@@ -64,6 +69,7 @@ describe('live inline lexer / official CommonMark and GFM examples', () => {
             JSON.stringify(result.markdown),
             `expected: ${JSON.stringify(result.expected)}`,
             `actual: ${JSON.stringify(result.actual)}`,
+            `raw HTML parsed-field differences: ${JSON.stringify(result.htmlFields)}`,
             'A repaired case must leave the baseline. New/changed differences require review; consult test-results/inline-spec/report.json.',
         ].join('\n');
         if (expectedEntry)

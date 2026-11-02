@@ -1,9 +1,11 @@
 import type { Token } from '../../src/inlineRenderer/types';
 import type { IInlineExample } from './fixtures';
+import type { IHtmlAttributePolicy, IHtmlFieldDifference } from './htmlFields';
 import type { SemanticEvent } from './semantics';
 import { createHash } from 'node:crypto';
 import { generator, tokenizer } from '../../src/inlineRenderer/lexer';
 import { adaptFixture, examples } from './fixtures';
+import { checkRawHtmlFields } from './htmlFields';
 import { htmlSemantics, tokensToHtml } from './semantics';
 
 export type Status = 'conforming' | 'known-difference' | 'extension-difference' | 'version-difference' | 'uncovered';
@@ -14,6 +16,8 @@ export interface IAuditResult extends IInlineExample {
     actual: SemanticEvent[];
     sources: string[];
     invariants: string[];
+    htmlFields: IHtmlFieldDifference[];
+    htmlAttributePolicies: IHtmlAttributePolicy[];
 }
 export interface IBaselineEntry {
     status: Exclude<Status, 'conforming'>;
@@ -83,7 +87,7 @@ function equal(a: SemanticEvent[], b: SemanticEvent[]): boolean {
 
 export function audit(example: IInlineExample): IAuditResult {
     const expected = htmlSemantics(example.html);
-    const result: IAuditResult = { ...example, expected, actual: [], sources: [], invariants: [], status: 'uncovered', reason: '' };
+    const result: IAuditResult = { ...example, expected, actual: [], sources: [], invariants: [], htmlFields: [], htmlAttributePolicies: [], status: 'uncovered', reason: '' };
     const fixture = adaptFixture(example);
     if ('uncovered' in fixture) {
         result.reason = fixture.uncovered;
@@ -103,32 +107,43 @@ export function audit(example: IInlineExample): IAuditResult {
         result.sources.push(source);
         const tokens = tokenizer(source, { hasBeginRules: false, labels: fixture.labels, options });
         result.invariants.push(...sourceInvariants(tokens, source));
+        const fields = checkRawHtmlFields(tokens);
+        result.htmlFields.push(...fields.differences);
+        result.htmlAttributePolicies.push(...fields.policies);
         actualHtml += `<${tag}>${tokensToHtml(tokens, fixture.labels)}</${tag}>`;
         literalHtml += `<${tag}>${tokensToHtml(tokens, fixture.labels, true)}</${tag}>`;
     }
     result.actual = htmlSemantics(actualHtml);
-    if (equal(result.actual, expected)) {
+    const fieldsConform = result.htmlFields.length === 0;
+    if (fieldsConform && equal(result.actual, expected)) {
         result.status = 'conforming';
     }
-    else if (example.suite === 'gfm' && equal(result.actual, currentCommonMark.get(example.markdown) ?? [])) {
+    else if (fieldsConform && example.suite === 'gfm' && equal(result.actual, currentCommonMark.get(example.markdown) ?? [])) {
         result.status = 'version-difference';
         result.reason = 'The same Markdown matches CommonMark 0.31.2; the GFM 0.29-gfm fixture expects older semantics.';
     }
-    else if (equal(htmlSemantics(literalHtml), expected)) {
+    else if (fieldsConform && equal(htmlSemantics(literalHtml), expected)) {
         result.status = 'extension-difference';
         result.reason = 'The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.';
     }
     else {
         result.status = 'known-difference';
-        result.reason = /(?:^|\n) {0,3}\[[^\n]+\]:/.test(example.markdown)
-            ? 'Reference collection/label normalization, nested reference recognition, or reference attributes differ.'
-            : REASONS[example.section];
+        result.reason = !fieldsConform
+            ? 'Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.'
+            : /(?:^|\n) {0,3}\[[^\n]+\]:/.test(example.markdown)
+                ? 'Reference collection/label normalization, nested reference recognition, or reference attributes differ.'
+                : REASONS[example.section];
     }
     return result;
 }
 
 export function fingerprint(result: IAuditResult): string {
-    return createHash('sha256').update(JSON.stringify({ sources: result.sources, expected: result.expected, actual: result.actual })).digest('hex');
+    return createHash('sha256').update(JSON.stringify({
+        sources: result.sources,
+        expected: result.expected,
+        actual: result.actual,
+        ...(result.htmlFields.length ? { htmlFields: result.htmlFields } : {}),
+    })).digest('hex');
 }
 
 export function baselineEntry(result: IAuditResult): IBaselineEntry | undefined {
