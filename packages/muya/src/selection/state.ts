@@ -4,6 +4,17 @@ import type { Muya } from '../muya';
 import type { IAnchorFocusInfo, ISelectionEndpoint, ITextSelectionState, TSelectionState } from './types';
 import { SelectionType } from './types';
 
+export function comparePaths(a: readonly (string | number)[], b: readonly (string | number)[]): number {
+    for (let i = 0; i < Math.min(a.length, b.length); i++) {
+        if (a[i] === b[i])
+            continue;
+        return typeof a[i] === 'number' && typeof b[i] === 'number'
+            ? Number(a[i]) - Number(b[i])
+            : String(a[i]).localeCompare(String(b[i]));
+    }
+    return a.length - b.length;
+}
+
 export function contentPath(block: Content): TBlockPath {
     return block.blockName === 'language-input'
         ? [...block.parent!.path, 'meta', 'lang']

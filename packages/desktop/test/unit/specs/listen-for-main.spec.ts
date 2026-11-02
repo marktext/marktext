@@ -13,6 +13,7 @@ vi.hoisted(() => {
 
 import { useListenForMainStore } from '@/store/listenForMain'
 import { useLayoutStore } from '@/store/layout'
+import bus from '@/bus'
 
 // `EDITOR_EDIT_ACTION('findInFolder')` routes through `layoutStore.SET_LAYOUT`,
 // which (because `showSideBar` is defined) reads `window.marktext.env`,
@@ -42,6 +43,32 @@ describe('listenForMain store EDITOR_EDIT_ACTION', () => {
     delete win.electron
     delete win.marktext
     vi.clearAllMocks()
+  })
+
+  it('registers edit commands once across repeated setup and cleans up both sources', () => {
+    const listeners = new Set<(event: unknown, type: string) => void>()
+    const ipc = win.electron?.ipcRenderer
+    if (!ipc) throw new Error('Missing IPC mock')
+    ipc.on.mockImplementation((_channel, listener) => {
+      listeners.add(listener)
+      return () => listeners.delete(listener)
+    })
+    const store = useListenForMainStore()
+    const findNext = vi.fn()
+    bus.on('findNext', findNext)
+    const stopFirst = store.LISTEN_FOR_EDIT()
+    const stopSecond = store.LISTEN_FOR_EDIT()
+    stopFirst()
+    expect(listeners.size).toBe(1)
+    for (const listener of listeners) listener({}, 'findNext')
+    expect(findNext).toHaveBeenCalledTimes(1)
+    bus.emit('mt::editor-edit-action', 'findNext')
+    expect(findNext).toHaveBeenCalledTimes(2)
+    stopSecond()
+    expect(listeners.size).toBe(0)
+    bus.emit('mt::editor-edit-action', 'findNext')
+    expect(findNext).toHaveBeenCalledTimes(2)
+    bus.off('findNext', findNext)
   })
 
   it("opens the search side panel for 'findInFolder'", () => {

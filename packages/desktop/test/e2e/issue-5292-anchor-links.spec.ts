@@ -7,6 +7,7 @@ import {
   expectNoRendererErrors,
   launchElectron,
   launchWithMarkdown,
+  sendIpcToRenderer,
   waitForEditor,
   waitForMenuReady
 } from './helpers'
@@ -101,6 +102,32 @@ test.describe('Anchor links (#5292)', () => {
 
     await expect.poll(() => activeTabName(page), { timeout: 8000 }).toContain('other.md')
     await expectHeadingRevealed(page, 'English Section')
+    await expectNoRendererErrors(app)
+  })
+
+  test('Find can supersede an in-flight anchor reveal without scrolling back', async() => {
+    const launched = await launchWithMarkdown(
+      `[jump](#destination)\n\nneedle\n\n${filler}\n\n## Destination\n\nThe destination paragraph.\n`,
+      { suppressErrorDialog: true }
+    )
+    app = launched.app
+    const { page } = launched
+    await page.waitForSelector('span.mu-link', { state: 'attached' })
+    expect(await modifierClickLink(page, '[jump](#destination)')).toBe(true)
+    await sendIpcToRenderer(app, 'mt::editor-edit-action', 'find')
+    const input = page.locator('.search-bar .search input')
+    await expect(input).toBeFocused()
+    await input.fill('needle')
+    await expect(page.locator('.search-bar .search-result')).toContainText('1 / 1')
+    await page.waitForTimeout(800)
+    const visible = await page.locator('.mu-highlight').evaluate(highlight => {
+      const container = document.querySelector('.editor-component')
+      if (!container) return false
+      const match = highlight.getBoundingClientRect()
+      const viewport = container.getBoundingClientRect()
+      return match.top >= viewport.top && match.bottom <= viewport.bottom
+    })
+    expect(visible).toBe(true)
     await expectNoRendererErrors(app)
   })
 

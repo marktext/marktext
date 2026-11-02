@@ -353,6 +353,10 @@ export class Muya {
         return this.editor.searchModule.find(action);
     }
 
+    setSearchVisible(visible: boolean) {
+        return this.editor.searchModule.setVisible(visible);
+    }
+
     replace(replaceValue: string, opt: IReplaceOption = { isSingle: true, isRegexp: false }) {
         if (!this.canMutate)
             return;

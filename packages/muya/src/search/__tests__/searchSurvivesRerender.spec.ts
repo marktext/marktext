@@ -72,7 +72,7 @@ describe('search highlight survives a full re-render (#5651)', () => {
     it('keeps the active match index across the re-render', () => {
         const muya = bootMuya('line one\n\nline two\n\nline three\n');
         const search = muya.editor.searchModule;
-        search.search('line');
+        search.search('line', { selectHighlight: true });
         search.find('next');
         expect(search.index).toBe(1);
 
@@ -132,7 +132,7 @@ describe('search refresh after a parse-affecting toggle', () => {
     it('clamps an active index the new parse no longer has', () => {
         const muya = bootMuya('>>>\nquote\n>>>\n\nplain >>> here\n');
         const search = muya.editor.searchModule;
-        search.search('>>>');
+        search.search('>>>', { selectHighlight: true });
         expect(search.matches.length).toBe(3);
         search.find('next');
         search.find('next');

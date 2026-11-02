@@ -4,6 +4,7 @@ import { useEditorStore } from './editor'
 import { useLayoutStore } from './layout'
 
 export const useListenForMainStore = defineStore('listenForMain', () => {
+  let stopEditListener: (() => void) | undefined
   function EDITOR_EDIT_ACTION(type: string): void {
     if (
       useEditorStore().currentFile?.readOnly &&
@@ -20,13 +21,21 @@ export const useListenForMainStore = defineStore('listenForMain', () => {
     bus.emit(type, type)
   }
 
-  function LISTEN_FOR_EDIT(): void {
-    window.electron.ipcRenderer.on('mt::editor-edit-action', (_e, type) => {
+  function LISTEN_FOR_EDIT(): () => void {
+    // App remounts during HMR must not multiply commands from one IPC event.
+    stopEditListener?.()
+    const stopIpc = window.electron.ipcRenderer.on('mt::editor-edit-action', (_e, type) => {
       EDITOR_EDIT_ACTION(type as string)
     })
-    bus.on('mt::editor-edit-action', (type: unknown) => {
-      EDITOR_EDIT_ACTION(type as string)
-    })
+    const onEditAction = (type: unknown) => EDITOR_EDIT_ACTION(type as string)
+    bus.on('mt::editor-edit-action', onEditAction)
+    const stop = () => {
+      stopIpc()
+      bus.off('mt::editor-edit-action', onEditAction)
+      if (stopEditListener === stop) stopEditListener = undefined
+    }
+    stopEditListener = stop
+    return stop
   }
 
   function LISTEN_FOR_SHOW_DIALOG(): void {

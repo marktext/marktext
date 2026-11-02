@@ -20,6 +20,7 @@ import { getCursorCoords, getCursorYOffset, getSelectionStart } from './cursorCo
 import { getOffsetOfParagraph } from './dom';
 import ImageSelection from './ImageSelection';
 import {
+    comparePaths,
     contentPath,
     copySelectionState,
     createTextSelectionState,
@@ -31,17 +32,6 @@ import {
 import TableRectSelection from './TableRectSelection';
 import TextSelection from './TextSelection';
 import { SelectionDirection, SelectionType } from './types';
-
-function comparePaths(a: readonly (string | number)[], b: readonly (string | number)[]): number {
-    for (let i = 0; i < Math.min(a.length, b.length); i++) {
-        if (a[i] === b[i])
-            continue;
-        return typeof a[i] === 'number' && typeof b[i] === 'number'
-            ? Number(a[i]) - Number(b[i])
-            : String(a[i]).localeCompare(String(b[i]));
-    }
-    return a.length - b.length;
-}
 
 class Selection {
     static getCursorYOffset = getCursorYOffset;
@@ -107,6 +97,11 @@ class Selection {
     }
 
     private _readNative(): IResolvedTextSelection | null {
+        const focused = this._muya.domNode.ownerDocument.activeElement;
+        const inputFocused = focused?.tagName === 'INPUT' || focused?.tagName === 'TEXTAREA';
+        // Switching external inputs can collapse the DOM range without moving the editor selection.
+        if (!this._muya.isReadOnly && inputFocused && !this._muya.domNode.contains(focused))
+            return null;
         const live = this._text.getSelection();
         if (!live)
             return null;
