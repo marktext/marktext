@@ -137,6 +137,10 @@ export default function htmlTag(
         ? this.highlight(h, block, end - closeTag.length, end, token)
         : '';
 
+    if ((token.kind && token.kind !== 'tag') || /^(?:title|textarea|style|xmp|iframe|noembed|noframes|script|plaintext)$/i.test(tag)) {
+        return [h(`span.${CLASS_NAMES.MU_HTML_TAG}`, this.highlight(h, block, start, end, token))];
+    }
+
     const anchor = renderHtmlTagChildren(this, h, cursor, block, token);
 
     switch (tag) {
@@ -148,6 +152,7 @@ export default function htmlTag(
                 token: {
                     ...token,
                     tag,
+                    kind: 'tag',
                 },
                 outerClass,
             });

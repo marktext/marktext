@@ -7,7 +7,6 @@ import type { ImageToken, LinkToken, Token } from '../types';
 // @ts-expect-error commonmark-spec is plain CommonJS w/o types
 import cms from 'commonmark-spec';
 import { describe, expect, it } from 'vitest';
-import escapeCharactersMap from '../../config/escapeCharacter';
 import { tokenizer } from '../lexer';
 
 // The live editor tokenizes inline markdown with muya's own lexer, not with
@@ -35,10 +34,6 @@ const OPTIONS = {
 // passing fails the suite, so compliance can only go up. None of these are
 // destination bugs — they are pre-existing gaps in neighboring inline rules.
 const EXPECTED_FAILURES = new Map<number, string>([
-    [493, 'html_tag: `<foo\\>` is not a valid tag, but `html_tag` accepts any `[^\\n<>]*` attribute run'],
-    [494, 'html_tag: `<b)c>` is not a valid tag, but `html_tag` accepts any `[^\\n<>]*` attribute run'],
-    [503, 'entity references in a destination are not decoded — the marked-based export path has the same gap'],
-    [506, 'entity references in a title are not decoded — same gap as #503'],
     [510, 'no inline rule matches across a line ending, so a destination cannot span one'],
     [513, 'link text: the anchor group swallows an unmatched `]`'],
     [515, 'link text: a backslash-escaped `[` still opens the anchor group'],
@@ -114,7 +109,7 @@ function renderTokens(tokens: Token[]): string {
                 break;
 
             case 'html_escape':
-                html += escapeHtml(escapeCharactersMap[token.escapeCharacter] ?? token.raw);
+                html += escapeHtml(token.content);
                 break;
 
             case 'soft_line_break':

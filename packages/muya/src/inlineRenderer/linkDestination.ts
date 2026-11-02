@@ -5,11 +5,7 @@
 // parser that ignores the grammar gets `[link](/my uri)` and
 // `[link](</my uri>)` exactly backwards (marktext#2377).
 
-// The characters a backslash may escape: CommonMark only recognizes an escape
-// before ASCII punctuation, so `my\ file` keeps its backslash *and* still ends
-// at the space. The backslash itself is in the set, which is what makes `\\`
-// one escaped backslash rather than an escape of whatever follows it.
-const ASCII_PUNCTUATION_REG = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/;
+import { ASCII_PUNCTUATION, decodeMarkdownString } from '../utils/markdownEscape';
 
 const TITLE_CLOSERS: Record<string, string> = {
     '"': '"',
@@ -29,7 +25,7 @@ export interface ILinkTail {
 }
 
 function isEscape(text: string, index: number) {
-    return text[index] === '\\' && ASCII_PUNCTUATION_REG.test(text[index + 1] ?? '');
+    return text[index] === '\\' && ASCII_PUNCTUATION.test(text[index + 1] ?? '');
 }
 
 function isControlOrSpace(char: string) {
@@ -44,21 +40,6 @@ function skipSpaces(text: string, index: number) {
         i++;
 
     return i;
-}
-
-// Drops the backslash of every escape the scan above recognized. Sharing
-// `isEscape` rather than spelling the punctuation set a second time keeps the
-// two from drifting apart.
-function unescapePunctuation(text: string) {
-    let unescaped = '';
-
-    for (let i = 0; i < text.length; i++) {
-        if (isEscape(text, i))
-            i++;
-        unescaped += text[i];
-    }
-
-    return unescaped;
 }
 
 /**
@@ -137,7 +118,7 @@ function findTitleEnd(text: string, start: number) {
 
 /**
  * Read the destination and title out of the text a link's or image's `](`
- * opens, with their backslash escapes resolved, or null when it is not a
+ * opens, with their backslash escapes and character references resolved, or null when it is not a
  * well-formed pair — in which case the whole `[...](...)` run is literal text.
  *
  * The text may run past the link, because the pattern that produced it matches
@@ -190,8 +171,8 @@ export function parseSrcAndTitle(text = ''): ILinkTail | null {
         return null;
 
     return {
-        src: unescapePunctuation(src),
-        title: unescapePunctuation(title),
+        src: decodeMarkdownString(src),
+        title: decodeMarkdownString(title),
         length: index,
     };
 }

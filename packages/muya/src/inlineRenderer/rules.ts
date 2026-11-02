@@ -1,4 +1,5 @@
-import { escapeCharacters } from '../config/escapeCharacter';
+import { ASCII_PUNCTUATION, CHARACTER_REFERENCE } from '../utils/markdownEscape';
+import { rawHtmlToken } from './rawHtml';
 
 export const beginRules = {
     hr: /^(\*{3,}|-{3,}|_{3,})$/,
@@ -40,16 +41,12 @@ export const commonMarkRules = {
     reference_link: /^\[((?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking
     reference_image: /^!\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
-    // Consume multiline tags before considering hard breaks in their attributes (§6.7).
-    html_tag:
-    // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation
-    /^(<!--[\s\S]*?-->|(<([a-z][a-z\d-]*)[^<>]*>)(?:([\s\S]*?)(<\/\3 *>))?)/i,
-    html_escape: new RegExp(`^(${escapeCharacters.join('|')})`, 'i'),
+    html_tag: rawHtmlToken,
+    html_escape: new RegExp(`^${CHARACTER_REFERENCE.source}`, 'i'),
     soft_line_break: /^(\n)(?!\n)/,
     hard_line_break: /^( {2,}|\\)(\n)(?!\n)( *)/,
 
-    // patched math marker `$`
-    backlash: /^(\\)([\\`*{}[\]()#+\-.!_>~:|<$])/,
+    backlash: new RegExp(`^(\\\\)(${ASCII_PUNCTUATION.source})`),
 };
 
 export type CommonMarkRules = typeof commonMarkRules;
@@ -163,25 +160,6 @@ export const emojiValidateRules: EmojiValidateRules = (Object.keys(inlineRules) 
         };
     }
 }, {} as EmojiValidateRules);
-
-// Only code spans, raw HTML tokens and angle-bracket autolinks can consume a
-// link-text bracket (CommonMark §6.3). Bare autolinks and the greedy link
-// destination rule must not veto the link (#4671).
-// CommonMark §6.6 makes each raw HTML token atomic, not the paired elements
-// grouped by the renderer's html_tag rule; a closing tag may be in a link's URL.
-const htmlSpace = /[ \t]*(?:(?:\r\n?|\n)[ \t]*)?/.source;
-const htmlTagName = /[A-Za-z][A-Za-z\d-]*/.source;
-const htmlAttributeName = /[A-Za-z_:][\w.:-]*/.source;
-const htmlAttributeValue = /(?:"[^"]*"|'[^']*'|[^ \t\r\n"'=<>`]+)/.source;
-const htmlAttribute = `(?=[ \\t\\r\\n])${htmlSpace}${htmlAttributeName}(?:${htmlSpace}=${htmlSpace}${htmlAttributeValue})?`;
-const rawHtmlToken = new RegExp(`^(?:${[
-    `<${htmlTagName}(?:${htmlAttribute})*${htmlSpace}/?>`,
-    `</${htmlTagName}${htmlSpace}>`,
-    /<!--(?:>|->|[\s\S]*?-->)/.source,
-    /<\?[\s\S]*?\?>/.source,
-    /<![A-Za-z][^>]*>/.source,
-    /<!\[CDATA\[[\s\S]*?\]\]>/.source,
-].join('|')})`);
 
 export const linkValidateRules: Pick<InlineRules, 'html_tag' | 'auto_link'> = {
     html_tag: rawHtmlToken,

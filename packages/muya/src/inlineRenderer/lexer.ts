@@ -8,12 +8,13 @@ import type {
     Labels,
     Token,
 } from './types';
-import escapeCharactersMap from '../config/escapeCharacter';
 import { escapeHTML, isLengthEven } from '../utils';
 import { validEmoji } from '../utils/emoji';
+import { decodeCharacterReference } from '../utils/markdownEscape';
 import { codeSpanContent, CodeSpanScanner } from './codeSpan';
 import { scanDelimiterSpans } from './delimiters';
 import { parseSrcAndTitle } from './linkDestination';
+import { matchHtmlTag } from './rawHtml';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
 import { applySearchHighlights } from './searchHighlights';
 import {
@@ -23,11 +24,6 @@ import {
     matchExtendedAutoLink,
     matchReference,
 } from './utils';
-
-// const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'a_link', 'reference_link', 'html_tag']
-// disallowed html tags in https://github.github.com/gfm/#raw-html
-const disallowedHtmlTag
-    = /title|textarea|style|xmp|iframe|noembed|noframes|script|plaintext/i;
 
 // Mutable cursor + accumulator threaded through every inline-rule handler.
 // `src`/`pos` advance as input is consumed; `pending`/`pendingStartPos`
@@ -570,17 +566,23 @@ function tryReferenceImage(state: ILexState): boolean {
     return true;
 }
 
-function tryHtmlEscape(state: ILexState): boolean {
-    const htmlEscapeTo = state.inlineRules.html_escape.exec(state.src);
-    if (!htmlEscapeTo)
-        return false;
+function matchHtmlEscape(src: string, pattern: RegExp): { raw: string; content: string } | null {
+    const match = src[0] === '&' ? pattern.exec(src) : null;
+    if (!match)
+        return null;
+    const raw = match[0];
+    const content = decodeCharacterReference(raw);
+    return content === raw ? null : { raw, content };
+}
 
-    const len = htmlEscapeTo[0].length;
+function consumeHtmlEscape(state: ILexState, raw: string, content: string): void {
+    const len = raw.length;
     pushPending(state);
     state.tokens.push({
         type: 'html_escape',
-        raw: htmlEscapeTo[0],
-        escapeCharacter: htmlEscapeTo[1],
+        raw,
+        escapeCharacter: raw,
+        content,
         parent: state.tokens,
         range: {
             start: state.pos,
@@ -589,8 +591,6 @@ function tryHtmlEscape(state: ILexState): boolean {
     });
     state.src = state.src.substring(len);
     state.pos = state.pos + len;
-
-    return true;
 }
 
 function tryAutoLinkExtension(state: ILexState): boolean {
@@ -650,75 +650,20 @@ function tryAutoLink(state: ILexState): boolean {
     return true;
 }
 
-// html-tag
-function tryHtmlTag(state: ILexState): boolean {
-    const htmlTo = state.inlineRules.html_tag.exec(state.src);
-    let attrs;
-    // handle comment
-    if (htmlTo && htmlTo[1] && !htmlTo[3]) {
-        const len = htmlTo[0].length;
-        pushPending(state);
-        state.tokens.push({
-            type: 'html_tag',
-            raw: htmlTo[0],
-            tag: '<!---->',
-            openTag: htmlTo[1],
-            parent: state.tokens,
-            attrs: {},
-            range: {
-                start: state.pos,
-                end: state.pos + len,
-            },
-        });
-        state.src = state.src.substring(len);
-        state.pos = state.pos + len;
-
-        return true;
-    }
-
-    if (
-        htmlTo
-        && !disallowedHtmlTag.test(htmlTo[3])
-        // eslint-disable-next-line no-cond-assign
-        && (attrs = getAttributes(htmlTo[0]))
-    ) {
-        const tag = htmlTo[3];
-        const html = htmlTo[0];
-        const len = htmlTo[0].length;
-
-        pushPending(state);
-        state.tokens.push({
-            type: 'html_tag',
-            raw: html,
-            tag,
-            openTag: htmlTo[2],
-            closeTag: htmlTo[5],
-            parent: state.tokens,
-            attrs,
-            content: htmlTo[4],
-            children: htmlTo[4]
-                ? tokenizerFac(
-                        htmlTo[4],
-                        null,
-                        state.inlineRules,
-                        state.pos + htmlTo[2].length,
-                        false,
-                        state.labels,
-                        state.options,
-                    )
-                : [],
-            range: {
-                start: state.pos,
-                end: state.pos + len,
-            },
-        });
-        state.src = state.src.substring(len);
-        state.pos = state.pos + len;
-
-        return true;
-    }
-
-    return false;
+function consumeHtmlTag(state: ILexState, html: NonNullable<ReturnType<typeof matchHtmlTag>>): void {
+    pushPending(state);
+    state.tokens.push({
+        type: 'html_tag',
+        ...html,
+        parent: state.tokens,
+        attrs: html.kind === 'tag' ? getAttributes(html.openTag) : {},
+        children: html.content
+            ? tokenizerFac(html.content, null, state.inlineRules, state.pos + html.openTag.length, false, state.labels, state.options)
+            : [],
+        range: { start: state.pos, end: state.pos + html.raw.length },
+    });
+    state.src = state.src.substring(html.raw.length);
+    state.pos += html.raw.length;
 }
 
 function trySoftLineBreak(state: ILexState): boolean {
@@ -807,10 +752,8 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryLink,
     tryReferenceLink,
     tryReferenceImage,
-    tryHtmlEscape,
     tryAutoLinkExtension,
     tryAutoLink,
-    tryHtmlTag,
     trySoftLineBreak,
     tryTailHeader,
 ];
@@ -883,6 +826,12 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
             continue;
         }
 
+        const reference = matchHtmlEscape(state.src, state.inlineRules.html_escape);
+        if (reference) {
+            consumeHtmlEscape(state, reference.raw, reference.content);
+            continue;
+        }
+
         let consumed = false;
         for (const handler of INLINE_HANDLERS) {
             if (handler(state)) {
@@ -892,6 +841,12 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         }
         if (consumed)
             continue;
+
+        const html = state.src[0] === '<' ? matchHtmlTag(state.originSrc, state.pos - state.basePos, state.codeSpans) : null;
+        if (html) {
+            consumeHtmlTag(state, html);
+            continue;
+        }
 
         const hardBreak = state.inlineRules.hard_line_break.exec(state.src);
         if (hardBreak) {
@@ -1000,7 +955,7 @@ function leafTokenToPlainText(token: Token): string {
             return token.raw.replace(/^\\/, '');
 
         case 'html_escape':
-            return escapeCharactersMap[token.escapeCharacter] ?? token.raw;
+            return token.content;
 
         case 'auto_link':
             // `<http://x>` / `<foo@bar.com>` show verbatim between the

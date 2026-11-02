@@ -1,5 +1,6 @@
 import type { ICodeSpanMatch } from './codeSpan';
 import type { Labels, Rules } from './types';
+import { decodeHTMLAttribute } from 'entities';
 import { isLengthEven } from '../utils';
 import { CodeSpanScanner } from './codeSpan';
 import { parseSrcAndTitle } from './linkDestination';
@@ -149,31 +150,21 @@ export function lowerPriority(src: string, offset: number, rules: Rules, start =
     return true;
 }
 
-export function getAttributes(html: string) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const target = doc.querySelector('body')?.firstElementChild;
-    if (!target)
-        return null;
-    const attrs: Record<string, string | null> = {};
-    if (target.tagName === 'IMG') {
-        Object.assign(attrs, {
-            title: '',
-            src: '',
-            alt: '',
-        });
-    }
-
-    for (const attr of target.getAttributeNames()) {
-        if (!WHITELIST_ATTRIBUTES.includes(attr))
+export function getAttributes(html: string): Record<string, string> {
+    const name = /^<([A-Z][A-Z\d-]*)/i.exec(html)!;
+    const attrs: Record<string, string> = name[1].toLowerCase() === 'img' ? { title: '', src: '', alt: '' } : {};
+    // Parse the already validated opener without a DOM tree builder dropping table/head tags.
+    const attributes = /[ \t\r\n]+([A-Z_:][\w.:-]*)(?:[ \t\r\n]*=[ \t\r\n]*(?:"([^"]*)"|'([^']*)'|([^ \t\r\n"'=<>`]+)))?/gi;
+    const seen = new Set<string>();
+    attributes.lastIndex = name[0].length;
+    for (const match of html.matchAll(attributes)) {
+        const attribute = match[1].toLowerCase();
+        if (!WHITELIST_ATTRIBUTES.includes(attribute) || seen.has(attribute))
             continue;
-        const attribute = target.getAttribute(attr);
-        if (/width|height/.test(attr) && attribute)
-            attrs[attr] = validWidthAndHeight(attribute);
-        else
-            attrs[attr] = attribute;
+        seen.add(attribute);
+        const value = decodeHTMLAttribute(match[2] ?? match[3] ?? match[4] ?? '');
+        attrs[attribute] = attribute === 'width' || attribute === 'height' ? validWidthAndHeight(value) : value;
     }
-
     return attrs;
 }
 

@@ -2,7 +2,6 @@ import type { Token as HtmlToken } from 'parse5';
 import type { Labels, ReferenceImageToken, ReferenceLinkToken, Token } from '../../src/inlineRenderer/types';
 import { escapeAttribute, escapeText } from 'entities';
 import { Tokenizer } from 'parse5';
-import escapeCharactersMap from '../../src/config/escapeCharacter';
 
 export type SemanticEvent
     = | { type: 'open'; tag: string; attrs: Array<[string, string]>; selfClosing?: true }
@@ -130,7 +129,7 @@ function leafHtml(token: Token, literalExtensions: boolean): string | undefined 
         case 'backlash':
             return escapeText(token.raw.slice(token.marker.length));
         case 'html_escape':
-            return escapeText(escapeCharactersMap[token.escapeCharacter] ?? token.raw);
+            return escapeText(token.content);
         case 'inline_code':
             return `<code>${escapeText(token.content)}</code>`;
         case 'soft_line_break':

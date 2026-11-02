@@ -4,15 +4,15 @@ import { tokenizer } from '../inlineRenderer/lexer';
 import { findContentDOM, getOffsetOfParagraph } from '../selection/dom';
 import { ABSOLUTE_LOCAL_REG, encodeDirnameForUrl, localPathToFileUrl, resolveRelativePath } from './fileUrl';
 
-export type TSelectableImageToken = ImageToken | (HTMLTagToken & { tag: 'img' });
+export type TSelectableImageToken = ImageToken | (HTMLTagToken & { tag: 'img'; kind?: 'tag' });
 
 export interface IImageInfo {
     token: TSelectableImageToken;
     imageId: string;
 }
 
-function isImageToken(token: Token | undefined): token is TSelectableImageToken {
-    return token?.type === 'image' || (token?.type === 'html_tag' && token.tag === 'img');
+export function isImageToken(token: Token | undefined): token is TSelectableImageToken {
+    return token?.type === 'image' || (token?.type === 'html_tag' && token.tag === 'img' && token.kind === 'tag');
 }
 
 export function getImageInfo(image: HTMLElement): IImageInfo {

@@ -1,0 +1,82 @@
+// @vitest-environment happy-dom
+
+import { describe, expect, it } from 'vitest';
+import { generator, tokenizer } from '../lexer';
+
+describe('commonMark raw HTML grammar (#5980)', () => {
+    it.each([
+        '<a h*#ref="hi">',
+        '<a href=\'bar\'title=title>',
+        '<a href="hi\'> <a href=hi\'>',
+        '< a>',
+        '<bar/ >',
+        '<foo bar=baz\nbim!bop />',
+        '<a\n\nhref="x">',
+        '<a href="\\"">',
+    ])('leaves invalid syntax literal: %j', (source) => {
+        const tokens = tokenizer(source, { hasBeginRules: false });
+        expect(tokens.some(token => token.type === 'html_tag')).toBe(false);
+        expect(generator(tokens)).toBe(source);
+    });
+
+    it('keeps angle brackets inside quoted attributes atomic', () => {
+        const source = '<a foo="bar" bam = \'baz <em>"</em>\'\n_boolean zoop:33=zoop:33 />';
+        const tokens = tokenizer(source, { hasBeginRules: false });
+        expect(tokens).toHaveLength(1);
+        expect(tokens[0]).toMatchObject({ type: 'html_tag', openTag: source, content: undefined, children: [] });
+        expect(generator(tokens)).toBe(source);
+    });
+
+    it.each([
+        ['</a>', 'closing-tag'],
+        ['</foo \n>', 'closing-tag'],
+        ['<!-->', 'comment'],
+        ['<!--->', 'comment'],
+        ['<!-- a\n>b -->', 'comment'],
+        ['<?php echo $a; ?>', 'processing-instruction'],
+        ['<!ELEMENT br EMPTY>', 'declaration'],
+        ['<![CDATA[>&<]]>', 'cdata'],
+    ])('recognizes %j independently of display policy', (source, kind) => {
+        const tokens = tokenizer(source, { hasBeginRules: false });
+        expect(tokens).toHaveLength(1);
+        expect(tokens[0]).toMatchObject({ type: 'html_tag', kind, raw: source, range: { start: 0, end: source.length } });
+        expect(generator(tokens)).toBe(source);
+    });
+
+    it('parses attributes without DOM tree repair, using HTML rather than Markdown escapes', () => {
+        const tokens = tokenizer('<TD TITLE="&quot;\\* &Dcaron;" title="ignored" width="012" onclick="noop()">x</TD>', { hasBeginRules: false });
+        expect(tokens[0]).toMatchObject({ tag: 'td', attrs: { title: '"\\* Ď', width: '12' }, content: 'x' });
+        if (tokens[0].type !== 'html_tag')
+            throw new Error('Expected raw HTML');
+        expect(tokens[0].attrs).not.toHaveProperty('onclick');
+    });
+
+    it('preserves image defaults and first-attribute precedence', () => {
+        expect(tokenizer('<img src="one" src="two">', { hasBeginRules: false })[0])
+            .toMatchObject({ tag: 'img', attrs: { src: 'one', title: '', alt: '' } });
+    });
+
+    it.each([
+        '<span><span>x</span>y</span>',
+        '<span title="</span>">x</span>',
+        '<span>`</span>`x</span>',
+        '<span><!-- </span> -->x</span>',
+    ])('pairs display wrappers outside protected syntax: %j', (source) => {
+        const tokens = tokenizer(source, { hasBeginRules: false });
+        expect(tokens).toHaveLength(1);
+        expect(tokens[0]).toMatchObject({ type: 'html_tag', raw: source, closeTag: '</span>' });
+        expect(generator(tokens, true)).toBe(source);
+    });
+
+    it('shares code-span offsets across sibling and nested HTML wrappers', () => {
+        const source = 'prefix `before` <span>`</span>`x</span> <b><i>`</i>`y</i></b> suffix';
+        const tokens = tokenizer(source, { hasBeginRules: false });
+        const wrappers = tokens.filter(token => token.type === 'html_tag');
+        expect(wrappers.map(token => token.raw)).toEqual(['<span>`</span>`x</span>', '<b><i>`</i>`y</i></b>']);
+        expect(generator(tokens, true)).toBe(source);
+        for (const wrapper of wrappers) {
+            expect(source.slice(wrapper.range.start, wrapper.range.end)).toBe(wrapper.raw);
+            expect(wrapper.children?.[0]).toMatchObject({ range: { start: wrapper.range.start + wrapper.openTag.length } });
+        }
+    });
+});

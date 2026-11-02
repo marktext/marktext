@@ -3,7 +3,7 @@ import type Clipboard from './index';
 import { tokenizer } from '../inlineRenderer/lexer';
 import { SelectionType } from '../selection/types';
 import { escapeHTML, getUniqueId } from '../utils';
-import { encodeImageSrc, getImageSrc } from '../utils/image';
+import { encodeImageSrc, getImageSrc, isImageToken } from '../utils/image';
 
 export interface IClipboardImage {
     version: 1;
@@ -24,7 +24,7 @@ function imageToken(markdown: string): TSelectableImageToken | null {
     const token = tokens[0];
     if (tokens.length !== 1 || token?.raw !== markdown)
         return null;
-    return token.type === 'image' || (token.type === 'html_tag' && token.tag === 'img') ? token as TSelectableImageToken : null;
+    return isImageToken(token) ? token : null;
 }
 
 export function imageClipboardData(clipboard: Clipboard): IClipboardImageCopy | null {

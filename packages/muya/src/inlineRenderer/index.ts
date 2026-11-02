@@ -6,6 +6,7 @@ import type { IParagraphState, TState } from '../state/types';
 import type { IHighlight, Labels } from './types';
 import { prepareReadingLinks } from '../editor/readOnly';
 import logger from '../utils/logger';
+import { decodeMarkdownString } from '../utils/markdownEscape';
 import { tokenizer } from './lexer';
 import Renderer from './renderer';
 import { beginRules } from './rules';
@@ -114,8 +115,8 @@ class InlineRenderer {
         if (tokens) {
             label = (tokens[2] + tokens[3]).toLowerCase();
             info = {
-                href: tokens[6],
-                title: tokens[10] || '',
+                href: decodeMarkdownString(tokens[6]),
+                title: decodeMarkdownString(tokens[10] || ''),
             };
         }
 

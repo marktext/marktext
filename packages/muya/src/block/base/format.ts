@@ -34,7 +34,7 @@ import { SelectionType } from '../../selection/types';
 import { isListItemState } from '../../state/types';
 import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isKeyboardEvent, isMouseEvent, lastGraphemeLength } from '../../utils';
 import { COLOR_SPAN_CLOSE_TAG, colorPropertyOf, colorSpanOpenTag, isColorStyleEmpty, parseColorStyle } from '../../utils/colorSpan';
-import { correctImageSrc, encodeImageSrc, getImageInfo } from '../../utils/image';
+import { correctImageSrc, encodeImageSrc, getImageInfo, isImageToken } from '../../utils/image';
 import { minSpacesAfterMarker, parseListMarker, toListDelimiter } from '../../utils/listMarker';
 import logger from '../../utils/logger';
 
@@ -1504,10 +1504,7 @@ class Format extends Content {
             // An inline image followed by other content: the caret lands on the
             // next node at the image's end offset. Select the whole image so the
             // next Backspace deletes it as a unit (matching muyajs interaction).
-            const isImageToken
-                = token.type === 'image'
-                    || (token.type === 'html_tag' && token.tag === 'img');
-            if (token.range.end === offset && isImageToken)
+            if (token.range.end === offset && isImageToken(token))
                 return { needRender: false, imageToken: token, referenceImageToken: null, offsetDelta: 0 };
 
             // A reference image (`![alt][ref]`) is editable marked text, so it has
