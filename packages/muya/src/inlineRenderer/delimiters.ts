@@ -153,7 +153,7 @@ export function scanDelimiterSpans(
         allowAutolinks,
         scanAutolinks:
             allowAutolinks
-            && (src.includes('www.') || src.includes('http') || src.includes('@')),
+            && (src.includes('www.') || src.includes('http') || src.includes('ftp://') || src.includes('@')),
     });
     return pairDelimiters(runs, offset);
 }

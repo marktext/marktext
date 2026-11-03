@@ -13,10 +13,6 @@ import { scanDelimiterSpans } from '../delimiters';
 import { tokenizer } from '../lexer';
 import { inlineRules } from '../rules';
 
-const EXPECTED_FAILURES = new Map<number, string>([
-    [354, 'PUNCTUATION_REG predates CommonMark 0.30 Unicode-symbol punctuation'],
-]);
-
 const OPTIONS = {
     superSubScript: false,
     footnote: false,
@@ -107,17 +103,7 @@ describe('inline lexer — CommonMark 0.31 emphasis and strong emphasis', () => 
 
     it.each(examples)('CM 0.31 §$section #$number', (example) => {
         const expected = example.html.replace(/^<p>/, '').replace(/<\/p>\n$/, '');
-        const actual = renderInline(example.markdown);
-        const knownGap = EXPECTED_FAILURES.get(example.number);
-
-        if (knownGap) {
-            expect(
-                actual,
-                `#${example.number} now passes — drop it from EXPECTED_FAILURES (${knownGap})`,
-            ).not.toBe(expected);
-            return;
-        }
-
+        const actual = example.markdown.replace(/\n$/, '').split('\n\n').map(paragraph => renderInline(paragraph)).join('</p>\n<p>');
         expect(actual, JSON.stringify(example.markdown)).toBe(expected);
     });
 });

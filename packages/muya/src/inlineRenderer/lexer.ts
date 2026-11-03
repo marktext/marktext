@@ -74,11 +74,16 @@ interface ILexState {
 
 function pushPending(state: ILexState) {
     if (state.pending) {
+        let contentEnd = state.pending.length;
+        if (state.top && state.src.length === 0) {
+            while (contentEnd > 0 && /[ \t]/.test(state.pending[contentEnd - 1]))
+                contentEnd--;
+        }
         state.tokens.push({
             type: 'text',
             parent: state.tokens,
             raw: state.pending,
-            content: state.pending,
+            content: state.pending.slice(0, contentEnd),
             range: {
                 start: state.pendingStartPos,
                 end: state.pos,
