@@ -34,6 +34,11 @@ blocks, lists and other unimplemented block shapes are explicitly `uncovered`.
 Disagreements between the adapter's block envelopes and the official HTML are
 also uncovered instead of being attributed to the inline lexer.
 
+The adapter applies the production Tab-separator compatibility extension for
+reference definitions. Issue #5968 also has explicit link/image regressions in
+`links.spec.ts`: the official corpus has no definition with a Tab between its
+destination and title. These extra cases are outside the official totals.
+
 The profile disables optional math, footnotes, superscript/subscript, highlighting
 and inline-diff syntax. The current lexer cannot disable bare autolinks,
 strikethrough or emoji. The suite exercises that real behavior rather than
