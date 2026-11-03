@@ -94,14 +94,15 @@ describe('autolink trimming work', () => {
         const prefix = 'http://example.com';
         const source = prefix + ')'.repeat(count);
         let indexedReads = 0;
-        const measured: string = new Proxy(new Object(source), {
+        // Box the string so the proxy can count indexed reads independently of CI speed.
+        const measured = new Proxy(new Object(source), {
             get(target, key) {
                 if (typeof key === 'string' && /^\d+$/.test(key))
                     indexedReads++;
                 const value = Reflect.get(target, key);
                 return typeof value === 'function' ? value.bind(target) : value;
             },
-        });
+        }) as string;
         expect(trimAutoLinkExtent(measured)).toBe(prefix);
         expect(indexedReads).toBeLessThanOrEqual(source.length * 3);
         const tokens = tokenizer(source);
