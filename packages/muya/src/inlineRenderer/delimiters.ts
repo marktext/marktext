@@ -3,18 +3,12 @@ import type { ICodeSpanReader } from './codeSpan';
 import type { InlineRules } from './rules';
 import type { ITokenizerFacOptions, Labels } from './types';
 import { codePointBefore, codePointCharAt, pairDelimiters } from '../utils/delimiters';
+import { CJK_CHARACTER, UNICODE_PUNCTUATION, UNICODE_WHITESPACE } from '../utils/inlineCharacters';
 import { atomicExtensionLength } from './atomicExtension';
 import { BracketScanner } from './brackets';
 import { CodeSpanScanner } from './codeSpan';
 import { matchAt } from './matchAt';
-import {
-    CJK_REG,
-    matchExtendedAutoLink,
-    PUNCTUATION_REG,
-    UNICODE_WHITESPACE_REG,
-} from './utils';
-
-export type { IDelimiterSpan } from '../utils/delimiters';
+import { matchExtendedAutoLink } from './utils';
 
 interface IScanContext {
     codeSpans?: ICodeSpanReader;
@@ -27,11 +21,11 @@ interface IScanContext {
 }
 
 function isWhitespace(char: string) {
-    return UNICODE_WHITESPACE_REG.test(char);
+    return UNICODE_WHITESPACE.test(char);
 }
 
 function isBoundary(char: string) {
-    return isWhitespace(char) || PUNCTUATION_REG.test(char) || CJK_REG.test(char);
+    return isWhitespace(char) || UNICODE_PUNCTUATION.test(char) || CJK_CHARACTER.test(char);
 }
 
 function charBefore(src: string, index: number) {
@@ -111,10 +105,10 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
             const after = charAfter(src, i + length);
             const leftFlanking
                 = !isWhitespace(after)
-                    && (!PUNCTUATION_REG.test(after) || isBoundary(before));
+                    && (!UNICODE_PUNCTUATION.test(after) || isBoundary(before));
             const rightFlanking
                 = !isWhitespace(before)
-                    && (!PUNCTUATION_REG.test(before) || isBoundary(after));
+                    && (!UNICODE_PUNCTUATION.test(before) || isBoundary(after));
 
             runs.push({
                 char,
@@ -154,7 +148,7 @@ export function scanDelimiterSpans(
         allowAutolinks,
         scanAutolinks:
             allowAutolinks
-            && (src.includes('www.') || src.includes('http') || src.includes('@')),
+            && (src.includes('www.') || src.includes('http') || src.includes('ftp://') || src.includes('@')),
     });
     return pairDelimiters(runs, offset);
 }

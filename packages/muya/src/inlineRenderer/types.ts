@@ -107,6 +107,7 @@ export type ReferenceDefinitionToken = IBaseToken & {
 
 export type TextToken = IBaseToken & {
     type: 'text';
+    // Reading text is a prefix of raw; ignored paragraph-final whitespace remains in raw.
     content: string;
 };
 

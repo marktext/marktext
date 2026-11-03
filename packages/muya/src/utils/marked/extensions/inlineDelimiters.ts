@@ -2,11 +2,7 @@ import type { MarkedExtension, Token, Tokens } from 'marked';
 import type { IDelimiterRun, IDelimiterSpan } from '../../delimiters';
 import { Lexer, Tokenizer } from 'marked';
 import { codePointBefore, codePointCharAt, pairDelimiters } from '../../delimiters';
-
-// Deliberate CommonMark divergence: retain MarkText's CJK-adjacent emphasis (#4307).
-const CJK = '\\u3040-\\u30FF\\u3400-\\u4DBF\\u4E00-\\u9FFF\\uF900-\\uFAFF\\uAC00-\\uD7AF\\uFF66-\\uFF9D\\u{20000}-\\u{2A6DF}';
-const punctuation = new RegExp(`[\\p{P}\\p{S}${CJK}]`, 'u');
-const whitespace = /[\p{Zs}\t\n\f\r]/u;
+import { CJK_CHARACTER, UNICODE_PUNCTUATION, UNICODE_WHITESPACE } from '../../inlineCharacters';
 
 interface IBoundaryChars {
     before: string;
@@ -14,10 +10,10 @@ interface IBoundaryChars {
 }
 
 function flanking(char: string, before: string, after: string) {
-    const beforeWhitespace = whitespace.test(before);
-    const afterWhitespace = whitespace.test(after);
-    const beforePunctuation = punctuation.test(before);
-    const afterPunctuation = punctuation.test(after);
+    const beforeWhitespace = UNICODE_WHITESPACE.test(before);
+    const afterWhitespace = UNICODE_WHITESPACE.test(after);
+    const beforePunctuation = UNICODE_PUNCTUATION.test(before) || CJK_CHARACTER.test(before);
+    const afterPunctuation = UNICODE_PUNCTUATION.test(after) || CJK_CHARACTER.test(after);
     const leftFlanking = !afterWhitespace && (!afterPunctuation || beforeWhitespace || beforePunctuation);
     const rightFlanking = !beforeWhitespace && (!beforePunctuation || afterWhitespace || afterPunctuation);
     return {

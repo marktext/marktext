@@ -19,7 +19,10 @@ describe('commonMark escapes and character references (#5977, #5982)', () => {
     });
 
     it.each(['A', '3', 'φ', '«', ' ', '\t'])('preserves a backslash before %j', (character) => {
-        expect(tokensToPlainText(tokenizer(`\\${character}`, options))).toBe(`\\${character}`);
+        const source = `\\${character}x`;
+        const tokens = tokenizer(source, options);
+        expect(tokensToPlainText(tokens)).toBe(source);
+        expect(generator(tokens)).toBe(source);
     });
 
     it.each([

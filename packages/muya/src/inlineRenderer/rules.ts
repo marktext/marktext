@@ -42,7 +42,7 @@ export const gfmRules = {
     /^<(?:([a-z][a-z\d+.\-]{1,31}:[^ <>]*)|([\w.!#$%&'*+/=?^`{|}~-]+@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*))>/i,
     // (extended www autolink|extended url autolink|extended email autolink) the email regexp is the same as auto_link.
     auto_link_extension:
-    /^(?:(www\.[a-z_-]+\.[a-z]{2,}(?::\d{1,5})?(?:\/\S+)?)|(https?:\/\/(?:[a-z0-9\-._~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(?::\d{1,5})?(?:\/\S+)?)|([\w.!#$%&'*+/=?^`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*))(?=\s|$)/,
+    /^(?:(www\.[a-z_-]+\.[a-z]{2,}(?![\w-])[^\s<]*)|((?:https?|ftp):\/\/(?:[a-z0-9\-._~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(?![\w-])[^\s<]*)|([\w.!#$%&'*+/=?^`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*))(?=[\s?!,:*~()<>]|\.(?![\w-])|$)/,
 };
 
 export type GfmRules = typeof gfmRules;

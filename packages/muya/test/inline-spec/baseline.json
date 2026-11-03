@@ -34,11 +34,6 @@
             "status": "uncovered",
             "reason": "Block adapter does not support: list"
         },
-        "commonmark:354": {
-            "status": "known-difference",
-            "reason": "Delimiter boundaries differ from the normative punctuation/flanking rules.",
-            "fingerprint": "ebc18e84b5361b99057094ecab062059a5418b17f60c19b5a66e95aadb30669f"
-        },
         "commonmark:608": {
             "status": "extension-difference",
             "reason": "The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.",
@@ -53,11 +48,6 @@
             "status": "extension-difference",
             "reason": "The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.",
             "fingerprint": "ebc6c2e91940afd7c507eaaf1ee2d0df270307f92582b5e188905bb161c15e73"
-        },
-        "commonmark:645": {
-            "status": "known-difference",
-            "reason": "Hard-break boundary or whitespace semantics differ.",
-            "fingerprint": "eb06dd9b51bbed938a291c91bf892a38aa86ade04abe893fff488a5ab76bb69d"
         },
         "gfm:314": {
             "status": "uncovered",
@@ -151,29 +141,9 @@
             "reason": "The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.",
             "fingerprint": "ebc6c2e91940afd7c507eaaf1ee2d0df270307f92582b5e188905bb161c15e73"
         },
-        "gfm:623": {
-            "status": "known-difference",
-            "reason": "GFM extended autolink recognition, boundaries, or punctuation trimming differ.",
-            "fingerprint": "d2d80aa74f0cceaade32ca7b961b0d12394dbb7fc3ba983e59f913ba52445aac"
-        },
-        "gfm:628": {
-            "status": "known-difference",
-            "reason": "GFM extended autolink recognition, boundaries, or punctuation trimming differ.",
-            "fingerprint": "27ba144f7cf2d81f237b6493c6ccd1f5bdacf1c5cc54bcfe6d95cd3079ba7c46"
-        },
-        "gfm:631": {
-            "status": "known-difference",
-            "reason": "GFM extended autolink recognition, boundaries, or punctuation trimming differ.",
-            "fingerprint": "1aa36e7a6550376e563428246446a3b68f2bce33a7e671041121e82178db66a3"
-        },
         "gfm:652": {
             "status": "uncovered",
             "reason": "Block adapter does not support: html"
-        },
-        "gfm:665": {
-            "status": "known-difference",
-            "reason": "Hard-break boundary or whitespace semantics differ.",
-            "fingerprint": "eb06dd9b51bbed938a291c91bf892a38aa86ade04abe893fff488a5ab76bb69d"
         }
     }
 }
