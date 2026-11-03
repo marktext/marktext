@@ -16,7 +16,6 @@ import { ScrollPage } from './block/scrollPage';
 import emptyStates from './config/emptyStates';
 import {
     CLASS_NAMES,
-    DATA_URL_REG,
     MUYA_DEFAULT_OPTIONS,
     URL_REG,
 } from './config/index';
@@ -39,9 +38,8 @@ import { Ui } from './ui/ui';
 import { deepClone } from './utils';
 import { getBlock } from './utils/dom';
 import { GITHUB_ALERT_TYPES, githubAlertBlockType, githubAlertMarker } from './utils/githubAlerts';
-import { encodeImageSrc } from './utils/image';
+import { imageToMarkdown } from './utils/image';
 import { toListDelimiter } from './utils/listMarker';
-import { escapeMarkdownString } from './utils/markdownEscape';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
@@ -352,6 +350,10 @@ export class Muya {
 
     find(action: 'previous' | 'next') {
         return this.editor.searchModule.find(action);
+    }
+
+    setSearchVisible(visible: boolean) {
+        return this.editor.searchModule.setVisible(visible);
     }
 
     replace(replaceValue: string, opt: IReplaceOption = { isSingle: true, isRegexp: false }) {
@@ -1082,19 +1084,11 @@ export class Muya {
             alt = match?.[1] ?? '';
         }
 
-        // Keep valid data URLs intact; incomplete data prefixes must be encoded as paths.
-        let imgUrl: string;
-        if (URL_REG.test(src))
-            imgUrl = escapeMarkdownString(encodeURI(src));
-        else if (DATA_URL_REG.test(src))
-            imgUrl = escapeMarkdownString(src);
-        else
-            imgUrl = encodeImageSrc(src);
-
         const { start, end } = cursor;
         const { text } = block;
         const imageAlt = start.offset !== end.offset ? text.substring(start.offset, end.offset) : alt;
-        const imageText = `![${imageAlt}](${imgUrl})`;
+        const destination = URL_REG.test(src) ? encodeURI(src) : src;
+        const imageText = imageToMarkdown({ alt: imageAlt, src: destination });
 
         block.text = text.substring(0, start.offset) + imageText + text.substring(end.offset);
         block.setCursor(start.offset + 2, start.offset + 2 + imageAlt.length, true);

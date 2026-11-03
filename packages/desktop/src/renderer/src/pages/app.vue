@@ -180,7 +180,12 @@ const setupDragDropHandler = (): void => {
 
 let stopSidebarContextMenu: (() => void) | undefined
 let stopWindowSession: (() => void) | undefined
-onUnmounted(() => { stopSidebarContextMenu?.(); stopWindowSession?.() })
+let stopEditListener: (() => void) | undefined
+onUnmounted(() => {
+  stopSidebarContextMenu?.()
+  stopWindowSession?.()
+  stopEditListener?.()
+})
 
 onMounted(async () => {
   if (window.marktext?.initialState) {
@@ -190,7 +195,7 @@ onMounted(async () => {
   mainStore.LISTEN_WIN_STATUS()
   await commandCenterStore.LISTEN_COMMAND_CENTER_BUS()
   layoutStore.LISTEN_FOR_LAYOUT()
-  listenForMainStore.LISTEN_FOR_EDIT()
+  stopEditListener = listenForMainStore.LISTEN_FOR_EDIT()
   preferencesStore.LISTEN_FOR_VIEW()
   listenForMainStore.LISTEN_FOR_SHOW_DIALOG()
   listenForMainStore.LISTEN_FOR_PANDOC_EXPORT()

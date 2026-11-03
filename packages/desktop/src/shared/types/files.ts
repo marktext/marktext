@@ -42,6 +42,7 @@ export interface FileSearchMatches {
   index: number
   matches: unknown[]
   value: string
+  selectedText?: string
 }
 
 /** Live renderer tab state; recovery data is captured through window checkpoints. */

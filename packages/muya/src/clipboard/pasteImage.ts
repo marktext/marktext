@@ -4,7 +4,7 @@ import type { Nullable } from '../types';
 import type Clipboard from './index';
 import { CLASS_NAMES } from '../config';
 import { getUniqueId } from '../utils';
-import { encodeImageSrc, getImageInfo } from '../utils/image';
+import { getImageInfo, imageToMarkdown } from '../utils/image';
 import { readFileAsDataURL, resolveClipboardImagePath } from '../utils/paste';
 
 // Replace the current range with image Markdown and return the inserted text.
@@ -16,8 +16,7 @@ function insertImageText(anchorBlock: Content, src: string, alt = ''): string {
 
     const { start, end } = cursor;
     const { text: content } = anchorBlock;
-    const escapedSrc = encodeImageSrc(src);
-    const imageText = `![${alt}](${escapedSrc})`;
+    const imageText = imageToMarkdown({ alt, src });
 
     anchorBlock.text
         = content.substring(0, start.offset)
@@ -40,8 +39,7 @@ function replacePlaceholderImage(
     if (index === -1)
         return;
 
-    const escapedSrc = encodeImageSrc(src);
-    const imageText = `![](${escapedSrc})`;
+    const imageText = imageToMarkdown({ src });
 
     anchorBlock.text
         = anchorBlock.text.substring(0, index)
@@ -127,8 +125,7 @@ function spliceImageText(
     src: string,
     alt = '',
 ): string {
-    const escapedSrc = encodeImageSrc(src);
-    const imageText = `![${alt}](${escapedSrc})`;
+    const imageText = imageToMarkdown({ alt, src });
 
     block.text
         = block.text.substring(0, range.start)

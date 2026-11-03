@@ -17,7 +17,7 @@ import InlineRenderer from '../inlineRenderer';
 import { Search } from '../search';
 import Selection from '../selection';
 import { findContentDOM } from '../selection/dom';
-import { createTextSelectionState } from '../selection/state';
+import { createTextSelectionState, resolveTextSelectionEndpoints } from '../selection/state';
 import JSONState from '../state';
 import { createChangePayload } from '../state/changePayload';
 import { stateAtPath } from '../state/paths';
@@ -640,7 +640,18 @@ export class Editor {
     private _restoreSelection(selection: Nullable<TSelectionState>) {
         if (!selection)
             return;
-        if (!this.selection.setSelection(selection))
+        const endpoints = resolveTextSelectionEndpoints(this._muya, selection);
+        if (endpoints) {
+            const { anchor, focus } = endpoints;
+            const sameBlock = anchor.block === focus.block;
+            this.activeContentBlock = sameBlock ? anchor.block : null;
+            // Rebuilt blocks hide source syntax; expose the saved endpoints before mapping them to DOM nodes.
+            anchor.block.update({ block: anchor.block, anchor, focus: sameBlock ? focus : anchor });
+            if (!sameBlock)
+                focus.block.update({ block: focus.block, anchor: focus, focus });
+        }
+        const restored = this.selection.setSelection(selection);
+        if (!restored)
             this.scrollPage?.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 

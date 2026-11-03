@@ -129,18 +129,26 @@ export const adjustCursor = (
   return newCursor
 }
 
+const scrollAnimations = new WeakMap<HTMLElement, number>()
+
 export const animatedScrollTo = function(
   element: HTMLElement,
   to: number,
   duration: number,
   callback?: () => void
 ): void {
+  const pending = scrollAnimations.get(element)
+  if (pending !== undefined) {
+    cancelAnimationFrame(pending)
+    scrollAnimations.delete(element)
+  }
   const start = element.scrollTop
   const change = to - start
   const animationStart = +new Date()
 
   if (Math.abs(change) <= 6 || duration === 0) {
     element.scrollTop = to
+    callback?.()
     return
   }
 
@@ -153,21 +161,19 @@ export const animatedScrollTo = function(
 
   const animateScroll = function(): void {
     const now = +new Date()
-    const val = Math.floor(easeInOutQuad(now - animationStart, start, change, duration))
-
-    element.scrollTop = val
-
-    if (now > animationStart + duration) {
+    if (now >= animationStart + duration) {
+      scrollAnimations.delete(element)
       element.scrollTop = to
       if (callback) {
         callback()
       }
     } else {
-      requestAnimationFrame(animateScroll)
+      element.scrollTop = Math.floor(easeInOutQuad(now - animationStart, start, change, duration))
+      scrollAnimations.set(element, requestAnimationFrame(animateScroll))
     }
   }
 
-  requestAnimationFrame(animateScroll)
+  scrollAnimations.set(element, requestAnimationFrame(animateScroll))
 }
 
 export const getUniqueId = (): string => {

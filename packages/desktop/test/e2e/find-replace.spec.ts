@@ -104,10 +104,8 @@ const editorText = (page: Page): Promise<string> =>
 const countOccurrences = (haystack: string, needle: string): number =>
   haystack.split(needle).length - 1
 
-// Close the find bar (if open) and reset its inputs to a clean slate so the
-// next scenario starts fresh. Escape -> emptySearch() clears searchValue and
-// replaceValue and removes engine highlights.
-const closeAndReset = async(page: Page): Promise<void> => {
+// Escape removes find highlights while retaining the query for later navigation.
+const closeFindBar = async(page: Page): Promise<void> => {
   const bar = page.locator(SEARCH_BAR)
   if (await bar.isVisible()) {
     await page.keyboard.press('Escape')
@@ -123,7 +121,7 @@ const seedDocClean = async(
   page: Page,
   markdown: string
 ): Promise<void> => {
-  await closeAndReset(page)
+  await closeFindBar(page)
   await setSourceMarkdown(page, app, markdown)
   await page.waitForTimeout(400)
   await sendIpcToRenderer(app, 'mt::editor-ask-file-save')
@@ -244,7 +242,7 @@ test.describe('Find bar — option toggles re-run the search (items 185, 186, 18
     // Reset the toggle for subsequent tests in this shared app.
     await toggle.click()
     await expect(toggle).not.toHaveClass(/active/)
-    await closeAndReset(page)
+    await closeFindBar(page)
   })
 
   test('whole-word toggle excludes the substring match and gains the active class', async() => {
@@ -261,7 +259,7 @@ test.describe('Find bar — option toggles re-run the search (items 185, 186, 18
 
     await toggle.click()
     await expect(toggle).not.toHaveClass(/active/)
-    await closeAndReset(page)
+    await closeFindBar(page)
   })
 
   test('regex toggle: invalid + empty-match show error UI, valid pattern highlights', async() => {
@@ -299,7 +297,7 @@ test.describe('Find bar — option toggles re-run the search (items 185, 186, 18
     await page.locator(FIND_INPUT).fill('')
     await regexToggle.click()
     await expect(regexToggle).not.toHaveClass(/active/)
-    await closeAndReset(page)
+    await closeFindBar(page)
   })
 })
 
@@ -335,7 +333,7 @@ test.describe('Find bar — replace single / all dirty the tab (items 153, 183, 
       .toEqual({ bar: 1, foo: 2 })
 
     await expect.poll(() => isTabDirty(page)).toBe(true)
-    await closeAndReset(page)
+    await closeFindBar(page)
   })
 
   test('replace-all replaces every occurrence and flags the tab unsaved (item 184)', async() => {
@@ -357,7 +355,7 @@ test.describe('Find bar — replace single / all dirty the tab (items 153, 183, 
 
     await page.locator(FIND_INPUT).fill('cat')
     await expect.poll(() => counterText(page)).toContain('/ 0')
-    await closeAndReset(page)
+    await closeFindBar(page)
   })
 
   test('replace-all across multiple blocks + undo restores every occurrence (items 153, 184)', async() => {
@@ -379,7 +377,7 @@ test.describe('Find bar — replace single / all dirty the tab (items 153, 183, 
 
     // Close the bar before undoing so the engine cursor is back in the document
     // (the find bar holds focus while open) and the undo applies cleanly.
-    await closeAndReset(page)
+    await closeFindBar(page)
 
     await undo(app)
     await expect
@@ -419,11 +417,11 @@ test.describe('Find bar — left arrow toggles replace mode (item 191)', () => {
 
     await page.locator('.search-bar .left-arrow').click()
     await expect(replaceRow).toHaveCount(0)
-    await closeAndReset(page)
+    await closeFindBar(page)
   })
 })
 
-test.describe('Find bar — Escape clears highlights and restores the cursor (item 189)', () => {
+test.describe('Find bar — Escape clears highlights and keeps the selection (item 189)', () => {
   let app: ElectronApplication
   let page: Page
 
@@ -440,13 +438,13 @@ test.describe('Find bar — Escape clears highlights and restores the cursor (it
     if (app) await app.close()
   })
 
-  test('Escape after a query clears every highlight and selects the active match', async() => {
+  test('Escape after a query clears every highlight and keeps the selected match', async() => {
     await openFind(app, page)
     await page.locator(FIND_INPUT).fill('needleAlpha')
     // The bar seeds the query from the editor selection, and that seeded query
     // can itself yield a single match, so the counter alone does not prove the
     // typed query was applied. Wait for the highlight to be the typed one
-    // before Escape, otherwise the cursor is restored onto the seeded match.
+    // before Escape, otherwise the selection still refers to the seeded match.
     await expect
       .poll(async() => {
         const highlights = page.locator('.mu-highlight')

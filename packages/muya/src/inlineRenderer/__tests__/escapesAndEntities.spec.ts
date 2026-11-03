@@ -58,3 +58,24 @@ describe('commonMark escapes and character references (#5977, #5982)', () => {
             .toMatchObject({ src: '/&ouml;/\\*', title: '&ouml; &ouml;' });
     });
 });
+
+describe('shared bracket parsing with decoded entities', () => {
+    it('keeps HTML attribute brackets atomic inside a decoded link', () => {
+        const source = '[<span title="] &Dcaron;">x</span>](/f&ouml;&ouml; "ti\\*tle")';
+        const tokens = tokenizer(source, options);
+        expect(tokens[0]).toMatchObject({
+            type: 'link',
+            href: '/föö',
+            title: 'ti*tle',
+            children: [{ type: 'html_tag', attrs: { title: '] Ď' }, content: 'x' }],
+        });
+        expect(generator(tokens)).toBe(source);
+    });
+
+    it.each(['![outer &Dcaron; ![inner &#35;](/inner.png)](/outer.png)', '![outer &Dcaron; ![inner &#35;](/inner.png)][ref]'])('decodes nested image alt text in %j', (source) => {
+        const labels = new Map([['ref', { href: '/outer.png', title: 'title' }]]);
+        const tokens = tokenizer(source, { ...options, labels });
+        expect(tokens[0]).toMatchObject({ attrs: { alt: 'outer Ď inner #' } });
+        expect(generator(tokens)).toBe(source);
+    });
+});

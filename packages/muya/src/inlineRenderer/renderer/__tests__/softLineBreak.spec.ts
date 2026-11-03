@@ -1,10 +1,13 @@
 // @vitest-environment happy-dom
 
+import type Format from '../../../block/base/format';
 import type { SoftLineBreakToken } from '../../types';
 import type Renderer from '../index';
 import { describe, expect, it } from 'vitest';
 import { CLASS_NAMES } from '../../../config';
-import { h } from '../../../utils/snabbdom';
+import { h, toHTML } from '../../../utils/snabbdom';
+import { tokenizer } from '../../lexer';
+import highlight from '../highlight';
 import lineBreakHighlights from '../lineBreakHighlights';
 import softLineBreak from '../softLineBreak';
 
@@ -110,5 +113,29 @@ describe('softLineBreak renderer — softNewlineAsSpace', () => {
         expect((children[0] as { sel: string }).sel).toBe(`span.${CLASS_NAMES.MU_HIGHLIGHT}`);
         expect(children[0].text).toBeUndefined();
         expect(children[1].text).toBe('\n');
+    });
+});
+
+describe('soft break whitespace and source offsets (#5981)', () => {
+    it.each([false, true])('retains ignored whitespace and search highlights (active: %j)', (active) => {
+        const source = 'foo \n \tbar';
+        const token = tokenizer(source, { highlights: [{ start: 3, end: 7, active: true }] })[1];
+        expect(token.type).toBe('soft_line_break');
+        if (token.type !== 'soft_line_break')
+            throw new Error('Expected a soft break');
+        const renderer = asRenderer({
+            muya: { options: { softNewlineAsSpace: false } },
+            getClassName: () => active ? CLASS_NAMES.MU_GRAY : CLASS_NAMES.MU_HIDE,
+            getHighlightClassName: () => CLASS_NAMES.MU_HIGHLIGHT,
+            highlight,
+        });
+        const nodes = softLineBreak.call(renderer, { h, token, cursor: {}, block: { text: source } as Format });
+        const container = document.createElement('div');
+        container.innerHTML = nodes.map(node => toHTML(node)).join('');
+        expect(container.textContent).toBe(' \n \t');
+        expect(container.querySelector('.mu-soft-line-break')!.textContent).toBe('\n');
+        expect(Array.from(container.querySelectorAll('.mu-remove')).map(node => node.textContent)).toEqual([' ', ' \t']);
+        expect(container.querySelectorAll(active ? '.mu-gray' : '.mu-hide')).toHaveLength(2);
+        expect(Array.from(container.querySelectorAll('.mu-highlight')).map(node => node.textContent)).toEqual([' ', '', ' \t']);
     });
 });

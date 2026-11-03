@@ -20,28 +20,18 @@ import { getCursorCoords, getCursorYOffset, getSelectionStart } from './cursorCo
 import { getOffsetOfParagraph } from './dom';
 import ImageSelection from './ImageSelection';
 import {
+    comparePaths,
     contentPath,
     copySelectionState,
     createTextSelectionState,
     isLegalOffset,
     isSelectionState,
     resolveContent,
-    resolveEndpoint,
+    resolveTextSelectionEndpoints,
 } from './state';
 import TableRectSelection from './TableRectSelection';
 import TextSelection from './TextSelection';
 import { SelectionDirection, SelectionType } from './types';
-
-function comparePaths(a: readonly (string | number)[], b: readonly (string | number)[]): number {
-    for (let i = 0; i < Math.min(a.length, b.length); i++) {
-        if (a[i] === b[i])
-            continue;
-        return typeof a[i] === 'number' && typeof b[i] === 'number'
-            ? Number(a[i]) - Number(b[i])
-            : String(a[i]).localeCompare(String(b[i]));
-    }
-    return a.length - b.length;
-}
 
 class Selection {
     static getCursorYOffset = getCursorYOffset;
@@ -107,6 +97,11 @@ class Selection {
     }
 
     private _readNative(): IResolvedTextSelection | null {
+        const focused = this._muya.domNode.ownerDocument.activeElement;
+        const inputFocused = focused?.tagName === 'INPUT' || focused?.tagName === 'TEXTAREA';
+        // Switching external inputs can collapse the DOM range without moving the editor selection.
+        if (!this._muya.isReadOnly && inputFocused && !this._muya.domNode.contains(focused))
+            return null;
         const live = this._text.getSelection();
         if (!live)
             return null;
@@ -147,13 +142,12 @@ class Selection {
 
     getSelection(): TSelection | null {
         const state = this.getSelectionState();
-        const selection = state ? this._resolve(state) : null;
-        return selection && this._isValid(selection) ? selection : null;
+        return state ? this._resolve(state) : null;
     }
 
     getTextSelection(): IResolvedTextSelection | null {
         const state = this.getSelectionState();
-        const selection = state?.kind === SelectionType.TEXT ? this._resolveText(state, false) : null;
+        const selection = state?.kind === SelectionType.TEXT ? this._resolveText(state, { includeFormats: false, validateOffsets: false }) : null;
         if (!selection)
             return null;
         const { anchor, focus, context } = selection;
@@ -184,7 +178,7 @@ class Selection {
         if (state !== null && !isSelectionState(state))
             return false;
         const selection = state ? this._resolve(state) : null;
-        if (state && (!selection || !this._isValid(selection)))
+        if (state && !selection)
             return false;
         this._setting = true;
         try {
@@ -359,12 +353,12 @@ class Selection {
 
     private _resolveText(
         state: Extract<TSelectionState, { kind: SelectionType.TEXT }>,
-        includeFormats = true,
+        { includeFormats = true, validateOffsets = true } = {},
     ): ITextSelection | null {
-        const anchor = resolveEndpoint(this._muya, state.anchor);
-        const focus = resolveEndpoint(this._muya, state.focus);
-        if (!anchor || !focus)
+        const endpoints = resolveTextSelectionEndpoints(this._muya, state, { validateOffsets });
+        if (!endpoints)
             return null;
+        const { anchor, focus } = endpoints;
         const { block: anchorBlock, path: anchorPath, offset: anchorOffset } = anchor;
         const { block: focusBlock, path: focusPath, offset: focusOffset } = focus;
         const isSelectionInSameBlock = anchorBlock === focusBlock;
@@ -405,8 +399,12 @@ class Selection {
     ): IImageSelection | null {
         const { path, range, raw } = state;
         const block = resolveContent(this._muya, path) as Format | null;
-        if (!block?.domNode || block.text.slice(range.start, range.end) !== raw)
+        if (!block?.domNode || range.start >= range.end
+            || !isLegalOffset(block.text, range.start)
+            || !isLegalOffset(block.text, range.end)
+            || block.text.slice(range.start, range.end) !== raw) {
             return null;
+        }
         const wrappers = block.domNode.querySelectorAll<HTMLElement>(`.${CLASS_NAMES.MU_INLINE_IMAGE}`);
         const wrapper = [...wrappers].find(node =>
             node.dataset.raw === raw && getOffsetOfParagraph(node, block.domNode!) === range.start,
@@ -479,23 +477,6 @@ class Selection {
                 selectionCoords,
             },
         };
-    }
-
-    private _isValid(selection: TSelection): boolean {
-        if (selection.kind === SelectionType.TEXT) {
-            const { anchor, focus, context } = selection;
-            const { anchorBlock, focusBlock } = context;
-            return isLegalOffset(anchorBlock.text, anchor.offset)
-                && isLegalOffset(focusBlock.text, focus.offset);
-        }
-        if (selection.kind === SelectionType.IMAGE) {
-            const { range, context } = selection;
-            const { text } = context.block;
-            return range.start < range.end
-                && isLegalOffset(text, range.start)
-                && isLegalOffset(text, range.end);
-        }
-        return true;
     }
 
     getSelectedText(): string {

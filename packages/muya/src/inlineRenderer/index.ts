@@ -8,6 +8,7 @@ import { prepareReadingLinks } from '../editor/readOnly';
 import logger from '../utils/logger';
 import { decodeMarkdownString } from '../utils/markdownEscape';
 import { tokenizer } from './lexer';
+import { normalizeReferenceLabel } from './referenceLabel';
 import Renderer from './renderer';
 import { beginRules } from './rules';
 
@@ -113,7 +114,7 @@ class InlineRenderer {
         let label = null;
         let info = null;
         if (tokens) {
-            label = (tokens[2] + tokens[3]).toLowerCase();
+            label = normalizeReferenceLabel(tokens[2] + tokens[3]);
             info = {
                 href: decodeMarkdownString(tokens[6]),
                 title: decodeMarkdownString(tokens[10] || ''),

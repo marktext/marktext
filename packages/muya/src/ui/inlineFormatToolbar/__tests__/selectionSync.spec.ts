@@ -1,5 +1,5 @@
 import type { Token } from '../../../inlineRenderer/types';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Muya } from '../../../muya';
 // @vitest-environment happy-dom
@@ -67,6 +67,39 @@ function emitSelectionChange(
 }
 
 describe('inlineFormatToolbar self-syncs its highlight on selection-change', () => {
+    it('does not open for Find navigation while the editor retains focus', async () => {
+        const muya = bootMuya('apple apple\n');
+        const toolbar = new InlineFormatToolbar(muya);
+        const show = vi.spyOn(toolbar, 'show');
+        muya.domNode.focus();
+        muya.search('apple', { selectHighlight: true });
+        muya.setSearchVisible(false);
+        muya.setSearchVisible(true);
+        muya.find('next');
+        muya.find('previous');
+        document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(show).not.toHaveBeenCalled();
+        expect(toolbar.status).toBe(false);
+        emitSelectionChange(muya, []);
+        expect(show).toHaveBeenCalled();
+    });
+
+    it('hides while an external find input owns focus and ignores its retained editor selection', () => {
+        const muya = bootMuya('hello world\n');
+        const toolbar = new InlineFormatToolbar(muya);
+        emitSelectionChange(muya, []);
+        const selection = muya.getSelection();
+        const input = document.createElement('input');
+        document.body.appendChild(input);
+        input.focus();
+
+        expect(toolbar.status).toBe(false);
+        muya.eventCenter.emit('selection-change', { selection, docChanged: false });
+        expect(toolbar.status).toBe(false);
+        input.remove();
+    });
+
     it('lights up bold when a selection-change reports strong while the toolbar is open', () => {
         const muya = bootMuya('hello world\n');
         const toolbar = new InlineFormatToolbar(muya);

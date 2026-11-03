@@ -26,8 +26,17 @@ class ImageSelection {
     }
 
     clear(): void {
-        this._wrapper?.classList.remove(CLASS_NAMES.MU_INLINE_IMAGE_SELECTED);
+        const wrapper = this._wrapper;
+        if (!wrapper)
+            return;
+        const replaced = !this._muya.domNode.contains(wrapper);
+        wrapper.classList.remove(CLASS_NAMES.MU_INLINE_IMAGE_SELECTED);
         this._wrapper = null;
+        if (replaced) {
+            // Replay can replace the cached wrapper while rendering still projects the old image selection.
+            for (const current of this._muya.domNode.querySelectorAll(`.${CLASS_NAMES.MU_INLINE_IMAGE_SELECTED}`))
+                current.classList.remove(CLASS_NAMES.MU_INLINE_IMAGE_SELECTED);
+        }
     }
 
     setSelection(selection: IImageSelection): void {

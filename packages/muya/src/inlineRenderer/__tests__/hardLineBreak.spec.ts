@@ -12,6 +12,22 @@ function breaks(tokens: Token[]): Token[] {
 }
 
 describe('backslash hard line breaks (#5967)', () => {
+    it.each(['\t  ', ' \t  ', '\t   '])('recognizes two trailing spaces after %j without losing source offsets', (marker) => {
+        const source = `foo${marker}\nbar`;
+        const tokens = tokenizer(source);
+        expect(breaks(tokens)).toHaveLength(1);
+        expect(tokens.at(-1)).toMatchObject({ type: 'text', content: 'bar', range: { start: source.indexOf('bar'), end: source.length } });
+        expect(generator(tokens)).toBe(source);
+    });
+
+    it.each(['\t ', '  \t'])('keeps %j before a newline as a soft break', (marker) => {
+        const source = `foo${marker}\nbar`;
+        const tokens = tokenizer(source);
+        expect(breaks(tokens)).toHaveLength(0);
+        expect(tokens.find(token => token.type === 'soft_line_break')).toBeDefined();
+        expect(generator(tokens)).toBe(source);
+    });
+
     it.each(['\\', '  ', '    '])('recognizes %j before a newline', (marker) => {
         const source = `foo${marker}\nbaz`;
         const tokens = tokenizer(source);

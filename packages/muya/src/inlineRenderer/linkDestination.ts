@@ -1,11 +1,11 @@
+import { decodeMarkdownString, isPunctuationEscape } from '../utils/markdownEscape';
+
 // CommonMark 0.31 §6.3: what sits between a link's `](` and its `)` is a link
 // destination followed by an optional link title, not free-form text. The two
 // forms of destination disagree about the space — a bare destination ends at
 // the first one, and only a pointy-bracket destination may contain one — so a
 // parser that ignores the grammar gets `[link](/my uri)` and
 // `[link](</my uri>)` exactly backwards (marktext#2377).
-
-import { ASCII_PUNCTUATION, decodeMarkdownString } from '../utils/markdownEscape';
 
 const TITLE_CLOSERS: Record<string, string> = {
     '"': '"',
@@ -16,16 +16,8 @@ const TITLE_CLOSERS: Record<string, string> = {
 export interface ILinkTail {
     src: string;
     title: string;
-    /**
-     * How much of the text the destination and title occupy. The link's `)`
-     * has to be the very next character, which is what lets a caller cut a
-     * greedily matched `[a](b) c (d)` back down to `[a](b)`.
-     */
+    /** UTF-16 offset of the closing `)`, excluded from the destination/title source. */
     length: number;
-}
-
-function isEscape(text: string, index: number) {
-    return text[index] === '\\' && ASCII_PUNCTUATION.test(text[index + 1] ?? '');
 }
 
 function isControlOrSpace(char: string) {
@@ -36,9 +28,17 @@ function isControlOrSpace(char: string) {
 
 function skipSpaces(text: string, index: number) {
     let i = index;
-    while (i < text.length && (text[i] === ' ' || text[i] === '\t'))
+    let lineEndings = 0;
+    while (i < text.length && /[ \t\n\r]/.test(text[i])) {
+        if (text[i] === '\n' || text[i] === '\r') {
+            lineEndings++;
+            if (lineEndings > 1)
+                return -1;
+            if (text[i] === '\r' && text[i + 1] === '\n')
+                i++;
+        }
         i++;
-
+    }
     return i;
 }
 
@@ -49,13 +49,13 @@ function skipSpaces(text: string, index: number) {
  */
 function findAngleDestinationEnd(text: string, start: number) {
     for (let i = start + 1; i < text.length; i++) {
-        if (isEscape(text, i)) {
+        if (isPunctuationEscape(text, i)) {
             i++;
             continue;
         }
 
         const char = text[i];
-        if (char === '<' || char === '\n')
+        if (char === '<' || char === '\n' || char === '\r')
             return -1;
         if (char === '>')
             return i;
@@ -70,7 +70,7 @@ function findBareDestinationEnd(text: string, start: number) {
     let i = start;
 
     while (i < text.length) {
-        if (isEscape(text, i)) {
+        if (isPunctuationEscape(text, i)) {
             i += 2;
             continue;
         }
@@ -100,12 +100,14 @@ function findTitleEnd(text: string, start: number) {
         return -1;
 
     for (let i = start + 1; i < text.length; i++) {
-        if (isEscape(text, i)) {
+        if (isPunctuationEscape(text, i)) {
             i++;
             continue;
         }
 
         const char = text[i];
+        if ((char === '\n' || char === '\r') && /^(?:\r\n|\r(?!\n)|\n)[ \t]*(?:\r\n?|\n)/.test(text.slice(i)))
+            return -1;
         // A parenthesised title may not contain an unescaped `(`.
         if (char === '(' && closer === ')')
             return -1;
@@ -118,14 +120,15 @@ function findTitleEnd(text: string, start: number) {
 
 /**
  * Read the destination and title out of the text a link's or image's `](`
- * opens, with their backslash escapes and character references resolved, or null when it is not a
+ * opens, with escapes and entity references resolved, or null when it is not a
  * well-formed pair — in which case the whole `[...](...)` run is literal text.
  *
- * The text may run past the link, because the pattern that produced it matches
- * to the last `)` on the line; `length` reports where this link actually ends.
+ * The text may run past the link; `length` identifies its closing parenthesis.
  */
 export function parseSrcAndTitle(text = ''): ILinkTail | null {
     const start = skipSpaces(text, 0);
+    if (start < 0)
+        return null;
     let index: number;
     let src: string;
 
@@ -148,6 +151,8 @@ export function parseSrcAndTitle(text = ''): ILinkTail | null {
 
     let title = '';
     const titleStart = skipSpaces(text, index);
+    if (titleStart < 0)
+        return null;
     if (titleStart < text.length && text[titleStart] !== ')') {
         // The spec asks for spaces between the two, so `[link](/url"title")` is
         // one destination rather than a destination and a title.
@@ -167,7 +172,7 @@ export function parseSrcAndTitle(text = ''): ILinkTail | null {
 
     // Anything left over is neither destination nor title, so the `(` never
     // opened a link: `[link](/url "title" "extra")`.
-    if (index !== text.length && text[index] !== ')')
+    if (index < 0 || (index !== text.length && text[index] !== ')'))
         return null;
 
     return {

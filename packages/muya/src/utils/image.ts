@@ -1,9 +1,9 @@
 import type { HTMLTagToken, ImageToken, Token } from '../inlineRenderer/types';
-import { isWin } from '../config/index';
+import { DATA_URL_REG, IMAGE_EXT_REG, isWin, URL_REG } from '../config/index';
 import { tokenizer } from '../inlineRenderer/lexer';
 import { findContentDOM, getOffsetOfParagraph } from '../selection/dom';
 import { ABSOLUTE_LOCAL_REG, encodeDirnameForUrl, localPathToFileUrl, resolveRelativePath } from './fileUrl';
-import { escapeMarkdownString } from './markdownEscape';
+import { encodeLinkTitle, escapeLinkAttribute } from './markdownEscape';
 
 export type TSelectableImageToken = ImageToken | (HTMLTagToken & { tag: 'img'; kind?: 'tag' });
 
@@ -36,12 +36,7 @@ export function getImageInfo(image: HTMLElement): IImageInfo {
 }
 
 export function getImageSrc(src: string) {
-    const EXT_REG = /\.(?:jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i;
-    const URL_REG
-        = /^https?:\/\/(?:[\w\-.~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(?::\d{1,5})?\/\S+/i;
-    const DATA_URL_REG
-        = /^data:image\/[\w+-]+(?:;[\w-]+=[\w-]+|;base64)*,[a-zA-Z0-9+/]+={0,2}$/;
-    const imageExtension = EXT_REG.test(src);
+    const imageExtension = IMAGE_EXT_REG.test(src);
     const isFileUrl = /^file:\/\//i.test(src);
     const isUrl = URL_REG.test(src) || (imageExtension && isFileUrl);
     if (imageExtension) {
@@ -168,15 +163,21 @@ export async function checkImageContentType(url: string): Promise<boolean | null
     }
 }
 
-// Percent-encode the chars that break a markdown image destination — an
-// unbalanced `)` truncates the path (#3060). `encodeURIComponent` leaves `(`/`)`
-// untouched, so encode them explicitly.
+// Encode parentheses explicitly so an unmatched ')' cannot truncate the destination (#3060).
 export function encodeImageSrc(src: string): string {
-    return escapeMarkdownString(src)
-        .replace(/ /g, encodeURI(' '))
-        .replace(/#/g, encodeURIComponent('#'))
+    // A URL hash starts a fragment; a local-path hash belongs to the filename.
+    const destination = URL_REG.test(src) ? src : src.replace(/#/g, '%23');
+    const encoded = destination
+        .replace(/ /g, '%20')
         .replace(/\(/g, '%28')
         .replace(/\)/g, '%29');
+    return escapeLinkAttribute(encoded);
+}
+
+// alt is Markdown source; src and title are decoded attribute values.
+export function imageToMarkdown({ src, alt = '', title = '' }: { src: string; alt?: string; title?: string }): string {
+    const caption = title ? ` "${encodeLinkTitle(title)}"` : '';
+    return `![${alt}](${encodeImageSrc(src)}${caption})`;
 }
 
 export function correctImageSrc(src: string) {

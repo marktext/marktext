@@ -23,11 +23,15 @@ export function decodeMarkdownString(text: string): string {
     return text.replace(markdownEscape, (raw: string, punctuation: string | undefined) => punctuation ?? decodeCharacterReference(raw));
 }
 
-/** Protect literal attribute values from the Markdown decoder when generating source. */
-export function escapeMarkdownString(text: string): string {
-    return text.replace(/[\\&]/g, '\\$&');
+// Controls use entities: literal line endings can invalidate destinations and split titles.
+export function escapeLinkAttribute(text: string): string {
+    return text.replace(/[\\&<>\p{Cc}]/gu, char => /\p{Cc}/u.test(char) ? `&#${char.codePointAt(0)};` : `\\${char}`);
 }
 
-export function quoteMarkdownTitle(title: string): string {
-    return `"${escapeMarkdownString(title).replace(/"/g, '\\$&')}"`;
+export function encodeLinkTitle(title: string): string {
+    return escapeLinkAttribute(title).replace(/"/g, char => `\\${char}`);
+}
+
+export function isPunctuationEscape(text: string, index: number): boolean {
+    return text[index] === '\\' && ASCII_PUNCTUATION.test(text[index + 1] ?? '');
 }

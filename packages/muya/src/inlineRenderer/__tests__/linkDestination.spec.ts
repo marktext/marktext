@@ -29,21 +29,6 @@ const OPTIONS = {
     highlightSyntax: false,
 };
 
-// Examples the lexer still gets wrong, with the reason. Same contract as
-// `test/spec/expected-failures.json`: an example listed here that starts
-// passing fails the suite, so compliance can only go up. None of these are
-// destination bugs — they are pre-existing gaps in neighboring inline rules.
-const EXPECTED_FAILURES = new Map<number, string>([
-    [510, 'no inline rule matches across a line ending, so a destination cannot span one'],
-    [513, 'link text: the anchor group swallows an unmatched `]`'],
-    [515, 'link text: a backslash-escaped `[` still opens the anchor group'],
-    [518, 'link text: an inner link should veto the outer one (CommonMark §6.3 "links may not contain other links")'],
-    [519, 'link text: same nesting veto as #518'],
-    [520, 'link text: same nesting veto as #518, for an image label'],
-    [574, 'image label: an inner image should still render its own alt text'],
-    [575, 'image label: same as #574 for an inner link'],
-]);
-
 function escapeHtml(text: string) {
     return text
         .replace(/&/g, '&amp;')
@@ -96,7 +81,7 @@ function renderTokens(tokens: Token[]): string {
 
             case 'image': {
                 const title = token.title ? ` title="${escapeHtml(token.title)}"` : '';
-                html += `<img src="${escapeHtml(cleanUrl(token.src))}" alt="${escapeHtml(token.alt)}"${title} />`;
+                html += `<img src="${escapeHtml(cleanUrl(token.src))}" alt="${escapeHtml(token.attrs.alt)}"${title} />`;
                 break;
             }
 
@@ -169,26 +154,12 @@ describe('inline lexer — CommonMark 0.31 inline links and images', () => {
             .replace(/<\/p>\n$/, '')
             .replace(/\n$/, '');
         const actual = renderInline(example.markdown);
-        const knownGap = EXPECTED_FAILURES.get(example.number);
-
-        if (knownGap) {
-            expect(
-                actual,
-                `#${example.number} now passes — drop it from EXPECTED_FAILURES (${knownGap})`,
-            ).not.toBe(expected);
-            return;
-        }
-
         expect(actual, JSON.stringify(example.markdown)).toBe(expected);
     });
 });
 
-// The parse decides where a link stops, and `correctUrl` rewrites the pattern's
-// captured groups to match. Get that bookkeeping wrong by one character and the
-// renderer draws a link's markers at the wrong offsets, which no single example
-// is likely to catch — so assert the two invariants over a corpus instead:
-// every token accounts for exactly the source it covers, and a link's token
-// still spells out its own raw text.
+// Source ranges also drive editing and marker visibility; semantic HTML alone
+// would miss an off-by-one error in a successfully recognized link tail.
 describe('lexer invariants around the link tail', () => {
     // Fixed seed, so a failure is reproducible. `Math.imul` keeps the multiply
     // inside 32 bits — a plain `*` overflows 2^53, and the generator then

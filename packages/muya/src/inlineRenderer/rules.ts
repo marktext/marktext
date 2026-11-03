@@ -12,7 +12,7 @@ export const beginRules = {
     header: /(^ {0,3}#{1,6}(\s+|$))/,
     reference_definition:
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/no-misleading-capturing-group
-    /^( {0,3}\[)([^\]]+?)(\\*)(\]: *)(<?)([^\s>]+)(>?)(?:( +)(["'(]?)([^\n"'()]+)\9)?( *)$/,
+    /^( {0,3}\[)((?:\\.|[^[\]\\]){1,999}?)(\\*)(\]:[ \t]*)(<?)([^\s>]+)(>?)(?:( +)(["'(]?)([^\n"'()]+)\9)?( *)$/,
 
     // extra syntax (not belongs to GFM)
     multiple_math: /^(\$\$)$/,
@@ -25,26 +25,11 @@ export const endRules = {
 export type BeginRules = typeof beginRules;
 
 export const commonMarkRules = {
-    // Hand-tuned CommonMark/GFM patterns. Disabling the ReDoS-class regexp/*
-    // rules here on each line they fire: rewriting these patterns to please
-    // the linter would risk parser regressions, and the input is the user's
-    // own document, not untrusted network data.
-    // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation, regexp/no-misleading-capturing-group
-    image: /^(!\[)(.*?)(\\*)\]\((.*)(\\*)\)/,
-    // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation, regexp/no-misleading-capturing-group
-    link: /^(\[)((?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*?)(\\*)\]\((.*)(\\*)\)/, // can nest
-    // Link text can hold balanced brackets — notably an image `![alt](src)` —
-    // so mirror `link`'s nesting-capable anchor group instead of the bracket-
-    // free `[^\]]+?`, which stopped at the image's inner `]` and broke
-    // `[![alt](img)][ref]` (#4865).
-    // eslint-disable-next-line regexp/no-super-linear-backtracking
-    reference_link: /^\[((?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
-    // eslint-disable-next-line regexp/no-super-linear-backtracking
-    reference_image: /^!\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
     html_tag: rawHtmlToken,
     html_escape: new RegExp(`^${CHARACTER_REFERENCE.source}`, 'i'),
-    soft_line_break: /^(\n)(?!\n)/,
-    hard_line_break: /^( {2,}|\\)(\n)(?!\n)( *)/,
+    soft_line_break: /^[ \t]*(\n)(?!\n)[ \t]*/,
+    // Tabs may precede the two trailing spaces; the lookahead keeps this scan linear.
+    hard_line_break: /^((?=[ \t]* {2}\n)[ \t]+|\\)(\n)(?!\n)( *)/,
 
     backlash: new RegExp(`^(\\\\)(${ASCII_PUNCTUATION.source})`),
 };

@@ -178,6 +178,7 @@ export type ImageToken = IBaseToken & {
     };
     src: string;
     title: string;
+    // Raw description for editing and source offsets; attrs.alt is reader-facing text.
     alt: string;
     backlash: {
         first: string;
@@ -213,7 +214,9 @@ export type ReferenceLinkToken = IBaseToken & {
 
 export type ReferenceImageToken = IBaseToken & {
     type: 'reference_image';
+    attrs: { alt: string };
     isFullLink: boolean;
+    // Raw description for editing and source offsets; attrs.alt is reader-facing text.
     alt: string;
     backlash: {
         first: string;

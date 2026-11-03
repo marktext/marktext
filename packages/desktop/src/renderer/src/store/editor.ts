@@ -496,7 +496,10 @@ export const useEditorStore = defineStore('editor', {
 
     SEARCH(value: IFileState['searchMatches']): void {
       if (!this.currentFile) return
-      this.currentFile.searchMatches = deepClone(value)
+      this.currentFile.searchMatches = {
+        ...deepClone(value),
+        selectedText: this.currentFile.searchMatches.selectedText ?? ''
+      }
     },
 
     SHOW_IMAGE_DELETION_URL(deletionUrl: string): void {
@@ -1184,11 +1187,9 @@ export const useEditorStore = defineStore('editor', {
       const { start, end } = changes
       if (this.currentFile && start.key === end.key && start.block?.text) {
         const value = start.block.text.substring(start.offset, end.offset)
-        this.currentFile.searchMatches = {
-          matches: [],
-          index: -1,
-          value
-        }
+        this.currentFile.searchMatches.selectedText = value
+      } else if (this.currentFile) {
+        this.currentFile.searchMatches.selectedText = ''
       }
 
       const { windowId } = window.marktext?.env ?? { windowId: -1 }

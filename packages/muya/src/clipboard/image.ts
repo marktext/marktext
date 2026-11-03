@@ -3,8 +3,7 @@ import type Clipboard from './index';
 import { tokenizer } from '../inlineRenderer/lexer';
 import { SelectionType } from '../selection/types';
 import { escapeHTML, getUniqueId } from '../utils';
-import { encodeImageSrc, getImageSrc, isImageToken } from '../utils/image';
-import { quoteMarkdownTitle } from '../utils/markdownEscape';
+import { getImageSrc, imageToMarkdown, isImageToken } from '../utils/image';
 
 export interface IClipboardImage {
     version: 1;
@@ -78,10 +77,8 @@ export function readClipboardImage(html: string, text: string): IClipboardImage 
 
 function withImageSource(markdown: string, src: string): string {
     const token = imageToken(markdown)!;
-    if (token.type === 'image') {
-        const title = token.title ? ` ${quoteMarkdownTitle(token.title)}` : '';
-        return `![${token.alt}${token.backlash.first}](${encodeImageSrc(src)}${title})`;
-    }
+    if (token.type === 'image')
+        return imageToMarkdown({ alt: token.alt + token.backlash.first, src, title: token.title });
     return `<img ${Object.entries({ ...token.attrs, src })
         .filter(([, value]) => value != null)
         .map(([key, value]) => `${key}="${escapeHTML(String(value))}"`)

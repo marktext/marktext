@@ -4,6 +4,7 @@ import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
 import { snakeToCamel } from '../../utils';
 import { sanitizeHyperlink } from '../../utils/url';
+import { normalizeReferenceLabel } from '../referenceLabel';
 
 export default function referenceLink(
     this: Renderer,
@@ -24,7 +25,7 @@ export default function referenceLink(
     const { start, end } = token.range;
     const { anchor, children, backlash, isFullLink, label } = token;
     const MARKER = '[';
-    const key = (label + backlash.second).toLowerCase();
+    const key = normalizeReferenceLabel(label + backlash.second);
     const backlashStart = start + MARKER.length + anchor.length;
     const content = [
         ...children.reduce((acc: VNode[], to: Token) => {

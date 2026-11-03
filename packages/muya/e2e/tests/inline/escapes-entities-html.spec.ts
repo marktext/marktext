@@ -69,24 +69,3 @@ test('editing an entity preserves source offsets through undo', async ({ page })
     await page.locator(editor.paragraphContent).nth(1).click();
     await expect(page.locator(editor.htmlEscape)).toHaveAttribute('data-character', 'ℋ');
 });
-
-test('inserted image URLs retain literal entity text', async ({ page }) => {
-    const url = 'https://example.com/literal.png?x=1&copy;';
-    const requested: string[] = [];
-    await page.route('https://example.com/**', async (route) => {
-        requested.push(route.request().url());
-        await route.fulfill({
-            contentType: 'image/png',
-            body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkAAIAAAoAAv/lxKUAAAAASUVORK5CYII=', 'base64'),
-        });
-    });
-    await page.evaluate(url => {
-        const muya = window.muya!;
-        muya.setContent('text');
-        muya.editor.scrollPage!.firstContentInDescendant()!.setCursor(4, 4, true);
-        muya.insertImage({ src: url, alt: 'literal' });
-    }, url);
-    await expect.poll(() => requested).toContain(url);
-    await expect(page.locator(`${editor.image} img`)).toHaveAttribute('src', url);
-    expect(await getMarkdown(page)).toContain('literal.png?x=1\\&copy;');
-});

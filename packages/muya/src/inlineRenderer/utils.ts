@@ -1,12 +1,8 @@
 import type { ICodeSpanMatch } from './codeSpan';
-import type { Labels, Rules } from './types';
+import type { Rules } from './types';
 import { decodeHTMLAttribute } from 'entities';
-import { isLengthEven } from '../utils';
 import { CodeSpanScanner } from './codeSpan';
-import { parseSrcAndTitle } from './linkDestination';
 import { matchAt } from './matchAt';
-
-export { matchAt } from './matchAt';
 
 const AUTO_LINK_BOUNDARY = /[* _~(]/;
 
@@ -222,79 +218,6 @@ export function trimAutoLinkExtent(raw: string): string {
     }
 
     return raw.slice(0, end);
-}
-
-/**
- * The `link` and `image` patterns match to the LAST `)` on the line, so
- * `[a](b) c (d)` arrives as one tentative link. Cut it back to where the
- * destination and title actually end — the `)` right after them closes the
- * link, and everything past it is ordinary text again.
- */
-export function correctUrl(token: string[] | null) {
-    if (token && typeof token[4] === 'string') {
-        const tail = parseSrcAndTitle(token[4]);
-        const lastParenIndex = tail && tail.length < token[4].length ? tail.length : -1;
-
-        if (lastParenIndex > -1) {
-            const len = token[0].length - (token[4].length - lastParenIndex);
-            token[0] = token[0].substring(0, len);
-            const originSrc = token[4].substring(0, lastParenIndex);
-            const match = /(\\+)$/.exec(originSrc);
-            if (match) {
-                token[4] = originSrc.substring(0, originSrc.length - match[1].length);
-                token[5] = match[1];
-            }
-            else {
-                token[4] = originSrc;
-                token[5] = '';
-            }
-        }
-    }
-}
-
-export function matchBracketed(
-    pattern: RegExp,
-    src: string,
-    index: number,
-    veto: Rules | null,
-    codeSpans?: CodeSpanScanner,
-) {
-    const to = matchAt(pattern, src, index);
-    correctUrl(to);
-    if (!to || !isLengthEven(to[3]) || !isLengthEven(to[5]))
-        return null;
-
-    // A construct crossing the text's closing bracket prevents that bracket from closing the link.
-    const textEnd = to[1].length + to[2].length + to[3].length;
-    if (veto && !lowerPriority(src, index + textEnd, veto, index, codeSpans))
-        return null;
-
-    return to;
-}
-
-export function matchReference(
-    pattern: RegExp,
-    src: string,
-    index: number,
-    labels: Labels,
-    veto: Rules | null,
-    codeSpans?: CodeSpanScanner,
-) {
-    const to = matchAt(pattern, src, index);
-    if (
-        !to
-        || !labels.has((to[3] || to[1]).toLowerCase())
-        || !isLengthEven(to[2])
-        || !isLengthEven(to[4])
-    ) {
-        return null;
-    }
-
-    const textEnd = 1 + to[1].length + to[2].length;
-    if (veto && !lowerPriority(src, index + textEnd, veto, index, codeSpans))
-        return null;
-
-    return to;
 }
 
 export function matchExtendedAutoLink(

@@ -27,7 +27,7 @@ describe('search highlights in large paragraphs (#3211)', () => {
         try {
             muya.init();
             const search = muya.editor.searchModule;
-            search.search('needle');
+            search.search('needle', { selectHighlight: true });
             expect(search.matches).toHaveLength(1500);
             expect(muya.domNode.querySelectorAll('span.mu-highlight')).toHaveLength(1);
             expect(muya.domNode.querySelectorAll('span.mu-selection')).toHaveLength(1499);
