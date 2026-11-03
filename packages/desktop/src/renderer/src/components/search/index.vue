@@ -453,6 +453,7 @@ const replace = (isSingle = true) => {
   top: 0;
   right: 20px;
   border-radius: 3px;
+  z-index: 999;
   box-shadow: var(--floatShadow);
   background: var(--floatBgColor);
   display: flex;
