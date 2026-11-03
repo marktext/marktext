@@ -89,3 +89,23 @@ it.each(['', '<i>first</i> '])('pairs HTML after a backtick owned by math: %j', 
         .toMatchObject({ raw: '<span>body</span>', closeTag: '</span>' });
     expect(generator(tokens)).toBe(source);
 });
+
+it.each([
+    '<span><span>x</span>[link](</span>) tail</span>',
+    '<span><span>x</span>[link](/url "</span>") tail</span>',
+    '<span><span>x</span>![alt](</span>) tail</span>',
+])('does not pair HTML closers owned by link attributes: %j', (source) => {
+    const tokens = tokenizer(source, { hasBeginRules: false });
+    expect(tokens[0]).toMatchObject({ type: 'html_tag', raw: source, closeTag: '</span>' });
+    const stack = [...tokens];
+    const links = [];
+    while (stack.length) {
+        const token = stack.pop()!;
+        if (token.type === 'link' || token.type === 'image')
+            links.push(token);
+        if ('children' in token && token.children)
+            stack.push(...token.children);
+    }
+    expect(links).toHaveLength(1);
+    expect(generator(tokens, true)).toBe(source);
+});

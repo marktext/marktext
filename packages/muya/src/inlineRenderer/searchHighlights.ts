@@ -1,5 +1,6 @@
 import type { IHighlight, ITokenRange, Token } from './types';
 import { union as intersectRanges } from '../utils';
+import { tokenEvents } from './tokenTraversal';
 
 function firstHighlightEndingAfter(highlights: readonly IHighlight[], offset: number): number {
     let start = 0;
@@ -43,16 +44,11 @@ export function applySearchHighlights(tokens: readonly Token[], highlights: read
     if (!highlights.length)
         return;
 
-    const visitTokens = (tokens: readonly Token[]): void => {
-        for (const token of tokens) {
-            const matches = intersectingHighlights(token.range, highlights);
-            if (matches.length)
-                token.highlights = matches;
-
-            if ('children' in token && token.children)
-                visitTokens(token.children);
-        }
-    };
-
-    visitTokens(tokens);
+    for (const { token, exiting } of tokenEvents(tokens)) {
+        if (exiting)
+            continue;
+        const matches = intersectingHighlights(token.range, highlights);
+        if (matches.length)
+            token.highlights = matches;
+    }
 }

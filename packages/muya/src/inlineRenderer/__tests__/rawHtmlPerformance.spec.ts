@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { generator, tokenizer } from '../lexer';
+import { generator, tokenizer, tokensToInlineHtml, tokensToPlainText } from '../lexer';
 
-const indexing = vi.hoisted(() => ({ characters: 0, reads: 0 }));
+const indexing = vi.hoisted(() => ({ characters: 0, reads: 0, htmlSteps: 0 }));
 
 vi.mock('../codeSpan', async (importOriginal) => {
     const actual = await importOriginal<typeof import('../codeSpan')>();
@@ -23,9 +23,23 @@ vi.mock('../codeSpan', async (importOriginal) => {
     };
 });
 
+vi.mock('../brackets', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('../brackets')>();
+    return {
+        ...actual,
+        BracketScanner: class extends actual.BracketScanner {
+            override protectedEnd(index: number) {
+                indexing.htmlSteps++;
+                return super.protectedEnd(index);
+            }
+        },
+    };
+});
+
 beforeEach(() => {
     indexing.characters = 0;
     indexing.reads = 0;
+    indexing.htmlSteps = 0;
 });
 
 describe('code-span indexing in HTML-heavy paragraphs', () => {
@@ -36,7 +50,8 @@ describe('code-span indexing in HTML-heavy paragraphs', () => {
         expect(generator(tokens)).toBe(source);
         expect(tokens.filter(token => token.type === 'html_tag')).toHaveLength(count);
         // Bound indexing work independently of CI speed.
-        expect(indexing.characters).toBeLessThanOrEqual(source.length * 2);
+        expect(indexing.characters).toBe(source.length);
+        expect(indexing.htmlSteps).toBeLessThanOrEqual(source.length * 2);
     }, 20_000);
 });
 
@@ -48,4 +63,39 @@ describe('unmatched HTML wrappers', () => {
         expect(tokens.filter(token => token.type === 'html_tag')).toHaveLength(count);
         expect(indexing.reads).toBeLessThanOrEqual(count * 4);
     }, 20_000);
+});
+
+describe('deep HTML wrappers', () => {
+    it.each([[1000, '`x`'], [4000, '`x`'], [4000, 'x'], [4000, '*`x`*']] as const)('shares indexes and preserves %i levels around %s without recursion', (count, body) => {
+        const source = '<span>'.repeat(count) + body + '</span>'.repeat(count);
+        const contentOffset = count * 6 + body.indexOf('x');
+        const tokens = tokenizer(source, { hasBeginRules: false, highlights: [{ start: contentOffset, end: contentOffset + 1, active: true }] });
+        expect(generator(tokens, true)).toBe(source);
+        expect(indexing.characters).toBe(source.length);
+        expect(indexing.htmlSteps).toBeLessThanOrEqual(source.length * 2);
+        let children = tokens;
+        for (let i = 0; i < count; i++) {
+            expect(children).toHaveLength(1);
+            const token = children[0];
+            if (token.type !== 'html_tag')
+                throw new Error('Expected an HTML wrapper');
+            expect(token.range).toEqual({ start: i * 6, end: source.length - i * 7 });
+            children = token.children!;
+        }
+        const leaf = children[0].type === 'em' ? children[0].children[0] : children[0];
+        expect(leaf).toMatchObject({ type: body === 'x' ? 'text' : 'inline_code', content: 'x' });
+        expect(leaf.highlights).toHaveLength(1);
+        expect(tokensToPlainText(tokens)).toBe('x');
+        expect(tokensToInlineHtml(tokens)).toBe(body === 'x' ? 'x' : body.startsWith('*') ? '<em><code>x</code></em>' : '<code>x</code>');
+    }, 20_000);
+});
+
+it('bounds scans inside consecutive link labels', () => {
+    const count = 2000;
+    const source = '[<span>`x`](/url) '.repeat(count);
+    const tokens = tokenizer(source, { hasBeginRules: false });
+    expect(generator(tokens, true)).toBe(source);
+    expect(tokens.filter(token => token.type === 'link')).toHaveLength(count);
+    expect(indexing.reads).toBeLessThanOrEqual(count * 4);
+    expect(indexing.htmlSteps).toBeLessThanOrEqual(source.length * 2);
 });

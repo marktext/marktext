@@ -1,4 +1,4 @@
-import type { ICodeSpanMatch } from './codeSpan';
+import type { ICodeSpanMatch, ICodeSpanReader } from './codeSpan';
 import type { Rules } from './types';
 import { decodeHTMLAttribute } from 'entities';
 import { CodeSpanScanner } from './codeSpan';
@@ -109,7 +109,7 @@ function validWidthAndHeight(value: string) {
     return num >= 0 ? num.toString() : '';
 }
 
-export function lowerPriority(src: string, offset: number, rules: Rules, start = 0, codeSpans?: CodeSpanScanner) {
+export function lowerPriority(src: string, offset: number, rules: Rules, start = 0, codeSpans?: ICodeSpanReader) {
     let i;
     const patterns = Object.values(rules);
 

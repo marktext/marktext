@@ -1,9 +1,10 @@
 import type { ImageMatch, LinkMatch } from './brackets';
-import type { ICodeSpanMatch } from './codeSpan';
+import type { ICodeSpanMatch, ICodeSpanReader } from './codeSpan';
 import type { IDelimiterSpan } from './delimiters';
 import type { BeginRules, InlineRules } from './rules';
 import type {
     CodeEmojiMathToken,
+    HTMLTagToken,
     ImageToken,
     ITokenizerFacOptions,
     ITokenizerOptions,
@@ -20,30 +21,34 @@ import { scanDelimiterSpans } from './delimiters';
 import { HtmlTagScanner } from './rawHtml';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules } from './rules';
 import { applySearchHighlights } from './searchHighlights';
+import { tokenEvents } from './tokenTraversal';
 import {
     getAttributes,
     lowerPriority,
     matchExtendedAutoLink,
 } from './utils';
 
-interface IImageDescription {
+interface IInlineContent {
     source: string;
     position: number;
-    token: ImageToken | ReferenceImageToken;
+    token: ImageToken | ReferenceImageToken | HTMLTagToken;
     tokens: Token[];
 }
 
 interface ILexContext {
+    offset: number;
+    codeSpans: CodeSpanScanner;
     brackets: BracketScanner;
-    // Shared by inline children; alt values are finalized before the root tokenizer returns.
-    imageDescriptions: IImageDescription[];
+    htmlTags: HtmlTagScanner;
+    // One root-owned queue keeps unbounded HTML/image nesting off the JS call stack.
+    inlineContents: IInlineContent[];
 }
 
 // Mutable cursor + accumulator threaded through every inline-rule handler.
 // `src`/`pos` advance as input is consumed; `pending`/`pendingStartPos`
 // accumulate plain text between matched tokens; `tokens` collects the output.
 interface ILexState {
-    codeSpans?: CodeSpanScanner;
+    codeSpans: ICodeSpanReader;
     context: ILexContext;
     originSrc: string;
     src: string;
@@ -455,7 +460,7 @@ function consumeImage(state: ILexState, match: ImageMatch): void {
         };
     }
     state.tokens.push(token);
-    state.context.imageDescriptions.push({ source: match.description, position: state.pos + 2, token, tokens: [] });
+    state.context.inlineContents.push({ source: match.description, position: state.pos + 2, token, tokens: [] });
     state.src = state.src.substring(match.raw.length);
     state.pos += match.raw.length;
 }
@@ -596,16 +601,17 @@ function tryAutoLink(state: ILexState): boolean {
 
 function consumeHtmlTag(state: ILexState, html: NonNullable<ReturnType<HtmlTagScanner['read']>>): void {
     pushPending(state);
-    state.tokens.push({
+    const token: HTMLTagToken = {
         type: 'html_tag',
         ...html,
         parent: state.tokens,
         attrs: html.kind === 'tag' ? getAttributes(html.openTag) : {},
-        children: html.content
-            ? tokenizerFac(html.content, null, state.inlineRules, state.pos + html.openTag.length, false, state.labels, state.options, null, false, state.context)
-            : [],
+        children: [],
         range: { start: state.pos, end: state.pos + html.raw.length },
-    });
+    };
+    state.tokens.push(token);
+    if (html.content)
+        state.context.inlineContents.push({ source: html.content, position: state.pos + html.openTag.length, token, tokens: [] });
     state.src = state.src.substring(html.raw.length);
     state.pos += html.raw.length;
 }
@@ -720,10 +726,10 @@ function consumeBacktickRun(state: ILexState, match: ICodeSpanMatch): void {
     state.src = state.src.substring(length);
 }
 
-function consumeInlineSource(state: ILexState, htmlTags: HtmlTagScanner): void {
+function consumeInlineSource(state: ILexState): void {
     while (state.src.length) {
         if (state.src[0] === '`') {
-            const code = state.codeSpans!.read(state.pos - state.basePos)!;
+            const code = state.codeSpans.read(state.pos - state.basePos)!;
             consumeBacktickRun(state, code);
             continue;
         }
@@ -757,7 +763,7 @@ function consumeInlineSource(state: ILexState, htmlTags: HtmlTagScanner): void {
         if (consumed)
             continue;
 
-        const html = state.src[0] === '<' ? htmlTags.read(state.pos - state.basePos) : null;
+        const html = state.src[0] === '<' ? state.context.htmlTags.read(state.pos - state.context.offset, state.basePos + state.originSrc.length - state.context.offset) : null;
         if (html) {
             consumeHtmlTag(state, html);
             continue;
@@ -787,13 +793,9 @@ function consumeInlineSource(state: ILexState, htmlTags: HtmlTagScanner): void {
 
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, delimiterSpans: Map<number, IDelimiterSpan> | null = null, allowAutolinks = top, parentContext?: ILexContext) {
     const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = options;
-    const codeSpans = src.includes('`') ? new CodeSpanScanner(src) : undefined;
-    const context = parentContext ?? {
-        brackets: new BracketScanner(src, labels, codeSpans, { rules: inlineRules, options, offset: pos }),
-        imageDescriptions: [],
-    };
+    const context = parentContext ?? createLexContext(src, pos, inlineRules, labels, options);
     const state: ILexState = {
-        codeSpans,
+        codeSpans: context.codeSpans.view(pos - context.offset, pos + src.length - context.offset),
         context,
         originSrc: src,
         src,
@@ -818,26 +820,33 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         inlineDiff: inlineDiff ?? false,
     };
 
-    const htmlTags = new HtmlTagScanner(src, state.codeSpans);
-
     if (beginRules && state.pos === 0)
         consumeBeginRules(state, beginRules);
 
-    consumeInlineSource(state, htmlTags);
+    consumeInlineSource(state);
     if (!parentContext)
-        resolveImageDescriptions(context, inlineRules, labels, options);
+        resolveInlineContents(context, inlineRules, labels, options);
 
     return state.tokens;
 }
 
-function resolveImageDescriptions(context: ILexContext, rules: InlineRules, labels: Labels, options: ITokenizerFacOptions): void {
-    // Image nesting is unbounded; resolve descendants before parents without consuming the JS call stack.
-    for (const description of context.imageDescriptions) {
-        description.tokens = tokenizerFac(description.source, null, rules, description.position, false, labels, options, null, false, context);
+function createLexContext(source: string, offset: number, rules: InlineRules, labels: Labels, options: ITokenizerFacOptions): ILexContext {
+    const codeSpans = new CodeSpanScanner(source);
+    const brackets = new BracketScanner(source, labels, codeSpans, { rules, options, offset });
+    const htmlTags = new HtmlTagScanner(source, index => brackets.protectedEnd(index + offset) - offset);
+    return { offset, codeSpans, brackets, htmlTags, inlineContents: [] };
+}
+
+function resolveInlineContents(context: ILexContext, rules: InlineRules, labels: Labels, options: ITokenizerFacOptions): void {
+    for (const content of context.inlineContents) {
+        content.tokens = tokenizerFac(content.source, null, rules, content.position, false, labels, options, null, false, context);
+        if (content.token.type === 'html_tag')
+            content.token.children = content.tokens;
     }
-    for (let i = context.imageDescriptions.length - 1; i >= 0; i--) {
-        const { token, tokens } = context.imageDescriptions[i];
-        token.attrs.alt = tokensToPlainText(tokens, '\n');
+    for (let i = context.inlineContents.length - 1; i >= 0; i--) {
+        const { token, tokens } = context.inlineContents[i];
+        if (token.type !== 'html_tag')
+            token.attrs.alt = tokensToPlainText(tokens, '\n');
     }
 }
 
@@ -871,38 +880,33 @@ export function tokenizer(src: string, {
     return tokens;
 }
 
-// transform `tokens` to text ignore the range of token
-// the opposite of tokenizer
-// Rebuild a marker-wrapped token from its children instead of its stale cached
-// `raw` (#2063). Link/image keep their stored raw.
-function rebuildWrapperToken(token: Token): string {
+function wrapperParts(token: Token): [string, string] | null {
     switch (token.type) {
         case 'strong':
         case 'em':
         case 'del':
         case 'mark':
-            return token.marker + generator(token.children, true) + token.backlash + token.marker;
-
+            return [token.marker, token.backlash + token.marker];
         case 'html_tag':
-            if (token.openTag != null && token.closeTag != null && token.children != null)
-                return token.openTag + generator(token.children, true) + token.closeTag;
-
-            return token.raw;
-
+            return token.closeTag !== undefined && token.children !== undefined ? [token.openTag, token.closeTag] : null;
         default:
-            return token.raw;
+            return null;
     }
 }
 
-// `rebuildWrappers` is opt-in: only `format()` mutates a wrapper's children;
-// `backspaceHandler` trims a marker off `raw` and needs it echoed verbatim.
-export function generator(tokens: Token[], rebuildWrappers = false) {
-    let result = '';
-
-    for (const token of tokens)
-        result += rebuildWrappers ? rebuildWrapperToken(token) : token.raw;
-
-    return result;
+// Rebuild wrappers for child edits (#2063); raw preserves marker edits from Backspace.
+export function generator(tokens: Token[], rebuildWrappers = false): string {
+    if (!rebuildWrappers)
+        return tokens.map(token => token.raw).join('');
+    const parts: string[] = [];
+    for (const { token, exiting } of tokenEvents(tokens, token => wrapperParts(token) !== null)) {
+        const wrapper = wrapperParts(token);
+        if (wrapper)
+            parts.push(wrapper[exiting ? 1 : 0]);
+        else if (!exiting)
+            parts.push(token.raw);
+    }
+    return parts.join('');
 }
 
 function leafTokenToPlainText(token: Token): string {
@@ -959,17 +963,13 @@ function leafTokenToPlainText(token: Token): string {
 // it to show and slug headings by their rendered text instead of raw source
 // (#4811).
 export function tokensToPlainText(tokens: Token[], lineBreak = ' '): string {
-    let result = '';
-
-    for (const token of tokens) {
-        result += 'children' in token && token.children
-            ? tokensToPlainText(token.children, lineBreak)
-            : token.type === 'soft_line_break' || token.type === 'hard_line_break'
-                ? lineBreak
-                : leafTokenToPlainText(token);
+    const parts: string[] = [];
+    for (const { token, exiting } of tokenEvents(tokens)) {
+        if (exiting || ('children' in token && token.children))
+            continue;
+        parts.push(token.type === 'soft_line_break' || token.type === 'hard_line_break' ? lineBreak : leafTokenToPlainText(token));
     }
-
-    return result;
+    return parts.join('');
 }
 
 // Unknown shortcodes fall back to the raw `:code:`, matching the editor.
@@ -989,48 +989,37 @@ function inlineDiffHtml(marker: string, content: string): string {
 // content as its plain counterpart so the shown heading and its slug stay in
 // step, which is why links, images and math stay flattened to text.
 export function tokensToInlineHtml(tokens: Token[]): string {
-    let result = '';
-
-    for (const token of tokens) {
+    const parts: string[] = [];
+    for (const { token, exiting } of tokenEvents(tokens)) {
+        if (token.type === 'strong' || token.type === 'em' || token.type === 'del' || token.type === 'mark') {
+            parts.push(exiting ? `</${token.type}>` : `<${token.type}>`);
+            continue;
+        }
+        if (exiting)
+            continue;
         switch (token.type) {
-            case 'strong':
-            case 'em':
-            case 'del':
-            case 'mark':
-                result += `<${token.type}>${tokensToInlineHtml(token.children)}</${token.type}>`;
-                break;
-
             case 'inline_diff':
-                result += inlineDiffHtml(token.marker, token.content);
+                parts.push(inlineDiffHtml(token.marker, token.content));
                 break;
-
             case 'inline_code':
-                result += `<code>${escapeHTML(token.content)}</code>`;
+                parts.push(`<code>${escapeHTML(token.content)}</code>`);
                 break;
-
             case 'super_sub_script': {
                 const tag = token.marker === '^' ? 'sup' : 'sub';
-                result += `<${tag}>${escapeHTML(token.content)}</${tag}>`;
+                parts.push(`<${tag}>${escapeHTML(token.content)}</${tag}>`);
                 break;
             }
-
             case 'link':
             case 'reference_link':
-                result += tokensToInlineHtml(token.children);
                 break;
-
             case 'html_tag':
-                if (token.children)
-                    result += tokensToInlineHtml(token.children);
-                else if (token.content)
-                    result += escapeHTML(token.content);
+                if (!token.children && token.content)
+                    parts.push(escapeHTML(token.content));
                 break;
-
             default:
-                result += escapeHTML(leafTokenToPlainText(token));
+                parts.push(escapeHTML(leafTokenToPlainText(token)));
                 break;
         }
     }
-
-    return result;
+    return parts.join('');
 }

@@ -1,6 +1,5 @@
 import type { HTMLTagToken } from './types';
 import { VOID_HTML_TAGS } from '../config';
-import { CodeSpanScanner } from './codeSpan';
 import { matchAt } from './matchAt';
 
 const htmlSpace = /[ \t]*(?:(?:\r\n?|\n)[ \t]*)?/.source;
@@ -46,11 +45,11 @@ export class HtmlTagScanner {
     private _closers = new Map<number, IHtmlClose>();
     private _indexedOpeners = new Set<number>();
 
-    constructor(private _source: string, private _codeSpans?: CodeSpanScanner) {}
+    constructor(private _source: string, private _protectedEnd: (index: number) => number) {}
 
-    read(index: number): IHtmlMatch | null {
+    read(index: number, end = this._source.length): IHtmlMatch | null {
         const match = matchAt(rawHtmlToken, this._source, index);
-        if (!match)
+        if (!match || index + match[0].length > end)
             return null;
         const openTag = match[0];
         const name = tagName(openTag);
@@ -65,10 +64,12 @@ export class HtmlTagScanner {
         const kind = openTag.startsWith('</') ? 'closing-tag' : 'tag';
         let close: IHtmlClose | undefined;
         if (kind === 'tag' && !voidTags.has(name) && !openTag.endsWith('/>')) {
-            // A backtick inside math or a link URL can hide later openers from an earlier scan.
+            // Outer scans skip links; their labels are indexed separately within the child source.
             if (!this._indexedOpeners.has(index))
-                this._indexClosers(index);
-            close = this._closers.get(index);
+                this._indexClosers(index, end);
+            const candidate = this._closers.get(index);
+            if (candidate && candidate.end <= end)
+                close = candidate;
         }
         return {
             raw: close ? this._source.slice(index, close.end) : openTag,
@@ -80,22 +81,18 @@ export class HtmlTagScanner {
         };
     }
 
-    private _indexClosers(index: number): void {
+    private _indexClosers(index: number, end: number): void {
         const openers = new Map<string, number[]>();
         const src = this._source;
         // Index successful and unmatched openers together so missing closers cannot rescan a suffix.
-        while (index < src.length) {
-            if (src[index] === '\\') {
-                index += 2;
-                continue;
-            }
-            if (src[index] === '`') {
-                this._codeSpans ??= new CodeSpanScanner(src);
-                index = this._codeSpans.read(index)!.end;
+        while (index < end) {
+            const protectedEnd = this._protectedEnd(index);
+            if (protectedEnd > index) {
+                index = protectedEnd;
                 continue;
             }
             const match = src[index] === '<' ? matchAt(rawHtmlToken, src, index) : null;
-            if (!match) {
+            if (!match || index + match[0].length > end) {
                 index++;
                 continue;
             }
