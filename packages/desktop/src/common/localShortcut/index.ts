@@ -1,3 +1,5 @@
+// Adapted from @hfelix/electron-localshortcut 4.0.1 and its keymap helpers.
+// Retain this directory's upstream MIT notices in LICENSE when redistributing.
 import type { BrowserWindow, Event as ElectronEvent, Input, WebContents } from 'electron'
 import { isValidAccelerator, toKeyEvent } from './accelerator'
 import {

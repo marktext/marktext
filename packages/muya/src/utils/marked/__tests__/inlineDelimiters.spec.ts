@@ -58,6 +58,7 @@ describe('marked inline delimiters with CJK boundaries', () => {
         it.each([
             ['中文**"加粗"**中文', '中文<strong>&quot;加粗&quot;</strong>中文'],
             ['𠀀**(加粗)**𠀁', '𠀀<strong>(加粗)</strong>𠀁'],
+            ['𫝀**"加粗"**𬺰', '𫝀<strong>&quot;加粗&quot;</strong>𬺰'],
         ])(`${name}: %s preserves CJK emphasis`, (markdown, expected) => {
             expect(render(markdown)).toBe(`<p>${expected}</p>\n`);
         });

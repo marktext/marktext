@@ -102,6 +102,10 @@ export const ko = {
         'Duplicate': '단락 복제',
         'New Paragraph': '새 단락',
         'Delete': '단락 삭제',
+        'Copy as': '다른 형식으로 복사',
+        'Markdown': 'Markdown',
+        'HTML': 'HTML',
+        'Rich Text': '서식 있는 텍스트',
         // imageToolbar
         'Edit Image': '이미지 편집',
         'Inline Image': '인라인 이미지',

@@ -7,7 +7,7 @@ import { metaKey, slowType } from '../helpers/keyboard';
 // container` (ot-json1 rejecting the composed op). Replays the reporter's
 // exact keystrokes.
 test('paste + outdent + backspace list editing does not crash the state flush', async ({ browserName, context, page }) => {
-    test.skip(browserName !== 'chromium', 'ClipboardItem unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+    test.skip(browserName !== 'chromium', 'ClipboardItem unreliable on Firefox/WebKit headless.');
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
 
     const pageErrors: string[] = [];

@@ -141,7 +141,7 @@ const hasMarkdownExtension = (filename: string): boolean => {
 const isChildOfDirectory = (dir: string, child: string): boolean => {
   if (!dir || !child) return false
   const relative = pathe.relative(dir, child)
-  return !!relative && !relative.startsWith('..') && !pathe.isAbsolute(relative)
+  return !!relative && relative !== '..' && !relative.startsWith('../') && !pathe.isAbsolute(relative)
 }
 
 const isSamePathSync = (pathA: string, pathB: string, isNormalized: boolean = false): boolean => {

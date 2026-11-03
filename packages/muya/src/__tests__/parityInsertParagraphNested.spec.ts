@@ -4,26 +4,8 @@ import type Content from '../block/base/content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../muya';
 
-// PARITY SCOREBOARD — gap PG13 (file PG11/PG13, "insert-paragraph anchor").
-//
-// Legacy `packages/muyajs` `insertParagraph(location, text, outMost=false)`
-// chose the insertion anchor via `getAnchor(block)` (the IMMEDIATE enclosing
-// block) for the context-menu / Paragraph-menu Insert-Paragraph path, and only
-// used `findOutMostBlock` for the explicit "Create Paragraph Below" action. So
-// inserting a paragraph while the cursor sat inside a list item / blockquote
-// landed the new paragraph as an inner sibling, INSIDE the structure.
-//
-// `@muyajs/core`'s `insertParagraph(location, text)` originally ALWAYS resolved
-// the target via `_outmostBlockAtCursor()` → `outMostBlock` (the OUTERMOST
-// container), so in a nested list/blockquote the new paragraph landed AFTER the
-// entire outer block (at document root) instead of as an inner sibling.
-//
-// The engine now restores the immediate-anchor path: `insertParagraph` gained a
-// third `outMost` flag (default `false`) that anchors to the IMMEDIATE block at
-// the cursor, matching the legacy context-menu "Insert Paragraph Before/After"
-// behaviour. The explicit "Create Paragraph Below" caller passes `outMost=true`
-// to keep anchoring at the outermost container. These specs assert the restored
-// immediate-anchor behaviour and now PASS.
+// Context-menu insertion stays inside the immediate container; Create Paragraph
+// Below explicitly opts into the outermost container.
 
 const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;

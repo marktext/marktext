@@ -1,6 +1,7 @@
 import { type BrowserWindow, type Menu, type MenuItem } from 'electron'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
+import { requireSubmenu } from '../lookup'
 
 type Win = BrowserWindow | null | undefined
 
@@ -152,18 +153,16 @@ export const loadParagraphCommands = (commandManager: CommandManager): void => {
 // NOTE: Don't use static `getMenuItemById` here, instead request the menu by
 //       window id from `AppMenu` manager.
 
-const setParagraphMenuItemStatus = (applicationMenu: Menu, bool: boolean): void => {
-  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
-  paragraphMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = bool))
+const setParagraphMenuItemStatus = (paragraphMenu: Menu, bool: boolean): void => {
+  paragraphMenu.items.forEach((item: MenuItem) => (item.enabled = bool))
 }
 
 const setMultipleStatus = (
-  applicationMenu: Menu,
+  paragraphMenu: Menu,
   list: readonly string[],
   status: boolean
 ): void => {
-  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
-  paragraphMenuItem.submenu!.items
+  paragraphMenu.items
     .filter((item: MenuItem) => item.id && list.includes(item.id))
     .forEach((item: MenuItem) => (item.enabled = status))
 }
@@ -183,12 +182,11 @@ export interface SelectionState {
 }
 
 const setCheckedMenuItem = (
-  applicationMenu: Menu,
+  paragraphMenu: Menu,
   { affiliation, isTable, isLooseListItem }: SelectionState
 ): void => {
-  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
-  paragraphMenuItem.submenu!.items.forEach((item: MenuItem) => (item.checked = false))
-  paragraphMenuItem.submenu!.items.forEach((item: MenuItem) => {
+  paragraphMenu.items.forEach((item: MenuItem) => (item.checked = false))
+  paragraphMenu.items.forEach((item: MenuItem) => {
     if (!item.id) {
       return false
     } else if (item.id === 'looseListItemMenuItem') {
@@ -225,10 +223,11 @@ export const updateSelectionMenus = (
     isCodeContent
   } = state
 
-  const formatMenuItem: MenuItem = applicationMenu.getMenuItemById('formatMenuItem')!
-  formatMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = true))
+  const formatMenu = requireSubmenu(applicationMenu, 'formatMenuItem')
+  const paragraphMenu = requireSubmenu(applicationMenu, 'paragraphMenuEntry')
+  formatMenu.items.forEach((item: MenuItem) => (item.enabled = true))
 
-  setCheckedMenuItem(applicationMenu, state)
+  setCheckedMenuItem(paragraphMenu, state)
   const alerts = applicationMenu.getMenuItemById('githubAlertsMenuItem')
   const syncAlerts = (): void => {
     if (!alerts) return
@@ -245,31 +244,30 @@ export const updateSelectionMenus = (
     }
   }
 
-  setParagraphMenuItemStatus(applicationMenu, !isDisabled)
+  setParagraphMenuItemStatus(paragraphMenu, !isDisabled)
   if (isDisabled) {
     syncAlerts()
     return
   }
 
   if (isCodeFences) {
-    setParagraphMenuItemStatus(applicationMenu, false)
+    setParagraphMenuItemStatus(paragraphMenu, false)
 
     // Non-formattable code-like content (code/math/html/frontmatter/diagram):
     // disable every format item. Tables never reach here (they return early via
     // isDisabled) so table cells keep formatting.
-    formatMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = false))
+    formatMenu.items.forEach((item: MenuItem) => (item.enabled = false))
 
     // A code line is selected — re-enable the code-fence toggle.
     if (isCodeContent && Object.keys(affiliation).some((b) => /code$/.test(b))) {
-      setMultipleStatus(applicationMenu, ['codeFencesMenuItem'], true)
+      setMultipleStatus(paragraphMenu, ['codeFencesMenuItem'], true)
     }
   } else if (isMultiline) {
     // Format: link/image are meaningless across a multi-block selection.
-    formatMenuItem.submenu!.items
+    formatMenu.items
       .filter((item: MenuItem) => item.id === 'hyperlinkMenuItem' || item.id === 'imageMenuItem')
       .forEach((item: MenuItem) => (item.enabled = false))
-    const paragraphMenu = applicationMenu.getMenuItemById('paragraphMenuEntry')!
-    paragraphMenu.submenu!.items.forEach((item: MenuItem) => {
+    paragraphMenu.items.forEach((item: MenuItem) => {
       if (item.id) {
         item.enabled = CROSS_BLOCK_ENABLED_PARAGRAPH.includes(item.id)
       }
@@ -277,13 +275,13 @@ export const updateSelectionMenus = (
   }
 
   if (!affiliation.ul && !affiliation.ol && !affiliation.task) {
-    setMultipleStatus(applicationMenu, ['looseListItemMenuItem'], false)
+    setMultipleStatus(paragraphMenu, ['looseListItemMenuItem'], false)
   }
 
   // Front matter may exist at most once per document; disable the menu item
   // whenever the document already has one.
   if (state.hasFrontMatter) {
-    setMultipleStatus(applicationMenu, ['frontMatterMenuItem'], false)
+    setMultipleStatus(paragraphMenu, ['frontMatterMenuItem'], false)
   }
   syncAlerts()
 }

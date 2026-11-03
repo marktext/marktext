@@ -39,7 +39,7 @@ interface IOptions {
 }
 
 // Kept in lockstep with the editor's `inline_math` rule
-// (inlineRenderer/rules.ts) so that a document reads the same while editing and
+// (inline/parser/rules.ts) so that a document reads the same while editing and
 // on export (#5446). Same shape, minus bare newlines: math never spans a line
 // on this path. A `$` may open a span mid-word, as pandoc and the editor both
 // allow, so the start hint carries no flanking requirement of its own.

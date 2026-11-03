@@ -1,13 +1,13 @@
 import type { VNode } from 'snabbdom';
 import type { Muya } from '../../index';
-import type { Token } from '../../inlineRenderer/types';
-import type { TSelection } from '../../selection/types';
+import type { Token } from '../../inline/model/types';
+import type { TSelection, TSelectionState } from '../../selection/types';
 import type { ColorFormatType, IColorStyle } from '../../utils/colorSpan';
 import type { IBaseOptions, IKeyboardShortcutOptions } from '../types';
 
 import type { FormatToolIcon, IColorSection, IColorSwatch } from './config';
 import Format from '../../block/base/format';
-import { createTextSelectionState } from '../../selection/state';
+import { copySelectionState, createTextSelectionState, equalSelections } from '../../selection/state';
 import { SelectionType } from '../../selection/types';
 import { isKeyboardEvent } from '../../utils';
 import { parseColorStyle } from '../../utils/colorSpan';
@@ -86,6 +86,8 @@ export class InlineFormatToolbar extends BaseFloat {
 
     private _dragging = false;
 
+    private _searchSelection: TSelectionState | null = null;
+
     private _colorPanelCloseTimer: number | null = null;
 
     /**
@@ -110,7 +112,12 @@ export class InlineFormatToolbar extends BaseFloat {
         super.listen();
 
         eventCenter.subscribe('selection-change', ({ selection }) => this._syncSelection(selection));
+        eventCenter.attachDOMEvent(document, 'focusin', () => {
+            if (this._hasExternalFocus())
+                this.hide();
+        });
         eventCenter.attachDOMEvent(domNode, 'mousedown', () => {
+            this._searchSelection = null;
             this._dragging = true;
             this.hide();
         });
@@ -147,13 +154,26 @@ export class InlineFormatToolbar extends BaseFloat {
         });
     }
 
+    private _hasExternalFocus(): boolean {
+        const focused = document.activeElement;
+        return focused !== null && focused !== document.body
+            && !this.muya.domNode.contains(focused) && !this.container?.contains(focused);
+    }
+
     private _syncSelection(selection: TSelection | null) {
         if (selection?.kind !== SelectionType.TEXT) {
+            this._searchSelection = null;
             this.hide();
             return;
         }
+        if (this.muya.editor.searchModule.isUpdatingSelection)
+            this._searchSelection = copySelectionState(selection);
+        else if (!equalSelections(this._searchSelection, selection))
+            this._searchSelection = null;
         const { anchorBlock, formats, isCollapsed, isSelectionInSameBlock, selectionCoords } = selection.context;
-        if (this._dragging || this.muya.editor.isComposing || this.muya.isReadOnly
+        // A result selected by Find is navigation rather than a formatting gesture.
+        if (this._dragging || this.muya.editor.isComposing || this.muya.isReadOnly || this._hasExternalFocus()
+            || this._searchSelection !== null
             || isCollapsed || !isSelectionInSameBlock
             || !(anchorBlock instanceof Format) || !selectionCoords) {
             this.hide();

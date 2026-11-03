@@ -102,6 +102,10 @@ export const ja = {
         'Duplicate': '段落をコピーする',
         'New Paragraph': '段落を新規作成',
         'Delete': '段落を削除する',
+        'Copy as': '形式を指定してコピー',
+        'Markdown': 'Markdown',
+        'HTML': 'HTML',
+        'Rich Text': 'リッチテキスト',
         // imageToolbar
         'Edit Image': '画像を編集する',
         'Inline Image': '行内画像',

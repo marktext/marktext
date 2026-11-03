@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import type { ImageToken } from '../../inlineRenderer/types';
+import type { ImageToken } from '../../inline/model/types';
 import type { Muya } from '../../muya';
 import { describe, expect, it, vi } from 'vitest';
 import { CopyType } from '../types';

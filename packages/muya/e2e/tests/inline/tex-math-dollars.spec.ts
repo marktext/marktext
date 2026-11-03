@@ -3,7 +3,7 @@ import { getMarkdown } from '../helpers/api';
 import { editor } from '../helpers/selectors';
 
 // #2002 / #5243: currency prose used to reach KaTeX. The tokenizer-level rules
-// are pinned in src/inlineRenderer/__tests__/texMathDollars.spec.ts; what these
+// are pinned in src/inline/__tests__/texMathDollars.spec.ts; what these
 // cover is the editor a user actually looks at, where the symptom was reported.
 test.describe('pandoc tex_math_dollars constraints (#5446)', () => {
     test('typing currency prose renders no formula', async ({ page }) => {

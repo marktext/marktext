@@ -1,0 +1,38 @@
+.mu-text-drag-preview,
+.mu-text-drop-caret {
+    position: fixed;
+    z-index: 10000;
+
+    user-select: none;
+    pointer-events: none;
+}
+
+.mu-text-drag-preview {
+    max-width: 280px;
+    max-height: 100px;
+    padding: 4px 8px;
+    overflow: hidden;
+
+    font-size: 14px;
+    white-space: pre-wrap;
+
+    background: var(--editor-bg-color, white);
+    border: 1px solid currentcolor;
+    border-radius: 4px;
+    opacity: 0.75;
+}
+
+.mu-text-drag-preview[data-operation='copy']::before {
+    content: '+ ';
+}
+
+.mu-text-drop-caret {
+    width: 2px;
+
+    background: currentcolor;
+}
+
+.mu-editor[data-text-dragging] .mu-content,
+.mu-editor[data-text-dragging] .mu-content * {
+    cursor: inherit;
+}

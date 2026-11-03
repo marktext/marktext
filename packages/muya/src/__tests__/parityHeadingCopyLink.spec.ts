@@ -3,21 +3,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../muya';
 
-// PARITY SCOREBOARD — gap PG11 (file PG10, "heading-copy-link").
-//
-// Legacy `packages/muyajs` rendered a hover affordance
-// (`i.icon.ag-copy-header-link`) on each heading and dispatched
-// `heading-copy-link` { key } when clicked; the desktop renderer copied the
-// heading's GitHub slug/anchor to the clipboard (`copyGithubSlug`).
-//
-// `@muyajs/core` renders no copy-anchor affordance on headings and never emits
-// `heading-copy-link`; the desktop subscription was removed and documented as
-// a gap. `copyGithubSlug` is now unreachable dead code.
-//
-// The engine now restores the hover-copy affordance (a `mu-copy-header-link`
-// attachment on every heading) and emits `heading-copy-link` { key } on click,
-// so these assertions pass. The `key` is the heading's stable slug — the same
-// value `getTOC()` exposes as `ITocItem.slug` — so the host can resolve it.
+// Heading-copy events carry the stable navigation slug so the host can resolve
+// the heading through getTOC() and copy its export anchor.
 
 const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;

@@ -26,7 +26,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.17.1/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/latest/total.svg" alt="latest download">
   </a>
   <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
@@ -36,7 +36,7 @@
 
 <div align="center">
   <h3>
-    <a href="https://github.com/marktext/marktext">
+    <a href="https://marktext.me">
       Website
     </a>
     <span> | </span>
@@ -136,17 +136,17 @@ MarkText はコミュニティの支援によって成り立つオープンソ�
 
 ## ダウンロードとインストール
 
-![プラットフォーム](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
+![プラットフォーム](https://img.shields.io/static/v1.svg?label=Platform&message=Linux%20x64%2Farm64%20|%20macOS%20x64%2Farm64%20|%20Windows%20x64%2Farm64&style=for-the-badge)
 
-|                                             ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                             |                                             ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                             |                                                    ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                    |
-| :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
+|               ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)               |               ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)               |              ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)              |
+| :-----------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------: |
+| [![Download for macOS](https://img.shields.io/badge/macOS-Download-blue)](https://github.com/marktext/marktext/releases/latest) | [![Download for Windows](https://img.shields.io/badge/Windows-Download-blue)](https://github.com/marktext/marktext/releases/latest) | [![Download for Linux](https://img.shields.io/badge/Linux-Download-blue)](https://github.com/marktext/marktext/releases/latest) |
 
 最新バージョンの新機能を確認しますか？[CHANGELOG](https://marktext.me/docs/changelog) をご覧ください。
 
 #### macOS
 
-[リリースページ](https://github.com/marktext/marktext/releases/latest)から最新の `marktext-%version%.dmg` をダウンロードするか、[**homebrew cask**](https://github.com/caskroom/homebrew-cask) を使って MarkText をインストールできます。Homebrew-Cask を使用するには [Homebrew](https://brew.sh/) がインストールされている必要があります。
+[リリースページ](https://github.com/marktext/marktext/releases/latest)から最新の `marktext-mac-(arm64|x64)-%version%.dmg` をダウンロードするか、[**homebrew cask**](https://github.com/caskroom/homebrew-cask) を使って MarkText をインストールできます。Homebrew-Cask を使用するには [Homebrew](https://brew.sh/) がインストールされている必要があります。
 
 ```bash
 brew install --cask mark-text
@@ -154,7 +154,7 @@ brew install --cask mark-text
 
 #### Windows
 
-セットアップウィザード（`marktext-setup-%version%.exe`）をダウンロードして MarkText をインストールし、ユーザーごとまたはシステム全体へのインストールを選択します。または、[Chocolatey](https://chocolatey.org/) や [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/) などのパッケージマネージャーを使ってインストールすることもできます。
+セットアップウィザード（`marktext-win-(x64|arm64)-%version%-setup.exe`）をダウンロードして MarkText をインストールし、ユーザーごとまたはシステム全体へのインストールを選択します。または、[Chocolatey](https://chocolatey.org/) や [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/) などのパッケージマネージャーを使ってインストールすることもできます。
 
 Chocolatey を使用するには、[Chocolatey](https://chocolatey.org/install) がインストールされている必要があります：
 

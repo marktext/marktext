@@ -14,6 +14,7 @@ import type Preference from '../preferences'
 import type Keybindings from '../keyboard/shortcutHandler'
 import type { UserPreferencesPatch } from '@shared/types/preferences'
 import { RecentDocumentsStore, type RecentDocument } from './recentDocuments'
+import type { ResourceMove } from 'common/filesystem/resourceMove'
 
 const RECENTLY_USED_DOCUMENTS_FILE_NAME = 'recently-used-documents.json'
 
@@ -28,6 +29,11 @@ export type MenuTypeValue = (typeof MenuType)[keyof typeof MenuType]
 interface WindowMenuEntry {
   menu: Menu | null
   type: MenuTypeValue
+}
+
+interface EditorMenuEntry extends WindowMenuEntry {
+  menu: Menu
+  type: typeof MenuType.EDITOR
 }
 
 interface AddEditorMenuOptions {
@@ -88,6 +94,11 @@ class AppMenu {
     this.updateAppMenu(documents.map((document) => document.pathname))
   }
 
+  relocateRecentlyUsedDocuments(move: ResourceMove): void {
+    const documents = this._recentDocuments.relocate(move)
+    this.updateAppMenu(documents.map(document => document.pathname))
+  }
+
   removeRecentlyUsedDocument(filePath: string): void {
     const documents = this._recentDocuments.remove(filePath)
     this.updateAppMenu(documents.map((document) => document.pathname))
@@ -124,10 +135,9 @@ class AppMenu {
   addEditorMenu(window: BrowserWindow, options: AddEditorMenuOptions = {}): void {
     const isSourceMode = !!options.sourceCodeModeEnabled
     const { windowMenus } = this
-    windowMenus.set(window.id, this._buildEditorMenu())
-
-    const entry = windowMenus.get(window.id)!
-    const menu = entry.menu!
+    const entry = this._buildEditorMenu()
+    windowMenus.set(window.id, entry)
+    const { menu } = entry
 
     const sourceCodeModeMenuItem = menu.getMenuItemById('sourceCodeModeMenuItem')
     if (sourceCodeModeMenuItem) {
@@ -168,16 +178,13 @@ class AppMenu {
     }
   }
 
-  getWindowMenuById(windowId: number): Menu {
+  getWindowMenuById(windowId: number): Menu | null {
     const menu = this.windowMenus.get(windowId)
     if (!menu) {
       log.error(`getWindowMenuById: Cannot find window menu for window id ${windowId}.`)
       throw new Error(`Cannot find window menu for id ${windowId}.`)
     }
-    // The original JS returns `menu.menu` directly; settings menus on non-macOS
-    // platforms have `menu: null`, in which case the consumer is responsible
-    // for handling the null/undefined return.
-    return menu.menu as Menu
+    return menu.menu
   }
 
   has(windowId: number): boolean {
@@ -259,6 +266,7 @@ class AppMenu {
 
   updateLineEndingMenu(windowId: number, lineEnding: string): void {
     const menus = this.getWindowMenuById(windowId)
+    if (!menus) return
     const crlfMenu = menus.getMenuItemById('crlfLineEndingMenuEntry')
     const lfMenu = menus.getMenuItemById('lfLineEndingMenuEntry')
     if (lineEnding === 'crlf') {
@@ -270,6 +278,7 @@ class AppMenu {
 
   updateAlwaysOnTopMenu(windowId: number, flag: boolean): void {
     const menus = this.getWindowMenuById(windowId)
+    if (!menus) return
     const menu = menus.getMenuItemById('alwaysOnTopMenuItem')
     if (menu) menu.checked = flag
   }
@@ -319,7 +328,7 @@ class AppMenu {
     })
   }
 
-  _buildEditorMenu(recentUsedDocuments: string[] | null = null): WindowMenuEntry {
+  _buildEditorMenu(recentUsedDocuments: string[] | null = null): EditorMenuEntry {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
     }
@@ -427,7 +436,8 @@ class AppMenu {
         log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
         return
       }
-      updateSidebarMenu(this.getWindowMenuById(windowId), value)
+      const menu = this.getWindowMenuById(windowId)
+      if (menu) updateSidebarMenu(menu, value)
     })
     ipcMain.on(
       'mt::view-layout-changed',

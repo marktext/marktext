@@ -66,7 +66,7 @@ test.describe('IME composition', () => {
     // unit tests in `packages/core/src/block/base/__tests__/autoPair.spec.ts`
     // cover the composeHandler branches directly. Skipping the engine
     // pending a CDP-driven IME injection (Playwright #1112).
-    test.skip(({ browserName }) => browserName === 'webkit', 'Synthetic IME unreliable on WebKit — see BACKLOG');
+    test.skip(({ browserName }) => browserName === 'webkit', 'Synthetic IME unreliable on WebKit');
 
     test('CJK pinyin commits text to a paragraph only after compositionend', async ({ page }) => {
         await page.evaluate(() => window.muya!.setContent('hello '));

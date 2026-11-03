@@ -1,4 +1,4 @@
-import type { Placement, ReferenceElement } from '@floating-ui/dom';
+import type { Middleware, Placement, ReferenceElement } from '@floating-ui/dom';
 import type { Muya } from '../../index';
 import type { IBaseOptions } from '../types';
 import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
@@ -145,16 +145,21 @@ abstract class BaseFloat {
         else eventCenter.emit('muya-float', this, false);
     }
 
+    protected getPositionMiddleware(): Middleware[] {
+        return [offset(this.options.offsetOptions), flip(), shift({ padding: 8 })];
+    }
+
     // `cb` is a generic "selection made" callback. Concrete floats invoke it
     // with their own argument tuple (e.g. emojiSelector → `(item)`,
     // tableChessboard → `(row, column)`). `never[]` in the contravariant
     // arg position accepts any concrete callback shape.
     show(reference: ReferenceElement, cb: (...args: never[]) => void = noop) {
-        if (this.muya.isReadOnly)
+        // Queued selection notifications must not reopen tools over a text drop target.
+        if (this.muya.isReadOnly || this.muya.editor?.textDrag?.isDragging)
             return;
         const { floatBox } = this;
         const { eventCenter } = this.muya;
-        const { placement, offsetOptions } = this.options;
+        const { placement } = this.options;
         if (!floatBox) {
             throw new Error('The float box is not existed.');
         }
@@ -171,8 +176,8 @@ abstract class BaseFloat {
         const cleanup = autoUpdate(reference, floatBox, () => {
             computePosition(reference, floatBox, {
                 placement,
-                middleware: [offset(offsetOptions), flip(), shift({ padding: 8 })],
-            }).then(({ x, y }) => {
+                middleware: this.getPositionMiddleware(),
+            }).then(({ x, y, middlewareData }) => {
                 // `computePosition` is async: a `hide()` (or a newer `show()`)
                 // can land before this resolves. Applying it then would set
                 // `opacity: 1` on an already-hidden float without restoring
@@ -180,6 +185,10 @@ abstract class BaseFloat {
                 // stuck visible. Bail unless this pass is still the active one.
                 if (this._cleanup !== cleanup)
                     return;
+                if (middlewareData.hide?.referenceHidden) {
+                    this.hide();
+                    return;
+                }
                 Object.assign(floatBox.style, {
                     left: `${x}px`,
                     top: `${y}px`,

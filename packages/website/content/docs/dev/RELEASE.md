@@ -87,9 +87,10 @@ Confirm:
   - **macOS x64** (4): `dmg`, `dmg.blockmap`, `zip`, `zip.blockmap`
   - **Windows x64** (3): `setup.exe`, `setup.exe.blockmap`, `zip`
   - **Windows arm64** (3): `setup.exe`, `setup.exe.blockmap`, `zip`
-  - **Auto-updater metadata** (5): `latest.yml`, `latest-mac.yml`, `latest-linux.yml`, `latest-linux-arm64.yml`, `builder-debug.yml`
+  - **Auto-updater metadata** (4): `latest.yml`, `latest-mac.yml`, `latest-linux.yml`, `latest-linux-arm64.yml`
+  - **Build diagnostics** (1): `builder-debug.yml`
   - **Checksums** (1): `SHA256SUMS.txt`
-- Auto-generated release notes list the PRs merged since the previous tag
+- Auto-generated release notes compare against the selected previous stable release
 
 ## 8. Post-stable cleanup (after stable `vX.Y.0` ships)
 

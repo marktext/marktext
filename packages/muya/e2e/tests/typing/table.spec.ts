@@ -100,7 +100,7 @@ test.describe('table', () => {
         await slowType(page, '**b**');
 
         // The strong run renders as a live `<strong>` element inside the cell
-        // (see inlineRenderer/renderer/delEmStrongFactory.ts — it emits
+        // (see inline/renderer/delEmStrongFactory.ts — it emits
         // `h('strong.mu-inline-rule', ...)`).
         const strong = bodyCell.locator('strong');
         await expect(strong).toHaveCount(1);
@@ -157,7 +157,7 @@ test.describe('table', () => {
         await slowType(page, '`c`');
 
         // The code span renders as a live `<code.mu-inline-rule>` element inside
-        // the cell (see inlineRenderer/renderer/inlineCode.ts — it emits
+        // the cell (see inline/renderer/inlineCode.ts — it emits
         // `h('code.mu-inline-rule', ...)`).
         const code = bodyCell.locator('code');
         await expect(code).toHaveCount(1);
@@ -180,7 +180,7 @@ test.describe('table', () => {
         await slowType(page, '[x](http://y)');
 
         // A link WITH anchor text renders via the "has children" branch of
-        // inlineRenderer/renderer/link.ts as `span.mu-inline-rule.mu-link`
+        // inline/renderer/link.ts as `span.mu-inline-rule.mu-link`
         // (NOT an `<a>` — only the no-text-link branch emits `a.mu-no-text-link`).
         // The `href` rides on the span's props and is reflected as an attribute.
         const linkSpan = bodyCell.locator('span.mu-link');

@@ -14,15 +14,15 @@ MarkText is a WYSIWYG markdown editor built on Electron + Vue 3. It supports Com
 
 | Layer              | Technology                                                 |
 | ------------------ | ---------------------------------------------------------- |
-| Language           | TypeScript 5.9 (strict mode)                               |
+| Language           | TypeScript 6.0 (strict mode)                               |
 | Desktop shell      | Electron 45                                                |
 | Build system       | electron-vite 6                                            |
 | Packaging          | electron-builder 26                                        |
 | Frontend framework | Vue 3                                                      |
-| State management   | Pinia 3                                                    |
-| Routing            | Vue Router 4                                               |
+| State management   | Pinia 4                                                    |
+| Routing            | Vue Router 5                                               |
 | UI library         | Element Plus                                               |
-| Unit tests         | Vitest 4                                                   |
+| Unit tests         | Vitest 5                                                   |
 | E2E tests          | Playwright                                                 |
 | Package manager    | pnpm >=10 workspace (`packageManager: pnpm@10.33.4`)       |
 | Repo layout        | pnpm monorepo — see Directory Structure                    |
@@ -35,19 +35,20 @@ root holds only shared tooling and CI-facing scripts.
 
 ```
 <repo-root>/
-  package.json              Workspace orchestrator — every CI-facing script
-                            proxies to packages/desktop via `pnpm --filter
-                            marktext ...`. CI invocations are unchanged.
-  pnpm-workspace.yaml       `packages: ['packages/*']` plus allowBuilds.
+  package.json              Workspace orchestrator — desktop commands proxy to
+                            packages/desktop via `pnpm --filter marktext`;
+                            lint, formatting and maintenance run at root.
+  pnpm-workspace.yaml       Workspace packages, including Muya examples/E2E,
+                            dependency overrides and allowBuilds.
   pnpm-lock.yaml            Single lockfile, shared across all packages.
-  eslint.config.js          Root ESLint v9 flat config (covers desktop;
-                            the website has its own ESLint v8 config and is
-                            ignored here).
+  eslint.config.js          Root ESLint 10 flat config (desktop and shared
+                            tooling; Muya and website self-lint with their
+                            own flat configs and are ignored here).
   scripts/                  Workspace-level scripts. postinstall.ts,
                             minify-locales.ts, generateThirdPartyLicense.ts,
                             validateLicenses.ts, thirdPartyChecker.ts all
                             target packages/desktop internally.
-  docs/                     Long-form developer docs.
+  docs/                     README translations and repository assets.
   dist/                     Packaged installers from electron-builder
                             (git-ignored; electron-builder writes here via
                             `directories.output: ../../dist` so CI artifact
@@ -96,7 +97,7 @@ root holds only shared tooling and CI-facing scripts.
     muya/                   TypeScript rewrite of muya
                             (name: "@muyajs/core"; upstream:
                             https://github.com/marktext/muya). Built on
-                            ot-json1 + ot-text-unicode + snabbdom + marked@16
+                            ot-json1 + ot-text-unicode + snabbdom + marked
                             + rxjs. Self-contained: own eslint config
                             (antfu), own stylelint, own madge, own vitest
                             spec suites (CommonMark + GFM). The editor
@@ -108,14 +109,14 @@ root holds only shared tooling and CI-facing scripts.
                             (listed in pnpm-workspace.yaml).
       e2e/                  muya-e2e — Playwright suite. CI runs Chromium
                             only via muya-e2e.yml; Firefox + WebKit are
-                            wired in playwright.config.ts but deferred
-                            until BACKLOG Phase 3 lands engine-independent
-                            specs.
-    website/                marktext-website (Vite + React 18). Standalone
-                            toolchain; depends on @muyajs/core from npm,
-                            not on the local workspace. Not part of desktop
-                            CI today.
-      src/ / public/ / build/ / vite.config.ts / tsconfig.json
+                            available locally with exclusions documented
+                            in e2e/README.md and playwright.config.ts.
+    website/                marktext-website (Next.js 15 + React 19).
+                            Own lint/typecheck scripts and website-deploy CI;
+                            OpenNext + Cloudflare Workers hosting.
+      content/docs/         User and developer Markdown documentation.
+      public/docs/          Documentation images and theme screenshots.
+      src/ / scripts/ / next.config.mjs / wrangler.toml / tsconfig.json
 ```
 
 The root has no `src/`, `test/`, `static/`, or `build/` of its own anymore — they all live in `packages/desktop/`.
@@ -137,7 +138,7 @@ pnpm install
 # require restarting `pnpm run dev`.
 pnpm run dev
 
-# Preview the last electron-vite build (no rebuild).
+# Build and preview the application (electron-vite preview rebuilds by default).
 pnpm run start
 
 # Build without packaging — fast path for verifying the renderer/main compile
@@ -149,14 +150,17 @@ pnpm run format
 # Minify locale files (required for production builds, skip during dev)
 pnpm run minify-locales
 
-# Performance debugging — exposes a Node inspector on :5858 against the previewed build
+# Performance debugging — builds, then launches with a Node inspector on :5858
 pnpm run perf:inspect       # attach when ready
 pnpm run perf:inspect-brk   # break on first line
 
-# Website (not yet wired into CI)
-pnpm --filter marktext-website dev      # Vite dev server
-pnpm --filter marktext-website build    # static build → packages/website/build/
+# Website (validated and deployed by website-deploy.yml)
+pnpm --filter marktext-website dev      # Next.js dev server
+pnpm --filter marktext-website build    # Next.js build → packages/website/.next/
 ```
+
+To launch existing bundles without rebuilding, run
+`pnpm -C packages/desktop exec electron-vite preview --skipBuild`.
 
 If you need to invoke a script directly inside a package, use
 `pnpm --filter <name> <script>` or `pnpm -C packages/<name> <script>`.
@@ -165,17 +169,21 @@ If you need to invoke a script directly inside a package, use
 
 ```bash
 pnpm run build:win    # Windows x64 — NSIS installer + zip
-pnpm run build:mac    # macOS x64 + arm64 — DMG + zip
+pnpm run build:mac    # macOS host architecture — DMG + zip
 pnpm run build:linux  # Linux — AppImage, snap, deb, rpm, tar.gz
 ```
+
+Use `build:win:x64`, `build:win:arm64`, `build:mac:x64`, `build:mac:arm64`,
+`build:linux:x64` or `build:linux:arm64` to select an architecture explicitly.
+Linux arm64 omits snap.
 
 All platform build scripts automatically run `minify-locales` and `electron-rebuild` before packaging.
 
 ## Testing
 
 ```bash
-pnpm run test          # All unit tests (Vitest)
-pnpm run test:unit     # Unit tests only
+pnpm run test          # Desktop unit tests (Vitest)
+pnpm run test:unit     # Desktop unit tests only
 pnpm run test:e2e      # End-to-end tests (Playwright)
 pnpm run lint          # ESLint (run before committing; CI enforces)
 pnpm run typecheck     # vue-tsc --noEmit (CI enforces)
@@ -190,6 +198,11 @@ pnpm -C packages/desktop exec vitest run -t 'partial test name'
 pnpm -C packages/desktop exec playwright test test/e2e/launch.spec.ts
 pnpm -C packages/desktop exec playwright test -g 'partial test name'
 ```
+
+Root test commands cover desktop only. Muya checks use
+`pnpm --filter @muyajs/core test` and `pnpm --filter @muyajs/core test:spec`;
+its browser suite uses `pnpm --filter muya-e2e e2e:chromium`. Website checks use
+`pnpm --filter marktext-website lint` and `pnpm --filter marktext-website type-check`.
 
 ## Code Style
 
@@ -214,22 +227,23 @@ Enforced by ESLint + Prettier. Run `pnpm run lint` and `pnpm run typecheck` befo
 
 Follow `.github/COMMENTING-GUIDELINES.md` for every comment you write. The core rule: a comment must describe what isn't obvious from the code — rationale, units, invariants, ownership, the abstraction a caller needs — never restate the code or echo the words already in the name. Before finishing any change, review the comments you added or touched against that document, and delete any that only repeat the code. Prefer self-explanatory names over comments; when a comment is genuinely needed, keep it short and complete and place it next to the code it describes.
 
-## Architecture: Three-Process Electron Model
+## Architecture: Main, Preload and Renderer
 
-All Electron processes live in `packages/desktop/`. Muya is a separate
+Electron application code lives in `packages/desktop/`. Preload executes in a
+renderer context rather than its own OS process. Muya is a separate
 workspace package that the renderer (and tests) consume as `@muyajs/core`.
 
 ```
 main process  (packages/desktop/src/main/)
   ├── Full Node.js + Electron API access
   ├── IO, file system, native dialogs, auto-updater, spell checker
-  ├── One instance per application launch
+  ├── One main process per application launch
   └── Controls editor windows via IPC
 
 preload  (packages/desktop/src/preload/)
   ├── Bridge between main and renderer
-  ├── Note: editor and preferences windows use contextIsolation: false +
-  │   nodeIntegration: true (see packages/desktop/src/main/config.js)
+  ├── Editor and preferences windows use contextIsolation: true,
+  │   sandbox: true and nodeIntegration: false (src/main/config.ts)
   └── Compiled to CommonJS
 
 renderer  (packages/desktop/src/renderer/)
@@ -266,7 +280,7 @@ See `packages/website/content/docs/dev/IPC.md` for conventions and examples.
 ## Important Build Notes
 
 - **CommonJS vs ESM**: `main` and `preload` compile to CommonJS; `renderer` is ESM-only. Do not use `require()` in renderer code.
-- **Minify locales**: `pnpm run minify-locales` must run before production builds. It is included in `build:win/mac/linux` but not in `dev`.
+- **Minify locales**: `pnpm run minify-locales` must run before production builds. It is included in `build:unpack` and `build:win/mac/linux`, but not in `build` or `dev`.
 - **Native modules**: After changing Electron version, run `pnpm run rebuild-native` (`electron-rebuild -f`).
 - **Hot reload**: The renderer hot-reloads via Vite HMR. `Ctrl+R` in the dev window reloads the renderer and re-runs the preload script. Changes to `main/` source are NOT picked up by a window reload — restart `pnpm run dev` to pick them up.
 - **electron-builder output**: `directories.output` in `packages/desktop/electron-builder.yml` is set to `../../dist` so installers land in the repo-root `dist/` (where CI artifact globs look for them). `out/` from electron-vite stays inside `packages/desktop/`.

@@ -41,11 +41,11 @@ Modifier keys use their full macOS names and appear in this order: Control, Opti
 | `edit.cut`                | <kbd>Command</kbd>+<kbd>X</kbd>                   | Cut selected text                               |
 | `edit.copy`               | <kbd>Command</kbd>+<kbd>C</kbd>                   | Copy selected text                              |
 | `edit.paste`              | <kbd>Command</kbd>+<kbd>V</kbd>                   | Paste text                                      |
-| `edit.copy-as-rich`       | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>C</kbd>  | Copy selected text as markdown                  |
+| `edit.copy-as-rich`       | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>C</kbd>  | Copy selected text as rich text                 |
 | `edit.copy-as-html`       | -                                                 | Copy selected text as html                      |
 | `edit.paste-as-plaintext` | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>V</kbd>  | Paste clipboard contents as plain text          |
 | `edit.select-all`         | <kbd>Command</kbd>+<kbd>A</kbd>                   | Select all text of the document                 |
-| `edit.duplicate`          | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>E</kbd> | Duplicate the current paragraph                 |
+| `edit.duplicate`          | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>E</kbd>  | Duplicate the current paragraph                 |
 | `edit.create-paragraph`   | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>N</kbd>  | Create a new paragraph after the current one    |
 | `edit.delete-paragraph`   | <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>D</kbd>  | Delete current paragraph                        |
 | `edit.find`               | <kbd>Command</kbd>+<kbd>F</kbd>                   | Find information in the document                |

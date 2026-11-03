@@ -370,7 +370,7 @@ class App {
     preparedSession?: PreparedSessionWindow
   ): EditorWindow {
     const editor = new EditorWindow(this._accessor, preparedSession)
-    editor.createWindow(
+    const nativeWindow = editor.createWindow(
       rootDirectory,
       fileList,
       markdownList,
@@ -379,17 +379,17 @@ class App {
     )
     this._windowManager.add(editor)
     if (this._windowManager.windowCount === 1) {
-      this._accessor.menu.setActiveWindow(editor.id!)
+      this._accessor.menu.setActiveWindow(nativeWindow.id)
     }
     return editor
   }
 
   private _createSettingWindow(category?: string | null): void {
     const setting = new SettingWindow(this._accessor)
-    setting.createWindow(category ?? null)
+    const nativeWindow = setting.createWindow(category ?? null)
     this._windowManager.add(setting)
     if (this._windowManager.windowCount === 1) {
-      this._accessor.menu.setActiveWindow(setting.id!)
+      this._accessor.menu.setActiveWindow(nativeWindow.id)
     }
   }
 

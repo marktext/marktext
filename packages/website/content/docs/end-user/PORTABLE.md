@@ -8,7 +8,7 @@ On Linux and Windows you can also create a directory called `marktext-user-data`
 
 ```
 marktext-portable/
- ├── marktext (Linux) or MarkText.exe (Windows)
+ ├── marktext (Linux) or marktext.exe (Windows)
  ├── marktext-user-data/
  ├── resources/
  ├── THIRD-PARTY-LICENSES.txt

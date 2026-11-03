@@ -12,8 +12,7 @@ import { editor } from '../helpers/selectors';
  *   - `javascript:` hrefs are stripped or replaced.
  *   - `onerror=` attributes are dropped.
  *
- * Static-export sanitization (`new MarkdownToHtml(md).generate()`) is a
- * Phase 4 item — this spec only covers the live editor render path.
+ * Static-export sanitization is covered in tests/export/markdown-to-html.spec.ts.
  */
 
 test.describe('sanitize XSS payloads', () => {

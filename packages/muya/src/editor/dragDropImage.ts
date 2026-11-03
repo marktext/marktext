@@ -6,7 +6,7 @@ import { IMAGE_EXT_REG, URL_REG } from '../config';
 import { findContentDOM } from '../selection/dom';
 import { getUniqueId } from '../utils';
 import { getBlock, query } from '../utils/dom';
-import { checkImageContentType, encodeImageSrc, getImageInfo, getImageSrc } from '../utils/image';
+import { checkImageContentType, getImageInfo, getImageSrc, imageToMarkdown } from '../utils/image';
 import logger from '../utils/logger';
 
 const debug = logger('editor:dragDropImage:');
@@ -16,8 +16,7 @@ const debug = logger('editor:dragDropImage:');
 // paragraph block.
 //
 // Two drop paths:
-//   - web-link image (`text/uri-list`)  → verify it is an image, then insert
-//                                          `![](url)` verbatim.
+//   - web-link image (`text/uri-list`) → verify it is an image before insertion.
 //   - local image FILE (`dataTransfer.files`) → resolve the file to a path via
 //     the embedder `getPathForFile` hook, insert a `![loading-id](path)`
 //     placeholder, persist it through the `imageAction` option (copy-to-assets
@@ -184,7 +183,7 @@ function handleWebLinkImage(
         if (!isImage || muya.isReadOnly || !muya.isBlockInDocument(target.anchor))
             return;
 
-        insertImageParagraph(muya, target, `![](${url})`);
+        insertImageParagraph(muya, target, imageToMarkdown({ src: url }));
     })();
 
     return true;
@@ -209,7 +208,7 @@ async function persistDroppedImage(
             return;
         const { src } = getImageSrc(path);
         if (src)
-            muya.editor.inlineRenderer.renderer.urlMap.set(newSrc, src);
+            muya.editor.inlineEngine.setImagePreview(newSrc, src);
 
         const imageWrapper = query<HTMLElement>(
             `span[data-id=${loadingId}]`,
@@ -241,7 +240,7 @@ async function insertPersistedImage(
         const src = await muya.options.imageAction?.({ src: path, alt: name, title: '' }) ?? path;
         if (!src || muya.isReadOnly || !muya.isBlockInDocument(target.anchor))
             return;
-        insertImageParagraph(muya, target, `![${name}](${encodeImageSrc(src)})`);
+        insertImageParagraph(muya, target, imageToMarkdown({ alt: name, src }));
     }
     catch (error) {
         debug.warn(`Unexpected error on image drop: ${String(error)}`);
@@ -284,15 +283,14 @@ function handleFileImage(
         void insertPersistedImage(muya, ready, path, name, target);
         return true;
     }
-    const encodedPath = encodeImageSrc(path);
 
     if (!muya.options.imageAction) {
-        insertImageParagraph(muya, target, `![${name}](${encodedPath})`);
+        insertImageParagraph(muya, target, imageToMarkdown({ alt: name, src: path }));
         return true;
     }
 
     const loadingId = `loading-${getUniqueId()}`;
-    const targetBlock = insertImageParagraph(muya, target, `![${loadingId}](${encodedPath})`);
+    const targetBlock = insertImageParagraph(muya, target, imageToMarkdown({ alt: loadingId, src: path }));
 
     void persistDroppedImage(muya, path, name, loadingId, targetBlock);
 

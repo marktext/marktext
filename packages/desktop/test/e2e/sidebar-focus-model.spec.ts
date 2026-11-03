@@ -27,6 +27,7 @@ test.describe('Sidebar tree focus scope', () => {
     fs.writeFileSync(path.join(projectDir, 'beta.md'), '# Beta\n', 'utf-8')
     fs.writeFileSync(path.join(projectDir, 'gamma.md'), '# Gamma\n', 'utf-8')
     fs.writeFileSync(path.join(projectDir, 'delta.md'), '# Delta\n', 'utf-8')
+    fs.mkdirSync(path.join(projectDir, 'notes'))
 
     const launched = await launchElectron([projectDir], { windowLayout: { showSideBar: true } })
     app = launched.app
@@ -125,4 +126,38 @@ test.describe('Sidebar tree focus scope', () => {
     await file.dblclick()
     await expect.poll(() => editorHasFocus(page)).toBe(true)
   })
+
+  for (const location of ['root', 'nested']) {
+    for (const kind of ['file', 'folder']) {
+      test(`clicking the new ${kind} input in a ${location} directory preserves caret focus`, async() => {
+        const menuPrefix = kind === 'file' ? 'newFileMenuItem' : 'newDirectoryMenuItem'
+        await app.evaluate(({ ipcMain }, prefix) => {
+          ipcMain.removeAllListeners('mt::menu::popup')
+          ipcMain.on('mt::menu::popup', (event, template: Array<{ id?: string }>) => {
+            const item = template.find(item => item.id?.startsWith(prefix))
+            if (!item?.id) throw new Error('Missing create menu item')
+            event.sender.send('mt::menu::click', { id: item.id })
+          })
+        }, menuPrefix)
+
+        const directory = location === 'root' ? projectDir : path.join(projectDir, 'notes')
+        const row = location === 'root'
+          ? page.locator('.project-root')
+          : page.locator('.folder-name').filter({ hasText: /^notes$/ })
+        await row.click({ button: 'right' })
+        const input = page.locator('input.new-input:visible')
+        await expect(input).toBeFocused()
+        await input.fill(`draft-${kind}`)
+        await input.click({ position: { x: 8, y: 8 } })
+        await expect(input).toBeFocused()
+        await page.keyboard.press('End')
+        await page.keyboard.type('-edited')
+        await expect(input).toHaveValue(`draft-${kind}-edited`)
+        await page.keyboard.press('Enter')
+
+        const name = `draft-${kind}-edited${kind === 'file' ? '.md' : ''}`
+        await expect.poll(() => fs.existsSync(path.join(directory, name))).toBe(true)
+      })
+    }
+  }
 })

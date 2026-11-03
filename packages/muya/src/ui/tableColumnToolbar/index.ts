@@ -1,9 +1,12 @@
+import type { Middleware } from '@floating-ui/dom';
 import type { VNode } from 'snabbdom';
 import type CellBlock from '../../block/gfm/table/cell';
 import type { Muya } from '../../index';
 import type { TableColumnToolIcon } from './config';
+import { hide, offset, shift } from '@floating-ui/dom';
 import { BLOCK_DOM_PROPERTY } from '../../config';
 import { isMouseEvent, throttle } from '../../utils';
+import { findScrollContainer } from '../../utils/dom';
 import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
 import icons from './config';
@@ -41,6 +44,25 @@ export class TableColumnToolbar extends BaseFloat {
         this.listen();
     }
 
+    protected override getPositionMiddleware(): Middleware[] {
+        const boundary = findScrollContainer(this.muya.domNode);
+        return [
+            offset(this.options.offsetOptions),
+            // Body-mounted tools must stay inside their editor's viewport (#5974).
+            shift({ boundary, padding: 8, crossAxis: true }),
+            hide({ boundary }),
+        ];
+    }
+
+    private _isPointerInEditor(event: MouseEvent): boolean {
+        const { domNode } = this.muya;
+        const { target, x, y } = event;
+        const { left, right, top, bottom } = findScrollContainer(domNode).getBoundingClientRect();
+        return target instanceof Node
+            && (domNode.contains(target) || !!this.floatBox?.contains(target))
+            && x >= left && x < right && y >= top && y < bottom;
+    }
+
     override listen() {
         const { eventCenter } = this.muya;
         super.listen();
@@ -48,6 +70,11 @@ export class TableColumnToolbar extends BaseFloat {
         const handler = throttle((event: Event) => {
             if (!isMouseEvent(event))
                 return;
+
+            if (!this._isPointerInEditor(event)) {
+                this.hide();
+                return;
+            }
 
             const { x, y } = event;
             const eles = [...document.elementsFromPoint(x, y)];
@@ -73,6 +100,7 @@ export class TableColumnToolbar extends BaseFloat {
                 return eles.some(
                     ele =>
                         ele[BLOCK_DOM_PROPERTY]
+                        && this.muya.domNode.contains(ele)
                         && ele[BLOCK_DOM_PROPERTY].blockName === 'table.cell',
                 );
             };
@@ -81,6 +109,7 @@ export class TableColumnToolbar extends BaseFloat {
                 const tableCellEle = bellowEles.find(
                     ele =>
                         ele[BLOCK_DOM_PROPERTY]
+                        && this.muya.domNode.contains(ele)
                         && ele[BLOCK_DOM_PROPERTY].blockName === 'table.cell',
                 );
                 const cellBlock = tableCellEle![BLOCK_DOM_PROPERTY];
@@ -93,7 +122,13 @@ export class TableColumnToolbar extends BaseFloat {
             }
         }, 300);
 
-        eventCenter.attachDOMEvent(document.body, 'mousemove', handler);
+        eventCenter.attachDOMEvent(document.body, 'mousemove', (event) => {
+            if (!isMouseEvent(event))
+                return;
+            if (!this._isPointerInEditor(event))
+                this.hide();
+            handler(event);
+        });
     }
 
     render() {

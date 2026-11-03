@@ -160,4 +160,15 @@ describe('Editor and Preferences keep their own menu bar on Linux (#2245)', () =
 
     expect(settings.menu).toBeNull()
   })
+
+  it('allows updates for a Preferences window without a menu bar', () => {
+    const appMenu = makeAppMenu()
+    const settings = createWindow(2)
+    appMenu.addSettingMenu(settings as never)
+
+    expect(appMenu.getWindowMenuById(2)).toBeNull()
+    expect(() => appMenu.updateLineEndingMenu(2, 'lf')).not.toThrow()
+    expect(() => appMenu.updateAlwaysOnTopMenu(2, true)).not.toThrow()
+    expect(settings.menu).toBeNull()
+  })
 })

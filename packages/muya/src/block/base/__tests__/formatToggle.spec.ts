@@ -129,6 +129,18 @@ describe('format.format() toggle-off with the caret inside the formatted run', (
         expect(content.text).toBe('word');
     });
 
+    it.each(['`` word ``', '``\nword\n``', '```` word ``` x ````'])('inline code preserves source whitespace and offsets when unwrapping %j', (source) => {
+        const marker = /^`+/.exec(source)![0];
+        const end = source.length - marker.length;
+        const content = selectInFirstBlock(bootMuya(source), marker.length, end);
+        const setCursor = vi.spyOn(content, 'setCursor');
+
+        content.format('inline_code');
+
+        expect(content.text).toBe(source.slice(marker.length, end));
+        expect(setCursor).toHaveBeenLastCalledWith(0, end - marker.length, true);
+    });
+
     it('mark (html_tag): `<mark>word</mark>` removes the highlight tags', () => {
         const content = caretInFirstBlock(bootMuya('<mark>word</mark>\n'), 2);
         content.format('mark');

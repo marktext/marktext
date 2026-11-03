@@ -23,7 +23,7 @@ e2e/
     └── i18n/          # locale switching
 ```
 
-The host page is intentionally decoupled from `examples/` — that folder is undergoing a parallel refactor, and a self-owned SUT keeps the two workstreams independent.
+The host page is independent of `examples/`, so demo changes do not alter the test harness.
 
 ## Running locally
 
@@ -31,12 +31,12 @@ From the repo root:
 
 ```sh
 pnpm install                    # one-time, picks up @playwright/test
-pnpm e2e                        # full matrix — Chromium + Firefox + WebKit
-pnpm e2e:ui                     # Playwright UI mode (recommended for debugging)
-pnpm e2e:headed                 # headed Chrome with normal page UI
+pnpm --filter muya-e2e e2e       # full matrix — Chromium + Firefox + WebKit
+pnpm --filter muya-e2e e2e:ui    # Playwright UI mode (recommended for debugging)
+pnpm --filter muya-e2e e2e:headed # full matrix with visible browser windows
 ```
 
-Targeted runs (Phase 2 added the cross-browser matrix):
+Targeted runs:
 
 ```sh
 pnpm --filter muya-e2e e2e:chromium   # Chromium only (system Chrome locally)
@@ -44,31 +44,37 @@ pnpm --filter muya-e2e e2e:firefox    # Firefox only (bundled binary)
 pnpm --filter muya-e2e e2e:webkit     # WebKit only (bundled binary)
 ```
 
-On CI (`CI=1`), Playwright uses the bundled Chromium / Firefox / WebKit downloaded by the `playwright install --with-deps chromium firefox webkit` step in `ci-e2e.yml`. Locally, the Chromium project falls back to the OS-installed Chrome so you don't need the 170 MB Chromium-for-Testing download; Firefox and WebKit have no system equivalent, so you must download them once:
+CI (`.github/workflows/muya-e2e.yml`) installs and runs **Chromium only**.
+Firefox and WebKit are configured for local runs, with engine-specific exclusions
+in `playwright.config.ts`; they are not part of the current CI matrix.
+
+Locally the Chromium project uses system Chrome by default. Firefox and WebKit
+require Playwright's browser downloads:
 
 ```sh
 pnpm --filter muya-e2e exec playwright install firefox webkit
-# or, to install all three at once:
-pnpm e2e:install
+# Install all three browsers, including system dependencies:
+pnpm --filter muya-e2e e2e:install
 ```
 
 To force bundled Chromium locally:
 
 ```sh
-PLAYWRIGHT_USE_BUNDLED_CHROMIUM=1 pnpm e2e
+PLAYWRIGHT_USE_BUNDLED_CHROMIUM=1 pnpm --filter muya-e2e e2e:chromium
 ```
 
 Inspect failures:
 
 ```sh
-pnpm --filter muya-e2e exec playwright show-report   # HTML report from the latest run
+pnpm --filter muya-e2e e2e:chromium --reporter=html
+pnpm --filter muya-e2e e2e:report   # Open the generated HTML report
 ```
 
 ## Conventions
 
-- **`page.keyboard.type` with `delay: 0` drops characters.** muya's content-change pipeline re-renders synchronously per keystroke; Playwright's default 0ms inter-key delay can outrun snabbdom patches. Use `slowType()` from `tests/helpers/keyboard.ts` (30ms per char) for any typing > 4 chars.
+- **`page.keyboard.type` with `delay: 0` drops characters.** rapid synthetic input can outrun editor updates. Use `slowType()` from `tests/helpers/keyboard.ts` (30ms per char) for any typing > 4 chars.
 - **Float plugins hide via `opacity: 0`, not `display: none`.** `expect(...).toBeHidden()` won't work — assert on computed opacity or rely on a subsequent action to settle state.
-- **`getMarkdown()` reads state asynchronously after the last keystroke.** Use `expect(domNode).toContainText(...)` as a sync barrier before reading markdown.
+- **DOM edits can be pending until the next frame.** Call `window.muya!.flush()` inside `page.evaluate` before reading `getMarkdown()` or `getState()` for an assertion.
 - **No `(window as any).muya`.** `types.d.ts` declares `Window.muya?: Muya`; the project bans `any` (`ts/no-explicit-any: 'error'`), so explicit casts will fail lint.
 - **One global E2E sandbox per workspace.** The host pre-registers every UI plugin. Specs that want a clean slate call `window.muya!.setContent('')` in a `before*` or first step.
 
@@ -79,6 +85,21 @@ pnpm --filter muya-e2e exec playwright show-report   # HTML report from the late
 3. Use selectors from `tests/helpers/selectors.ts` (or extend it). Don't hard-code `.mu-*` classes inside spec files.
 4. Bias toward asserting via the public API (`getMarkdown` / `getState` / `getTOC`) over DOM regex matching — markdown serialization is deterministic where snabbdom output can shift.
 
-## Roadmap
+## Coverage limits
 
-This is **Phase 1 — P0 smoke + key interaction skeleton**. See [BACKLOG.md](./BACKLOG.md) for the full 4-phase plan.
+- Firefox and WebKit exclude the inline toolbar, keyboard shortcut and
+  search/replace suites listed in `playwright.config.ts`. Their selection and
+  search drivers need browser-independent coverage before those exclusions can
+  be removed and CI expanded beyond Chromium.
+- Native clipboard tests require Chromium permissions and are skipped on
+  Firefox/WebKit. Synthetic IME tests also have WebKit exclusions; see the skip
+  reasons beside each test.
+- Accessibility scans fail on `critical` violations and log lower-severity
+  findings. The host toolbar (`.tools`) is excluded from scans.
+- The performance smoke test uses the Vite development server and allows up to
+  60 seconds for 10,000-paragraph `setContent`. This is a regression threshold;
+  production performance needs separate measurement.
+- This workspace has no dedicated E2E type-check script.
+
+List the current tests with
+`pnpm --filter muya-e2e exec playwright test --list`.

@@ -1,10 +1,11 @@
+import type Parent from '../block/base/parent';
 import type { Muya } from '../muya';
 import type { Nullable } from '../types';
 import type { IClipboardPayload } from './copyData';
 import Format from '../block/base/format';
 import { classifyInputKind } from '../history';
 import { isClipboardEvent, isInputEvent, isKeyboardEvent } from '../utils';
-import { getClipboardData, writeClipboardData } from './copyData';
+import { getBlockClipboardData, getClipboardData, writeClipboardData } from './copyData';
 import { cutSelection, deleteTableSelection, insertTextAtCursor } from './cut';
 import { pastePlainText, pasteSelection } from './paste';
 import { pasteImageSrc } from './pasteImage';
@@ -205,6 +206,27 @@ class Clipboard {
         this.copyType = CopyType.COPY_AS_RICH;
         document.execCommand('copy');
         this.copyType = CopyType.NORMAL;
+    }
+
+    // Copies the whole block; resolves false when the clipboard refuses the write. Uses the
+    // Clipboard API, not execCommand: the block menu has taken focus from the editor (#5808).
+    async copyBlockAs(block: Parent, copyType: CopyType): Promise<boolean> {
+        const { html, text } = getBlockClipboardData(this, block, copyType);
+        try {
+            if (html) {
+                await navigator.clipboard.write([new ClipboardItem({
+                    'text/html': new Blob([html], { type: 'text/html' }),
+                    'text/plain': new Blob([text], { type: 'text/plain' }),
+                })]);
+            }
+            else {
+                await navigator.clipboard.writeText(text);
+            }
+            return true;
+        }
+        catch {
+            return false;
+        }
     }
 
     // Read explicitly: Chromium no longer dispatches paste for execCommand('paste').

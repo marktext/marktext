@@ -77,7 +77,7 @@ test('typing right after a &nbsp; lands at the correct offset', async ({ page })
 })
 
 test('copying a selection across &nbsp; preserves the entity', async ({ browserName, context, page }) => {
-  test.skip(browserName !== 'chromium', 'clipboard read/write unreliable on Firefox/WebKit headless — BACKLOG Phase 3.')
+  test.skip(browserName !== 'chromium', 'clipboard read/write unreliable on Firefox/WebKit headless.')
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.evaluate(() => window.muya!.setContent('x&nbsp;y'))
   await page.evaluate(() => {
@@ -91,7 +91,7 @@ test('copying a selection across &nbsp; preserves the entity', async ({ browserN
 })
 
 test('cutting a selection across &nbsp; removes it and keeps the entity on the clipboard', async ({ browserName, context, page }) => {
-  test.skip(browserName !== 'chromium', 'clipboard read/write unreliable on Firefox/WebKit headless — BACKLOG Phase 3.')
+  test.skip(browserName !== 'chromium', 'clipboard read/write unreliable on Firefox/WebKit headless.')
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.evaluate(() => window.muya!.setContent('x&nbsp;y'))
   await page.evaluate(() => {

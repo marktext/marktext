@@ -1,12 +1,7 @@
 name: Muya E2E
 
-# Runs the muya Playwright suite (packages/muya/e2e/) against the
-# packages/muya/e2e/host/ SUT page. Phase 1: Chromium only — firefox
-# and webkit are wired in playwright.config.ts but their bundled
-# binaries add ~5 min to CI install and a couple of specs need engine-
-# independent rewrites (triple-click selection, #all-replace) tracked
-# in packages/muya/e2e/BACKLOG.md Phase 3. Add them back to the matrix
-# below once those are landed.
+# Chromium covers the host page in packages/muya/e2e/host/.
+# Firefox/WebKit have local exclusions described in packages/muya/e2e/README.md.
 
 on:
   pull_request:

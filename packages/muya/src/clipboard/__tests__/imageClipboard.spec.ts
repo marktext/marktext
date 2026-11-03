@@ -2,6 +2,7 @@
 
 import type Format from '../../block/base/format';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { tokenizer } from '../../inline/lexer';
 import { Muya } from '../../muya';
 import { SelectionDirection } from '../../selection/types';
 import { getImageInfo } from '../../utils/image';
@@ -62,6 +63,14 @@ function pasteEvent(data: { text: string; html: string }, withBitmap = true): Cl
 }
 
 describe('selected image clipboard formats', () => {
+    it.each(['</img>', '</IMG >'])('rejects a closing tag carried as image metadata: %j', (markdown) => {
+        const image = document.createElement('img');
+        const src = 'https://example.com/source.png';
+        image.setAttribute('src', src);
+        image.setAttribute('data-marktext-image', JSON.stringify({ version: 1, markdown, src, documentId: '/docs/source.md' }));
+        expect(readClipboardImage(image.outerHTML, markdown)).toBeNull();
+    });
+
     it('carries the original Markdown, resolved source and document identity in inert HTML', () => {
         const data = copyData();
         expect(readClipboardImage(data.html, data.text)).toEqual({
@@ -121,6 +130,22 @@ describe('internal image paste precedence', () => {
         await target.editor.clipboard.pasteHandler(pasteEvent(data));
         expect(action).toHaveBeenCalledWith('file:///docs/assets/source.png');
         expect(target.getMarkdown()).toBe('![alt](assets/copied.png "caption")\n');
+    });
+
+    it.each([
+        ['a &quot;b&quot; &amp;quot;', 'a "b" &quot;', 'assets/copied.png'],
+        ['two&#10;&#10;lines&Tab;', 'two\n\nlines\t', 'assets/a\t.png'],
+    ])('preserves decoded title %j when a cross-document paste rewrites the source', async (rawTitle, title, src) => {
+        const data = copyData(`![alt](assets/source.png "${rawTitle}")`);
+        const target = boot('![old](assets/old.png)', '/elsewhere/target.md', {
+            clipboardImageAction: vi.fn().mockResolvedValue(src),
+        });
+        selectImage(target);
+        await target.editor.clipboard.pasteHandler(pasteEvent(data));
+        expect(tokenizer(target.getMarkdown().trim())[0]).toMatchObject({
+            type: 'image',
+            attrs: { src, title },
+        });
     });
 
     it('keeps an absolute working reference when the host cannot persist a cross-document asset', async () => {

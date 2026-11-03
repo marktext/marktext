@@ -23,8 +23,6 @@ import { editor } from '../helpers/selectors';
  *     available in headless.
  *   - WebKit: clipboard-read/write permissions can't be granted in
  *     Playwright's headless WebKit yet (Playwright issue #13037).
- *
- * Both engines tracked in BACKLOG Phase 3 (cross-engine clipboard).
  */
 
 test.describe('clipboard paste', () => {
@@ -36,7 +34,7 @@ test.describe('clipboard paste', () => {
     });
 
     test('pasting <b>foo</b> converts to **foo**', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless.');
         await grantClipboardPermissions(context);
         await pasteClipboard(page, '<b>foo</b>', 'foo');
         await expect.poll(async () => getMarkdown(page), {
@@ -46,7 +44,7 @@ test.describe('clipboard paste', () => {
     });
 
     test('pasting Google Docs CSS formatting preserves the real bold and italic ranges', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless.');
         await grantClipboardPermissions(context);
         const html = [
             '<b style="font-weight:normal" id="docs-internal-guid-abc">',
@@ -70,7 +68,7 @@ test.describe('clipboard paste', () => {
     });
 
     test('pasting <a href> converts to markdown link', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless.');
         await grantClipboardPermissions(context);
         await pasteClipboard(page, '<a href="https://example.test/">click here</a>', 'click here');
         await expect.poll(async () => getMarkdown(page), {
@@ -80,7 +78,7 @@ test.describe('clipboard paste', () => {
     });
 
     test('pasting bare URL HTML link inside text preserves link markup', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless.');
         await grantClipboardPermissions(context);
         const url = 'http://10.255.255.1/page';
 
@@ -99,7 +97,7 @@ test.describe('clipboard paste', () => {
     });
 
     test('pasting bare URL HTML link with auto-link boundaries keeps plain URL fallback', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless.');
         await grantClipboardPermissions(context);
         const url = 'http://10.255.255.1/page';
 
@@ -118,7 +116,7 @@ test.describe('clipboard paste', () => {
     });
 
     test('pasting bare URL HTML link before trailing punctuation keeps plain URL fallback', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless.');
         await grantClipboardPermissions(context);
         const url = 'http://10.255.255.1/page';
 
@@ -137,7 +135,7 @@ test.describe('clipboard paste', () => {
     });
 
     test('pasting a basic <table> converts to a GFM table', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless.');
         await grantClipboardPermissions(context);
         const html = '<table><thead><tr><th>h1</th><th>h2</th></tr></thead>'
             + '<tbody><tr><td>r1c1</td><td>r1c2</td></tr></tbody></table>';
@@ -153,7 +151,7 @@ test.describe('clipboard paste', () => {
     });
 
     test('pasting nested HTML lists under ordered parents preserves nesting', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless.');
         await grantClipboardPermissions(context);
 
         await pasteClipboard(page, '<ol><li>one<ul><li>two</li></ul></li><li>three</li></ol>', 'one\ntwo\nthree');
@@ -170,7 +168,7 @@ test.describe('clipboard paste', () => {
     });
 
     test('pasting HTML task-list items creates task-list Markdown', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless.');
         await grantClipboardPermissions(context);
 
         await pasteClipboard(
@@ -203,7 +201,7 @@ test.describe('clipboard paste', () => {
     });
 
     test('pasting a <table> with first-row colspan converts to a GFM table', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless.');
         await grantClipboardPermissions(context);
         const html = '<table><tr><td colspan="2">A</td></tr><tr><td>B</td><td>C</td></tr></table>';
         await pasteClipboard(page, html, 'A\nB\tC');
@@ -218,7 +216,7 @@ test.describe('clipboard paste', () => {
     });
 
     test('pasting plain text without HTML falls back to text insertion', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'ClipboardItem unreliable on Firefox/WebKit headless.');
         await grantClipboardPermissions(context);
         await pastePlainClipboard(page, 'just plain text');
         await expect.poll(async () => getMarkdown(page), {
@@ -231,7 +229,7 @@ test.describe('clipboard paste', () => {
     });
 
     test('pasting inline spaces with HTML still inserts the plain spaces', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless.');
         await grantClipboardPermissions(context);
         await pasteClipboardAt(page, 'AB', 1, '<span style="white-space: pre;">  </span>', '  ');
         await expect.poll(async () => getMarkdown(page), {

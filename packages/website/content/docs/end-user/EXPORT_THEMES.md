@@ -8,7 +8,7 @@ You can install a theme by copying the `.css` file to `themes/export/` directory
 
 ## Create a theme
 
-MarkText use the GitHub theme as basic style that is always available. A custom theme can add additional styles but have to overwrite the GitHub style to make changes such as font family or the underling for heading. You can see all predefined styles [here](https://github.com/sindresorhus/github-markdown-css/blob/gh-pages/github-markdown.css). An example for custom themes can be found [here](https://github.com/marktext/marktext/blob/develop/src/renderer/assets/themes/export/academic.theme.css) and [here](https://github.com/marktext/marktext/blob/develop/src/renderer/assets/themes/export/liber.theme.css).
+MarkText use the GitHub theme as basic style that is always available. A custom theme can add additional styles but have to overwrite the GitHub style to make changes such as font family or the underling for heading. You can see all predefined styles [here](https://github.com/sindresorhus/github-markdown-css/blob/gh-pages/github-markdown.css). An example for custom themes can be found [here](https://github.com/marktext/marktext/blob/develop/packages/desktop/src/renderer/src/assets/themes/export/academic.theme.css) and [here](https://github.com/marktext/marktext/blob/develop/packages/desktop/src/renderer/src/assets/themes/export/liber.theme.css).
 
 ### Theme settings
 

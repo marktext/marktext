@@ -1,0 +1,149 @@
+{
+    "commonmarkVersion": "0.31.2",
+    "gfmVersion": "0.29-gfm",
+    "entries": {
+        "commonmark:18": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: code"
+        },
+        "commonmark:19": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: code"
+        },
+        "commonmark:21": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: html"
+        },
+        "commonmark:24": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: code"
+        },
+        "commonmark:31": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: html"
+        },
+        "commonmark:34": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: code"
+        },
+        "commonmark:36": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: code"
+        },
+        "commonmark:38": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: list"
+        },
+        "commonmark:608": {
+            "status": "extension-difference",
+            "reason": "The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.",
+            "fingerprint": "51be9641c3e08f57f7c91b95d070bfaff719dfee3ac8840ae54b64947e516ea7"
+        },
+        "commonmark:611": {
+            "status": "extension-difference",
+            "reason": "The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.",
+            "fingerprint": "6a83ce9e234c24cebe49f7165c1de627b9608a416440897ca22eda1bfd6d5c3c"
+        },
+        "commonmark:612": {
+            "status": "extension-difference",
+            "reason": "The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.",
+            "fingerprint": "ebc6c2e91940afd7c507eaaf1ee2d0df270307f92582b5e188905bb161c15e73"
+        },
+        "gfm:314": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: code"
+        },
+        "gfm:315": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: code"
+        },
+        "gfm:317": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: html"
+        },
+        "gfm:320": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: code"
+        },
+        "gfm:327": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: html"
+        },
+        "gfm:330": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: code"
+        },
+        "gfm:332": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: code"
+        },
+        "gfm:334": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: list"
+        },
+        "gfm:398": {
+            "status": "version-difference",
+            "reason": "The same Markdown matches CommonMark 0.31.2; the GFM 0.29-gfm fixture expects older semantics.",
+            "fingerprint": "e18caaba26d1cd8a302769e855ae2b69729eb9c3837b396c9e6a8d7d8a393bea"
+        },
+        "gfm:426": {
+            "status": "version-difference",
+            "reason": "The same Markdown matches CommonMark 0.31.2; the GFM 0.29-gfm fixture expects older semantics.",
+            "fingerprint": "12ea9f4ee14c4730b7b7ababe29ea4f68b23535c655e5e8a3d3f16bcf915e292"
+        },
+        "gfm:434": {
+            "status": "version-difference",
+            "reason": "The same Markdown matches CommonMark 0.31.2; the GFM 0.29-gfm fixture expects older semantics.",
+            "fingerprint": "d52d1be41f9f7e5598d1a5d6dea168bf7bb6b779dbfc73d104835c648bf2df08"
+        },
+        "gfm:435": {
+            "status": "version-difference",
+            "reason": "The same Markdown matches CommonMark 0.31.2; the GFM 0.29-gfm fixture expects older semantics.",
+            "fingerprint": "e5a3247afaf5db74da3731d6cb45a049564502376bbd349a6d6a450b767011b4"
+        },
+        "gfm:436": {
+            "status": "version-difference",
+            "reason": "The same Markdown matches CommonMark 0.31.2; the GFM 0.29-gfm fixture expects older semantics.",
+            "fingerprint": "cb5d73b08efafde44686e4f520f0f74656b27a40603ddb0ff5339200d6e13fbd"
+        },
+        "gfm:473": {
+            "status": "version-difference",
+            "reason": "The same Markdown matches CommonMark 0.31.2; the GFM 0.29-gfm fixture expects older semantics.",
+            "fingerprint": "fe0e2862cc4cc9013c642d1211e500a2950f98a0d91b70583020a67b3e477c38"
+        },
+        "gfm:474": {
+            "status": "version-difference",
+            "reason": "The same Markdown matches CommonMark 0.31.2; the GFM 0.29-gfm fixture expects older semantics.",
+            "fingerprint": "8eb28f94cc35231245ae4d4095a77e32be5b586e8f8feb8839d083224409b23b"
+        },
+        "gfm:475": {
+            "status": "version-difference",
+            "reason": "The same Markdown matches CommonMark 0.31.2; the GFM 0.29-gfm fixture expects older semantics.",
+            "fingerprint": "e7de758109e8f295083830581bf388762437ac05ad407c988fd16c07df2405e3"
+        },
+        "gfm:477": {
+            "status": "version-difference",
+            "reason": "The same Markdown matches CommonMark 0.31.2; the GFM 0.29-gfm fixture expects older semantics.",
+            "fingerprint": "414783a5b0b9da7125d6a47ead61e7409744c980d615ef54a63e38da82fad8b3"
+        },
+        "gfm:616": {
+            "status": "extension-difference",
+            "reason": "The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.",
+            "fingerprint": "ff2ed2c195971bc750fbc734e6d323142677ca03881c0c86a59188286439c0b0"
+        },
+        "gfm:619": {
+            "status": "extension-difference",
+            "reason": "The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.",
+            "fingerprint": "938e57ba4088df3f058b85f7633e57a49fe792b26f8ae41b105b7f57fa3ac2b1"
+        },
+        "gfm:620": {
+            "status": "extension-difference",
+            "reason": "The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.",
+            "fingerprint": "ebc6c2e91940afd7c507eaaf1ee2d0df270307f92582b5e188905bb161c15e73"
+        },
+        "gfm:652": {
+            "status": "uncovered",
+            "reason": "Block adapter does not support: html"
+        }
+    }
+}

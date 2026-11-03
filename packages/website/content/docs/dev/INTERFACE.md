@@ -18,7 +18,7 @@ The title bar shows document information and the statistics counter. Linux and W
 
 The optional, resizable sidebar contains the filesystem explorer and a find-in-files search powered by ripgrep. The explorer includes a collapsible _Opened Files_ section (`openedFilesInSidebar`). In the 0.24.0 development version, it supports multiple folder roots, search across available roots, and a draggable divider below Opened Files.
 
-The document outline is a separate panel, available since 0.23.0. When expanded it occupies a resizable column on the configured side of the editor; when collapsed its icon opens a floating preview on hover or focus. Its width is stored in renderer localStorage, while position and expanded state are preferences. An empty state remains visible for documents without headings. The title-bar statistics popover shows document and selection counts, file timestamps and a per-tab Reading Mode switch.
+The document outline is a separate panel, available since 0.23.0. When expanded it occupies a resizable column on the configured side of the editor; when collapsed its icon opens a floating preview on hover or focus. Outline width, position and expanded state are part of each window's layout in `state/application-state.json`; the `tocPosition` preference supplies the default side for new layouts. An empty state remains visible for documents without headings. The title-bar statistics popover shows document and selection counts, file timestamps and a per-tab Reading Mode switch.
 
 ### Editor
 
@@ -30,4 +30,4 @@ The desktop main process handles command shortcuts. Muya menus display the activ
 
 Set `keyboardShortcuts: false` on `InlineFormatToolbar` and `ParagraphQuickInsertMenu`, and provide `getShortcut(action)` to both and `ParagraphFrontMenu`. Empty results hide the hint. Call `muya.refreshShortcutHints()` when bindings change. Clicks and slash-menu navigation remain enabled; standalone consumers can omit these options to retain defaults.
 
-Recording, conflict checks and dispatch share `common/localShortcut`. See its README for layout handling and retain its MIT notice when packaging.
+Recording, conflict checks and dispatch share the layout-aware `KeyboardMapper` in `common/localShortcut`. Retain the upstream MIT notices in `packages/desktop/src/common/localShortcut/LICENSE` when packaging.

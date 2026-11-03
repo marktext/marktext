@@ -3,7 +3,7 @@ import type {
     CodeEmojiMathToken,
     TextToken,
     Token,
-} from '../../inlineRenderer/types';
+} from '../../inline/model/types';
 import type { IContentCursor, IRenderCursor } from '../../selection/types';
 import type { IBulletListState, IListItemState, IOrderListState, IParagraphState, ITaskListState } from '../../state/types';
 import type { Nullable } from '../../types';
@@ -26,7 +26,9 @@ import {
     PARAGRAPH_STATE,
     THEMATIC_BREAK_STATE,
 } from '../../config';
-import { generator, tokenizer } from '../../inlineRenderer/lexer';
+import { tokenEvents } from '../../inline/model/traversal';
+import { parseInline } from '../../inline/parser/lexer';
+import { generator, SourceGenerationMode } from '../../inline/serialization';
 import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
 import { contentPath } from '../../selection/state';
@@ -34,7 +36,7 @@ import { SelectionType } from '../../selection/types';
 import { isListItemState } from '../../state/types';
 import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isKeyboardEvent, isMouseEvent, lastGraphemeLength } from '../../utils';
 import { COLOR_SPAN_CLOSE_TAG, colorPropertyOf, colorSpanOpenTag, isColorStyleEmpty, parseColorStyle } from '../../utils/colorSpan';
-import { correctImageSrc, encodeImageSrc, getImageInfo } from '../../utils/image';
+import { correctImageSrc, getImageInfo, imageToMarkdown, isImageToken } from '../../utils/image';
 import { minSpacesAfterMarker, parseListMarker, toListDelimiter } from '../../utils/listMarker';
 import logger from '../../utils/logger';
 
@@ -238,10 +240,13 @@ function clearFormat(token: Token, cursor: IContentCursor) {
         case 'inline_diff': {
             const { parent, range } = token;
             const index = parent.indexOf(token);
+            const content = token.type === 'inline_code'
+                ? token.raw.slice(token.marker.length, -token.marker.length)
+                : token.content;
             const newToken: TextToken = {
                 type: 'text',
-                raw: token.content,
-                content: token.content,
+                raw: content,
+                content,
                 parent,
                 range, // the range is wrong, but it will not be used.
             };
@@ -297,10 +302,10 @@ function collectColorSpans(
     tokens: Token[],
     rangeStart: number,
     rangeEnd: number,
-    out: IColorSpan[] = [],
 ): IColorSpan[] {
-    for (const token of tokens) {
-        if (token.range.end <= rangeStart || token.range.start >= rangeEnd)
+    const out: IColorSpan[] = [];
+    for (const { token, exiting } of tokenEvents(tokens, token => token.range.end > rangeStart && token.range.start < rangeEnd)) {
+        if (exiting || token.range.end <= rangeStart || token.range.start >= rangeEnd)
             continue;
 
         if (token.type === 'html_tag' && token.tag.toLowerCase() === 'span') {
@@ -315,9 +320,6 @@ function collectColorSpans(
                 });
             }
         }
-
-        if ('children' in token && Array.isArray(token.children))
-            collectColorSpans(token.children, rangeStart, rangeEnd, out);
     }
 
     return out;
@@ -336,43 +338,34 @@ class Format extends Content {
         type: Token['type'],
         includeEnd = false,
     ): Nullable<Token> {
-        const tokens = tokenizer(text, {
-            hasBeginRules: false,
+        const tokens = parseInline(text, {
+            profile: 'inline',
             options: this.muya.options,
         });
 
-        let result = null;
-
-        const travel = (tokens: Token[]) => {
-            for (const token of tokens) {
-                if (token.range.start > offset)
-                    break;
-
-                if (
-                    token.type === type
-                    && offset > token.range.start
-                    && (offset < token.range.end || (includeEnd && offset === token.range.end))
-                ) {
-                    result = token;
-                    break;
-                }
-                else if ('children' in token && Array.isArray(token.children)) {
-                    travel(token.children);
-                }
+        for (const { token, exiting } of tokenEvents(tokens, token => token.range.start <= offset && offset <= token.range.end)) {
+            if (exiting)
+                continue;
+            if (token.range.start > offset)
+                break;
+            if (
+                token.type === type
+                && offset > token.range.start
+                && (offset < token.range.end || (includeEnd && offset === token.range.end))
+            ) {
+                return token;
             }
-        };
+        }
 
-        travel(tokens);
-
-        return result;
+        return null;
     }
 
     private _checkNotSameToken(oldText: string, text: string) {
         const { options } = this.muya;
-        const oldTokens = tokenizer(oldText, {
+        const oldTokens = parseInline(oldText, {
             options,
         });
-        const tokens = tokenizer(text, {
+        const tokens = parseInline(text, {
             options,
         });
 
@@ -408,16 +401,16 @@ class Format extends Content {
         anchor: this.selection.anchor ?? undefined,
         focus: this.selection.focus ?? undefined,
     }) {
-        const { labels } = this.inlineRenderer;
+        const { labels } = this.inlineEngine;
         const { text } = this;
         const anchor = cursor.start ?? cursor.anchor;
         const focus = cursor.end ?? cursor.focus;
         if (!anchor || !focus)
             return false;
         const offsets = [anchor.offset, focus.offset];
-        const NO_NEED_TOKEN_REG = /text|hard_line_break|soft_line_break/;
+        const NO_NEED_TOKEN_REG = /text|soft_line_break/;
 
-        for (const token of tokenizer(text, {
+        for (const token of parseInline(text, {
             labels,
             options: this.muya.options,
         })) {
@@ -468,18 +461,7 @@ class Format extends Content {
         const oldText = this.text;
         let imageText = '';
         if (type === 'image') {
-            imageText = '![';
-            if (alt)
-                imageText += alt;
-
-            imageText += '](';
-            if (src)
-                imageText += encodeImageSrc(src);
-
-            if (title)
-                imageText += ` "${title}"`;
-
-            imageText += ')';
+            imageText = imageToMarkdown({ alt, src, title });
         }
         else if (type === 'html_tag') {
             const { attrs } = token;
@@ -1442,8 +1424,8 @@ class Format extends Content {
         // fix: #897 in marktext repo
         const { text } = this;
         const { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = this.muya.options;
-        const { labels } = this.inlineRenderer;
-        const tokens = tokenizer(text, {
+        const { labels } = this.inlineEngine;
+        const tokens = parseInline(text, {
             labels,
             options: { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff },
         });
@@ -1501,10 +1483,7 @@ class Format extends Content {
             // An inline image followed by other content: the caret lands on the
             // next node at the image's end offset. Select the whole image so the
             // next Backspace deletes it as a unit (matching muyajs interaction).
-            const isImageToken
-                = token.type === 'image'
-                    || (token.type === 'html_tag' && token.tag === 'img');
-            if (token.range.end === offset && isImageToken)
+            if (token.range.end === offset && isImageToken(token))
                 return { needRender: false, imageToken: token, referenceImageToken: null, offsetDelta: 0 };
 
             // A reference image (`![alt][ref]`) is editable marked text, so it has
@@ -1715,36 +1694,33 @@ class Format extends Content {
         const { text } = this;
         const formats = [];
         const neighbors = [];
-        const tokens = tokenizer(text, {
+        const tokens = parseInline(text, {
             options: this.muya.options,
         });
 
-        (function iterator(tks) {
-            for (const token of tks) {
-                if (
-                    checkTokenIsInlineFormat(token)
-                    && start.offset >= token.range.start
-                    && end.offset <= token.range.end
-                ) {
-                    formats.push(token);
-                }
-
-                if (
-                    checkTokenIsInlineFormat(token)
-                    && ((start.offset >= token.range.start
-                        && start.offset <= token.range.end)
-                    || (end.offset >= token.range.start
-                        && end.offset <= token.range.end)
-                    || (start.offset <= token.range.start
-                        && token.range.end <= end.offset))
-                ) {
-                    neighbors.push(token);
-                }
-
-                if ('children' in token && Array.isArray(token.children))
-                    iterator(token.children);
+        for (const { token, exiting } of tokenEvents(tokens)) {
+            if (exiting)
+                continue;
+            if (
+                checkTokenIsInlineFormat(token)
+                && start.offset >= token.range.start
+                && end.offset <= token.range.end
+            ) {
+                formats.push(token);
             }
-        })(tokens);
+
+            if (
+                checkTokenIsInlineFormat(token)
+                && ((start.offset >= token.range.start
+                    && start.offset <= token.range.end)
+                || (end.offset >= token.range.start
+                    && end.offset <= token.range.end)
+                || (start.offset <= token.range.start
+                    && token.range.end <= end.offset))
+            ) {
+                neighbors.push(token);
+            }
+        }
 
         return { formats, tokens, neighbors };
     }
@@ -1782,7 +1758,7 @@ class Format extends Content {
             start.offset += start.delta;
             end.offset += end.delta;
 
-            this.text = generator(tokens, true);
+            this.text = generator(tokens, SourceGenerationMode.RebuildWrappers);
         }
         else if (currentFormats.length) {
             for (const token of currentFormats)
@@ -1790,7 +1766,7 @@ class Format extends Content {
 
             start.offset += start.delta;
             end.offset += end.delta;
-            this.text = generator(tokens, true);
+            this.text = generator(tokens, SourceGenerationMode.RebuildWrappers);
         }
         else {
             if (currentNeighbors.length) {
@@ -1800,7 +1776,7 @@ class Format extends Content {
 
             start.offset += start.delta;
             end.offset += end.delta;
-            this.text = generator(tokens, true);
+            this.text = generator(tokens, SourceGenerationMode.RebuildWrappers);
 
             // Whitespace wrapped inside emphasis markers is invalid CommonMark
             // (`**foo **` is not right-flanking, so it renders literally), so
@@ -1866,7 +1842,7 @@ class Format extends Content {
 
         const property = colorPropertyOf(type);
         const text = this.text;
-        const tokens = tokenizer(text, { options: this.muya.options });
+        const tokens = parseInline(text, { options: this.muya.options });
         const spans = collectColorSpans(tokens, start, end).sort(
             (a, b) => a.openStart - b.openStart,
         );

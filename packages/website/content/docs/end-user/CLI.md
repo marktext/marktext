@@ -6,7 +6,7 @@ Usage: marktext [commands] [path ...]
   Available commands:
 
         --debug                   Enable debug mode
-        --safe                    Disable plugins and other user configuration
+        --safe                    Ignore custom key bindings
     -n, --new-window              Open a new window on second-instance
         --read-only               Open the specified files in read-only mode
         --user-data-dir           Change the user data directory
@@ -16,6 +16,9 @@ Usage: marktext [commands] [path ...]
         --version                 Print version information
     -h, --help                    Print this help message
 ```
+
+`--safe` currently skips `keybindings.json`; it does not reset preferences or
+disable a plugin system. The built-in `--help` text still describes it more broadly.
 
 ## Opening files in read-only mode
 

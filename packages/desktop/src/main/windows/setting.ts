@@ -45,7 +45,7 @@ class SettingWindow extends BaseWindow {
     }
 
     winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
-    let win: BrowserWindow | null = (this.browserWindow = new BrowserWindow(winOptions))
+    const win = (this.browserWindow = new BrowserWindow(winOptions))
 
     win.webContents.on('did-fail-load', (_event, code, desc, url) => {
       log.error(`did-fail-load ${code} ${desc} @ ${url}`)
@@ -63,27 +63,34 @@ class SettingWindow extends BaseWindow {
       this.emit('window-ready')
     })
 
-    win.on('focus', () => {
+    const onFocus = (): void => {
       this.emit('window-focus')
-      win!.webContents.send('mt::window-active-status', { status: true })
-    })
+      win.webContents.send('mt::window-active-status', { status: true })
+    }
 
-    win.on('blur', () => {
+    const onBlur = (): void => {
       this.emit('window-blur')
-      win!.webContents.send('mt::window-active-status', { status: false })
+      win.webContents.send('mt::window-active-status', { status: false })
+    }
+    win.on('focus', onFocus)
+    win.on('blur', onBlur)
+    // macOS can deliver focus/blur after closed; these listeners own a live renderer only.
+    win.once('closed', () => {
+      win.removeListener('focus', onFocus)
+      win.removeListener('blur', onBlur)
     })
 
     win.on('close', (event) => {
       this.emit('window-close')
 
       event.preventDefault()
-      ipcMain.emit('window-close-by-id', win!.id)
+      ipcMain.emit('window-close-by-id', win.id)
     })
 
     win.on('closed', () => {
       this.emit('window-closed')
 
-      win = null
+      this.browserWindow = null
     })
 
     this.lifecycle = WindowLifecycle.LOADING
@@ -93,7 +100,7 @@ class SettingWindow extends BaseWindow {
     const devToolsAccelerator = keybindings.getAccelerator('view.toggle-dev-tools')
     if (env.debug && devToolsAccelerator) {
       electronLocalshortcut.register(win, devToolsAccelerator, () => {
-        win!.webContents.toggleDevTools()
+        win.webContents.toggleDevTools()
       })
     }
     return win

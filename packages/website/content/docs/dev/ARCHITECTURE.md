@@ -16,6 +16,8 @@ packages/
     src/preload/             Typed contextBridge APIs
     src/renderer/src/        Vue components, Pinia stores and editor hosts
     src/shared/types/        Cross-process types and IPC contract
+    src/shared/preferences/  Preference validation schema
+    src/shared/applicationState/  Pure session/layout planning
     src/types/               Ambient declarations
     static/                  Locales, icons and other app assets
     build/                   Packaging resources
@@ -53,6 +55,17 @@ Production windows enable web security. Development disables it to load document
 `packages/desktop/src/renderer/src/main.ts` mounts the Vue application for an editor window. Pinia stores coordinate tabs, document modes, preferences, layout and folder roots. Each window hosts the Muya WYSIWYG editor and a CodeMirror source editor.
 
 Source mode transfers Markdown between CodeMirror and Muya. Reading mode is tracked per document and protects editing and writes across the renderer and main process. The independent document outline derives from the active document's headings.
+
+## Preferences and session recovery
+
+`src/main/preferences/preferenceFile.ts` validates preferences against
+`src/shared/preferences/schema.json` and writes `preferences.json` atomically.
+Window layout and document recovery are owned separately by
+`src/main/applicationState/sessionHost.ts`, with pure planning and defaults in
+`src/shared/applicationState/`. Session metadata is stored in
+`state/application-state.json` under the user-data directory; unsaved content
+uses `recovery/<window-id>/<document-id>.json`. Renderer state is captured through
+the typed preload/IPC boundary.
 
 ## Muya
 

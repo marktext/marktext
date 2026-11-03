@@ -1,7 +1,8 @@
 import type { VNode } from 'snabbdom';
 import type Format from '../../block/base/format';
 import type { Muya } from '../../index';
-import type { ImageToken } from '../../inlineRenderer/types';
+import type { ImageToken } from '../../inline/model/types';
+import type { TSelectableImageToken } from '../../utils/image';
 import type { IImagePathSuggestion } from '../imagePicker';
 import type { IBaseOptions } from '../types';
 import { EVENT_KEYS, isWin, URL_REG } from '../../config';
@@ -13,6 +14,13 @@ import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
 import { ImagePathPicker } from '../imagePicker';
 import './index.css';
+
+function editableImageAttributes(token: TSelectableImageToken): Record<string, string | null> {
+    return {
+        ...token.attrs,
+        alt: token.type === 'image' ? token.alt + token.backlash.first : token.attrs.alt,
+    };
+}
 
 /**
  * Image state interface containing source, alt text and title
@@ -128,7 +136,7 @@ export class ImageEditTool extends BaseFloat {
             }
 
             this._block = block;
-            Object.assign(this._state, imageInfo.token.attrs);
+            Object.assign(this._state, editableImageAttributes(imageInfo.token));
 
             // Remove file protocol prefix for local file paths to enable autocomplete
             this._normalizeFileProtocol();
@@ -378,7 +386,7 @@ export class ImageEditTool extends BaseFloat {
      * Only replaces if values have changed
      */
     private _replaceImageDirect(alt: string, src: string, title: string) {
-        const { alt: oldAlt, src: oldSrc, title: oldTitle } = this._imageInfo!.token.attrs;
+        const { alt: oldAlt, src: oldSrc, title: oldTitle } = editableImageAttributes(this._imageInfo!.token);
 
         // Only update if something changed
         if (alt !== oldAlt || src !== oldSrc || title !== oldTitle) {
@@ -415,7 +423,7 @@ export class ImageEditTool extends BaseFloat {
         // Store local path mapping if available
         const { src: localPath } = getImageSrc(src);
         if (localPath) {
-            this.muya.editor.inlineRenderer.renderer.urlMap.set(uploadedSrc, localPath);
+            this.muya.editor.inlineEngine.setImagePreview(uploadedSrc, localPath);
         }
 
         // Find and update the image element

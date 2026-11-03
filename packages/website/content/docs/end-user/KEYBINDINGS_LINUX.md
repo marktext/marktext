@@ -32,7 +32,7 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 | `edit.cut`                | <kbd>Ctrl</kbd>+<kbd>X</kbd>                  | Cut selected text                               |
 | `edit.copy`               | <kbd>Ctrl</kbd>+<kbd>C</kbd>                  | Copy selected text                              |
 | `edit.paste`              | <kbd>Ctrl</kbd>+<kbd>V</kbd>                  | Paste text                                      |
-| `edit.copy-as-rich`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> | Copy selected text as markdown                  |
+| `edit.copy-as-rich`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> | Copy selected text as rich text                 |
 | `edit.copy-as-html`       | -                                             | Copy selected text as html                      |
 | `edit.paste-as-plaintext` | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> | Paste clipboard contents as plain text          |
 | `edit.select-all`         | <kbd>Ctrl</kbd>+<kbd>A</kbd>                  | Select all text of the document                 |

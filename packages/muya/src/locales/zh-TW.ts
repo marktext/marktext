@@ -102,6 +102,10 @@ export const zhTW = {
         'Duplicate': '複製段落',
         'New Paragraph': '新增段落',
         'Delete': '刪除段落',
+        'Copy as': '複製為',
+        'Markdown': 'Markdown',
+        'HTML': 'HTML',
+        'Rich Text': '富文本',
         // imageToolbar
         'Edit Image': '編輯圖片',
         'Inline Image': '行內圖片',

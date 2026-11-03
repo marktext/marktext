@@ -120,7 +120,7 @@ describe('search.search() — selectHighlight restores the editor cursor', () =>
         const block = placeCursorOnFirstBlock(muya);
 
         const search = muya.editor.searchModule;
-        search.search('apple');
+        search.search('apple', { selectHighlight: true });
         search.find('next');
         expect(search.index).toBe(1);
 
@@ -141,7 +141,7 @@ describe('search.find() — cursor navigation across matches', () => {
         placeCursorOnFirstBlock(muya);
 
         const search = muya.editor.searchModule;
-        search.search('x');
+        search.search('x', { selectHighlight: true });
         expect(search.matches.length).toBe(3);
         expect(search.index).toBe(0);
         expect(highlightCount(muya)).toBe(1);
@@ -257,7 +257,7 @@ describe('search.replace() — regexp capture groups', () => {
         placeCursorOnFirstBlock(muya);
 
         const search = muya.editor.searchModule;
-        search.search('([a-z])(\\d)', { isRegexp: true });
+        search.search('([a-z])(\\d)', { isRegexp: true, selectHighlight: true });
         search.find('next');
 
         search.replace('$2$1', { isSingle: false, isRegexp: true });
@@ -272,7 +272,7 @@ describe('search.replace() — regexp capture groups', () => {
         placeCursorOnFirstBlock(muya);
 
         const search = muya.editor.searchModule;
-        search.search('([a-z])(\\d)', { isRegexp: true });
+        search.search('([a-z])(\\d)', { isRegexp: true, selectHighlight: true });
         search.find('next');
 
         search.replace('$2$1', { isSingle: true, isRegexp: true });

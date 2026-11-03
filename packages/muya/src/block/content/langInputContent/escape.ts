@@ -1,4 +1,4 @@
-import type { IHighlight } from '../../../inlineRenderer/types';
+import type { IHighlight } from '../../../inline/model/types';
 import { escapeHTML } from '../../../utils';
 import { getHighlightHtml, MARKER_HASH } from '../../../utils/highlightHTML';
 

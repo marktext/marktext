@@ -14,7 +14,7 @@ import { editor } from '../helpers/selectors';
  * Chromium.
  *
  * Firefox/WebKit headless clipboard read is unreliable (same constraint as
- * editing/clipboard.spec.ts); tracked in BACKLOG Phase 3.
+ * editing/clipboard.spec.ts).
  */
 
 const TABLE_MD = [
@@ -85,7 +85,7 @@ test.describe('table rect clipboard (root-focus exclusivity)', () => {
     });
 
     test('Cmd/Ctrl+C copies the selected rectangle as a GFM sub-table', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'clipboard read unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'clipboard read unreliable on Firefox/WebKit headless.');
         await context.grantPermissions(['clipboard-read', 'clipboard-write']);
         await seedTable(page);
 
@@ -105,7 +105,7 @@ test.describe('table rect clipboard (root-focus exclusivity)', () => {
     });
 
     test('Cmd/Ctrl+X cuts the selected rectangle, emptying only those cells', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'clipboard unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'clipboard unreliable on Firefox/WebKit headless.');
         await context.grantPermissions(['clipboard-read', 'clipboard-write']);
         await seedTable(page);
 

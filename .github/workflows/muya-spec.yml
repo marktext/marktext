@@ -9,6 +9,7 @@ on:
       - 'packages/muya/package.json'
       - 'packages/muya/vite.config.ts'
       - 'packages/muya/vitest.spec.config.ts'
+      - 'packages/muya/vitest.inline-spec.config.ts'
       - 'packages/muya/tsconfig.json'
       - 'pnpm-lock.yaml'
       - '.github/workflows/muya-spec.yml'
@@ -29,3 +30,17 @@ jobs:
 
       - name: Run CommonMark + GFM conformance suites
         run: pnpm -C packages/muya test:spec
+
+      - name: Typecheck the live inline spec harness
+        run: pnpm -C packages/muya test:inline-spec:types
+
+      - name: Compare the live inline lexer against CommonMark + GFM
+        run: pnpm -C packages/muya test:inline-spec
+
+      - name: Upload live inline differences
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: inline-spec-differences
+          path: packages/muya/test-results/inline-spec/
+          if-no-files-found: ignore

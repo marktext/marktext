@@ -12,8 +12,7 @@ import { editor } from '../helpers/selectors';
  *
  * The drag and clipboard round-trip need a real pointer + real OS clipboard,
  * so this runs on bundled Chromium only (same constraint as
- * `editing/clipboard.spec.ts`); Firefox/WebKit headless clipboard is tracked
- * in BACKLOG Phase 3.
+ * `editing/clipboard.spec.ts`).
  */
 
 const TABLE_MD = [
@@ -71,7 +70,7 @@ test.describe('cross-cell table selection', () => {
     });
 
     test('copy yields only the selected sub-rectangle as a GFM table', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'clipboard read unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'clipboard read unreliable on Firefox/WebKit headless.');
         await context.grantPermissions(['clipboard-read', 'clipboard-write']);
         await seedTable(page);
 
@@ -91,7 +90,7 @@ test.describe('cross-cell table selection', () => {
     });
 
     test('cut empties only the selected cells', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'clipboard unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'clipboard unreliable on Firefox/WebKit headless.');
         await context.grantPermissions(['clipboard-read', 'clipboard-write']);
         await seedTable(page);
 

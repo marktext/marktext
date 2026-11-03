@@ -1,5 +1,16 @@
 import type { FileChangeDetail } from './files'
 
+export interface SidebarMoveRequest {
+  rootKey: string
+  source: string
+  targetDirectory: string
+}
+
+export type SidebarMoveResult =
+  | { status: 'moved'; destination: string }
+  | { status: 'canceled' }
+  | { status: 'failed'; message: string }
+
 export interface ProjectRoot {
   key: string
   pathname: string

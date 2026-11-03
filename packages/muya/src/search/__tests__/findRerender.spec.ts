@@ -65,7 +65,7 @@ describe('search.find() re-renders only the blocks whose active state changes', 
     it('touches just the old and the new active block when moving between blocks', () => {
         const muya = bootMuya(markdown);
         const search = muya.editor.searchModule;
-        search.search('needle');
+        search.search('needle', { selectHighlight: true });
         expect(search.matches.length).toBe(20);
 
         const touched = spyUpdates(muya);
@@ -80,7 +80,7 @@ describe('search.find() re-renders only the blocks whose active state changes', 
     it('touches one block when both matches are in the same block', () => {
         const muya = bootMuya('needle needle needle\n\nother needle\n');
         const search = muya.editor.searchModule;
-        search.search('needle');
+        search.search('needle', { selectHighlight: true });
 
         const touched = spyUpdates(muya);
         search.find('next');
@@ -93,7 +93,7 @@ describe('search.find() re-renders only the blocks whose active state changes', 
     it('keeps highlights right when wrapping from the last match to the first', () => {
         const muya = bootMuya(markdown);
         const search = muya.editor.searchModule;
-        search.search('needle');
+        search.search('needle', { selectHighlight: true });
         search.find('previous');
         expect(search.index).toBe(19);
 
@@ -105,5 +105,80 @@ describe('search.find() re-renders only the blocks whose active state changes', 
         expect(activeTexts(muya)).toEqual(['needle']);
         const active = muya.domNode.querySelector('span.mu-highlight')!;
         expect(active.closest('.mu-paragraph-content')!.textContent).toBe('para 0 needle');
+    });
+
+    it.each([false, true])('bounds path lookups near the document end (manual caret: %s)', (manual) => {
+        const muya = bootMuya(Array.from({ length: 200 }, (_, i) => `para ${i} needle`).join('\n\n'));
+        const search = muya.editor.searchModule;
+        search.search('needle', { highlightIndex: 198, selectHighlight: true });
+        if (manual)
+            contentBlocks(muya)[198].setCursor(0, 0);
+        const page = muya.editor.scrollPage!;
+        const offsets = vi.spyOn(page, 'offset');
+        const lookups = vi.spyOn(page, 'find');
+        search.find('next');
+        expect(search.index).toBe(manual ? 198 : 199);
+        expect(offsets.mock.calls.length).toBeLessThan(100);
+        expect(lookups.mock.calls.length).toBeLessThan(100);
+    });
+
+    it.each([false, true])('does not repaint unrelated matches after an edit (visible: %s)', (visible) => {
+        const muya = bootMuya(`${markdown}\n\nordinary text`);
+        const search = muya.editor.searchModule;
+        search.search('needle', { selectHighlight: true });
+        search.setVisible(visible);
+        const blocks = contentBlocks(muya);
+        const last = blocks.at(-1)!;
+        last.setCursor(0, 0);
+        muya.flush();
+        const touched = spyUpdates(muya);
+        const scan = vi.spyOn(muya.editor.scrollPage!, 'depthFirstTraverse');
+        last.text = 'edited ordinary text';
+        muya.flush();
+        expect(touched().filter(block => block !== last)).toEqual([]);
+        if (!visible)
+            expect(scan).not.toHaveBeenCalled();
+    });
+
+    it('repaints only an edited match block and clears marks when its last match is removed', () => {
+        const muya = bootMuya(markdown);
+        const search = muya.editor.searchModule;
+        search.search('needle', { selectHighlight: true });
+        const edited = contentBlocks(muya)[10];
+        edited.setCursor(0, 0);
+        muya.flush();
+        const touched = spyUpdates(muya);
+        edited.text = 'two needle needle';
+        muya.flush();
+        expect(search.matches).toHaveLength(21);
+        expect(touched()).toEqual([edited]);
+        expect(edited.domNode?.querySelectorAll('.mu-highlight, .mu-selection')).toHaveLength(2);
+        edited.text = 'no matches';
+        muya.flush();
+        expect(search.matches).toHaveLength(19);
+        expect(touched()).toEqual([edited]);
+        expect(edited.domNode?.querySelectorAll('.mu-highlight, .mu-selection')).toHaveLength(0);
+    });
+
+    it.each(['reopen', 'navigate'])('refreshes stale hidden results before %s', (action) => {
+        const muya = bootMuya('needle\n\nordinary text');
+        const search = muya.editor.searchModule;
+        search.search('needle', { selectHighlight: true });
+        search.setVisible(false);
+        const [first, last] = contentBlocks(muya);
+        last.setCursor(0, 0);
+        first.text = 'removed';
+        last.text = 'new needle';
+        muya.flush();
+        const scan = vi.spyOn(muya.editor.scrollPage!, 'depthFirstTraverse');
+        if (action === 'reopen')
+            search.setVisible(true);
+        else
+            search.find('next');
+        expect(scan).toHaveBeenCalled();
+        expect(search.matches).toHaveLength(1);
+        expect(search.matches[search.index].block).toBe(last);
+        if (action === 'navigate')
+            expect(muya.getSelectionState()).toMatchObject({ anchor: { offset: 4 }, focus: { offset: 10 } });
     });
 });

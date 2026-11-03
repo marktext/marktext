@@ -15,9 +15,9 @@ TypeScript-side details.
 ## Channel naming
 
 Renderer↔main channels are prefixed with `mt::` (e.g. `mt::fs::stat`,
-`mt::open-new-tab`). A small number of legacy internal channels don't
-follow this convention (e.g. `language-changed`); new channels should
-always use `mt::`.
+`mt::open-new-tab`). Internal main-process events (for example, `language-changed`) are separate from
+renderer IPC and do not all use this prefix. Declare new renderer↔main channels
+with `mt::` in the shared contract.
 
 ## The four channel categories
 

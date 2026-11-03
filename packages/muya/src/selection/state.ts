@@ -1,8 +1,19 @@
 import type Content from '../block/base/content';
 import type { TBlockPath } from '../block/types';
 import type { Muya } from '../muya';
-import type { IAnchorFocusInfo, ISelectionEndpoint, ITextSelectionState, TSelectionState } from './types';
+import type { IAnchorFocusInfo, ISelectionEndpoint, ISelectionEndpoints, ITextSelectionState, TSelectionState } from './types';
 import { SelectionType } from './types';
+
+export function comparePaths(a: readonly (string | number)[], b: readonly (string | number)[]): number {
+    for (let i = 0; i < Math.min(a.length, b.length); i++) {
+        if (a[i] === b[i])
+            continue;
+        return typeof a[i] === 'number' && typeof b[i] === 'number'
+            ? Number(a[i]) - Number(b[i])
+            : String(a[i]).localeCompare(String(b[i]));
+    }
+    return a.length - b.length;
+}
 
 export function contentPath(block: Content): TBlockPath {
     return block.blockName === 'language-input'
@@ -59,6 +70,19 @@ export function isLegalOffset(text: string, offset: number): boolean {
     const before = text.charCodeAt(offset - 1);
     const after = text.charCodeAt(offset);
     return !(before >= 0xD800 && before <= 0xDBFF && after >= 0xDC00 && after <= 0xDFFF);
+}
+
+export function resolveTextSelectionEndpoints(muya: Muya, state: unknown, { validateOffsets = true } = {}): ISelectionEndpoints | null {
+    if (!isSelectionState(state) || state.kind !== SelectionType.TEXT)
+        return null;
+    const anchor = resolveEndpoint(muya, state.anchor);
+    const focus = resolveEndpoint(muya, state.focus);
+    if (!anchor || !focus)
+        return null;
+    // During input, native DOM offsets can precede the matching model update.
+    if (validateOffsets && (!isLegalOffset(anchor.block.text, anchor.offset) || !isLegalOffset(focus.block.text, focus.offset)))
+        return null;
+    return { anchor, focus };
 }
 
 export function copySelectionState(state: TSelectionState | null): TSelectionState | null {

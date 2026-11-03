@@ -1,9 +1,9 @@
 import type { TSelectableImageToken } from '../utils/image';
 import type Clipboard from './index';
-import { tokenizer } from '../inlineRenderer/lexer';
+import { parseInline } from '../inline/parser/lexer';
 import { SelectionType } from '../selection/types';
 import { escapeHTML, getUniqueId } from '../utils';
-import { encodeImageSrc, getImageSrc } from '../utils/image';
+import { getImageSrc, imageToMarkdown, isImageToken } from '../utils/image';
 
 export interface IClipboardImage {
     version: 1;
@@ -20,11 +20,11 @@ export interface IClipboardImageCopy {
 }
 
 function imageToken(markdown: string): TSelectableImageToken | null {
-    const tokens = tokenizer(markdown);
+    const tokens = parseInline(markdown);
     const token = tokens[0];
     if (tokens.length !== 1 || token?.raw !== markdown)
         return null;
-    return token.type === 'image' || (token.type === 'html_tag' && token.tag === 'img') ? token as TSelectableImageToken : null;
+    return isImageToken(token) ? token : null;
 }
 
 export function imageClipboardData(clipboard: Clipboard): IClipboardImageCopy | null {
@@ -77,10 +77,8 @@ export function readClipboardImage(html: string, text: string): IClipboardImage 
 
 function withImageSource(markdown: string, src: string): string {
     const token = imageToken(markdown)!;
-    if (token.type === 'image') {
-        const title = token.title ? ` "${token.title.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"` : '';
-        return `![${token.alt}${token.backlash.first}](${encodeImageSrc(src)}${title})`;
-    }
+    if (token.type === 'image')
+        return imageToMarkdown({ alt: token.alt + token.backlash.first, src, title: token.title });
     return `<img ${Object.entries({ ...token.attrs, src })
         .filter(([, value]) => value != null)
         .map(([key, value]) => `${key}="${escapeHTML(String(value))}"`)

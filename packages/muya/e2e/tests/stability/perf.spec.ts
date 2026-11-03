@@ -2,34 +2,9 @@ import { expect, test } from '../fixtures/muya';
 import { editor } from '../helpers/selectors';
 
 /**
- * Perf smoke: not a benchmark, just a regression guard. The 10k-paragraph
- * setContent benchmark is intentionally large enough that any quadratic
- * regression on the render path lights up loudly; the wall-clock budgets
- * are generous so CI variance doesn't cause flakes.
- *
- * Observed numbers (local Chromium against the Vite dev server, M-class
- * macOS) at PR-4 baseline:
- *   - setContent(10000 paragraphs): ~20s wall clock. Yes, slow — muya
- *     re-renders synchronously per block via snabbdom and the Vite dev
- *     server adds unbundled-module overhead. Bundled production builds
- *     are materially faster, but we test against the dev server here.
- *   - scrollIntoView + last paragraph visible: well under 1s.
- *
- * Three timeouts are at play here — they intentionally differ; don't try
- * to "consolidate" them:
- *   - playwright.config `timeout: 30_000` — the default for every other
- *     spec. setContent(10k) alone routinely takes 15-25s on the Vite dev
- *     server, so the suite default is too tight for this spec.
- *   - `test.setTimeout(120_000)` below — the ceiling for the whole test
- *     body (setContent + scroll + assertions). Wide enough to ride out
- *     CI variance and still surface a runaway regression as a timeout.
- *   - `expect(result.ms).toBeLessThan(60_000)` further down — the actual
- *     setContent perf budget. This is the assertion that catches a 5-10×
- *     regression on the render path. A future Phase-5 nightly job can
- *     tighten this against a production bundle.
- *
- * Tagged @perf so a future Phase-2 CI config can `--grep-invert "@perf"`
- * for the PR-time runs and keep this in a nightly schedule.
+ * The Vite development server needs a looser rendering budget than a production
+ * benchmark. The whole-test timeout also leaves room for scrolling and
+ * assertions after setContent, so a rendering regression reports its own budget.
  */
 test.describe('stability / perf smoke @perf', () => {
     // Per-spec ceiling: 4× the assertion budget below, so an actual

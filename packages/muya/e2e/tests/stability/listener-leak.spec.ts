@@ -1,28 +1,9 @@
 import { expect, test } from '../fixtures/muya';
 
 /**
- * Direct regression test for the EventCenter listener-leak fix in PR-17
- * (commit 39852a6). The bug: muya.destroy() detached DOM events but did
- * NOT clear the custom pub/sub `listeners` map, so blocks from the
- * destroyed instance kept their closures referenced via on()/once()
- * subscriptions — a hot rebuild loop (e.g. theme toggle, locale switch)
- * would grow listener arrays unboundedly.
- *
- * The fix added `unsubscribeAll()` to EventCenter and a call to it from
- * Muya.destroy(). This spec exercises that path 50× and asserts the
- * listener-array footprint stays bounded.
- *
- * Snapshot field shapes (see packages/core/src/event/index.ts):
- *   - `events`: Array<{ eventId, target, event, listener, capture }>
- *     — DOM listeners. Cleared by detachAllDomEvents().
- *   - `listeners`: Record<eventName, Array<{ listener, once }>>
- *     — pub/sub subscriptions. Cleared by unsubscribeAll(). This is
- *     where the original leak lived.
- *
- * Note: the BACKLOG description referred to a `Map` named `events`, but
- * the actual implementation uses an `IEvent[]` array. The leak target
- * is `listeners` (the custom pub/sub), not `events` (DOM bindings).
- * Both are asserted below.
+ * Detached DOM events do not release custom pub/sub closures. Rebuilding the
+ * editor must also clear those subscriptions so destroyed blocks can be freed.
+ * Check both EventCenter.events (DOM bindings) and listeners (pub/sub).
  */
 test.describe('stability / listener leak', () => {
     test('50× setContent/locale/destroy/init cycle keeps listener count bounded', async ({ page }) => {

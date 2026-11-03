@@ -219,7 +219,7 @@
 </template>
 
 <script setup lang="ts">
-import { preferenceLabel, preferenceNotes } from '@/prefComponents/registry'
+import { preferenceLabel } from '@/prefComponents/registry'
 
 import { useI18n } from 'vue-i18n'
 import Compound from '../common/compound/index.vue'

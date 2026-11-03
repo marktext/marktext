@@ -102,6 +102,10 @@ export const zhCN = {
         'Duplicate': '复制段落',
         'New Paragraph': '新建段落',
         'Delete': '删除段落',
+        'Copy as': '复制为',
+        'Markdown': 'Markdown',
+        'HTML': 'HTML',
+        'Rich Text': '富文本',
         // imageToolbar
         'Edit Image': '编辑图片',
         'Inline Image': '行内图片',

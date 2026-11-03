@@ -75,6 +75,13 @@ if (!process.mas && !import.meta.env.DEV) {
 }
 
 registerSandboxIpcHandlers({
+  moveInProject: (sender, request) => {
+    const editor = accessor.windowManager.getEditorForWebContents(sender)
+    if (!accessor.sessionHost || !editor?.sessionStateId) {
+      throw new Error('Project session unavailable')
+    }
+    return accessor.sessionHost.moveSidebarItem(editor.sessionStateId, request)
+  },
   move: (sender, src, dest, write) => {
     const editor = accessor.windowManager.getEditorForWebContents(sender)
     const host = accessor.sessionHost

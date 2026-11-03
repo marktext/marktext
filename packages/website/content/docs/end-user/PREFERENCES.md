@@ -1,6 +1,8 @@
 # Preferences
 
-Preferences can be controlled and modified in the settings window or via the `preferences.json` file in the [application data directory](APPLICATION_DATA_DIRECTORY.md). Validation rules live in `packages/desktop/src/main/preferences/schema.json`. On first launch, `src/main/preferences/index.ts` loads `packages/desktop/static/preference.json` over those schema defaults; language and theme are then initialized from the system. The tables below show these application initial values, rather than assuming every schema default is the first-launch value. Existing saved preferences and migrations can change them.
+Preferences can be changed in the settings window or via `preferences.json` in the [application data directory](APPLICATION_DATA_DIRECTORY.md). Close MarkText before editing the file manually. Validation rules live in `packages/desktop/src/shared/preferences/schema.json`; `src/main/preferences/preferenceFile.ts` combines schema defaults, `packages/desktop/static/preference.json` and recovery defaults from `src/shared/types/preferences.ts`. Language and theme are initialized from the system. The tables below show application initial values; existing saved preferences can override them.
+
+Invalid individual values fall back to defaults. An unreadable, malformed or non-object preference file is preserved and treated as read-only for that run. Unknown keys in a valid file are retained on disk but are not applied as preferences.
 
 #### General
 
@@ -19,10 +21,12 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | tocPosition            | String  | `left`        | Dock the table of contents to the `left` or `right` of the editor.                                                                |
 | fileSortBy             | String  | `created`     | Sort files in the opened folder. Optional values: `created`, `modified`, `title`.                                                 |
 | fileSortOrder          | String  | `asc`         | Sort order for files in opened folders: `asc` (ascending) or `desc` (descending).                                                 |
-| startUpAction          | String  | `restoreAll`  | The action when MarkText launches. Optional values: `folder`, `openLastFolder`, `blank`, `restoreAll`.                            |
+| startUpAction          | String  | `restoreAll`  | Startup action: `restoreAll`, `restoreLastWindow`, `openLastFolder`, `folder` or `blank`.                                         |
 | defaultDirectoryToOpen | String  | `""`          | The path that should be opened when `startUpAction=folder`.                                                                       |
 | language               | String  | System locale | Detected from the system locale on first launch, falling back to `en` when no supported locale matches.                           |
-| restoreLayoutState     | Boolean | `true`        | Restore the previous editor state (open tabs, layout) on startup.                                                                 |
+| restoreLayoutState     | Boolean | `true`        | Restore window bounds, pane layout and project-tree folding.                                                                      |
+| restoreEditors         | Boolean | `true`        | Restore saved document tabs. Unsaved recovery content is protected independently.                                                 |
+| restoreViewState       | Boolean | `true`        | Restore document cursors, selections, scroll positions and heading folding.                                                       |
 | openedFilesInSidebar   | Boolean | `true`        | Whether to show the _Opened Files_ subsection inside the sidebar file tree.                                                       |
 | autoRevealInSidebar    | Boolean | `true`        | Reveal the active file in the sidebar file tree: expand its folders and scroll the file into view.                                |
 | showPandocConvert      | Boolean | `false`       | Show the Pandoc conversion menu.                                                                                                  |
@@ -45,7 +49,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | autoPairMarkdownSyntax             | Boolean | `true`             | Autocomplete markdown syntax.                                                                                                                         |
 | autoPairQuote                      | Boolean | `true`             | Auto-close quotes.                                                                                                                                    |
 | endOfLine                          | String  | `default`          | Newline character at the end of each line: `default` (OS default), `lf`, or `crlf`.                                                                   |
-| defaultEncoding                    | String  | `utf8`             | The default file encoding. See `packages/desktop/src/main/preferences/schema.json` for the accepted encoding names.                                   |
+| defaultEncoding                    | String  | `utf8`             | The default file encoding. See `packages/desktop/src/shared/preferences/schema.json` for the accepted encoding names.                                 |
 | autoGuessEncoding                  | Boolean | `true`             | Try to automatically guess the file encoding when opening files.                                                                                      |
 | trimTrailingNewline                | Number  | `2`                | Trailing-newline handling: `0` trim all, `1` ensure single newline, `2` auto-detect, `3` disabled.                                                    |
 | textDirection                      | String  | `ltr`              | Writing direction: `ltr` or `rtl`.                                                                                                                    |
@@ -56,30 +60,32 @@ Preferences can be controlled and modified in the settings window or via the `pr
 
 #### Markdown
 
-| Key                    | Type    | Default                             | Description                                                                                                                                                                                                                                                                   |
-| ---------------------- | ------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| githubAlerts           | Boolean | `false`                             | Enable GitHub Alerts, creation/conversion menus, and HTML/PDF rendering. Available in Preferences → Markdown since 0.22.0.                                                                                                                                                    |
-| plantumlServer         | String  | `https://www.plantuml.com/plantuml` | PlantUML rendering server. Set an HTTP(S) server URL in Preferences → Markdown. Diagram rendering sends the encoded source to that server.                                                                                                                                    |
-| preferLooseListItem    | Boolean | `true`                              | Prefer loose list items when creating lists.                                                                                                                                                                                                                                  |
-| bulletListMarker       | String  | `-`                                 | Marker for bullet lists. Optional values: `-`, `*`, `+`.                                                                                                                                                                                                                      |
-| orderListDelimiter     | String  | `.`                                 | Delimiter for ordered lists. Optional values: `.`, `)`.                                                                                                                                                                                                                       |
-| preferHeadingStyle     | String  | `atx`                               | Heading style. Optional values: `atx`, `setext` ([details](https://spec.commonmark.org/0.31.2/#atx-headings)).                                                                                                                                                                |
-| tabSize                | Number  | `4`                                 | Number of spaces a tab equals.                                                                                                                                                                                                                                                |
-| listIndentation        | Mixed   | `1`                                 | List indentation. Optional values: `dfm`, `tab`, or a number `1`–`4`.                                                                                                                                                                                                         |
-| frontmatterType        | String  | `-`                                 | Frontmatter delimiter: `-` (YAML), `+` (TOML), `;` (JSON), or `{` (JSON).                                                                                                                                                                                                     |
-| superSubScript         | Boolean | `false`                             | Enable pandoc's superscript/subscript markdown extension.                                                                                                                                                                                                                     |
-| footnote               | Boolean | `false`                             | Enable pandoc's footnote markdown extension.                                                                                                                                                                                                                                  |
-| texMathDollars         | Boolean | `true`                              | Enable pandoc's [`tex_math_dollars`](https://pandoc.org/MANUAL.html#extension-tex_math_dollars) extension — `$…$` and `$$…$$` math.                                                                                                                                           |
-| texMathGfm             | Boolean | `false`                             | Enable pandoc's [`tex_math_gfm`](https://pandoc.org/MANUAL.html#extension-tex_math_gfm) extension — GitHub's ``$`…`$`` and ` ```math ` math. Replaces the former `isGitlabCompatibilityEnabled`, which is dropped on first launch — turn this on again if you had it enabled. |
-| texMathSingleBackslash | Boolean | `false`                             | Enable pandoc's [`tex_math_single_backslash`](https://pandoc.org/MANUAL.html#extension-tex_math_single_backslash) extension — `\(…\)` inline and `\[…\]` display math. Off by default, as in pandoc: it precludes escaping `(` and `[`, so `- \[TODO\]` reads as a formula.   |
-| texMathDoubleBackslash | Boolean | `false`                             | Enable pandoc's [`tex_math_double_backslash`](https://pandoc.org/MANUAL.html#extension-tex_math_double_backslash) extension — `\\(…\\)` inline and `\\[…\\]` display math.                                                                                                    |
-| fancyLists             | Boolean | `false`                             | Enable pandoc's [`fancy_lists`](https://pandoc.org/MANUAL.html#extension-fancy_lists) extension — `a.`, `IV.`, `(1)` and `#.` list markers. Pandoc exports then use pandoc's `markdown` reader.                                                                               |
-| highlightSyntax        | Boolean | `false`                             | Enable the non-standard `==highlight==` syntax used by Obsidian, Typora and Logseq. Renders as `<mark>` in the editor and in the HTML/PDF exports; `==` stays literal text while off.                                                                                         |
-| inlineDiff             | Boolean | `false`                             | Enable GitLab's non-standard [`{+ … +}` / `[- … -]` inline diff](https://docs.gitlab.com/user/markdown/#inline-diff) syntax. Additions render as `<ins>` and deletions as `<del>` in the editor and in the HTML/PDF exports; the tags stay literal text while off.            |
-| multilineBlockquote    | Boolean | `false`                             | Enable GitLab's non-standard [`>>>` … `>>>` multiline blockquote](https://docs.gitlab.com/user/markdown/#multiline-blockquote) syntax. The fence is preserved on save and renders as a `<blockquote>` in the HTML/PDF exports; while off the fence stays literal text.        |
-| isHtmlEnabled          | Boolean | `true`                              | Enable inline HTML rendering.                                                                                                                                                                                                                                                 |
-| softNewlineAsSpace     | Boolean | `false`                             | Treat a soft line break (a single bare newline within a paragraph) as a space instead of a line break.                                                                                                                                                                        |
-| sequenceTheme          | String  | `hand`                              | Theme for [js-sequence-diagrams](https://bramp.github.io/js-sequence-diagrams/): `hand` or `simple`.                                                                                                                                                                          |
+| Key                    | Type    | Default                             | Description                                                                                                                                                                                                                                                                 |
+| ---------------------- | ------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| githubAlerts           | Boolean | `false`                             | Enable GitHub Alerts, creation/conversion menus, and HTML/PDF rendering. Available in Preferences → Markdown since 0.22.0.                                                                                                                                                  |
+| plantumlServer         | String  | `https://www.plantuml.com/plantuml` | PlantUML rendering server. Set an HTTP(S) server URL in Preferences → Markdown. Diagram rendering sends the encoded source to that server.                                                                                                                                  |
+| preferLooseListItem    | Boolean | `true`                              | Prefer loose list items when creating lists.                                                                                                                                                                                                                                |
+| bulletListMarker       | String  | `-`                                 | Marker for bullet lists. Optional values: `-`, `*`, `+`.                                                                                                                                                                                                                    |
+| orderListDelimiter     | String  | `.`                                 | Delimiter for ordered lists. Optional values: `.`, `)`.                                                                                                                                                                                                                     |
+| preferHeadingStyle     | String  | `atx`                               | Heading style. Optional values: `atx`, `setext` ([details](https://spec.commonmark.org/0.31.2/#atx-headings)).                                                                                                                                                              |
+| tabSize                | Mixed   | `4`                                 | Tab-key indentation: a number of spaces, or `tab` to insert a tab character.                                                                                                                                                                                                |
+| listIndentation        | Mixed   | `1`                                 | List indentation. Optional values: `dfm`, `tab`, or a number `1`–`4`.                                                                                                                                                                                                       |
+| frontmatterType        | String  | `-`                                 | Frontmatter delimiter: `-` (YAML), `+` (TOML), `;` (JSON), or `{` (JSON).                                                                                                                                                                                                   |
+| superSubScript         | Boolean | `false`                             | Enable pandoc's superscript/subscript markdown extension.                                                                                                                                                                                                                   |
+| footnote               | Boolean | `false`                             | Enable pandoc's footnote markdown extension.                                                                                                                                                                                                                                |
+| texMathDollars         | Boolean | `true`                              | Enable pandoc's [`tex_math_dollars`](https://pandoc.org/MANUAL.html#extension-tex_math_dollars) extension — `$…$` and `$$…$$` math.                                                                                                                                         |
+| texMathGfm             | Boolean | `false`                             | Enable pandoc's [`tex_math_gfm`](https://pandoc.org/MANUAL.html#extension-tex_math_gfm) extension — GitHub's ``$`…`$`` and ` ```math ` math. The former `isGitlabCompatibilityEnabled` key is no longer applied; enable this option explicitly.                             |
+| texMathSingleBackslash | Boolean | `false`                             | Enable pandoc's [`tex_math_single_backslash`](https://pandoc.org/MANUAL.html#extension-tex_math_single_backslash) extension — `\(…\)` inline and `\[…\]` display math. Off by default, as in pandoc: it precludes escaping `(` and `[`, so `- \[TODO\]` reads as a formula. |
+| texMathDoubleBackslash | Boolean | `false`                             | Enable pandoc's [`tex_math_double_backslash`](https://pandoc.org/MANUAL.html#extension-tex_math_double_backslash) extension — `\\(…\\)` inline and `\\[…\\]` display math.                                                                                                  |
+| fancyLists             | Boolean | `false`                             | Enable pandoc's [`fancy_lists`](https://pandoc.org/MANUAL.html#extension-fancy_lists) extension — `a.`, `IV.`, `(1)` and `#.` list markers. Pandoc exports then use pandoc's `markdown` reader.                                                                             |
+| highlightSyntax        | Boolean | `false`                             | Enable the non-standard `==highlight==` syntax used by Obsidian, Typora and Logseq. Renders as `<mark>` in the editor and in the HTML/PDF exports; `==` stays literal text while off.                                                                                       |
+| inlineDiff             | Boolean | `false`                             | Enable GitLab's non-standard [`{+ … +}` / `[- … -]` inline diff](https://docs.gitlab.com/user/markdown/#inline-diff) syntax. Additions render as `<ins>` and deletions as `<del>` in the editor and in the HTML/PDF exports; the tags stay literal text while off.          |
+| multilineBlockquote    | Boolean | `false`                             | Enable GitLab's non-standard [`>>>` … `>>>` multiline blockquote](https://docs.gitlab.com/user/markdown/#multiline-blockquote) syntax. The fence is preserved on save and renders as a `<blockquote>` in the HTML/PDF exports; while off the fence stays literal text.      |
+| isHtmlEnabled          | Boolean | `true`                              | Enable inline HTML rendering.                                                                                                                                                                                                                                               |
+| softNewlineAsSpace     | Boolean | `false`                             | Treat a soft line break (a single bare newline within a paragraph) as a space instead of a line break.                                                                                                                                                                      |
+| sequenceTheme          | String  | `hand`                              | Theme for [js-sequence-diagrams](https://bramp.github.io/js-sequence-diagrams/): `hand` or `simple`.                                                                                                                                                                        |
+| mermaidLightTheme      | String  | `default`                           | Mermaid theme used with a light application theme. Configurable in Preferences → Markdown.                                                                                                                                                                                  |
+| mermaidDarkTheme       | String  | `dark`                              | Mermaid theme used with a dark application theme. Per-diagram configuration can override it; see [Markdown syntax](MARKDOWN_SYNTAX.md#mermaid-themes).                                                                                                                      |
 
 #### Theme
 
@@ -92,11 +98,11 @@ Preferences can be controlled and modified in the settings window or via the `pr
 
 #### Spelling
 
-| Key                     | Type    | Default | Description                                                          |
-| ----------------------- | ------- | ------- | -------------------------------------------------------------------- |
-| spellcheckerEnabled     | Boolean | `false` | Whether spell checking is enabled.                                   |
-| spellcheckerNoUnderline | Boolean | `false` | Don't underline spelling mistakes.                                   |
-| spellcheckerLanguage    | String  | `en-US` | The spell-checker language (BCP-47, e.g. `en-US`, `de-DE`, `zh-CN`). |
+| Key                     | Type    | Default | Description                                                                                                            |
+| ----------------------- | ------- | ------- | ---------------------------------------------------------------------------------------------------------------------- |
+| spellcheckerEnabled     | Boolean | `false` | Whether spell checking is enabled.                                                                                     |
+| spellcheckerNoUnderline | Boolean | `false` | Don't underline spelling mistakes.                                                                                     |
+| spellcheckerLanguage    | String  | `en-US` | Spell-checker language on Linux/Windows; choose from the available dictionaries. macOS uses system language detection. |
 
 #### Image
 
@@ -109,24 +115,15 @@ Preferences can be controlled and modified in the settings window or via the `pr
 
 #### Editable via file
 
-These settings include internal schema entries and additional persisted state. Most are controlled by application actions or edited in `preferences.json`; exceptions with Preferences controls are noted below.
+These settings are primarily edited in `preferences.json`; exceptions with Preferences controls are noted below.
 
 ##### View
 
-The View menu's Show Table of Contents control updates `tocVisibility`; it has no separate Preferences control.
+The source-code preference below supplies the default for a new layout. Sidebar, tab-bar and outline visibility and dimensions are window layout state, stored separately in `state/application-state.json`. The old `tocVisibility`, `sideBarVisibility`, `tabBarVisibility` and `lastOpenedFolder` preference keys are no longer applied.
 
-| Key                   | Type    | Default | Description                                                                                                     |
-| --------------------- | ------- | ------- | --------------------------------------------------------------------------------------------------------------- |
-| tocVisibility         | Boolean | `true`  | Expand the document outline as a separate column. When collapsed, its icon reveals a floating preview on hover. |
-| sideBarVisibility     | Boolean | `false` | Initial visibility of the sidebar. Overridden by the menu / shortcut.                                           |
-| tabBarVisibility      | Boolean | `false` | Initial visibility of the tab bar. Overridden by the menu / shortcut.                                           |
-| sourceCodeModeEnabled | Boolean | `false` | Initial source-code mode state. Overridden by the menu / shortcut.                                              |
-
-##### General (internal)
-
-| Key              | Type   | Default | Description                                                                       |
-| ---------------- | ------ | ------- | --------------------------------------------------------------------------------- |
-| lastOpenedFolder | String | `""`    | Last opened folder path; multi-root restoration also uses buffered session state. |
+| Key                   | Type    | Default | Description                                                        |
+| --------------------- | ------- | ------- | ------------------------------------------------------------------ |
+| sourceCodeModeEnabled | Boolean | `false` | Initial source-code mode state. Overridden by the menu / shortcut. |
 
 ##### Custom CSS
 
@@ -138,7 +135,7 @@ Although marked internal in the schema, `customCss` is editable in Preferences �
 
 ##### File system / Searcher
 
-`treePathExcludePatterns` is initialized in `static/preference.json` and used by the filesystem watcher; it has no entry in the schema.
+`treePathExcludePatterns` is validated by the shared preference schema and used by the filesystem watcher.
 
 | Key                     | Type             | Default | Description                                                                      |
 | ----------------------- | ---------------- | ------- | -------------------------------------------------------------------------------- |

@@ -62,14 +62,12 @@ const toggleOpenedFiles = (page: Page): Promise<void> =>
 test.describe('#5685 sidebar opened files resize', () => {
   let app: ElectronApplication
   let page: Page
-  let documentPath: string
 
   test.beforeEach(async() => {
     const launched = await launchWithMarkdown('# Doc\n')
     app = launched.app
     await app.evaluate(({ dialog }) => { dialog.showMessageBox = async() => ({ response: 1, checkboxChecked: false }) })
     page = launched.page
-    documentPath = launched.filePath
     await openProjectFolder(app, page, path.dirname(launched.filePath), launched.filePath)
     await page.waitForSelector(rowSelector, { state: 'visible', timeout: 5000 })
   })

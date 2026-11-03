@@ -14,7 +14,7 @@ import { getMarkdown } from '../helpers/api';
  */
 test.describe('pasteAsPlainText', () => {
     test('inserts plain text, ignoring clipboard HTML formatting', async ({ browserName, context, page }) => {
-        test.skip(browserName !== 'chromium', 'ClipboardItem/readText unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        test.skip(browserName !== 'chromium', 'ClipboardItem/readText unreliable on Firefox/WebKit headless.');
         await context.grantPermissions(['clipboard-read', 'clipboard-write']);
 
         await page.evaluate(() => window.muya!.setContent(''));

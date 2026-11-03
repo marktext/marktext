@@ -25,7 +25,7 @@ import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
 import { renderMenuIcon } from '../menuIcon';
 import { getShortcutHint } from '../shortcuts';
-import { canTurnIntoMenu, FRONT_MENU } from './config';
+import { canTurnIntoMenu, COPY_AS, COPY_AS_MENU, FRONT_MENU } from './config';
 import './index.css';
 
 const defaultOptions = {
@@ -140,6 +140,22 @@ export class ParagraphFrontMenu extends BaseFloat {
         return h(subMenuSelector, children);
     }
 
+    private _renderCopyAs() {
+        const { i18n } = this.muya;
+        const formats = COPY_AS_MENU.map(({ label, text }) => h(
+            `li.item.${label}`,
+            { on: { click: event => this.selectItem(event, { label }) } },
+            [h('span.text', i18n.t(text))],
+        ));
+
+        return h(`li.item.${COPY_AS.label}`, [
+            h('div.icon-wrapper', renderMenuIcon(COPY_AS)),
+            h('span.text', i18n.t(COPY_AS.text)),
+            h('div.arrow', '▸'),
+            h('ul.copy-as-menu', formats),
+        ]);
+    }
+
     render() {
         const { _oldVNode: oldVNode, _frontMenuContainer: frontMenuContainer, _block: block } = this;
         const { i18n } = this.muya;
@@ -166,9 +182,11 @@ export class ParagraphFrontMenu extends BaseFloat {
             );
         });
 
-        // Frontmatter can not be duplicated
+        // Frontmatter can not be duplicated or copied as a block
         if (blockName === 'frontmatter')
             children.splice(0, 1);
+        else
+            children.splice(1, 0, this._renderCopyAs());
 
         const subMenu = canTurnIntoMenu(block!);
         if (subMenu.length) {
@@ -200,6 +218,13 @@ export class ParagraphFrontMenu extends BaseFloat {
         this._block = null;
         if (!block?.parent)
             return;
+
+        const format = COPY_AS_MENU.find(item => item.label === label);
+        if (format) {
+            void this.muya.editor.clipboard.copyBlockAs(block, format.copyType);
+            setTimeout(this.hide.bind(this));
+            return;
+        }
 
         const oldState = block.getState();
 

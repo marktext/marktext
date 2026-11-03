@@ -17,9 +17,7 @@ export default [
       '.claude/**',
       '**/out/**',
       '**/dist/**',
-      // The website ships with its own ESLint v8 config (React conventions).
-      // The root config here is desktop-focused; mixing the two surfaces
-      // pre-existing website style errors into desktop CI.
+      // Keep Next.js rules out of desktop CI; the website validates its own React code.
       'packages/website/**',
       // muya v2 (TS) self-lints with its own antfu-based config
       // (packages/muya/eslint.config.mjs). Different style rules from the

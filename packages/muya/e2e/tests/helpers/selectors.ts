@@ -24,9 +24,10 @@ export const editor = {
     setextHeading: '.mu-setext-heading',
     // A Shift+Enter soft line break inside a Format leaf renders as a
     // `<span.mu-soft-line-break>` wrapping a literal `\n`. Source of truth:
-    // packages/muya/src/inlineRenderer/renderer/softLineBreak.ts +
+    // packages/muya/src/inline/renderer/softLineBreak.ts +
     // CLASS_NAMES.MU_SOFT_LINE_BREAK in packages/muya/src/config/index.ts.
     softLineBreak: '.mu-soft-line-break',
+    hardLineBreak: '.mu-hard-line-break',
     hardLineBreakSpace: '.mu-hard-line-break-space',
     blockQuote: '.mu-block-quote',
     bulletList: '.mu-bullet-list',
@@ -35,6 +36,10 @@ export const editor = {
     taskListItem: '.mu-task-list-item',
     thematicBreak: '.mu-thematic-break',
     codeBlock: '.mu-code-block',
+    inlineCode: 'code.mu-inline-rule',
+    hiddenSyntax: '.mu-hide',
+    inlineDiffAddition: 'ins.mu-inline-diff-addition',
+    inlineDiffDeletion: 'del.mu-inline-diff-deletion',
     fenceCode: '.mu-fence-code',
     // The leaf node that holds the actual code text inside a code block.
     // Prism highlight `<span class="token …">` runs are appended here.
@@ -72,7 +77,7 @@ export const editor = {
     image: '.mu-inline-image',
     // Inline image placeholder rendered when the image has no resolvable src
     // (e.g. `![]()` / `![alt]()`). Source of truth:
-    // packages/muya/src/inlineRenderer/renderer/image.ts (the `else` branch
+    // packages/muya/src/inline/renderer/image.ts (the `else` branch
     // appends CLASS_NAMES.MU_EMPTY_IMAGE → `mu-empty-image`). Clicking it emits
     // `muya-image-selector` (selection/ImageSelection.ts) which opens the
     // ImageEditTool float.
@@ -88,6 +93,7 @@ export const editor = {
     // is the actual `<u>`, `<mark>`, `<sup>`, `<sub>` or `<ruby>` element.
     rawHtml: '.mu-raw-html',
     htmlTagMarker: 'span.mu-html-tag',
+    htmlEscape: '.mu-html-escape',
 } as const;
 
 // Float root class names confirmed against the `const name = 'mu-...'` lines

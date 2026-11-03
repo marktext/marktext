@@ -257,9 +257,8 @@ test('closing a locked dirty tab honors Cancel, then explicitly unlocks and save
       dialog.showMessageBox = async() => ({ response: 0, checkboxChecked: false })
     })
     await page.locator('.tabs-container li .close-icon').click()
-    await expect(page.locator('.tabs-container li')).toHaveCount(1)
-    await expect(page.locator('.tabs-container li')).not.toHaveAttribute('title', filePath)
-    await expect(page.locator('.tabs-container li.unsaved')).toHaveCount(0)
+    await expect(page.locator('.tabs-container li')).toHaveCount(0)
+    await expect(page.locator('.recent-files-projects')).toBeVisible()
     expect(readFileSync(filePath, 'utf8')).toContain('retained edit')
   } finally {
     await app.evaluate(({ app }) => app.exit(0)).catch(() => {})

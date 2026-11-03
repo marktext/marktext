@@ -2,6 +2,8 @@ import fs from 'fs'
 import path from 'path'
 import { randomUUID } from 'crypto'
 import type { ProjectRoot, ProjectRootsSnapshot } from '@shared/types/project'
+import { containsPath } from 'common/filesystem/paths'
+export { containsPath } from 'common/filesystem/paths'
 
 interface RootEffects {
   publish: (snapshot: ProjectRootsSnapshot) => void
@@ -16,14 +18,6 @@ export const resolveExistingPath = (pathname: string): string => {
   } catch {
     return path.resolve(pathname)
   }
-}
-
-export const containsPath = (parent: string, child: string): boolean => {
-  const relative = path.relative(parent, child)
-  return (
-    relative === '' ||
-    (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative))
-  )
 }
 
 const resolveUnavailableRoot = (pathname: string): string => {

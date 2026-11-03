@@ -9,23 +9,8 @@ import { editor, floats } from '../helpers/selectors';
 type IAxeViolation = Awaited<ReturnType<InstanceType<typeof AxeBuilder>['analyze']>>['violations'][number];
 
 /**
- * Accessibility smoke. Phase 4 starts with the lowest tier — `critical`
- * only — and tightens over time as we fix issues. Non-critical
- * violations are surfaced via `console.log` in CI logs so Phase 5 can
- * triage them.
- *
- * axe-core categorizes violations by `impact`: 'minor' | 'moderate' |
- * 'serious' | 'critical'. We currently assert only on `critical` so
- * Phase 4 lands green; Phase 5 should tighten to `serious+` once the
- * known offenders (likely contrast/aria from third-party CSS) are
- * filed as follow-ups.
- *
- * Scope: every scan EXCLUDES `.tools`, the host test-harness toolbar
- * (it's just bare <select>/<button> markup with no labels — fixing it
- * isn't on the muya editor's critical path). Excluding it keeps the
- * focus on the editor + its mounted float plugins, which is the
- * actually-shipped a11y surface. The host-toolbar violations are
- * captured as Phase 5 follow-up in BACKLOG.
+ * Scope scans to the shipped editor and floating tools; `.tools` belongs to
+ * the test harness. Lower-severity findings remain in CI logs for triage.
  */
 
 const EXCLUDE_HOST_TOOLBAR = ['.tools'] as const;
@@ -36,7 +21,7 @@ function criticalViolations(violations: ReadonlyArray<IAxeViolation>): IAxeViola
 
 function logNonCritical(scope: string, violations: ReadonlyArray<IAxeViolation>): void {
     if (violations.length > 0) {
-        // eslint-disable-next-line no-console -- CI log breadcrumb for Phase 5 triage
+        // eslint-disable-next-line no-console -- Keep lower-severity findings visible for accessibility triage
         console.log(`[a11y/${scope}] non-critical violations:`, violations.map(v => `${v.id} (${v.impact})`).join(', '));
     }
 }

@@ -120,7 +120,7 @@ test.describe('selection from a language line into its own code (#4903, #5148)',
     }) => {
         test.skip(
             browserName !== 'chromium',
-            'ClipboardItem unreliable on Firefox/WebKit headless — BACKLOG Phase 3.',
+            'ClipboardItem unreliable on Firefox/WebKit headless.',
         );
         await context.grantPermissions(['clipboard-read', 'clipboard-write']);
         const errors = collectPageErrors(page);

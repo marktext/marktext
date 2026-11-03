@@ -8,11 +8,34 @@ const ONE_PIXEL_PNG = Buffer.from(
     'base64',
 );
 
+for (const separator of [' ', '    ', '\t', ' \t']) {
+    test(`reference definitions accept separator ${JSON.stringify(separator)} (#5968)`, async ({ page }) => {
+        await page.route('https://example.test/tab.png', route => route.fulfill({ contentType: 'image/png', body: ONE_PIXEL_PNG }));
+        const definition = `[ref]: https://example.test/tab.png${separator}'alt text'`;
+        const markdown = `[link][ref] ![image][ref]\n\n${definition}\n`;
+        await page.evaluate(source => window.muya!.setContent(source), markdown);
+
+        const link = page.locator(editor.referenceLink).first();
+        await expect(link).toHaveAttribute('href', 'https://example.test/tab.png');
+        await expect(link).toHaveJSProperty('title', 'alt text');
+        const image = page.locator(`${editor.paragraph} img`).first();
+        await expect(image).toBeVisible();
+        await expect(image).toHaveAttribute('src', 'https://example.test/tab.png');
+        await expect(image).toHaveAttribute('title', 'alt text');
+        expect(await image.evaluate((node: HTMLImageElement) => node.naturalWidth)).toBe(1);
+        const output = await page.evaluate(() => {
+            window.muya!.flush();
+            return window.muya!.getMarkdown();
+        });
+        expect(output).toContain(definition);
+    });
+}
+
 /**
  * Reference-link / reference-image round-trip — defense-in-depth for PR-16.
  *
  * Reference definitions live as `paragraph` state nodes whose text is the raw
- * `[label]: url "title"` line. `InlineRenderer.collectReferenceDefinitions`
+ * `[label]: url "title"` line. `InlineEngine.collectReferenceDefinitions`
  * regex-scans paragraphs to build the labels Map, which the lexer consults
  * when expanding `[text][ref]` and `![alt][ref]`.
  *
@@ -61,7 +84,7 @@ test.describe('reference link', () => {
     });
 
     test('editing the definition URL re-resolves the link href on re-render', async ({ page }) => {
-        // `InlineRenderer.collectReferenceDefinitions()` rebuilds the labels
+        // `InlineEngine.collectReferenceDefinitions()` rebuilds the labels
         // Map from the JSON state on every render pass, and `referenceLink.ts`
         // reads `parent.labels.get(key)` for the href. Replacing the document
         // with an updated definition therefore re-resolves `[a][r]` against the

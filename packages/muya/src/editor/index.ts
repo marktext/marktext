@@ -13,11 +13,11 @@ import { ScrollPage } from '../block/scrollPage';
 import Clipboard from '../clipboard';
 import { CLASS_NAMES, isFirefox } from '../config';
 import History from '../history';
-import InlineRenderer from '../inlineRenderer';
+import InlineEngine from '../inline';
 import { Search } from '../search';
 import Selection from '../selection';
 import { findContentDOM } from '../selection/dom';
-import { createTextSelectionState } from '../selection/state';
+import { createTextSelectionState, resolveTextSelectionEndpoints } from '../selection/state';
 import JSONState from '../state';
 import { createChangePayload } from '../state/changePayload';
 import { stateAtPath } from '../state/paths';
@@ -27,6 +27,7 @@ import { getBlock } from '../utils/dom';
 import logger from '../utils/logger';
 import { isIndentShortcut, isTabKey } from '../utils/tab';
 import { attachDragDropImageHandlers } from './dragDropImage';
+import { TextDrag } from './dragDropText';
 import { attachLinkMouseHandlers } from './linkMouseEvents';
 import { handleIndentShortcut, handleTabSelection, shouldHandleIndentation } from './tab';
 import { EditTransactions } from './transactions';
@@ -275,12 +276,13 @@ export class Editor {
         return this._isComposing;
     }
 
-    inlineRenderer: InlineRenderer;
+    inlineEngine: InlineEngine;
     selection: Selection;
     searchModule: Search;
     clipboard: Clipboard;
     history: History;
     scrollPage: Nullable<ScrollPage> = null;
+    textDrag: TextDrag | null = null;
 
     private _activeContentBlock: Nullable<Content> = null;
     private _inputSelection: Nullable<TSelectionState> | undefined;
@@ -303,7 +305,7 @@ export class Editor {
             ),
             () => this.selection.getSelectionState(),
         );
-        this.inlineRenderer = new InlineRenderer(_muya);
+        this.inlineEngine = new InlineEngine(_muya);
         this.selection = new Selection(_muya);
         this.searchModule = new Search(_muya);
         this.clipboard = Clipboard.create(_muya);
@@ -343,6 +345,7 @@ export class Editor {
         // as a new `![](src)` block. Cleanup is likewise handled by
         // `detachAllDomEvents`.
         attachDragDropImageHandlers(muya);
+        this.textDrag = new TextDrag(muya);
         if (options.focus !== false)
             this.focus();
     }
@@ -368,8 +371,11 @@ export class Editor {
                 return;
             if (!this._isContentEvent(event))
                 return;
-            if (this._handlePreviewClick(event))
+            const previewTarget = this._getPreviewClickTarget(event);
+            if (previewTarget) {
+                this._handlePreviewClick(previewTarget, event);
                 return;
+            }
             const selectionResult = this.selection.getTextSelection();
             const anchorBlock = selectionResult?.anchor.block;
             const isSelectionInSameBlock = selectionResult?.isSelectionInSameBlock;
@@ -403,30 +409,7 @@ export class Editor {
             }
 
             this.activeContentBlock = anchorBlock;
-
-            switch (event.type) {
-                case 'click': {
-                    anchorBlock.clickHandler(event);
-                    break;
-                }
-                case 'input': {
-                    anchorBlock.inputHandler(event);
-                    break;
-                }
-                case 'keydown': {
-                    anchorBlock.keydownHandler(event);
-                    break;
-                }
-                case 'keyup': {
-                    anchorBlock.keyupHandler(event);
-                    break;
-                }
-                case 'compositionend':
-                case 'compositionstart': {
-                    anchorBlock.composeHandler(event);
-                    break;
-                }
-            }
+            this._dispatchContentEvent(anchorBlock, event);
         };
 
         merge(
@@ -464,17 +447,41 @@ export class Editor {
             || (event.target instanceof Node && !!findContentDOM(event.target));
     }
 
-    private _handlePreviewClick(event: Event): boolean {
+    private _dispatchContentEvent(block: Content, event: Event): void {
+        switch (event.type) {
+            case 'click':
+                block.clickHandler(event);
+                break;
+            case 'input':
+                block.inputHandler(event);
+                break;
+            case 'keydown':
+                block.keydownHandler(event);
+                break;
+            case 'keyup':
+                block.keyupHandler(event);
+                break;
+            case 'compositionend':
+            case 'compositionstart':
+                block.composeHandler(event);
+                break;
+        }
+    }
+
+    private _getPreviewClickTarget(event: Event): Element | null {
         if (event.type !== 'click' || !(event.target instanceof Element)
             || !event.target.closest(`.${CLASS_NAMES.MU_MATH_RENDER}, .${CLASS_NAMES.MU_RUBY_RENDER}`)) {
-            return false;
+            return null;
         }
-        const block = getBlock(findContentDOM(event.target));
+        return event.target;
+    }
+
+    private _handlePreviewClick(target: Element, event: Event): void {
+        const block = getBlock(findContentDOM(target));
         if (block?.isContent()) {
             this.activeContentBlock = block;
             block.clickHandler(event);
         }
-        return true;
     }
 
     focus() {
@@ -633,7 +640,18 @@ export class Editor {
     private _restoreSelection(selection: Nullable<TSelectionState>) {
         if (!selection)
             return;
-        if (!this.selection.setSelection(selection))
+        const endpoints = resolveTextSelectionEndpoints(this._muya, selection);
+        if (endpoints) {
+            const { anchor, focus } = endpoints;
+            const sameBlock = anchor.block === focus.block;
+            this.activeContentBlock = sameBlock ? anchor.block : null;
+            // Rebuilt blocks hide source syntax; expose the saved endpoints before mapping them to DOM nodes.
+            anchor.block.update({ block: anchor.block, anchor, focus: sameBlock ? focus : anchor });
+            if (!sameBlock)
+                focus.block.update({ block: focus.block, anchor: focus, focus });
+        }
+        const restored = this.selection.setSelection(selection);
+        if (!restored)
             this.scrollPage?.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
@@ -653,6 +671,7 @@ export class Editor {
     }
 
     setContent(content: TState[] | string, autoFocus = false) {
+        this.textDrag?.cancel(false);
         this.transactions.assertStandalone();
         this.transactions.cancel();
         this.selection.cancel();

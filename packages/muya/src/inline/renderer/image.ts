@@ -1,0 +1,222 @@
+import type { VNode } from 'snabbdom';
+import type { TSelectableImageToken } from '../../utils/image';
+import type Renderer from './index';
+import type { H, IInlineEnvironment, IRenderBlock, ISyntaxRenderOptions } from './types';
+import DeleteIcon from '../../assets/icons/delete/2.png';
+import ImageIcon from '../../assets/icons/image/2.png';
+import ImageFailIcon from '../../assets/icons/image_fail/2.png';
+import { CLASS_NAMES } from '../../config';
+import { getImageSrc, usesDefaultObjectSize } from '../../utils/image';
+
+function renderIcon(h: H, className: string, icon: string) {
+    // A `<span>`, not an `<a>`: these hover controls carry no href, and an `<a>`
+    // here nests illegally when the image sits inside a real anchor (e.g. a
+    // reference-linked image `[![alt](img)][ref]`). The HTML parser closes the
+    // outer anchor early on the nested `<a>`, hoisting the image out of the link
+    // (#4865).
+    const selector = `span.${className}`;
+    const iconVNode = h(
+        'i.icon',
+        h(
+            'i.icon-inner',
+            {
+                style: {
+                    'background': `url(${icon}) no-repeat`,
+                    'background-size': '100%',
+                },
+            },
+            '',
+        ),
+    );
+
+    return h(selector, iconVNode);
+}
+
+function isSmallImage(
+    naturalWidth: number | undefined,
+    naturalHeight: number | undefined,
+) {
+    return (
+        typeof naturalWidth === 'number'
+        && typeof naturalHeight === 'number'
+        && (naturalWidth < 100 || naturalHeight < 100)
+    );
+}
+
+function isImageSelected(
+    selectedImage: IInlineEnvironment['selectedImage'],
+    block: IRenderBlock,
+    token: TSelectableImageToken,
+) {
+    if (!selectedImage)
+        return false;
+
+    const { block: selectedBlock, range } = selectedImage;
+
+    return (
+        selectedBlock === block
+        && range.start === token.range.start
+        && range.end === token.range.end
+    );
+}
+
+export default function image(
+    this: Renderer,
+    { h, block, token }: ISyntaxRenderOptions & { token: TSelectableImageToken },
+) {
+    const imageSrc = getImageSrc(token.attrs.src ?? '');
+    const selectedImage = this.environment.selectedImage;
+    const { translate } = this.environment;
+    const data = {
+        attrs: {
+            'contenteditable': 'false',
+            'empty-text': translate('Click to add an image'),
+            'fail-text': translate('Load image failed'),
+        },
+        dataset: {
+            raw: token.raw,
+        },
+    };
+    let id: string = '';
+    let isSuccess: boolean | undefined;
+    let naturalWidth: number | undefined;
+    let naturalHeight: number | undefined;
+    let resolvedUrl: string | undefined;
+    // Resource and preview lookup use the original URL, without cache-busting parameters.
+    const src = imageSrc.src;
+    const alt = token.attrs.alt ?? '';
+    const title = token.attrs.title ?? '';
+    const width = token.attrs.width;
+    const height = token.attrs.height;
+
+    if (src) {
+        const attrs = Object.fromEntries(
+            Object.entries(token.attrs).filter((entry): entry is [string, string] => entry[1] !== null),
+        );
+        ({ id, isSuccess, url: resolvedUrl, width: naturalWidth, height: naturalHeight }
+            = this.loadImageAsync(imageSrc, attrs));
+    }
+
+    // What the rendered <img> actually points at. For local files this is the
+    // cache-busted `file://?mucache=…` URL resolved by `loadImageAsync`, so a
+    // block re-render (`innerHTML = html`) re-requests the busted URL instead
+    // of the plain path Chromium has cached. Uploads in progress override it
+    // with the base64 preview below.
+    let imgSrc = resolvedUrl ?? src;
+
+    let wrapperSelector = id
+        ? `span#${id}.${
+            CLASS_NAMES.MU_INLINE_IMAGE
+        }`
+        : `span.${CLASS_NAMES.MU_INLINE_IMAGE}`;
+
+    const imageIcons = [
+        renderIcon(h, 'mu-image-icon-success', ImageIcon),
+        renderIcon(h, 'mu-image-icon-fail', ImageFailIcon),
+        renderIcon(h, 'mu-image-icon-close', DeleteIcon),
+    ];
+
+    /**
+     * The image is used to wrap the img element.
+     * @param args
+     * @returns The wrapping span VNode containing the image element.
+     */
+    const renderImageContainer = (...args: (VNode | string)[]) => {
+        const data = {};
+        if (title) {
+            Object.assign(data, {
+                dataset: { title },
+            });
+        }
+
+        return h(`span.${CLASS_NAMES.MU_IMAGE_CONTAINER}`, data, args);
+    };
+
+    if (typeof token.attrs['data-align'] === 'string')
+        wrapperSelector += `.${token.attrs['data-align']}`;
+
+    const preview = this.images.getPreview(src);
+    if (preview !== undefined) {
+        imgSrc = preview;
+        isSuccess = true;
+    }
+
+    if (alt.startsWith('loading-')) {
+        wrapperSelector += `.${CLASS_NAMES.MU_IMAGE_UPLOADING}`;
+        Object.assign(data.dataset, {
+            id: alt,
+        });
+        const uploadPreview = this.images.getPreview(alt);
+        if (uploadPreview !== undefined) {
+            imgSrc = uploadPreview;
+            isSuccess = true;
+        }
+    }
+
+    if (src) {
+    // image is loading...
+        if (typeof isSuccess === 'undefined') {
+            wrapperSelector += `.${CLASS_NAMES.MU_IMAGE_LOADING}`;
+        }
+        else if (isSuccess === true) {
+            wrapperSelector += `.${CLASS_NAMES.MU_IMAGE_SUCCESS}`;
+            // Tag images whose natural size is below
+            // 100px in either dimension. NOTE: no CSS in this package currently
+            // consumes `.mu-small-image` — it is kept as a theming hook so
+            // downstream stylesheets can shrink/hide the in-wrapper hover icons
+            // (`.mu-image-icon-success/fail/close`, each 20×20) that visually
+            // clobber a small image. The marktext original wired this class to
+            // an in-wrapper `.ag-image-buttons` group that this repo doesn't
+            // have (our toolbar is a floating-ui overlay), so the rule lives
+            // here as data only; downstream consumers / future PRs own the
+            // visual treatment.
+            if (isSmallImage(naturalWidth, naturalHeight))
+                wrapperSelector += `.${CLASS_NAMES.MU_SMALL_IMAGE}`;
+        }
+        else {
+            wrapperSelector += `.${CLASS_NAMES.MU_IMAGE_FAIL}`;
+        }
+
+        // Add image selected class name.
+        if (isImageSelected(selectedImage, block, token))
+            wrapperSelector += `.${CLASS_NAMES.MU_INLINE_IMAGE_SELECTED}`;
+
+        const renderImage = () => {
+            const data = {
+                props: {
+                    alt,
+                    src: imgSrc,
+                    title,
+                },
+            };
+
+            if (typeof width === 'string' && width)
+                Object.assign(data.props, { width });
+
+            if (typeof height === 'string' && height)
+                Object.assign(data.props, { height });
+
+            // Re-renders rewrite the block from these vnodes, so the width
+            // `loadImageAsync` pinned on the first load has to be restated
+            // here or a size-less image collapses again (#4991).
+            if (!width && !height && usesDefaultObjectSize(naturalWidth, naturalHeight))
+                Object.assign(data, { style: { width: `${naturalWidth}px` } });
+
+            return h('img', data);
+        };
+
+        return isSuccess
+            ? [
+                    h(wrapperSelector, data, [
+                        ...imageIcons,
+                        renderImageContainer(renderImage()),
+                    ]),
+                ]
+            : [h(wrapperSelector, data, [...imageIcons, renderImageContainer()])];
+    }
+    else {
+        wrapperSelector += `.${CLASS_NAMES.MU_EMPTY_IMAGE}`;
+
+        return [h(wrapperSelector, data, [...imageIcons, renderImageContainer()])];
+    }
+}

@@ -280,6 +280,21 @@
       "files": "文件",
       "search": "搜索",
       "settings": "设置"
+    },
+    "move": {
+      "title": "移动文件或文件夹",
+      "confirm": "移动",
+      "question": "移动“{name}”？",
+      "detail": "从：{source}\n到：{destination}\n\n这会改变真实文件位置，相对链接和图片路径可能受影响。",
+      "directoryContents": "将移动文件夹及其全部内容。",
+      "completed": "移动成功。",
+      "invalidTarget": "请选择同一根目录内的其他文件夹。不支持链接路径，也不能将文件夹移入自身。",
+      "crossDevice": "此处暂不支持跨磁盘卷移动，请使用系统文件管理器。",
+      "conflict": "目标位置已存在同名项目，请先重命名后重试。",
+      "missing": "源或目标已不存在，请刷新文件夹后重试。",
+      "permission": "无法移动，请检查目录权限或是否有其他应用正在占用。",
+      "openElsewhere": "移动前，请先在其他 MarkText 窗口关闭此文件或此文件夹中的文档。",
+      "destinationOpen": "目标路径已有打开的文档，请先关闭后重试。"
     }
   },
   "titleBar": {

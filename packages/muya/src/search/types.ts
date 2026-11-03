@@ -10,6 +10,8 @@ export interface ISearchOption {
 
 export interface IReplaceOption extends ISearchOption {
     isSingle?: boolean;
+    /** Editor commands select the next result before replacing an unrelated selection. */
+    fromSelection?: boolean;
 }
 
 export interface IMatch {

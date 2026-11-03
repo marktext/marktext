@@ -1,6 +1,7 @@
-import { ipcMain, type BrowserWindow, type Menu, type MenuItem } from 'electron'
+import { ipcMain, type BrowserWindow, type Menu } from 'electron'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
+import { requireMenuItem } from '../lookup'
 
 type Win = BrowserWindow | null | undefined
 
@@ -97,11 +98,11 @@ export const viewLayoutChanged = (
   changes: Record<string, unknown>
 ): void => {
   const disableMenuByName = (id: string, value: boolean): void => {
-    const menuItem: MenuItem = applicationMenu.getMenuItemById(id)!
+    const menuItem = requireMenuItem(applicationMenu, id)
     menuItem.enabled = value
   }
   const changeMenuByName = (id: string, value: unknown): void => {
-    const menuItem: MenuItem = applicationMenu.getMenuItemById(id)!
+    const menuItem = requireMenuItem(applicationMenu, id)
     menuItem.checked = !!value
   }
 

@@ -19,7 +19,7 @@ Redo uses <kbd>Ctrl</kbd>+<kbd>Y</kbd>. The previous default, <kbd>Ctrl</kbd>+<k
 | `file.export-file.pdf` | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>E</kbd>   | Export file as PDF                    |
 | `file.move-file`       | -                                             | Move current file to another location |
 | `file.rename-file`     | -                                             | Rename current file                   |
-| `file.print`           | -                                            | Print current tab                     |
+| `file.print`           | -                                             | Print current tab                     |
 | `file.preferences`     | <kbd>Ctrl</kbd>+<kbd>,</kbd>                  | Open settings window                  |
 | `file.close-tab`       | <kbd>Ctrl</kbd>+<kbd>W</kbd>                  | Close tab                             |
 | `file.close-window`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> | Close window                          |
@@ -34,7 +34,7 @@ Redo uses <kbd>Ctrl</kbd>+<kbd>Y</kbd>. The previous default, <kbd>Ctrl</kbd>+<k
 | `edit.cut`                | <kbd>Ctrl</kbd>+<kbd>X</kbd>                  | Cut selected text                               |
 | `edit.copy`               | <kbd>Ctrl</kbd>+<kbd>C</kbd>                  | Copy selected text                              |
 | `edit.paste`              | <kbd>Ctrl</kbd>+<kbd>V</kbd>                  | Paste text                                      |
-| `edit.copy-as-rich`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> | Copy selected text as markdown                  |
+| `edit.copy-as-rich`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> | Copy selected text as rich text                 |
 | `edit.copy-as-html`       | -                                             | Copy selected text as html                      |
 | `edit.paste-as-plaintext` | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> | Paste clipboard contents as plain text          |
 | `edit.select-all`         | <kbd>Ctrl</kbd>+<kbd>A</kbd>                  | Select all text of the document                 |

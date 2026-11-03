@@ -1,10 +1,11 @@
 import path from 'path'
-import { BrowserWindow, ipcMain, Menu, type MenuItem } from 'electron'
+import { BrowserWindow, ipcMain, Menu } from 'electron'
 import log from 'electron-log'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
 import { isOsx } from '../../config'
 import { searchFilesAndDir } from '../../utils/imagePathAutoComplement'
+import { requireMenuItem } from '../lookup'
 
 type Win = BrowserWindow | null | undefined
 
@@ -185,6 +186,6 @@ export const loadEditCommands = (commandManager: CommandManager): void => {
 //       window id from `AppMenu` manager.
 
 export const updateSidebarMenu = (applicationMenu: Menu, value: unknown): void => {
-  const sideBarMenuItem: MenuItem = applicationMenu.getMenuItemById('sideBarMenuItem')!
+  const sideBarMenuItem = requireMenuItem(applicationMenu, 'sideBarMenuItem')
   sideBarMenuItem.checked = !!value
 }

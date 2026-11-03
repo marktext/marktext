@@ -27,7 +27,7 @@ class EditorWindow extends BaseWindow {
   // Root directory and file list that are currently opened. These lists are
   // used to find the best window to open new files in.
   readonly projectRoots: ProjectRoots
-  private _openedFiles: string[] | null
+  private readonly _openedFiles: string[] = []
   public readonly sessionStateId: string
   public sessionReady: Promise<void> = Promise.resolve()
 
@@ -51,8 +51,6 @@ class EditorWindow extends BaseWindow {
         this._accessor.menu.addRecentlyUsedDocument(pathname)
       }
     })
-    this._openedFiles = []
-
   }
 
   createWindow(
@@ -119,7 +117,7 @@ class EditorWindow extends BaseWindow {
       this.bringToFront()
 
       const lineEnding = preferences.getPreferredEol()
-      appMenu.updateLineEndingMenu(this.id!, lineEnding)
+      appMenu.updateLineEndingMenu(win.id, lineEnding)
 
       win.webContents.on('zoom-changed', (_event, zoomDirection) => {
         if (zoomDirection === 'in') {
@@ -276,17 +274,17 @@ class EditorWindow extends BaseWindow {
 
   addToOpenedFiles(filePath: string): void {
     const { _openedFiles, browserWindow } = this
-    if (!_openedFiles!.includes(filePath)) _openedFiles!.push(filePath)
+    if (!_openedFiles.includes(filePath)) _openedFiles.push(filePath)
     ipcMain.emit('watcher-watch-file', browserWindow, filePath)
   }
 
   changeOpenedFilePath(pathname: string, oldPathname: string): void {
     const { _openedFiles, browserWindow } = this
-    const index = _openedFiles!.findIndex((p) => p === oldPathname)
+    const index = _openedFiles.findIndex((p) => p === oldPathname)
     if (index === -1) {
-      _openedFiles!.push(pathname)
+      _openedFiles.push(pathname)
     } else {
-      _openedFiles![index] = pathname
+      _openedFiles[index] = pathname
     }
     ipcMain.emit('watcher-unwatch-file', browserWindow, oldPathname)
     ipcMain.emit('watcher-watch-file', browserWindow, pathname)
@@ -294,9 +292,9 @@ class EditorWindow extends BaseWindow {
 
   removeFromOpenedFiles(pathname: string): void {
     const { _openedFiles, browserWindow } = this
-    const index = _openedFiles!.findIndex((p) => p === pathname)
+    const index = _openedFiles.findIndex((p) => p === pathname)
     if (index !== -1) {
-      _openedFiles!.splice(index, 1)
+      _openedFiles.splice(index, 1)
     }
     ipcMain.emit('watcher-unwatch-file', browserWindow, pathname)
   }
@@ -307,13 +305,13 @@ class EditorWindow extends BaseWindow {
     for (const inputPath of fileList) {
       const pathname = resolveExistingPath(inputPath)
       let score = 0
-      if (_openedFiles!.some((p) => resolveExistingPath(p) === pathname)) {
+      if (_openedFiles.some((p) => resolveExistingPath(p) === pathname)) {
         score = -1
       } else {
         if (this.projectRoots.roots.some(root => isChildOfDirectory(root.key, pathname))) {
           score += 5
         }
-        for (const item of _openedFiles!) {
+        for (const item of _openedFiles) {
           if (isChildOfDirectory(path.dirname(resolveExistingPath(item)), pathname)) {
             score += 1
           }
@@ -330,7 +328,7 @@ class EditorWindow extends BaseWindow {
     // Watchers are freed from WindowManager.
 
     this.projectRoots.clear()
-    this._openedFiles = null
+    this._openedFiles.length = 0
   }
 }
 

@@ -102,6 +102,10 @@ export const tr = {
         'Duplicate': 'Çoğalt',
         'New Paragraph': 'Yeni Paragraf',
         'Delete': 'Sil',
+        'Copy as': 'Farklı biçimde kopyala',
+        'Markdown': 'Markdown',
+        'HTML': 'HTML',
+        'Rich Text': 'Zengin Metin',
         // imageToolbar
         'Edit Image': 'Görseli Düzenle',
         'Inline Image': 'Satır İçi Görsel',
