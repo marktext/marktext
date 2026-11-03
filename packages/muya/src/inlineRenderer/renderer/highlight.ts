@@ -1,13 +1,12 @@
-import type Format from '../../block/base/format';
-import type { H, Token } from '../types';
+import type { Token } from '../model/types';
 import type Renderer from './index';
-import { union } from '../../utils';
+import type { H, IRenderBlock } from './types';
+import { intersectingHighlights } from '../model/ranges';
 
-// change text to highlight vnode
 export default function highlight(
     this: Renderer,
     h: H,
-    block: Format,
+    block: IRenderBlock,
     rStart: number,
     rEnd: number,
     token: Token,
@@ -15,16 +14,8 @@ export default function highlight(
     const { text } = block;
     const { highlights } = token;
     let result = [];
-    const unions = [];
+    const unions = intersectingHighlights({ start: rStart, end: rEnd }, highlights ?? []);
     let pos = rStart;
-
-    if (highlights) {
-        for (const light of highlights) {
-            const un = union({ start: rStart, end: rEnd }, light);
-            if (un)
-                unions.push(un);
-        }
-    }
 
     if (unions.length) {
         for (const u of unions) {

@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 
 import { describe, expect, it } from 'vitest';
-import { tokenizer, tokensToInlineHtml, tokensToPlainText } from '../lexer';
+import { tokenizer } from '../lexer';
+import { tokensToInlineHtml, tokensToPlainText } from '../projection';
 
 const options = {
     superSubScript: true,
@@ -54,7 +55,7 @@ describe('outline text and HTML keep the same visible content', () => {
     });
 
     it('keeps literal hashes when block-prefix parsing is disabled', () => {
-        const tokens = tokenizer('# title #', { hasBeginRules: false });
+        const tokens = tokenizer('# title #', { profile: 'inline' });
         expect(tokens.some(token => token.type === 'tail_header')).toBe(false);
         expect(tokensToPlainText(tokens)).toBe('# title #');
         expect(tokensToInlineHtml(tokens)).toBe('# title #');

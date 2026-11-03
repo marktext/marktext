@@ -3,7 +3,7 @@ import type Format from '../block/base/format';
 import type Table from '../block/gfm/table';
 import type TableBodyCell from '../block/gfm/table/cell';
 import type { TBlockPath } from '../block/types';
-import type { ITokenRange, Token } from '../inlineRenderer/types';
+import type { ITokenRange, Token } from '../inlineRenderer/model/types';
 import type { IImageInfo } from '../utils/image';
 import type { IAffiliationEntry, IEndpointBlockInfo } from './affiliation';
 

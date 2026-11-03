@@ -1,52 +1,19 @@
-import type { h } from 'snabbdom';
-import type Format from '../block/base/format';
-import type { IRenderCursor } from '../selection/types';
-
-export type H = typeof h;
-
-export interface ISyntaxRenderOptions {
-    h: H;
-    cursor: IRenderCursor;
-    block: Format;
-    token: Token;
-    outerClass?: string;
-}
-
 export interface IHighlight {
     start: number;
     end: number;
     active: boolean | undefined;
 }
 
-export type Labels = Map<
-    string,
-    {
-        href: string;
-        title: string;
-    }
->;
+export interface IReferenceDefinition {
+    readonly href: string;
+    readonly title: string;
+}
+
+export type Labels = ReadonlyMap<string, IReferenceDefinition>;
 
 export type Rules = Record<string, RegExp>;
 
-export interface ITokenizerFacOptions {
-    superSubScript: boolean;
-    footnote: boolean;
-    texMathDollars: boolean;
-    texMathGfm: boolean;
-    texMathSingleBackslash: boolean;
-    texMathDoubleBackslash: boolean;
-    highlightSyntax: boolean;
-    inlineDiff?: boolean;
-}
-
-export interface ITokenizerOptions {
-    // Block-relative search ranges with nondecreasing starts and ends.
-    highlights?: IHighlight[];
-    hasBeginRules?: boolean;
-    labels?: Labels;
-    options?: ITokenizerFacOptions;
-}
-
+/** Block-relative UTF-16 offsets, with an exclusive end. */
 export interface ITokenRange {
     start: number;
     end: number;
@@ -78,6 +45,7 @@ export type Token
 
 export interface IBaseToken {
     raw: string;
+    // Owning sibling array; format operations splice this array in place.
     parent: Token[];
     range: ITokenRange;
     highlights?: IHighlight[];
@@ -124,15 +92,20 @@ export type StrongEmToken = IBaseToken & {
     backlash: string;
 };
 
-export type CodeEmojiMathToken = IBaseToken & {
-    type: 'inline_code' | 'emoji' | 'inline_math';
+type LiteralToken = IBaseToken & {
     marker: string;
-    // Code uses CommonMark-normalized text; raw and range retain the editable source.
     content: string;
-    // For code spans, source offsets excluding the one-space boundary padding.
-    contentRange?: ITokenRange;
     backlash: string;
 };
+
+export type InlineCodeToken = LiteralToken & {
+    type: 'inline_code';
+    // The editable source excludes boundary padding; content holds normalized reading text.
+    contentRange?: ITokenRange;
+};
+export type EmojiToken = LiteralToken & { type: 'emoji' };
+export type InlineMathToken = LiteralToken & { type: 'inline_math' };
+export type CodeEmojiMathToken = InlineCodeToken | EmojiToken | InlineMathToken;
 
 export type DelToken = IBaseToken & {
     type: 'del';
@@ -244,7 +217,7 @@ export type AutoLinkToken = IBaseToken & {
     type: 'auto_link';
     href: string;
     email: string;
-    isLink: boolean; // It is a link or email.
+    isLink: boolean;
     marker: '<';
 };
 

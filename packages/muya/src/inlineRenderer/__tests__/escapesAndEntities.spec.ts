@@ -2,10 +2,12 @@
 
 import { describe, expect, it } from 'vitest';
 import { decodeMarkdownString } from '../../utils/markdownEscape';
-import { generator, tokenizer, tokensToPlainText } from '../lexer';
-import { parseSrcAndTitle } from '../linkDestination';
+import { tokenizer } from '../lexer';
+import { parseSrcAndTitle } from '../parser/linkDestination';
+import { tokensToPlainText } from '../projection';
+import { generator } from '../serialization';
 
-const options = { hasBeginRules: false };
+const options = { profile: 'inline' } as const;
 
 describe('commonMark escapes and character references (#5977, #5982)', () => {
     const punctuation = Array.from({ length: 94 }, (_, index) => String.fromCharCode(index + 33))

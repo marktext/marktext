@@ -1,7 +1,6 @@
 // @vitest-environment happy-dom
 
 import type Format from '../../../block/base/format';
-import type { CodeEmojiMathToken } from '../../types';
 import type Renderer from '../index';
 import { describe, expect, it } from 'vitest';
 import { CLASS_NAMES } from '../../../config';
@@ -12,9 +11,11 @@ import inlineCode from '../inlineCode';
 
 function render(source: string, active = false) {
     const token = tokenizer(source, {
-        hasBeginRules: false,
+        profile: 'inline',
         highlights: [{ start: 0, end: source.length, active: true }],
-    })[0] as CodeEmojiMathToken;
+    })[0];
+    if (token.type !== 'inline_code')
+        throw new Error('Expected an inline code token');
     const renderer = {} as Renderer;
     renderer.highlight = highlight;
     renderer.getClassName = () => active ? CLASS_NAMES.MU_GRAY : CLASS_NAMES.MU_HIDE;

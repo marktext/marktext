@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 
 import { describe, expect, it } from 'vitest';
-import { generator, tokenizer } from '../lexer';
+import { tokenizer } from '../lexer';
+import { generator } from '../serialization';
 
 describe('image descriptions (#5981)', () => {
     it.each([

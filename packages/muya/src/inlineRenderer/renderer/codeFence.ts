@@ -1,5 +1,6 @@
-import type { BeginRuleToken, ISyntaxRenderOptions } from '../types';
+import type { BeginRuleToken } from '../model/types';
 import type Renderer from './index';
+import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 
 // Use to render ```

@@ -1,12 +1,14 @@
 // @vitest-environment happy-dom
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { generator, tokenizer, tokensToInlineHtml, tokensToPlainText } from '../lexer';
+import { tokenizer } from '../lexer';
+import { tokensToInlineHtml, tokensToPlainText } from '../projection';
+import { generator, SourceGenerationMode } from '../serialization';
 
 const indexing = vi.hoisted(() => ({ characters: 0, reads: 0, htmlSteps: 0 }));
 
-vi.mock('../codeSpan', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('../codeSpan')>();
+vi.mock('../parser/codeSpan', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('../parser/codeSpan')>();
     return {
         ...actual,
         CodeSpanScanner: class extends actual.CodeSpanScanner {
@@ -23,8 +25,8 @@ vi.mock('../codeSpan', async (importOriginal) => {
     };
 });
 
-vi.mock('../brackets', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('../brackets')>();
+vi.mock('../parser/brackets', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('../parser/brackets')>();
     return {
         ...actual,
         BracketScanner: class extends actual.BracketScanner {
@@ -45,7 +47,7 @@ beforeEach(() => {
 describe('code-span indexing in HTML-heavy paragraphs', () => {
     it.each([1000, 2000, 4000, 8000])('indexes a linear amount of source for %i wrappers', (count) => {
         const source = '<span>`code`</span> '.repeat(count);
-        const tokens = tokenizer(source, { hasBeginRules: false });
+        const tokens = tokenizer(source, { profile: 'inline' });
 
         expect(generator(tokens)).toBe(source);
         expect(tokens.filter(token => token.type === 'html_tag')).toHaveLength(count);
@@ -58,7 +60,7 @@ describe('code-span indexing in HTML-heavy paragraphs', () => {
 describe('unmatched HTML wrappers', () => {
     it.each([1000, 2000, 4000, 8000])('bounds code-span reads for %i protected closers', (count) => {
         const source = '<span>`</span>` '.repeat(count);
-        const tokens = tokenizer(source, { hasBeginRules: false });
+        const tokens = tokenizer(source, { profile: 'inline' });
         expect(generator(tokens)).toBe(source);
         expect(tokens.filter(token => token.type === 'html_tag')).toHaveLength(count);
         expect(indexing.reads).toBeLessThanOrEqual(count * 4);
@@ -69,8 +71,8 @@ describe('deep HTML wrappers', () => {
     it.each([[1000, '`x`'], [4000, '`x`'], [4000, 'x'], [4000, '*`x`*']] as const)('shares indexes and preserves %i levels around %s without recursion', (count, body) => {
         const source = '<span>'.repeat(count) + body + '</span>'.repeat(count);
         const contentOffset = count * 6 + body.indexOf('x');
-        const tokens = tokenizer(source, { hasBeginRules: false, highlights: [{ start: contentOffset, end: contentOffset + 1, active: true }] });
-        expect(generator(tokens, true)).toBe(source);
+        const tokens = tokenizer(source, { profile: 'inline', highlights: [{ start: contentOffset, end: contentOffset + 1, active: true }] });
+        expect(generator(tokens, SourceGenerationMode.RebuildWrappers)).toBe(source);
         expect(indexing.characters).toBe(source.length);
         expect(indexing.htmlSteps).toBeLessThanOrEqual(source.length * 2);
         let children = tokens;
@@ -93,8 +95,8 @@ describe('deep HTML wrappers', () => {
 it('bounds scans inside consecutive link labels', () => {
     const count = 2000;
     const source = '[<span>`x`](/url) '.repeat(count);
-    const tokens = tokenizer(source, { hasBeginRules: false });
-    expect(generator(tokens, true)).toBe(source);
+    const tokens = tokenizer(source, { profile: 'inline' });
+    expect(generator(tokens, SourceGenerationMode.RebuildWrappers)).toBe(source);
     expect(tokens.filter(token => token.type === 'link')).toHaveLength(count);
     expect(indexing.reads).toBeLessThanOrEqual(count * 4);
     expect(indexing.htmlSteps).toBeLessThanOrEqual(source.length * 2);

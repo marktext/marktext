@@ -1,16 +1,10 @@
 import type { VNode } from 'snabbdom';
-import type {
-    DelToken,
-    ISyntaxRenderOptions,
-    MarkToken,
-    StrongEmToken,
-    Token,
-} from '../types';
+import type { DelToken, MarkToken, StrongEmToken } from '../model/types';
 import type Renderer from './index';
+import type { IContainerRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
-import { snakeToCamel } from '../../utils';
+import { delimitedRanges } from '../model/ranges';
 
-// render factory of `del`,`mark`,`em`,`strong`
 export default function delEmStrongFac(
     this: Renderer,
     type: 'del' | 'mark' | 'em' | 'strong',
@@ -20,28 +14,18 @@ export default function delEmStrongFac(
         block,
         token,
         outerClass,
-    }: ISyntaxRenderOptions & { token: StrongEmToken | DelToken | MarkToken },
+        childNodes,
+    }: IContainerRenderOptions & { token: StrongEmToken | DelToken | MarkToken },
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const COMMON_MARKER = `span.${className}.${CLASS_NAMES.MU_REMOVE}`;
     const { marker } = token;
-    const { start, end } = token.range;
+    const { end } = token.range;
+    const { opening, closing } = delimitedRanges(token.range, marker.length);
     const backlashStart
         = end - marker.length - token.backlash.length;
-    const content: VNode[] = [
-        ...token.children.reduce((acc: VNode[], to: Token) => {
-            // The original passed a `className` field here too, but receivers
-            // read `outerClass` — so the field was silently dropped under the
-            // previous `as any` cast. Preserve that behavior: don't propagate.
-            const chunk = this.dispatch(snakeToCamel(to.type), {
-                h,
-                cursor,
-                block,
-                token: to,
-            });
-
-            return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk];
-        }, []),
+    const content: (VNode | string)[] = [
+        ...childNodes(token.children),
         ...this.backlashInToken(
             h,
             token.backlash,
@@ -53,11 +37,11 @@ export default function delEmStrongFac(
     const startMarker = this.highlight(
         h,
         block,
-        start,
-        start + marker.length,
+        opening.start,
+        opening.end,
         token,
     );
-    const endMarker = this.highlight(h, block, end - marker.length, end, token);
+    const endMarker = this.highlight(h, block, closing.start, closing.end, token);
 
     return [
         h(COMMON_MARKER, startMarker),

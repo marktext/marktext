@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import type { Token } from '../../inlineRenderer/types';
+import type { Token } from '../../inlineRenderer/model/types';
 import { describe, expect, it } from 'vitest';
 import { tokenizer } from '../../inlineRenderer/lexer';
 import { renderToStaticHTML } from '../renderToStaticHTML';
@@ -58,7 +58,7 @@ function collectTypes(tokens: Token[], out: string[] = []): string[] {
 }
 
 function tokenizesEmphasis(src: string): boolean {
-    const types = collectTypes(tokenizer(src, { hasBeginRules: false }) as Token[]);
+    const types = collectTypes(tokenizer(src, { profile: 'inline' }) as Token[]);
     return types.includes('strong') || types.includes('em');
 }
 

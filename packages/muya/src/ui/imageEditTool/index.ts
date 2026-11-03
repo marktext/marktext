@@ -1,7 +1,7 @@
 import type { VNode } from 'snabbdom';
 import type Format from '../../block/base/format';
 import type { Muya } from '../../index';
-import type { ImageToken } from '../../inlineRenderer/types';
+import type { ImageToken } from '../../inlineRenderer/model/types';
 import type { TSelectableImageToken } from '../../utils/image';
 import type { IImagePathSuggestion } from '../imagePicker';
 import type { IBaseOptions } from '../types';
@@ -423,7 +423,7 @@ export class ImageEditTool extends BaseFloat {
         // Store local path mapping if available
         const { src: localPath } = getImageSrc(src);
         if (localPath) {
-            this.muya.editor.inlineRenderer.renderer.urlMap.set(uploadedSrc, localPath);
+            this.muya.editor.inlineRenderer.setImagePreview(uploadedSrc, localPath);
         }
 
         // Find and update the image element

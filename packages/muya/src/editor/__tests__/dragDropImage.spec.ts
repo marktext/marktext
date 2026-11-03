@@ -55,7 +55,7 @@ interface IMockMuya {
         beforeImageDrop?: () => Promise<boolean> | undefined;
         getPathForFile?: (file: File) => string;
     };
-    editor: { inlineRenderer: { renderer: { urlMap: Map<string, string> } } };
+    editor: { inlineRenderer: { setImagePreview: (src: string, preview: string) => void } };
 }
 
 // Build a fake outermost anchor block whose `parent.insertBefore/insertAfter`
@@ -105,7 +105,7 @@ function makeMuya(options: IMockMuya['options'] = {}): IMockMuya {
         eventCenter: new EventCenter(),
         domNode,
         options,
-        editor: { inlineRenderer: { renderer: { urlMap: new Map() } } },
+        editor: { inlineRenderer: { setImagePreview: vi.fn() } },
     };
 }
 

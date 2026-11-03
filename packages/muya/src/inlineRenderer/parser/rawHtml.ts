@@ -1,5 +1,5 @@
-import type { HTMLTagToken } from './types';
-import { VOID_HTML_TAGS } from '../config';
+import type { HTMLTagToken } from '../model/types';
+import { VOID_HTML_TAGS } from '../../config';
 import { matchAt } from './matchAt';
 
 const htmlSpace = /[ \t]*(?:(?:\r\n?|\n)[ \t]*)?/.source;

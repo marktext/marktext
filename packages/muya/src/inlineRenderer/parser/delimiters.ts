@@ -1,21 +1,22 @@
-import type { IDelimiterRun, IDelimiterSpan } from '../utils/delimiters';
+import type { IDelimiterRun, IDelimiterSpan } from '../../utils/delimiters';
+import type { Labels } from '../model/types';
 import type { ICodeSpanReader } from './codeSpan';
 import type { InlineRules } from './rules';
-import type { ITokenizerFacOptions, Labels } from './types';
-import { codePointBefore, codePointCharAt, pairDelimiters } from '../utils/delimiters';
-import { CJK_CHARACTER, UNICODE_PUNCTUATION, UNICODE_WHITESPACE } from '../utils/inlineCharacters';
+import type { IInlineFeatures } from './types';
+import { codePointBefore, codePointCharAt, pairDelimiters } from '../../utils/delimiters';
+import { CJK_CHARACTER, UNICODE_PUNCTUATION, UNICODE_WHITESPACE } from '../../utils/inlineCharacters';
 import { atomicExtensionLength } from './atomicExtension';
+import { matchExtendedAutoLink } from './autoLink';
 import { BracketScanner } from './brackets';
 import { CodeSpanScanner } from './codeSpan';
 import { matchAt } from './matchAt';
-import { matchExtendedAutoLink } from './utils';
 
 interface IScanContext {
     codeSpans?: ICodeSpanReader;
     brackets: BracketScanner;
     offset: number;
     rules: InlineRules;
-    options: ITokenizerFacOptions;
+    options: IInlineFeatures;
     allowAutolinks: boolean;
     scanAutolinks: boolean;
 }
@@ -134,7 +135,7 @@ export function scanDelimiterSpans(
     offset: number,
     rules: InlineRules,
     labels: Labels,
-    options: ITokenizerFacOptions,
+    options: IInlineFeatures,
     allowAutolinks: boolean,
     codeSpans: ICodeSpanReader | undefined = src.includes('`') ? new CodeSpanScanner(src) : undefined,
     brackets = new BracketScanner(src, labels, codeSpans, { rules, options, offset }),

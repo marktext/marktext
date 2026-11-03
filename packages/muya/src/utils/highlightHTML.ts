@@ -1,4 +1,4 @@
-import type { IHighlight } from '../inlineRenderer/types';
+import type { IHighlight } from '../inlineRenderer/model/types';
 import { CLASS_NAMES } from '../config';
 import { getLongUniqueId } from '../utils';
 

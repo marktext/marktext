@@ -1,10 +1,11 @@
 // @vitest-environment happy-dom
 
-import type { MarkToken } from '../types';
+import type { MarkToken } from '../model/types';
 import { describe, expect, it } from 'vitest';
 import { getClipBoardHtml } from '../../utils/marked/getClipboardHtml';
 import { getHighlightHtml } from '../../utils/marked/getHighlightHtml';
-import { generator, tokenizer } from '../lexer';
+import { tokenizer } from '../lexer';
+import { generator, SourceGenerationMode } from '../serialization';
 
 const OPTIONS = {
     superSubScript: false,
@@ -18,7 +19,7 @@ const OPTIONS = {
 
 function types(src: string, highlightSyntax = true) {
     return tokenizer(src, {
-        hasBeginRules: false,
+        profile: 'inline',
         options: { ...OPTIONS, highlightSyntax },
     }).map(token => token.type);
 }
@@ -26,7 +27,7 @@ function types(src: string, highlightSyntax = true) {
 describe('mark syntax — editor lexer', () => {
     it('produces a `mark` token when highlightSyntax is on', () => {
         const tokens = tokenizer('a ==hi== b', {
-            hasBeginRules: false,
+            profile: 'inline',
             options: OPTIONS,
         });
 
@@ -42,7 +43,7 @@ describe('mark syntax — editor lexer', () => {
 
     it('parses inline markdown inside the span', () => {
         const tokens = tokenizer('==**bold** and `code`==', {
-            hasBeginRules: false,
+            profile: 'inline',
             options: OPTIONS,
         });
         const mark = tokens[0] as MarkToken;
@@ -64,16 +65,16 @@ describe('mark syntax — editor lexer', () => {
 
     it('keeps an even backslash run inside the span', () => {
         const src = '==a\\\\==';
-        const tokens = tokenizer(src, { hasBeginRules: false, options: OPTIONS });
+        const tokens = tokenizer(src, { profile: 'inline', options: OPTIONS });
         const mark = tokens[0] as MarkToken;
 
         expect(tokens.map(token => token.type)).toEqual(['mark']);
         expect(mark.backlash).toBe('\\\\');
-        expect(generator(tokens, true)).toBe(src);
+        expect(generator(tokens, SourceGenerationMode.RebuildWrappers)).toBe(src);
     });
 
     it('treats an odd backslash run as an escaped closer (literal text)', () => {
-        const tokens = tokenizer('==a\\==', { hasBeginRules: false, options: OPTIONS });
+        const tokens = tokenizer('==a\\==', { profile: 'inline', options: OPTIONS });
         expect(tokens.map(token => token.type)).toEqual(['text', 'backlash', 'text']);
         expect(generator(tokens)).toBe('==a\\==');
     });

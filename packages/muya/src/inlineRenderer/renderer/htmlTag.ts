@@ -1,36 +1,18 @@
 import type { VNode } from 'snabbdom';
-import type Format from '../../block/base/format';
-import type { IRenderCursor } from '../../selection/types';
-import type { H, HTMLTagToken, ISyntaxRenderOptions, Token } from '../types';
+import type { HTMLTagToken } from '../model/types';
 import type Renderer from './index';
+import type { H, IContainerRenderOptions } from './types';
 import { BLOCK_TYPE6, CLASS_NAMES } from '../../config';
-import { snakeToCamel } from '../../utils';
 import sanitize, { isValidAttribute } from '../../utils/dompurify';
 
 function renderHtmlTagChildren(
-    renderer: Renderer,
-    h: H,
-    cursor: IRenderCursor,
-    block: Format,
     token: HTMLTagToken,
-): VNode[] | '' {
+    childNodes: IContainerRenderOptions['childNodes'],
+): (VNode | string)[] | '' {
     const { tag, children } = token;
 
-    return Array.isArray(children) && children.length && tag !== 'ruby' // important
-        ? children.reduce((acc: VNode[], to: Token) => {
-                // The original passed a `className` field here too, but
-                // receivers read `outerClass` — so the field was
-                // silently dropped under the previous `as any` cast.
-                // Preserve that runtime behavior: don't propagate it.
-                const chunk = renderer.dispatch(snakeToCamel(to.type), {
-                    h,
-                    cursor,
-                    block,
-                    token: to,
-                });
-
-                return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk];
-            }, [])
+    return Array.isArray(children) && children.length && tag !== 'ruby'
+        ? childNodes(children)
         : '';
 }
 
@@ -39,9 +21,9 @@ function buildRawHtmlTag(
     tagClassName: string,
     openContent: (string | VNode)[],
     closeContent: (string | VNode)[] | '',
-    anchor: VNode[] | '',
+    anchor: (VNode | string)[] | '',
     h: H,
-): VNode[] {
+): (VNode | string)[] {
     const { tag, attrs } = token;
     const { start, end } = token.range;
 
@@ -120,7 +102,8 @@ export default function htmlTag(
         block,
         token,
         outerClass,
-    }: ISyntaxRenderOptions & { token: HTMLTagToken },
+        childNodes,
+    }: IContainerRenderOptions & { token: HTMLTagToken },
 ) {
     const { tag, openTag, closeTag, children } = token;
 
@@ -146,7 +129,7 @@ export default function htmlTag(
         return [h(`span.${CLASS_NAMES.MU_HTML_TAG}`, this.highlight(h, block, start, end, token))];
     }
 
-    const anchor = renderHtmlTagChildren(this, h, cursor, block, token);
+    const anchor = renderHtmlTagChildren(token, childNodes);
 
     switch (tag) {
         case 'img': {

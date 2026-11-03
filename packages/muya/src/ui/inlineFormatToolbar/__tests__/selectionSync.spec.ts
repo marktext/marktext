@@ -1,4 +1,4 @@
-import type { Token } from '../../../inlineRenderer/types';
+import type { Token } from '../../../inlineRenderer/model/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Muya } from '../../../muya';

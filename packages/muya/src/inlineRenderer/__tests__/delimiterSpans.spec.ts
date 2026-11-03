@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /* eslint-disable test/prefer-lowercase-title */
 
-import type { StrongEmToken, Token } from '../types';
+import type { StrongEmToken, Token } from '../model/types';
 // @ts-expect-error commonmark-spec is plain CommonJS w/o types
 import cms from 'commonmark-spec';
 
@@ -9,9 +9,9 @@ import { describe, expect, it } from 'vitest';
 import { escapeHTML } from '../../utils';
 import autolinkFixtures from '../../utils/marked/__tests__/fixtures/gfm-autolink-precedence.json';
 import gfmFixtures from '../../utils/marked/__tests__/fixtures/gfm-delimiter-regressions.json';
-import { scanDelimiterSpans } from '../delimiters';
 import { tokenizer } from '../lexer';
-import { inlineRules } from '../rules';
+import { scanDelimiterSpans } from '../parser/delimiters';
+import { inlineRules } from '../parser/rules';
 
 const OPTIONS = {
     superSubScript: false,
@@ -21,6 +21,7 @@ const OPTIONS = {
     texMathSingleBackslash: false,
     texMathDoubleBackslash: false,
     highlightSyntax: false,
+    inlineDiff: false,
 };
 
 function renderTokens(tokens: Token[]): string {
@@ -78,7 +79,7 @@ function renderTokens(tokens: Token[]): string {
 function renderInline(markdown: string, labels = new Map()) {
     return renderTokens(
         tokenizer(markdown.replace(/\n$/, ''), {
-            hasBeginRules: false,
+            profile: 'inline',
             labels,
             options: OPTIONS,
         }),
@@ -124,7 +125,7 @@ describe('nested emphasis delimiters (#2086)', () => {
     });
 
     it('the outer token spans the whole run', () => {
-        const [token] = tokenizer('*a *b* c*', { hasBeginRules: false });
+        const [token] = tokenizer('*a *b* c*', { profile: 'inline' });
 
         expect(token.type).toBe('em');
         expect(token.raw).toBe('*a *b* c*');
@@ -206,7 +207,7 @@ describe('constructs that outrank emphasis', () => {
 
     it('backslash-delimited math shields its delimiters', () => {
         const tokens = tokenizer('*a \\(x*y\\) b*', {
-            hasBeginRules: false,
+            profile: 'inline',
             options: { ...OPTIONS, texMathSingleBackslash: true },
         });
 
@@ -223,7 +224,7 @@ describe('constructs that outrank emphasis', () => {
         ['undefined', new Map(), ['em', 'text']],
     ])('reference link — %s', (_name, labels, expected) => {
         const tokens = tokenizer('*[foo*][ref]', {
-            hasBeginRules: false,
+            profile: 'inline',
             labels: labels as never,
             options: OPTIONS,
         });

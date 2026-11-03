@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import type { BeginRuleToken } from '../types';
+import type { BeginRuleToken } from '../model/types';
 import { describe, expect, it } from 'vitest';
 import { tokenizer } from '../lexer';
 

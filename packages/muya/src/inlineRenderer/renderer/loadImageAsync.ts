@@ -1,143 +1,32 @@
-import type Renderer from './index';
-import { CLASS_NAMES } from '../../config';
+import type { ImageMounts } from '../resources/imageMounts';
+import type { ImageResources } from '../resources/images';
 import { getUniqueId } from '../../utils';
-import { insertAfter, operateClassName } from '../../utils/dom';
-import { loadImage, usesDefaultObjectSize } from '../../utils/image';
+import { mountImage } from '../resources/mountImage';
+
+interface IImageRenderHost {
+    images: ImageResources;
+    mounts: ImageMounts;
+    environment: { root: HTMLElement };
+}
 
 export default function loadImageAsync(
-    this: Renderer,
-    imageInfo: {
-        isUnknownType: boolean;
-        src: string;
-    },
+    this: IImageRenderHost,
+    imageInfo: { isUnknownType: boolean; src: string },
     attrs: Record<string, string>,
     className?: string,
     imageClass?: string,
 ) {
     const { src, isUnknownType } = imageInfo;
-    let id: string;
-    let isSuccess: boolean | undefined;
-    let url: string | undefined;
-    let w;
-    let h;
+    const cached = this.images.get(src);
+    // Each render occurrence owns its placeholder, even when requests are shared.
+    if (cached?.isSuccess)
+        return { ...cached, id: getUniqueId() };
 
-    const cached = this.loadImageMap.get(src);
-    // Retry when the previous load failed: a transient failure should not
-    // permanently poison the cache (marktext#3001 / #3010, commit bca2ed62).
-    if (!cached || !cached.isSuccess) {
-        id = getUniqueId();
-        // Cache-bust local files so a fresh load reads the file off disk
-        // instead of Chromium's in-memory image cache. Without this, replacing
-        // an image on disk and running `invalidateImageCache()` (View → Reload
-        // images) re-requests the same `file://` URL and the stale bitmap is
-        // served. The cache key (`src`) stays unbusted so ordinary re-renders
-        // still hit the cache; only the load/`<img>` URL carries the token.
-        // `id` is monotonic (collision-free), unlike legacy muyajs's `?msec=`.
-        const loadSrc = /^file:\/\//i.test(src)
-            ? `${src}${src.includes('?') ? '&' : '?'}mucache=${id}`
-            : src;
-        loadImage(loadSrc, isUnknownType)
-            .then(({ url, width, height }) => {
-                const imageText: HTMLElement | null = document.querySelector(`#${id}`);
-                const img = document.createElement('img');
-                img.src = url;
-
-                const NUM_REG = /^\d+$/;
-
-                if (attrs.alt)
-                    img.alt = attrs.alt;
-
-                if (attrs.title)
-                    img.setAttribute('title', attrs.title);
-
-                if (attrs.width && NUM_REG.test(attrs.width))
-                    img.setAttribute('width', attrs.width);
-
-                if (attrs.height && NUM_REG.test(attrs.height))
-                    img.setAttribute('height', attrs.height);
-
-                // An image with no intrinsic size — an SVG carrying only a
-                // `viewBox` — resolves its used width against the containing
-                // block, and `.mu-image-container` is shrink-to-fit: the width
-                // depends on the image, the image on the width, and Chromium
-                // settles on 0, rendering nothing (#4991). Pinning the width
-                // the browser fell back to gives the container something to
-                // shrink to; the height stays automatic, so `max-width: 100%`
-                // still scales the image by its ratio.
-                if (!attrs.width && !attrs.height && usesDefaultObjectSize(width, height))
-                    img.style.width = `${width}px`;
-
-                if (imageClass)
-                    img.classList.add(imageClass);
-
-                if (imageText) {
-                    if (imageText.classList.contains(`${CLASS_NAMES.MU_INLINE_IMAGE}`)) {
-                        const imageContainer = imageText.querySelector(
-                            `.${CLASS_NAMES.MU_IMAGE_CONTAINER}`,
-                        );
-                        const oldImage = imageContainer!.querySelector('img');
-                        if (oldImage)
-                            oldImage.remove();
-
-                        imageContainer!.appendChild(img);
-                        imageText.classList.remove(CLASS_NAMES.MU_IMAGE_LOADING);
-                        imageText.classList.add(CLASS_NAMES.MU_IMAGE_SUCCESS);
-                        // Tag small images on the first async load — otherwise the class
-                        // would only appear on the next re-render after the cache is
-                        // populated. See `image.ts` for why the class is kept as a theming
-                        // hook with no in-package CSS consumer; downstream stylesheets own
-                        // the visual treatment.
-                        if (width < 100 || height < 100)
-                            imageText.classList.add(CLASS_NAMES.MU_SMALL_IMAGE);
-                    }
-                    else {
-                        insertAfter(img, imageText);
-                        if (className)
-                            operateClassName(imageText, 'add', className);
-                    }
-                }
-
-                if (this.urlMap.has(src))
-                    this.urlMap.delete(src);
-
-                this.loadImageMap.set(src, {
-                    id,
-                    isSuccess: true,
-                    url,
-                    width,
-                    height,
-                });
-            })
-            .catch(() => {
-                const imageText: HTMLElement | null = document.querySelector(`#${id}`);
-                if (imageText) {
-                    operateClassName(imageText, 'remove', CLASS_NAMES.MU_IMAGE_LOADING);
-                    operateClassName(imageText, 'add', CLASS_NAMES.MU_IMAGE_FAIL);
-                    const image = imageText.querySelector('img');
-                    if (image)
-                        image.remove();
-                }
-
-                if (this.urlMap.has(src))
-                    this.urlMap.delete(src);
-
-                this.loadImageMap.set(src, {
-                    id,
-                    isSuccess: false,
-                });
-            });
-    }
-    else {
-        id = cached.id;
-        isSuccess = cached.isSuccess;
-        url = cached.url;
-        w = cached.width;
-        h = cached.height;
-    }
-
-    // marktext's loadImageAsync returns `domsrc` (the resolved URL — for
-    // remote sources it's just the src, for local files it carries a cache-
-    // busting query). Reference images need this so the rendered <img> uses
-    // the resolved URL rather than the raw label-derived href.
-    return { id, isSuccess, url, width: w, height: h };
+    const root = this.environment.root;
+    const id = this.mounts.watch(root, this.images.request(src, isUnknownType), (placeholder, result) => {
+        if (this.images.get(src) !== result)
+            return;
+        mountImage(placeholder, result, attrs, className, imageClass);
+    });
+    return { id, isSuccess: undefined, url: undefined, width: undefined, height: undefined };
 }

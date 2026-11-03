@@ -1,15 +1,7 @@
-import type { DelToken, ISyntaxRenderOptions } from '../types';
+import type { DelToken } from '../model/types';
 import type Renderer from './index';
+import type { IContainerRenderOptions } from './types';
 
-export default function del(
-    this: Renderer,
-    { h, cursor, block, token, outerClass }: ISyntaxRenderOptions & { token: DelToken },
-) {
-    return this.delEmStrongFac('del', {
-        h,
-        cursor,
-        block,
-        token,
-        outerClass,
-    });
+export default function del(this: Renderer, options: IContainerRenderOptions & { token: DelToken }) {
+    return this.delEmStrongFac('del', options);
 }

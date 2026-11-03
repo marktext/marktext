@@ -1,9 +1,10 @@
-import type { Token } from '../../src/inlineRenderer/types';
+import type { Token } from '../../src/inlineRenderer/model/types';
 import type { IInlineExample } from './fixtures';
 import type { IHtmlAttributePolicy, IHtmlFieldDifference } from './htmlFields';
 import type { SemanticEvent } from './semantics';
 import { createHash } from 'node:crypto';
-import { generator, tokenizer } from '../../src/inlineRenderer/lexer';
+import { tokenizer } from '../../src/inlineRenderer/lexer';
+import { generator } from '../../src/inlineRenderer/serialization';
 import { adaptFixture, examples } from './fixtures';
 import { checkRawHtmlFields } from './htmlFields';
 import { htmlSemantics, tokensToHtml } from './semantics';
@@ -105,7 +106,7 @@ export function audit(example: IInlineExample): IAuditResult {
     let literalHtml = '';
     for (const { source, tag } of fixture.blocks) {
         result.sources.push(source);
-        const tokens = tokenizer(source, { hasBeginRules: false, labels: fixture.labels, options });
+        const tokens = tokenizer(source, { profile: 'inline', labels: fixture.labels, options });
         result.invariants.push(...sourceInvariants(tokens, source));
         const fields = checkRawHtmlFields(tokens);
         result.htmlFields.push(...fields.differences);

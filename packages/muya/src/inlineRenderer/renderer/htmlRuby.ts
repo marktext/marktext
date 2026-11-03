@@ -1,5 +1,6 @@
-import type { HTMLTagToken, ISyntaxRenderOptions } from '../types';
+import type { HTMLTagToken } from '../model/types';
 import type Renderer from './index';
+import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 import { htmlToVNode } from '../../utils/snabbdom';
 
@@ -35,8 +36,8 @@ export default function htmlRuby(
                                 spellcheck: 'false',
                             },
                             dataset: {
-                                start: String(start + 6), // '<ruby>'.length
-                                end: String(end - 7), // '</ruby>'.length
+                                start: String(start + token.openTag.length),
+                                end: String(end - (token.closeTag?.length ?? 0)),
                             },
                         },
                         vNode,

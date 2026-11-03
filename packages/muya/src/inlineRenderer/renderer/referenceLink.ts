@@ -1,10 +1,9 @@
-import type { VNode } from 'snabbdom';
-import type { ISyntaxRenderOptions, ReferenceLinkToken, Token } from '../types';
+import type { ReferenceLinkToken } from '../model/types';
 import type Renderer from './index';
+import type { IContainerRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
-import { snakeToCamel } from '../../utils';
-import { sanitizeHyperlink } from '../../utils/url';
 import { normalizeReferenceLabel } from '../referenceLabel';
+import { hyperlinkProps, sourceDataset } from './linkData';
 
 export default function referenceLink(
     this: Renderer,
@@ -14,7 +13,8 @@ export default function referenceLink(
         block,
         token,
         outerClass,
-    }: ISyntaxRenderOptions & { token: ReferenceLinkToken },
+        childNodes,
+    }: IContainerRenderOptions & { token: ReferenceLinkToken },
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const labelClass
@@ -28,22 +28,11 @@ export default function referenceLink(
     const key = normalizeReferenceLabel(label + backlash.second);
     const backlashStart = start + MARKER.length + anchor.length;
     const content = [
-        ...children.reduce((acc: VNode[], to: Token) => {
-            // Original passed `className` here too but receivers read
-            // `outerClass` — see PR note in delEmStrongFactory.ts.
-            const chunk: VNode[] = this.dispatch(snakeToCamel(to.type), {
-                h,
-                cursor,
-                block,
-                token: to,
-            });
-
-            return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk];
-        }, []),
+        ...childNodes(children),
         ...this.backlashInToken(h, backlash.first, className, backlashStart, token),
     ];
 
-    const { href, title } = this.parent.labels.get(key) ?? {};
+    const { href, title } = this.environment.references.get(key) ?? {};
     const startMarker = this.highlight(
         h,
         block,
@@ -68,15 +57,11 @@ export default function referenceLink(
         props: {
             title,
         },
-        dataset: {
-            start: String(start),
-            end: String(end),
-            raw: token.raw,
-        },
+        dataset: sourceDataset(token),
     };
 
     if (href)
-        Object.assign(data.props, { href: sanitizeHyperlink(href) });
+        Object.assign(data.props, hyperlinkProps(href));
 
     if (isFullLink) {
         const labelContent = this.highlight(

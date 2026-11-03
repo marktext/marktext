@@ -1,6 +1,8 @@
-import type { ISyntaxRenderOptions, SuperSubScriptToken } from '../types';
+import type { SuperSubScriptToken } from '../model/types';
 import type Renderer from './index';
+import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
+import { delimitedParts } from './delimitedParts';
 
 export default function superSubScript(
     this: Renderer,
@@ -14,23 +16,9 @@ export default function superSubScript(
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const { marker } = token;
-    const { start, end } = token.range;
 
-    const startMarker = this.highlight(
-        h,
-        block,
-        start,
-        start + marker.length,
-        token,
-    );
-    const endMarker = this.highlight(h, block, end - marker.length, end, token);
-    const content = this.highlight(
-        h,
-        block,
-        start + marker.length,
-        end - marker.length,
-        token,
-    );
+    const { startMarker, content, endMarker } = delimitedParts(this, { h, block, token, cursor }, marker.length);
+
     const tagName = marker === '^' ? 'sup' : 'sub';
 
     return [

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import type Format from '../../../block/base/format';
-import type { TextToken } from '../../types';
+import type { TextToken } from '../../model/types';
 import type Renderer from '../index';
 import { expect, it } from 'vitest';
 import { CLASS_NAMES } from '../../../config';

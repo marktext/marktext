@@ -1,7 +1,7 @@
-import type { Token } from '../../src/inlineRenderer/types';
+import type { Token } from '../../src/inlineRenderer/model/types';
 import type { IInlineExample } from './fixtures';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import InlineRenderer from '../../src/inlineRenderer';
+import * as referenceDefinitions from '../../src/inlineRenderer/referenceDefinitions';
 import { audit, fingerprint } from './audit';
 import { adaptFixture } from './fixtures';
 import { htmlSemantics, tokensToHtml } from './semantics';
@@ -88,13 +88,13 @@ describe('fixture adaptation and difference classification', () => {
         expect(result.sources).toEqual(['foo\\', 'bar']);
     });
 
-    it('uses the editor reference collector instead of marked resolved links', () => {
-        const collector = vi.spyOn(InlineRenderer.prototype, 'getLabelInfo')
+    it('uses the shared editor reference parser instead of marked resolved links', () => {
+        const collector = vi.spyOn(referenceDefinitions, 'getReferenceDefinition')
             .mockReturnValue({ label: 'editor-label', info: { href: '/editor', title: 'editor title' } });
         const fixture = adaptFixture(example('[x][foo bar]\n\n[foo  bar]: /a\\* "t\\*"\n', ''));
         if ('uncovered' in fixture)
             throw new Error(fixture.uncovered);
-        expect(collector).toHaveBeenCalledWith({ name: 'paragraph', text: '[foo  bar]: /a\\* "t\\*"' });
+        expect(collector).toHaveBeenCalledWith({ text: '[foo  bar]: /a\\* "t\\*"' });
         expect(fixture.labels.get('editor-label')).toEqual({ href: '/editor', title: 'editor title' });
         expect(fixture.labels.has('foo bar')).toBe(false);
         expect(fixture.blocks).toEqual([{ tag: 'p', source: '[x][foo bar]' }]);

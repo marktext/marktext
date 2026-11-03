@@ -24,7 +24,7 @@ function render(source: string): string {
         get: (target, key, receiver) => key === 'text' ? source : Reflect.get(target, key, receiver),
     });
     return muya.editor.inlineRenderer.renderer.output(
-        tokenizer(source, { hasBeginRules: false }),
+        tokenizer(source, { profile: 'inline' }),
         block,
         {},
     );

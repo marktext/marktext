@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import type { CodeEmojiMathToken } from '../types';
+import type { CodeEmojiMathToken } from '../model/types';
 import { describe, expect, it } from 'vitest';
 import { tokenizer } from '../lexer';
 

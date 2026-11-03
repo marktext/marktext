@@ -1,6 +1,6 @@
 import type { TSelectableImageToken } from '../utils/image';
 import type Clipboard from './index';
-import { tokenizer } from '../inlineRenderer/lexer';
+import { parseInline } from '../inlineRenderer/parser/lexer';
 import { SelectionType } from '../selection/types';
 import { escapeHTML, getUniqueId } from '../utils';
 import { getImageSrc, imageToMarkdown, isImageToken } from '../utils/image';
@@ -20,7 +20,7 @@ export interface IClipboardImageCopy {
 }
 
 function imageToken(markdown: string): TSelectableImageToken | null {
-    const tokens = tokenizer(markdown);
+    const tokens = parseInline(markdown);
     const token = tokens[0];
     if (tokens.length !== 1 || token?.raw !== markdown)
         return null;

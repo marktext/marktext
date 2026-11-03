@@ -1,9 +1,9 @@
-import type { VNode } from 'snabbdom';
-import type { ISyntaxRenderOptions, LinkToken, Token } from '../types';
+import type { LinkToken } from '../model/types';
 import type Renderer from './index';
+import type { IContainerRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
-import { isLengthEven, snakeToCamel } from '../../utils';
-import { sanitizeHyperlink } from '../../utils/url';
+import { isLengthEven } from '../../utils';
+import { hyperlinkProps, sourceDataset } from './linkData';
 
 // 'link': /^(\[)((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*?)(\\*)\]\((.*?)(\\*)\)/, // can nest
 export default function link(
@@ -14,7 +14,8 @@ export default function link(
         block,
         token,
         outerClass,
-    }: ISyntaxRenderOptions & { token: LinkToken },
+        childNodes,
+    }: IContainerRenderOptions & { token: LinkToken },
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const linkClassName
@@ -77,13 +78,7 @@ export default function link(
                 h(
                     `a.${CLASS_NAMES.MU_NO_TEXT_LINK}.${CLASS_NAMES.MU_INLINE_RULE}`,
                     {
-                        props: {
-                            href: sanitizeHyperlink(
-                                token.href + encodeURI(token.backlash.second),
-                            ),
-                            target: '_blank',
-                            title: token.title,
-                        },
+                        props: hyperlinkProps(token.href + encodeURI(token.backlash.second), token.title, '_blank'),
                     },
                     [
                         ...hrefContent,
@@ -106,33 +101,11 @@ export default function link(
                 h(
                     `span.${CLASS_NAMES.MU_INLINE_RULE}.${CLASS_NAMES.MU_LINK}`,
                     {
-                        props: {
-                            href: sanitizeHyperlink(
-                                token.href + encodeURI(token.backlash.second),
-                            ),
-                            title: token.title,
-                        },
-                        dataset: {
-                            start: String(start),
-                            end: String(end),
-                            raw: token.raw,
-                        },
+                        props: hyperlinkProps(token.href + encodeURI(token.backlash.second), token.title),
+                        dataset: sourceDataset(token),
                     },
                     [
-                        ...token.children.reduce((acc: VNode[], to: Token) => {
-                            // The original passed a `className` field too, but
-                            // receivers read `outerClass` — so it was silently
-                            // dropped under the previous `as any` cast.
-                            const chunk = this.dispatch(snakeToCamel(to.type), {
-                                h,
-                                cursor,
-                                block,
-                                token: to,
-                            });
-                            return Array.isArray(chunk)
-                                ? [...acc, ...chunk]
-                                : [...acc, chunk];
-                        }, []),
+                        ...childNodes(token.children),
                         ...this.backlashInToken(
                             h,
                             token.backlash.first,
@@ -166,18 +139,7 @@ export default function link(
     else {
         return [
             ...firstBracket,
-            ...token.children.reduce((acc: VNode[], to: Token) => {
-                // Original passed `className` here too but receivers read
-                // `outerClass` — see PR note above.
-                const chunk = this.dispatch(snakeToCamel(to.type), {
-                    h,
-                    cursor,
-                    block,
-                    token: to,
-                });
-
-                return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk];
-            }, []),
+            ...childNodes(token.children),
             ...this.backlashInToken(
                 h,
                 token.backlash.first,

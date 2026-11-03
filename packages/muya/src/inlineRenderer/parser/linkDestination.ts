@@ -1,4 +1,4 @@
-import { decodeMarkdownString, isPunctuationEscape } from '../utils/markdownEscape';
+import { decodeMarkdownString, isPunctuationEscape } from '../../utils/markdownEscape';
 
 // CommonMark 0.31 §6.3: what sits between a link's `](` and its `)` is a link
 // destination followed by an optional link title, not free-form text. The two

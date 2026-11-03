@@ -3,7 +3,7 @@ import type {
     CodeEmojiMathToken,
     TextToken,
     Token,
-} from '../../inlineRenderer/types';
+} from '../../inlineRenderer/model/types';
 import type { IContentCursor, IRenderCursor } from '../../selection/types';
 import type { IBulletListState, IListItemState, IOrderListState, IParagraphState, ITaskListState } from '../../state/types';
 import type { Nullable } from '../../types';
@@ -26,8 +26,9 @@ import {
     PARAGRAPH_STATE,
     THEMATIC_BREAK_STATE,
 } from '../../config';
-import { generator, tokenizer } from '../../inlineRenderer/lexer';
-import { tokenEvents } from '../../inlineRenderer/tokenTraversal';
+import { tokenEvents } from '../../inlineRenderer/model/traversal';
+import { parseInline } from '../../inlineRenderer/parser/lexer';
+import { generator, SourceGenerationMode } from '../../inlineRenderer/serialization';
 import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
 import { contentPath } from '../../selection/state';
@@ -337,8 +338,8 @@ class Format extends Content {
         type: Token['type'],
         includeEnd = false,
     ): Nullable<Token> {
-        const tokens = tokenizer(text, {
-            hasBeginRules: false,
+        const tokens = parseInline(text, {
+            profile: 'inline',
             options: this.muya.options,
         });
 
@@ -361,10 +362,10 @@ class Format extends Content {
 
     private _checkNotSameToken(oldText: string, text: string) {
         const { options } = this.muya;
-        const oldTokens = tokenizer(oldText, {
+        const oldTokens = parseInline(oldText, {
             options,
         });
-        const tokens = tokenizer(text, {
+        const tokens = parseInline(text, {
             options,
         });
 
@@ -409,7 +410,7 @@ class Format extends Content {
         const offsets = [anchor.offset, focus.offset];
         const NO_NEED_TOKEN_REG = /text|soft_line_break/;
 
-        for (const token of tokenizer(text, {
+        for (const token of parseInline(text, {
             labels,
             options: this.muya.options,
         })) {
@@ -1424,7 +1425,7 @@ class Format extends Content {
         const { text } = this;
         const { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = this.muya.options;
         const { labels } = this.inlineRenderer;
-        const tokens = tokenizer(text, {
+        const tokens = parseInline(text, {
             labels,
             options: { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff },
         });
@@ -1693,7 +1694,7 @@ class Format extends Content {
         const { text } = this;
         const formats = [];
         const neighbors = [];
-        const tokens = tokenizer(text, {
+        const tokens = parseInline(text, {
             options: this.muya.options,
         });
 
@@ -1757,7 +1758,7 @@ class Format extends Content {
             start.offset += start.delta;
             end.offset += end.delta;
 
-            this.text = generator(tokens, true);
+            this.text = generator(tokens, SourceGenerationMode.RebuildWrappers);
         }
         else if (currentFormats.length) {
             for (const token of currentFormats)
@@ -1765,7 +1766,7 @@ class Format extends Content {
 
             start.offset += start.delta;
             end.offset += end.delta;
-            this.text = generator(tokens, true);
+            this.text = generator(tokens, SourceGenerationMode.RebuildWrappers);
         }
         else {
             if (currentNeighbors.length) {
@@ -1775,7 +1776,7 @@ class Format extends Content {
 
             start.offset += start.delta;
             end.offset += end.delta;
-            this.text = generator(tokens, true);
+            this.text = generator(tokens, SourceGenerationMode.RebuildWrappers);
 
             // Whitespace wrapped inside emphasis markers is invalid CommonMark
             // (`**foo **` is not right-flanking, so it renders literally), so
@@ -1841,7 +1842,7 @@ class Format extends Content {
 
         const property = colorPropertyOf(type);
         const text = this.text;
-        const tokens = tokenizer(text, { options: this.muya.options });
+        const tokens = parseInline(text, { options: this.muya.options });
         const spans = collectColorSpans(tokens, start, end).sort(
             (a, b) => a.openStart - b.openStart,
         );

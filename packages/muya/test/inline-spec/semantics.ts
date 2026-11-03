@@ -1,5 +1,5 @@
 import type { Token as HtmlToken } from 'parse5';
-import type { Labels, ReferenceImageToken, ReferenceLinkToken, Token } from '../../src/inlineRenderer/types';
+import type { Labels, ReferenceImageToken, ReferenceLinkToken, Token } from '../../src/inlineRenderer/model/types';
 import { escapeAttribute, escapeText } from 'entities';
 import { Tokenizer } from 'parse5';
 import { VOID_HTML_TAGS } from '../../src/config';

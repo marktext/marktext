@@ -52,7 +52,7 @@ describe('reference definition collection cache', () => {
                         const { renderer } = makeRenderer(blocks);
                         const labels = renderer.collectReferenceDefinitions();
                         expect(labels.get('ref')).toEqual({ href: 'https://example.com/image.png', title });
-                        const tokens = tokenizer('[link][ref] ![image][ref]', { labels, hasBeginRules: false });
+                        const tokens = tokenizer('[link][ref] ![image][ref]', { labels, profile: 'inline' });
                         expect(tokens.filter(token => token.type === 'reference_link' || token.type === 'reference_image').map(token => token.type))
                             .toEqual(['reference_link', 'reference_image']);
                     }

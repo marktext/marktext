@@ -3,7 +3,7 @@
 // The per-example titles carry CommonMark's own section heading and example
 // numbers so failures line up with the upstream spec.
 
-import type { ImageToken, LinkToken, Token } from '../types';
+import type { ImageToken, LinkToken, Token } from '../model/types';
 // @ts-expect-error commonmark-spec is plain CommonJS w/o types
 import cms from 'commonmark-spec';
 import { describe, expect, it } from 'vitest';
@@ -112,7 +112,7 @@ function renderTokens(tokens: Token[]): string {
 
 function renderInline(markdown: string) {
     return renderTokens(
-        tokenizer(markdown.replace(/\n$/, ''), { hasBeginRules: false, options: OPTIONS }),
+        tokenizer(markdown.replace(/\n$/, ''), { profile: 'inline', options: OPTIONS }),
     );
 }
 
@@ -120,7 +120,7 @@ function firstToken<TType extends Token['type']>(
     src: string,
     type: TType,
 ): Extract<Token, { type: TType }> | undefined {
-    return tokenizer(src, { hasBeginRules: false }).find(t => t.type === type) as
+    return tokenizer(src, { profile: 'inline' }).find(t => t.type === type) as
         | Extract<Token, { type: TType }>
         | undefined;
 }
@@ -193,7 +193,7 @@ describe('lexer invariants around the link tail', () => {
         const broken: string[] = [];
 
         eachSample((src, label) => {
-            const joined = tokenizer(src, { hasBeginRules: false })
+            const joined = tokenizer(src, { profile: 'inline' })
                 .map(token => token.raw ?? '')
                 .join('');
             if (joined !== src)
@@ -223,7 +223,7 @@ describe('lexer invariants around the link tail', () => {
         };
 
         eachSample((src, label) => {
-            walk(tokenizer(src, { hasBeginRules: false }), src, label);
+            walk(tokenizer(src, { profile: 'inline' }), src, label);
         });
 
         expect(broken.slice(0, 5)).toEqual([]);

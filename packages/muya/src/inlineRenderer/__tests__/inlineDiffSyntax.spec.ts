@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import type { InlineDiffToken } from '../types';
+import type { InlineDiffToken } from '../model/types';
 import { describe, expect, it } from 'vitest';
 import { getClipBoardHtml } from '../../utils/marked/getClipboardHtml';
 import { getHighlightHtml } from '../../utils/marked/getHighlightHtml';
@@ -19,13 +19,13 @@ const OPTIONS = {
 
 function types(src: string, inlineDiff = true) {
     return tokenizer(src, {
-        hasBeginRules: false,
+        profile: 'inline',
         options: { ...OPTIONS, inlineDiff },
     }).map(token => token.type);
 }
 
 function first(src: string) {
-    return tokenizer(src, { hasBeginRules: false, options: OPTIONS })[0] as InlineDiffToken;
+    return tokenizer(src, { profile: 'inline', options: OPTIONS })[0] as InlineDiffToken;
 }
 
 describe('inline diff syntax — editor lexer', () => {

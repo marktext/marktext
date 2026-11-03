@@ -1,14 +1,9 @@
 // @vitest-environment happy-dom
 
-import type Renderer from '../index';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ImageMounts } from '../../resources/imageMounts';
+import { ImageResources } from '../../resources/images';
 import loadImageAsync from '../loadImageAsync';
-
-// Narrow cast for the fake renderer used in every test below — it only
-// implements the two Map fields loadImageAsync touches.
-function asRenderer(r: IFakeRenderer | { loadImageMap: Map<string, unknown>; urlMap: Map<string, string> }): Renderer {
-    return r as unknown as Renderer;
-}
 
 vi.mock('../../../utils/image', async importActual => ({
     ...(await importActual<typeof import('../../../utils/image')>()),
@@ -20,16 +15,9 @@ vi.mock('../../../utils/dom', () => ({
     operateClassName: vi.fn(),
 }));
 
-interface IFakeRenderer {
-    loadImageMap: Map<string, { id: string; isSuccess: boolean; width?: number; height?: number }>;
-    urlMap: Map<string, string>;
-}
-
-function makeRenderer(): IFakeRenderer {
-    return {
-        loadImageMap: new Map(),
-        urlMap: new Map(),
-    };
+function makeRenderer() {
+    const images = new ImageResources();
+    return { images, mounts: new ImageMounts(document.body), environment: { root: document.body } };
 }
 
 // Regression for marktext commit bca2ed62 (#3001 / #3010):
@@ -45,38 +33,36 @@ describe('loadImageAsync — failed cache should retry', () => {
     it('returns the cached info when the previous load succeeded', async () => {
         const { loadImage } = await import('../../../utils/image');
         const r = makeRenderer();
-        r.loadImageMap.set('https://example.com/a.png', {
-            id: 'mu-cached-success',
-            isSuccess: true,
-            width: 100,
-            height: 50,
-        });
+        vi.mocked(loadImage).mockResolvedValueOnce({ url: 'https://example.com/a.png', width: 100, height: 50 });
+        await r.images.request('https://example.com/a.png', false);
+        vi.mocked(loadImage).mockClear();
 
         const out = loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'https://example.com/a.png' },
             {},
         );
 
         expect(out).toEqual({
-            id: 'mu-cached-success',
+            id: expect.any(String),
+            url: 'https://example.com/a.png',
             isSuccess: true,
             width: 100,
             height: 50,
         });
+        expect(out.id).not.toBe('mu-cached-success');
         expect(loadImage).not.toHaveBeenCalled();
     });
 
     it('re-triggers loadImage when the previous load failed', async () => {
         const { loadImage } = await import('../../../utils/image');
         const r = makeRenderer();
-        r.loadImageMap.set('https://example.com/b.png', {
-            id: 'mu-cached-fail',
-            isSuccess: false,
-        });
+        vi.mocked(loadImage).mockRejectedValueOnce(new Error('offline'));
+        await r.images.request('https://example.com/b.png', false);
+        vi.mocked(loadImage).mockClear();
 
         const out = loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'https://example.com/b.png' },
             {},
         );
@@ -93,7 +79,7 @@ describe('loadImageAsync — failed cache should retry', () => {
         const r = makeRenderer();
 
         loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'https://example.com/c.png' },
             {},
         );
@@ -119,7 +105,7 @@ describe('loadImageAsync — local file cache-busting', () => {
         const r = makeRenderer();
 
         loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'file:///tmp/pic.png' },
             {},
         );
@@ -134,7 +120,7 @@ describe('loadImageAsync — local file cache-busting', () => {
         const r = makeRenderer();
 
         loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'https://example.com/a.png' },
             {},
         );
@@ -151,18 +137,18 @@ describe('loadImageAsync — local file cache-busting', () => {
 
         // First render loads the image and caches it.
         loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'file:///tmp/pic.png' },
             {},
         );
         await new Promise<void>(resolve => setTimeout(resolve, 0));
         // The cache is keyed by the plain src so ordinary re-renders hit it.
-        expect(r.loadImageMap.has('file:///tmp/pic.png')).toBe(true);
+        expect(r.images.get('file:///tmp/pic.png')?.isSuccess).toBe(true);
 
         // invalidateImageCache() clears the maps; the next render is a cache miss.
-        r.loadImageMap.clear();
+        r.images.invalidate();
         loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'file:///tmp/pic.png' },
             {},
         );
@@ -192,13 +178,10 @@ describe('loadImageAsync — small image class on first load', () => {
         const { loadImage } = await import('../../../utils/image');
         vi.mocked(loadImage).mockResolvedValueOnce(loadResult as unknown as Awaited<ReturnType<typeof loadImage>>);
 
-        const r = {
-            loadImageMap: new Map(),
-            urlMap: new Map(),
-        };
+        const r = makeRenderer();
 
         const { id } = loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'https://example.com/fresh.png' },
             {},
         );
@@ -262,9 +245,9 @@ describe('loadImageAsync — pins a width for images with no intrinsic size', ()
             loadResult as unknown as Awaited<ReturnType<typeof loadImage>>,
         );
 
-        const r = { loadImageMap: new Map(), urlMap: new Map() };
+        const r = makeRenderer();
         const { id } = loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'https://example.com/diagram.svg' },
             attrs,
         );

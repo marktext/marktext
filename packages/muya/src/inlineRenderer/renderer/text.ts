@@ -1,5 +1,6 @@
-import type { ISyntaxRenderOptions, TextToken } from '../types';
+import type { TextToken } from '../model/types';
 import type Renderer from './index';
+import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 
 export default function text(

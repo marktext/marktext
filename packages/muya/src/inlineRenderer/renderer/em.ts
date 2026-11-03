@@ -1,15 +1,7 @@
-import type { ISyntaxRenderOptions, StrongEmToken } from '../types';
+import type { StrongEmToken } from '../model/types';
 import type Renderer from './index';
+import type { IContainerRenderOptions } from './types';
 
-export default function em(
-    this: Renderer,
-    { h, cursor, block, token, outerClass }: ISyntaxRenderOptions & { token: StrongEmToken },
-) {
-    return this.delEmStrongFac('em', {
-        h,
-        cursor,
-        block,
-        token,
-        outerClass,
-    });
+export default function em(this: Renderer, options: IContainerRenderOptions & { token: StrongEmToken }) {
+    return this.delEmStrongFac('em', options);
 }

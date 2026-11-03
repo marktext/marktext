@@ -1,7 +1,9 @@
-import type { H, Token } from '../types';
+import type { Token } from '../model/types';
 import type Renderer from './index';
+import type { H } from './types';
 import { CLASS_NAMES } from '../../config';
-import { isEven, union } from '../../utils';
+import { isEven } from '../../utils';
+import { intersectingHighlights } from '../model/ranges';
 
 export default function backlashInToken(
     this: Renderer,
@@ -19,9 +21,7 @@ export default function backlashInToken(
 
     for (i = 0; i < len; i++) {
         const chunk = chunks[i];
-        const light = highlights.filter(light =>
-            union({ start: start + i, end: start + i + 1 }, light),
-        );
+        const light = intersectingHighlights({ start: start + i, end: start + i + 1 }, highlights);
         let selector = 'span';
         if (light.length) {
             const className = this.getHighlightClassName(!!light[0].active);

@@ -1,5 +1,6 @@
-import type { ISyntaxRenderOptions, SoftLineBreakToken } from '../types';
+import type { SoftLineBreakToken } from '../model/types';
 import type Renderer from './index';
+import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 
 export default function softLineBreak(
@@ -8,7 +9,7 @@ export default function softLineBreak(
 ) {
     const { start, end } = token.range;
     let selector = `span.${CLASS_NAMES.MU_SOFT_LINE_BREAK}`;
-    if (this.muya.options.softNewlineAsSpace) {
+    if (this.environment.softNewlineAsSpace) {
         selector += `.${CLASS_NAMES.MU_SOFT_NEWLINE_AS_SPACE}`;
     }
     else if (token.isAtEnd) {

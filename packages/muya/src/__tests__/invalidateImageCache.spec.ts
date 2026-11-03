@@ -3,18 +3,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../muya';
 
-// Coverage for `muya.invalidateImageCache()` — the public API the desktop
-// shell calls to force inline images to reload (e.g. after a watched image
-// file changes on disk, or on the `mt::invalidate-image-cache` IPC).
-//
-// The inline renderer memoises loaded images in two maps keyed by src:
-//   - `loadImageMap` (skipped on the next render once `isSuccess` is true)
-//   - `urlMap` (resolved/inflight URLs)
-// `invalidateImageCache()` clears both and re-renders every content block so
-// `loadImageAsync` runs afresh. happy-dom's `Image` never fires load/error
-// for a `file://` src, so we seed the caches by hand rather than relying on a
-// real load resolving.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -55,45 +43,26 @@ describe('muya.invalidateImageCache()', () => {
         expect(typeof muya.invalidateImageCache).toBe('function');
     });
 
-    it('clears the loadImageMap and urlMap caches', () => {
-        const muya = bootMuya('![alt](/tmp/pic.png)');
-        const { loadImageMap, urlMap } = renderer(muya);
-
-        loadImageMap.set('file:///tmp/pic.png', {
-            id: 'img-1',
-            isSuccess: true,
-            url: 'file:///tmp/pic.png',
-            width: 320,
-            height: 240,
-        });
-        urlMap.set('file:///tmp/pic.png', 'data:image/png;base64,AAAA');
-
-        expect(loadImageMap.size).toBe(1);
-        expect(urlMap.size).toBe(1);
-
+    it('invalidates pending resources and previews', () => {
+        const muya = bootMuya('plain text');
+        const { images } = renderer(muya);
+        void images.request('file:///tmp/pic.png', false);
+        muya.editor.inlineRenderer.setImagePreview('file:///tmp/pic.png', 'data:image/png;base64,AAAA');
+        expect(images.size).toBe(1);
         muya.invalidateImageCache();
-
-        expect(loadImageMap.size).toBe(0);
-        expect(urlMap.size).toBe(0);
+        expect(images.size).toBe(0);
+        expect(images.getPreview('file:///tmp/pic.png')).toBeUndefined();
     });
 
     it('re-renders content blocks so inline images load again', async () => {
         const muya = bootMuya('![alt](/tmp/pic.png)');
         const inlineRenderer = muya.editor.inlineRenderer;
-        const { loadImageMap } = renderer(muya);
-
-        loadImageMap.set('file:///tmp/pic.png', {
-            id: 'img-1',
-            isSuccess: true,
-            url: 'file:///tmp/pic.png',
-        });
-
         const patchSpy = vi.spyOn(inlineRenderer, 'patch');
 
         muya.invalidateImageCache();
 
         // The image cache is flushed synchronously...
-        expect(loadImageMap.size).toBe(0);
+        expect(renderer(muya).images.get('file:///tmp/pic.png')).toBeUndefined();
         // ...and the content block carrying the image is re-patched, which
         // re-runs `loadImageAsync` for it.
         await vi.waitFor(() => {
@@ -106,8 +75,7 @@ describe('muya.invalidateImageCache()', () => {
     it('does not throw on a document with no images', () => {
         const muya = bootMuya('just a paragraph, no images here');
         expect(() => muya.invalidateImageCache()).not.toThrow();
-        expect(renderer(muya).loadImageMap.size).toBe(0);
-        expect(renderer(muya).urlMap.size).toBe(0);
+        expect(renderer(muya).images.size).toBe(0);
     });
 
     it('does not throw on an empty document', () => {

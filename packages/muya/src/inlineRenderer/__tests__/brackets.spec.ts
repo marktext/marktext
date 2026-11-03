@@ -2,10 +2,11 @@
 
 import { describe, expect, it } from 'vitest';
 import { decodeMarkdownString, encodeLinkTitle } from '../../utils/markdownEscape';
-import { BracketScanner } from '../brackets';
-import { generator, tokenizer } from '../lexer';
-import { parseSrcAndTitle } from '../linkDestination';
+import { tokenizer } from '../lexer';
+import { BracketScanner } from '../parser/brackets';
+import { parseSrcAndTitle } from '../parser/linkDestination';
 import { normalizeReferenceLabel } from '../referenceLabel';
+import { generator } from '../serialization';
 
 const definition = { href: '/target', title: 'reference title' };
 

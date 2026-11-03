@@ -1,4 +1,4 @@
-import type { ReferenceLinkToken, Token } from '../types';
+import type { ReferenceLinkToken, Token } from '../model/types';
 import { describe, expect, it } from 'vitest';
 import { tokenizer } from '../lexer';
 

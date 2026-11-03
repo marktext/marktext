@@ -1,7 +1,8 @@
 import type { VNode } from 'snabbdom';
-import type { H, Token } from '../types';
+import type { Token } from '../model/types';
 import type Renderer from './index';
-import { union } from '../../utils';
+import type { H } from './types';
+import { intersectingHighlights } from '../model/ranges';
 
 // Empty and out of flow: the `\n` has to stay raw text or the line stops
 // breaking, and a background on a box whose only content is a break paints
@@ -14,15 +15,10 @@ export default function lineBreakHighlights(
     rEnd: number,
 ) {
     const { highlights } = token;
-    const bands: VNode[] = [];
+    const bands: (VNode | string)[] = [];
 
-    if (highlights) {
-        for (const light of highlights) {
-            const un = union({ start: rStart, end: rEnd }, light);
-            if (un)
-                bands.push(h(`span.${this.getHighlightClassName(!!un.active)}`));
-        }
-    }
+    for (const highlight of intersectingHighlights({ start: rStart, end: rEnd }, highlights ?? []))
+        bands.push(h(`span.${this.getHighlightClassName(!!highlight.active)}`));
 
     return bands;
 }

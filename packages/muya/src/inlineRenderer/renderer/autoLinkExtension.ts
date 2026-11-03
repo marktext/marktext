@@ -1,7 +1,8 @@
-import type { AutoLinkExtensionToken, ISyntaxRenderOptions } from '../types';
+import type { AutoLinkExtensionToken } from '../model/types';
 import type Renderer from './index';
+import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
-import { sanitizeHyperlink } from '../../utils/url';
+import { hyperlinkProps, sourceDataset } from './linkData';
 
 // render auto_link to vnode
 export default function autoLinkExtension(
@@ -26,15 +27,8 @@ export default function autoLinkExtension(
                 attrs: {
                     spellcheck: 'false',
                 },
-                props: {
-                    href: sanitizeHyperlink(hyperlink),
-                    target: '_blank',
-                },
-                dataset: {
-                    start: String(start),
-                    end: String(end),
-                    raw: token.raw,
-                },
+                props: hyperlinkProps(hyperlink, undefined, '_blank'),
+                dataset: sourceDataset(token),
             },
             content,
         ),

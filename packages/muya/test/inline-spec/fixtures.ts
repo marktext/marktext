@@ -1,10 +1,10 @@
 import type { Tokens } from 'marked';
-import type { Labels } from '../../src/inlineRenderer/types';
+import type { IReferenceDefinition, Labels } from '../../src/inlineRenderer/model/types';
 import type { ISpecExample } from '../spec/runner';
 // @ts-expect-error commonmark-spec has no TypeScript declaration.
 import cms from 'commonmark-spec';
 import { Marked } from 'marked';
-import InlineRenderer from '../../src/inlineRenderer';
+import { getReferenceDefinition } from '../../src/inlineRenderer/referenceDefinitions';
 import referenceDefinitionTabs from '../../src/utils/marked/extensions/referenceDefinitionTabs';
 import gfmExamples from '../spec/fixtures/gfm-spec-0.29-gfm.json';
 
@@ -57,7 +57,7 @@ export function adaptFixture(example: IInlineExample): AdaptedFixture {
         return { uncovered: `Block adapter does not support: ${[...new Set(unsupported.map(token => token.type))].join(', ')}` };
 
     const blocks: IInlineBlock[] = [];
-    const labels: Labels = new Map();
+    const labels = new Map<string, IReferenceDefinition>();
     for (const token of tokens) {
         if (token.type === 'paragraph') {
             blocks.push({ tag: 'p', source: (token as Tokens.Paragraph).text });
@@ -67,7 +67,7 @@ export function adaptFixture(example: IInlineExample): AdaptedFixture {
             blocks.push({ tag: `h${heading.depth}`, source: heading.text });
         }
         else if (token.type === 'def') {
-            const { label, info } = InlineRenderer.prototype.getLabelInfo({ name: 'paragraph', text: token.raw.replace(/\n+$/, '') });
+            const { label, info } = getReferenceDefinition({ text: token.raw.replace(/\n+$/, '') });
             if (label && info && !labels.has(label))
                 labels.set(label, info);
         }

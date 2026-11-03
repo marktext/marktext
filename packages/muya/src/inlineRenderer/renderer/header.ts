@@ -1,5 +1,6 @@
-import type { BeginRuleToken, ISyntaxRenderOptions } from '../types';
+import type { BeginRuleToken } from '../model/types';
 import type Renderer from './index';
+import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 
 export default function header(
@@ -22,7 +23,7 @@ export default function header(
                 start,
                 end: end - content.length,
             },
-        } as BeginRuleToken,
+        },
         cursor,
     );
     const markerVnode = this.highlight(

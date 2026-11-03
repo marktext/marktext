@@ -1,5 +1,5 @@
 import type { Muya } from '../../../index';
-import type { CodeEmojiMathToken, HTMLTagToken, ImageToken, LinkToken, ReferenceLinkToken, Token } from '../../../inlineRenderer/types';
+import type { CodeEmojiMathToken, HTMLTagToken, ImageToken, LinkToken, ReferenceLinkToken, Token } from '../../../inlineRenderer/model/types';
 import type { IRenderCursor } from '../../../selection/types';
 import type {
     IBlockQuoteState,
@@ -16,8 +16,8 @@ import type Parent from '../../base/parent';
 import type BulletList from '../../commonMark/bulletList';
 import type Paragraph from '../../commonMark/paragraph';
 import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
-import { tokenizer } from '../../../inlineRenderer/lexer';
-import { tokenEvents } from '../../../inlineRenderer/tokenTraversal';
+import { tokenEvents } from '../../../inlineRenderer/model/traversal';
+import { parseInline } from '../../../inlineRenderer/parser/lexer';
 import { isListItemState, isTaskListItemState } from '../../../state/types';
 import { ChangeSource } from '../../../types';
 import { firstWordOfInfo, isKeyboardEvent, isLengthEven, parseFenceLine } from '../../../utils';
@@ -807,8 +807,8 @@ class ParagraphContent extends Format {
     private _checkCursorAtEndFormat(): Nullable<{ offset: number }> {
         const { offset } = this.getCursor()!.start;
         const { muya, text } = this;
-        const tokens = tokenizer(text, {
-            hasBeginRules: false,
+        const tokens = parseInline(text, {
+            profile: 'inline',
             options: muya.options,
         });
         for (const { token, exiting } of tokenEvents(tokens)) {

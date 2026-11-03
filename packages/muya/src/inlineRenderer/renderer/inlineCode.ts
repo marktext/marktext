@@ -1,15 +1,16 @@
 import type { VNode } from 'snabbdom';
-import type { CodeEmojiMathToken, ISyntaxRenderOptions } from '../types';
+import type { InlineCodeToken } from '../model/types';
 import type Renderer from './index';
+import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
+import { delimitedRanges } from '../model/ranges';
 
 function codeContent(
     renderer: Renderer,
-    { h, block, token }: ISyntaxRenderOptions & { token: CodeEmojiMathToken },
+    { h, block, token }: ISyntaxRenderOptions & { token: InlineCodeToken },
     syntaxClass: string,
 ): (VNode | string)[] {
-    const start = token.contentRange?.start ?? token.range.start + token.marker.length;
-    const end = token.contentRange?.end ?? token.range.end - token.marker.length;
+    const { content: { start, end } } = delimitedRanges(token.range, token.marker.length, token.marker.length, token.contentRange);
     const source = block.text.slice(start, end);
     if (!/[\r\n]/.test(source))
         return renderer.highlight(h, block, start, end, token);
@@ -41,20 +42,20 @@ export default function inlineCode(
         block,
         token,
         outerClass,
-    }: ISyntaxRenderOptions & { token: CodeEmojiMathToken },
+    }: ISyntaxRenderOptions & { token: InlineCodeToken },
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const { marker } = token;
-    const { start, end } = token.range;
+    const { opening, closing } = delimitedRanges(token.range, marker.length, marker.length, token.contentRange);
 
     const startMarker = this.highlight(
         h,
         block,
-        start,
-        token.contentRange?.start ?? start + marker.length,
+        opening.start,
+        opening.end,
         token,
     );
-    const endMarker = this.highlight(h, block, token.contentRange?.end ?? end - marker.length, end, token);
+    const endMarker = this.highlight(h, block, closing.start, closing.end, token);
     const content = codeContent(this, { h, block, token, cursor }, className);
 
     return [
