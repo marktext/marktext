@@ -85,7 +85,6 @@ export class ScrollPage extends Parent {
     }
 
     updateState(state: TState[]) {
-        this.muya.editor.inlineRenderer.release(this);
         const { muya } = this;
         muya.ui.hideAllFloatTools();
         this.empty();

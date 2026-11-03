@@ -23,12 +23,10 @@ export default function loadImageAsync(
         return { ...cached, id: getUniqueId() };
 
     const root = this.environment.root;
-    const id = this.mounts.watch(root, this.images.request(src, isUnknownType), (result) => {
-        if (!result || this.images.get(src) !== result)
+    const id = this.mounts.watch(root, this.images.request(src, isUnknownType), (placeholder, result) => {
+        if (this.images.get(src) !== result)
             return;
-        const placeholder = root.querySelector<HTMLElement>(`#${id}`);
-        if (placeholder?.isConnected)
-            mountImage(placeholder, result, attrs, className, imageClass);
+        mountImage(placeholder, result, attrs, className, imageClass);
     });
     return { id, isSuccess: undefined, url: undefined, width: undefined, height: undefined };
 }

@@ -9,6 +9,7 @@ import { tokenizer } from './lexer';
 import { profileForBlock } from './parser/profiles';
 import { getReferenceDefinition, ReferenceDefinitionIndex } from './referenceDefinitions';
 import Renderer from './renderer';
+import { ImageMounts } from './resources/imageMounts';
 
 const debug = logger('inlineRenderer:');
 
@@ -33,7 +34,7 @@ class InlineRenderer {
                 selectedImage: selected ? { block: selected.block, range: { ...selected.imageInfo.token.range } } : null,
                 translate: text => muya.i18n.t(text),
             };
-        });
+        }, new ImageMounts(muya.domNode));
     }
 
     private _tokenizer(block: Format, highlights: IHighlight[]) {
@@ -60,22 +61,6 @@ class InlineRenderer {
 
     setImagePreview(src: string, preview: string): void {
         this.renderer.images.setPreview(src, preview);
-    }
-
-    release(block: { domNode?: HTMLElement | null | void }): void {
-        if (block.domNode)
-            this.renderer.release(block.domNode);
-    }
-
-    releaseRemoved(block: { domNode?: HTMLElement | null | void }): void {
-        const scope = block.domNode;
-        if (!scope)
-            return;
-        // Moving a block detaches and reinserts it synchronously; its pending images survive.
-        queueMicrotask(() => {
-            if (!this.muya.domNode.contains(scope))
-                this.renderer.release(scope);
-        });
     }
 
     dispose(): void {

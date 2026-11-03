@@ -17,7 +17,7 @@ vi.mock('../../../utils/dom', () => ({
 
 function makeRenderer() {
     const images = new ImageResources();
-    return { images, mounts: new ImageMounts(), environment: { root: document.body } };
+    return { images, mounts: new ImageMounts(document.body), environment: { root: document.body } };
 }
 
 // Regression for marktext commit bca2ed62 (#3001 / #3010):

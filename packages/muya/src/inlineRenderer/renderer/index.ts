@@ -1,12 +1,12 @@
 import type { VNode } from 'snabbdom';
 import type { Token } from '../model/types';
+import type { ImageMounts } from '../resources/imageMounts';
 import type { IContainerRenderOptions, IInlineCursor, IInlineEnvironment, IRenderBlock } from './types';
 import { CLASS_NAMES } from '../../config';
 import { conflict } from '../../utils';
 import { h } from '../../utils/snabbdom';
 import { vnodeToHTML } from '../../utils/vnodeToHTML';
 import { tokenEvents } from '../model/traversal';
-import { ImageMounts } from '../resources/imageMounts';
 import { ImageResources } from '../resources/images';
 import autoLink from './autoLink';
 import autoLinkExtension from './autoLinkExtension';
@@ -59,7 +59,7 @@ class Renderer {
 
     readonly images: ImageResources;
 
-    constructor(private _environment: () => IInlineEnvironment, images = new ImageResources(), readonly mounts = new ImageMounts()) {
+    constructor(private _environment: () => IInlineEnvironment, readonly mounts: ImageMounts, images = new ImageResources()) {
         this.images = images;
     }
 
@@ -174,12 +174,8 @@ class Renderer {
         this.images.invalidate();
     }
 
-    release(scope: HTMLElement): void {
-        this.mounts.release(scope);
-    }
-
     dispose(): void {
-        this.mounts.clear();
+        this.mounts.dispose();
         this.images.dispose();
         this.loadMathMap.clear();
     }
@@ -187,8 +183,7 @@ class Renderer {
     output(tokens: Token[], block: IRenderBlock, cursor: IInlineCursor) {
         const snapshot = this.environment;
         const environment = { ...snapshot, root: block.domNode || snapshot.root };
-        this.mounts.release(environment.root);
-        const session = new Renderer(() => environment, this.images, this.mounts);
+        const session = new Renderer(() => environment, this.mounts, this.images);
         session.loadMathMap = this.loadMathMap;
         const rendered = new Map<Token, (VNode | string)[]>();
         const childNodes = (children: readonly Token[]) => {

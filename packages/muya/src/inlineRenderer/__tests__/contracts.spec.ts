@@ -7,6 +7,7 @@ import { parseInline } from '../parser/lexer';
 import { profileForBlock } from '../parser/profiles';
 import { SourceWindow } from '../parser/sourceWindow';
 import Renderer from '../renderer';
+import { ImageMounts } from '../resources/imageMounts';
 import { generator, SourceGenerationMode } from '../serialization';
 
 function emojiTokens(source: string) {
@@ -66,7 +67,7 @@ it('renders from structural data without an editor instance and snapshots each o
         translate: (text: string) => text,
     };
     const captureEnvironment = vi.fn(() => environment);
-    const renderer = new Renderer(captureEnvironment);
+    const renderer = new Renderer(captureEnvironment, new ImageMounts(root));
     const block = { text: '**x**', blockName: 'paragraph.content' };
     const tokens = parseInline(block.text);
     expect(renderer.output(tokens, block, { block, anchor: { offset: 2 }, focus: { offset: 2 } })).toContain('mu-hide');
@@ -92,7 +93,7 @@ it('derives ruby preview offsets from actual source tags including attributes', 
         references: new Map(),
         selectedImage: null,
         translate: text => text,
-    }));
+    }), new ImageMounts(root));
     root.innerHTML = renderer.output(parseInline(text), { text, blockName: 'paragraph.content' }, {});
     const preview = root.querySelector<HTMLElement>('.mu-ruby-render')!;
     expect(preview.dataset.start).toBe(String(text.indexOf('>') + 1));
@@ -114,7 +115,7 @@ it.each([
         references: labels,
         selectedImage: null,
         translate: text => text,
-    }));
+    }), new ImageMounts(root));
     const render = vi.spyOn(Renderer.prototype, 'renderToken');
     try {
         const html = renderer.output(tokens, { text, blockName: 'paragraph.content' }, {});

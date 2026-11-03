@@ -30,7 +30,6 @@ function makeFakeMuya(): Muya {
         },
         editor: {
             inlineRenderer: {
-                releaseRemoved: () => {},
                 patch: () => {},
                 getLabelInfo: () => ({ label: '' }),
             },
