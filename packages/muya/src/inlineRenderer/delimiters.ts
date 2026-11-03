@@ -2,18 +2,11 @@ import type { IDelimiterRun, IDelimiterSpan } from '../utils/delimiters';
 import type { InlineRules } from './rules';
 import type { ITokenizerFacOptions, Labels } from './types';
 import { codePointBefore, codePointCharAt, pairDelimiters } from '../utils/delimiters';
+import { CJK_CHARACTER, UNICODE_PUNCTUATION, UNICODE_WHITESPACE } from '../utils/inlineCharacters';
 import { atomicExtensionLength } from './atomicExtension';
 import { BracketScanner } from './brackets';
 import { CodeSpanScanner } from './codeSpan';
-import {
-    CJK_REG,
-    matchAt,
-    matchExtendedAutoLink,
-    PUNCTUATION_REG,
-    UNICODE_WHITESPACE_REG,
-} from './utils';
-
-export type { IDelimiterSpan } from '../utils/delimiters';
+import { matchAt, matchExtendedAutoLink } from './utils';
 
 interface IScanContext {
     codeSpans?: CodeSpanScanner;
@@ -26,11 +19,11 @@ interface IScanContext {
 }
 
 function isWhitespace(char: string) {
-    return UNICODE_WHITESPACE_REG.test(char);
+    return UNICODE_WHITESPACE.test(char);
 }
 
 function isBoundary(char: string) {
-    return isWhitespace(char) || PUNCTUATION_REG.test(char) || CJK_REG.test(char);
+    return isWhitespace(char) || UNICODE_PUNCTUATION.test(char) || CJK_CHARACTER.test(char);
 }
 
 function charBefore(src: string, index: number) {
@@ -110,10 +103,10 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
             const after = charAfter(src, i + length);
             const leftFlanking
                 = !isWhitespace(after)
-                    && (!PUNCTUATION_REG.test(after) || isBoundary(before));
+                    && (!UNICODE_PUNCTUATION.test(after) || isBoundary(before));
             const rightFlanking
                 = !isWhitespace(before)
-                    && (!PUNCTUATION_REG.test(before) || isBoundary(after));
+                    && (!UNICODE_PUNCTUATION.test(before) || isBoundary(after));
 
             runs.push({
                 char,

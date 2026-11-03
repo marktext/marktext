@@ -2,8 +2,6 @@ import type { ICodeSpanMatch } from './codeSpan';
 import type { Rules } from './types';
 import { CodeSpanScanner } from './codeSpan';
 
-export { CJK_CHARACTER as CJK_REG, UNICODE_PUNCTUATION as PUNCTUATION_REG, UNICODE_WHITESPACE as UNICODE_WHITESPACE_REG } from '../utils/inlineCharacters';
-
 const AUTO_LINK_BOUNDARY = /[* _~(]/;
 
 // selected from https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes

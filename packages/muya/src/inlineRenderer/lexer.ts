@@ -1,6 +1,6 @@
 import type { ImageMatch, LinkMatch } from './brackets';
 import type { ICodeSpanMatch } from './codeSpan';
-import type { IDelimiterSpan } from './delimiters';
+import type { IDelimiterSpan } from '../utils/delimiters';
 import type { BeginRules, InlineRules } from './rules';
 import type {
     CodeEmojiMathToken,
