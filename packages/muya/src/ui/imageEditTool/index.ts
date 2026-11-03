@@ -423,7 +423,7 @@ export class ImageEditTool extends BaseFloat {
         // Store local path mapping if available
         const { src: localPath } = getImageSrc(src);
         if (localPath) {
-            this.muya.editor.inlineRenderer.renderer.urlMap.set(uploadedSrc, localPath);
+            this.muya.editor.inlineRenderer.setImagePreview(uploadedSrc, localPath);
         }
 
         // Find and update the image element

@@ -5,8 +5,8 @@ import { generator, tokenizer, tokensToInlineHtml, tokensToPlainText } from '../
 
 const indexing = vi.hoisted(() => ({ characters: 0, reads: 0, htmlSteps: 0 }));
 
-vi.mock('../codeSpan', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('../codeSpan')>();
+vi.mock('../parser/codeSpan', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('../parser/codeSpan')>();
     return {
         ...actual,
         CodeSpanScanner: class extends actual.CodeSpanScanner {
@@ -23,8 +23,8 @@ vi.mock('../codeSpan', async (importOriginal) => {
     };
 });
 
-vi.mock('../brackets', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('../brackets')>();
+vi.mock('../parser/brackets', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('../parser/brackets')>();
     return {
         ...actual,
         BracketScanner: class extends actual.BracketScanner {

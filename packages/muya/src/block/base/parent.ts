@@ -218,6 +218,7 @@ class Parent extends TreeNode {
     override remove(source: ChangeSource = ChangeSource.User) {
         if (!this.muya.canMutate)
             return;
+        this.muya.editor.inlineRenderer.releaseRemoved(this);
         if (source === ChangeSource.User) {
             const path = this._getJsonPath();
             this.transactions.removeOperation(path);

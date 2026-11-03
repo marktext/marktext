@@ -1,8 +1,9 @@
-import type { ISyntaxRenderOptions, LinkToken } from '../types';
+import type { LinkToken } from '../model/types';
 import type Renderer from './index';
+import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 import { isLengthEven } from '../../utils';
-import { sanitizeHyperlink } from '../../utils/url';
+import { hyperlinkProps, sourceDataset } from './linkData';
 
 // 'link': /^(\[)((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*?)(\\*)\]\((.*?)(\\*)\)/, // can nest
 export default function link(
@@ -77,13 +78,7 @@ export default function link(
                 h(
                     `a.${CLASS_NAMES.MU_NO_TEXT_LINK}.${CLASS_NAMES.MU_INLINE_RULE}`,
                     {
-                        props: {
-                            href: sanitizeHyperlink(
-                                token.href + encodeURI(token.backlash.second),
-                            ),
-                            target: '_blank',
-                            title: token.title,
-                        },
+                        props: hyperlinkProps(token.href + encodeURI(token.backlash.second), token.title, '_blank'),
                     },
                     [
                         ...hrefContent,
@@ -106,17 +101,8 @@ export default function link(
                 h(
                     `span.${CLASS_NAMES.MU_INLINE_RULE}.${CLASS_NAMES.MU_LINK}`,
                     {
-                        props: {
-                            href: sanitizeHyperlink(
-                                token.href + encodeURI(token.backlash.second),
-                            ),
-                            title: token.title,
-                        },
-                        dataset: {
-                            start: String(start),
-                            end: String(end),
-                            raw: token.raw,
-                        },
+                        props: hyperlinkProps(token.href + encodeURI(token.backlash.second), token.title),
+                        dataset: sourceDataset(token),
                     },
                     [
                         ...this.renderChildren(token.children, { h, cursor, block, childNodes }),

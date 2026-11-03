@@ -41,7 +41,7 @@ function getContent(vnodes: ReturnType<typeof softLineBreak>): string {
 describe('softLineBreak renderer — softNewlineAsSpace', () => {
     it('emits \\n content and MU_SOFT_LINE_BREAK class by default', () => {
         const renderer = asRenderer({
-            muya: { options: { softNewlineAsSpace: false } },
+            environment: { softNewlineAsSpace: false },
         });
         const token = makeToken();
         const out = softLineBreak.call(
@@ -55,7 +55,7 @@ describe('softLineBreak renderer — softNewlineAsSpace', () => {
 
     it('emits \\n content (not a space) with MU_SOFT_NEWLINE_AS_SPACE class when option is on', () => {
         const renderer = asRenderer({
-            muya: { options: { softNewlineAsSpace: true } },
+            environment: { softNewlineAsSpace: true },
         });
         const token = makeToken();
         const out = softLineBreak.call(
@@ -70,7 +70,7 @@ describe('softLineBreak renderer — softNewlineAsSpace', () => {
 
     it('does not add MU_LINE_END when softNewlineAsSpace is on, even if isAtEnd is true', () => {
         const renderer = asRenderer({
-            muya: { options: { softNewlineAsSpace: true } },
+            environment: { softNewlineAsSpace: true },
         });
         const token = makeToken({ isAtEnd: true });
         const out = softLineBreak.call(
@@ -84,7 +84,7 @@ describe('softLineBreak renderer — softNewlineAsSpace', () => {
 
     it('adds MU_LINE_END when isAtEnd is true and softNewlineAsSpace is off', () => {
         const renderer = asRenderer({
-            muya: { options: { softNewlineAsSpace: false } },
+            environment: { softNewlineAsSpace: false },
         });
         const token = makeToken({ isAtEnd: true });
         const out = softLineBreak.call(
@@ -97,7 +97,7 @@ describe('softLineBreak renderer — softNewlineAsSpace', () => {
 
     it('renders an empty highlight band before the raw \\n when the token is matched', () => {
         const renderer = asRenderer({
-            muya: { options: { softNewlineAsSpace: false } },
+            environment: { softNewlineAsSpace: false },
             getHighlightClassName: (active: boolean) =>
                 active ? CLASS_NAMES.MU_HIGHLIGHT : CLASS_NAMES.MU_SELECTION,
         });
@@ -124,7 +124,7 @@ describe('soft break whitespace and source offsets (#5981)', () => {
         if (token.type !== 'soft_line_break')
             throw new Error('Expected a soft break');
         const renderer = asRenderer({
-            muya: { options: { softNewlineAsSpace: false } },
+            environment: { softNewlineAsSpace: false },
             getClassName: () => active ? CLASS_NAMES.MU_GRAY : CLASS_NAMES.MU_HIDE,
             getHighlightClassName: () => CLASS_NAMES.MU_HIGHLIGHT,
             highlight,

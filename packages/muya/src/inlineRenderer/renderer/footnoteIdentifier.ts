@@ -1,6 +1,8 @@
-import type { FootnoteIdentifierToken, ISyntaxRenderOptions } from '../types';
+import type { FootnoteIdentifierToken } from '../model/types';
 import type Renderer from './index';
+import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
+import { delimitedParts } from './delimitedParts';
 
 export default function footnoteIdentifier(
     this: Renderer,
@@ -14,23 +16,8 @@ export default function footnoteIdentifier(
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const { marker } = token;
-    const { start, end } = token.range;
 
-    const startMarker = this.highlight(
-        h,
-        block,
-        start,
-        start + marker.length,
-        token,
-    );
-    const endMarker = this.highlight(h, block, end - 1, end, token);
-    const content = this.highlight(
-        h,
-        block,
-        start + marker.length,
-        end - 1,
-        token,
-    );
+    const { startMarker, content, endMarker } = delimitedParts(this, { h, block, token, cursor }, marker.length, 1);
 
     return [
         h(

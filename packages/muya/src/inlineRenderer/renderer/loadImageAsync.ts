@@ -1,11 +1,12 @@
+import type { ImageMounts } from '../resources/imageMounts';
 import type { ImageResources } from '../resources/images';
 import { getUniqueId } from '../../utils';
 import { mountImage } from '../resources/mountImage';
 
 interface IImageRenderHost {
     images: ImageResources;
-    loadImageMap: ImageResources['loaded'];
-    muya: { domNode: HTMLElement };
+    mounts: ImageMounts;
+    environment: { root: HTMLElement };
 }
 
 export default function loadImageAsync(
@@ -16,18 +17,17 @@ export default function loadImageAsync(
     imageClass?: string,
 ) {
     const { src, isUnknownType } = imageInfo;
-    const cached = this.loadImageMap.get(src);
+    const cached = this.images.get(src);
     // Each render occurrence owns its placeholder, even when requests are shared.
-    const id = getUniqueId();
     if (cached?.isSuccess)
-        return { ...cached, id };
+        return { ...cached, id: getUniqueId() };
 
-    const root = this.muya.domNode;
-    void this.images.request(src, isUnknownType).then((result) => {
-        if (!result || this.loadImageMap.get(src) !== result)
+    const root = this.environment.root;
+    const id = this.mounts.watch(root, this.images.request(src, isUnknownType), (result) => {
+        if (!result || this.images.get(src) !== result)
             return;
         const placeholder = root.querySelector<HTMLElement>(`#${id}`);
-        if (placeholder)
+        if (placeholder?.isConnected)
             mountImage(placeholder, result, attrs, className, imageClass);
     });
     return { id, isSuccess: undefined, url: undefined, width: undefined, height: undefined };

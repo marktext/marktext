@@ -2,10 +2,11 @@ import type Format from '../block/base/format';
 import type { Muya } from '../muya';
 import type { IRenderCursor } from '../selection/types';
 import type { IParagraphState } from '../state/types';
-import type { IHighlight, Labels } from './types';
+import type { IHighlight, Labels } from './model/types';
 import { prepareReadingLinks } from '../editor/readOnly';
 import logger from '../utils/logger';
 import { tokenizer } from './lexer';
+import { profileForBlock } from './parser/profiles';
 import { getReferenceDefinition, ReferenceDefinitionIndex } from './referenceDefinitions';
 import Renderer from './renderer';
 
@@ -22,7 +23,17 @@ class InlineRenderer {
     private _references = new ReferenceDefinitionIndex();
 
     constructor(public muya: Muya) {
-        this.renderer = new Renderer(muya, this);
+        this.renderer = new Renderer(() => {
+            const selected = muya.editor.selection?.image;
+            return {
+                root: muya.domNode,
+                readOnly: muya.isReadOnly,
+                softNewlineAsSpace: muya.options.softNewlineAsSpace,
+                references: this.labels,
+                selectedImage: selected ? { block: selected.block, range: { ...selected.imageInfo.token.range } } : null,
+                translate: text => muya.i18n.t(text),
+            };
+        });
     }
 
     private _tokenizer(block: Format, highlights: IHighlight[]) {
@@ -30,19 +41,12 @@ class InlineRenderer {
         const { text } = block;
         const { labels } = this;
 
-        // TODO: different content block should have different rules.
-        // eg: atxheading.content has no soft|hard line break
-        // setextheading.content has no heading rules.
-        const hasBeginRules
-            = /thematicbreak\.content|paragraph\.content|atxheading\.content/.test(
-                block.blockName,
-            );
-
-        return tokenizer(text, { hasBeginRules, labels, options, highlights });
+        return tokenizer(text, { profile: profileForBlock(block.blockName), labels, options, highlights });
     }
 
     /** Invalidates pending and completed loads before repainting all image occurrences. */
     invalidateImageCache() {
+        this.renderer.mounts.clear();
         this.renderer.images.invalidate();
 
         const { scrollPage } = this.muya.editor;
@@ -53,6 +57,32 @@ class InlineRenderer {
             if (node.isContent())
                 node.update();
         });
+    }
+
+    setImagePreview(src: string, preview: string): void {
+        this.renderer.images.setPreview(src, preview);
+    }
+
+    release(block: { domNode?: HTMLElement | null | void }): void {
+        if (block.domNode)
+            this.renderer.mounts.release(block.domNode);
+    }
+
+    releaseRemoved(block: { domNode?: HTMLElement | null | void }): void {
+        const scope = block.domNode;
+        if (!scope)
+            return;
+        // Moving a block detaches and reinserts it synchronously; its pending images survive.
+        queueMicrotask(() => {
+            if (!this.muya.domNode.contains(scope))
+                this.renderer.mounts.release(scope);
+        });
+    }
+
+    dispose(): void {
+        this.renderer.mounts.clear();
+        this.renderer.images.dispose();
+        this.renderer.loadMathMap.clear();
     }
 
     patch(block: Format, cursor?: IRenderCursor, highlights: IHighlight[] = []) {

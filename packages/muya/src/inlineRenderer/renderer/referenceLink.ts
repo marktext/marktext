@@ -1,8 +1,9 @@
-import type { ISyntaxRenderOptions, ReferenceLinkToken } from '../types';
+import type { ReferenceLinkToken } from '../model/types';
 import type Renderer from './index';
+import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
-import { sanitizeHyperlink } from '../../utils/url';
 import { normalizeReferenceLabel } from '../referenceLabel';
+import { hyperlinkProps, sourceDataset } from './linkData';
 
 export default function referenceLink(
     this: Renderer,
@@ -31,7 +32,7 @@ export default function referenceLink(
         ...this.backlashInToken(h, backlash.first, className, backlashStart, token),
     ];
 
-    const { href, title } = this.parent.labels.get(key) ?? {};
+    const { href, title } = this.environment.references.get(key) ?? {};
     const startMarker = this.highlight(
         h,
         block,
@@ -56,15 +57,11 @@ export default function referenceLink(
         props: {
             title,
         },
-        dataset: {
-            start: String(start),
-            end: String(end),
-            raw: token.raw,
-        },
+        dataset: sourceDataset(token),
     };
 
     if (href)
-        Object.assign(data.props, { href: sanitizeHyperlink(href) });
+        Object.assign(data.props, hyperlinkProps(href));
 
     if (isFullLink) {
         const labelContent = this.highlight(

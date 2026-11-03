@@ -1,13 +1,11 @@
 import type { VNode } from 'snabbdom';
-import type Format from '../../block/base/format';
-import type { Muya } from '../../index';
-import type { IRenderCursor } from '../../selection/types';
-import type InlineRenderer from '../index';
-import type { ISyntaxRenderOptions, Token } from '../types';
+import type { Token } from '../model/types';
+import type { IInlineCursor, IInlineEnvironment, IRenderBlock, ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 import { conflict } from '../../utils';
 import { h } from '../../utils/snabbdom';
 import { vnodeToHTML } from '../../utils/vnodeToHTML';
+import { ImageMounts } from '../resources/imageMounts';
 import { ImageResources } from '../resources/images';
 import { tokenEvents } from '../tokenTraversal';
 import autoLink from './autoLink';
@@ -59,13 +57,17 @@ class Renderer {
     string | VNode | (string | VNode)[] | undefined
     > = new Map();
 
-    readonly images = new ImageResources();
-    readonly loadImageMap = this.images.loaded;
-    readonly urlMap = this.images.previews;
+    readonly images: ImageResources;
 
-    constructor(public muya: Muya, public parent: InlineRenderer) {}
+    constructor(private _environment: () => IInlineEnvironment, images = new ImageResources(), readonly mounts = new ImageMounts()) {
+        this.images = images;
+    }
 
-    private _checkConflicted(block: Format, token: Pick<Token, 'range'>, cursor: IRenderCursor = {}) {
+    get environment(): IInlineEnvironment {
+        return this._environment();
+    }
+
+    private _checkConflicted(block: IRenderBlock, token: Pick<Token, 'range'>, cursor: IInlineCursor = {}) {
         const anchor = cursor.anchor || cursor.start;
         const focus = cursor.focus || cursor.end;
         if (!anchor || !focus || (cursor.block && cursor.block !== block))
@@ -81,11 +83,11 @@ class Renderer {
 
     getClassName(
         outerClass: string | undefined,
-        block: Format,
+        block: IRenderBlock,
         token: Pick<Token, 'range'>,
-        cursor: IRenderCursor,
+        cursor: IInlineCursor,
     ) {
-        if (this.muya.isReadOnly)
+        if (this.environment.readOnly)
             return CLASS_NAMES.MU_HIDE;
         return (
             outerClass
@@ -176,7 +178,11 @@ class Renderer {
         return nodes;
     }
 
-    output(tokens: Token[], block: Format, cursor: IRenderCursor) {
+    output(tokens: Token[], block: IRenderBlock, cursor: IInlineCursor) {
+        const environment = { ...this.environment, root: block.domNode || this.environment.root };
+        this.mounts.release(environment.root);
+        const session = new Renderer(() => environment, this.images, this.mounts);
+        session.loadMathMap = this.loadMathMap;
         const rendered = new Map<Token, (VNode | string)[]>();
         const childNodes = (children: readonly Token[]) => {
             const nodes: (VNode | string)[] = [];
@@ -190,7 +196,7 @@ class Renderer {
             && (token.type !== 'html_tag' || (!isLiteralHtml(token) && token.tag !== 'ruby')))) {
             if (!exiting)
                 continue;
-            rendered.set(token, this.renderToken({ h, cursor, block, token, childNodes }));
+            rendered.set(token, session.renderToken({ h, cursor, block, token, childNodes }));
         }
         const rawHtml = vnodeToHTML(h('span', childNodes(tokens)));
         return rawHtml.slice(6, -7);

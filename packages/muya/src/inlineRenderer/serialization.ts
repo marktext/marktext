@@ -1,4 +1,4 @@
-import type { Token } from './types';
+import type { Token } from './model/types';
 import { tokenEvents } from './tokenTraversal';
 
 function wrapperParts(token: Token): [string, string] | null {

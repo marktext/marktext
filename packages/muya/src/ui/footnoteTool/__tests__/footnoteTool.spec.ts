@@ -87,6 +87,7 @@ function makeFakeMuya(): { muya: Muya; eventCenter: EventCenter; appendSpy: Retu
             // during createDomNode. Stub minimally — the tool exercises the
             // create flow, not the inline render output.
             inlineRenderer: {
+                releaseRemoved: () => {},
                 patch: () => {},
                 getLabelInfo: () => ({ label: '' }),
             },

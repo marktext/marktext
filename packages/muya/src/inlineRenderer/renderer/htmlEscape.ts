@@ -1,5 +1,6 @@
-import type { HTMLEscapeToken, ISyntaxRenderOptions } from '../types';
+import type { HTMLEscapeToken } from '../model/types';
 import type Renderer from './index';
+import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 
 export default function htmlEscape(

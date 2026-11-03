@@ -1575,7 +1575,7 @@ export class Muya {
     }
 
     destroy() {
-        this.editor.inlineRenderer.renderer.images.invalidate();
+        this.editor.inlineRenderer.dispose();
         this.editor.textDrag?.destroy();
         this.editor.selection.cancel();
         this.editor.transactions.cancel();

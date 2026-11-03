@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ImageMounts } from '../../resources/imageMounts';
 import { ImageResources } from '../../resources/images';
 import loadImageAsync from '../loadImageAsync';
 
@@ -16,7 +17,7 @@ vi.mock('../../../utils/dom', () => ({
 
 function makeRenderer() {
     const images = new ImageResources();
-    return { images, loadImageMap: images.loaded, muya: { domNode: document.body } };
+    return { images, mounts: new ImageMounts(), environment: { root: document.body } };
 }
 
 // Regression for marktext commit bca2ed62 (#3001 / #3010):
@@ -32,12 +33,9 @@ describe('loadImageAsync — failed cache should retry', () => {
     it('returns the cached info when the previous load succeeded', async () => {
         const { loadImage } = await import('../../../utils/image');
         const r = makeRenderer();
-        r.loadImageMap.set('https://example.com/a.png', {
-            id: 'mu-cached-success',
-            isSuccess: true,
-            width: 100,
-            height: 50,
-        });
+        vi.mocked(loadImage).mockResolvedValueOnce({ url: 'https://example.com/a.png', width: 100, height: 50 });
+        await r.images.request('https://example.com/a.png', false);
+        vi.mocked(loadImage).mockClear();
 
         const out = loadImageAsync.call(
             r,
@@ -47,6 +45,7 @@ describe('loadImageAsync — failed cache should retry', () => {
 
         expect(out).toEqual({
             id: expect.any(String),
+            url: 'https://example.com/a.png',
             isSuccess: true,
             width: 100,
             height: 50,
@@ -58,10 +57,9 @@ describe('loadImageAsync — failed cache should retry', () => {
     it('re-triggers loadImage when the previous load failed', async () => {
         const { loadImage } = await import('../../../utils/image');
         const r = makeRenderer();
-        r.loadImageMap.set('https://example.com/b.png', {
-            id: 'mu-cached-fail',
-            isSuccess: false,
-        });
+        vi.mocked(loadImage).mockRejectedValueOnce(new Error('offline'));
+        await r.images.request('https://example.com/b.png', false);
+        vi.mocked(loadImage).mockClear();
 
         const out = loadImageAsync.call(
             r,
@@ -145,7 +143,7 @@ describe('loadImageAsync — local file cache-busting', () => {
         );
         await new Promise<void>(resolve => setTimeout(resolve, 0));
         // The cache is keyed by the plain src so ordinary re-renders hit it.
-        expect(r.loadImageMap.has('file:///tmp/pic.png')).toBe(true);
+        expect(r.images.get('file:///tmp/pic.png')?.isSuccess).toBe(true);
 
         // invalidateImageCache() clears the maps; the next render is a cache miss.
         r.images.invalidate();

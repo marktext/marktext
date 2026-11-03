@@ -1,5 +1,6 @@
-import type { ISyntaxRenderOptions, MarkToken } from '../types';
+import type { MarkToken } from '../model/types';
 import type Renderer from './index';
+import type { ISyntaxRenderOptions } from './types';
 
 export default function mark(
     this: Renderer,

@@ -7,6 +7,7 @@ import type { ImageToken } from '../../types';
 import type Renderer from '../index';
 import { describe, expect, it, vi } from 'vitest';
 import { h } from '../../../utils/snabbdom';
+import { ImageResources } from '../../resources/images';
 import image from '../image';
 
 // Regression tests for marktext commit cb7be189 (#1318):
@@ -22,11 +23,9 @@ interface IFakeRenderer {
         info: { isUnknownType: boolean; src: string },
         attrs: Record<string, string>,
     ) => { id: string; isSuccess: boolean | undefined; width?: number; height?: number; url?: string };
-    urlMap: Map<string, string>;
-    muya: {
-        editor: { selection: { image: null | unknown } };
-        i18n: { t: (s: string) => string };
-    };
+    images: ImageResources;
+    environment: { selectedImage: null; translate: (s: string) => string };
+
 }
 
 function makeRenderer(loadResult: {
@@ -38,11 +37,8 @@ function makeRenderer(loadResult: {
 }): IFakeRenderer {
     return {
         loadImageAsync: vi.fn(() => loadResult),
-        urlMap: new Map(),
-        muya: {
-            editor: { selection: { image: null } },
-            i18n: { t: (s: string) => s },
-        },
+        images: new ImageResources(),
+        environment: { selectedImage: null, translate: (s: string) => s },
     };
 }
 
@@ -92,7 +88,7 @@ function findImgSrc(vnodes: VNode | VNode[]): string | undefined {
 
 // Narrow casts shared by every test: the fake renderer and block stubs
 // don't satisfy the full Renderer / Format / IRenderCursor surface, but
-// `image()` only touches the loadImageAsync / urlMap / muya fields and
+// `image()` only touches the resource services and render environment, plus
 // the token range.
 const fakeBlock = {} as unknown as Format;
 const fakeCursor = {} as unknown as IRenderCursor;

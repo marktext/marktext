@@ -1,16 +1,15 @@
 import type { VNode } from 'snabbdom';
-import type Format from '../../block/base/format';
-import type { IRenderCursor } from '../../selection/types';
-import type { H, HTMLTagToken, ISyntaxRenderOptions } from '../types';
+import type { HTMLTagToken } from '../model/types';
 import type Renderer from './index';
+import type { H, IInlineCursor, IRenderBlock, ISyntaxRenderOptions } from './types';
 import { BLOCK_TYPE6, CLASS_NAMES } from '../../config';
 import sanitize, { isValidAttribute } from '../../utils/dompurify';
 
 function renderHtmlTagChildren(
     renderer: Renderer,
     h: H,
-    cursor: IRenderCursor,
-    block: Format,
+    cursor: IInlineCursor,
+    block: IRenderBlock,
     token: HTMLTagToken,
     childNodes: ISyntaxRenderOptions['childNodes'],
 ): (VNode | string)[] | '' {

@@ -1,9 +1,10 @@
-import type Format from '../../block/base/format';
-import type { InlineMathToken, ISyntaxRenderOptions, Token } from '../types';
+import type { InlineMathToken, Token } from '../model/types';
 import type Renderer from './index';
+import type { IRenderBlock, ISyntaxRenderOptions } from './types';
 import katex from 'katex';
 import { CLASS_NAMES } from '../../config';
 import { htmlToVNode } from '../../utils/snabbdom';
+import { delimitedParts } from './delimitedParts';
 import 'katex/dist/contrib/mhchem.mjs';
 
 import 'katex/dist/katex.min.css';
@@ -35,7 +36,7 @@ function isBlankOrDisplayMath(token: Token) {
 // it stays inline. pandoc instead draws `\[…\]` in display mode wherever it
 // appears, but `.katex-display` is a centred block, which would break the line
 // around it — so muya keeps the rule it already applies to `$$…$$` (#4904).
-function isDisplayMath(token: InlineMathToken, block: Format) {
+function isDisplayMath(token: InlineMathToken, block: IRenderBlock) {
     if (!isDisplayMarker(token.marker) || block.blockName !== 'paragraph.content')
         return false;
 
@@ -54,7 +55,7 @@ export default function inlineMath(this: Renderer, {
     outerClass,
 }: ISyntaxRenderOptions & { token: InlineMathToken }) {
     const className = this.getClassName(outerClass, block, token, cursor);
-    const { i18n } = this.muya;
+    const { translate } = this.environment;
     const { start, end } = token.range;
     const { marker } = token;
     const displayMode = isDisplayMath(token, block);
@@ -68,21 +69,7 @@ export default function inlineMath(this: Renderer, {
         markerSelector += `.${CLASS_NAMES.MU_DISPLAY_MATH}`;
     }
 
-    const startMarker = this.highlight(
-        h,
-        block,
-        start,
-        start + marker.length,
-        token,
-    );
-    const endMarker = this.highlight(h, block, end - marker.length, end, token);
-    const content = this.highlight(
-        h,
-        block,
-        start + marker.length,
-        end - marker.length,
-        token,
-    );
+    const { startMarker, content, endMarker } = delimitedParts(this, { h, block, token, cursor }, marker.length);
 
     const { content: math, type } = token;
 
@@ -106,7 +93,7 @@ export default function inlineMath(this: Renderer, {
             loadMathMap.set(key, mathVnode);
         }
         catch (err) {
-            mathVnode = `<${i18n.t('Invalid Mathematical Formula')}>`;
+            mathVnode = `<${translate('Invalid Mathematical Formula')}>`;
             previewSelector += `.${CLASS_NAMES.MU_MATH_ERROR}`;
             errorTitle = err instanceof Error ? err.message : '';
         }

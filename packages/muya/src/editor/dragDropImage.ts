@@ -208,7 +208,7 @@ async function persistDroppedImage(
             return;
         const { src } = getImageSrc(path);
         if (src)
-            muya.editor.inlineRenderer.renderer.urlMap.set(newSrc, src);
+            muya.editor.inlineRenderer.setImagePreview(newSrc, src);
 
         const imageWrapper = query<HTMLElement>(
             `span[data-id=${loadingId}]`,

@@ -1,4 +1,4 @@
-import type { EmojiToken, Token } from './types';
+import type { EmojiToken, Token } from './model/types';
 import { escapeHTML } from '../utils';
 import { validEmoji } from '../utils/emoji';
 import { tokenEvents } from './tokenTraversal';

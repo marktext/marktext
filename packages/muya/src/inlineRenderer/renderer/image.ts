@@ -1,9 +1,7 @@
 import type { VNode } from 'snabbdom';
-import type Format from '../../block/base/format';
-import type { IImageSelectionContext } from '../../selection/types';
 import type { TSelectableImageToken } from '../../utils/image';
-import type { H, ISyntaxRenderOptions } from '../types';
 import type Renderer from './index';
+import type { H, IInlineEnvironment, IRenderBlock, ISyntaxRenderOptions } from './types';
 import DeleteIcon from '../../assets/icons/delete/2.png';
 import ImageIcon from '../../assets/icons/image/2.png';
 import ImageFailIcon from '../../assets/icons/image_fail/2.png';
@@ -46,35 +44,34 @@ function isSmallImage(
 }
 
 function isImageSelected(
-    selectedImage: IImageSelectionContext | null,
-    block: Format,
+    selectedImage: IInlineEnvironment['selectedImage'],
+    block: IRenderBlock,
     token: TSelectableImageToken,
 ) {
     if (!selectedImage)
         return false;
 
-    const { block: selectedBlock, imageInfo: { token: selectedToken } } = selectedImage;
+    const { block: selectedBlock, range } = selectedImage;
 
     return (
         selectedBlock === block
-        && selectedToken.range.start === token.range.start
-        && selectedToken.range.end === token.range.end
+        && range.start === token.range.start
+        && range.end === token.range.end
     );
 }
 
-// I don't want operate dom directly, is there any better way? need help!
 export default function image(
     this: Renderer,
     { h, block, token }: ISyntaxRenderOptions & { token: TSelectableImageToken },
 ) {
     const imageSrc = getImageSrc(token.attrs.src ?? '');
-    const selectedImage = this.muya.editor.selection.image;
-    const { i18n } = this.muya;
+    const selectedImage = this.environment.selectedImage;
+    const { translate } = this.environment;
     const data = {
         attrs: {
             'contenteditable': 'false',
-            'empty-text': i18n.t('Click to add an image'),
-            'fail-text': i18n.t('Load image failed'),
+            'empty-text': translate('Click to add an image'),
+            'fail-text': translate('Load image failed'),
         },
         dataset: {
             raw: token.raw,
@@ -85,7 +82,7 @@ export default function image(
     let naturalWidth: number | undefined;
     let naturalHeight: number | undefined;
     let resolvedUrl: string | undefined;
-    // `src` stays the plain path — it is the key the `urlMap`/cache lookups use.
+    // Resource and preview lookup use the original URL, without cache-busting parameters.
     const src = imageSrc.src;
     const alt = token.attrs.alt ?? '';
     const title = token.attrs.title ?? '';
@@ -138,10 +135,9 @@ export default function image(
     if (typeof token.attrs['data-align'] === 'string')
         wrapperSelector += `.${token.attrs['data-align']}`;
 
-    // the src image is still loading, so use the url Map base64.
-    if (this.urlMap.has(src)) {
-    // fix: it will generate a new id if the image is not loaded.
-        imgSrc = this.urlMap.get(src)!;
+    const preview = this.images.getPreview(src);
+    if (preview !== undefined) {
+        imgSrc = preview;
         isSuccess = true;
     }
 
@@ -150,8 +146,9 @@ export default function image(
         Object.assign(data.dataset, {
             id: alt,
         });
-        if (this.urlMap.has(alt)) {
-            imgSrc = this.urlMap.get(alt)!;
+        const uploadPreview = this.images.getPreview(alt);
+        if (uploadPreview !== undefined) {
+            imgSrc = uploadPreview;
             isSuccess = true;
         }
     }

@@ -48,7 +48,7 @@ describe('image resource ownership', () => {
         await current;
         old.resolve({ url: 'stale', width: 10, height: 10 });
         expect(await stale).toBeNull();
-        expect(resources.loaded.get('file:///image.png')?.url).toBe('fresh');
+        expect(resources.get('file:///image.png')?.url).toBe('fresh');
         expect(vi.mocked(loadImage).mock.calls[0][0]).not.toBe(vi.mocked(loadImage).mock.calls[1][0]);
     });
 
@@ -74,10 +74,31 @@ describe('image resource ownership', () => {
             next.resolve({ url: 'late', width: 10, height: 10 });
             await next.promise;
             await Promise.resolve();
-            expect(muya.editor.inlineRenderer.renderer.loadImageMap.size).toBe(0);
+            expect(muya.editor.inlineRenderer.renderer.images.size).toBe(0);
         }
         finally {
             muya.destroy();
         }
     });
+});
+
+it('keeps a pending image subscription when its block moves within the document', async () => {
+    const pending = deferred();
+    vi.mocked(loadImage).mockReturnValue(pending.promise);
+    const host = document.createElement('div');
+    document.body.append(host);
+    const muya = new Muya(host, { markdown: '![moving](https://example.com/moving.png)\n\ntail' });
+    muya.init();
+    try {
+        const page = muya.editor.scrollPage!;
+        const paragraph = page.firstContentInDescendant()!.parent!;
+        paragraph.insertInto(page);
+        await Promise.resolve();
+        pending.resolve({ url: 'https://example.com/moving.png', width: 100, height: 100 });
+        await vi.waitFor(() => expect(muya.domNode.querySelectorAll('.mu-image-container img')).toHaveLength(1));
+        expect(loadImage).toHaveBeenCalledTimes(1);
+    }
+    finally {
+        muya.destroy();
+    }
 });

@@ -1,5 +1,5 @@
 import type { IParagraphState, TState } from '../state/types';
-import type { Labels, ReferenceDefinitionToken } from './types';
+import type { Labels, ReferenceDefinitionToken } from './model/types';
 import { decodeMarkdownString } from '../utils/markdownEscape';
 import { normalizeReferenceLabel } from './referenceLabel';
 import { beginRules } from './rules';
