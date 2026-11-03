@@ -22,7 +22,7 @@ export default function header(
                 start,
                 end: end - content.length,
             },
-        } as BeginRuleToken,
+        },
         cursor,
     );
     const markerVnode = this.highlight(

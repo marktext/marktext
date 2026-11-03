@@ -1,23 +1,25 @@
 import type Format from '../block/base/format';
-import type ParagraphContent from '../block/content/paragraphContent';
 import type { Muya } from '../muya';
 import type { IRenderCursor } from '../selection/types';
-import type { IParagraphState, TState } from '../state/types';
+import type { IParagraphState } from '../state/types';
 import type { IHighlight, Labels } from './types';
 import { prepareReadingLinks } from '../editor/readOnly';
 import logger from '../utils/logger';
-import { decodeMarkdownString } from '../utils/markdownEscape';
 import { tokenizer } from './lexer';
-import { normalizeReferenceLabel } from './referenceLabel';
+import { getReferenceDefinition, ReferenceDefinitionIndex } from './referenceDefinitions';
 import Renderer from './renderer';
-import { beginRules } from './rules';
 
 const debug = logger('inlineRenderer:');
 
 class InlineRenderer {
-    public labels: Labels = new Map();
+    private _labels: Labels = new Map();
+
+    get labels(): Labels {
+        return this._labels;
+    }
+
     public renderer: Renderer;
-    private _labelsState: readonly TState[] | null = null;
+    private _references = new ReferenceDefinitionIndex();
 
     constructor(public muya: Muya) {
         this.renderer = new Renderer(muya, this);
@@ -39,19 +41,9 @@ class InlineRenderer {
         return tokenizer(text, { hasBeginRules, labels, options, highlights });
     }
 
-    /**
-     * Flush every cached image and force inline images to reload.
-     *
-     * The renderer memoises loaded images in `loadImageMap` (keyed by src,
-     * skipped on the next render once `isSuccess` is true) and resolved URLs
-     * in `urlMap`. When an image file changes on disk the cached entry would
-     * otherwise keep the stale bitmap, so clearing both maps and re-rendering
-     * every content block re-runs `loadImageAsync`, which loads the source
-     * afresh.
-     */
+    /** Invalidates pending and completed loads before repainting all image occurrences. */
     invalidateImageCache() {
-        this.renderer.loadImageMap.clear();
-        this.renderer.urlMap.clear();
+        this.renderer.images.invalidate();
 
         const { scrollPage } = this.muya.editor;
         if (!scrollPage)
@@ -64,7 +56,7 @@ class InlineRenderer {
     }
 
     patch(block: Format, cursor?: IRenderCursor, highlights: IHighlight[] = []) {
-        this.labels = this.collectReferenceDefinitions();
+        this.collectReferenceDefinitions();
         const { domNode } = block;
         if (block.isParent())
             debug.error('Patch can only handle content block');
@@ -78,50 +70,13 @@ class InlineRenderer {
             prepareReadingLinks(domNode!);
     }
 
-    // Definitions live in paragraphs across the document; rescanning for every block caused #4887.
     collectReferenceDefinitions(): Labels {
-        const state = this.muya.editor.transactions.candidateState;
-        if (this._labelsState === state)
-            return this.labels;
-
-        const labels = new Map();
-        const stack: Iterator<TState>[] = [state[Symbol.iterator]()];
-        while (stack.length) {
-            const next = stack[stack.length - 1].next();
-            if (next.done) {
-                stack.pop();
-                continue;
-            }
-            const state = next.value;
-            if (state.name === 'paragraph') {
-                const { label, info } = this.getLabelInfo(state);
-                if (label && info && !labels.has(label))
-                    labels.set(label, info);
-            }
-            else if ('children' in state && Array.isArray(state.children)) {
-                stack.push(state.children[Symbol.iterator]());
-            }
-        }
-
-        this.labels = labels;
-        this._labelsState = state;
-        return labels;
+        this._labels = this._references.collect(this.muya.editor.transactions.candidateState, state => this.getLabelInfo(state));
+        return this.labels;
     }
 
-    getLabelInfo(blockOrState: ParagraphContent | IParagraphState) {
-        const { text } = blockOrState;
-        const tokens = beginRules.reference_definition.exec(text);
-        let label = null;
-        let info = null;
-        if (tokens) {
-            label = normalizeReferenceLabel(tokens[2] + tokens[3]);
-            info = {
-                href: decodeMarkdownString(tokens[6]),
-                title: decodeMarkdownString(tokens[10] || ''),
-            };
-        }
-
-        return { label, info };
+    getLabelInfo(blockOrState: Pick<IParagraphState, 'text'>) {
+        return getReferenceDefinition(blockOrState);
     }
 }
 

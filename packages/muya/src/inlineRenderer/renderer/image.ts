@@ -108,7 +108,7 @@ export default function image(
     let imgSrc = resolvedUrl ?? src;
 
     let wrapperSelector = id
-        ? `span#${isSuccess ? `${id}_${token.range.start}` : id}.${
+        ? `span#${id}.${
             CLASS_NAMES.MU_INLINE_IMAGE
         }`
         : `span.${CLASS_NAMES.MU_INLINE_IMAGE}`;
@@ -124,7 +124,7 @@ export default function image(
      * @param args
      * @returns The wrapping span VNode containing the image element.
      */
-    const renderImageContainer = (...args: VNode[]) => {
+    const renderImageContainer = (...args: (VNode | string)[]) => {
         const data = {};
         if (title) {
             Object.assign(data, {

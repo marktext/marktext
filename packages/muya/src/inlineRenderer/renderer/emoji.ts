@@ -1,5 +1,5 @@
 import type { VNode } from 'snabbdom';
-import type { CodeEmojiMathToken, ISyntaxRenderOptions } from '../types';
+import type { EmojiToken, ISyntaxRenderOptions } from '../types';
 import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
 import { validEmoji } from '../../utils/emoji';
@@ -7,7 +7,7 @@ import { validEmoji } from '../../utils/emoji';
 // render token of emoji to vnode
 export default function emoji(
     this: Renderer,
-    { h, cursor, block, token, outerClass }: ISyntaxRenderOptions & { token: CodeEmojiMathToken },
+    { h, cursor, block, token, outerClass }: ISyntaxRenderOptions & { token: EmojiToken },
 ) {
     const { start: rStart, end: rEnd } = token.range;
     const className = this.getClassName(outerClass, block, token, cursor);

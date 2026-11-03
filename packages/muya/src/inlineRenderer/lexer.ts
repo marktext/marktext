@@ -3,7 +3,6 @@ import type { ImageMatch, LinkMatch } from './brackets';
 import type { ICodeSpanMatch, ICodeSpanReader } from './codeSpan';
 import type { BeginRules, InlineRules } from './rules';
 import type {
-    CodeEmojiMathToken,
     HTMLTagToken,
     ImageToken,
     ITokenizerFacOptions,
@@ -12,21 +11,24 @@ import type {
     ReferenceImageToken,
     Token,
 } from './types';
-import { escapeHTML, isLengthEven } from '../utils';
-import { validEmoji } from '../utils/emoji';
+import { isLengthEven } from '../utils';
 import { decodeCharacterReference } from '../utils/markdownEscape';
 import { BracketScanner } from './brackets';
 import { codeSpanContent, CodeSpanScanner } from './codeSpan';
 import { scanDelimiterSpans } from './delimiters';
+import { tokensToPlainText } from './projection';
 import { HtmlTagScanner } from './rawHtml';
+import { parseReferenceDefinition } from './referenceDefinitions';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules } from './rules';
 import { applySearchHighlights } from './searchHighlights';
-import { tokenEvents } from './tokenTraversal';
 import {
     getAttributes,
     lowerPriority,
     matchExtendedAutoLink,
 } from './utils';
+
+export { tokensToInlineHtml, tokensToPlainText } from './projection';
+export { generator } from './serialization';
 
 interface IInlineContent {
     source: string;
@@ -63,14 +65,6 @@ interface ILexState {
     options: ITokenizerFacOptions;
     top: boolean;
     allowAutolinks: boolean;
-    superSubScript: boolean;
-    footnote: boolean;
-    texMathDollars: boolean;
-    texMathGfm: boolean;
-    texMathSingleBackslash: boolean;
-    texMathDoubleBackslash: boolean;
-    highlightSyntax: boolean;
-    inlineDiff: boolean;
 }
 
 function pushPending(state: ILexState) {
@@ -115,7 +109,7 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
     ] as const;
 
     for (const ruleName of beginRuleKeys) {
-        if (ruleName === 'multiple_math' && !state.texMathDollars)
+        if (ruleName === 'multiple_math' && !state.options.texMathDollars)
             continue;
 
         const to = beginRules[ruleName].exec(state.src);
@@ -140,82 +134,67 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
             return;
         }
     }
-    const def = beginRules.reference_definition.exec(state.src);
-    if (def && isLengthEven(def[3])) {
-        const token = {
-            type: 'reference_definition' as const,
+    const definition = parseReferenceDefinition(state.src);
+    if (definition && isLengthEven(definition.backlash)) {
+        state.tokens.push({
+            ...definition,
+            type: 'reference_definition',
             parent: state.tokens,
-            leftBracket: def[1],
-            label: def[2],
-            backlash: def[3] || '',
-            rightBracket: def[4],
-            leftHrefMarker: def[5] || '',
-            href: def[6],
-            rightHrefMarker: def[7] || '',
-            leftTitleSpace: def[8],
-            titleMarker: def[9] || '',
-            title: def[10] || '',
-            rightTitleSpace: def[11] || '',
-            raw: def[0],
-            range: {
-                start: state.pos,
-                end: state.pos + def[0].length,
-            },
-        };
-        state.tokens.push(token);
-        state.src = state.src.substring(def[0].length);
-        state.pos = state.pos + def[0].length;
+            range: { start: state.pos, end: state.pos + definition.raw.length },
+        });
+        state.src = state.src.substring(definition.raw.length);
+        state.pos += definition.raw.length;
     }
 }
 
 // pandoc's `tex_math_single_backslash` and `tex_math_double_backslash`. These
-// run ahead of `tryBacklash` because `commonMarkRules.backlash` lists `(` and
+// run ahead of escape consumption because `commonMarkRules.backlash` lists `(` and
 // `[` among the punctuation a backslash escapes, so it would consume the opener
 // before any math rule saw it — the collision the pandoc manual calls out as
 // the extension's drawback. With both options off the handler declines and the
 // escape keeps the span.
-function tryBackslashMath(state: ILexState): boolean {
-    if (!state.texMathSingleBackslash && !state.texMathDoubleBackslash)
-        return false;
+function matchBackslashMath(state: ILexState): RegExpExecArray | null {
+    if (!state.options.texMathSingleBackslash && !state.options.texMathDoubleBackslash)
+        return null;
 
     for (const [rule, option] of BACKSLASH_MATH_RULES) {
-        if (!state[option])
+        if (!state.options[option])
             continue;
 
         const to = state.inlineRules[rule].exec(state.src);
         if (!to)
             continue;
 
-        pushPending(state);
-        // Normalized to `inline_math`: `Renderer.output` dispatches on the token
-        // type and `inlineSyntaxRenderer` carries one math entry, so the
-        // delimiter survives in `marker` rather than in the type.
-        state.tokens.push({
-            type: 'inline_math',
-            raw: to[0],
-            range: {
-                start: state.pos,
-                end: state.pos + to[0].length,
-            },
-            marker: to[1],
-            parent: state.tokens,
-            content: to[2],
-            backlash: to[3],
-        });
-        state.src = state.src.substring(to[0].length);
-        state.pos = state.pos + to[0].length;
-
-        return true;
+        return to;
     }
-
-    return false;
+    return null;
 }
 
-function tryBacklash(state: ILexState): boolean {
-    const backTo = state.inlineRules.backlash.exec(state.src);
-    if (!backTo)
-        return false;
+function consumeBackslashMath(state: ILexState, to: RegExpExecArray): void {
+    pushPending(state);
+    // All math delimiters share rendering semantics; marker retains their source spelling.
+    state.tokens.push({
+        type: 'inline_math',
+        raw: to[0],
+        range: {
+            start: state.pos,
+            end: state.pos + to[0].length,
+        },
+        marker: to[1],
+        parent: state.tokens,
+        content: to[2],
+        backlash: to[3],
+    });
+    state.src = state.src.substring(to[0].length);
+    state.pos = state.pos + to[0].length;
+}
 
+function matchBacklash(state: ILexState): RegExpExecArray | null {
+    const backTo = state.inlineRules.backlash.exec(state.src);
+    return backTo;
+}
+
+function consumeBacklash(state: ILexState, backTo: RegExpExecArray): void {
     pushPending(state);
     state.tokens.push({
         type: 'backlash',
@@ -232,29 +211,9 @@ function tryBacklash(state: ILexState): boolean {
     state.pendingStartPos = state.pos + backTo[1].length;
     state.src = state.src.substring(backTo[0].length);
     state.pos = state.pos + backTo[0].length;
-
-    return true;
 }
 
-function tryDelimiterSpan(state: ILexState): boolean {
-    if (state.src[0] !== '*' && state.src[0] !== '_' && state.src[0] !== '~')
-        return false;
-
-    state.delimiterSpans ??= scanDelimiterSpans(
-        state.originSrc,
-        state.basePos,
-        state.inlineRules,
-        state.labels,
-        state.options,
-        state.allowAutolinks,
-        state.codeSpans,
-        state.context.brackets,
-    );
-
-    const span = state.delimiterSpans.get(state.pos);
-    if (!span)
-        return false;
-
+function consumeDelimiterSpan(state: ILexState, span: IDelimiterSpan): void {
     const length = span.end - span.start;
     const raw = state.src.substring(0, length);
     const marker = raw.substring(0, span.markerLength);
@@ -272,24 +231,21 @@ function tryDelimiterSpan(state: ILexState): boolean {
         },
         marker,
         parent: state.tokens,
-        children: tokenizerFac(
-            content,
-            null,
-            state.inlineRules,
-            state.pos + span.markerLength,
-            false,
-            state.labels,
-            state.options,
-            state.delimiterSpans,
-            state.allowAutolinks,
-            state.context,
-        ),
+        children: parseInlineFrame(content, {
+            beginRules: null,
+            inlineRules: state.inlineRules,
+            pos: state.pos + span.markerLength,
+            top: false,
+            labels: state.labels,
+            options: state.options,
+            delimiterSpans: state.delimiterSpans,
+            allowAutolinks: state.allowAutolinks,
+            parentContext: state.context,
+        }),
         backlash,
     });
     state.src = state.src.substring(length);
     state.pos = state.pos + length;
-
-    return true;
 }
 
 // `inline_math_gfm` goes first: both math forms open on `$`, and the dollar
@@ -303,13 +259,13 @@ interface IChunkMatch {
 
 function matchChunk(state: ILexState): IChunkMatch | null {
     for (const rule of CHUNK_RULES) {
-        if (rule === 'inline_math' && !state.texMathDollars)
+        if (rule === 'inline_math' && !state.options.texMathDollars)
             continue;
-        if (rule === 'inline_math_gfm' && !state.texMathGfm)
+        if (rule === 'inline_math_gfm' && !state.options.texMathGfm)
             continue;
-        if (rule === 'mark' && !state.highlightSyntax)
+        if (rule === 'mark' && !state.options.highlightSyntax)
             continue;
-        if (rule === 'inline_diff' && !state.inlineDiff)
+        if (rule === 'inline_diff' && !state.options.inlineDiff)
             continue;
 
         const ruleValue = state.inlineRules[rule];
@@ -350,18 +306,17 @@ function consumeChunk(state: ILexState, { rule, to }: IChunkMatch): void {
             range,
             marker,
             parent: state.tokens,
-            children: tokenizerFac(
-                to[2],
-                null,
-                state.inlineRules,
-                state.pos + to[1].length,
-                false,
-                state.labels,
-                state.options,
-                null,
-                state.allowAutolinks,
-                state.context,
-            ),
+            children: parseInlineFrame(to[2], {
+                beginRules: null,
+                inlineRules: state.inlineRules,
+                pos: state.pos + to[1].length,
+                top: false,
+                labels: state.labels,
+                options: state.options,
+                delimiterSpans: null,
+                allowAutolinks: state.allowAutolinks,
+                parentContext: state.context,
+            }),
             backlash: to[3],
         });
     }
@@ -380,15 +335,16 @@ function consumeChunk(state: ILexState, { rule, to }: IChunkMatch): void {
     state.pos = state.pos + to[0].length;
 }
 
-function trySuperSubScript(state: ILexState): boolean {
-    if (!state.superSubScript)
-        return false;
+function matchSuperSubScript(state: ILexState): RegExpExecArray | null {
+    if (!state.options.superSubScript)
+        return null;
 
     const superSubTo
         = state.inlineRules.superscript.exec(state.src) || state.inlineRules.subscript.exec(state.src);
-    if (!superSubTo)
-        return false;
+    return superSubTo;
+}
 
+function consumeSuperSubScript(state: ILexState, superSubTo: RegExpExecArray): void {
     pushPending(state);
     state.tokens.push({
         type: 'super_sub_script',
@@ -403,18 +359,17 @@ function trySuperSubScript(state: ILexState): boolean {
     });
     state.src = state.src.substring(superSubTo[0].length);
     state.pos = state.pos + superSubTo[0].length;
-
-    return true;
 }
 
-function tryFootnote(state: ILexState): boolean {
-    if (state.pos === 0 || !state.footnote)
-        return false;
+function matchFootnote(state: ILexState): RegExpExecArray | null {
+    if (state.pos === 0 || !state.options.footnote)
+        return null;
 
     const footnoteTo = state.inlineRules.footnote_identifier.exec(state.src);
-    if (!footnoteTo)
-        return false;
+    return footnoteTo;
+}
 
+function consumeFootnote(state: ILexState, footnoteTo: RegExpExecArray): void {
     pushPending(state);
     state.tokens.push({
         type: 'footnote_identifier',
@@ -429,8 +384,6 @@ function tryFootnote(state: ILexState): boolean {
     });
     state.src = state.src.substring(footnoteTo[0].length);
     state.pos = state.pos + footnoteTo[0].length;
-
-    return true;
 }
 
 function consumeImage(state: ILexState, match: ImageMatch): void {
@@ -476,18 +429,17 @@ function consumeLink(state: ILexState, match: LinkMatch): void {
         parent: state.tokens,
         anchor: match.description,
         range: { start: state.pos, end: state.pos + match.raw.length },
-        children: tokenizerFac(
-            match.description,
-            null,
-            state.inlineRules,
-            state.pos + 1,
-            false,
-            state.labels,
-            state.options,
-            null,
-            false,
-            state.context,
-        ),
+        children: parseInlineFrame(match.description, {
+            beginRules: null,
+            inlineRules: state.inlineRules,
+            pos: state.pos + 1,
+            top: false,
+            labels: state.labels,
+            options: state.options,
+            delimiterSpans: null,
+            allowAutolinks: false,
+            parentContext: state.context,
+        }),
         backlash: { first: '', second: '' },
     };
     pushPending(state);
@@ -547,16 +499,17 @@ function consumeHtmlEscape(state: ILexState, raw: string, content: string): void
     state.pos = state.pos + len;
 }
 
-function tryAutoLinkExtension(state: ILexState): boolean {
+function matchAutoLinkExtension(state: ILexState): RegExpExecArray | null {
     const autoLinkExtTo = matchExtendedAutoLink(
         state.inlineRules.auto_link_extension,
         state.originSrc,
         state.pos - state.basePos,
         state.allowAutolinks,
     );
-    if (!autoLinkExtTo)
-        return false;
+    return autoLinkExtTo;
+}
 
+function consumeAutoLinkExtension(state: ILexState, autoLinkExtTo: RegExpExecArray): void {
     const [raw, www, url, email] = autoLinkExtTo;
 
     pushPending(state);
@@ -575,15 +528,14 @@ function tryAutoLinkExtension(state: ILexState): boolean {
     });
     state.src = state.src.substring(raw.length);
     state.pos = state.pos + raw.length;
-
-    return true;
 }
 
-function tryAutoLink(state: ILexState): boolean {
+function matchAutoLink(state: ILexState): RegExpExecArray | null {
     const autoLTo = state.inlineRules.auto_link.exec(state.src);
-    if (!autoLTo)
-        return false;
+    return autoLTo;
+}
 
+function consumeAutoLink(state: ILexState, autoLTo: RegExpExecArray): void {
     pushPending(state);
     state.tokens.push({
         type: 'auto_link',
@@ -600,8 +552,6 @@ function tryAutoLink(state: ILexState): boolean {
     });
     state.src = state.src.substring(autoLTo[0].length);
     state.pos = state.pos + autoLTo[0].length;
-
-    return true;
 }
 
 function consumeHtmlTag(state: ILexState, html: NonNullable<ReturnType<HtmlTagScanner['read']>>): void {
@@ -659,17 +609,18 @@ function consumeHardLineBreak(state: ILexState, hardTo: RegExpExecArray): void {
     state.pos += len;
 }
 
-function tryTailHeader(state: ILexState): boolean {
+function matchTailHeader(state: ILexState): RegExpExecArray | null {
     if (!state.top || state.tokens[0]?.type !== 'header')
-        return false;
+        return null;
 
     // For an empty ATX body, the opening token already consumed the separator.
     const afterOpening = state.tokens.length === 1 && !state.pending;
     const tailTo = state.inlineRules.tail_header.exec(state.src)
         ?? (afterOpening ? /^(#+)(\s*)$/.exec(state.src) : null);
-    if (!tailTo)
-        return false;
+    return tailTo;
+}
 
+function consumeTailHeader(state: ILexState, tailTo: RegExpExecArray): void {
     pushPending(state);
     state.tokens.push({
         type: 'tail_header',
@@ -683,23 +634,7 @@ function tryTailHeader(state: ILexState): boolean {
     });
     state.src = state.src.substring(tailTo[1].length);
     state.pos += tailTo[1].length;
-
-    return true;
 }
-
-// The fixed, priority-ordered inline-rule handler list the tokenizer loop
-// iterates. Hard breaks are matched afterwards so escapes and enclosing
-// constructs consume their source first.
-const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
-    tryBackslashMath,
-    tryBacklash,
-    tryDelimiterSpan,
-    trySuperSubScript,
-    tryFootnote,
-    tryAutoLinkExtension,
-    tryAutoLink,
-    tryTailHeader,
-];
 
 function consumeBacktickRun(state: ILexState, match: ICodeSpanMatch): void {
     if (!match.closed) {
@@ -731,6 +666,33 @@ function consumeBacktickRun(state: ILexState, match: ICodeSpanMatch): void {
     state.src = state.src.substring(length);
 }
 
+interface IRegexRule {
+    match: (state: ILexState) => RegExpExecArray | null;
+    consume: (state: ILexState, match: RegExpExecArray) => void;
+}
+
+function matchRegexRule(state: ILexState, rules: readonly IRegexRule[]) {
+    for (const rule of rules) {
+        const match = rule.match(state);
+        if (match)
+            return { match, consume: rule.consume };
+    }
+    return null;
+}
+
+const ESCAPE_RULES: readonly IRegexRule[] = [
+    { match: matchBackslashMath, consume: consumeBackslashMath },
+    { match: matchBacklash, consume: consumeBacklash },
+];
+
+const INLINE_RULES: readonly IRegexRule[] = [
+    { match: matchSuperSubScript, consume: consumeSuperSubScript },
+    { match: matchFootnote, consume: consumeFootnote },
+    { match: matchAutoLinkExtension, consume: consumeAutoLinkExtension },
+    { match: matchAutoLink, consume: consumeAutoLink },
+    { match: matchTailHeader, consume: consumeTailHeader },
+];
+
 function consumeInlineSource(state: ILexState): void {
     while (state.src.length) {
         if (state.src[0] === '`') {
@@ -758,15 +720,35 @@ function consumeInlineSource(state: ILexState): void {
             continue;
         }
 
-        let consumed = false;
-        for (const handler of INLINE_HANDLERS) {
-            if (handler(state)) {
-                consumed = true;
-                break;
+        const escape = matchRegexRule(state, ESCAPE_RULES);
+        if (escape) {
+            escape.consume(state, escape.match);
+            continue;
+        }
+
+        if (state.src[0] === '*' || state.src[0] === '_' || state.src[0] === '~') {
+            state.delimiterSpans ??= scanDelimiterSpans(
+                state.originSrc,
+                state.basePos,
+                state.inlineRules,
+                state.labels,
+                state.options,
+                state.allowAutolinks,
+                state.codeSpans,
+                state.context.brackets,
+            );
+            const span = state.delimiterSpans.get(state.pos);
+            if (span) {
+                consumeDelimiterSpan(state, span);
+                continue;
             }
         }
-        if (consumed)
+
+        const inline = matchRegexRule(state, INLINE_RULES);
+        if (inline) {
+            inline.consume(state, inline.match);
             continue;
+        }
 
         const html = state.src[0] === '<' ? state.context.htmlTags.read(state.pos - state.context.offset, state.basePos + state.originSrc.length - state.context.offset) : null;
         if (html) {
@@ -796,8 +778,19 @@ function consumeInlineSource(state: ILexState): void {
     pushPending(state);
 }
 
-function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, delimiterSpans: Map<number, IDelimiterSpan> | null = null, allowAutolinks = top, parentContext?: ILexContext) {
-    const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = options;
+interface IParseFrameOptions {
+    beginRules: BeginRules | null;
+    inlineRules: InlineRules;
+    pos: number;
+    top: boolean;
+    labels: Labels;
+    options: ITokenizerFacOptions;
+    delimiterSpans?: Map<number, IDelimiterSpan> | null;
+    allowAutolinks?: boolean;
+    parentContext?: ILexContext;
+}
+
+function parseInlineFrame(src: string, { beginRules, inlineRules, pos, top, labels, options, delimiterSpans = null, allowAutolinks = top, parentContext }: IParseFrameOptions) {
     const context = parentContext ?? createLexContext(src, pos, inlineRules, labels, options);
     const state: ILexState = {
         codeSpans: context.codeSpans.view(pos - context.offset, pos + src.length - context.offset),
@@ -815,14 +808,6 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         options,
         top,
         allowAutolinks,
-        superSubScript,
-        footnote,
-        texMathDollars,
-        texMathGfm,
-        texMathSingleBackslash,
-        texMathDoubleBackslash,
-        highlightSyntax,
-        inlineDiff: inlineDiff ?? false,
     };
 
     if (beginRules && state.pos === 0)
@@ -844,7 +829,17 @@ function createLexContext(source: string, offset: number, rules: InlineRules, la
 
 function resolveInlineContents(context: ILexContext, rules: InlineRules, labels: Labels, options: ITokenizerFacOptions): void {
     for (const content of context.inlineContents) {
-        content.tokens = tokenizerFac(content.source, null, rules, content.position, false, labels, options, null, false, context);
+        content.tokens = parseInlineFrame(content.source, {
+            beginRules: null,
+            inlineRules: rules,
+            pos: content.position,
+            top: false,
+            labels,
+            options,
+            delimiterSpans: null,
+            allowAutolinks: false,
+            parentContext: context,
+        });
         if (content.token.type === 'html_tag')
             content.token.children = content.tokens;
     }
@@ -870,161 +865,16 @@ export function tokenizer(src: string, {
         inlineDiff: false,
     },
 }: ITokenizerOptions = {} as ITokenizerOptions) {
-    const tokens = tokenizerFac(
-        src,
-        hasBeginRules ? beginRules : null,
+    const tokens = parseInlineFrame(src, {
+        beginRules: hasBeginRules ? beginRules : null,
         inlineRules,
-        0,
-        true,
+        pos: 0,
+        top: true,
         labels,
         options,
-    );
+    });
 
     applySearchHighlights(tokens, highlights);
 
     return tokens;
-}
-
-function wrapperParts(token: Token): [string, string] | null {
-    switch (token.type) {
-        case 'strong':
-        case 'em':
-        case 'del':
-        case 'mark':
-            return [token.marker, token.backlash + token.marker];
-        case 'html_tag':
-            return token.closeTag !== undefined && token.children !== undefined ? [token.openTag, token.closeTag] : null;
-        default:
-            return null;
-    }
-}
-
-// Rebuild wrappers for child edits (#2063); raw preserves marker edits from Backspace.
-export function generator(tokens: Token[], rebuildWrappers = false): string {
-    if (!rebuildWrappers)
-        return tokens.map(token => token.raw).join('');
-    const parts: string[] = [];
-    for (const { token, exiting } of tokenEvents(tokens, token => wrapperParts(token) !== null)) {
-        const wrapper = wrapperParts(token);
-        if (wrapper)
-            parts.push(wrapper[exiting ? 1 : 0]);
-        else if (!exiting)
-            parts.push(token.raw);
-    }
-    return parts.join('');
-}
-
-function leafTokenToPlainText(token: Token): string {
-    switch (token.type) {
-        case 'text':
-        case 'inline_code':
-        case 'inline_diff':
-        case 'inline_math':
-        case 'super_sub_script':
-        case 'footnote_identifier':
-            return token.content;
-
-        case 'emoji':
-            return emojiDisplayText(token);
-
-        case 'image':
-        case 'reference_image':
-            return token.attrs.alt;
-
-        case 'html_tag':
-            return token.content ?? '';
-
-        case 'backlash':
-            // `content` is empty; the escaped char is `raw` minus its leading `\`.
-            return token.raw.replace(/^\\/, '');
-
-        case 'html_escape':
-            return token.content;
-
-        case 'auto_link':
-            // `<http://x>` / `<foo@bar.com>` show verbatim between the
-            // angle brackets — `href` may carry an added `mailto:` scheme.
-            return token.raw.replace(/^<|>$/g, '');
-
-        case 'auto_link_extension':
-            return token.raw;
-
-        case 'soft_line_break':
-        case 'hard_line_break':
-            return ' ';
-
-        // Begin markers, reference definitions and an atx heading's tail `#`s
-        // carry no reader-facing text.
-        default:
-            return '';
-    }
-}
-
-// The reader-facing text of inline tokens with every marker, delimiter, URL and
-// tag dropped — `**bold**` → `bold`, `[text](url)` → `text`, `![alt](src)` →
-// `alt`. Mirrors the visible `textContent` a rendered heading yields, so a slug
-// derived from this matches the anchor id the HTML export injects
-// (state/markdownToHtml.ts injects ids from `heading.textContent`). The TOC uses
-// it to show and slug headings by their rendered text instead of raw source
-// (#4811).
-export function tokensToPlainText(tokens: Token[], lineBreak = ' '): string {
-    const parts: string[] = [];
-    for (const { token, exiting } of tokenEvents(tokens)) {
-        if (exiting || ('children' in token && token.children))
-            continue;
-        parts.push(token.type === 'soft_line_break' || token.type === 'hard_line_break' ? lineBreak : leafTokenToPlainText(token));
-    }
-    return parts.join('');
-}
-
-// Unknown shortcodes fall back to the raw `:code:`, matching the editor.
-function emojiDisplayText(token: CodeEmojiMathToken): string {
-    return validEmoji(token.content)?.emoji ?? token.raw;
-}
-
-function inlineDiffHtml(marker: string, content: string): string {
-    const addition = marker[1] === '+';
-    const tag = addition ? 'ins' : 'del';
-    const variant = addition ? 'addition' : 'deletion';
-
-    return `<${tag} class="idiff ${variant}">${escapeHTML(content)}</${tag}>`;
-}
-
-// HTML twin of `tokensToPlainText`, for the outline. Must keep the same text
-// content as its plain counterpart so the shown heading and its slug stay in
-// step, which is why links, images and math stay flattened to text.
-export function tokensToInlineHtml(tokens: Token[]): string {
-    const parts: string[] = [];
-    for (const { token, exiting } of tokenEvents(tokens)) {
-        if (token.type === 'strong' || token.type === 'em' || token.type === 'del' || token.type === 'mark') {
-            parts.push(exiting ? `</${token.type}>` : `<${token.type}>`);
-            continue;
-        }
-        if (exiting)
-            continue;
-        switch (token.type) {
-            case 'inline_diff':
-                parts.push(inlineDiffHtml(token.marker, token.content));
-                break;
-            case 'inline_code':
-                parts.push(`<code>${escapeHTML(token.content)}</code>`);
-                break;
-            case 'super_sub_script': {
-                const tag = token.marker === '^' ? 'sup' : 'sub';
-                parts.push(`<${tag}>${escapeHTML(token.content)}</${tag}>`);
-                break;
-            }
-            case 'link':
-            case 'reference_link':
-                break;
-            case 'html_tag':
-                if (!token.children && token.content)
-                    parts.push(escapeHTML(token.content));
-                break;
-            default:
-                parts.push(escapeHTML(leafTokenToPlainText(token)));
-                break;
-        }
-    }
-    return parts.join('');
 }

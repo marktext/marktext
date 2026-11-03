@@ -1,8 +1,7 @@
-import type { VNode } from 'snabbdom';
-import type { ISyntaxRenderOptions, LinkToken, Token } from '../types';
+import type { ISyntaxRenderOptions, LinkToken } from '../types';
 import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
-import { isLengthEven, snakeToCamel } from '../../utils';
+import { isLengthEven } from '../../utils';
 import { sanitizeHyperlink } from '../../utils/url';
 
 // 'link': /^(\[)((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*?)(\\*)\]\((.*?)(\\*)\)/, // can nest
@@ -14,6 +13,7 @@ export default function link(
         block,
         token,
         outerClass,
+        childNodes,
     }: ISyntaxRenderOptions & { token: LinkToken },
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
@@ -119,20 +119,7 @@ export default function link(
                         },
                     },
                     [
-                        ...token.children.reduce((acc: VNode[], to: Token) => {
-                            // The original passed a `className` field too, but
-                            // receivers read `outerClass` — so it was silently
-                            // dropped under the previous `as any` cast.
-                            const chunk = this.dispatch(snakeToCamel(to.type), {
-                                h,
-                                cursor,
-                                block,
-                                token: to,
-                            });
-                            return Array.isArray(chunk)
-                                ? [...acc, ...chunk]
-                                : [...acc, chunk];
-                        }, []),
+                        ...this.renderChildren(token.children, { h, cursor, block, childNodes }),
                         ...this.backlashInToken(
                             h,
                             token.backlash.first,
@@ -166,18 +153,7 @@ export default function link(
     else {
         return [
             ...firstBracket,
-            ...token.children.reduce((acc: VNode[], to: Token) => {
-                // Original passed `className` here too but receivers read
-                // `outerClass` — see PR note above.
-                const chunk = this.dispatch(snakeToCamel(to.type), {
-                    h,
-                    cursor,
-                    block,
-                    token: to,
-                });
-
-                return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk];
-            }, []),
+            ...this.renderChildren(token.children, { h, cursor, block, childNodes }),
             ...this.backlashInToken(
                 h,
                 token.backlash.first,

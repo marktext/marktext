@@ -1,5 +1,5 @@
 import type Format from '../../block/base/format';
-import type { CodeEmojiMathToken, ISyntaxRenderOptions, Token } from '../types';
+import type { InlineMathToken, ISyntaxRenderOptions, Token } from '../types';
 import type Renderer from './index';
 import katex from 'katex';
 import { CLASS_NAMES } from '../../config';
@@ -35,7 +35,7 @@ function isBlankOrDisplayMath(token: Token) {
 // it stays inline. pandoc instead draws `\[…\]` in display mode wherever it
 // appears, but `.katex-display` is a centred block, which would break the line
 // around it — so muya keeps the rule it already applies to `$$…$$` (#4904).
-function isDisplayMath(token: CodeEmojiMathToken, block: Format) {
+function isDisplayMath(token: InlineMathToken, block: Format) {
     if (!isDisplayMarker(token.marker) || block.blockName !== 'paragraph.content')
         return false;
 
@@ -52,7 +52,7 @@ export default function inlineMath(this: Renderer, {
     block,
     token,
     outerClass,
-}: ISyntaxRenderOptions & { token: CodeEmojiMathToken }) {
+}: ISyntaxRenderOptions & { token: InlineMathToken }) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const { i18n } = this.muya;
     const { start, end } = token.range;

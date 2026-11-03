@@ -1,7 +1,8 @@
 import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
 import type { Muya } from '../muya';
-import { tokenizer, tokensToInlineHtml, tokensToPlainText } from '../inlineRenderer/lexer';
+import { tokenizer } from '../inlineRenderer/lexer';
+import { tokensToInlineHtml, tokensToPlainText } from '../inlineRenderer/projection';
 import { getUniqueId } from '../utils';
 import { generateGithubSlug } from '../utils/slug';
 

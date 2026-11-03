@@ -14,7 +14,7 @@ export default function lineBreakHighlights(
     rEnd: number,
 ) {
     const { highlights } = token;
-    const bands: VNode[] = [];
+    const bands: (VNode | string)[] = [];
 
     if (highlights) {
         for (const light of highlights) {

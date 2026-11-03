@@ -37,15 +37,8 @@ export default function referenceImage(
             CLASS_NAMES.MU_COPY_REMOVE,
         ));
     }
-    // `loadImageMap` keys by `src`, so two reference images sharing the same
-    // `href` share the same cached `id`.
-    // Once the load has resolved (`isSuccess === true`), suffix the DOM id
-    // with the token's start offset so each occurrence gets a unique element
-    // id. While the load is in flight we keep the raw id so the
-    // `document.querySelector('#'+id)` lookup in `loadImageAsync.then()` can
-    // still find the first instance to mount the resolved <img> into.
     selector = id
-        ? `span#${isSuccess ? `${id}_${token.range.start}` : id}.${imageClass}`
+        ? `span#${id}.${imageClass}`
         : `span.${imageClass}`;
     selector += `.${CLASS_NAMES.MU_OUTPUT_REMOVE}`;
     if (isSuccess)

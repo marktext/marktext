@@ -26,7 +26,8 @@ import {
     PARAGRAPH_STATE,
     THEMATIC_BREAK_STATE,
 } from '../../config';
-import { generator, tokenizer } from '../../inlineRenderer/lexer';
+import { tokenizer } from '../../inlineRenderer/lexer';
+import { generator } from '../../inlineRenderer/serialization';
 import { tokenEvents } from '../../inlineRenderer/tokenTraversal';
 import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
@@ -1757,7 +1758,7 @@ class Format extends Content {
             start.offset += start.delta;
             end.offset += end.delta;
 
-            this.text = generator(tokens, true);
+            this.text = generator(tokens, 'rebuild-wrappers');
         }
         else if (currentFormats.length) {
             for (const token of currentFormats)
@@ -1765,7 +1766,7 @@ class Format extends Content {
 
             start.offset += start.delta;
             end.offset += end.delta;
-            this.text = generator(tokens, true);
+            this.text = generator(tokens, 'rebuild-wrappers');
         }
         else {
             if (currentNeighbors.length) {
@@ -1775,7 +1776,7 @@ class Format extends Content {
 
             start.offset += start.delta;
             end.offset += end.delta;
-            this.text = generator(tokens, true);
+            this.text = generator(tokens, 'rebuild-wrappers');
 
             // Whitespace wrapped inside emphasis markers is invalid CommonMark
             // (`**foo **` is not right-flanking, so it renders literally), so

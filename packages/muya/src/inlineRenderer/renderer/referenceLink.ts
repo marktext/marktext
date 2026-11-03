@@ -1,8 +1,6 @@
-import type { VNode } from 'snabbdom';
-import type { ISyntaxRenderOptions, ReferenceLinkToken, Token } from '../types';
+import type { ISyntaxRenderOptions, ReferenceLinkToken } from '../types';
 import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
-import { snakeToCamel } from '../../utils';
 import { sanitizeHyperlink } from '../../utils/url';
 import { normalizeReferenceLabel } from '../referenceLabel';
 
@@ -14,6 +12,7 @@ export default function referenceLink(
         block,
         token,
         outerClass,
+        childNodes,
     }: ISyntaxRenderOptions & { token: ReferenceLinkToken },
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
@@ -28,18 +27,7 @@ export default function referenceLink(
     const key = normalizeReferenceLabel(label + backlash.second);
     const backlashStart = start + MARKER.length + anchor.length;
     const content = [
-        ...children.reduce((acc: VNode[], to: Token) => {
-            // Original passed `className` here too but receivers read
-            // `outerClass` — see PR note in delEmStrongFactory.ts.
-            const chunk: VNode[] = this.dispatch(snakeToCamel(to.type), {
-                h,
-                cursor,
-                block,
-                token: to,
-            });
-
-            return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk];
-        }, []),
+        ...this.renderChildren(children, { h, cursor, block, childNodes }),
         ...this.backlashInToken(h, backlash.first, className, backlashStart, token),
     ];
 

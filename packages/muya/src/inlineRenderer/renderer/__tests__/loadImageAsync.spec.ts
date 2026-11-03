@@ -1,14 +1,8 @@
 // @vitest-environment happy-dom
 
-import type Renderer from '../index';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ImageResources } from '../../resources/images';
 import loadImageAsync from '../loadImageAsync';
-
-// Narrow cast for the fake renderer used in every test below — it only
-// implements the two Map fields loadImageAsync touches.
-function asRenderer(r: IFakeRenderer | { loadImageMap: Map<string, unknown>; urlMap: Map<string, string> }): Renderer {
-    return r as unknown as Renderer;
-}
 
 vi.mock('../../../utils/image', async importActual => ({
     ...(await importActual<typeof import('../../../utils/image')>()),
@@ -20,16 +14,9 @@ vi.mock('../../../utils/dom', () => ({
     operateClassName: vi.fn(),
 }));
 
-interface IFakeRenderer {
-    loadImageMap: Map<string, { id: string; isSuccess: boolean; width?: number; height?: number }>;
-    urlMap: Map<string, string>;
-}
-
-function makeRenderer(): IFakeRenderer {
-    return {
-        loadImageMap: new Map(),
-        urlMap: new Map(),
-    };
+function makeRenderer() {
+    const images = new ImageResources();
+    return { images, loadImageMap: images.loaded, muya: { domNode: document.body } };
 }
 
 // Regression for marktext commit bca2ed62 (#3001 / #3010):
@@ -53,17 +40,18 @@ describe('loadImageAsync — failed cache should retry', () => {
         });
 
         const out = loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'https://example.com/a.png' },
             {},
         );
 
         expect(out).toEqual({
-            id: 'mu-cached-success',
+            id: expect.any(String),
             isSuccess: true,
             width: 100,
             height: 50,
         });
+        expect(out.id).not.toBe('mu-cached-success');
         expect(loadImage).not.toHaveBeenCalled();
     });
 
@@ -76,7 +64,7 @@ describe('loadImageAsync — failed cache should retry', () => {
         });
 
         const out = loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'https://example.com/b.png' },
             {},
         );
@@ -93,7 +81,7 @@ describe('loadImageAsync — failed cache should retry', () => {
         const r = makeRenderer();
 
         loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'https://example.com/c.png' },
             {},
         );
@@ -119,7 +107,7 @@ describe('loadImageAsync — local file cache-busting', () => {
         const r = makeRenderer();
 
         loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'file:///tmp/pic.png' },
             {},
         );
@@ -134,7 +122,7 @@ describe('loadImageAsync — local file cache-busting', () => {
         const r = makeRenderer();
 
         loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'https://example.com/a.png' },
             {},
         );
@@ -151,7 +139,7 @@ describe('loadImageAsync — local file cache-busting', () => {
 
         // First render loads the image and caches it.
         loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'file:///tmp/pic.png' },
             {},
         );
@@ -160,9 +148,9 @@ describe('loadImageAsync — local file cache-busting', () => {
         expect(r.loadImageMap.has('file:///tmp/pic.png')).toBe(true);
 
         // invalidateImageCache() clears the maps; the next render is a cache miss.
-        r.loadImageMap.clear();
+        r.images.invalidate();
         loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'file:///tmp/pic.png' },
             {},
         );
@@ -192,13 +180,10 @@ describe('loadImageAsync — small image class on first load', () => {
         const { loadImage } = await import('../../../utils/image');
         vi.mocked(loadImage).mockResolvedValueOnce(loadResult as unknown as Awaited<ReturnType<typeof loadImage>>);
 
-        const r = {
-            loadImageMap: new Map(),
-            urlMap: new Map(),
-        };
+        const r = makeRenderer();
 
         const { id } = loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'https://example.com/fresh.png' },
             {},
         );
@@ -262,9 +247,9 @@ describe('loadImageAsync — pins a width for images with no intrinsic size', ()
             loadResult as unknown as Awaited<ReturnType<typeof loadImage>>,
         );
 
-        const r = { loadImageMap: new Map(), urlMap: new Map() };
+        const r = makeRenderer();
         const { id } = loadImageAsync.call(
-            asRenderer(r),
+            r,
             { isUnknownType: false, src: 'https://example.com/diagram.svg' },
             attrs,
         );

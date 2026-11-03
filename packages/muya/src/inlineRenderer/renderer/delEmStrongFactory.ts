@@ -4,11 +4,9 @@ import type {
     ISyntaxRenderOptions,
     MarkToken,
     StrongEmToken,
-    Token,
 } from '../types';
 import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
-import { snakeToCamel } from '../../utils';
 
 // render factory of `del`,`mark`,`em`,`strong`
 export default function delEmStrongFac(
@@ -20,6 +18,7 @@ export default function delEmStrongFac(
         block,
         token,
         outerClass,
+        childNodes,
     }: ISyntaxRenderOptions & { token: StrongEmToken | DelToken | MarkToken },
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
@@ -28,20 +27,8 @@ export default function delEmStrongFac(
     const { start, end } = token.range;
     const backlashStart
         = end - marker.length - token.backlash.length;
-    const content: VNode[] = [
-        ...token.children.reduce((acc: VNode[], to: Token) => {
-            // The original passed a `className` field here too, but receivers
-            // read `outerClass` — so the field was silently dropped under the
-            // previous `as any` cast. Preserve that behavior: don't propagate.
-            const chunk = this.dispatch(snakeToCamel(to.type), {
-                h,
-                cursor,
-                block,
-                token: to,
-            });
-
-            return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk];
-        }, []),
+    const content: (VNode | string)[] = [
+        ...this.renderChildren(token.children, { h, cursor, block, childNodes }),
         ...this.backlashInToken(
             h,
             token.backlash,

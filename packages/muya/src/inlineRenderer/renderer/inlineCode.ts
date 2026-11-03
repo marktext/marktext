@@ -1,11 +1,11 @@
 import type { VNode } from 'snabbdom';
-import type { CodeEmojiMathToken, ISyntaxRenderOptions } from '../types';
+import type { InlineCodeToken, ISyntaxRenderOptions } from '../types';
 import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
 
 function codeContent(
     renderer: Renderer,
-    { h, block, token }: ISyntaxRenderOptions & { token: CodeEmojiMathToken },
+    { h, block, token }: ISyntaxRenderOptions & { token: InlineCodeToken },
     syntaxClass: string,
 ): (VNode | string)[] {
     const start = token.contentRange?.start ?? token.range.start + token.marker.length;
@@ -41,7 +41,7 @@ export default function inlineCode(
         block,
         token,
         outerClass,
-    }: ISyntaxRenderOptions & { token: CodeEmojiMathToken },
+    }: ISyntaxRenderOptions & { token: InlineCodeToken },
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const { marker } = token;

@@ -1,4 +1,3 @@
-/* eslint-disable ts/no-unsafe-declaration-merging */
 import type { VNode } from 'snabbdom';
 import type Format from '../../block/base/format';
 import type { Muya } from '../../index';
@@ -6,9 +5,10 @@ import type { IRenderCursor } from '../../selection/types';
 import type InlineRenderer from '../index';
 import type { ISyntaxRenderOptions, Token } from '../types';
 import { CLASS_NAMES } from '../../config';
-import { conflict, methodMixins, snakeToCamel } from '../../utils';
+import { conflict } from '../../utils';
 import { h } from '../../utils/snabbdom';
 import { vnodeToHTML } from '../../utils/vnodeToHTML';
+import { ImageResources } from '../resources/images';
 import { tokenEvents } from '../tokenTraversal';
 import autoLink from './autoLink';
 import autoLinkExtension from './autoLinkExtension';
@@ -45,79 +45,27 @@ import superSubScript from './superSubScript';
 import tailHeader from './tailHeader';
 import text from './text';
 
-const inlineSyntaxRenderer = {
-    backlashInToken,
-    backlash,
-    highlight,
-    header,
-    link,
-    htmlTag,
-    hr,
-    tailHeader,
-    hardLineBreak,
-    softLineBreak,
-    lineBreakHighlights,
-    codeFence,
-    inlineMath,
-    autoLink,
-    autoLinkExtension,
-    loadImageAsync,
-    image,
-    delEmStrongFac,
-    emoji,
-    inlineCode,
-    inlineDiff,
-    text,
-    del,
-    mark,
-    em,
-    strong,
-    htmlEscape,
-    multipleMath,
-    referenceDefinition,
-    htmlRuby,
-    referenceLink,
-    referenceImage,
-    superSubScript,
-    footnoteIdentifier,
-};
-
-type InlineSyntaxRender = typeof inlineSyntaxRenderer;
-
-// Generic shape every per-token renderer matches; used by the dynamic
-// dispatcher below (`Renderer.dispatch`) so it can call into the mixin map
-// without an `as any` escape hatch.
-export type TInlineRenderFn = (opts: ISyntaxRenderOptions) => VNode[];
-
-// Declaration-merged with the class below to expose mixin method signatures;
-// must share the class name, so the `I` prefix convention does not apply here.
-// eslint-disable-next-line ts/naming-convention
-interface Renderer extends InlineSyntaxRender {}
-
-@methodMixins(inlineSyntaxRenderer)
 class Renderer {
-    private _rendered: Map<Token, VNode[]> | null = null;
+    backlashInToken = backlashInToken;
+    highlight = highlight;
+    lineBreakHighlights = lineBreakHighlights;
+    loadImageAsync = loadImageAsync;
+    image = image;
+    delEmStrongFac = delEmStrongFac;
+    htmlRuby = htmlRuby;
+
     public loadMathMap: Map<
         string,
     string | VNode | (string | VNode)[] | undefined
     > = new Map();
 
-    public loadImageMap: Map<
-        string,
-        {
-            id: string;
-            isSuccess: boolean;
-            url?: string;
-            width?: number;
-            height?: number;
-        }
-    > = new Map();
-
-    public urlMap: Map<string, string> = new Map();
+    readonly images = new ImageResources();
+    readonly loadImageMap = this.images.loaded;
+    readonly urlMap = this.images.previews;
 
     constructor(public muya: Muya, public parent: InlineRenderer) {}
 
-    private _checkConflicted(block: Format, token: Token, cursor: IRenderCursor = {}) {
+    private _checkConflicted(block: Format, token: Pick<Token, 'range'>, cursor: IRenderCursor = {}) {
         const anchor = cursor.anchor || cursor.start;
         const focus = cursor.focus || cursor.end;
         if (!anchor || !focus || (cursor.block && cursor.block !== block))
@@ -134,7 +82,7 @@ class Renderer {
     getClassName(
         outerClass: string | undefined,
         block: Format,
-        token: Token,
+        token: Pick<Token, 'range'>,
         cursor: IRenderCursor,
     ) {
         if (this.muya.isReadOnly)
@@ -151,46 +99,101 @@ class Renderer {
         return active ? CLASS_NAMES.MU_HIGHLIGHT : CLASS_NAMES.MU_SELECTION;
     }
 
-    // Dynamic dispatch helper: each per-token renderer in `inlineSyntaxRenderer`
-    // shares the `(opts: ISyntaxRenderOptions) => VNode[]` signature. Method
-    // names follow `snakeToCamel(token.type)` (e.g. `reference_link` →
-    // `referenceLink`). The runtime guarantee is that
-    // `inlineSyntaxRenderer[name]` exists for every token type the lexer can
-    // emit — declaration-merging `Renderer extends InlineSyntaxRender` already
-    // promises that for known token kinds; this typed indexer just removes
-    // the need for an `(this as any)[name]` escape hatch when the name comes
-    // from a runtime string.
-    dispatch(name: string, opts: ISyntaxRenderOptions): VNode[] {
-        const rendered = this._rendered?.get(opts.token);
-        if (rendered)
-            return rendered;
-        // eslint-disable-next-line no-restricted-syntax
-        const map = this as unknown as Record<string, TInlineRenderFn>;
-        return map[name](opts);
+    // Exhaustive syntax dispatch keeps every token/handler pair checked by TypeScript.
+    // eslint-disable-next-line complexity
+    renderToken(opts: ISyntaxRenderOptions): (VNode | string)[] {
+        const { token } = opts;
+        switch (token.type) {
+            case 'backlash':
+                return backlash.call(this, { ...opts, token });
+            case 'header':
+                return header.call(this, { ...opts, token });
+            case 'link':
+                return link.call(this, { ...opts, token });
+            case 'html_tag':
+                return htmlTag.call(this, { ...opts, token });
+            case 'hr':
+                return hr.call(this, { ...opts, token });
+            case 'tail_header':
+                return tailHeader.call(this, { ...opts, token });
+            case 'hard_line_break':
+                return hardLineBreak.call(this, { ...opts, token });
+            case 'soft_line_break':
+                return softLineBreak.call(this, { ...opts, token });
+            case 'code_fence':
+                return codeFence.call(this, { ...opts, token });
+            case 'inline_math':
+                return inlineMath.call(this, { ...opts, token });
+            case 'auto_link':
+                return autoLink.call(this, { ...opts, token });
+            case 'auto_link_extension':
+                return autoLinkExtension.call(this, { ...opts, token });
+            case 'image':
+                return image.call(this, { ...opts, token });
+            case 'emoji':
+                return emoji.call(this, { ...opts, token });
+            case 'inline_code':
+                return inlineCode.call(this, { ...opts, token });
+            case 'inline_diff':
+                return inlineDiff.call(this, { ...opts, token });
+            case 'text':
+                return text.call(this, { ...opts, token });
+            case 'del':
+                return del.call(this, { ...opts, token });
+            case 'mark':
+                return mark.call(this, { ...opts, token });
+            case 'em':
+                return em.call(this, { ...opts, token });
+            case 'strong':
+                return strong.call(this, { ...opts, token });
+            case 'html_escape':
+                return htmlEscape.call(this, { ...opts, token });
+            case 'multiple_math':
+                return multipleMath.call(this, { ...opts, token });
+            case 'reference_definition':
+                return referenceDefinition.call(this, { ...opts, token });
+            case 'reference_link':
+                return referenceLink.call(this, { ...opts, token });
+            case 'reference_image':
+                return referenceImage.call(this, { ...opts, token });
+            case 'super_sub_script':
+                return superSubScript.call(this, { ...opts, token });
+            case 'footnote_identifier':
+                return footnoteIdentifier.call(this, { ...opts, token });
+            default: {
+                const unreachable: never = token;
+                throw new Error(`Unknown inline token: ${unreachable}`);
+            }
+        }
+    }
+
+    renderChildren(tokens: readonly Token[], options: Omit<ISyntaxRenderOptions, 'token'>): (VNode | string)[] {
+        if (options.childNodes)
+            return options.childNodes(tokens);
+        const nodes: (VNode | string)[] = [];
+        for (const token of tokens)
+            nodes.push(...this.renderToken({ ...options, token }));
+        return nodes;
     }
 
     output(tokens: Token[], block: Format, cursor: IRenderCursor) {
-        const previous = this._rendered;
-        this._rendered = new Map();
-        try {
-            // Parents reuse completed child nodes instead of recursively invoking their renderers.
-            for (const { token, exiting } of tokenEvents(tokens, token =>
-                token.type !== 'image' && token.type !== 'reference_image'
-                && (token.type !== 'html_tag' || (!isLiteralHtml(token) && token.tag !== 'ruby')))) {
-                if (!exiting)
-                    continue;
-                const nodes = this.dispatch(snakeToCamel(token.type), { h, cursor, block, token });
-                this._rendered.set(token, nodes);
-            }
-            const children: VNode[] = [];
-            for (const token of tokens)
-                children.push(...this._rendered.get(token)!);
-            const rawHtml = vnodeToHTML(h('span', children));
-            return rawHtml.slice(6, -7);
+        const rendered = new Map<Token, (VNode | string)[]>();
+        const childNodes = (children: readonly Token[]) => {
+            const nodes: (VNode | string)[] = [];
+            for (const token of children)
+                nodes.push(...rendered.get(token)!);
+            return nodes;
+        };
+        // Parents reuse completed child nodes; each output call owns its session.
+        for (const { token, exiting } of tokenEvents(tokens, token =>
+            token.type !== 'image' && token.type !== 'reference_image'
+            && (token.type !== 'html_tag' || (!isLiteralHtml(token) && token.tag !== 'ruby')))) {
+            if (!exiting)
+                continue;
+            rendered.set(token, this.renderToken({ h, cursor, block, token, childNodes }));
         }
-        finally {
-            this._rendered = previous;
-        }
+        const rawHtml = vnodeToHTML(h('span', childNodes(tokens)));
+        return rawHtml.slice(6, -7);
     }
 }
 
