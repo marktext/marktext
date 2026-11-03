@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { generator, tokenizer, tokensToPlainText } from '../lexer';
 
 const options = { superSubScript: false, footnote: false, texMathDollars: false, texMathGfm: false, texMathSingleBackslash: false, texMathDoubleBackslash: false, highlightSyntax: false };
-const parse = (source: string) => tokenizer(source, { hasBeginRules: false, options });
+const parse = (source: string) => tokenizer(source, { profile: 'inline', options });
 
 describe('unicode symbol flanking (#5994)', () => {
     it.each(['$', '£', '€', '©', '±', '😀', '𝛁'])('keeps *%s*word literal', (symbol) => {

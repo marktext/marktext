@@ -1,7 +1,7 @@
 import type { EmojiToken, Token } from './model/types';
 import { escapeHTML } from '../utils';
 import { validEmoji } from '../utils/emoji';
-import { tokenEvents } from './tokenTraversal';
+import { tokenEvents } from './model/traversal';
 
 function leafTokenToPlainText(token: Token): string {
     switch (token.type) {

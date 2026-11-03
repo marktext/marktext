@@ -3,13 +3,11 @@ import type { HTMLTagToken, ImageToken, ReferenceImageToken } from '../model/typ
 import type { ImageMatch, LinkMatch } from './brackets';
 import type { ICodeSpanMatch } from './codeSpan';
 import type { IChunkMatch, ILexState } from './frame';
-import type { IBlockProfile } from './profiles';
+import type { PrefixMatch } from './prefix';
 import type { HtmlTagScanner } from './rawHtml';
-import type { BeginRules } from './rules';
-import { isLengthEven } from '../../utils';
-import { parseReferenceDefinition } from '../referenceDefinitions';
 import { codeSpanContent } from './codeSpan';
 import { getAttributes } from './htmlAttributes';
+import { BLOCK_PROFILES } from './profiles';
 
 export function pushPending(state: ILexState) {
     if (state.pending) {
@@ -34,52 +32,14 @@ export function pushPending(state: ILexState) {
     state.pending = '';
 }
 
-// Fence alternatives use different capture groups for their marker and info string.
-function beginRuleParts(ruleName: string, to: RegExpExecArray) {
-    if (ruleName !== 'code_fence')
-        return { marker: to[1], content: to[2] || '', backlash: to[3] || '' };
-
-    return { marker: to[1] || to[3], content: to[2] || to[4] || '', backlash: '' };
-}
-
-export function consumeBeginRules(state: ILexState, beginRules: BeginRules, profile: IBlockProfile) {
-    for (const ruleName of profile.prefixRules) {
-        if (ruleName === 'multiple_math' && !state.options.texMathDollars)
-            continue;
-
-        const to = beginRules[ruleName].exec(state.src);
-
-        if (to) {
-            const { marker, content, backlash } = beginRuleParts(ruleName, to);
-            const token = {
-                type: ruleName,
-                raw: to[0],
-                parent: state.tokens,
-                marker,
-                content,
-                backlash,
-                range: {
-                    start: state.pos,
-                    end: state.pos + to[0].length,
-                },
-            };
-            state.tokens.push(token);
-            state.src = state.src.substring(to[0].length);
-            state.pos = state.pos + to[0].length;
-            return;
-        }
-    }
-    const definition = profile.referenceDefinitions ? parseReferenceDefinition(state.src) : null;
-    if (definition && isLengthEven(definition.backlash)) {
-        state.tokens.push({
-            ...definition,
-            type: 'reference_definition',
-            parent: state.tokens,
-            range: { start: state.pos, end: state.pos + definition.raw.length },
-        });
-        state.src = state.src.substring(definition.raw.length);
-        state.pos += definition.raw.length;
-    }
+export function consumePrefix(state: ILexState, match: PrefixMatch): void {
+    state.tokens.push({
+        ...match,
+        parent: state.tokens,
+        range: { start: state.pos, end: state.pos + match.raw.length },
+    });
+    state.src = state.src.substring(match.raw.length);
+    state.pos += match.raw.length;
 }
 
 export function consumeBackslashMath(state: ILexState, to: RegExpExecArray): void {
@@ -139,7 +99,7 @@ export function consumeDelimiterSpan(state: ILexState, span: IDelimiterSpan): vo
         marker,
         parent: state.tokens,
         children: state.parseFrame(content, {
-            beginRules: null,
+            profile: BLOCK_PROFILES.inline,
             inlineRules: state.inlineRules,
             pos: state.pos + span.markerLength,
             top: false,
@@ -170,7 +130,7 @@ export function consumeChunk(state: ILexState, { rule, to }: IChunkMatch): void 
             marker,
             parent: state.tokens,
             children: state.parseFrame(to[2], {
-                beginRules: null,
+                profile: BLOCK_PROFILES.inline,
                 inlineRules: state.inlineRules,
                 pos: state.pos + to[1].length,
                 top: false,
@@ -276,7 +236,7 @@ export function consumeLink(state: ILexState, match: LinkMatch): void {
         anchor: match.description,
         range: { start: state.pos, end: state.pos + match.raw.length },
         children: state.parseFrame(match.description, {
-            beginRules: null,
+            profile: BLOCK_PROFILES.inline,
             inlineRules: state.inlineRules,
             pos: state.pos + 1,
             top: false,

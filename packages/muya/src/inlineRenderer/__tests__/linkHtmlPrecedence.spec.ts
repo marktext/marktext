@@ -13,7 +13,7 @@ describe('raw HTML at link text boundaries (#5978)', () => {
         ['[<b>x](/b "title </b>")', '/b', 'title </b>'],
         ['[<b>x](</b>) `tail`', '/b', ''],
     ])('preserves the link in %j', (source, href, title) => {
-        const tokens = tokenizer(source, { hasBeginRules: false });
+        const tokens = tokenizer(source, { profile: 'inline' });
         const link = tokens[0];
         expect(link.type).toBe('link');
         if (link.type !== 'link')
@@ -34,7 +34,7 @@ describe('raw HTML at link text boundaries (#5978)', () => {
     it('preserves reference links whose HTML closes after the reference label', () => {
         const source = '[<b>x][ref]</b>';
         const labels = new Map([['ref', { href: '/b', title: '' }]]);
-        const tokens = tokenizer(source, { labels, hasBeginRules: false });
+        const tokens = tokenizer(source, { labels, profile: 'inline' });
         expect(tokens[0]).toMatchObject({ type: 'reference_link', anchor: '<b>x', label: 'ref' });
         expect(generator(tokens)).toBe(source);
     });
@@ -63,6 +63,6 @@ describe('raw HTML at link text boundaries (#5978)', () => {
         '[not a `link](/foo`)',
         '[foo<https://example.com/?search=](uri)>',
     ])('rejects a link whose closing bracket is inside a protected token: %j', (source) => {
-        expect(tokenizer(source, { hasBeginRules: false }).some(token => token.type === 'link')).toBe(false);
+        expect(tokenizer(source, { profile: 'inline' }).some(token => token.type === 'link')).toBe(false);
     });
 });

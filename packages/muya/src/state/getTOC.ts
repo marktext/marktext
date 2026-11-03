@@ -1,7 +1,7 @@
 import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
 import type { Muya } from '../muya';
-import { tokenizer } from '../inlineRenderer/lexer';
+import { parseInline } from '../inlineRenderer/parser/lexer';
 import { tokensToInlineHtml, tokensToPlainText } from '../inlineRenderer/projection';
 import { getUniqueId } from '../utils';
 import { generateGithubSlug } from '../utils/slug';
@@ -54,8 +54,8 @@ export function getTOC(muya: Muya): ITocItem[] {
         // and its slug stay in step; `githubSlug` has to match the anchor id the
         // HTML export injects from `heading.textContent`.
         const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = muya.options;
-        const tokens = tokenizer(text, {
-            hasBeginRules: blockName === 'atx-heading',
+        const tokens = parseInline(text, {
+            profile: blockName === 'atx-heading' ? 'atx-heading' : 'setext-heading',
             labels,
             options: { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff },
         });

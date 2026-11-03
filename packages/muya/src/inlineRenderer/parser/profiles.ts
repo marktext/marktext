@@ -1,8 +1,8 @@
 export type InlineProfile = 'paragraph' | 'atx-heading' | 'setext-heading' | 'table-cell' | 'thematic-break' | 'inline';
 
 export interface IBlockProfile {
-    prefixRules: readonly ('header' | 'hr' | 'code_fence' | 'multiple_math')[];
-    referenceDefinitions: boolean;
+    readonly prefixRules: readonly ('header' | 'hr' | 'code_fence' | 'multiple_math')[];
+    readonly referenceDefinitions: boolean;
 }
 
 const prefixes: IBlockProfile = {
@@ -12,7 +12,7 @@ const prefixes: IBlockProfile = {
 const inline: IBlockProfile = { prefixRules: [], referenceDefinitions: false };
 
 // Preserve editable prefix recognition while making each block's policy explicit.
-export const BLOCK_PROFILES: Record<InlineProfile, IBlockProfile> = {
+export const BLOCK_PROFILES: Readonly<Record<InlineProfile, IBlockProfile>> = {
     'paragraph': prefixes,
     'atx-heading': prefixes,
     'thematic-break': prefixes,

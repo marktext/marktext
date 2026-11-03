@@ -46,8 +46,7 @@ class InlineRenderer {
 
     /** Invalidates pending and completed loads before repainting all image occurrences. */
     invalidateImageCache() {
-        this.renderer.mounts.clear();
-        this.renderer.images.invalidate();
+        this.renderer.invalidateImages();
 
         const { scrollPage } = this.muya.editor;
         if (!scrollPage)
@@ -65,7 +64,7 @@ class InlineRenderer {
 
     release(block: { domNode?: HTMLElement | null | void }): void {
         if (block.domNode)
-            this.renderer.mounts.release(block.domNode);
+            this.renderer.release(block.domNode);
     }
 
     releaseRemoved(block: { domNode?: HTMLElement | null | void }): void {
@@ -75,14 +74,12 @@ class InlineRenderer {
         // Moving a block detaches and reinserts it synchronously; its pending images survive.
         queueMicrotask(() => {
             if (!this.muya.domNode.contains(scope))
-                this.renderer.mounts.release(scope);
+                this.renderer.release(scope);
         });
     }
 
     dispose(): void {
-        this.renderer.mounts.clear();
-        this.renderer.images.dispose();
-        this.renderer.loadMathMap.clear();
+        this.renderer.dispose();
     }
 
     patch(block: Format, cursor?: IRenderCursor, highlights: IHighlight[] = []) {

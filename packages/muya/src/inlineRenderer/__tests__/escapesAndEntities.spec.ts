@@ -5,7 +5,7 @@ import { decodeMarkdownString } from '../../utils/markdownEscape';
 import { generator, tokenizer, tokensToPlainText } from '../lexer';
 import { parseSrcAndTitle } from '../linkDestination';
 
-const options = { hasBeginRules: false };
+const options = { profile: 'inline' } as const;
 
 describe('commonMark escapes and character references (#5977, #5982)', () => {
     const punctuation = Array.from({ length: 94 }, (_, index) => String.fromCharCode(index + 33))

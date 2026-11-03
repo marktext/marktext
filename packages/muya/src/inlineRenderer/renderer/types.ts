@@ -1,6 +1,6 @@
 import type { h, VNode } from 'snabbdom';
 
-import type { ITokenRange, Labels, Token } from '../types';
+import type { ITokenRange, Labels, Token } from '../model/types';
 
 export type H = typeof h;
 
@@ -10,7 +10,10 @@ export interface ISyntaxRenderOptions {
     block: IRenderBlock;
     token: Token;
     outerClass?: string;
-    childNodes?: (tokens: readonly Token[]) => (VNode | string)[];
+}
+
+export interface IContainerRenderOptions extends ISyntaxRenderOptions {
+    childNodes: (tokens: readonly Token[]) => (VNode | string)[];
 }
 
 /** Structural inputs: rendering cannot mutate an editor block or selection. */

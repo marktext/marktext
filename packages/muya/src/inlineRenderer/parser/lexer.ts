@@ -1,7 +1,7 @@
 import type { Labels } from '../model/types';
 import type { IChunkMatch, ILexContext, ILexState, IParseFrameOptions } from './frame';
 import type { InlineRules } from './rules';
-import type { IInlineParseOptions, ITokenizerFacOptions } from './types';
+import type { IInlineFeatures, IInlineParseOptions } from './types';
 import { isLengthEven } from '../../utils';
 import { decodeCharacterReference } from '../../utils/markdownEscape';
 import { tokensToPlainText } from '../projection';
@@ -9,13 +9,14 @@ import { matchExtension } from './atomicExtension';
 import { matchExtendedAutoLink } from './autoLink';
 import { BracketScanner } from './brackets';
 import { CodeSpanScanner } from './codeSpan';
-import { consumeAutoLink, consumeAutoLinkExtension, consumeBacklash, consumeBackslashMath, consumeBacktickRun, consumeBeginRules, consumeBracket, consumeChunk, consumeDelimiterSpan, consumeFootnote, consumeHardLineBreak, consumeHtmlEscape, consumeHtmlTag, consumeSoftLineBreak, consumeSuperSubScript, consumeTailHeader, pushPending } from './consume';
+import { consumeAutoLink, consumeAutoLinkExtension, consumeBacklash, consumeBackslashMath, consumeBacktickRun, consumeBracket, consumeChunk, consumeDelimiterSpan, consumeFootnote, consumeHardLineBreak, consumeHtmlEscape, consumeHtmlTag, consumePrefix, consumeSoftLineBreak, consumeSuperSubScript, consumeTailHeader, pushPending } from './consume';
 import { scanDelimiterSpans } from './delimiters';
 import { resolveInlineFeatures } from './features';
 import { lowerPriority } from './precedence';
+import { matchPrefix } from './prefix';
 import { BLOCK_PROFILES } from './profiles';
 import { HtmlTagScanner } from './rawHtml';
-import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules } from './rules';
+import { BACKSLASH_MATH_RULES, emojiValidateRules, inlineRules } from './rules';
 import { SourceWindow } from './sourceWindow';
 
 // pandoc's `tex_math_single_backslash` and `tex_math_double_backslash`. These
@@ -233,7 +234,7 @@ function consumeInlineSource(state: ILexState): void {
     pushPending(state);
 }
 
-function parseInlineFrame(src: string, { beginRules, inlineRules, pos, top, labels, options, delimiterSpans = null, allowAutolinks = top, parentContext, profile = BLOCK_PROFILES.paragraph }: IParseFrameOptions) {
+function parseInlineFrame(src: string, { inlineRules, pos, top, labels, options, delimiterSpans = null, allowAutolinks = top, parentContext, profile }: IParseFrameOptions) {
     const context = parentContext ?? createLexContext(src, pos, inlineRules, labels, options);
     const state: ILexState = {
         parseFrame: parseInlineFrame,
@@ -253,8 +254,9 @@ function parseInlineFrame(src: string, { beginRules, inlineRules, pos, top, labe
         allowAutolinks,
     };
 
-    if (beginRules && state.pos === 0)
-        consumeBeginRules(state, beginRules, profile);
+    const prefix = state.pos === 0 ? matchPrefix(state.src, profile, options) : null;
+    if (prefix)
+        consumePrefix(state, prefix);
 
     consumeInlineSource(state);
     if (!parentContext)
@@ -263,7 +265,7 @@ function parseInlineFrame(src: string, { beginRules, inlineRules, pos, top, labe
     return state.tokens;
 }
 
-function createLexContext(source: string, offset: number, rules: InlineRules, labels: Labels, options: ITokenizerFacOptions): ILexContext {
+function createLexContext(source: string, offset: number, rules: InlineRules, labels: Labels, options: IInlineFeatures): ILexContext {
     const window = new SourceWindow(source, offset);
     const codeSpans = new CodeSpanScanner(source);
     const brackets = new BracketScanner(source, labels, codeSpans, { rules, options, offset });
@@ -271,10 +273,10 @@ function createLexContext(source: string, offset: number, rules: InlineRules, la
     return { window, codeSpans, brackets, htmlTags, inlineContents: [] };
 }
 
-function resolveInlineContents(context: ILexContext, rules: InlineRules, labels: Labels, options: ITokenizerFacOptions): void {
+function resolveInlineContents(context: ILexContext, rules: InlineRules, labels: Labels, options: IInlineFeatures): void {
     for (const content of context.inlineContents) {
         content.tokens = parseInlineFrame(content.source, {
-            beginRules: null,
+            profile: BLOCK_PROFILES.inline,
             inlineRules: rules,
             pos: content.position,
             top: false,
@@ -295,14 +297,12 @@ function resolveInlineContents(context: ILexContext, rules: InlineRules, labels:
 }
 
 export function parseInline(src: string, {
-    hasBeginRules = true,
-    profile,
+    profile = 'paragraph',
     labels = new Map(),
     options,
 }: IInlineParseOptions = {}) {
     const tokens = parseInlineFrame(src, {
-        beginRules: profile || hasBeginRules ? beginRules : null,
-        profile: BLOCK_PROFILES[profile ?? (hasBeginRules ? 'paragraph' : 'inline')],
+        profile: BLOCK_PROFILES[profile],
         inlineRules,
         pos: 0,
         top: true,

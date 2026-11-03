@@ -105,7 +105,7 @@ export function audit(example: IInlineExample): IAuditResult {
     let literalHtml = '';
     for (const { source, tag } of fixture.blocks) {
         result.sources.push(source);
-        const tokens = tokenizer(source, { hasBeginRules: false, labels: fixture.labels, options });
+        const tokens = tokenizer(source, { profile: 'inline', labels: fixture.labels, options });
         result.invariants.push(...sourceInvariants(tokens, source));
         const fields = checkRawHtmlFields(tokens);
         result.htmlFields.push(...fields.differences);

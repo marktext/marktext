@@ -1,8 +1,8 @@
 import type { IParagraphState, TState } from '../state/types';
 import type { Labels, ReferenceDefinitionToken } from './model/types';
 import { decodeMarkdownString } from '../utils/markdownEscape';
+import { beginRules } from './parser/rules';
 import { normalizeReferenceLabel } from './referenceLabel';
-import { beginRules } from './rules';
 
 export function parseReferenceDefinition(text: string): Omit<ReferenceDefinitionToken, 'type' | 'parent' | 'range'> | null {
     const match = beginRules.reference_definition.exec(text);

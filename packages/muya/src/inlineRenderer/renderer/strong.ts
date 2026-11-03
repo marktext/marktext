@@ -1,7 +1,7 @@
 import type { StrongEmToken } from '../model/types';
 import type Renderer from './index';
-import type { ISyntaxRenderOptions } from './types';
+import type { IContainerRenderOptions } from './types';
 
-export default function strong(this: Renderer, options: ISyntaxRenderOptions & { token: StrongEmToken }) {
+export default function strong(this: Renderer, options: IContainerRenderOptions & { token: StrongEmToken }) {
     return this.delEmStrongFac('strong', options);
 }

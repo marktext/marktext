@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from 'vitest';
-import { generator, parseInline, tokenizer } from '../lexer';
+import { generator, parseInline, SourceGenerationMode, tokenizer } from '../lexer';
 import { tokenEvents } from '../model/traversal';
+import { BracketScanner } from '../parser/brackets';
 import { profileForBlock } from '../parser/profiles';
 import { SourceWindow } from '../parser/sourceWindow';
 import Renderer from '../renderer';
@@ -32,7 +33,7 @@ describe('inline parse contracts', () => {
         ['unknown', false],
     ] as const)('applies the explicit block profile for %s', (block, prefix) => {
         const source = '# heading';
-        const tokens = parseInline(source, { profile: profileForBlock(block), hasBeginRules: !prefix });
+        const tokens = parseInline(source, { profile: profileForBlock(block) });
         expect(tokens[0].type).toBe(prefix ? 'header' : 'text');
         expect(generator(tokens)).toBe(source);
     });
@@ -62,12 +63,15 @@ it('renders from structural data without an editor instance and snapshots each o
         selectedImage: null,
         translate: (text: string) => text,
     };
-    const renderer = new Renderer(() => environment);
+    const captureEnvironment = vi.fn(() => environment);
+    const renderer = new Renderer(captureEnvironment);
     const block = { text: '**x**', blockName: 'paragraph.content' };
     const tokens = parseInline(block.text);
     expect(renderer.output(tokens, block, { block, anchor: { offset: 2 }, focus: { offset: 2 } })).toContain('mu-hide');
+    expect(captureEnvironment).toHaveBeenCalledTimes(1);
     environment.readOnly = false;
     expect(renderer.output(tokens, block, { block, anchor: { offset: 2 }, focus: { offset: 2 } })).toContain('mu-gray');
+    expect(captureEnvironment).toHaveBeenCalledTimes(2);
 });
 
 it('resolves partial feature options once without disabling unrelated defaults', () => {
@@ -93,26 +97,64 @@ it('derives ruby preview offsets from actual source tags including attributes', 
     expect(preview.dataset.end).toBe(String(text.lastIndexOf('</ruby>')));
 });
 
-it('renders each nested emphasis token once instead of recursively rebuilding completed children', () => {
-    const text = '**a *b ~~c ==d==~~* z**';
-    const tokens = parseInline(text, { options: { highlightSyntax: true } });
+it.each([
+    '**a *b ~~c ==d==~~* z**',
+    '**[a *b*](/url) <b>c ~~d~~</b>**',
+    '**[a *b*][ref]**',
+])('renders each nested token once in %s', (text) => {
+    const labels = new Map([['ref', { href: '/url', title: '' }]]);
+    const tokens = parseInline(text, { labels, options: { highlightSyntax: true } });
     const root = document.createElement('div');
     const renderer = new Renderer(() => ({
         root,
         readOnly: false,
         softNewlineAsSpace: false,
-        references: new Map(),
+        references: labels,
         selectedImage: null,
         translate: text => text,
     }));
     const render = vi.spyOn(Renderer.prototype, 'renderToken');
     try {
         const html = renderer.output(tokens, { text, blockName: 'paragraph.content' }, {});
-        expect(html).toContain('<mark');
+        expect(html).toContain('<strong');
+        expect(html).toContain('<em');
+        if (text.includes('=='))
+            expect(html).toContain('<mark');
+        if (text.includes('[a'))
+            expect(html).toContain('href="/url"');
         const tokenCount = [...tokenEvents(tokens)].filter(event => !event.exiting).length;
         expect(render).toHaveBeenCalledTimes(tokenCount);
     }
     finally {
         render.mockRestore();
     }
+});
+
+it('distinguishes preserved source from edited child wrappers', () => {
+    const source = '**<b>before</b>**';
+    const tokens = parseInline(source);
+    for (const { token, exiting } of tokenEvents(tokens)) {
+        if (!exiting && token.type === 'text') {
+            token.raw = 'after';
+            token.content = 'after';
+        }
+    }
+    expect(generator(tokens)).toBe(source);
+    expect(generator(tokens, SourceGenerationMode.PreserveSource)).toBe(source);
+    expect(generator(tokens, SourceGenerationMode.RebuildWrappers)).toBe('**<b>after</b>**');
+});
+
+it('uses the same feature defaults for bracket protection and token parsing', () => {
+    const source = '$[inside](/math)$ [outside](/link)';
+    const scanner = new BracketScanner(source, new Map());
+    expect(scanner.read(source.indexOf('[inside]'))).toBeNull();
+    expect(scanner.read(source.indexOf('[outside]'))?.type).toBe('link');
+    const tokens = parseInline(source);
+    expect(tokens.map(token => token.type)).toEqual(['inline_math', 'text', 'link']);
+});
+
+it.each(['inline', 'setext-heading', 'table-cell'] as const)('keeps reference definitions literal in the %s profile', (profile) => {
+    const source = '[ref]: /url';
+    expect(parseInline(source, { profile }).some(token => token.type === 'reference_definition')).toBe(false);
+    expect(parseInline(source, { profile: 'paragraph' })[0].type).toBe('reference_definition');
 });

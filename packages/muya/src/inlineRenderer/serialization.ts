@@ -1,5 +1,10 @@
 import type { Token } from './model/types';
-import { tokenEvents } from './tokenTraversal';
+import { tokenEvents } from './model/traversal';
+
+export enum SourceGenerationMode {
+    PreserveSource = 'preserve-source',
+    RebuildWrappers = 'rebuild-wrappers',
+}
 
 function wrapperParts(token: Token): [string, string] | null {
     switch (token.type) {
@@ -16,8 +21,8 @@ function wrapperParts(token: Token): [string, string] | null {
 }
 
 // Rebuild wrappers for child edits (#2063); raw preserves marker edits from Backspace.
-export function generator(tokens: Token[], mode: boolean | 'preserve-source' | 'rebuild-wrappers' = 'preserve-source'): string {
-    if (mode === false || mode === 'preserve-source')
+export function generator(tokens: Token[], mode: SourceGenerationMode = SourceGenerationMode.PreserveSource): string {
+    if (mode === SourceGenerationMode.PreserveSource)
         return tokens.map(token => token.raw).join('');
     const parts: string[] = [];
     for (const { token, exiting } of tokenEvents(tokens, token => wrapperParts(token) !== null)) {

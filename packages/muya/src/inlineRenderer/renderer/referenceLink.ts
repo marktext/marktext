@@ -1,6 +1,6 @@
 import type { ReferenceLinkToken } from '../model/types';
 import type Renderer from './index';
-import type { ISyntaxRenderOptions } from './types';
+import type { IContainerRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 import { normalizeReferenceLabel } from '../referenceLabel';
 import { hyperlinkProps, sourceDataset } from './linkData';
@@ -14,7 +14,7 @@ export default function referenceLink(
         token,
         outerClass,
         childNodes,
-    }: ISyntaxRenderOptions & { token: ReferenceLinkToken },
+    }: IContainerRenderOptions & { token: ReferenceLinkToken },
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const labelClass
@@ -28,7 +28,7 @@ export default function referenceLink(
     const key = normalizeReferenceLabel(label + backlash.second);
     const backlashStart = start + MARKER.length + anchor.length;
     const content = [
-        ...this.renderChildren(children, { h, cursor, block, childNodes }),
+        ...childNodes(children),
         ...this.backlashInToken(h, backlash.first, className, backlashStart, token),
     ];
 

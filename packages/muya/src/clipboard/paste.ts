@@ -9,7 +9,7 @@ import type Clipboard from './index';
 import CodeBlockContent from '../block/content/codeBlockContent';
 import LangInputContent from '../block/content/langInputContent';
 import { ScrollPage } from '../block/scrollPage';
-import { tokenizer } from '../inlineRenderer/lexer';
+import { parseInline } from '../inlineRenderer/parser/lexer';
 import { atxHeadingBody, splitAtxHeading } from '../state/headings';
 import HtmlToMarkdown from '../state/htmlToMarkdown';
 import { MarkdownToState } from '../state/markdownToState';
@@ -106,7 +106,7 @@ function canPlainUrlFallbackAutoLink(
             + text
             + content.substring(end.offset);
 
-    return tokenizer(candidate, { hasBeginRules: false }).some(token =>
+    return parseInline(candidate, { profile: 'inline' }).some(token =>
         token.type === 'auto_link_extension'
         && token.linkType === 'url'
         && token.range.start === start.offset

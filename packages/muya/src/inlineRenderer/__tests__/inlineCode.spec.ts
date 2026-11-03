@@ -20,7 +20,7 @@ describe('live code spans (#5978)', () => {
         [640, '`code  \nspan`', '<code>code   span</code>'],
         [641, '`code\\\nspan`', '<code>code\\ span</code>'],
     ])('commonmark %i', (_number, source, expected) => {
-        const tokens = tokenizer(source, { hasBeginRules: false });
+        const tokens = tokenizer(source, { profile: 'inline' });
         expect(tokensToInlineHtml(tokens)).toBe(expected);
         expect(generator(tokens)).toBe(source);
         for (const token of tokens) {
@@ -41,13 +41,13 @@ describe('live code spans (#5978)', () => {
         ['```` a ``` b ````', 'a ``` b'],
         ['`a\\`tail`', 'a\\tail`'],
     ])('normalizes %j without changing its source', (source, expected) => {
-        const tokens = tokenizer(source, { hasBeginRules: false });
+        const tokens = tokenizer(source, { profile: 'inline' });
         expect(tokensToPlainText(tokens)).toBe(expected);
         expect(generator(tokens)).toBe(source);
     });
 
     it('protects emphasis delimiters inside code and leaves unmatched runs whole', () => {
-        const tokens = tokenizer('**a `` `*` `` b** ```x`` *y*', { hasBeginRules: false });
+        const tokens = tokenizer('**a `` `*` `` b** ```x`` *y*', { profile: 'inline' });
         expect(tokensToInlineHtml(tokens)).toBe('<strong>a <code>`*`</code> b</strong> ```x`` <em>y</em>');
     });
 
@@ -59,7 +59,7 @@ describe('live code spans (#5978)', () => {
 
     it('keeps many unmatched run lengths literal', () => {
         const source = Array.from({ length: 256 }, (_, i) => `${'`'.repeat(i + 1)}x`).join('');
-        const tokens = tokenizer(source, { hasBeginRules: false });
+        const tokens = tokenizer(source, { profile: 'inline' });
         expect(tokens.map(token => token.type)).toEqual(['text']);
         expect(generator(tokens)).toBe(source);
     });
@@ -69,7 +69,7 @@ describe('live code spans (#5978)', () => {
         ['\\```x``', '<code>x</code>', '`'],
         ['\\``x`` y`', '<code>x`` y</code>', '`'],
     ])('allows the unescaped suffix of %j to open code', (source, html, prefix) => {
-        const tokens = tokenizer(source, { hasBeginRules: false });
+        const tokens = tokenizer(source, { profile: 'inline' });
         expect(tokensToInlineHtml(tokens)).toBe(prefix + html);
         expect(generator(tokens)).toBe(source);
     });
@@ -86,7 +86,7 @@ describe('live code spans (#5978)', () => {
             const length = next() % 80;
             for (let j = 0; j < length; j++)
                 source += alphabet[(next() >>> 16) % alphabet.length];
-            const tokens = tokenizer(source, { hasBeginRules: false });
+            const tokens = tokenizer(source, { profile: 'inline' });
             const expected = marked.Lexer.lexInline(source, { gfm: false })
                 .flatMap(token => token.type === 'codespan' && 'text' in token ? [{ raw: token.raw, content: token.text }] : []);
             const actual = tokens.flatMap(token => token.type === 'inline_code' ? [{ raw: token.raw, content: token.content }] : []);

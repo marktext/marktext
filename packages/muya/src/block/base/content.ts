@@ -1,4 +1,4 @@
-import type { IHighlight } from '../../inlineRenderer/types';
+import type { IHighlight } from '../../inlineRenderer/model/types';
 import type { Muya } from '../../muya';
 import type { IContentCursor, INodeOffset, IRenderCursor } from '../../selection/types';
 import type { Nullable } from '../../types';

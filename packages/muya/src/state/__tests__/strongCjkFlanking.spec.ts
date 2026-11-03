@@ -58,7 +58,7 @@ function collectTypes(tokens: Token[], out: string[] = []): string[] {
 }
 
 function tokenizesEmphasis(src: string): boolean {
-    const types = collectTypes(tokenizer(src, { hasBeginRules: false }) as Token[]);
+    const types = collectTypes(tokenizer(src, { profile: 'inline' }) as Token[]);
     return types.includes('strong') || types.includes('em');
 }
 

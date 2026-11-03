@@ -1,7 +1,7 @@
 import type { IHighlight, Labels } from '../model/types';
 import type { InlineProfile } from './profiles';
 
-export interface ITokenizerFacOptions {
+export interface IInlineFeatures {
     superSubScript: boolean;
     footnote: boolean;
     texMathDollars: boolean;
@@ -9,15 +9,13 @@ export interface ITokenizerFacOptions {
     texMathSingleBackslash: boolean;
     texMathDoubleBackslash: boolean;
     highlightSyntax: boolean;
-    inlineDiff?: boolean;
+    inlineDiff: boolean;
 }
 
 export interface IInlineParseOptions {
-    /** Compatibility fallback when profile is omitted. */
-    hasBeginRules?: boolean;
     profile?: InlineProfile;
     labels?: Labels;
-    options?: Partial<ITokenizerFacOptions>;
+    options?: Partial<IInlineFeatures>;
 }
 
 export interface ITokenizerOptions extends IInlineParseOptions {

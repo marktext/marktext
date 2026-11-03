@@ -21,6 +21,7 @@ const OPTIONS = {
     texMathSingleBackslash: false,
     texMathDoubleBackslash: false,
     highlightSyntax: false,
+    inlineDiff: false,
 };
 
 function renderTokens(tokens: Token[]): string {
@@ -78,7 +79,7 @@ function renderTokens(tokens: Token[]): string {
 function renderInline(markdown: string, labels = new Map()) {
     return renderTokens(
         tokenizer(markdown.replace(/\n$/, ''), {
-            hasBeginRules: false,
+            profile: 'inline',
             labels,
             options: OPTIONS,
         }),
@@ -124,7 +125,7 @@ describe('nested emphasis delimiters (#2086)', () => {
     });
 
     it('the outer token spans the whole run', () => {
-        const [token] = tokenizer('*a *b* c*', { hasBeginRules: false });
+        const [token] = tokenizer('*a *b* c*', { profile: 'inline' });
 
         expect(token.type).toBe('em');
         expect(token.raw).toBe('*a *b* c*');
@@ -206,7 +207,7 @@ describe('constructs that outrank emphasis', () => {
 
     it('backslash-delimited math shields its delimiters', () => {
         const tokens = tokenizer('*a \\(x*y\\) b*', {
-            hasBeginRules: false,
+            profile: 'inline',
             options: { ...OPTIONS, texMathSingleBackslash: true },
         });
 
@@ -223,7 +224,7 @@ describe('constructs that outrank emphasis', () => {
         ['undefined', new Map(), ['em', 'text']],
     ])('reference link — %s', (_name, labels, expected) => {
         const tokens = tokenizer('*[foo*][ref]', {
-            hasBeginRules: false,
+            profile: 'inline',
             labels: labels as never,
             options: OPTIONS,
         });

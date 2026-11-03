@@ -1,13 +1,13 @@
 import type { VNode } from 'snabbdom';
 import type { Token } from '../model/types';
-import type { IInlineCursor, IInlineEnvironment, IRenderBlock, ISyntaxRenderOptions } from './types';
+import type { IContainerRenderOptions, IInlineCursor, IInlineEnvironment, IRenderBlock } from './types';
 import { CLASS_NAMES } from '../../config';
 import { conflict } from '../../utils';
 import { h } from '../../utils/snabbdom';
 import { vnodeToHTML } from '../../utils/vnodeToHTML';
+import { tokenEvents } from '../model/traversal';
 import { ImageMounts } from '../resources/imageMounts';
 import { ImageResources } from '../resources/images';
-import { tokenEvents } from '../tokenTraversal';
 import autoLink from './autoLink';
 import autoLinkExtension from './autoLinkExtension';
 import backlash from './backlash';
@@ -103,7 +103,7 @@ class Renderer {
 
     // Exhaustive syntax dispatch keeps every token/handler pair checked by TypeScript.
     // eslint-disable-next-line complexity
-    renderToken(opts: ISyntaxRenderOptions): (VNode | string)[] {
+    renderToken(opts: IContainerRenderOptions): (VNode | string)[] {
         const { token } = opts;
         switch (token.type) {
             case 'backlash':
@@ -169,17 +169,24 @@ class Renderer {
         }
     }
 
-    renderChildren(tokens: readonly Token[], options: Omit<ISyntaxRenderOptions, 'token'>): (VNode | string)[] {
-        if (options.childNodes)
-            return options.childNodes(tokens);
-        const nodes: (VNode | string)[] = [];
-        for (const token of tokens)
-            nodes.push(...this.renderToken({ ...options, token }));
-        return nodes;
+    invalidateImages(): void {
+        this.mounts.clear();
+        this.images.invalidate();
+    }
+
+    release(scope: HTMLElement): void {
+        this.mounts.release(scope);
+    }
+
+    dispose(): void {
+        this.mounts.clear();
+        this.images.dispose();
+        this.loadMathMap.clear();
     }
 
     output(tokens: Token[], block: IRenderBlock, cursor: IInlineCursor) {
-        const environment = { ...this.environment, root: block.domNode || this.environment.root };
+        const snapshot = this.environment;
+        const environment = { ...snapshot, root: block.domNode || snapshot.root };
         this.mounts.release(environment.root);
         const session = new Renderer(() => environment, this.images, this.mounts);
         session.loadMathMap = this.loadMathMap;

@@ -1,11 +1,10 @@
 import type { VNode } from 'snabbdom';
 import type { DelToken, MarkToken, StrongEmToken } from '../model/types';
 import type Renderer from './index';
-import type { ISyntaxRenderOptions } from './types';
+import type { IContainerRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 import { delimitedRanges } from '../model/ranges';
 
-// render factory of `del`,`mark`,`em`,`strong`
 export default function delEmStrongFac(
     this: Renderer,
     type: 'del' | 'mark' | 'em' | 'strong',
@@ -16,7 +15,7 @@ export default function delEmStrongFac(
         token,
         outerClass,
         childNodes,
-    }: ISyntaxRenderOptions & { token: StrongEmToken | DelToken | MarkToken },
+    }: IContainerRenderOptions & { token: StrongEmToken | DelToken | MarkToken },
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const COMMON_MARKER = `span.${className}.${CLASS_NAMES.MU_REMOVE}`;
@@ -26,7 +25,7 @@ export default function delEmStrongFac(
     const backlashStart
         = end - marker.length - token.backlash.length;
     const content: (VNode | string)[] = [
-        ...this.renderChildren(token.children, { h, cursor, block, childNodes }),
+        ...childNodes(token.children),
         ...this.backlashInToken(
             h,
             token.backlash,

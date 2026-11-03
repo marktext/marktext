@@ -11,7 +11,7 @@ import inlineCode from '../inlineCode';
 
 function render(source: string, active = false) {
     const token = tokenizer(source, {
-        hasBeginRules: false,
+        profile: 'inline',
         highlights: [{ start: 0, end: source.length, active: true }],
     })[0];
     if (token.type !== 'inline_code')

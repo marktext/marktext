@@ -1,22 +1,18 @@
 import type { VNode } from 'snabbdom';
 import type { HTMLTagToken } from '../model/types';
 import type Renderer from './index';
-import type { H, IInlineCursor, IRenderBlock, ISyntaxRenderOptions } from './types';
+import type { H, IContainerRenderOptions } from './types';
 import { BLOCK_TYPE6, CLASS_NAMES } from '../../config';
 import sanitize, { isValidAttribute } from '../../utils/dompurify';
 
 function renderHtmlTagChildren(
-    renderer: Renderer,
-    h: H,
-    cursor: IInlineCursor,
-    block: IRenderBlock,
     token: HTMLTagToken,
-    childNodes: ISyntaxRenderOptions['childNodes'],
+    childNodes: IContainerRenderOptions['childNodes'],
 ): (VNode | string)[] | '' {
     const { tag, children } = token;
 
-    return Array.isArray(children) && children.length && tag !== 'ruby' // important
-        ? renderer.renderChildren(children, { h, cursor, block, childNodes })
+    return Array.isArray(children) && children.length && tag !== 'ruby'
+        ? childNodes(children)
         : '';
 }
 
@@ -107,7 +103,7 @@ export default function htmlTag(
         token,
         outerClass,
         childNodes,
-    }: ISyntaxRenderOptions & { token: HTMLTagToken },
+    }: IContainerRenderOptions & { token: HTMLTagToken },
 ) {
     const { tag, openTag, closeTag, children } = token;
 
@@ -133,7 +129,7 @@ export default function htmlTag(
         return [h(`span.${CLASS_NAMES.MU_HTML_TAG}`, this.highlight(h, block, start, end, token))];
     }
 
-    const anchor = renderHtmlTagChildren(this, h, cursor, block, token, childNodes);
+    const anchor = renderHtmlTagChildren(token, childNodes);
 
     switch (tag) {
         case 'img': {
@@ -147,7 +143,6 @@ export default function htmlTag(
                     kind: 'tag',
                 },
                 outerClass,
-                childNodes,
             });
         }
 
@@ -181,7 +176,6 @@ export default function htmlTag(
                     block,
                     token,
                     outerClass,
-                    childNodes,
                 });
             }
             else {

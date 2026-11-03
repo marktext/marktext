@@ -54,7 +54,7 @@ describe('outline text and HTML keep the same visible content', () => {
     });
 
     it('keeps literal hashes when block-prefix parsing is disabled', () => {
-        const tokens = tokenizer('# title #', { hasBeginRules: false });
+        const tokens = tokenizer('# title #', { profile: 'inline' });
         expect(tokens.some(token => token.type === 'tail_header')).toBe(false);
         expect(tokensToPlainText(tokens)).toBe('# title #');
         expect(tokensToInlineHtml(tokens)).toBe('# title #');

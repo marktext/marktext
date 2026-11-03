@@ -1,6 +1,6 @@
 import type { LinkToken } from '../model/types';
 import type Renderer from './index';
-import type { ISyntaxRenderOptions } from './types';
+import type { IContainerRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 import { isLengthEven } from '../../utils';
 import { hyperlinkProps, sourceDataset } from './linkData';
@@ -15,7 +15,7 @@ export default function link(
         token,
         outerClass,
         childNodes,
-    }: ISyntaxRenderOptions & { token: LinkToken },
+    }: IContainerRenderOptions & { token: LinkToken },
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const linkClassName
@@ -105,7 +105,7 @@ export default function link(
                         dataset: sourceDataset(token),
                     },
                     [
-                        ...this.renderChildren(token.children, { h, cursor, block, childNodes }),
+                        ...childNodes(token.children),
                         ...this.backlashInToken(
                             h,
                             token.backlash.first,
@@ -139,7 +139,7 @@ export default function link(
     else {
         return [
             ...firstBracket,
-            ...this.renderChildren(token.children, { h, cursor, block, childNodes }),
+            ...childNodes(token.children),
             ...this.backlashInToken(
                 h,
                 token.backlash.first,

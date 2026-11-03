@@ -28,11 +28,16 @@ from reading text.
 Profiles name the current paragraph, ATX heading, Setext heading, table cell and
 thematic-break policies. This refactor preserves existing prefix recognition,
 including editable heading prefixes. It does not change Markdown dialect rules.
-The old `hasBeginRules` option is a fallback when no explicit profile is given.
+`profile` is the only prefix-policy input; it defaults to `paragraph`. Nested
+frames always use `inline`, which disables prefix and reference-definition rules.
 
 `parseInline()` does not add search decorations. `tokenizer()` retains the old
 parse-plus-decoration API. Existing root module paths and token type names remain
-compatibility exports; new implementations belong in their owning subdirectories.
+import-path aliases only; production consumers import the owning modules.
+`generator()` accepts only `SourceGenerationMode`: `PreserveSource` joins raw
+tokens, while `RebuildWrappers` reflects child edits inside source wrappers.
+Container renderers require a child-node accessor from the current render session;
+there is no recursive fallback when that context is missing.
 
 Image resource identity is independent of DOM occurrence identity. Requests for
 the same source share a pending Promise; failures can retry. Invalidation rejects

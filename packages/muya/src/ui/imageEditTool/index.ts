@@ -1,7 +1,7 @@
 import type { VNode } from 'snabbdom';
 import type Format from '../../block/base/format';
 import type { Muya } from '../../index';
-import type { ImageToken } from '../../inlineRenderer/types';
+import type { ImageToken } from '../../inlineRenderer/model/types';
 import type { TSelectableImageToken } from '../../utils/image';
 import type { IImagePathSuggestion } from '../imagePicker';
 import type { IBaseOptions } from '../types';

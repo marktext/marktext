@@ -1,5 +1,5 @@
 import type { InlineRules } from './rules';
-import type { ITokenizerFacOptions } from './types';
+import type { IInlineFeatures } from './types';
 import { isLengthEven } from '../../utils';
 import { matchAt } from './matchAt';
 import { BACKSLASH_MATH_RULES } from './rules';
@@ -7,7 +7,7 @@ import { BACKSLASH_MATH_RULES } from './rules';
 export type AtomicRule = typeof BACKSLASH_MATH_RULES[number][0]
     | 'inline_math_gfm' | 'inline_math' | 'inline_diff' | 'footnote_identifier' | 'superscript' | 'subscript';
 
-function enabled(rule: AtomicRule, options: Partial<ITokenizerFacOptions>, position: number): boolean {
+function enabled(rule: AtomicRule, options: IInlineFeatures, position: number): boolean {
     switch (rule) {
         case 'inline_math_gfm': return !!options.texMathGfm;
         case 'inline_math': return !!options.texMathDollars;
@@ -20,7 +20,7 @@ function enabled(rule: AtomicRule, options: Partial<ITokenizerFacOptions>, posit
 }
 
 /** Shared recognition for token consumption and structural protection; priority belongs to callers. */
-export function matchExtension(rule: AtomicRule, source: string, index: number, rules: InlineRules, options: Partial<ITokenizerFacOptions>, offset = 0): RegExpExecArray | null {
+export function matchExtension(rule: AtomicRule, source: string, index: number, rules: InlineRules, options: IInlineFeatures, offset = 0): RegExpExecArray | null {
     if (!enabled(rule, options, index + offset))
         return null;
     const value = rules[rule];
@@ -44,7 +44,7 @@ function candidates(char: string): readonly AtomicRule[] {
     }
 }
 
-export function atomicExtensionLength(source: string, index: number, rules: InlineRules, options: Partial<ITokenizerFacOptions>, offset = 0): number {
+export function atomicExtensionLength(source: string, index: number, rules: InlineRules, options: IInlineFeatures, offset = 0): number {
     for (const rule of candidates(source[index])) {
         const match = matchExtension(rule, source, index, rules, options, offset);
         if (match)

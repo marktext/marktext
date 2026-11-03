@@ -2,11 +2,12 @@ import type { Labels } from '../model/types';
 import type { ICodeSpanReader } from './codeSpan';
 import type { ILinkTail } from './linkDestination';
 import type { InlineRules } from './rules';
-import type { ITokenizerFacOptions } from './types';
+import type { IInlineFeatures } from './types';
 import { isPunctuationEscape } from '../../utils/markdownEscape';
 import { normalizeReferenceLabel } from '../referenceLabel';
 import { atomicExtensionLength } from './atomicExtension';
 import { CodeSpanScanner } from './codeSpan';
+import { resolveInlineFeatures } from './features';
 import { parseSrcAndTitle } from './linkDestination';
 import { matchAt } from './matchAt';
 import { inlineRules, linkValidateRules } from './rules';
@@ -27,7 +28,7 @@ export type LinkMatch = BracketMatch & { type: 'link' | 'reference_link' };
 
 interface IScanContext {
     rules?: InlineRules;
-    options?: Partial<ITokenizerFacOptions>;
+    options?: Partial<IInlineFeatures>;
     // Block-relative UTF-16 origin, including when scanning a child inline source.
     offset?: number;
 }
@@ -80,7 +81,7 @@ function readTail(source: string, opener: IOpener, end: number, labels: Labels):
     };
 }
 
-function readProtected(source: string, index: number, codeSpans: ICodeSpanReader, rules: InlineRules, options: Partial<ITokenizerFacOptions>, offset: number): { end: number; html?: boolean } {
+function readProtected(source: string, index: number, codeSpans: ICodeSpanReader, rules: InlineRules, options: IInlineFeatures, offset: number): { end: number; html?: boolean } {
     const extensionLength = atomicExtensionLength(source, index, rules, options, offset);
     if (extensionLength)
         return { end: index + extensionLength };
@@ -107,14 +108,15 @@ export class BracketScanner {
     private _readProtected: (index: number) => { end: number; html?: boolean };
 
     constructor(source: string, labels: Labels, codeSpans: ICodeSpanReader = new CodeSpanScanner(source), { rules = inlineRules, options = {}, offset = 0 }: IScanContext = {}) {
+        const features = resolveInlineFeatures(options);
         const window = new SourceWindow(source, offset);
         this._readProtected = (index) => {
-            const match = readProtected(source, window.local(index), codeSpans, rules, options, offset);
+            const match = readProtected(source, window.local(index), codeSpans, rules, features, offset);
             return { ...match, end: window.absolute(match.end) };
         };
         const openers: IOpener[] = [];
         for (let i = 0; i < source.length; i++) {
-            const { end } = readProtected(source, i, codeSpans, rules, options, offset);
+            const { end } = readProtected(source, i, codeSpans, rules, features, offset);
             if (end > i) {
                 i = end - 1;
                 continue;

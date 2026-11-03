@@ -1,6 +1,6 @@
-import type { HTMLTagToken, ImageToken, Token } from '../inlineRenderer/types';
+import type { HTMLTagToken, ImageToken, Token } from '../inlineRenderer/model/types';
 import { DATA_URL_REG, IMAGE_EXT_REG, isWin, URL_REG } from '../config/index';
-import { tokenizer } from '../inlineRenderer/lexer';
+import { parseInline } from '../inlineRenderer/parser/lexer';
 import { findContentDOM, getOffsetOfParagraph } from '../selection/dom';
 import { ABSOLUTE_LOCAL_REG, encodeDirnameForUrl, localPathToFileUrl, resolveRelativePath } from './fileUrl';
 import { encodeLinkTitle, escapeLinkAttribute } from './markdownEscape';
@@ -20,7 +20,7 @@ export function getImageInfo(image: HTMLElement): IImageInfo {
     const paragraph = findContentDOM(image)!;
     const raw = image.getAttribute('data-raw')!;
     const offset = getOffsetOfParagraph(image, paragraph);
-    const tokens = tokenizer(raw);
+    const tokens = parseInline(raw);
     const token = tokens[0];
     if (!isImageToken(token))
         throw new Error('Image wrapper does not contain an image token');

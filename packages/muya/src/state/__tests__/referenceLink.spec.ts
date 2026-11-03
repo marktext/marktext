@@ -52,7 +52,7 @@ function parse(md: string) {
 function tokenize(text: string, labels: Map<string, { href: string; title: string }>) {
     return tokenizer(text, {
         labels,
-        hasBeginRules: false,
+        profile: 'inline',
         options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm: false, texMathSingleBackslash: false, texMathDoubleBackslash: false, highlightSyntax: false },
     });
 }

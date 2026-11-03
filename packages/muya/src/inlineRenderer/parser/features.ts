@@ -1,6 +1,6 @@
-import type { ITokenizerFacOptions } from './types';
+import type { IInlineFeatures } from './types';
 
-const DEFAULT_FEATURES: Readonly<Required<ITokenizerFacOptions>> = {
+const DEFAULT_FEATURES: Readonly<IInlineFeatures> = {
     superSubScript: true,
     footnote: false,
     texMathDollars: true,
@@ -11,6 +11,6 @@ const DEFAULT_FEATURES: Readonly<Required<ITokenizerFacOptions>> = {
     inlineDiff: false,
 };
 
-export function resolveInlineFeatures(options: Partial<ITokenizerFacOptions> = {}): ITokenizerFacOptions {
+export function resolveInlineFeatures(options: Partial<IInlineFeatures> = {}): IInlineFeatures {
     return { ...DEFAULT_FEATURES, ...options };
 }

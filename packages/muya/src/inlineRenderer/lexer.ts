@@ -4,7 +4,7 @@ import { applySearchHighlights } from './searchHighlights';
 
 export { parseInline } from './parser/lexer';
 export { tokensToInlineHtml, tokensToPlainText } from './projection';
-export { generator } from './serialization';
+export { generator, SourceGenerationMode } from './serialization';
 
 /** Compatibility pipeline: parsing is independent of search decorations. */
 export function tokenizer(source: string, options: ITokenizerOptions = {}) {

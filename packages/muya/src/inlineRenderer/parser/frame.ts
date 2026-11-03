@@ -4,9 +4,9 @@ import type { BracketScanner } from './brackets';
 import type { CodeSpanScanner, ICodeSpanReader } from './codeSpan';
 import type { IBlockProfile } from './profiles';
 import type { HtmlTagScanner } from './rawHtml';
-import type { BeginRules, InlineRules } from './rules';
+import type { InlineRules } from './rules';
 import type { SourceWindow } from './sourceWindow';
-import type { ITokenizerFacOptions } from './types';
+import type { IInlineFeatures } from './types';
 
 export interface IInlineContent {
     source: string;
@@ -40,22 +40,21 @@ export interface ILexState {
     delimiterSpans: Map<number, IDelimiterSpan> | null;
     inlineRules: InlineRules;
     labels: Labels;
-    options: ITokenizerFacOptions;
+    options: IInlineFeatures;
     top: boolean;
     allowAutolinks: boolean;
 }
 
 export interface IParseFrameOptions {
-    beginRules: BeginRules | null;
     inlineRules: InlineRules;
     pos: number;
     top: boolean;
     labels: Labels;
-    options: ITokenizerFacOptions;
+    options: IInlineFeatures;
     delimiterSpans?: Map<number, IDelimiterSpan> | null;
     allowAutolinks?: boolean;
     parentContext?: ILexContext;
-    profile?: IBlockProfile;
+    profile: IBlockProfile;
 }
 
 export interface IChunkMatch {

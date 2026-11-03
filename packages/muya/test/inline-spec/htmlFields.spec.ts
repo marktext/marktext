@@ -30,7 +30,7 @@ describe('raw HTML parsed-field mutations', () => {
         const example = fixture('foo <a href="/correct">bar</a>');
         const original = lexer.tokenizer;
         const before = audit(example);
-        const rawProjection = htmlSemantics(tokensToHtml(original(example.markdown, { hasBeginRules: false }), new Map()));
+        const rawProjection = htmlSemantics(tokensToHtml(original(example.markdown, { profile: 'inline' }), new Map()));
         vi.spyOn(lexer, 'tokenizer').mockImplementation((...args) => {
             const tokens = original(...args);
             mutateHtmlTokens(tokens, mutate);
@@ -42,7 +42,7 @@ describe('raw HTML parsed-field mutations', () => {
         expect(after.status).toBe('known-difference');
         expect(fingerprint(after)).not.toBe(fingerprint(before));
         expect(after.invariants).toEqual([]);
-        expect(htmlSemantics(tokensToHtml(lexer.tokenizer(example.markdown, { hasBeginRules: false }), new Map())))
+        expect(htmlSemantics(tokensToHtml(lexer.tokenizer(example.markdown, { profile: 'inline' }), new Map())))
             .toEqual(rawProjection);
     });
 
