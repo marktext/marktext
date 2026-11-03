@@ -2,9 +2,10 @@
 
 import { describe, expect, it } from 'vitest';
 import { renderToStaticHTML } from '../../state/renderToStaticHTML';
-import { generator, tokenizer } from '../lexer';
-import { linkValidateRules } from '../rules';
-import { lowerPriority } from '../utils';
+import { tokenizer } from '../lexer';
+import { lowerPriority } from '../parser/precedence';
+import { linkValidateRules } from '../parser/rules';
+import { generator } from '../serialization';
 
 describe('raw HTML at link text boundaries (#5978)', () => {
     it.each([

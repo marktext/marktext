@@ -3,7 +3,7 @@
 // The per-example titles carry CommonMark's own section heading and example
 // numbers so failures line up with the upstream spec.
 
-import type { ImageToken, LinkToken, Token } from '../types';
+import type { ImageToken, LinkToken, Token } from '../model/types';
 // @ts-expect-error commonmark-spec is plain CommonJS w/o types
 import cms from 'commonmark-spec';
 import { describe, expect, it } from 'vitest';

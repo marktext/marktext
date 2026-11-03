@@ -1,11 +1,13 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from 'vitest';
-import { generator, parseInline, SourceGenerationMode, tokenizer } from '../lexer';
+import { tokenizer } from '../lexer';
 import { tokenEvents } from '../model/traversal';
 import { BracketScanner } from '../parser/brackets';
+import { parseInline } from '../parser/lexer';
 import { profileForBlock } from '../parser/profiles';
 import { SourceWindow } from '../parser/sourceWindow';
 import Renderer from '../renderer';
+import { generator, SourceGenerationMode } from '../serialization';
 
 function emojiTokens(source: string) {
     return [...tokenEvents(parseInline(source, { profile: 'inline' }))]

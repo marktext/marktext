@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 
 import { describe, expect, it } from 'vitest';
-import { generator, SourceGenerationMode, tokenizer } from '../lexer';
+import { tokenizer } from '../lexer';
+import { generator, SourceGenerationMode } from '../serialization';
 
 describe('commonMark raw HTML grammar (#5980)', () => {
     it.each([

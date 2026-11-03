@@ -2,8 +2,10 @@
 
 import { describe, expect, it } from 'vitest';
 import { decodeMarkdownString } from '../../utils/markdownEscape';
-import { generator, tokenizer, tokensToPlainText } from '../lexer';
-import { parseSrcAndTitle } from '../linkDestination';
+import { tokenizer } from '../lexer';
+import { parseSrcAndTitle } from '../parser/linkDestination';
+import { tokensToPlainText } from '../projection';
+import { generator } from '../serialization';
 
 const options = { profile: 'inline' } as const;
 

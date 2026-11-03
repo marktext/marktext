@@ -1,7 +1,9 @@
 // @vitest-environment happy-dom
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { generator, SourceGenerationMode, tokenizer, tokensToInlineHtml, tokensToPlainText } from '../lexer';
+import { tokenizer } from '../lexer';
+import { tokensToInlineHtml, tokensToPlainText } from '../projection';
+import { generator, SourceGenerationMode } from '../serialization';
 
 const indexing = vi.hoisted(() => ({ characters: 0, reads: 0, htmlSteps: 0 }));
 

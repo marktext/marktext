@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import type { Token } from '../../inlineRenderer/types';
+import type { Token } from '../../inlineRenderer/model/types';
 import { describe, expect, it } from 'vitest';
 import { tokenizer } from '../../inlineRenderer/lexer';
 import { renderToStaticHTML } from '../renderToStaticHTML';

@@ -3,7 +3,8 @@
 import { performance } from 'node:perf_hooks';
 import { describe, expect, it } from 'vitest';
 import { renderToStaticHTML } from '../../state/renderToStaticHTML';
-import { generator, tokenizer } from '../lexer';
+import { tokenizer } from '../lexer';
+import { generator } from '../serialization';
 
 const OPTIONS = {
     superSubScript: false,

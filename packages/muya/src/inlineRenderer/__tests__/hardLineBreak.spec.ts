@@ -1,8 +1,9 @@
 // @vitest-environment happy-dom
 
-import type { Token } from '../types';
+import type { Token } from '../model/types';
 import { describe, expect, it } from 'vitest';
-import { generator, tokenizer } from '../lexer';
+import { tokenizer } from '../lexer';
+import { generator } from '../serialization';
 
 function breaks(tokens: Token[]): Token[] {
     return tokens.flatMap(token => [

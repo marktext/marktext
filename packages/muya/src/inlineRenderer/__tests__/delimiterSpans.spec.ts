@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /* eslint-disable test/prefer-lowercase-title */
 
-import type { StrongEmToken, Token } from '../types';
+import type { StrongEmToken, Token } from '../model/types';
 // @ts-expect-error commonmark-spec is plain CommonJS w/o types
 import cms from 'commonmark-spec';
 
@@ -9,9 +9,9 @@ import { describe, expect, it } from 'vitest';
 import { escapeHTML } from '../../utils';
 import autolinkFixtures from '../../utils/marked/__tests__/fixtures/gfm-autolink-precedence.json';
 import gfmFixtures from '../../utils/marked/__tests__/fixtures/gfm-delimiter-regressions.json';
-import { scanDelimiterSpans } from '../delimiters';
 import { tokenizer } from '../lexer';
-import { inlineRules } from '../rules';
+import { scanDelimiterSpans } from '../parser/delimiters';
+import { inlineRules } from '../parser/rules';
 
 const OPTIONS = {
     superSubScript: false,

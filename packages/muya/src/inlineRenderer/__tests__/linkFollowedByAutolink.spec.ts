@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import type { Token } from '../types';
+import type { Token } from '../model/types';
 import { describe, expect, it } from 'vitest';
 import { tokenizer } from '../lexer';
 

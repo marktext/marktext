@@ -1,6 +1,6 @@
 import type { MarkedExtension } from 'marked';
 
-// Mirrors the editor's `inline_diff` rule (inlineRenderer/rules.ts): one
+// Mirrors the editor's `inline_diff` rule (inlineRenderer/parser/rules.ts): one
 // pattern per delimiter pair, so a mixed `{+ … +]` cannot match.
 const RULES = [
     /^(\{\+)(?!\s*\+\})([^\n]+?)\+\}/,

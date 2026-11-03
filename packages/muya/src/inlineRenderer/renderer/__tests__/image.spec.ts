@@ -3,7 +3,7 @@
 import type { VNode } from 'snabbdom';
 import type Format from '../../../block/base/format';
 import type { IRenderCursor } from '../../../selection/types';
-import type { ImageToken } from '../../types';
+import type { ImageToken } from '../../model/types';
 import type Renderer from '../index';
 import { describe, expect, it, vi } from 'vitest';
 import { h } from '../../../utils/snabbdom';

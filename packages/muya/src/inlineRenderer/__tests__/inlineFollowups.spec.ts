@@ -1,7 +1,9 @@
 // @vitest-environment happy-dom
 
 import { describe, expect, it } from 'vitest';
-import { generator, tokenizer, tokensToPlainText } from '../lexer';
+import { tokenizer } from '../lexer';
+import { tokensToPlainText } from '../projection';
+import { generator } from '../serialization';
 
 const options = { superSubScript: false, footnote: false, texMathDollars: false, texMathGfm: false, texMathSingleBackslash: false, texMathDoubleBackslash: false, highlightSyntax: false };
 const parse = (source: string) => tokenizer(source, { profile: 'inline', options });

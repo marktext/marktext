@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import type Format from '../../../block/base/format';
-import type { HardLineBreakToken } from '../../types';
+import type { HardLineBreakToken } from '../../model/types';
 import type Renderer from '../index';
 import { describe, expect, it } from 'vitest';
 import { CLASS_NAMES } from '../../../config';

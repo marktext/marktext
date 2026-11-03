@@ -1,4 +1,4 @@
-import type { Token } from '../../src/inlineRenderer/types';
+import type { Token } from '../../src/inlineRenderer/model/types';
 import type { IInlineExample } from './fixtures';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as referenceDefinitions from '../../src/inlineRenderer/referenceDefinitions';

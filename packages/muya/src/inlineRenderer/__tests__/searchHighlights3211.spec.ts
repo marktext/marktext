@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import type { IHighlight, Token } from '../types';
+import type { IHighlight, Token } from '../model/types';
 import { describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../muya';
 import { union } from '../../utils';

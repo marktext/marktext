@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 
 import { describe, expect, it } from 'vitest';
-import { tokenizer, tokensToInlineHtml, tokensToPlainText } from '../lexer';
+import { tokenizer } from '../lexer';
+import { tokensToInlineHtml, tokensToPlainText } from '../projection';
 
 const options = {
     superSubScript: true,

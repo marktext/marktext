@@ -1,10 +1,11 @@
 // @vitest-environment happy-dom
 
-import type { MarkToken } from '../types';
+import type { MarkToken } from '../model/types';
 import { describe, expect, it } from 'vitest';
 import { getClipBoardHtml } from '../../utils/marked/getClipboardHtml';
 import { getHighlightHtml } from '../../utils/marked/getHighlightHtml';
-import { generator, SourceGenerationMode, tokenizer } from '../lexer';
+import { tokenizer } from '../lexer';
+import { generator, SourceGenerationMode } from '../serialization';
 
 const OPTIONS = {
     superSubScript: false,

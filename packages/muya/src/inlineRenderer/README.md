@@ -31,9 +31,9 @@ including editable heading prefixes. It does not change Markdown dialect rules.
 `profile` is the only prefix-policy input; it defaults to `paragraph`. Nested
 frames always use `inline`, which disables prefix and reference-definition rules.
 
-`parseInline()` does not add search decorations. `tokenizer()` retains the old
-parse-plus-decoration API. Existing root module paths and token type names remain
-import-path aliases only; production consumers import the owning modules.
+`parseInline()` does not add search decorations. `tokenizer()` combines parsing
+and search decoration. Import each symbol directly from its defining module;
+there are no forwarding exports or compatibility barrels in this module.
 `generator()` accepts only `SourceGenerationMode`: `PreserveSource` joins raw
 tokens, while `RebuildWrappers` reflects child edits inside source wrappers.
 Container renderers require a child-node accessor from the current render session;

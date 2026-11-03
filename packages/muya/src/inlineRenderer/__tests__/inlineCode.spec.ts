@@ -2,8 +2,10 @@
 
 import { marked } from 'marked';
 import { describe, expect, it } from 'vitest';
-import { CodeSpanScanner } from '../codeSpan';
-import { generator, tokenizer, tokensToInlineHtml, tokensToPlainText } from '../lexer';
+import { tokenizer } from '../lexer';
+import { CodeSpanScanner } from '../parser/codeSpan';
+import { tokensToInlineHtml, tokensToPlainText } from '../projection';
+import { generator } from '../serialization';
 
 describe('live code spans (#5978)', () => {
     it.each([

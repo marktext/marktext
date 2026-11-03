@@ -1,4 +1,4 @@
-import type { HTMLTagToken, Token } from '../../src/inlineRenderer/types';
+import type { HTMLTagToken, Token } from '../../src/inlineRenderer/model/types';
 import type { IInlineExample } from './fixtures';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as lexer from '../../src/inlineRenderer/lexer';

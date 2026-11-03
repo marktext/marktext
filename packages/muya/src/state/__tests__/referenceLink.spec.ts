@@ -1,7 +1,7 @@
 import type { TContainerState, TState } from '../types';
 import { describe, expect, it } from 'vitest';
 import { tokenizer } from '../../inlineRenderer/lexer';
-import { beginRules } from '../../inlineRenderer/rules';
+import { beginRules } from '../../inlineRenderer/parser/rules';
 import { MarkdownToState } from '../markdownToState';
 import ExportMarkdown from '../stateToMarkdown';
 

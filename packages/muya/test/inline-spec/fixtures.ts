@@ -1,5 +1,5 @@
 import type { Tokens } from 'marked';
-import type { IReferenceDefinition, Labels } from '../../src/inlineRenderer/types';
+import type { IReferenceDefinition, Labels } from '../../src/inlineRenderer/model/types';
 import type { ISpecExample } from '../spec/runner';
 // @ts-expect-error commonmark-spec has no TypeScript declaration.
 import cms from 'commonmark-spec';
