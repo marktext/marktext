@@ -93,6 +93,7 @@ export const editor = {
     // is the actual `<u>`, `<mark>`, `<sup>`, `<sub>` or `<ruby>` element.
     rawHtml: '.mu-raw-html',
     htmlTagMarker: 'span.mu-html-tag',
+    htmlEscape: '.mu-html-escape',
 } as const;
 
 // Float root class names confirmed against the `const name = 'mu-...'` lines

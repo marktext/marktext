@@ -17,6 +17,7 @@ import type BulletList from '../../commonMark/bulletList';
 import type Paragraph from '../../commonMark/paragraph';
 import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
 import { tokenizer } from '../../../inlineRenderer/lexer';
+import { tokenEvents } from '../../../inlineRenderer/tokenTraversal';
 import { isListItemState, isTaskListItemState } from '../../../state/types';
 import { ChangeSource } from '../../../types';
 import { firstWordOfInfo, isKeyboardEvent, isLengthEven, parseFenceLine } from '../../../utils';
@@ -810,35 +811,19 @@ class ParagraphContent extends Format {
             hasBeginRules: false,
             options: muya.options,
         });
-        let result = null;
-
-        const walkTokens = (ts: Token[]) => {
-            for (const token of ts) {
-                const { type, range } = token;
-                const { start, end } = range;
-
-                if (
-                    BOTH_SIDES_FORMATS.includes(type)
-                    && offset > start
-                    && offset < end
-                ) {
-                    const handler = END_FORMAT_HANDLERS[type];
-                    const hit = handler ? handler(token, offset) : null;
-                    if (hit) {
-                        result = hit;
-
-                        return;
-                    }
-                }
-
-                if ('children' in token && Array.isArray(token.children))
-                    walkTokens(token.children);
+        for (const { token, exiting } of tokenEvents(tokens)) {
+            if (exiting)
+                continue;
+            const { type, range: { start, end } } = token;
+            if (BOTH_SIDES_FORMATS.includes(type) && offset > start && offset < end) {
+                const handler = END_FORMAT_HANDLERS[type];
+                const hit = handler ? handler(token, offset) : null;
+                if (hit)
+                    return hit;
             }
-        };
+        }
 
-        walkTokens(tokens);
-
-        return result;
+        return null;
     }
 
     override tabHandler(event: Event) {

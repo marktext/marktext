@@ -1,4 +1,5 @@
-import { escapeCharacters } from '../config/escapeCharacter';
+import { ASCII_PUNCTUATION, CHARACTER_REFERENCE } from '../utils/markdownEscape';
+import { rawHtmlToken } from './rawHtml';
 
 export const beginRules = {
     hr: /^(\*{3,}|-{3,}|_{3,})$/,
@@ -11,7 +12,7 @@ export const beginRules = {
     header: /(^ {0,3}#{1,6}(\s+|$))/,
     reference_definition:
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/no-misleading-capturing-group
-    /^( {0,3}\[)((?:\\.|[^[\]\\]){1,999}?)(\\*)(\]:[ \t]*)(<?)([^\s>]+)(>?)(?:( +)(["'(]?)([^\n"'()]+)\9)?( *)$/,
+    /^( {0,3}\[)((?:\\.|[^[\]\\]){1,999}?)(\\*)(\]:[ \t]*)(<?)([^\s>]+)(>?)(?:([ \t]+)(["'(]?)([^\n"'()]+)\9)?([ \t]*)$/,
 
     // extra syntax (not belongs to GFM)
     multiple_math: /^(\$\$)$/,
@@ -24,18 +25,13 @@ export const endRules = {
 export type BeginRules = typeof beginRules;
 
 export const commonMarkRules = {
-    // CDATA must stay atomic: its brackets cannot open links or images (#5981).
-    // Consume multiline tags before considering hard breaks in their attributes (§6.7).
-    // A tag name needs a boundary; attached punctuation cannot open attributes (#5979).
-    html_tag:
-    /^(<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|(<([a-z][a-z\d-]*)(?=[ \t\n\r/>])[^<>]*>)(?:([\s\S]*?)(<\/\3 *>))?)/i,
-    html_escape: new RegExp(`^(${escapeCharacters.join('|')})`, 'i'),
+    html_tag: rawHtmlToken,
+    html_escape: new RegExp(`^${CHARACTER_REFERENCE.source}`, 'i'),
     soft_line_break: /^[ \t]*(\n)(?!\n)[ \t]*/,
     // Tabs may precede the two trailing spaces; the lookahead keeps this scan linear.
     hard_line_break: /^((?=[ \t]* {2}\n)[ \t]+|\\)(\n)(?!\n)( *)/,
 
-    // patched math marker `$`
-    backlash: /^(\\)([\\`*{}[\]()#+\-.!_>~:|<$])/,
+    backlash: new RegExp(`^(\\\\)(${ASCII_PUNCTUATION.source})`),
 };
 
 export type CommonMarkRules = typeof commonMarkRules;
@@ -149,25 +145,6 @@ export const emojiValidateRules: EmojiValidateRules = (Object.keys(inlineRules) 
         };
     }
 }, {} as EmojiValidateRules);
-
-// Only code spans, raw HTML tokens and angle-bracket autolinks can consume a
-// link-text bracket (CommonMark §6.3). Bare autolinks and the greedy link
-// destination rule must not veto the link (#4671).
-// CommonMark §6.6 makes each raw HTML token atomic, not the paired elements
-// grouped by the renderer's html_tag rule; a closing tag may be in a link's URL.
-const htmlSpace = /[ \t]*(?:(?:\r\n?|\n)[ \t]*)?/.source;
-const htmlTagName = /[A-Za-z][A-Za-z\d-]*/.source;
-const htmlAttributeName = /[A-Za-z_:][\w.:-]*/.source;
-const htmlAttributeValue = /(?:"[^"]*"|'[^']*'|[^ \t\r\n"'=<>`]+)/.source;
-const htmlAttribute = `(?=[ \\t\\r\\n])${htmlSpace}${htmlAttributeName}(?:${htmlSpace}=${htmlSpace}${htmlAttributeValue})?`;
-const rawHtmlToken = new RegExp(`^(?:${[
-    `<${htmlTagName}(?:${htmlAttribute})*${htmlSpace}/?>`,
-    `</${htmlTagName}${htmlSpace}>`,
-    /<!--(?:>|->|[\s\S]*?-->)/.source,
-    /<\?[\s\S]*?\?>/.source,
-    /<![A-Za-z][^>]*>/.source,
-    /<!\[CDATA\[[\s\S]*?\]\]>/.source,
-].join('|')})`);
 
 export const linkValidateRules: Pick<InlineRules, 'html_tag' | 'auto_link'> = {
     html_tag: rawHtmlToken,

@@ -3,8 +3,9 @@ import type { Labels } from '../../src/inlineRenderer/types';
 import type { ISpecExample } from '../spec/runner';
 // @ts-expect-error commonmark-spec has no TypeScript declaration.
 import cms from 'commonmark-spec';
-import { Lexer } from 'marked';
+import { Marked } from 'marked';
 import InlineRenderer from '../../src/inlineRenderer';
+import referenceDefinitionTabs from '../../src/utils/marked/extensions/referenceDefinitionTabs';
 import gfmExamples from '../spec/fixtures/gfm-spec-0.29-gfm.json';
 
 export type Suite = 'commonmark' | 'gfm';
@@ -39,11 +40,18 @@ const INLINE_SECTIONS = new Set([
 export const examples: IInlineExample[] = [
     ...(cms.tests as ISpecExample[]).map(example => ({ ...example, suite: 'commonmark' as const })),
     ...gfmExamples.map(example => ({ ...example, suite: 'gfm' as const })),
-].filter(example => INLINE_SECTIONS.has(example.section)).map(example => ({ ...example, id: `${example.suite}:${example.number}` }));
+].filter(example => INLINE_SECTIONS.has(example.section)).map(example => ({
+    ...example,
+    // These fixtures retain spec.txt's visible tab notation; official spec.json uses U+0009.
+    markdown: example.markdown.replace(/→/g, '\t'),
+    html: example.html.replace(/→/g, '\t'),
+    id: `${example.suite}:${example.number}`,
+}));
 
 export function adaptFixture(example: IInlineExample): AdaptedFixture {
     // Only block tokenization is used. Marked's inline tokens and resolved links are never the oracle.
-    const tokens = new Lexer({ gfm: example.suite === 'gfm' }).blockTokens(example.markdown);
+    const marked = new Marked({ gfm: example.suite === 'gfm' }, referenceDefinitionTabs());
+    const tokens = new marked.Lexer(marked.defaults).blockTokens(example.markdown);
     const unsupported = tokens.filter(token => !['paragraph', 'heading', 'def', 'space'].includes(token.type));
     if (unsupported.length)
         return { uncovered: `Block adapter does not support: ${[...new Set(unsupported.map(token => token.type))].join(', ')}` };

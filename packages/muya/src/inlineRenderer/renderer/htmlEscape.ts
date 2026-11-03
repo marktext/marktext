@@ -1,7 +1,6 @@
 import type { HTMLEscapeToken, ISyntaxRenderOptions } from '../types';
 import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
-import escapeCharactersMap from '../../config/escapeCharacter';
 
 export default function htmlEscape(
     this: Renderer,
@@ -14,7 +13,6 @@ export default function htmlEscape(
     }: ISyntaxRenderOptions & { token: HTMLEscapeToken },
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
-    const { escapeCharacter } = token;
     const { start, end } = token.range;
 
     const content = this.highlight(h, block, start, end, token);
@@ -24,7 +22,7 @@ export default function htmlEscape(
             `span.${className}.${CLASS_NAMES.MU_HTML_ESCAPE}`,
             {
                 dataset: {
-                    character: escapeCharactersMap[escapeCharacter],
+                    character: token.content,
                 },
             },
             h(`span.${CLASS_NAMES.MU_HTML_ESCAPE_MARKER}`, content),

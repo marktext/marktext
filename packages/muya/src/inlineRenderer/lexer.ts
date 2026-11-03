@@ -1,9 +1,10 @@
 import type { IDelimiterSpan } from '../utils/delimiters';
 import type { ImageMatch, LinkMatch } from './brackets';
-import type { ICodeSpanMatch } from './codeSpan';
+import type { ICodeSpanMatch, ICodeSpanReader } from './codeSpan';
 import type { BeginRules, InlineRules } from './rules';
 import type {
     CodeEmojiMathToken,
+    HTMLTagToken,
     ImageToken,
     ITokenizerFacOptions,
     ITokenizerOptions,
@@ -11,43 +12,43 @@ import type {
     ReferenceImageToken,
     Token,
 } from './types';
-import escapeCharactersMap from '../config/escapeCharacter';
 import { escapeHTML, isLengthEven } from '../utils';
 import { validEmoji } from '../utils/emoji';
+import { decodeCharacterReference } from '../utils/markdownEscape';
 import { BracketScanner } from './brackets';
 import { codeSpanContent, CodeSpanScanner } from './codeSpan';
 import { scanDelimiterSpans } from './delimiters';
+import { HtmlTagScanner } from './rawHtml';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules } from './rules';
 import { applySearchHighlights } from './searchHighlights';
+import { tokenEvents } from './tokenTraversal';
 import {
     getAttributes,
     lowerPriority,
     matchExtendedAutoLink,
 } from './utils';
 
-// const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'a_link', 'reference_link', 'html_tag']
-// disallowed html tags in https://github.github.com/gfm/#raw-html
-const disallowedHtmlTag
-    = /title|textarea|style|xmp|iframe|noembed|noframes|script|plaintext/i;
-
-interface IImageDescription {
+interface IInlineContent {
     source: string;
     position: number;
-    token: ImageToken | ReferenceImageToken;
+    token: ImageToken | ReferenceImageToken | HTMLTagToken;
     tokens: Token[];
 }
 
 interface ILexContext {
+    offset: number;
+    codeSpans: CodeSpanScanner;
     brackets: BracketScanner;
-    // Shared by inline children; alt values are finalized before the root tokenizer returns.
-    imageDescriptions: IImageDescription[];
+    htmlTags: HtmlTagScanner;
+    // One root-owned queue keeps unbounded HTML/image nesting off the JS call stack.
+    inlineContents: IInlineContent[];
 }
 
 // Mutable cursor + accumulator threaded through every inline-rule handler.
 // `src`/`pos` advance as input is consumed; `pending`/`pendingStartPos`
 // accumulate plain text between matched tokens; `tokens` collects the output.
 interface ILexState {
-    codeSpans?: CodeSpanScanner;
+    codeSpans: ICodeSpanReader;
     context: ILexContext;
     originSrc: string;
     src: string;
@@ -464,7 +465,7 @@ function consumeImage(state: ILexState, match: ImageMatch): void {
         };
     }
     state.tokens.push(token);
-    state.context.imageDescriptions.push({ source: match.description, position: state.pos + 2, token, tokens: [] });
+    state.context.inlineContents.push({ source: match.description, position: state.pos + 2, token, tokens: [] });
     state.src = state.src.substring(match.raw.length);
     state.pos += match.raw.length;
 }
@@ -519,17 +520,23 @@ function consumeBracket(state: ILexState, match: ImageMatch | LinkMatch): void {
         consumeLink(state, match);
 }
 
-function tryHtmlEscape(state: ILexState): boolean {
-    const htmlEscapeTo = state.inlineRules.html_escape.exec(state.src);
-    if (!htmlEscapeTo)
-        return false;
+function matchHtmlEscape(src: string, pattern: RegExp): { raw: string; content: string } | null {
+    const match = src[0] === '&' ? pattern.exec(src) : null;
+    if (!match)
+        return null;
+    const raw = match[0];
+    const content = decodeCharacterReference(raw);
+    return content === raw ? null : { raw, content };
+}
 
-    const len = htmlEscapeTo[0].length;
+function consumeHtmlEscape(state: ILexState, raw: string, content: string): void {
+    const len = raw.length;
     pushPending(state);
     state.tokens.push({
         type: 'html_escape',
-        raw: htmlEscapeTo[0],
-        escapeCharacter: htmlEscapeTo[1],
+        raw,
+        escapeCharacter: raw,
+        content,
         parent: state.tokens,
         range: {
             start: state.pos,
@@ -538,8 +545,6 @@ function tryHtmlEscape(state: ILexState): boolean {
     });
     state.src = state.src.substring(len);
     state.pos = state.pos + len;
-
-    return true;
 }
 
 function tryAutoLinkExtension(state: ILexState): boolean {
@@ -599,78 +604,21 @@ function tryAutoLink(state: ILexState): boolean {
     return true;
 }
 
-// html-tag
-function tryHtmlTag(state: ILexState): boolean {
-    const htmlTo = state.inlineRules.html_tag.exec(state.src);
-    let attrs;
-    // handle comment
-    if (htmlTo && htmlTo[1] && !htmlTo[3]) {
-        const len = htmlTo[0].length;
-        pushPending(state);
-        state.tokens.push({
-            type: 'html_tag',
-            raw: htmlTo[0],
-            tag: '<!---->',
-            openTag: htmlTo[1],
-            parent: state.tokens,
-            attrs: {},
-            range: {
-                start: state.pos,
-                end: state.pos + len,
-            },
-        });
-        state.src = state.src.substring(len);
-        state.pos = state.pos + len;
-
-        return true;
-    }
-
-    if (
-        htmlTo
-        && !disallowedHtmlTag.test(htmlTo[3])
-        // eslint-disable-next-line no-cond-assign
-        && (attrs = getAttributes(htmlTo[0]))
-    ) {
-        const tag = htmlTo[3];
-        const html = htmlTo[0];
-        const len = htmlTo[0].length;
-
-        pushPending(state);
-        state.tokens.push({
-            type: 'html_tag',
-            raw: html,
-            tag,
-            openTag: htmlTo[2],
-            closeTag: htmlTo[5],
-            parent: state.tokens,
-            attrs,
-            content: htmlTo[4],
-            children: htmlTo[4]
-                ? tokenizerFac(
-                        htmlTo[4],
-                        null,
-                        state.inlineRules,
-                        state.pos + htmlTo[2].length,
-                        false,
-                        state.labels,
-                        state.options,
-                        null,
-                        false,
-                        state.context,
-                    )
-                : [],
-            range: {
-                start: state.pos,
-                end: state.pos + len,
-            },
-        });
-        state.src = state.src.substring(len);
-        state.pos = state.pos + len;
-
-        return true;
-    }
-
-    return false;
+function consumeHtmlTag(state: ILexState, html: NonNullable<ReturnType<HtmlTagScanner['read']>>): void {
+    pushPending(state);
+    const token: HTMLTagToken = {
+        type: 'html_tag',
+        ...html,
+        parent: state.tokens,
+        attrs: html.kind === 'tag' ? getAttributes(html.openTag) : {},
+        children: [],
+        range: { start: state.pos, end: state.pos + html.raw.length },
+    };
+    state.tokens.push(token);
+    if (html.content)
+        state.context.inlineContents.push({ source: html.content, position: state.pos + html.openTag.length, token, tokens: [] });
+    state.src = state.src.substring(html.raw.length);
+    state.pos += html.raw.length;
 }
 
 function consumeSoftLineBreak(state: ILexState, softTo: RegExpExecArray): void {
@@ -748,10 +696,8 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryDelimiterSpan,
     trySuperSubScript,
     tryFootnote,
-    tryHtmlEscape,
     tryAutoLinkExtension,
     tryAutoLink,
-    tryHtmlTag,
     tryTailHeader,
 ];
 
@@ -785,15 +731,76 @@ function consumeBacktickRun(state: ILexState, match: ICodeSpanMatch): void {
     state.src = state.src.substring(length);
 }
 
+function consumeInlineSource(state: ILexState): void {
+    while (state.src.length) {
+        if (state.src[0] === '`') {
+            const code = state.codeSpans.read(state.pos - state.basePos)!;
+            consumeBacktickRun(state, code);
+            continue;
+        }
+
+        // Enabled square-bracket extensions own their markers before link consumption.
+        const chunk = matchChunk(state);
+        if (chunk) {
+            consumeChunk(state, chunk);
+            continue;
+        }
+
+        const bracket = state.context.brackets.read(state.pos, state.basePos + state.originSrc.length);
+        if (bracket) {
+            consumeBracket(state, bracket);
+            continue;
+        }
+
+        const reference = matchHtmlEscape(state.src, state.inlineRules.html_escape);
+        if (reference) {
+            consumeHtmlEscape(state, reference.raw, reference.content);
+            continue;
+        }
+
+        let consumed = false;
+        for (const handler of INLINE_HANDLERS) {
+            if (handler(state)) {
+                consumed = true;
+                break;
+            }
+        }
+        if (consumed)
+            continue;
+
+        const html = state.src[0] === '<' ? state.context.htmlTags.read(state.pos - state.context.offset, state.basePos + state.originSrc.length - state.context.offset) : null;
+        if (html) {
+            consumeHtmlTag(state, html);
+            continue;
+        }
+
+        const hardBreak = state.inlineRules.hard_line_break.exec(state.src);
+        if (hardBreak) {
+            consumeHardLineBreak(state, hardBreak);
+            continue;
+        }
+
+        const softBreak = state.inlineRules.soft_line_break.exec(state.src);
+        if (softBreak) {
+            consumeSoftLineBreak(state, softBreak);
+            continue;
+        }
+
+        if (!state.pending)
+            state.pendingStartPos = state.pos;
+        state.pending += state.src[0];
+        state.src = state.src.substring(1);
+        state.pos++;
+    }
+
+    pushPending(state);
+}
+
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, delimiterSpans: Map<number, IDelimiterSpan> | null = null, allowAutolinks = top, parentContext?: ILexContext) {
     const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = options;
-    const codeSpans = src.includes('`') ? new CodeSpanScanner(src) : undefined;
-    const context = parentContext ?? {
-        brackets: new BracketScanner(src, labels, codeSpans, { rules: inlineRules, options, offset: pos }),
-        imageDescriptions: [],
-    };
+    const context = parentContext ?? createLexContext(src, pos, inlineRules, labels, options);
     const state: ILexState = {
-        codeSpans,
+        codeSpans: context.codeSpans.view(pos - context.offset, pos + src.length - context.offset),
         context,
         originSrc: src,
         src,
@@ -821,70 +828,30 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
     if (beginRules && state.pos === 0)
         consumeBeginRules(state, beginRules);
 
-    while (state.src.length) {
-        if (state.src[0] === '`') {
-            const code = state.codeSpans!.read(state.pos - state.basePos)!;
-            consumeBacktickRun(state, code);
-            continue;
-        }
-
-        // Enabled square-bracket extensions own their markers before link consumption.
-        const chunk = matchChunk(state);
-        if (chunk) {
-            consumeChunk(state, chunk);
-            continue;
-        }
-
-        const bracket = state.context.brackets.read(state.pos, state.basePos + state.originSrc.length);
-        if (bracket) {
-            consumeBracket(state, bracket);
-            continue;
-        }
-
-        let consumed = false;
-        for (const handler of INLINE_HANDLERS) {
-            if (handler(state)) {
-                consumed = true;
-                break;
-            }
-        }
-        if (consumed)
-            continue;
-
-        const hardBreak = state.inlineRules.hard_line_break.exec(state.src);
-        if (hardBreak) {
-            consumeHardLineBreak(state, hardBreak);
-            continue;
-        }
-
-        const softBreak = state.inlineRules.soft_line_break.exec(state.src);
-        if (softBreak) {
-            consumeSoftLineBreak(state, softBreak);
-            continue;
-        }
-
-        if (!state.pending)
-            state.pendingStartPos = state.pos;
-        state.pending += state.src[0];
-        state.src = state.src.substring(1);
-        state.pos++;
-    }
-
-    pushPending(state);
+    consumeInlineSource(state);
     if (!parentContext)
-        resolveImageDescriptions(context, inlineRules, labels, options);
+        resolveInlineContents(context, inlineRules, labels, options);
 
     return state.tokens;
 }
 
-function resolveImageDescriptions(context: ILexContext, rules: InlineRules, labels: Labels, options: ITokenizerFacOptions): void {
-    // Image nesting is unbounded; resolve descendants before parents without consuming the JS call stack.
-    for (const description of context.imageDescriptions) {
-        description.tokens = tokenizerFac(description.source, null, rules, description.position, false, labels, options, null, false, context);
+function createLexContext(source: string, offset: number, rules: InlineRules, labels: Labels, options: ITokenizerFacOptions): ILexContext {
+    const codeSpans = new CodeSpanScanner(source);
+    const brackets = new BracketScanner(source, labels, codeSpans, { rules, options, offset });
+    const htmlTags = new HtmlTagScanner(source, index => brackets.protectedEnd(index + offset) - offset);
+    return { offset, codeSpans, brackets, htmlTags, inlineContents: [] };
+}
+
+function resolveInlineContents(context: ILexContext, rules: InlineRules, labels: Labels, options: ITokenizerFacOptions): void {
+    for (const content of context.inlineContents) {
+        content.tokens = tokenizerFac(content.source, null, rules, content.position, false, labels, options, null, false, context);
+        if (content.token.type === 'html_tag')
+            content.token.children = content.tokens;
     }
-    for (let i = context.imageDescriptions.length - 1; i >= 0; i--) {
-        const { token, tokens } = context.imageDescriptions[i];
-        token.attrs.alt = tokensToPlainText(tokens, '\n');
+    for (let i = context.inlineContents.length - 1; i >= 0; i--) {
+        const { token, tokens } = context.inlineContents[i];
+        if (token.type !== 'html_tag')
+            token.attrs.alt = tokensToPlainText(tokens, '\n');
     }
 }
 
@@ -918,38 +885,33 @@ export function tokenizer(src: string, {
     return tokens;
 }
 
-// transform `tokens` to text ignore the range of token
-// the opposite of tokenizer
-// Rebuild a marker-wrapped token from its children instead of its stale cached
-// `raw` (#2063). Link/image keep their stored raw.
-function rebuildWrapperToken(token: Token): string {
+function wrapperParts(token: Token): [string, string] | null {
     switch (token.type) {
         case 'strong':
         case 'em':
         case 'del':
         case 'mark':
-            return token.marker + generator(token.children, true) + token.backlash + token.marker;
-
+            return [token.marker, token.backlash + token.marker];
         case 'html_tag':
-            if (token.openTag != null && token.closeTag != null && token.children != null)
-                return token.openTag + generator(token.children, true) + token.closeTag;
-
-            return token.raw;
-
+            return token.closeTag !== undefined && token.children !== undefined ? [token.openTag, token.closeTag] : null;
         default:
-            return token.raw;
+            return null;
     }
 }
 
-// `rebuildWrappers` is opt-in: only `format()` mutates a wrapper's children;
-// `backspaceHandler` trims a marker off `raw` and needs it echoed verbatim.
-export function generator(tokens: Token[], rebuildWrappers = false) {
-    let result = '';
-
-    for (const token of tokens)
-        result += rebuildWrappers ? rebuildWrapperToken(token) : token.raw;
-
-    return result;
+// Rebuild wrappers for child edits (#2063); raw preserves marker edits from Backspace.
+export function generator(tokens: Token[], rebuildWrappers = false): string {
+    if (!rebuildWrappers)
+        return tokens.map(token => token.raw).join('');
+    const parts: string[] = [];
+    for (const { token, exiting } of tokenEvents(tokens, token => wrapperParts(token) !== null)) {
+        const wrapper = wrapperParts(token);
+        if (wrapper)
+            parts.push(wrapper[exiting ? 1 : 0]);
+        else if (!exiting)
+            parts.push(token.raw);
+    }
+    return parts.join('');
 }
 
 function leafTokenToPlainText(token: Token): string {
@@ -977,7 +939,7 @@ function leafTokenToPlainText(token: Token): string {
             return token.raw.replace(/^\\/, '');
 
         case 'html_escape':
-            return escapeCharactersMap[token.escapeCharacter] ?? token.raw;
+            return token.content;
 
         case 'auto_link':
             // `<http://x>` / `<foo@bar.com>` show verbatim between the
@@ -1006,17 +968,13 @@ function leafTokenToPlainText(token: Token): string {
 // it to show and slug headings by their rendered text instead of raw source
 // (#4811).
 export function tokensToPlainText(tokens: Token[], lineBreak = ' '): string {
-    let result = '';
-
-    for (const token of tokens) {
-        result += 'children' in token && token.children
-            ? tokensToPlainText(token.children, lineBreak)
-            : token.type === 'soft_line_break' || token.type === 'hard_line_break'
-                ? lineBreak
-                : leafTokenToPlainText(token);
+    const parts: string[] = [];
+    for (const { token, exiting } of tokenEvents(tokens)) {
+        if (exiting || ('children' in token && token.children))
+            continue;
+        parts.push(token.type === 'soft_line_break' || token.type === 'hard_line_break' ? lineBreak : leafTokenToPlainText(token));
     }
-
-    return result;
+    return parts.join('');
 }
 
 // Unknown shortcodes fall back to the raw `:code:`, matching the editor.
@@ -1036,48 +994,37 @@ function inlineDiffHtml(marker: string, content: string): string {
 // content as its plain counterpart so the shown heading and its slug stay in
 // step, which is why links, images and math stay flattened to text.
 export function tokensToInlineHtml(tokens: Token[]): string {
-    let result = '';
-
-    for (const token of tokens) {
+    const parts: string[] = [];
+    for (const { token, exiting } of tokenEvents(tokens)) {
+        if (token.type === 'strong' || token.type === 'em' || token.type === 'del' || token.type === 'mark') {
+            parts.push(exiting ? `</${token.type}>` : `<${token.type}>`);
+            continue;
+        }
+        if (exiting)
+            continue;
         switch (token.type) {
-            case 'strong':
-            case 'em':
-            case 'del':
-            case 'mark':
-                result += `<${token.type}>${tokensToInlineHtml(token.children)}</${token.type}>`;
-                break;
-
             case 'inline_diff':
-                result += inlineDiffHtml(token.marker, token.content);
+                parts.push(inlineDiffHtml(token.marker, token.content));
                 break;
-
             case 'inline_code':
-                result += `<code>${escapeHTML(token.content)}</code>`;
+                parts.push(`<code>${escapeHTML(token.content)}</code>`);
                 break;
-
             case 'super_sub_script': {
                 const tag = token.marker === '^' ? 'sup' : 'sub';
-                result += `<${tag}>${escapeHTML(token.content)}</${tag}>`;
+                parts.push(`<${tag}>${escapeHTML(token.content)}</${tag}>`);
                 break;
             }
-
             case 'link':
             case 'reference_link':
-                result += tokensToInlineHtml(token.children);
                 break;
-
             case 'html_tag':
-                if (token.children)
-                    result += tokensToInlineHtml(token.children);
-                else if (token.content)
-                    result += escapeHTML(token.content);
+                if (!token.children && token.content)
+                    parts.push(escapeHTML(token.content));
                 break;
-
             default:
-                result += escapeHTML(leafTokenToPlainText(token));
+                parts.push(escapeHTML(leafTokenToPlainText(token)));
                 break;
         }
     }
-
-    return result;
+    return parts.join('');
 }

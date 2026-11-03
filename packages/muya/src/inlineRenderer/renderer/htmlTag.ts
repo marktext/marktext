@@ -57,7 +57,8 @@ function buildRawHtmlTag(
         dataset: {
             start: String(start),
             end: String(end),
-            raw: token.raw,
+            // Link tools need anchor source; copying every wrapper would make nested output quadratic.
+            ...(tag === 'a' ? { raw: token.raw } : {}),
         },
     };
 
@@ -107,6 +108,10 @@ function buildRawHtmlTag(
     ];
 }
 
+export function isLiteralHtml(token: HTMLTagToken): boolean {
+    return !!(token.kind && token.kind !== 'tag') || /^(?:title|textarea|style|xmp|iframe|noembed|noframes|script|plaintext)$/i.test(token.tag);
+}
+
 export default function htmlTag(
     this: Renderer,
     {
@@ -137,6 +142,10 @@ export default function htmlTag(
         ? this.highlight(h, block, end - closeTag.length, end, token)
         : '';
 
+    if (isLiteralHtml(token)) {
+        return [h(`span.${CLASS_NAMES.MU_HTML_TAG}`, this.highlight(h, block, start, end, token))];
+    }
+
     const anchor = renderHtmlTagChildren(this, h, cursor, block, token);
 
     switch (tag) {
@@ -148,6 +157,7 @@ export default function htmlTag(
                 token: {
                     ...token,
                     tag,
+                    kind: 'tag',
                 },
                 outerClass,
             });

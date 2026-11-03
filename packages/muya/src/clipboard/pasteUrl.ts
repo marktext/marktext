@@ -4,6 +4,7 @@ import type { ITextSelectionState } from '../selection/types';
 import type Clipboard from './index';
 import { tokenizer } from '../inlineRenderer/lexer';
 import { createTextSelectionState } from '../selection/state';
+import { escapeLinkAttribute } from '../utils/markdownEscape';
 import { PasteType } from './types';
 
 function singleHttpUrl(text: string): string | null {
@@ -92,7 +93,7 @@ export function getUrlPaste(clipboard: Clipboard, block: Content, text: string, 
         return null;
     const label = escapeLabel(tokens, block.text, start, end);
     // Escaping delimiters keeps URL parentheses and backslashes out of Markdown syntax.
-    const destination = url.replace(/[\\()<>]/g, '\\$&').replace(/\|/g, '%7C');
+    const destination = escapeLinkAttribute(url).replace(/[()]/g, '\\$&').replace(/\|/g, '%7C');
     const link = `[${label}](${destination})`;
     return { start, end, link, selection: createTextSelectionState(cursor.anchor, cursor.focus) };
 }

@@ -31,7 +31,7 @@ describe('image destination preservation when editing a title', () => {
         ['assets/a&#9;.png', 'assets/a\t.png'],
     ])('keeps the destination from %j through edits, history and reloads', (raw, src) => {
         const muya = bootMuya(`![alt](${raw} "old")\n`);
-        for (const title of ['new', 'new again']) {
+        for (const title of ['new', 'new again', '&ouml; \"quoted\" \\*']) {
             const block = muya.editor.scrollPage!.firstContentInDescendant();
             if (!(block instanceof Format))
                 throw new Error('Expected a formattable image block');

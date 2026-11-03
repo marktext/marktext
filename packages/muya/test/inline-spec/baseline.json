@@ -2,16 +2,6 @@
     "commonmarkVersion": "0.31.2",
     "gfmVersion": "0.29-gfm",
     "entries": {
-        "commonmark:12": {
-            "status": "known-difference",
-            "reason": "Incomplete ASCII punctuation escaping or precedence against other inline constructs.",
-            "fingerprint": "affd22c4fb38d584302284eb3305ec268c9cb73453f447bb61cb32cc7255be60"
-        },
-        "commonmark:14": {
-            "status": "known-difference",
-            "reason": "Incomplete ASCII punctuation escaping or precedence against other inline constructs.",
-            "fingerprint": "de3ae6885edaab0ff6244aac3e3bd9984903c7536b433deab6c7b29c001091a8"
-        },
         "commonmark:18": {
             "status": "uncovered",
             "reason": "Block adapter does not support: code"
@@ -24,38 +14,13 @@
             "status": "uncovered",
             "reason": "Block adapter does not support: html"
         },
-        "commonmark:23": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "ec8fd9b03c4cdbf4313be6424b1c8cd669860b805c565fbd69198a81a7315803"
-        },
         "commonmark:24": {
             "status": "uncovered",
             "reason": "Block adapter does not support: code"
         },
-        "commonmark:25": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "e517159129961cba5894a7511cc58ced9c796b4e5c3e7558ae5503192516e843"
-        },
-        "commonmark:26": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "3ea63e92fe42bcc52b04bb2cb62a0f8956d2cf3fddcb71ec75dae87f3275bcd7"
-        },
-        "commonmark:27": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "7b7f63c8fc93a9e0fccabdbaed112d19ba424ed5d1565cdcbd59fe4cdbfa917e"
-        },
         "commonmark:31": {
             "status": "uncovered",
             "reason": "Block adapter does not support: html"
-        },
-        "commonmark:33": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "e5459d4d4071b080705fbfc3360e8e16ace606be460a73c3bd40b4644f8510cb"
         },
         "commonmark:34": {
             "status": "uncovered",
@@ -65,24 +30,9 @@
             "status": "uncovered",
             "reason": "Block adapter does not support: code"
         },
-        "commonmark:37": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "1e0dcb8b5389ab5baf5569b503fa49076eee5bb34b8637d94a24692763ee8af4"
-        },
         "commonmark:38": {
             "status": "uncovered",
             "reason": "Block adapter does not support: list"
-        },
-        "commonmark:39": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "c4c22ccdea31c084ab24b7f871e8e8eb024c7dc4cbfa5e0c01c6b610778b48d8"
-        },
-        "commonmark:40": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "ca8cab36425aa1ac23f2511b913c97811375ce9262108c360f336a9682c5377f"
         },
         "commonmark:608": {
             "status": "extension-difference",
@@ -99,61 +49,6 @@
             "reason": "The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.",
             "fingerprint": "ebc6c2e91940afd7c507eaaf1ee2d0df270307f92582b5e188905bb161c15e73"
         },
-        "commonmark:616": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "5accf3d63c20699e3f455f6119e113c06ab4985835854a271c40e84325e8a4a2"
-        },
-        "commonmark:619": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "acbc3cad67a02967a52cdf9fc879799ba0adcebd06bb1d48709cd8d24fec4ad7"
-        },
-        "commonmark:620": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "9c1d374fc5cb462a885c1a8750ce1ecf4620f033e00b5473971798c0b276d5a0"
-        },
-        "commonmark:621": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "d12221fbf14915790c36d7cfb651b8b7bd4b6e73d53bf7d366a58cb9b14b4293"
-        },
-        "commonmark:622": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "84c80733a37f04ed3204fdd3d7f26dc4334b8726ec2b51959d21a2beb196efb6"
-        },
-        "commonmark:623": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "b9338513788437c71a322724a35d8781b226f7aeca1c4968286e26635c55016a"
-        },
-        "commonmark:627": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "e39a70ebd6be709b6ce369758145654021ddeb8e616c48367c28f90f3bee3bf5"
-        },
-        "commonmark:628": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "ad9c26adff73f72eca992ee1594fc1a0147952db18e1f8e6d9b881895a7b5ecb"
-        },
-        "commonmark:632": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "0e7763b13da1605b73797e2cef46eb65ed542ceedaf476a9dde4fa6c65d899b7"
-        },
-        "gfm:308": {
-            "status": "known-difference",
-            "reason": "Incomplete ASCII punctuation escaping or precedence against other inline constructs.",
-            "fingerprint": "affd22c4fb38d584302284eb3305ec268c9cb73453f447bb61cb32cc7255be60"
-        },
-        "gfm:310": {
-            "status": "known-difference",
-            "reason": "Incomplete ASCII punctuation escaping or precedence against other inline constructs.",
-            "fingerprint": "de3ae6885edaab0ff6244aac3e3bd9984903c7536b433deab6c7b29c001091a8"
-        },
         "gfm:314": {
             "status": "uncovered",
             "reason": "Block adapter does not support: code"
@@ -166,38 +61,13 @@
             "status": "uncovered",
             "reason": "Block adapter does not support: html"
         },
-        "gfm:319": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "ec8fd9b03c4cdbf4313be6424b1c8cd669860b805c565fbd69198a81a7315803"
-        },
         "gfm:320": {
             "status": "uncovered",
             "reason": "Block adapter does not support: code"
         },
-        "gfm:321": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "e517159129961cba5894a7511cc58ced9c796b4e5c3e7558ae5503192516e843"
-        },
-        "gfm:322": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "3ea63e92fe42bcc52b04bb2cb62a0f8956d2cf3fddcb71ec75dae87f3275bcd7"
-        },
-        "gfm:323": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "7b7f63c8fc93a9e0fccabdbaed112d19ba424ed5d1565cdcbd59fe4cdbfa917e"
-        },
         "gfm:327": {
             "status": "uncovered",
             "reason": "Block adapter does not support: html"
-        },
-        "gfm:329": {
-            "status": "known-difference",
-            "reason": "Reference collection/label normalization, nested reference recognition, or reference attributes differ.",
-            "fingerprint": "e5459d4d4071b080705fbfc3360e8e16ace606be460a73c3bd40b4644f8510cb"
         },
         "gfm:330": {
             "status": "uncovered",
@@ -207,24 +77,9 @@
             "status": "uncovered",
             "reason": "Block adapter does not support: code"
         },
-        "gfm:333": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "1e0dcb8b5389ab5baf5569b503fa49076eee5bb34b8637d94a24692763ee8af4"
-        },
         "gfm:334": {
             "status": "uncovered",
             "reason": "Block adapter does not support: list"
-        },
-        "gfm:335": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "c4c22ccdea31c084ab24b7f871e8e8eb024c7dc4cbfa5e0c01c6b610778b48d8"
-        },
-        "gfm:336": {
-            "status": "known-difference",
-            "reason": "Incomplete named/numeric entity decoding or entity treatment in link attributes.",
-            "fingerprint": "ca8cab36425aa1ac23f2511b913c97811375ce9262108c360f336a9682c5377f"
         },
         "gfm:398": {
             "status": "version-difference",
@@ -285,51 +140,6 @@
             "status": "extension-difference",
             "reason": "The lexer always enables GFM bare autolinks/strikethrough and emoji; treating only those tokens literally matches the spec.",
             "fingerprint": "ebc6c2e91940afd7c507eaaf1ee2d0df270307f92582b5e188905bb161c15e73"
-        },
-        "gfm:635": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "5accf3d63c20699e3f455f6119e113c06ab4985835854a271c40e84325e8a4a2"
-        },
-        "gfm:638": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "acbc3cad67a02967a52cdf9fc879799ba0adcebd06bb1d48709cd8d24fec4ad7"
-        },
-        "gfm:639": {
-            "status": "known-difference",
-            "reason": "Raw HTML parsed tag/retained attribute fields disagree with their source; filtering policies are recorded separately.",
-            "fingerprint": "9c1d374fc5cb462a885c1a8750ce1ecf4620f033e00b5473971798c0b276d5a0"
-        },
-        "gfm:640": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "d12221fbf14915790c36d7cfb651b8b7bd4b6e73d53bf7d366a58cb9b14b4293"
-        },
-        "gfm:641": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "84c80733a37f04ed3204fdd3d7f26dc4334b8726ec2b51959d21a2beb196efb6"
-        },
-        "gfm:642": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "b9338513788437c71a322724a35d8781b226f7aeca1c4968286e26635c55016a"
-        },
-        "gfm:646": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "e39a70ebd6be709b6ce369758145654021ddeb8e616c48367c28f90f3bee3bf5"
-        },
-        "gfm:647": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "ad9c26adff73f72eca992ee1594fc1a0147952db18e1f8e6d9b881895a7b5ecb"
-        },
-        "gfm:651": {
-            "status": "known-difference",
-            "reason": "HTML tag/attribute grammar, closing tags, comments, or other raw HTML forms.",
-            "fingerprint": "0e7763b13da1605b73797e2cef46eb65ed542ceedaf476a9dde4fa6c65d899b7"
         },
         "gfm:652": {
             "status": "uncovered",

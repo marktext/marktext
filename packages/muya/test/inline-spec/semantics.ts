@@ -2,7 +2,7 @@ import type { Token as HtmlToken } from 'parse5';
 import type { Labels, ReferenceImageToken, ReferenceLinkToken, Token } from '../../src/inlineRenderer/types';
 import { escapeAttribute, escapeText } from 'entities';
 import { Tokenizer } from 'parse5';
-import escapeCharactersMap from '../../src/config/escapeCharacter';
+import { VOID_HTML_TAGS } from '../../src/config';
 import { normalizeReferenceLabel } from '../../src/inlineRenderer/referenceLabel';
 
 export type SemanticEvent
@@ -13,7 +13,7 @@ export type SemanticEvent
         | { type: 'comment'; value: string }
         | { type: 'doctype'; name: string | null; publicId: string | null; systemId: string | null };
 
-const VOID_TAGS = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+const VOID_TAGS = new Set<string>(VOID_HTML_TAGS);
 const BLOCK_TAG = /^(?:p|h[1-6])$/;
 
 function canonicalUrl(value: string): string {
@@ -131,7 +131,7 @@ function leafHtml(token: Token, literalExtensions: boolean): string | undefined 
         case 'backlash':
             return escapeText(token.raw.slice(token.marker.length));
         case 'html_escape':
-            return escapeText(escapeCharactersMap[token.escapeCharacter] ?? token.raw);
+            return escapeText(token.content);
         case 'inline_code':
             return `<code>${escapeText(token.content)}</code>`;
         case 'soft_line_break':

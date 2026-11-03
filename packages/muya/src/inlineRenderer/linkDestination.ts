@@ -1,4 +1,4 @@
-import { decodeHTMLStrict } from 'entities';
+import { decodeMarkdownString, isPunctuationEscape } from '../utils/markdownEscape';
 
 // CommonMark 0.31 §6.3: what sits between a link's `](` and its `)` is a link
 // destination followed by an optional link title, not free-form text. The two
@@ -6,12 +6,6 @@ import { decodeHTMLStrict } from 'entities';
 // the first one, and only a pointy-bracket destination may contain one — so a
 // parser that ignores the grammar gets `[link](/my uri)` and
 // `[link](</my uri>)` exactly backwards (marktext#2377).
-
-// The characters a backslash may escape: CommonMark only recognizes an escape
-// before ASCII punctuation, so `my\ file` keeps its backslash *and* still ends
-// at the space. The backslash itself is in the set, which is what makes `\\`
-// one escaped backslash rather than an escape of whatever follows it.
-const ASCII_PUNCTUATION_REG = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/;
 
 const TITLE_CLOSERS: Record<string, string> = {
     '"': '"',
@@ -24,10 +18,6 @@ export interface ILinkTail {
     title: string;
     /** UTF-16 offset of the closing `)`, excluded from the destination/title source. */
     length: number;
-}
-
-export function isPunctuationEscape(text: string, index: number) {
-    return text[index] === '\\' && ASCII_PUNCTUATION_REG.test(text[index + 1] ?? '');
 }
 
 function isControlOrSpace(char: string) {
@@ -50,31 +40,6 @@ function skipSpaces(text: string, index: number) {
         i++;
     }
     return i;
-}
-
-// Decode escapes and entities in one pass so an escaped ampersand cannot open an entity.
-export function decodeLinkAttribute(text: string): string {
-    return text.replace(/\\([!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~])|&(?:#\d{1,7}|#x[\da-f]{1,6}|[a-z][\da-z]*);/gi, (raw, escaped: string | undefined) => {
-        if (escaped !== undefined)
-            return escaped;
-        if (raw.startsWith('&#')) {
-            const hex = raw[2].toLowerCase() === 'x';
-            const value = Number.parseInt(raw.slice(hex ? 3 : 2, -1), hex ? 16 : 10);
-            return value === 0 || value > 0x10FFFF || (value >= 0xD800 && value <= 0xDFFF)
-                ? '\uFFFD'
-                : String.fromCodePoint(value);
-        }
-        return decodeHTMLStrict(raw);
-    });
-}
-
-// Controls use entities: literal line endings can invalidate destinations and split titles.
-export function escapeLinkAttribute(text: string): string {
-    return text.replace(/[\\&<>\p{Cc}]/gu, char => /\p{Cc}/u.test(char) ? `&#${char.codePointAt(0)};` : `\\${char}`);
-}
-
-export function encodeLinkTitle(title: string): string {
-    return escapeLinkAttribute(title).replace(/"/g, char => `\\${char}`);
 }
 
 /**
@@ -211,8 +176,8 @@ export function parseSrcAndTitle(text = ''): ILinkTail | null {
         return null;
 
     return {
-        src: decodeLinkAttribute(src),
-        title: decodeLinkAttribute(title),
+        src: decodeMarkdownString(src),
+        title: decodeMarkdownString(title),
         length: index,
     };
 }

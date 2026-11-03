@@ -117,12 +117,16 @@ test.describe('options / disableHtml', () => {
         // not the literal tag markup.
         await expect(live).toHaveText('under');
 
-        // The original source is preserved on the element's `data-raw`
-        // attribute (used for round-trip / caret editing).
-        await expect(live).toHaveAttribute('data-raw', '<u>under</u>');
-
-        // Round-trips losslessly back to the raw-html source.
         expect(await getMarkdown(page)).toBe('<u>under</u>\n');
+        await page.evaluate(() => {
+            window.muya!.editor.scrollPage!.firstContentInDescendant()!.setCursor(5, 5, true);
+        });
+        await page.keyboard.type('X');
+        await expect.poll(() => getMarkdown(page)).toBe('<u>unXder</u>\n');
+        await expect(live).toHaveText('unXder');
+        await page.evaluate(() => window.muya!.undo());
+        await expect.poll(() => getMarkdown(page)).toBe('<u>under</u>\n');
+        await expect(live).toHaveText('under');
     });
 
     test('disableHtml: true — inline <b> raw-html renders the same as with disableHtml: false', async ({ page }) => {

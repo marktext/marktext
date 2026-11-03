@@ -6,6 +6,7 @@ import type { IParagraphState, TState } from '../state/types';
 import type { IHighlight, Labels } from './types';
 import { prepareReadingLinks } from '../editor/readOnly';
 import logger from '../utils/logger';
+import { decodeMarkdownString } from '../utils/markdownEscape';
 import { tokenizer } from './lexer';
 import { normalizeReferenceLabel } from './referenceLabel';
 import Renderer from './renderer';
@@ -115,8 +116,8 @@ class InlineRenderer {
         if (tokens) {
             label = normalizeReferenceLabel(tokens[2] + tokens[3]);
             info = {
-                href: tokens[6],
-                title: tokens[10] || '',
+                href: decodeMarkdownString(tokens[6]),
+                title: decodeMarkdownString(tokens[10] || ''),
             };
         }
 

@@ -1,9 +1,10 @@
 // @vitest-environment happy-dom
 
 import { describe, expect, it } from 'vitest';
+import { decodeMarkdownString, encodeLinkTitle } from '../../utils/markdownEscape';
 import { BracketScanner } from '../brackets';
 import { generator, tokenizer } from '../lexer';
-import { decodeLinkAttribute, encodeLinkTitle, parseSrcAndTitle } from '../linkDestination';
+import { parseSrcAndTitle } from '../linkDestination';
 import { normalizeReferenceLabel } from '../referenceLabel';
 
 const definition = { href: '/target', title: 'reference title' };
@@ -83,7 +84,7 @@ describe('commonMark link tails', () => {
     });
 
     it('decodes once and preserves escaped ampersands and encoded URL delimiters', () => {
-        expect(decodeLinkAttribute(String.raw`\&ouml; &amp;ouml; &ouml; %2F &#x80; &#0;`))
+        expect(decodeMarkdownString(String.raw`\&ouml; &amp;ouml; &ouml; %2F &#x80; &#0;`))
             .toBe('&ouml; &ouml; ö %2F \u0080 \uFFFD');
     });
 });

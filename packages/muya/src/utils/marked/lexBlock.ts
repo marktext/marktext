@@ -7,6 +7,7 @@ import footnoteExtension from './extensions/footnote';
 import githubAlertsExtension, { normalizeGithubAlertTokens } from './extensions/githubAlerts';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
 import multilineBlockquoteExtension from './extensions/multilineBlockquote';
+import referenceDefinitionTabs from './extensions/referenceDefinitionTabs';
 import fm from './frontMatter';
 import { DEFAULT_OPTIONS } from './options';
 import { restoreCodeTabs } from './restoreCodeTabs';
@@ -21,7 +22,7 @@ export function lexBlock(
     let tokens: (Token | IFrontmatterToken)[] = [];
 
     // Per-call Marked instances prevent enabled extensions leaking into later calls.
-    const m = new Marked();
+    const m = new Marked(referenceDefinitionTabs());
 
     if (texMathDollars) {
         m.use(

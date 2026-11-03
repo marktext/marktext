@@ -7,7 +7,9 @@ import type InlineRenderer from '../index';
 import type { ISyntaxRenderOptions, Token } from '../types';
 import { CLASS_NAMES } from '../../config';
 import { conflict, methodMixins, snakeToCamel } from '../../utils';
-import { h, toHTML } from '../../utils/snabbdom';
+import { h } from '../../utils/snabbdom';
+import { vnodeToHTML } from '../../utils/vnodeToHTML';
+import { tokenEvents } from '../tokenTraversal';
 import autoLink from './autoLink';
 import autoLinkExtension from './autoLinkExtension';
 import backlash from './backlash';
@@ -24,7 +26,7 @@ import highlight from './highlight';
 import hr from './hr';
 import htmlEscape from './htmlEscape';
 import htmlRuby from './htmlRuby';
-import htmlTag from './htmlTag';
+import htmlTag, { isLiteralHtml } from './htmlTag';
 import image from './image';
 import inlineCode from './inlineCode';
 import inlineDiff from './inlineDiff';
@@ -94,6 +96,7 @@ interface Renderer extends InlineSyntaxRender {}
 
 @methodMixins(inlineSyntaxRenderer)
 class Renderer {
+    private _rendered: Map<Token, VNode[]> | null = null;
     public loadMathMap: Map<
         string,
     string | VNode | (string | VNode)[] | undefined
@@ -158,28 +161,36 @@ class Renderer {
     // the need for an `(this as any)[name]` escape hatch when the name comes
     // from a runtime string.
     dispatch(name: string, opts: ISyntaxRenderOptions): VNode[] {
+        const rendered = this._rendered?.get(opts.token);
+        if (rendered)
+            return rendered;
         // eslint-disable-next-line no-restricted-syntax
         const map = this as unknown as Record<string, TInlineRenderFn>;
         return map[name](opts);
     }
 
     output(tokens: Token[], block: Format, cursor: IRenderCursor) {
-        const children: VNode[] = tokens.reduce(
-            (acc, token) => [
-                ...acc,
-                ...this.dispatch(snakeToCamel(token.type), {
-                    h,
-                    cursor,
-                    block,
-                    token,
-                }),
-            ],
-            [] as VNode[],
-        );
-        const vNode = h('span', children);
-        const rawHtml = toHTML(vNode);
-
-        return rawHtml.replace(/^<span>([\s\S]*)<\/span>$/g, (_, p) => p);
+        const previous = this._rendered;
+        this._rendered = new Map();
+        try {
+            // Parents reuse completed child nodes instead of recursively invoking their renderers.
+            for (const { token, exiting } of tokenEvents(tokens, token =>
+                token.type !== 'image' && token.type !== 'reference_image'
+                && (token.type !== 'html_tag' || (!isLiteralHtml(token) && token.tag !== 'ruby')))) {
+                if (!exiting)
+                    continue;
+                const nodes = this.dispatch(snakeToCamel(token.type), { h, cursor, block, token });
+                this._rendered.set(token, nodes);
+            }
+            const children: VNode[] = [];
+            for (const token of tokens)
+                children.push(...this._rendered.get(token)!);
+            const rawHtml = vnodeToHTML(h('span', children));
+            return rawHtml.slice(6, -7);
+        }
+        finally {
+            this._rendered = previous;
+        }
     }
 }
 

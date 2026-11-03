@@ -1,12 +1,14 @@
+import type { ICodeSpanReader } from './codeSpan';
 import type { ILinkTail } from './linkDestination';
 import type { InlineRules } from './rules';
 import type { ITokenizerFacOptions, Labels } from './types';
+import { isPunctuationEscape } from '../utils/markdownEscape';
 import { atomicExtensionLength } from './atomicExtension';
 import { CodeSpanScanner } from './codeSpan';
-import { isPunctuationEscape, parseSrcAndTitle } from './linkDestination';
+import { parseSrcAndTitle } from './linkDestination';
+import { matchAt } from './matchAt';
 import { normalizeReferenceLabel } from './referenceLabel';
 import { inlineRules, linkValidateRules } from './rules';
-import { matchAt } from './utils';
 
 interface IBracketContent {
     raw: string;
@@ -76,32 +78,40 @@ function readTail(source: string, opener: IOpener, end: number, labels: Labels):
     };
 }
 
-function protectedEnd(source: string, index: number, codeSpans: CodeSpanScanner, rules: InlineRules, options: Partial<ITokenizerFacOptions>, offset: number): number {
+function readProtected(source: string, index: number, codeSpans: ICodeSpanReader, rules: InlineRules, options: Partial<ITokenizerFacOptions>, offset: number): { end: number; html?: boolean } {
     const extensionLength = atomicExtensionLength(source, index, rules, options, offset);
     if (extensionLength)
-        return index + extensionLength;
+        return { end: index + extensionLength };
     if (isPunctuationEscape(source, index))
-        return index + 2;
+        return { end: index + 2 };
     if (source[index] === '`')
-        return codeSpans.read(index)!.end;
+        return { end: codeSpans.read(index)!.end };
     if (source[index] === '<') {
-        const token = matchAt(linkValidateRules.auto_link, source, index)
-            ?? matchAt(linkValidateRules.html_tag, source, index);
-        if (token)
-            return index + token[0].length;
+        const autoLink = matchAt(linkValidateRules.auto_link, source, index);
+        if (autoLink)
+            return { end: index + autoLink[0].length };
+        const html = matchAt(linkValidateRules.html_tag, source, index);
+        if (html)
+            return { end: index + html[0].length, html: true };
     }
-    return index;
+    return { end: index };
 }
 
 // Resolve closers in source order: a successful link deactivates earlier link openers,
 // while image openers remain eligible (CommonMark §6.3 and §6.4).
 export class BracketScanner {
     private _matches = new Map<number, BracketMatch>();
+    private _tails = new Map<number, number>();
+    private _readProtected: (index: number) => { end: number; html?: boolean };
 
-    constructor(source: string, labels: Labels, codeSpans = new CodeSpanScanner(source), { rules = inlineRules, options = {}, offset = 0 }: IScanContext = {}) {
+    constructor(source: string, labels: Labels, codeSpans: ICodeSpanReader = new CodeSpanScanner(source), { rules = inlineRules, options = {}, offset = 0 }: IScanContext = {}) {
+        this._readProtected = (index) => {
+            const match = readProtected(source, index - offset, codeSpans, rules, options, offset);
+            return { ...match, end: match.end + offset };
+        };
         const openers: IOpener[] = [];
         for (let i = 0; i < source.length; i++) {
-            const end = protectedEnd(source, i, codeSpans, rules, options, offset);
+            const { end } = readProtected(source, i, codeSpans, rules, options, offset);
             if (end > i) {
                 i = end - 1;
                 continue;
@@ -120,6 +130,7 @@ export class BracketScanner {
                 const match = readTail(source, opener, i, labels);
                 if (match) {
                     this._matches.set(opener.index + offset, match);
+                    this._tails.set(i + offset, opener.index + match.raw.length + offset);
                     i = opener.index + match.raw.length - 1;
                     if (!opener.image)
                         this._deactivateLinks(openers);
@@ -132,6 +143,18 @@ export class BracketScanner {
     read(index: number, end = Number.POSITIVE_INFINITY): BracketMatch | null {
         const match = this._matches.get(index);
         return match && index + match.raw.length <= end ? match : null;
+    }
+
+    /** HTML pairing must not consume recognized link/image bodies, tails or atomic extensions. */
+    protectedEnd(index: number): number {
+        const bracket = this._matches.get(index);
+        if (bracket)
+            return index + bracket.raw.length;
+        const tail = this._tails.get(index);
+        if (tail !== undefined)
+            return tail;
+        const match = this._readProtected(index);
+        return match.html ? index : match.end;
     }
 
     private _deactivateLinks(openers: IOpener[]): void {
