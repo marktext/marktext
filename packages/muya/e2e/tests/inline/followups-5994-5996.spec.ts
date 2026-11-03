@@ -13,6 +13,17 @@ test('Unicode symbols follow CommonMark emphasis boundaries (#5994)', async ({ p
     expect(await getMarkdown(page)).toBe(`${source}\n`);
 });
 
+for (const character of ['𫝀', '𬺰']) {
+    test(`retains supplementary CJK emphasis next to ${character}`, async ({ page }) => {
+        const source = `${character}**"加粗"**${character}`;
+        await page.evaluate(source => window.muya!.setContent(source), source);
+        await expect(page.locator(`${editor.root} strong`)).toHaveCount(1);
+        await page.evaluate(() => window.muya!.setReadOnly(true));
+        await expect(page.locator(`${editor.root} strong`)).toHaveText('"加粗"');
+        expect(await getMarkdown(page)).toBe(`${source}\n`);
+    });
+}
+
 test('terminal spaces remain editable through deletion and undo (#5995)', async ({ page }) => {
     const source = 'foo  \n\nOther paragraph.';
     await page.evaluate(source => window.muya!.setContent(source), source);

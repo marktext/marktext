@@ -2,7 +2,8 @@
 
 import type { Token } from '../types';
 import { describe, expect, it } from 'vitest';
-import { tokenizer } from '../lexer';
+import { generator, tokenizer } from '../lexer';
+import { trimAutoLinkExtent } from '../utils';
 
 // #2096: an extended (bare) autolink swallowed trailing punctuation because the
 // path component matched `\S+`. Per GFM §6.9, trailing punctuation
@@ -85,5 +86,34 @@ describe('extended autolink — GFM §6.9 extent trimming', () => {
         const token = autoLinkExt('(see https://example.com/path). rest');
         expect(token).toBeDefined();
         expect(token!.url).toBe('https://example.com/path');
+    });
+});
+
+describe('autolink trimming work', () => {
+    it.each([1024, 4096, 16384, 32768])('bounds indexed reads for %i closing parentheses', (count) => {
+        const prefix = 'http://example.com';
+        const source = prefix + ')'.repeat(count);
+        let indexedReads = 0;
+        const measured: string = new Proxy(new Object(source), {
+            get(target, key) {
+                if (typeof key === 'string' && /^\d+$/.test(key))
+                    indexedReads++;
+                const value = Reflect.get(target, key);
+                return typeof value === 'function' ? value.bind(target) : value;
+            },
+        });
+        expect(trimAutoLinkExtent(measured)).toBe(prefix);
+        expect(indexedReads).toBeLessThanOrEqual(source.length * 3);
+        const tokens = tokenizer(source);
+        expect(tokens[0]).toMatchObject({ type: 'auto_link_extension', raw: prefix });
+        expect(generator(tokens)).toBe(source);
+    });
+
+    it.each([
+        ['https://example.com/a(b))&amp;).', 'https://example.com/a(b)'],
+        ['https://example.com/a)b(c)', 'https://example.com/a)b(c'],
+        ['https://example.com/a)<(', 'https://example.com/a'],
+    ])('retains parenthesis balance while trimming %j', (source, expected) => {
+        expect(trimAutoLinkExtent(source)).toBe(expected);
     });
 });

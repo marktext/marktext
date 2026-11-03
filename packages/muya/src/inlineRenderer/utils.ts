@@ -127,6 +127,8 @@ export function trimAutoLinkExtent(raw: string): string {
     if (lt !== -1)
         end = lt;
 
+    // Other suffix rules cannot change parentheses, so one lazy count remains valid throughout trimming.
+    let excessClosingParens: number | undefined;
     let changed = true;
     while (changed && end > 0) {
         changed = false;
@@ -137,16 +139,19 @@ export function trimAutoLinkExtent(raw: string): string {
             changed = true;
         }
         else if (c === ')') {
-            let opening = 0;
-            let closing = 0;
-            for (let i = 0; i < end; i++) {
-                if (raw[i] === '(')
-                    opening += 1;
-                else if (raw[i] === ')')
-                    closing += 1;
+            if (excessClosingParens === undefined) {
+                excessClosingParens = 0;
+                for (let i = 0; i < end; i++) {
+                    const character = raw[i];
+                    if (character === '(')
+                        excessClosingParens--;
+                    else if (character === ')')
+                        excessClosingParens++;
+                }
             }
-            if (closing > opening) {
-                end -= 1;
+            if (excessClosingParens > 0) {
+                end--;
+                excessClosingParens--;
                 changed = true;
             }
         }

@@ -13,6 +13,12 @@ describe('unicode symbol flanking (#5994)', () => {
         expect(generator(parse(source))).toBe(source);
     });
 
+    it.each(['𠀀', '𫝀', '𬺰', '\u{2FFFF}'])('retains CJK emphasis next to %s', (character) => {
+        const source = `${character}**"加粗"**${character}`;
+        expect(parse(source)).toMatchObject([{ type: 'text' }, { type: 'strong' }, { type: 'text' }]);
+        expect(generator(parse(source))).toBe(source);
+    });
+
     it('retains emphasis around symbols separated from words', () => {
         expect(parse('*£* word')[0]).toMatchObject({ type: 'em' });
         expect(parse('中文**"加粗"**中文').some(token => token.type === 'strong')).toBe(true);
