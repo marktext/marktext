@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { generator, parseInline, tokenizer } from '../lexer';
 import { tokenEvents } from '../model/traversal';
 import { profileForBlock } from '../parser/profiles';
@@ -91,4 +91,24 @@ it('derives ruby preview offsets from actual source tags including attributes', 
     const preview = root.querySelector<HTMLElement>('.mu-ruby-render')!;
     expect(preview.dataset.start).toBe(String(text.indexOf('>') + 1));
     expect(preview.dataset.end).toBe(String(text.lastIndexOf('</ruby>')));
+});
+
+it('renders each nested emphasis token once instead of recursively rebuilding completed children', () => {
+    const text = '**a *b ~~c ==d==~~* z**';
+    const tokens = parseInline(text, { options: { highlightSyntax: true } });
+    const root = document.createElement('div');
+    const renderer = new Renderer(() => ({
+        root, readOnly: false, softNewlineAsSpace: false, references: new Map(),
+        selectedImage: null, translate: text => text,
+    }));
+    const render = vi.spyOn(Renderer.prototype, 'renderToken');
+    try {
+        const html = renderer.output(tokens, { text, blockName: 'paragraph.content' }, {});
+        expect(html).toContain('<mark');
+        const tokenCount = [...tokenEvents(tokens)].filter(event => !event.exiting).length;
+        expect(render).toHaveBeenCalledTimes(tokenCount);
+    }
+    finally {
+        render.mockRestore();
+    }
 });
