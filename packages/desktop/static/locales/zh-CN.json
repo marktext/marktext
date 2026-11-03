@@ -360,10 +360,13 @@
       "leftHeaderText": "左页眉文本",
       "mainHeaderText": "主页眉文本",
       "rightHeaderText": "右页眉文本",
+      "separatorLines": "Separator lines",
+      "separatorLinesNotes": "Lines between the header or footer and the page content.",
       "leftFooterText": "左页脚文本",
       "mainFooterText": "主页脚文本",
       "rightFooterText": "右页脚文本",
       "customizeStyle": "自定义样式",
+      "customizeFontSize": "Customize font size",
       "allowStyled": "允许样式文本",
       "fontSize": "字体大小"
     },
@@ -391,6 +394,11 @@
         "none": "无",
         "singleCell": "单元格",
         "threeCells": "三个单元格"
+      },
+      "headerFooterSeparators": {
+        "theme": "Follow theme",
+        "show": "Show",
+        "hide": "Hide"
       },
       "headerFooterStyles": {
         "default": "默认",

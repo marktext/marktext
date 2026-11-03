@@ -357,6 +357,7 @@
     "headerFooter": {
       "allowStyled": "Permitir texto con estilo",
       "customizeStyle": "Personalizar estilo",
+      "customizeFontSize": "Customize font size",
       "fontSize": "Tamaño de fuente",
       "footerType": "Tipo de pie de página",
       "headerType": "Tipo de encabezado",
@@ -367,6 +368,8 @@
       "mainHeaderText": "Texto del encabezado principal",
       "rightFooterText": "Texto del pie derecho",
       "rightHeaderText": "Texto del encabezado derecho",
+      "separatorLines": "Separator lines",
+      "separatorLinesNotes": "Lines between the header or footer and the page content.",
       "description": "El texto aparece en todas las páginas si se define encabezado y/o pie de página."
     },
     "toc": {
@@ -391,6 +394,11 @@
         "none": "Ninguno",
         "singleCell": "Celda única",
         "threeCells": "Tres celdas"
+      },
+      "headerFooterSeparators": {
+        "theme": "Follow theme",
+        "show": "Show",
+        "hide": "Hide"
       },
       "headerFooterStyles": {
         "default": "Predeterminado",

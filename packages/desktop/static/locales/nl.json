@@ -357,6 +357,7 @@
     "headerFooter": {
       "allowStyled": "Opgemaakte tekst toestaan",
       "customizeStyle": "Stijl aanpassen",
+      "customizeFontSize": "Customize font size",
       "fontSize": "Lettergrootte",
       "footerType": "Voetteksttype",
       "headerType": "Kopteksttype",
@@ -367,6 +368,8 @@
       "mainHeaderText": "Hoofdkoptekst",
       "rightFooterText": "Rechter voettekst",
       "rightHeaderText": "Rechter koptekst",
+      "separatorLines": "Separator lines",
+      "separatorLinesNotes": "Lines between the header or footer and the page content.",
       "description": "De tekst verschijnt op alle pagina's als kop- en/of voettekst is gedefinieerd."
     },
     "toc": {
@@ -391,6 +394,11 @@
         "none": "Geen",
         "singleCell": "Enkele cel",
         "threeCells": "Drie cellen"
+      },
+      "headerFooterSeparators": {
+        "theme": "Follow theme",
+        "show": "Show",
+        "hide": "Hide"
       },
       "headerFooterStyles": {
         "default": "Standaard",

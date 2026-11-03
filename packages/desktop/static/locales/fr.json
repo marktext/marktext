@@ -357,6 +357,7 @@
     "headerFooter": {
       "allowStyled": "Autoriser le texte stylé",
       "customizeStyle": "Personnaliser le style",
+      "customizeFontSize": "Customize font size",
       "fontSize": "Taille de police",
       "footerType": "Type de pied de page",
       "headerType": "Type d'en-tête",
@@ -367,6 +368,8 @@
       "mainHeaderText": "Texte de l'en-tête principal",
       "rightFooterText": "Texte du pied de page droit",
       "rightHeaderText": "Texte de l'en-tête droit",
+      "separatorLines": "Separator lines",
+      "separatorLinesNotes": "Lines between the header or footer and the page content.",
       "description": "Si un en-tête et/ou un pied de page est défini, le texte apparaîtra sur toutes les pages."
     },
     "toc": {
@@ -391,6 +394,11 @@
         "none": "Aucun",
         "singleCell": "Cellule unique",
         "threeCells": "Trois cellules"
+      },
+      "headerFooterSeparators": {
+        "theme": "Follow theme",
+        "show": "Show",
+        "hide": "Hide"
       },
       "headerFooterStyles": {
         "default": "Par défaut",
