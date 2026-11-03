@@ -89,6 +89,24 @@ test('editing only an image title preserves literal entity text in its URL', asy
     await expect(rendered).toHaveAttribute('title', 'new');
 });
 
+test('HTTP image insertion preserves literal entity text in the rendered URL', async ({ page }) => {
+    await page.route('**/example.test/**', route => route.fulfill({ contentType: 'image/png', body: png }));
+    const src = 'https://example.test/a&copy;.png';
+    await page.evaluate((src) => {
+        const muya = window.muya!;
+        muya.setContent('before\n');
+        const block = muya.editor.scrollPage!.firstContentInDescendant()!;
+        block.setCursor(block.text.length, block.text.length, true);
+        muya.transact(() => muya.insertImage({ src, alt: 'alt' }));
+    }, src);
+    const rendered = page.locator(`${editor.paragraph} img`);
+    await expect(rendered).toHaveAttribute('src', src);
+    await page.evaluate(() => window.muya!.undo());
+    await expect(rendered).toHaveCount(0);
+    await page.evaluate(() => window.muya!.redo());
+    await expect(rendered).toHaveAttribute('src', src);
+});
+
 for (const [encoded, title] of [
     ['a &quot;b&quot;', 'a "b"'],
     ['&amp;quot; &amp;#34;', '&quot; &#34;'],

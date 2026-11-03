@@ -1,6 +1,7 @@
 import type { HTMLTagToken, ImageToken, Token } from '../inlineRenderer/types';
 import { isWin } from '../config/index';
 import { tokenizer } from '../inlineRenderer/lexer';
+import { escapeLinkAttribute } from '../inlineRenderer/linkDestination';
 import { findContentDOM, getOffsetOfParagraph } from '../selection/dom';
 import { ABSOLUTE_LOCAL_REG, encodeDirnameForUrl, localPathToFileUrl, resolveRelativePath } from './fileUrl';
 
@@ -171,9 +172,7 @@ export async function checkImageContentType(url: string): Promise<boolean | null
 // unbalanced `)` truncates the path (#3060). `encodeURIComponent` leaves `(`/`)`
 // untouched, so encode them explicitly.
 export function encodeImageSrc(src: string): string {
-    return src
-        // Preserve literal entities and escapes when the destination is parsed again.
-        .replace(/[\\&]/g, char => `\\${char}`)
+    return escapeLinkAttribute(src)
         .replace(/ /g, encodeURI(' '))
         .replace(/#/g, encodeURIComponent('#'))
         .replace(/\(/g, '%28')

@@ -2,13 +2,44 @@
 
 import { describe, expect, it } from 'vitest';
 import { bootMuya, useMuyaHarness } from '../../__tests__/muyaHarness';
+import Format from '../../block/base/format';
 import { createTextSelectionState } from '../../selection/state';
+import { getImageInfo } from '../../utils/image';
 
 useMuyaHarness();
 
 const source = 'before\n\n[first](/one "first title")\n\n[second](/two "second 😀 title")\n';
 
 describe('selection restoration during block replay', () => {
+    it('clears replaced image wrappers when restoring text without clearing another editor’s selection', () => {
+        const markdown = 'before ![alt](https://example.test/a.png) after\n';
+        const muya = bootMuya(markdown);
+        const block = muya.editor.scrollPage!.firstContentInDescendant()!;
+        if (!(block instanceof Format))
+            throw new Error('Expected a formattable image block');
+        block.setCursor(block.text.length, block.text.length, true);
+        muya.transact(() => {
+            block.text += 'X';
+            block.setCursor(block.text.length, block.text.length, true);
+        });
+        const wrapper = block.domNode!.querySelector<HTMLElement>('.mu-inline-image')!;
+        muya.editor.selection.selectImage({ ...getImageInfo(wrapper), block });
+
+        const other = bootMuya(markdown);
+        const otherBlock = other.editor.scrollPage!.firstContentInDescendant()!;
+        if (!(otherBlock instanceof Format))
+            throw new Error('Expected a formattable image block');
+        const otherWrapper = otherBlock.domNode!.querySelector<HTMLElement>('.mu-inline-image')!;
+        other.editor.selection.selectImage({ ...getImageInfo(otherWrapper), block: otherBlock });
+
+        muya.undo();
+
+        expect(muya.getMarkdown()).toBe(markdown);
+        expect(muya.getSelectionState()?.kind).toBe('text');
+        expect(muya.domNode.querySelector('.mu-inline-image-selected')).toBeNull();
+        expect(otherWrapper.classList.contains('mu-inline-image-selected')).toBe(true);
+    });
+
     it.each([false, true])('reveals saved cross-block endpoints independently of the old native range (backward: %s)', (backward) => {
         const muya = bootMuya(source);
         const before = muya.editor.scrollPage!.firstContentInDescendant()!;

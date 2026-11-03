@@ -68,9 +68,13 @@ export function decodeLinkAttribute(text: string): string {
     });
 }
 
-// Escaping ampersands prevents literal entity text from being decoded on the next edit.
+// Markdown re-parsing must preserve literal backslashes and entity-like text.
+export function escapeLinkAttribute(text: string): string {
+    return text.replace(/[\\&]/g, char => `\\${char}`);
+}
+
 export function encodeLinkTitle(title: string): string {
-    return title.replace(/[\\"&]/g, char => `\\${char}`);
+    return escapeLinkAttribute(title).replace(/"/g, char => `\\${char}`);
 }
 
 /**

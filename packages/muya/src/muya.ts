@@ -24,6 +24,7 @@ import { Editor } from './editor/index';
 import { attachReadingEvents, prepareReadingLinks } from './editor/readOnly';
 import EventCenter from './event/index';
 import I18n from './i18n/index';
+import { escapeLinkAttribute } from './inlineRenderer/linkDestination';
 
 import {
     injectSentinels,
@@ -1084,7 +1085,7 @@ export class Muya {
         // Keep valid data URLs intact; incomplete data prefixes must be encoded as paths.
         let imgUrl: string;
         if (URL_REG.test(src))
-            imgUrl = encodeURI(src);
+            imgUrl = escapeLinkAttribute(encodeURI(src));
         else if (DATA_URL_REG.test(src))
             imgUrl = src;
         else
