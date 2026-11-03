@@ -1,7 +1,7 @@
-import type { Token } from '../../src/inlineRenderer/model/types';
+import type { Token } from '../../src/inline/model/types';
 import type { IInlineExample } from './fixtures';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import * as referenceDefinitions from '../../src/inlineRenderer/referenceDefinitions';
+import * as referenceDefinitions from '../../src/inline/referenceDefinitions';
 import { audit, fingerprint } from './audit';
 import { adaptFixture } from './fixtures';
 import { htmlSemantics, tokensToHtml } from './semantics';

@@ -695,7 +695,7 @@ export class Muya {
 
     /** Reload images whose files changed on disk despite cached bitmaps. */
     invalidateImageCache() {
-        this.editor.inlineRenderer.invalidateImageCache();
+        this.editor.inlineEngine.invalidateImageCache();
     }
 
     copyAsMarkdown() {
@@ -1575,7 +1575,7 @@ export class Muya {
     }
 
     destroy() {
-        this.editor.inlineRenderer.dispose();
+        this.editor.inlineEngine.dispose();
         this.editor.textDrag?.destroy();
         this.editor.selection.cancel();
         this.editor.transactions.cancel();

@@ -4,7 +4,7 @@ import type Format from '../block/base/format';
 import type { IImageInfo } from '../utils/image';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { pasteImageSrc } from '../clipboard/pasteImage';
-import { tokenizer } from '../inlineRenderer/lexer';
+import { tokenizer } from '../inline/lexer';
 import { Muya } from '../muya';
 
 // These callers must agree on local-path encoding even though HTTP insertion

@@ -1,6 +1,6 @@
 import type { VNode } from 'snabbdom';
 import type { Muya } from '../../index';
-import type { Token } from '../../inlineRenderer/model/types';
+import type { Token } from '../../inline/model/types';
 import type { TSelection, TSelectionState } from '../../selection/types';
 import type { ColorFormatType, IColorStyle } from '../../utils/colorSpan';
 import type { IBaseOptions, IKeyboardShortcutOptions } from '../types';

@@ -1,7 +1,7 @@
 import type { Token as HtmlToken } from 'parse5';
-import type { HTMLTagToken, ITokenRange, Token } from '../../src/inlineRenderer/model/types';
+import type { HTMLTagToken, ITokenRange, Token } from '../../src/inline/model/types';
 import { Tokenizer } from 'parse5';
-import { WHITELIST_ATTRIBUTES } from '../../src/inlineRenderer/parser/htmlAttributes';
+import { WHITELIST_ATTRIBUTES } from '../../src/inline/parser/htmlAttributes';
 
 interface IRawHtmlFields {
     tag: string;

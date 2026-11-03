@@ -3,7 +3,7 @@ import type {
     CodeEmojiMathToken,
     TextToken,
     Token,
-} from '../../inlineRenderer/model/types';
+} from '../../inline/model/types';
 import type { IContentCursor, IRenderCursor } from '../../selection/types';
 import type { IBulletListState, IListItemState, IOrderListState, IParagraphState, ITaskListState } from '../../state/types';
 import type { Nullable } from '../../types';
@@ -26,9 +26,9 @@ import {
     PARAGRAPH_STATE,
     THEMATIC_BREAK_STATE,
 } from '../../config';
-import { tokenEvents } from '../../inlineRenderer/model/traversal';
-import { parseInline } from '../../inlineRenderer/parser/lexer';
-import { generator, SourceGenerationMode } from '../../inlineRenderer/serialization';
+import { tokenEvents } from '../../inline/model/traversal';
+import { parseInline } from '../../inline/parser/lexer';
+import { generator, SourceGenerationMode } from '../../inline/serialization';
 import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
 import { contentPath } from '../../selection/state';
@@ -401,7 +401,7 @@ class Format extends Content {
         anchor: this.selection.anchor ?? undefined,
         focus: this.selection.focus ?? undefined,
     }) {
-        const { labels } = this.inlineRenderer;
+        const { labels } = this.inlineEngine;
         const { text } = this;
         const anchor = cursor.start ?? cursor.anchor;
         const focus = cursor.end ?? cursor.focus;
@@ -1424,7 +1424,7 @@ class Format extends Content {
         // fix: #897 in marktext repo
         const { text } = this;
         const { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = this.muya.options;
-        const { labels } = this.inlineRenderer;
+        const { labels } = this.inlineEngine;
         const tokens = parseInline(text, {
             labels,
             options: { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff },

@@ -35,7 +35,7 @@ for (const separator of [' ', '    ', '\t', ' \t']) {
  * Reference-link / reference-image round-trip — defense-in-depth for PR-16.
  *
  * Reference definitions live as `paragraph` state nodes whose text is the raw
- * `[label]: url "title"` line. `InlineRenderer.collectReferenceDefinitions`
+ * `[label]: url "title"` line. `InlineEngine.collectReferenceDefinitions`
  * regex-scans paragraphs to build the labels Map, which the lexer consults
  * when expanding `[text][ref]` and `![alt][ref]`.
  *
@@ -84,7 +84,7 @@ test.describe('reference link', () => {
     });
 
     test('editing the definition URL re-resolves the link href on re-render', async ({ page }) => {
-        // `InlineRenderer.collectReferenceDefinitions()` rebuilds the labels
+        // `InlineEngine.collectReferenceDefinitions()` rebuilds the labels
         // Map from the JSON state on every render pass, and `referenceLink.ts`
         // reads `parent.labels.get(key)` for the href. Replacing the document
         // with an updated definition therefore re-resolves `[a][r]` against the

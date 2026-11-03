@@ -13,7 +13,7 @@ import { ScrollPage } from '../block/scrollPage';
 import Clipboard from '../clipboard';
 import { CLASS_NAMES, isFirefox } from '../config';
 import History from '../history';
-import InlineRenderer from '../inlineRenderer';
+import InlineEngine from '../inline';
 import { Search } from '../search';
 import Selection from '../selection';
 import { findContentDOM } from '../selection/dom';
@@ -276,7 +276,7 @@ export class Editor {
         return this._isComposing;
     }
 
-    inlineRenderer: InlineRenderer;
+    inlineEngine: InlineEngine;
     selection: Selection;
     searchModule: Search;
     clipboard: Clipboard;
@@ -305,7 +305,7 @@ export class Editor {
             ),
             () => this.selection.getSelectionState(),
         );
-        this.inlineRenderer = new InlineRenderer(_muya);
+        this.inlineEngine = new InlineEngine(_muya);
         this.selection = new Selection(_muya);
         this.searchModule = new Search(_muya);
         this.clipboard = Clipboard.create(_muya);

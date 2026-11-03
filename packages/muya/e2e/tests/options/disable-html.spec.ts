@@ -83,8 +83,8 @@ test.describe('options / disableHtml', () => {
      *   - `packages/core/src/ui/previewToolBar/index.ts` (toolbar gating).
      *
      * The inline pipeline never consults it: neither
-     * `packages/core/src/inlineRenderer/lexer.ts` nor
-     * `packages/core/src/inlineRenderer/renderer/htmlTag.ts` reference
+     * `packages/core/src/inline/lexer.ts` nor
+     * `packages/core/src/inline/renderer/htmlTag.ts` reference
      * `disableHtml`. So an inline `<u>…</u>` / `<b>…</b>` token inside a
      * paragraph still renders as a LIVE element (a real `<u>`/`<b>` carrying
      * `.mu-inline-rule.mu-raw-html`) even when `disableHtml: true`.

@@ -177,7 +177,7 @@ describe('muya runtime options', () => {
     });
 });
 
-// Render-affecting options: the inline renderer (`InlineRenderer.tokenizer`)
+// Render-affecting options: the inline renderer (`InlineEngine.tokenizer`)
 // reads `muya.options` live on every render pass, so superSubScript governs
 // whether `^x^` / `~x~` are tokenized into <sup>/<sub> or left as literal
 // text. The serialized markdown is identical either way (the markers stay in

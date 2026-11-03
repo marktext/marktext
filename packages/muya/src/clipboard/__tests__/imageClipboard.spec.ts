@@ -2,7 +2,7 @@
 
 import type Format from '../../block/base/format';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { tokenizer } from '../../inlineRenderer/lexer';
+import { tokenizer } from '../../inline/lexer';
 import { Muya } from '../../muya';
 import { SelectionDirection } from '../../selection/types';
 import { getImageInfo } from '../../utils/image';

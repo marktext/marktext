@@ -39,7 +39,7 @@ The package declares Node ≥20.19; this workspace requires Node ≥22.12 and pn
 
 ### The `Editor` (`src/editor/index.ts`)
 
-Holds the runtime modules: `JSONState`, `EditTransactions`, `InlineRenderer`, `Selection`, `Search`, `Clipboard`, `History`, and the root `ScrollPage`. It owns `activeContentBlock` (the focused leaf) and routes DOM events (`click`, `input`, `keydown`, `keyup`, `compositionstart/end`) merged via RxJS to the active block's handlers (`clickHandler`, `inputHandler`, etc.). Anything that listens to user input on a block ultimately flows through this dispatch.
+Holds the runtime modules: `JSONState`, `EditTransactions`, `InlineEngine`, `Selection`, `Search`, `Clipboard`, `History`, and the root `ScrollPage`. It owns `activeContentBlock` (the focused leaf) and routes DOM events (`click`, `input`, `keydown`, `keyup`, `compositionstart/end`) merged via RxJS to the active block's handlers (`clickHandler`, `inputHandler`, etc.). Anything that listens to user input on a block ultimately flows through this dispatch.
 
 `Editor.updateContents(operations, selection, source)` submits `ot-json1` operations through `EditTransactions`. Block mutations can be batched until the next frame; explicit `muya.transact()` scopes complete synchronously. The coordinator applies editing rules, synchronizes the state and live tree, and publishes the completed change. Call `muya.flush()` before persisting or switching documents. Transaction, rollback and history boundaries are implemented in [`src/editor/transactions/index.ts`](src/editor/transactions/index.ts).
 
@@ -56,12 +56,12 @@ Concrete blocks live under `src/block/{commonMark,gfm,extra,content}` and **must
 - `JSONState` (`state/index.ts`) is the source-of-truth document. It exposes `ot-json1` `invert`/`compose`/`transform` statics — the architecture is set up for OT-based collaborative editing even if no transport is wired in.
 - `markdownToState.ts` parses Markdown (via `marked`) into the state tree; `stateToMarkdown.ts` serializes back; `markdownToHtml.ts` and `htmlToMarkdown.ts` (using `turndown` + `joplin-turndown-plugin-gfm`) bridge HTML. `MarkdownToHtml` is re-exported from the public API.
 - Inline text edits are encoded as `ot-text-unicode` ops nested inside the json1 ops (see the `d.es` branch in `Editor.updateContents`).
-- **Reference link/image definitions** (`[ref]: url "title"`) are NOT a first-class block type in state. `markdownToState`'s `case 'def'` re-emits the raw definition line back into a `paragraph` state node so it round-trips losslessly through the markdown serializer. `InlineRenderer.collectReferenceDefinitions()` scans the transaction candidate state read-only and caches by snapshot identity to populate a labels Map that the lexer consults when expanding `[text][ref]` and `![alt][ref]`. `ILinkReferenceDefinitionState` exists as a deprecated stub for compatibility — do not introduce new code paths that produce it.
+- **Reference link/image definitions** (`[ref]: url "title"`) are NOT a first-class block type in state. `markdownToState`'s `case 'def'` re-emits the raw definition line back into a `paragraph` state node so it round-trips losslessly through the markdown serializer. `InlineEngine.collectReferenceDefinitions()` scans the transaction candidate state read-only and caches by snapshot identity to populate a labels Map that the lexer consults when expanding `[text][ref]` and `![alt][ref]`. `ILinkReferenceDefinitionState` exists as a deprecated stub for compatibility — do not introduce new code paths that produce it.
 - **TOC** is derived on-demand via `getTOC(muya)` (`state/getTOC.ts`); the public method is `muya.getTOC()` (`src/muya.ts`). Items expose `lvl`, plain `content`, formatted `contentHtml`, a stable per-block navigation `slug`, and the export-compatible `githubSlug`.
 
-### Inline rendering and DOM
+### Inline content engine
 
-`src/inlineRenderer/` tokenizes inline content with a custom `lexer`/`rules` pipeline and renders to a virtual DOM via `snabbdom` (and `snabbdom-to-html` for serialization). KaTeX, Prism, Mermaid, Vega/Vega-Lite, and PlantUML are integrated for math, code highlighting, and diagrams.
+`src/inline/` owns inline parsing, token models, content projection, Markdown serialization, rendering, and image resources. It tokenizes inline content with a custom `lexer`/`rules` pipeline and renders to a virtual DOM via `snabbdom` (and `snabbdom-to-html` for serialization). KaTeX, Prism, Mermaid, Vega/Vega-Lite, and PlantUML are integrated for math, code highlighting, and diagrams.
 
 ### UI layer (`src/ui/`)
 

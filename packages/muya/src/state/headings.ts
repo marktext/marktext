@@ -1,5 +1,5 @@
 import { Lexer } from 'marked';
-import { beginRules } from '../inlineRenderer/parser/rules';
+import { beginRules } from '../inline/parser/rules';
 
 /** The inline Markdown body, without ATX markers or their surrounding whitespace. */
 export function atxHeadingBody(text: string): string {

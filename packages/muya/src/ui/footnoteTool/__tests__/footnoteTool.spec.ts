@@ -83,10 +83,10 @@ function makeFakeMuya(): { muya: Muya; eventCenter: EventCenter; appendSpy: Retu
         },
         editor: {
             scrollPage,
-            // ParagraphContent.update reads inlineRenderer.patch + getLabelInfo
+            // ParagraphContent.update reads inlineEngine.patch + getLabelInfo
             // during createDomNode. Stub minimally — the tool exercises the
             // create flow, not the inline render output.
-            inlineRenderer: {
+            inlineEngine: {
                 patch: () => {},
                 getLabelInfo: () => ({ label: '' }),
             },

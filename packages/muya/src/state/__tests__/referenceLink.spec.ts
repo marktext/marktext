@@ -1,11 +1,11 @@
 import type { TContainerState, TState } from '../types';
 import { describe, expect, it } from 'vitest';
-import { tokenizer } from '../../inlineRenderer/lexer';
-import { beginRules } from '../../inlineRenderer/parser/rules';
+import { tokenizer } from '../../inline/lexer';
+import { beginRules } from '../../inline/parser/rules';
 import { MarkdownToState } from '../markdownToState';
 import ExportMarkdown from '../stateToMarkdown';
 
-// Mirrors `InlineRenderer.collectReferenceDefinitions` so the spec can verify
+// Mirrors `InlineEngine.collectReferenceDefinitions` so the spec can verify
 // the full markdown → state → label-collection → inline tokenize pipeline
 // without spinning up a real Muya instance.
 function collectLabels(states: TState[]) {

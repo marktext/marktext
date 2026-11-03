@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 
-import type { Token } from '../../inlineRenderer/model/types';
+import type { Token } from '../../inline/model/types';
 import { describe, expect, it } from 'vitest';
-import { tokenizer } from '../../inlineRenderer/lexer';
+import { tokenizer } from '../../inline/lexer';
 import { renderToStaticHTML } from '../renderToStaticHTML';
 
 // #4307: CJK-adjacent emphasis must work in both the live editor and Marked
@@ -84,7 +84,7 @@ describe('strong emphasis with CJK boundaries (#4307)', () => {
         }
     });
 
-    describe('live editor path — inlineRenderer tokenizer', () => {
+    describe('live editor path — inlineEngine tokenizer', () => {
         for (const src of SANITY_CASES) {
             it(`tokenizes strong/em in: ${src}`, () => {
                 expect(tokenizesEmphasis(src), src).toBe(true);

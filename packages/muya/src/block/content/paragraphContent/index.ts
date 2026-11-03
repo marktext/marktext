@@ -1,5 +1,5 @@
 import type { Muya } from '../../../index';
-import type { CodeEmojiMathToken, HTMLTagToken, ImageToken, LinkToken, ReferenceLinkToken, Token } from '../../../inlineRenderer/model/types';
+import type { CodeEmojiMathToken, HTMLTagToken, ImageToken, LinkToken, ReferenceLinkToken, Token } from '../../../inline/model/types';
 import type { IRenderCursor } from '../../../selection/types';
 import type {
     IBlockQuoteState,
@@ -16,8 +16,8 @@ import type Parent from '../../base/parent';
 import type BulletList from '../../commonMark/bulletList';
 import type Paragraph from '../../commonMark/paragraph';
 import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
-import { tokenEvents } from '../../../inlineRenderer/model/traversal';
-import { parseInline } from '../../../inlineRenderer/parser/lexer';
+import { tokenEvents } from '../../../inline/model/traversal';
+import { parseInline } from '../../../inline/parser/lexer';
 import { isListItemState, isTaskListItemState } from '../../../state/types';
 import { ChangeSource } from '../../../types';
 import { firstWordOfInfo, isKeyboardEvent, isLengthEven, parseFenceLine } from '../../../utils';
@@ -230,8 +230,8 @@ class ParagraphContent extends Format {
     }
 
     override update(cursor?: IRenderCursor, highlights = []) {
-        this.inlineRenderer.patch(this, cursor, highlights);
-        const { label } = this.inlineRenderer.getLabelInfo(this);
+        this.inlineEngine.patch(this, cursor, highlights);
+        const { label } = this.inlineEngine.getLabelInfo(this);
 
         if (this.scrollPage && label)
             this.scrollPage.updateRefLinkAndImage(label);

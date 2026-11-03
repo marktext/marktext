@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { tokenizer } from '../../inlineRenderer/lexer';
+import { tokenizer } from '../../inline/lexer';
 import { Muya } from '../../muya';
 
 // `texMathDollars` gates both halves of pandoc's `tex_math_dollars`, on both

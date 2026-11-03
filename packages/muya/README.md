@@ -189,7 +189,7 @@ Muya
 ├── Editor             owns runtime modules and routes DOM events
 │   ├── JSONState      committed ot-json1 document, source of truth
 │   ├── EditTransactions batches edits, completes rules and commits history
-│   ├── InlineRenderer custom lexer + snabbdom virtual DOM
+│   ├── InlineEngine   inline parsing, projection, serialization and rendering
 │   ├── Selection      live selection bridged to the JSON path
 │   ├── Search         regex search + highlight overlay
 │   ├── Clipboard      paste/copy bridging via turndown / marked
