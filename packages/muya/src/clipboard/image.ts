@@ -1,6 +1,6 @@
 import type { TSelectableImageToken } from '../utils/image';
 import type Clipboard from './index';
-import { parseInline } from '../inlineRenderer/parser/lexer';
+import { parseInline } from '../inline/parser/lexer';
 import { SelectionType } from '../selection/types';
 import { escapeHTML, getUniqueId } from '../utils';
 import { getImageSrc, imageToMarkdown, isImageToken } from '../utils/image';

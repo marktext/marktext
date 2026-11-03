@@ -34,7 +34,7 @@ function bootMuya(markdown: string): Muya {
 }
 
 function renderer(muya: Muya) {
-    return muya.editor.inlineRenderer.renderer;
+    return muya.editor.inlineEngine.renderer;
 }
 
 describe('muya.invalidateImageCache()', () => {
@@ -47,7 +47,7 @@ describe('muya.invalidateImageCache()', () => {
         const muya = bootMuya('plain text');
         const { images } = renderer(muya);
         void images.request('file:///tmp/pic.png', false);
-        muya.editor.inlineRenderer.setImagePreview('file:///tmp/pic.png', 'data:image/png;base64,AAAA');
+        muya.editor.inlineEngine.setImagePreview('file:///tmp/pic.png', 'data:image/png;base64,AAAA');
         expect(images.size).toBe(1);
         muya.invalidateImageCache();
         expect(images.size).toBe(0);
@@ -56,8 +56,8 @@ describe('muya.invalidateImageCache()', () => {
 
     it('re-renders content blocks so inline images load again', async () => {
         const muya = bootMuya('![alt](/tmp/pic.png)');
-        const inlineRenderer = muya.editor.inlineRenderer;
-        const patchSpy = vi.spyOn(inlineRenderer, 'patch');
+        const inlineEngine = muya.editor.inlineEngine;
+        const patchSpy = vi.spyOn(inlineEngine, 'patch');
 
         muya.invalidateImageCache();
 

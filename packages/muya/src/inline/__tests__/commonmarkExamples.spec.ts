@@ -158,7 +158,7 @@ describe('inline lexer — auto link (marktext c0853f64)', () => {
 // Defensive regression for marktext commit ad5ddbf9 (GFM example 558, PR #917):
 // the legacy muya parser used to drop the `"title"` portion of a link or image
 // destination. The new muya's `parseSrcAndTitle` in
-// inlineRenderer/parser/linkDestination.ts already splits these, so this test locks
+// inline/parser/linkDestination.ts already splits these, so this test locks
 // the behaviour in.
 describe('inline lexer — GFM link/image title (marktext ad5ddbf9)', () => {
     it('extracts title from a link with double-quoted title', () => {
@@ -202,7 +202,7 @@ describe('inline lexer — GFM link/image title (marktext ad5ddbf9)', () => {
 // rule, so an inline_code span ending mid-span fooled the strong rule into
 // thinking another rule extended past the closer. The fix tracked already-
 // consumed positions in an `ignoreIndex` array. The new muya's lowerPriority
-// (`inlineRenderer/parser/precedence.ts`) already has the same `ignoreIndex`, so this
+// (`inline/parser/precedence.ts`) already has the same `ignoreIndex`, so this
 // lock-in protects against a future regression.
 describe('inline lexer — repeated bold + inline_code (marktext d937fac0 / #1071)', () => {
     it('emits a strong token for EVERY `**`-wrapped code span in a sequence', () => {

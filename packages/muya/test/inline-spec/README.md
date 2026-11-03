@@ -1,6 +1,6 @@
 # Live inline lexer / specification differences
 
-This suite calls `src/inlineRenderer/lexer.ts` directly. It is independent of
+This suite calls `src/inline/lexer.ts` directly. It is independent of
 `test/spec/`, which measures the marked-based HTML export path. A green run means
 the live lexer's differences match the reviewed baseline, not 100% conformance.
 

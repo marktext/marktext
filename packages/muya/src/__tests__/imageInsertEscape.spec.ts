@@ -2,7 +2,7 @@
 
 import type Format from '../block/base/format';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { tokenizer } from '../inlineRenderer/lexer';
+import { tokenizer } from '../inline/lexer';
 import { Muya } from '../muya';
 
 // #3060 — an image whose file path contains a parenthesis must escape it, or the

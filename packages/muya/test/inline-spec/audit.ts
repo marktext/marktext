@@ -1,10 +1,10 @@
-import type { Token } from '../../src/inlineRenderer/model/types';
+import type { Token } from '../../src/inline/model/types';
 import type { IInlineExample } from './fixtures';
 import type { IHtmlAttributePolicy, IHtmlFieldDifference } from './htmlFields';
 import type { SemanticEvent } from './semantics';
 import { createHash } from 'node:crypto';
-import { tokenizer } from '../../src/inlineRenderer/lexer';
-import { generator } from '../../src/inlineRenderer/serialization';
+import { tokenizer } from '../../src/inline/lexer';
+import { generator } from '../../src/inline/serialization';
 import { adaptFixture, examples } from './fixtures';
 import { checkRawHtmlFields } from './htmlFields';
 import { htmlSemantics, tokensToHtml } from './semantics';

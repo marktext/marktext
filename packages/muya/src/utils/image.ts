@@ -1,6 +1,6 @@
-import type { HTMLTagToken, ImageToken, Token } from '../inlineRenderer/model/types';
+import type { HTMLTagToken, ImageToken, Token } from '../inline/model/types';
 import { DATA_URL_REG, IMAGE_EXT_REG, isWin, URL_REG } from '../config/index';
-import { parseInline } from '../inlineRenderer/parser/lexer';
+import { parseInline } from '../inline/parser/lexer';
 import { findContentDOM, getOffsetOfParagraph } from '../selection/dom';
 import { ABSOLUTE_LOCAL_REG, encodeDirnameForUrl, localPathToFileUrl, resolveRelativePath } from './fileUrl';
 import { encodeLinkTitle, escapeLinkAttribute } from './markdownEscape';

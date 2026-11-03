@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import type Format from '../../block/base/format';
-import type { ImageToken } from '../../inlineRenderer/model/types';
+import type { ImageToken } from '../../inline/model/types';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';

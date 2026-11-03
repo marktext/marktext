@@ -16,7 +16,7 @@ registerBlocks();
 
 // Footnote.create() walks down through `ScrollPage.loadBlock(child.name)`
 // into ParagraphContent, whose constructor calls `update()` and reads
-// `muya.editor.inlineRenderer.patch / getLabelInfo` plus `muya.i18n.t`.
+// `muya.editor.inlineEngine.patch / getLabelInfo` plus `muya.i18n.t`.
 // The stub below is the minimum surface we need to exercise create() +
 // getState() without booting a real editor.
 function makeFakeMuya(): Muya {
@@ -29,7 +29,7 @@ function makeFakeMuya(): Muya {
             autoPairQuote: false,
         },
         editor: {
-            inlineRenderer: {
+            inlineEngine: {
                 patch: () => {},
                 getLabelInfo: () => ({ label: '' }),
             },

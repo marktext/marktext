@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { bootMuya, useMuyaHarness } from '../../../__tests__/muyaHarness';
-import { tokenizer } from '../../../inlineRenderer/lexer';
+import { tokenizer } from '../../../inline/lexer';
 import { getImageInfo } from '../../../utils/image';
 import Format from '../format';
 

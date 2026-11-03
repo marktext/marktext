@@ -1,8 +1,8 @@
 import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
 import type { Muya } from '../muya';
-import { parseInline } from '../inlineRenderer/parser/lexer';
-import { tokensToInlineHtml, tokensToPlainText } from '../inlineRenderer/projection';
+import { parseInline } from '../inline/parser/lexer';
+import { tokensToInlineHtml, tokensToPlainText } from '../inline/projection';
 import { getUniqueId } from '../utils';
 import { generateGithubSlug } from '../utils/slug';
 
@@ -37,7 +37,7 @@ export function getTOC(muya: Muya): ITocItem[] {
     // Headings are tokenized outside a rendered block, so the reference
     // definitions a heading may link to (`[text][ref]`) have to be collected
     // here instead of from the block's own inline renderer.
-    const labels = muya.editor.inlineRenderer.collectReferenceDefinitions();
+    const labels = muya.editor.inlineEngine.collectReferenceDefinitions();
 
     const items: ITocItem[] = [];
 

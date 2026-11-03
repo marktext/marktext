@@ -40,7 +40,7 @@ class AtxHeadingContent extends Format {
     }
 
     override update(cursor?: IRenderCursor, highlights = []) {
-        return this.inlineRenderer.patch(this, cursor, highlights);
+        return this.inlineEngine.patch(this, cursor, highlights);
     }
 
     override enterHandler(event: Event) {

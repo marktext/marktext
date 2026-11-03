@@ -3,7 +3,7 @@
 import type Content from '../../block/base/content';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { tokenizer } from '../../inlineRenderer/lexer';
+import { tokenizer } from '../../inline/lexer';
 import { Muya as MuyaClass } from '../../muya';
 import { SelectionDirection } from '../../selection/types';
 import { getUrlPaste } from '../pasteUrl';

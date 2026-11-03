@@ -1,6 +1,6 @@
 import type Content from '../block/base/content';
 import type TreeNode from '../block/base/treeNode';
-import type { IHighlight } from '../inlineRenderer/model/types';
+import type { IHighlight } from '../inline/model/types';
 import type { Muya } from '../muya';
 import type { IAnchorFocusInfo, ISelectionEndpoint, TSelectionState } from '../selection/types';
 import type { IMatch, IReplaceOption, ISearchOption } from './types';

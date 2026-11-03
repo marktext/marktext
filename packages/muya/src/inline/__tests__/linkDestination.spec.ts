@@ -133,7 +133,7 @@ interface ISpecExample {
 }
 
 // Inline links and images only: reference definitions live in their own block
-// and reach the lexer through a `labels` map the InlineRenderer assembles from
+// and reach the lexer through a `labels` map the InlineEngine assembles from
 // the whole document, and a blank line means the example spans several blocks.
 // Neither shape survives being handed to the inline lexer as one string.
 const examples = (cms.tests as ISpecExample[]).filter(

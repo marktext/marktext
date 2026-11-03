@@ -4,7 +4,7 @@ import type { Muya } from '../../muya';
 import type { TState } from '../../state/types';
 import * as json1 from 'ot-json1';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import InlineRenderer from '..';
+import InlineEngine from '..';
 import { EditTransactions } from '../../editor/transactions';
 import JSONState from '../../state';
 import { MarkdownToState } from '../../state/markdownToState';
@@ -27,7 +27,7 @@ function makeRenderer(blocks: TState[]) {
     const jsonState = new JSONState(muya, blocks);
     const transactions = new EditTransactions(jsonState, () => muya.options, () => {}, () => {}, () => {});
     Object.assign(muya, { editor: { jsonState, transactions } });
-    const renderer = new InlineRenderer(muya);
+    const renderer = new InlineEngine(muya);
 
     return { jsonState, renderer };
 }

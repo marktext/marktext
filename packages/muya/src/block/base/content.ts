@@ -1,4 +1,4 @@
-import type { IHighlight } from '../../inlineRenderer/model/types';
+import type { IHighlight } from '../../inline/model/types';
 import type { Muya } from '../../muya';
 import type { IContentCursor, INodeOffset, IRenderCursor } from '../../selection/types';
 import type { Nullable } from '../../types';
@@ -369,8 +369,8 @@ class Content extends TreeNode {
         return this.muya.editor.selection;
     }
 
-    protected get inlineRenderer() {
-        return this.muya.editor.inlineRenderer;
+    protected get inlineEngine() {
+        return this.muya.editor.inlineEngine;
     }
 
     protected get autoPairType() {

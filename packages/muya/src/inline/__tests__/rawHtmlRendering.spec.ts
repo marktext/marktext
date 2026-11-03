@@ -23,7 +23,7 @@ function render(source: string): string {
     const block = new Proxy(muya.editor.scrollPage!.firstContentInDescendant()! as Format, {
         get: (target, key, receiver) => key === 'text' ? source : Reflect.get(target, key, receiver),
     });
-    return muya.editor.inlineRenderer.renderer.output(
+    return muya.editor.inlineEngine.renderer.output(
         tokenizer(source, { profile: 'inline' }),
         block,
         {},
@@ -48,7 +48,7 @@ describe('raw HTML rendering depth and ownership', () => {
     });
 
     it.each(['<script>![alt](/hidden.png)</script>', '<textarea>![alt](/hidden.png)</textarea>', '<ruby>![alt](/hidden.png)</ruby>'])('does not render Markdown children owned by literal HTML or ruby: %s', (source) => {
-        const load = vi.spyOn(muya.editor.inlineRenderer.renderer, 'loadImageAsync');
+        const load = vi.spyOn(muya.editor.inlineEngine.renderer, 'loadImageAsync');
         render(source);
         expect(load).not.toHaveBeenCalled();
     });
