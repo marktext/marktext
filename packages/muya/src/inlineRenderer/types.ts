@@ -228,6 +228,7 @@ export type ReferenceImageToken = IBaseToken & {
 export type HTMLEscapeToken = IBaseToken & {
     type: 'html_escape';
     escapeCharacter: string;
+    content: string;
 };
 
 export type AutoLinkExtensionToken = IBaseToken & {
@@ -248,6 +249,7 @@ export type AutoLinkToken = IBaseToken & {
 
 export type HTMLTagToken = IBaseToken & {
     type: 'html_tag';
+    kind?: 'tag' | 'closing-tag' | 'comment' | 'processing-instruction' | 'declaration' | 'cdata';
     tag: string;
     openTag: string;
     attrs: Record<string, string | null>;

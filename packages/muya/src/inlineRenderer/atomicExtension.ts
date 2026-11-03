@@ -1,8 +1,8 @@
 import type { InlineRules } from './rules';
 import type { ITokenizerFacOptions } from './types';
 import { isLengthEven } from '../utils';
+import { matchAt } from './matchAt';
 import { BACKSLASH_MATH_RULES } from './rules';
-import { matchAt } from './utils';
 
 // These extensions render their bodies literally. Their brackets and emphasis
 // delimiters must be invisible to both structural scanners when enabled.

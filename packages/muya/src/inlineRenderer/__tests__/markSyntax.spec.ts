@@ -73,7 +73,9 @@ describe('mark syntax — editor lexer', () => {
     });
 
     it('treats an odd backslash run as an escaped closer (literal text)', () => {
-        expect(types('==a\\==')).toEqual(['text']);
+        const tokens = tokenizer('==a\\==', { hasBeginRules: false, options: OPTIONS });
+        expect(tokens.map(token => token.type)).toEqual(['text', 'backlash', 'text']);
+        expect(generator(tokens)).toBe('==a\\==');
     });
 });
 

@@ -7,7 +7,6 @@ import type { ImageToken, LinkToken, Token } from '../types';
 // @ts-expect-error commonmark-spec is plain CommonJS w/o types
 import cms from 'commonmark-spec';
 import { describe, expect, it } from 'vitest';
-import escapeCharactersMap from '../../config/escapeCharacter';
 import { tokenizer } from '../lexer';
 
 // The live editor tokenizes inline markdown with muya's own lexer, not with
@@ -95,7 +94,7 @@ function renderTokens(tokens: Token[]): string {
                 break;
 
             case 'html_escape':
-                html += escapeHtml(escapeCharactersMap[token.escapeCharacter] ?? token.raw);
+                html += escapeHtml(token.content);
                 break;
 
             case 'soft_line_break':

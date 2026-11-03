@@ -2,6 +2,7 @@
 
 import { marked } from 'marked';
 import { describe, expect, it } from 'vitest';
+import { CodeSpanScanner } from '../codeSpan';
 import { generator, tokenizer, tokensToInlineHtml, tokensToPlainText } from '../lexer';
 
 describe('live code spans (#5978)', () => {
@@ -92,5 +93,19 @@ describe('live code spans (#5978)', () => {
             expect(actual, JSON.stringify(source)).toEqual(expected);
             expect(generator(tokens)).toBe(source);
         }
+    });
+});
+
+describe('code-span index views', () => {
+    it.each([
+        ['prefix `x` tail', 7, 10, 3, 1, true],
+        ['prefix `x` tail', 7, 9, 1, 1, false],
+        ['```x```', 0, 2, 2, 2, false],
+        ['\\``x`', 2, 5, 3, 1, true],
+        ['`a` `b`', 4, 7, 3, 1, true],
+    ] as const)('bounds code spans in %j to [%i, %i)', (source, start, end, matchEnd, markerLength, closed) => {
+        const view = new CodeSpanScanner(source).view(start, end);
+        expect(view.read(0)).toEqual({ end: matchEnd, markerLength, closed });
+        expect(view.read(end - start)).toBeNull();
     });
 });

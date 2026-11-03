@@ -27,6 +27,7 @@ import {
     THEMATIC_BREAK_STATE,
 } from '../../config';
 import { generator, tokenizer } from '../../inlineRenderer/lexer';
+import { tokenEvents } from '../../inlineRenderer/tokenTraversal';
 import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
 import { contentPath } from '../../selection/state';
@@ -34,7 +35,7 @@ import { SelectionType } from '../../selection/types';
 import { isListItemState } from '../../state/types';
 import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isKeyboardEvent, isMouseEvent, lastGraphemeLength } from '../../utils';
 import { COLOR_SPAN_CLOSE_TAG, colorPropertyOf, colorSpanOpenTag, isColorStyleEmpty, parseColorStyle } from '../../utils/colorSpan';
-import { correctImageSrc, getImageInfo, imageToMarkdown } from '../../utils/image';
+import { correctImageSrc, getImageInfo, imageToMarkdown, isImageToken } from '../../utils/image';
 import { minSpacesAfterMarker, parseListMarker, toListDelimiter } from '../../utils/listMarker';
 import logger from '../../utils/logger';
 
@@ -300,10 +301,10 @@ function collectColorSpans(
     tokens: Token[],
     rangeStart: number,
     rangeEnd: number,
-    out: IColorSpan[] = [],
 ): IColorSpan[] {
-    for (const token of tokens) {
-        if (token.range.end <= rangeStart || token.range.start >= rangeEnd)
+    const out: IColorSpan[] = [];
+    for (const { token, exiting } of tokenEvents(tokens, token => token.range.end > rangeStart && token.range.start < rangeEnd)) {
+        if (exiting || token.range.end <= rangeStart || token.range.start >= rangeEnd)
             continue;
 
         if (token.type === 'html_tag' && token.tag.toLowerCase() === 'span') {
@@ -318,9 +319,6 @@ function collectColorSpans(
                 });
             }
         }
-
-        if ('children' in token && Array.isArray(token.children))
-            collectColorSpans(token.children, rangeStart, rangeEnd, out);
     }
 
     return out;
@@ -344,30 +342,21 @@ class Format extends Content {
             options: this.muya.options,
         });
 
-        let result = null;
-
-        const travel = (tokens: Token[]) => {
-            for (const token of tokens) {
-                if (token.range.start > offset)
-                    break;
-
-                if (
-                    token.type === type
-                    && offset > token.range.start
-                    && (offset < token.range.end || (includeEnd && offset === token.range.end))
-                ) {
-                    result = token;
-                    break;
-                }
-                else if ('children' in token && Array.isArray(token.children)) {
-                    travel(token.children);
-                }
+        for (const { token, exiting } of tokenEvents(tokens, token => token.range.start <= offset && offset <= token.range.end)) {
+            if (exiting)
+                continue;
+            if (token.range.start > offset)
+                break;
+            if (
+                token.type === type
+                && offset > token.range.start
+                && (offset < token.range.end || (includeEnd && offset === token.range.end))
+            ) {
+                return token;
             }
-        };
+        }
 
-        travel(tokens);
-
-        return result;
+        return null;
     }
 
     private _checkNotSameToken(oldText: string, text: string) {
@@ -1493,10 +1482,7 @@ class Format extends Content {
             // An inline image followed by other content: the caret lands on the
             // next node at the image's end offset. Select the whole image so the
             // next Backspace deletes it as a unit (matching muyajs interaction).
-            const isImageToken
-                = token.type === 'image'
-                    || (token.type === 'html_tag' && token.tag === 'img');
-            if (token.range.end === offset && isImageToken)
+            if (token.range.end === offset && isImageToken(token))
                 return { needRender: false, imageToken: token, referenceImageToken: null, offsetDelta: 0 };
 
             // A reference image (`![alt][ref]`) is editable marked text, so it has
@@ -1711,32 +1697,29 @@ class Format extends Content {
             options: this.muya.options,
         });
 
-        (function iterator(tks) {
-            for (const token of tks) {
-                if (
-                    checkTokenIsInlineFormat(token)
-                    && start.offset >= token.range.start
-                    && end.offset <= token.range.end
-                ) {
-                    formats.push(token);
-                }
-
-                if (
-                    checkTokenIsInlineFormat(token)
-                    && ((start.offset >= token.range.start
-                        && start.offset <= token.range.end)
-                    || (end.offset >= token.range.start
-                        && end.offset <= token.range.end)
-                    || (start.offset <= token.range.start
-                        && token.range.end <= end.offset))
-                ) {
-                    neighbors.push(token);
-                }
-
-                if ('children' in token && Array.isArray(token.children))
-                    iterator(token.children);
+        for (const { token, exiting } of tokenEvents(tokens)) {
+            if (exiting)
+                continue;
+            if (
+                checkTokenIsInlineFormat(token)
+                && start.offset >= token.range.start
+                && end.offset <= token.range.end
+            ) {
+                formats.push(token);
             }
-        })(tokens);
+
+            if (
+                checkTokenIsInlineFormat(token)
+                && ((start.offset >= token.range.start
+                    && start.offset <= token.range.end)
+                || (end.offset >= token.range.start
+                    && end.offset <= token.range.end)
+                || (start.offset <= token.range.start
+                    && token.range.end <= end.offset))
+            ) {
+                neighbors.push(token);
+            }
+        }
 
         return { formats, tokens, neighbors };
     }

@@ -6,8 +6,9 @@ import { bootMuya, useMuyaHarness } from './muyaHarness';
 
 useMuyaHarness();
 
-describe('inserting HTTP images preserves the requested URL', () => {
+describe('inserting images preserves the requested destination', () => {
     it.each([
+        ['/tmp/a&copy;.png', '/tmp/a&copy;.png'],
         ['https://example.com/a&copy;.png', 'https://example.com/a&copy;.png'],
         ['https://example.com/a&amp;.png', 'https://example.com/a&amp;.png'],
         ['https://example.com/a.png?first=1&copy;=2', 'https://example.com/a.png?first=1&copy;=2'],

@@ -10,6 +10,10 @@ export interface ICodeSpanMatch {
     closed: boolean;
 }
 
+export interface ICodeSpanReader {
+    read: (index: number) => ICodeSpanMatch | null;
+}
+
 // Index complete runs once per inline source so unmatched openers cannot repeatedly
 // search the remaining paragraph. Escapes affect openers, but never code-span closers.
 export class CodeSpanScanner {
@@ -44,6 +48,25 @@ export class CodeSpanScanner {
         const closer = run ? run.closer : this._closerAfter(markerLength, end);
 
         return { end: closer === undefined ? end : closer + markerLength, markerLength, closed: closer !== undefined };
+    }
+
+    /** Child-relative offsets over this index; closers outside [start, end) remain unmatched. */
+    view(start: number, end: number): ICodeSpanReader {
+        return {
+            read: (index) => {
+                if (index < 0 || start + index >= end)
+                    return null;
+                const match = this.read(start + index);
+                if (!match)
+                    return null;
+                const markerLength = Math.min(match.markerLength, end - start - index);
+                return {
+                    markerLength,
+                    end: match.end <= end ? match.end - start : index + markerLength,
+                    closed: match.closed && match.end <= end,
+                };
+            },
+        };
     }
 
     private _closerAfter(length: number, end: number): number | undefined {

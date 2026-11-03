@@ -63,6 +63,14 @@ function pasteEvent(data: { text: string; html: string }, withBitmap = true): Cl
 }
 
 describe('selected image clipboard formats', () => {
+    it.each(['</img>', '</IMG >'])('rejects a closing tag carried as image metadata: %j', (markdown) => {
+        const image = document.createElement('img');
+        const src = 'https://example.com/source.png';
+        image.setAttribute('src', src);
+        image.setAttribute('data-marktext-image', JSON.stringify({ version: 1, markdown, src, documentId: '/docs/source.md' }));
+        expect(readClipboardImage(image.outerHTML, markdown)).toBeNull();
+    });
+
     it('carries the original Markdown, resolved source and document identity in inert HTML', () => {
         const data = copyData();
         expect(readClipboardImage(data.html, data.text)).toEqual({

@@ -1,19 +1,19 @@
 import type { HTMLTagToken, ImageToken, Token } from '../inlineRenderer/types';
 import { DATA_URL_REG, IMAGE_EXT_REG, isWin, URL_REG } from '../config/index';
 import { tokenizer } from '../inlineRenderer/lexer';
-import { encodeLinkTitle, escapeLinkAttribute } from '../inlineRenderer/linkDestination';
 import { findContentDOM, getOffsetOfParagraph } from '../selection/dom';
 import { ABSOLUTE_LOCAL_REG, encodeDirnameForUrl, localPathToFileUrl, resolveRelativePath } from './fileUrl';
+import { encodeLinkTitle, escapeLinkAttribute } from './markdownEscape';
 
-export type TSelectableImageToken = ImageToken | (HTMLTagToken & { tag: 'img' });
+export type TSelectableImageToken = ImageToken | (HTMLTagToken & { tag: 'img'; kind?: 'tag' });
 
 export interface IImageInfo {
     token: TSelectableImageToken;
     imageId: string;
 }
 
-function isImageToken(token: Token | undefined): token is TSelectableImageToken {
-    return token?.type === 'image' || (token?.type === 'html_tag' && token.tag === 'img');
+export function isImageToken(token: Token | undefined): token is TSelectableImageToken {
+    return token?.type === 'image' || (token?.type === 'html_tag' && token.tag === 'img' && token.kind === 'tag');
 }
 
 export function getImageInfo(image: HTMLElement): IImageInfo {

@@ -60,44 +60,44 @@ function srcFromMarkdown(markdown: string): string {
 
 // Drive each path on a freshly booted engine and return the escaped src it produced.
 
-async function viaInsertImage(): Promise<string> {
+async function viaInsertImage(src = RAW_SRC): Promise<string> {
     const muya = bootMuya('\n');
     placeCursorOnFirstBlock(muya, 0);
-    muya.insertImage({ src: RAW_SRC, alt: 'pic' });
-    let src = '';
+    muya.insertImage({ src, alt: 'pic' });
+    let destination = '';
     await vi.waitFor(() => {
-        src = srcFromMarkdown(muya.getMarkdown());
-        expect(src).not.toBe('');
+        destination = srcFromMarkdown(muya.getMarkdown());
+        expect(destination).not.toBe('');
     });
-    return src;
+    return destination;
 }
 
-async function viaClipboardPaste(): Promise<string> {
+async function viaClipboardPaste(src = RAW_SRC): Promise<string> {
     const muya = bootMuya('\n');
     placeCursorOnFirstBlock(muya, 0);
-    await pasteImageSrc(muya.editor.clipboard, RAW_SRC);
-    let src = '';
+    await pasteImageSrc(muya.editor.clipboard, src);
+    let destination = '';
     await vi.waitFor(() => {
-        src = srcFromMarkdown(muya.getMarkdown());
-        expect(src).not.toBe('');
+        destination = srcFromMarkdown(muya.getMarkdown());
+        expect(destination).not.toBe('');
     });
-    return src;
+    return destination;
 }
 
-async function viaReplaceImage(): Promise<string> {
+async function viaReplaceImage(src = RAW_SRC): Promise<string> {
     // Boot with an existing image so replaceImage has a real token + range to
     // splice over (the image-edit-tool confirm path).
     const muya = bootMuya('![old](/old.png)\n');
     const block = placeCursorOnFirstBlock(muya, 0);
     const token = tokenizer(block.text)[0];
     const imageInfo = { token, imageId: 'id' } as unknown as IImageInfo;
-    block.replaceImage(imageInfo, { alt: 'pic', src: RAW_SRC, title: '' });
-    let src = '';
+    block.replaceImage(imageInfo, { alt: 'pic', src, title: '' });
+    let destination = '';
     await vi.waitFor(() => {
-        src = srcFromMarkdown(muya.getMarkdown());
-        expect(src).not.toBe('/old.png');
+        destination = srcFromMarkdown(muya.getMarkdown());
+        expect(destination).not.toBe('/old.png');
     });
-    return src;
+    return destination;
 }
 
 describe('image src escaping parity', () => {
@@ -114,6 +114,14 @@ describe('image src escaping parity', () => {
     it('clipboard paste percent-encodes spaces (%20) and # (%23)', async () => {
         const src = await viaClipboardPaste();
         expect(src).toBe(ESCAPED_SRC);
+    });
+
+    it('preserves literal entity text across insertion, clipboard paste and replacement', async () => {
+        const src = '/tmp/a&copy;.png';
+        for (const insert of [viaInsertImage, viaClipboardPaste, viaReplaceImage]) {
+            const destination = await insert(src);
+            expect(tokenizer(`![pic](${destination})`)[0]).toMatchObject({ attrs: { src } });
+        }
     });
 
     it('insertImage / clipboard paste / replaceImage produce byte-identical escaped src', async () => {

@@ -3,6 +3,7 @@
 import type Content from '../../block/base/content';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { tokenizer } from '../../inlineRenderer/lexer';
 import { Muya as MuyaClass } from '../../muya';
 import { SelectionDirection } from '../../selection/types';
 import { getUrlPaste } from '../pasteUrl';
@@ -123,6 +124,13 @@ describe('paste URL over selected text (#2029)', () => {
         await muya.editor.clipboard.pasteHandler(pasteEvent('https://home.com'), 'https://home.com', '<a href="https://home.com">Page title</a>');
         await new Promise(r => setTimeout(r, 40));
         expect(muya.getMarkdown()).toBe('foo [bar](https://home.com) foo\n');
+    });
+
+    it('preserves literal entity text in a URL pasted over selected text', async () => {
+        const muya = bootMuya('bar\n');
+        const url = 'https://example.com/?x=1&copy;';
+        const markdown = await paste(muya, contentBlocks(muya)[0], 0, 3, url);
+        expect(tokenizer(markdown)[0]).toMatchObject({ type: 'link', href: url });
     });
 
     it('escapes parentheses in URL destinations', async () => {

@@ -23,6 +23,8 @@ CommonMark examples come from the pinned `commonmark-spec@0.31.2` dependency. GF
 examples reuse the repository's `gfm-spec-0.29-gfm.json`. All inline sections plus
 backslash escapes and entities are selected: 356 CommonMark and 366 GFM examples.
 Tables, task lists and other block sections are outside this suite's denominator.
+The fixtures' visible tab notation (`→`) is converted to U+0009 in source and
+expected HTML, matching the official `spec.json` representation.
 
 `marked.Lexer.blockTokens` provides paragraph/heading boundaries and raw reference
 definitions. Its inline tokens, parsed links and rendered HTML are never used to

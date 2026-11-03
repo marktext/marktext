@@ -1,13 +1,14 @@
 import type { IDelimiterRun, IDelimiterSpan } from '../utils/delimiters';
+import type { ICodeSpanReader } from './codeSpan';
 import type { InlineRules } from './rules';
 import type { ITokenizerFacOptions, Labels } from './types';
 import { codePointBefore, codePointCharAt, pairDelimiters } from '../utils/delimiters';
 import { atomicExtensionLength } from './atomicExtension';
 import { BracketScanner } from './brackets';
 import { CodeSpanScanner } from './codeSpan';
+import { matchAt } from './matchAt';
 import {
     CJK_REG,
-    matchAt,
     matchExtendedAutoLink,
     PUNCTUATION_REG,
     UNICODE_WHITESPACE_REG,
@@ -16,7 +17,7 @@ import {
 export type { IDelimiterSpan } from '../utils/delimiters';
 
 interface IScanContext {
-    codeSpans?: CodeSpanScanner;
+    codeSpans?: ICodeSpanReader;
     brackets: BracketScanner;
     offset: number;
     rules: InlineRules;
@@ -141,7 +142,7 @@ export function scanDelimiterSpans(
     labels: Labels,
     options: ITokenizerFacOptions,
     allowAutolinks: boolean,
-    codeSpans = src.includes('`') ? new CodeSpanScanner(src) : undefined,
+    codeSpans: ICodeSpanReader | undefined = src.includes('`') ? new CodeSpanScanner(src) : undefined,
     brackets = new BracketScanner(src, labels, codeSpans, { rules, options, offset }),
 ): Map<number, IDelimiterSpan> {
     const runs = collectRuns(src, {
