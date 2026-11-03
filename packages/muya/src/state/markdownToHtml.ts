@@ -7,6 +7,7 @@ import exportStyle from '../assets/styles/exportStyle.css?inline';
 import { EXPORT_DOMPURIFY_CONFIG } from '../config';
 import { isHTMLElement, sanitize, unescapeHTML } from '../utils';
 import loadRenderer from '../utils/diagram';
+import { withMermaidRender } from '../utils/diagram/render';
 
 import { getHighlightHtml } from '../utils/marked';
 import { sanitizeExportHtml } from '../utils/sanitizeExportHtml';
@@ -77,27 +78,29 @@ export class MarkdownToHtml {
             return;
 
         const mermaid = await loadRenderer('mermaid');
-        // Export uses the light theme.
-        mermaid.initialize({
-            startOnLoad: false,
-            securityLevel: 'strict',
-            theme: 'default',
-        });
-        // Isolate renders so one invalid Mermaid diagram cannot abort the entire export (#4812).
-        for (const node of nodes) {
-            try {
-                await mermaid.run({ nodes: [node] });
-            }
-            catch {
-                node.innerHTML = '< Invalid Diagram >';
-            }
-        }
-        if (this._muya) {
+        await withMermaidRender(async () => {
+            // Export uses the light theme.
             mermaid.initialize({
+                startOnLoad: false,
                 securityLevel: 'strict',
-                theme: this._muya.options.mermaidTheme,
+                theme: 'default',
             });
-        }
+            // Isolate renders so one invalid Mermaid diagram cannot abort the entire export (#4812).
+            for (const node of nodes) {
+                try {
+                    await mermaid.run({ nodes: [node] });
+                }
+                catch {
+                    node.innerHTML = '< Invalid Diagram >';
+                }
+            }
+            if (this._muya) {
+                mermaid.initialize({
+                    securityLevel: 'strict',
+                    theme: this._muya.options.mermaidTheme,
+                });
+            }
+        });
     }
 
     private async _renderDiagram() {
