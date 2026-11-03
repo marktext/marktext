@@ -98,8 +98,12 @@ it('renders each nested emphasis token once instead of recursively rebuilding co
     const tokens = parseInline(text, { options: { highlightSyntax: true } });
     const root = document.createElement('div');
     const renderer = new Renderer(() => ({
-        root, readOnly: false, softNewlineAsSpace: false, references: new Map(),
-        selectedImage: null, translate: text => text,
+        root,
+        readOnly: false,
+        softNewlineAsSpace: false,
+        references: new Map(),
+        selectedImage: null,
+        translate: text => text,
     }));
     const render = vi.spyOn(Renderer.prototype, 'renderToken');
     try {
