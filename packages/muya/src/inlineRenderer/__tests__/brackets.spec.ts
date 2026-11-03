@@ -60,7 +60,7 @@ describe('shared bracket scanning', () => {
 });
 
 describe('commonMark link tails', () => {
-    it.each(['a "quoted" title', 'C:\\photos\\', '&quot; &#34; &amp;', 'two\nlines'])('round-trips a decoded title %j through Markdown', (title) => {
+    it.each(['a "quoted" title', 'C:\\photos\\', '&quot; &#34; &amp;', 'two\nlines', 'two\n\nlines\t\r\u001F'])('round-trips a decoded title %j through Markdown', (title) => {
         const source = `[label](/target "${encodeLinkTitle(title)}")`;
         const tokens = tokenizer(source);
         expect(tokens).toHaveLength(1);

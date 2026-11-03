@@ -57,37 +57,43 @@ test('changing the image URL preserves the source description (#5981)', async ({
     })).toBe(`![foo *bar*](${image})\n`);
 });
 
-test('editing only an image title preserves literal entity text in its URL', async ({ page }) => {
-    await page.route('**/example.test/**', route => route.fulfill({ contentType: 'image/png', body: png }));
-    const source = String.raw`![alt](https://example.test/a\&copy;.png "old")` + '\n';
-    const src = 'https://example.test/a&copy;.png';
-    await page.evaluate(source => window.muya!.setContent(source), source);
-    const rendered = page.locator(`${editor.paragraph} img`);
-    await expect(rendered).toHaveAttribute('src', src);
-    await page.locator(editor.image).click();
-    await page.locator(`${floats.imageToolbar} li.edit`).click();
-    const tool = page.locator(floats.imageEditTool);
-    await tool.locator('.description a').click();
-    const titleInput = tool.locator('input.title');
-    await expect(tool.locator('input.src')).toHaveValue(src);
-    await titleInput.fill('new');
-    await titleInput.press('Enter');
-    await expect(rendered).toHaveAttribute('title', 'new');
-    await expect(rendered).toHaveAttribute('src', src);
-    const changed = await page.evaluate(() => { window.muya!.flush(); return window.muya!.getMarkdown(); });
+for (const [destination, src] of [
+    [String.raw`https://example.test/a\&copy;.png`, 'https://example.test/a&copy;.png'],
+    ['https://example.test/a&Tab;.png', 'https://example.test/a\t.png'],
+    ['https://example.test/a&NewLine;.png', 'https://example.test/a\n.png'],
+]) {
+    test(`editing only an image title preserves its URL: ${destination}`, async ({ page }) => {
+        await page.route('**/example.test/**', route => route.fulfill({ contentType: 'image/png', body: png }));
+        const source = `![alt](${destination} "old")\n`;
+        await page.evaluate(source => window.muya!.setContent(source), source);
+        const rendered = page.locator(`${editor.paragraph} img`);
+        await expect(rendered).toHaveAttribute('src', src);
+        await page.locator(editor.image).click();
+        await page.locator(`${floats.imageToolbar} li.edit`).click();
+        const tool = page.locator(floats.imageEditTool);
+        await tool.locator('.description a').click();
+        const titleInput = tool.locator('input.title');
+        // Text inputs strip CR/LF; title-only edits must still retain the original destination.
+        await expect(tool.locator('input.src')).toHaveValue(src.replace(/[\r\n]/g, ''));
+        await titleInput.fill('new');
+        await titleInput.press('Enter');
+        await expect(rendered).toHaveAttribute('title', 'new');
+        await expect(rendered).toHaveAttribute('src', src);
+        const changed = await page.evaluate(() => { window.muya!.flush(); return window.muya!.getMarkdown(); });
 
-    await page.evaluate(() => window.muya!.undo());
-    expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(source);
-    await expect(rendered).toHaveAttribute('src', src);
-    await expect(rendered).toHaveAttribute('title', 'old');
-    await page.evaluate(() => window.muya!.redo());
-    await expect(rendered).toHaveAttribute('src', src);
-    await expect(rendered).toHaveAttribute('title', 'new');
+        await page.evaluate(() => window.muya!.undo());
+        expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(source);
+        await expect(rendered).toHaveAttribute('src', src);
+        await expect(rendered).toHaveAttribute('title', 'old');
+        await page.evaluate(() => window.muya!.redo());
+        await expect(rendered).toHaveAttribute('src', src);
+        await expect(rendered).toHaveAttribute('title', 'new');
 
-    await page.evaluate(source => window.muya!.setContent(source), changed);
-    await expect(rendered).toHaveAttribute('src', src);
-    await expect(rendered).toHaveAttribute('title', 'new');
-});
+        await page.evaluate(source => window.muya!.setContent(source), changed);
+        await expect(rendered).toHaveAttribute('src', src);
+        await expect(rendered).toHaveAttribute('title', 'new');
+    });
+}
 
 test('HTTP image insertion preserves literal entity text in the rendered URL', async ({ page }) => {
     await page.route('**/example.test/**', route => route.fulfill({ contentType: 'image/png', body: png }));

@@ -31,7 +31,8 @@ export const commonMarkRules = {
     /^(<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|(<([a-z][a-z\d-]*)(?=[ \t\n\r/>])[^<>]*>)(?:([\s\S]*?)(<\/\3 *>))?)/i,
     html_escape: new RegExp(`^(${escapeCharacters.join('|')})`, 'i'),
     soft_line_break: /^[ \t]*(\n)(?!\n)[ \t]*/,
-    hard_line_break: /^( {2,}|\\)(\n)(?!\n)( *)/,
+    // Tabs may precede the two trailing spaces; the lookahead keeps this scan linear.
+    hard_line_break: /^((?=[ \t]* {2}\n)[ \t]+|\\)(\n)(?!\n)( *)/,
 
     // patched math marker `$`
     backlash: /^(\\)([\\`*{}[\]()#+\-.!_>~:|<$])/,

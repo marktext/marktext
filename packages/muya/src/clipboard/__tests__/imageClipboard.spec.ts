@@ -124,16 +124,19 @@ describe('internal image paste precedence', () => {
         expect(target.getMarkdown()).toBe('![alt](assets/copied.png "caption")\n');
     });
 
-    it('preserves decoded title text when a cross-document paste rewrites the source', async () => {
-        const data = copyData('![alt](assets/source.png "a &quot;b&quot; &amp;quot;")');
+    it.each([
+        ['a &quot;b&quot; &amp;quot;', 'a "b" &quot;', 'assets/copied.png'],
+        ['two&#10;&#10;lines&Tab;', 'two\n\nlines\t', 'assets/a\t.png'],
+    ])('preserves decoded title %j when a cross-document paste rewrites the source', async (rawTitle, title, src) => {
+        const data = copyData(`![alt](assets/source.png "${rawTitle}")`);
         const target = boot('![old](assets/old.png)', '/elsewhere/target.md', {
-            clipboardImageAction: vi.fn().mockResolvedValue('assets/copied.png'),
+            clipboardImageAction: vi.fn().mockResolvedValue(src),
         });
         selectImage(target);
         await target.editor.clipboard.pasteHandler(pasteEvent(data));
         expect(tokenizer(target.getMarkdown().trim())[0]).toMatchObject({
             type: 'image',
-            attrs: { src: 'assets/copied.png', title: 'a "b" &quot;' },
+            attrs: { src, title },
         });
     });
 

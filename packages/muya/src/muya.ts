@@ -16,7 +16,6 @@ import { ScrollPage } from './block/scrollPage';
 import emptyStates from './config/emptyStates';
 import {
     CLASS_NAMES,
-    DATA_URL_REG,
     MUYA_DEFAULT_OPTIONS,
     URL_REG,
 } from './config/index';
@@ -24,7 +23,6 @@ import { Editor } from './editor/index';
 import { attachReadingEvents, prepareReadingLinks } from './editor/readOnly';
 import EventCenter from './event/index';
 import I18n from './i18n/index';
-import { escapeLinkAttribute } from './inlineRenderer/linkDestination';
 
 import {
     injectSentinels,
@@ -40,7 +38,7 @@ import { Ui } from './ui/ui';
 import { deepClone } from './utils';
 import { getBlock } from './utils/dom';
 import { GITHUB_ALERT_TYPES, githubAlertBlockType, githubAlertMarker } from './utils/githubAlerts';
-import { encodeImageSrc } from './utils/image';
+import { imageToMarkdown } from './utils/image';
 import { toListDelimiter } from './utils/listMarker';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
@@ -1082,19 +1080,11 @@ export class Muya {
             alt = match?.[1] ?? '';
         }
 
-        // Keep valid data URLs intact; incomplete data prefixes must be encoded as paths.
-        let imgUrl: string;
-        if (URL_REG.test(src))
-            imgUrl = escapeLinkAttribute(encodeURI(src));
-        else if (DATA_URL_REG.test(src))
-            imgUrl = src;
-        else
-            imgUrl = encodeImageSrc(src);
-
         const { start, end } = cursor;
         const { text } = block;
         const imageAlt = start.offset !== end.offset ? text.substring(start.offset, end.offset) : alt;
-        const imageText = `![${imageAlt}](${imgUrl})`;
+        const destination = URL_REG.test(src) ? encodeURI(src) : src;
+        const imageText = imageToMarkdown({ alt: imageAlt, src: destination });
 
         block.text = text.substring(0, start.offset) + imageText + text.substring(end.offset);
         block.setCursor(start.offset + 2, start.offset + 2 + imageAlt.length, true);

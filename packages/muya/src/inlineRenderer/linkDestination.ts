@@ -68,9 +68,9 @@ export function decodeLinkAttribute(text: string): string {
     });
 }
 
-// Markdown re-parsing must preserve literal backslashes and entity-like text.
+// Controls use entities: literal line endings can invalidate destinations and split titles.
 export function escapeLinkAttribute(text: string): string {
-    return text.replace(/[\\&]/g, char => `\\${char}`);
+    return text.replace(/[\\&<>\p{Cc}]/gu, char => /\p{Cc}/u.test(char) ? `&#${char.codePointAt(0)};` : `\\${char}`);
 }
 
 export function encodeLinkTitle(title: string): string {
