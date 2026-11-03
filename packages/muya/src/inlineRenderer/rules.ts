@@ -11,7 +11,7 @@ export const beginRules = {
     header: /(^ {0,3}#{1,6}(\s+|$))/,
     reference_definition:
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/no-misleading-capturing-group
-    /^( {0,3}\[)([^\]]+?)(\\*)(\]: *)(<?)([^\s>]+)(>?)(?:( +)(["'(]?)([^\n"'()]+)\9)?( *)$/,
+    /^( {0,3}\[)((?:\\.|[^[\]\\]){1,999}?)(\\*)(\]:[ \t]*)(<?)([^\s>]+)(>?)(?:( +)(["'(]?)([^\n"'()]+)\9)?( *)$/,
 
     // extra syntax (not belongs to GFM)
     multiple_math: /^(\$\$)$/,
@@ -24,29 +24,15 @@ export const endRules = {
 export type BeginRules = typeof beginRules;
 
 export const commonMarkRules = {
-    // Hand-tuned CommonMark/GFM patterns. Disabling the ReDoS-class regexp/*
-    // rules here on each line they fire: rewriting these patterns to please
-    // the linter would risk parser regressions, and the input is the user's
-    // own document, not untrusted network data.
-    // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation, regexp/no-misleading-capturing-group
-    image: /^(!\[)(.*?)(\\*)\]\((.*)(\\*)\)/,
-    // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation, regexp/no-misleading-capturing-group
-    link: /^(\[)((?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*?)(\\*)\]\((.*)(\\*)\)/, // can nest
-    // Link text can hold balanced brackets — notably an image `![alt](src)` —
-    // so mirror `link`'s nesting-capable anchor group instead of the bracket-
-    // free `[^\]]+?`, which stopped at the image's inner `]` and broke
-    // `[![alt](img)][ref]` (#4865).
-    // eslint-disable-next-line regexp/no-super-linear-backtracking
-    reference_link: /^\[((?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
-    // eslint-disable-next-line regexp/no-super-linear-backtracking
-    reference_image: /^!\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
+    // CDATA must stay atomic: its brackets cannot open links or images (#5981).
     // Consume multiline tags before considering hard breaks in their attributes (§6.7).
+    // A tag name needs a boundary; attached punctuation cannot open attributes (#5979).
     html_tag:
-    // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation
-    /^(<!--[\s\S]*?-->|(<([a-z][a-z\d-]*)[^<>]*>)(?:([\s\S]*?)(<\/\3 *>))?)/i,
+    /^(<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|(<([a-z][a-z\d-]*)(?=[ \t\n\r/>])[^<>]*>)(?:([\s\S]*?)(<\/\3 *>))?)/i,
     html_escape: new RegExp(`^(${escapeCharacters.join('|')})`, 'i'),
-    soft_line_break: /^(\n)(?!\n)/,
-    hard_line_break: /^( {2,}|\\)(\n)(?!\n)( *)/,
+    soft_line_break: /^[ \t]*(\n)(?!\n)[ \t]*/,
+    // Tabs may precede the two trailing spaces; the lookahead keeps this scan linear.
+    hard_line_break: /^((?=[ \t]* {2}\n)[ \t]+|\\)(\n)(?!\n)( *)/,
 
     // patched math marker `$`
     backlash: /^(\\)([\\`*{}[\]()#+\-.!_>~:|<$])/,

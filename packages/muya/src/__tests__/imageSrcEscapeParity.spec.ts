@@ -7,18 +7,8 @@ import { pasteImageSrc } from '../clipboard/pasteImage';
 import { tokenizer } from '../inlineRenderer/lexer';
 import { Muya } from '../muya';
 
-// Item 132 — the image-src escape rule (space -> %20, '#' -> %23) is duplicated
-// across three insert paths:
-//   muya.insertImage              (muya.ts)
-//   clipboard insertImageText     (clipboard/pasteImage.ts, via pasteImageSrc)
-//   Format.replaceImage           (block/base/format.ts, the image-edit confirm)
-// All three run `.replace(/ /g, encodeURI(' ')).replace(/#/g, encodeURIComponent('#'))`.
-// insertImage + the paste path are individually covered elsewhere; replaceImage
-// was not. This pins replaceImage AND asserts the three stay byte-identical so
-// the copied logic can't drift apart.
-//
-// Tree/text mutations dispatch json1 ops that flush on the next animation frame,
-// so getMarkdown() assertions are wrapped in vi.waitFor.
+// These callers must agree on local-path encoding even though HTTP insertion
+// also URI-encodes its input. Mutations flush on the next animation frame.
 
 const RAW_SRC = '/my photos/a#b.png';
 const ESCAPED_SRC = '/my%20photos/a%23b.png';
@@ -85,9 +75,6 @@ async function viaInsertImage(): Promise<string> {
 async function viaClipboardPaste(): Promise<string> {
     const muya = bootMuya('\n');
     placeCursorOnFirstBlock(muya, 0);
-    // pasteImageSrc resolves the anchor from the live selection; with no
-    // `imageAction` configured it writes the final image directly via
-    // insertImageText (the duplicated escape under test).
     await pasteImageSrc(muya.editor.clipboard, RAW_SRC);
     let src = '';
     await vi.waitFor(() => {

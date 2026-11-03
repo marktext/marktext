@@ -4,46 +4,50 @@ import { metaKey } from '../helpers/keyboard';
 import { editor } from '../helpers/selectors';
 
 for (const softNewlineAsSpace of [false, true]) {
-    test(`backslash hard breaks keep two aligned lines (softNewlineAsSpace: ${softNewlineAsSpace})`, async ({ page }) => {
-        const source = 'foo\\\n     baz';
-        await page.evaluate(({ source, softNewlineAsSpace }) => {
-            window.muya!.setOptions({ softNewlineAsSpace });
-            window.muya!.setContent(source);
-        }, { source, softNewlineAsSpace });
-        await expect(page.locator(editor.hardLineBreak)).toHaveCount(1);
-        const geometry = await page.locator(editor.paragraphContent).evaluate((element) => {
-            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-            const rects: DOMRect[] = [];
-            while (walker.nextNode()) {
-                const node = walker.currentNode;
-                if (node.textContent === 'foo' || node.textContent === 'baz') {
-                    const range = document.createRange();
-                    range.selectNodeContents(node);
-                    rects.push(range.getBoundingClientRect());
+    for (const [name, source] of [
+        ['backslash', 'foo\\\n     baz'],
+        ['spaces after tab', 'foo\t  \n     baz'],
+    ]) {
+        test(`${name} hard breaks keep two aligned lines (softNewlineAsSpace: ${softNewlineAsSpace})`, async ({ page }) => {
+            await page.evaluate(({ source, softNewlineAsSpace }) => {
+                window.muya!.setOptions({ softNewlineAsSpace });
+                window.muya!.setContent(source);
+            }, { source, softNewlineAsSpace });
+            await expect(page.locator(editor.hardLineBreak)).toHaveCount(1);
+            const geometry = await page.locator(editor.paragraphContent).evaluate((element) => {
+                const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+                const rects: DOMRect[] = [];
+                while (walker.nextNode()) {
+                    const node = walker.currentNode;
+                    if (node.textContent === 'foo' || node.textContent === 'baz') {
+                        const range = document.createRange();
+                        range.selectNodeContents(node);
+                        rects.push(range.getBoundingClientRect());
+                    }
                 }
-            }
-            return {
-                x: rects.map(rect => rect.x),
-                y: rects.map(rect => rect.y),
-                lineHeight: Number.parseFloat(getComputedStyle(element).lineHeight),
-                height: element.getBoundingClientRect().height,
-                text: element.textContent,
-            };
+                return {
+                    x: rects.map(rect => rect.x),
+                    y: rects.map(rect => rect.y),
+                    lineHeight: Number.parseFloat(getComputedStyle(element).lineHeight),
+                    height: element.getBoundingClientRect().height,
+                    text: element.textContent,
+                };
+            });
+            expect(geometry.x).toHaveLength(2);
+            expect(geometry.x[1]).toBeCloseTo(geometry.x[0], 0);
+            expect(geometry.y[1] - geometry.y[0]).toBeCloseTo(geometry.lineHeight, 0);
+            expect(geometry.height).toBeCloseTo(geometry.lineHeight * 2, 0);
+            expect(geometry.text).toBe(source);
+            expect(await getMarkdown(page)).toBe(`${source}\n`);
+            await page.evaluate(() => {
+                const saved = window.muya!.getMarkdown();
+                window.muya!.setContent(saved);
+                window.muya!.setReadOnly(true);
+            });
+            await expect(page.locator(editor.hardLineBreak)).toHaveCount(1);
+            await expect(page.locator(editor.paragraphContent)).toHaveText(source);
         });
-        expect(geometry.x).toHaveLength(2);
-        expect(geometry.x[1]).toBeCloseTo(geometry.x[0], 0);
-        expect(geometry.y[1] - geometry.y[0]).toBeCloseTo(geometry.lineHeight, 0);
-        expect(geometry.height).toBeCloseTo(geometry.lineHeight * 2, 0);
-        expect(geometry.text).toBe(source);
-        expect(await getMarkdown(page)).toBe(`${source}\n`);
-        await page.evaluate(() => {
-            const saved = window.muya!.getMarkdown();
-            window.muya!.setContent(saved);
-            window.muya!.setReadOnly(true);
-        });
-        await expect(page.locator(editor.hardLineBreak)).toHaveCount(1);
-        await expect(page.locator(editor.paragraphContent)).toHaveText(source);
-    });
+    }
 }
 
 test('recognizes hard breaks in emphasis, links, lists and quotes', async ({ page }) => {

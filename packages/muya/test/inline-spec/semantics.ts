@@ -3,6 +3,7 @@ import type { Labels, ReferenceImageToken, ReferenceLinkToken, Token } from '../
 import { escapeAttribute, escapeText } from 'entities';
 import { Tokenizer } from 'parse5';
 import escapeCharactersMap from '../../src/config/escapeCharacter';
+import { normalizeReferenceLabel } from '../../src/inlineRenderer/referenceLabel';
 
 export type SemanticEvent
     = | { type: 'open'; tag: string; attrs: Array<[string, string]>; selfClosing?: true }
@@ -115,12 +116,12 @@ function image(src: string, title: string, alt: string): string {
 }
 
 function referenceHtml(token: ReferenceLinkToken | ReferenceImageToken, labels: Labels, children: string): string {
-    const definition = labels.get((token.label + token.backlash.second).toLowerCase());
+    const definition = labels.get(normalizeReferenceLabel(token.label + token.backlash.second));
     if (!definition)
         throw new Error(`Unresolved reference token: ${token.raw}`);
     return token.type === 'reference_link'
         ? link(definition.href, definition.title, children)
-        : image(definition.href, definition.title, token.alt);
+        : image(definition.href, definition.title, token.attrs.alt);
 }
 
 function leafHtml(token: Token, literalExtensions: boolean): string | undefined {
@@ -165,7 +166,7 @@ export function tokensToHtml(tokens: Token[], labels: Labels, literalExtensions 
             case 'link':
                 return link(token.href, token.title, children);
             case 'image':
-                return image(token.attrs.src, token.title, token.alt);
+                return image(token.attrs.src, token.title, token.attrs.alt);
             case 'reference_link':
             case 'reference_image':
                 return referenceHtml(token, labels, children);

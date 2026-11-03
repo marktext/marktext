@@ -27,7 +27,7 @@ import {
     isLegalOffset,
     isSelectionState,
     resolveContent,
-    resolveEndpoint,
+    resolveTextSelectionEndpoints,
 } from './state';
 import TableRectSelection from './TableRectSelection';
 import TextSelection from './TextSelection';
@@ -142,13 +142,12 @@ class Selection {
 
     getSelection(): TSelection | null {
         const state = this.getSelectionState();
-        const selection = state ? this._resolve(state) : null;
-        return selection && this._isValid(selection) ? selection : null;
+        return state ? this._resolve(state) : null;
     }
 
     getTextSelection(): IResolvedTextSelection | null {
         const state = this.getSelectionState();
-        const selection = state?.kind === SelectionType.TEXT ? this._resolveText(state, false) : null;
+        const selection = state?.kind === SelectionType.TEXT ? this._resolveText(state, { includeFormats: false, validateOffsets: false }) : null;
         if (!selection)
             return null;
         const { anchor, focus, context } = selection;
@@ -179,7 +178,7 @@ class Selection {
         if (state !== null && !isSelectionState(state))
             return false;
         const selection = state ? this._resolve(state) : null;
-        if (state && (!selection || !this._isValid(selection)))
+        if (state && !selection)
             return false;
         this._setting = true;
         try {
@@ -354,12 +353,12 @@ class Selection {
 
     private _resolveText(
         state: Extract<TSelectionState, { kind: SelectionType.TEXT }>,
-        includeFormats = true,
+        { includeFormats = true, validateOffsets = true } = {},
     ): ITextSelection | null {
-        const anchor = resolveEndpoint(this._muya, state.anchor);
-        const focus = resolveEndpoint(this._muya, state.focus);
-        if (!anchor || !focus)
+        const endpoints = resolveTextSelectionEndpoints(this._muya, state, { validateOffsets });
+        if (!endpoints)
             return null;
+        const { anchor, focus } = endpoints;
         const { block: anchorBlock, path: anchorPath, offset: anchorOffset } = anchor;
         const { block: focusBlock, path: focusPath, offset: focusOffset } = focus;
         const isSelectionInSameBlock = anchorBlock === focusBlock;
@@ -400,8 +399,12 @@ class Selection {
     ): IImageSelection | null {
         const { path, range, raw } = state;
         const block = resolveContent(this._muya, path) as Format | null;
-        if (!block?.domNode || block.text.slice(range.start, range.end) !== raw)
+        if (!block?.domNode || range.start >= range.end
+            || !isLegalOffset(block.text, range.start)
+            || !isLegalOffset(block.text, range.end)
+            || block.text.slice(range.start, range.end) !== raw) {
             return null;
+        }
         const wrappers = block.domNode.querySelectorAll<HTMLElement>(`.${CLASS_NAMES.MU_INLINE_IMAGE}`);
         const wrapper = [...wrappers].find(node =>
             node.dataset.raw === raw && getOffsetOfParagraph(node, block.domNode!) === range.start,
@@ -474,23 +477,6 @@ class Selection {
                 selectionCoords,
             },
         };
-    }
-
-    private _isValid(selection: TSelection): boolean {
-        if (selection.kind === SelectionType.TEXT) {
-            const { anchor, focus, context } = selection;
-            const { anchorBlock, focusBlock } = context;
-            return isLegalOffset(anchorBlock.text, anchor.offset)
-                && isLegalOffset(focusBlock.text, focus.offset);
-        }
-        if (selection.kind === SelectionType.IMAGE) {
-            const { range, context } = selection;
-            const { text } = context.block;
-            return range.start < range.end
-                && isLegalOffset(text, range.start)
-                && isLegalOffset(text, range.end);
-        }
-        return true;
     }
 
     getSelectedText(): string {

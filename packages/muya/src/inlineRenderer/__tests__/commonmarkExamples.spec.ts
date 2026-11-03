@@ -225,7 +225,7 @@ describe('inline lexer — repeated bold + inline_code (marktext d937fac0 / #107
 
 // Defensive regression for marktext commit 57af8304 (issue #1169, PR #1170):
 // link / image destinations containing parens used to consume too much,
-// eating past the real closing `)`. The new muya's `correctUrl` (utils.ts)
+// eating past the real closing `)`. The destination parser
 // cuts the tentative link back to where CommonMark's destination/title
 // grammar ends and rewrites the captured groups so `\` escapes land in the
 // right slot.
@@ -247,7 +247,7 @@ describe('inline lexer — link / image dest with parens (marktext 57af8304 / #1
     it('stops at the FIRST matching `)` when more `)` appear later on the line', () => {
         // This is the real shape of the marktext regression: greedy `(.*)` in
         // the image regexp would gobble all the way to the LAST `)`, swallowing
-        // both `first.png` and the `(parens)` text. `correctUrl` walks the
+        // both `first.png` and the `(parens)` text. The parser walks the
         // destination to the `)` that closes it so the image stops at
         // `first.png` and the rest stays as following text.
         const tokens = tokenizer('see ![alt](first.png) and also (parens) here');

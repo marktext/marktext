@@ -2,14 +2,13 @@ import type { IDelimiterRun, IDelimiterSpan } from '../utils/delimiters';
 import type { InlineRules } from './rules';
 import type { ITokenizerFacOptions, Labels } from './types';
 import { codePointBefore, codePointCharAt, pairDelimiters } from '../utils/delimiters';
+import { atomicExtensionLength } from './atomicExtension';
+import { BracketScanner } from './brackets';
 import { CodeSpanScanner } from './codeSpan';
-import { BACKSLASH_MATH_RULES, linkValidateRules } from './rules';
 import {
     CJK_REG,
     matchAt,
-    matchBracketed,
     matchExtendedAutoLink,
-    matchReference,
     PUNCTUATION_REG,
     UNICODE_WHITESPACE_REG,
 } from './utils';
@@ -18,8 +17,9 @@ export type { IDelimiterSpan } from '../utils/delimiters';
 
 interface IScanContext {
     codeSpans?: CodeSpanScanner;
+    brackets: BracketScanner;
+    offset: number;
     rules: InlineRules;
-    labels: Labels;
     options: ITokenizerFacOptions;
     allowAutolinks: boolean;
     scanAutolinks: boolean;
@@ -53,26 +53,6 @@ function lengthOf(match: RegExpExecArray | null) {
     return match?.[0].length ?? 0;
 }
 
-function backslashMathLength(src: string, index: number, { rules, options }: IScanContext) {
-    for (const [rule, option] of BACKSLASH_MATH_RULES) {
-        const length = options[option] ? lengthOf(matchAt(rules[rule], src, index)) : 0;
-        if (length)
-            return length;
-    }
-
-    return 0;
-}
-
-function dollarMathLength(src: string, index: number, { rules, options }: IScanContext) {
-    const gfm = options.texMathGfm
-        ? lengthOf(matchAt(rules.inline_math_gfm, src, index))
-        : 0;
-
-    return gfm || (options.texMathDollars
-        ? lengthOf(matchAt(rules.inline_math, src, index))
-        : 0);
-}
-
 function autoLinkLength(src: string, index: number, context: IScanContext) {
     if (!context.scanAutolinks || !isAsciiAlphanumeric(src.charCodeAt(index)))
         return 0;
@@ -83,30 +63,21 @@ function autoLinkLength(src: string, index: number, context: IScanContext) {
 }
 
 function protectedLength(src: string, index: number, context: IScanContext): number {
-    const { rules, labels } = context;
-
+    const { rules, offset } = context;
     switch (src[index]) {
         case '\\':
-            return backslashMathLength(src, index, context)
-                || lengthOf(matchAt(rules.backlash, src, index));
+            return lengthOf(matchAt(rules.backlash, src, index));
 
         case '`':
             return context.codeSpans!.read(index)!.end - index;
-
-        case '$':
-            return dollarMathLength(src, index, context);
 
         case '<':
             return lengthOf(matchAt(rules.auto_link, src, index))
                 || lengthOf(matchAt(rules.html_tag, src, index));
 
         case '!':
-            return lengthOf(matchBracketed(rules.image, src, index, null))
-                || lengthOf(matchReference(rules.reference_image, src, index, labels, null));
-
         case '[':
-            return lengthOf(matchBracketed(rules.link, src, index, linkValidateRules, context.codeSpans))
-                || lengthOf(matchReference(rules.reference_link, src, index, labels, linkValidateRules, context.codeSpans));
+            return context.brackets.read(index + offset, offset + src.length)?.raw.length ?? 0;
 
         default:
             return autoLinkLength(src, index, context);
@@ -120,6 +91,11 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
     while (i < src.length) {
         const char = src[i];
 
+        const extensionLength = atomicExtensionLength(src, i, context.rules, context.options, context.offset);
+        if (extensionLength) {
+            i += extensionLength;
+            continue;
+        }
         if (char === '*' || char === '_' || char === '~') {
             let length = 1;
             while (src[i + length] === char)
@@ -166,11 +142,13 @@ export function scanDelimiterSpans(
     options: ITokenizerFacOptions,
     allowAutolinks: boolean,
     codeSpans = src.includes('`') ? new CodeSpanScanner(src) : undefined,
+    brackets = new BracketScanner(src, labels, codeSpans, { rules, options, offset }),
 ): Map<number, IDelimiterSpan> {
     const runs = collectRuns(src, {
         codeSpans,
         rules,
-        labels,
+        brackets,
+        offset,
         options,
         allowAutolinks,
         scanAutolinks:

@@ -34,7 +34,7 @@ import { SelectionType } from '../../selection/types';
 import { isListItemState } from '../../state/types';
 import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isKeyboardEvent, isMouseEvent, lastGraphemeLength } from '../../utils';
 import { COLOR_SPAN_CLOSE_TAG, colorPropertyOf, colorSpanOpenTag, isColorStyleEmpty, parseColorStyle } from '../../utils/colorSpan';
-import { correctImageSrc, encodeImageSrc, getImageInfo } from '../../utils/image';
+import { correctImageSrc, getImageInfo, imageToMarkdown } from '../../utils/image';
 import { minSpacesAfterMarker, parseListMarker, toListDelimiter } from '../../utils/listMarker';
 import logger from '../../utils/logger';
 
@@ -471,18 +471,7 @@ class Format extends Content {
         const oldText = this.text;
         let imageText = '';
         if (type === 'image') {
-            imageText = '![';
-            if (alt)
-                imageText += alt;
-
-            imageText += '](';
-            if (src)
-                imageText += encodeImageSrc(src);
-
-            if (title)
-                imageText += ` "${title}"`;
-
-            imageText += ')';
+            imageText = imageToMarkdown({ alt, src, title });
         }
         else if (type === 'html_tag') {
             const { attrs } = token;

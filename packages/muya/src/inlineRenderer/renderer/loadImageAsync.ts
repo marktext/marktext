@@ -45,7 +45,7 @@ export default function loadImageAsync(
                 const NUM_REG = /^\d+$/;
 
                 if (attrs.alt)
-                    img.alt = attrs.alt.replace(/[`*{}[\]()#+\-.!_>~:|<$]/g, '');
+                    img.alt = attrs.alt;
 
                 if (attrs.title)
                     img.setAttribute('title', attrs.title);

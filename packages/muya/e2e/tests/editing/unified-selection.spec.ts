@@ -92,3 +92,35 @@ test('image deletion undo restores the object selection without selected text', 
     expect(records[records.length - 1]?.text).toBe('');
     await expect(page.locator(floats.imageTransformerHandle)).toHaveCount(2);
 });
+
+for (const action of ['undo', 'redo'] as const) {
+    test(`${action} restores text without a stale image outline after selecting an image`, async ({ page }) => {
+        await page.route('**/example.test/**', route => route.fulfill({
+            contentType: 'image/svg+xml',
+            body: '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"/>',
+        }));
+        const source = 'before ![alt](https://example.test/a.png) after';
+        await page.evaluate((source) => {
+            const muya = window.muya!;
+            muya.setContent(source);
+            const block = muya.editor.scrollPage!.firstContentInDescendant()!;
+            block.setCursor(block.text.length, block.text.length, true);
+        }, source);
+        await page.keyboard.type('X');
+        await page.evaluate(() => window.muya!.flush());
+        if (action === 'redo')
+            await page.evaluate(() => window.muya!.undo());
+        const selected = page.locator(`${editor.image}.mu-inline-image-selected`);
+        await page.locator(editor.image).click();
+        await expect(selected).toHaveCount(1);
+
+        await page.evaluate(action => window.muya![action](), action);
+
+        expect(await page.evaluate(() => window.muya!.getSelectionState()?.kind)).toBe('text');
+        await expect(selected).toHaveCount(0);
+        const changed = `${source}${action === 'redo' ? 'X' : ''}`;
+        expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(`${changed}\n`);
+        await page.keyboard.type('Y');
+        expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(`${changed}Y\n`);
+    });
+}
