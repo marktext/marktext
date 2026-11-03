@@ -10,6 +10,7 @@ import inlineDiffExtension from './extensions/inlineDiff';
 import markExtension from './extensions/mark';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
 import multilineBlockquoteExtension from './extensions/multilineBlockquote';
+import referenceDefinitionTabs from './extensions/referenceDefinitionTabs';
 import superSubScriptExtension from './extensions/superSubscript';
 import fm, { frontMatterRender } from './frontMatter';
 import { DEFAULT_OPTIONS } from './options';
@@ -22,7 +23,7 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     let html = '';
 
     // Use a fresh Marked instance; global use() chains hooks and leaks options across renders.
-    const marked = new Marked();
+    const marked = new Marked(referenceDefinitionTabs());
 
     marked.use({
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),

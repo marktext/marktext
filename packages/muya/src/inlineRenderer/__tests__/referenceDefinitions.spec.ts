@@ -11,6 +11,7 @@ import { MarkdownToState } from '../../state/markdownToState';
 import ExportMarkdown from '../../state/stateToMarkdown';
 import { getClipBoardHtml } from '../../utils/marked/getClipboardHtml';
 import { getHighlightHtml } from '../../utils/marked/getHighlightHtml';
+import { tokenizer } from '../lexer';
 
 function makeRenderer(blocks: TState[]) {
     const muya = {
@@ -34,6 +35,38 @@ function makeRenderer(blocks: TState[]) {
 afterEach(() => vi.restoreAllMocks());
 
 describe('reference definition collection cache', () => {
+    for (const separator of [' ', '    ', '\t', ' \t']) {
+        for (const quote of ['"', '\'']) {
+            for (const trailing of ['', '\t']) {
+                it(`resolves links and images with separator ${JSON.stringify(separator)} and ${quote} titles, trailing=${JSON.stringify(trailing)} (#5968)`, () => {
+                    const title = trailing ? 'a\ttitle' : 'alt text';
+                    const definition = `[ref]: https://example.com/image.png${separator}${quote}${title}${quote}${trailing}`;
+                    const markdown = `[link][ref] ![image][ref]\n\n${definition}\n`;
+                    const parser = new MarkdownToState({ frontMatter: false, texMathDollars: false });
+                    const states = parser.generate(markdown);
+                    expect(states).toContainEqual({ name: 'paragraph', text: definition });
+                    const output = new ExportMarkdown().generate(states);
+                    expect(output).toContain(definition);
+
+                    for (const blocks of [states, parser.generate(output)]) {
+                        const { renderer } = makeRenderer(blocks);
+                        const labels = renderer.collectReferenceDefinitions();
+                        expect(labels.get('ref')).toEqual({ href: 'https://example.com/image.png', title });
+                        const tokens = tokenizer('[link][ref] ![image][ref]', { labels, hasBeginRules: false });
+                        expect(tokens.filter(token => token.type === 'reference_link' || token.type === 'reference_image').map(token => token.type))
+                            .toEqual(['reference_link', 'reference_image']);
+                    }
+
+                    for (const render of [getClipBoardHtml, getHighlightHtml]) {
+                        const html = render(output);
+                        expect(html).toContain(`<a href="https://example.com/image.png" title="${title}">link</a>`);
+                        expect(html).toContain(`<img src="https://example.com/image.png" alt="image" title="${title}">`);
+                    }
+                });
+            }
+        }
+    }
+
     it('preserves duplicate definitions through round-trips while resolving the first one', () => {
         const markdown = '[link][ref]\n\n[REF]: https://first.example "First"\n[ref]: https://second.example "Second"\n';
         const parser = new MarkdownToState({ frontMatter: false, texMathDollars: false });

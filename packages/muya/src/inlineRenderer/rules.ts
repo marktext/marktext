@@ -11,7 +11,7 @@ export const beginRules = {
     header: /(^ {0,3}#{1,6}(\s+|$))/,
     reference_definition:
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/no-misleading-capturing-group
-    /^( {0,3}\[)((?:\\.|[^[\]\\]){1,999}?)(\\*)(\]:[ \t]*)(<?)([^\s>]+)(>?)(?:( +)(["'(]?)([^\n"'()]+)\9)?( *)$/,
+    /^( {0,3}\[)((?:\\.|[^[\]\\]){1,999}?)(\\*)(\]:[ \t]*)(<?)([^\s>]+)(>?)(?:([ \t]+)(["'(]?)([^\n"'()]+)\9)?([ \t]*)$/,
 
     // extra syntax (not belongs to GFM)
     multiple_math: /^(\$\$)$/,

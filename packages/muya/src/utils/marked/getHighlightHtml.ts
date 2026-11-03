@@ -12,6 +12,7 @@ import inlineDiffExtension from './extensions/inlineDiff';
 import markExtension from './extensions/mark';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
 import multilineBlockquoteExtension from './extensions/multilineBlockquote';
+import referenceDefinitionTabs from './extensions/referenceDefinitionTabs';
 import superSubScriptExtension from './extensions/superSubscript';
 import fm, { frontMatterRender } from './frontMatter';
 import { DEFAULT_OPTIONS } from './options';
@@ -46,7 +47,7 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
         = options;
 
     // Use a fresh Marked instance; repeated use() chains walkTokens and corrupts repeated renders.
-    const marked = new Marked(markedHighlight({ highlight }));
+    const marked = new Marked(markedHighlight({ highlight }), referenceDefinitionTabs());
 
     marked.use({
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),
