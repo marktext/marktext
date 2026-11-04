@@ -437,11 +437,12 @@
       "window": {
         "title": "窗口",
         "titleBarStyle": {
-          "title": "标题栏样式",
+          "title": "标题栏样式（需要重启）",
           "custom": "自定义",
-          "native": "原生"
+          "native": "原生",
+          "restartPending": "MarkText 将在重启后应用新的标题栏样式。",
+          "restartNow": "立即重启"
         },
-        "requiresRestart": "需要重启",
         "hideScrollbars": "隐藏滚动条",
         "openFilesInNewWindow": "在新窗口中打开文件",
         "openFoldersInNewWindow": "在新窗口中打开文件夹",

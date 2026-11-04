@@ -4,7 +4,7 @@
     <side-bar />
     <div
       class="pref-content"
-      :class="{ frameless: titleBarStyle === 'custom' || isMac }"
+      :class="{ frameless: isWindowFrameless || isMac }"
     >
       <div
         v-if="!showCustomTitleBar"
@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted, nextTick } from 'vue'
+import { watch, onMounted, nextTick } from 'vue'
 import { usePreferencesStore } from '@/store/preferences'
 import { storeToRefs } from 'pinia'
 import TitleBar from '@/prefComponents/common/titlebar.vue'
@@ -29,15 +29,15 @@ import { isMac } from '@/util'
 useSettingLocation()
 const preferencesStore = usePreferencesStore()
 
-const { theme, titleBarStyle } = storeToRefs(preferencesStore)
+const { theme } = storeToRefs(preferencesStore)
 
-const showCustomTitleBar = computed<boolean>(() => {
-  // Always show the custom title bar on macOS to provide a close button
-  if (isMac) {
-    return true
-  }
-  return titleBarStyle.value === 'custom'
-})
+// The main process sets the window frame when it creates the window, so a title bar style
+// that the user changes here applies only to windows opened later. We decide from the style
+// the window opened with; otherwise a switch to the native style hides our close button on a
+// window that has no frame, and the user cannot close it.
+const isWindowFrameless = window.marktext?.initialState?.titleBarStyle !== 'native'
+// On macOS we always show the custom title bar for its close button.
+const showCustomTitleBar = isMac || isWindowFrameless
 
 watch(theme, (newValue, oldValue) => {
   if (newValue !== oldValue) {

@@ -437,11 +437,12 @@
       "window": {
         "title": "Окно",
         "titleBarStyle": {
-          "title": "Стиль заголовка окна",
+          "title": "Стиль заголовка окна (требуется перезапуск)",
           "custom": "Пользовательский",
-          "native": "Системный"
+          "native": "Системный",
+          "restartPending": "MarkText применит новый стиль заголовка окна после перезапуска.",
+          "restartNow": "Перезапустить сейчас"
         },
-        "requiresRestart": "Требуется перезапуск",
         "hideScrollbars": "Скрыть полосы прокрутки",
         "openFilesInNewWindow": "Открывать файлы в новом окне",
         "openFoldersInNewWindow": "Открывать папки в новом окне",

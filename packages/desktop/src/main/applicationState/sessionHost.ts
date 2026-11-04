@@ -78,6 +78,9 @@ export class SessionHost {
   private readonly _coordinator: CloseCoordinator
   private _quitAllowed = false
   private _quitting = false
+  // Set by a restart request and cleared when the user cancels the quit, so a later ordinary
+  // quit never relaunches.
+  private _relaunchAfterQuit = false
   private _startupWarning: string | undefined
   private _startupActiveId: string | null = null
   private readonly _startupWindowIds = new Set<string>()
@@ -140,12 +143,14 @@ export class SessionHost {
         .then(() => {
           if (this._owner().getState().session.lifecycle === SessionLifecycle.CLOSED && this._editors.size === 0) {
             this._quitAllowed = true
+            if (this._relaunchAfterQuit) app.relaunch()
             app.quit()
           }
         })
         .catch((error) => this.report(error))
         .finally(() => {
           this._quitting = false
+          if (!this._quitAllowed) this._relaunchAfterQuit = false
         })
     })
   }
@@ -1347,6 +1352,16 @@ export class SessionHost {
       if (!editor) throw new Error('Unrecognized editor window')
       return editor
     }
+    // A restart goes through the ordinary quit, so the user still answers for unsaved documents.
+    ipcMain.on('mt::app-relaunch', () => {
+      if (!this._service) {
+        app.relaunch()
+        app.quit()
+        return
+      }
+      this._relaunchAfterQuit = true
+      app.quit()
+    })
     ipcMain.on('mt::window-initialized', (event) => {
       const editor = this._findEditor(event.sender)
       if (editor?.sessionStateId) {

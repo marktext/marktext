@@ -122,6 +122,7 @@ export interface IpcSendChannels {
   'mt::NEED_UPDATE': [payload?: unknown]
   'mt::add-recently-used-document': [filePath: string]
   'mt::app-try-quit': []
+  'mt::app-relaunch': []
   'mt::ask-for-image-auto-path': [payload: unknown]
   'mt::ask-for-modify-image-folder-path': [imagePath?: string]
   'mt::ask-for-open-project-in-sidebar': []

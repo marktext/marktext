@@ -31,7 +31,6 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
   "titleBarStyle": {
     "category": "appearance",
     "label": "preferences.general.window.titleBarStyle.title",
-    "notes": "preferences.general.window.requiresRestart",
     "platform": "other"
   },
   "hideScrollbar": {

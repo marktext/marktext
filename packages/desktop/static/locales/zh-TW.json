@@ -437,11 +437,12 @@
       "window": {
         "title": "視窗",
         "titleBarStyle": {
-          "title": "標題欄樣式",
+          "title": "標題欄樣式（需要重新啟動）",
           "custom": "自訂",
-          "native": "原生"
+          "native": "原生",
+          "restartPending": "MarkText 將在重新啟動後套用新的標題欄樣式。",
+          "restartNow": "立即重新啟動"
         },
-        "requiresRestart": "需要重新啟動",
         "hideScrollbars": "隱藏捲軸",
         "openFilesInNewWindow": "在新視窗中開啟檔案",
         "openFoldersInNewWindow": "在新視窗中開啟資料夾",
