@@ -3,6 +3,14 @@ import loadRenderer from './index';
 // Concurrent Mermaid renders can share Date.now()-based IDs; provide unique IDs
 // to prevent diagrams drawing into the same element (#5023).
 let mermaidRenderCount = 0;
+let mermaidRenderQueue: Promise<unknown> = Promise.resolve();
+
+// Mermaid initialization and diagram databases are shared by previews and exports.
+export function withMermaidRender<T>(operation: () => Promise<T>): Promise<T> {
+    const result = mermaidRenderQueue.then(operation);
+    mermaidRenderQueue = result.catch(() => {});
+    return result;
+}
 
 const RAPHAEL_DESC = /^Created with Rapha/;
 
@@ -159,18 +167,20 @@ export async function renderDiagram({
         diagram.drawSVG(target, options);
     }
     else if (type === 'mermaid') {
-        render.initialize({
-            startOnLoad: false,
-            securityLevel: 'strict',
-            theme: mermaidTheme,
+        await withMermaidRender(async () => {
+            render.initialize({
+                startOnLoad: false,
+                securityLevel: 'strict',
+                theme: mermaidTheme,
+            });
+            await render.parse(code);
+            const { svg, bindFunctions } = await render.render(
+                `mu-mermaid-${++mermaidRenderCount}`,
+                code,
+                target,
+            );
+            target.innerHTML = svg;
+            bindFunctions?.(target);
         });
-        await render.parse(code);
-        const { svg, bindFunctions } = await render.render(
-            `mu-mermaid-${++mermaidRenderCount}`,
-            code,
-            target,
-        );
-        target.innerHTML = svg;
-        bindFunctions?.(target);
     }
 }
