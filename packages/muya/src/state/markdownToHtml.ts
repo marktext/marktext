@@ -7,7 +7,7 @@ import exportStyle from '../assets/styles/exportStyle.css?inline';
 import { EXPORT_DOMPURIFY_CONFIG } from '../config';
 import { isHTMLElement, sanitize, unescapeHTML } from '../utils';
 import loadRenderer from '../utils/diagram';
-import { withMermaidRender } from '../utils/diagram/render';
+import { renderMermaid } from '../utils/diagram/mermaid';
 
 import { getHighlightHtml } from '../utils/marked';
 import { sanitizeExportHtml } from '../utils/sanitizeExportHtml';
@@ -73,34 +73,21 @@ export class MarkdownToHtml {
             mermaidContainer.classList.add('mermaid');
             preEle.replaceWith(mermaidContainer);
         }
-        const nodes = [...this._exportContainer!.querySelectorAll('div.mermaid')];
+        const nodes = [...this._exportContainer!.querySelectorAll<HTMLElement>('div.mermaid')];
         if (nodes.length === 0)
             return;
 
-        const mermaid = await loadRenderer('mermaid');
-        await withMermaidRender(async () => {
-            // Export uses the light theme.
-            mermaid.initialize({
-                startOnLoad: false,
-                securityLevel: 'strict',
-                theme: 'default',
-            });
-            // Isolate renders so one invalid Mermaid diagram cannot abort the entire export (#4812).
-            for (const node of nodes) {
-                try {
-                    await mermaid.run({ nodes: [node] });
-                }
-                catch {
-                    node.innerHTML = '< Invalid Diagram >';
-                }
+        // A missing renderer aborts export; individual diagram failures get placeholders.
+        await loadRenderer('mermaid');
+        // Isolate renders so one invalid Mermaid diagram cannot abort the entire export (#4812).
+        for (const node of nodes) {
+            try {
+                await renderMermaid({ target: node, theme: 'default' });
             }
-            if (this._muya) {
-                mermaid.initialize({
-                    securityLevel: 'strict',
-                    theme: this._muya.options.mermaidTheme,
-                });
+            catch {
+                node.innerHTML = '< Invalid Diagram >';
             }
-        });
+        }
     }
 
     private async _renderDiagram() {
