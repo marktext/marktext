@@ -682,6 +682,8 @@
         "title": "Miscellaneous"
       },
       "compatibility": {
+        "cjkEmphasis": "CJK emphasis compatibility",
+        "cjkEmphasisNote": "Relax emphasis boundaries for Chinese, Japanese and Korean text and bold labels ending in ：. This is a CommonMark syntax extension.",
         "enableHtml": "Enable HTML support",
         "softNewlineAsSpace": "Treat soft newlines as spaces",
         "title": "Compatibility"

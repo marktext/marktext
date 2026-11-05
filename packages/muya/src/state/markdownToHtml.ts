@@ -198,6 +198,7 @@ export class MarkdownToHtml {
         const options: Partial<IMuyaOptions> = this._muya?.options ?? {};
         const footnote = options.footnote ?? false;
         let html = getHighlightHtml(this.markdown, {
+            cjkEmphasis: options.cjkEmphasis ?? true,
             superSubScript: options.superSubScript ?? true,
             footnote,
             texMathGfm: options.texMathGfm ?? false,

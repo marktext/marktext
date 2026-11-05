@@ -682,6 +682,8 @@
         "title": "Diversen"
       },
       "compatibility": {
+        "cjkEmphasis": "CJK-nadrukcompatibiliteit",
+        "cjkEmphasisNote": "Versoepelt nadrukgrenzen voor Chinese, Japanse en Koreaanse tekst en ondersteunt vetgedrukte labels die eindigen op ：. Dit is een uitbreiding van de CommonMark-syntaxis.",
         "enableHtml": "HTML-ondersteuning inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "title": "Compatibiliteit"

@@ -109,4 +109,18 @@ describe('marked inline delimiters with CJK boundaries', () => {
         expect(new Marked().parse(markdown)).toBe(before);
         expect(before).not.toContain('<strong>');
     });
+
+    it.each(emphasisExamples)('follows CommonMark emphasis #$number with CJK compatibility disabled', ({ markdown, html }) => {
+        const marked = new Marked(inlineDelimitersExtension(false), { gfm: false });
+        expect(marked.parse(markdown)).toBe(html);
+    });
+
+    it('keeps CJK options isolated between Marked instances', () => {
+        const source = '中文**"加粗"**中文';
+        const standard = new Marked(inlineDelimitersExtension(false));
+        const compatible = new Marked(inlineDelimitersExtension());
+        expect(compatible.parse(source)).toContain('<strong>');
+        expect(standard.parse(source)).not.toContain('<strong>');
+        expect(compatible.parse(source)).toContain('<strong>');
+    });
 });

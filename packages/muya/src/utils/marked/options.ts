@@ -5,6 +5,7 @@ export const DEFAULT_OPTIONS = {
     texMathSingleBackslash: false,
     texMathDoubleBackslash: false,
     frontMatter: true,
+    cjkEmphasis: true,
     superSubScript: true,
     highlightSyntax: false,
     inlineDiff: false,

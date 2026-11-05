@@ -34,6 +34,18 @@ it('routes the fancy-list search result to Markdown preferences', () => {
   })
 })
 
+it('finds CJK compatibility by its key, label and CommonMark explanation', () => {
+  const entry = getTranslatedSearchContent().find(entry => entry.key === 'cjkEmphasis')
+  expect(entry).toMatchObject({
+    routeCategory: 'markdown',
+    preference: 'preferences.markdown.compatibility.cjkEmphasis'
+  })
+  if (!entry) return
+  for (const query of ['cjkEmphasis', 'CJK emphasis', 'CommonMark']) {
+    expect(matchesSearch(entry, query)).toBe(true)
+  }
+})
+
 it('includes auxiliary controls and searches real labels, descriptions and stable IDs', () => {
   const entries = getTranslatedSearchContent()
   for (const key of ['treePathExcludePatterns', 'customCss', 'imageFolderPath', 'imageUploader']) {

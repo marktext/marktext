@@ -682,6 +682,8 @@
         "title": "Diversos"
       },
       "compatibility": {
+        "cjkEmphasis": "Compatibilidade de ênfase CJK",
+        "cjkEmphasisNote": "Flexibiliza os limites de ênfase em chinês, japonês e coreano e aceita rótulos em negrito terminados em ：. É uma extensão da sintaxe CommonMark.",
         "enableHtml": "Habilitar suporte HTML",
         "softNewlineAsSpace": "Tratar quebras de linha suaves como espaços",
         "title": "Compatibilidade"

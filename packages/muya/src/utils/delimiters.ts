@@ -18,13 +18,13 @@ export interface IDelimiterRun {
 }
 
 // CJK letters provide extra boundaries without becoming punctuation themselves (#4307).
-export function delimiterFlanking(char: string, before: string, after: string) {
+export function delimiterFlanking(char: string, before: string, after: string, cjkEmphasis = true) {
     const beforeWhitespace = UNICODE_WHITESPACE.test(before);
     const afterWhitespace = UNICODE_WHITESPACE.test(after);
     const beforePunctuation = UNICODE_PUNCTUATION.test(before);
     const afterPunctuation = UNICODE_PUNCTUATION.test(after);
-    const beforeBoundary = beforeWhitespace || beforePunctuation || CJK_CHARACTER.test(before);
-    const afterBoundary = afterWhitespace || afterPunctuation || CJK_CHARACTER.test(after);
+    const beforeBoundary = beforeWhitespace || beforePunctuation || (cjkEmphasis && CJK_CHARACTER.test(before));
+    const afterBoundary = afterWhitespace || afterPunctuation || (cjkEmphasis && CJK_CHARACTER.test(after));
     const leftFlanking = !afterWhitespace && (!afterPunctuation || beforeBoundary);
     const rightFlanking = !beforeWhitespace && (!beforePunctuation || afterBoundary);
     return {

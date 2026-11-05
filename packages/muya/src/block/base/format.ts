@@ -1423,11 +1423,11 @@ class Format extends Content {
 
         // fix: #897 in marktext repo
         const { text } = this;
-        const { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = this.muya.options;
+        const { footnote, cjkEmphasis, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = this.muya.options;
         const { labels } = this.inlineEngine;
         const tokens = parseInline(text, {
             labels,
-            options: { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff },
+            options: { footnote, cjkEmphasis, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff },
         });
         // The caret offset is unreliable when it is parked on a
         // `contenteditable=false` inline image; resolve the real offset from the

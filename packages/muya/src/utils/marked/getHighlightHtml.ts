@@ -53,7 +53,7 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
 
-    marked.use(inlineDelimitersExtension());
+    marked.use(inlineDelimitersExtension(options.cjkEmphasis));
 
     marked.use(emojiExtension({ isRenderEmoji: true }));
 

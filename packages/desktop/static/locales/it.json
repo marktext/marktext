@@ -682,6 +682,8 @@
         "title": "Varie"
       },
       "compatibility": {
+        "cjkEmphasis": "Compatibilità enfasi CJK",
+        "cjkEmphasisNote": "Rende più flessibili i confini dell’enfasi nei testi cinesi, giapponesi e coreani e supporta etichette in grassetto che terminano con ：. È un’estensione della sintassi CommonMark.",
         "enableHtml": "Abilita supporto HTML",
         "softNewlineAsSpace": "Tratta come spazi i caratteri di fine riga ‘morbidi’ (soft newlines)",
         "title": "Compatibilità"
