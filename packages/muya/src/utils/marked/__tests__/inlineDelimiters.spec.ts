@@ -57,6 +57,19 @@ describe('marked inline delimiters with CJK boundaries', () => {
 
         it.each([
             ['中文**"加粗"**中文', '中文<strong>&quot;加粗&quot;</strong>中文'],
+            ['**来源：**2013年', '<strong>来源：</strong>2013年'],
+            ['**核查／边界：**HTML 内容', '<strong>核查／边界：</strong>HTML 内容'],
+            ['**说明：**html', '<strong>说明：</strong>html'],
+            ['**𠀀：**123', '<strong>𠀀：</strong>123'],
+            ['**来源：**2013年 **格式：**HTML', '<strong>来源：</strong>2013年 <strong>格式：</strong>HTML'],
+            ['*说明 **来源：**2013年*', '<em>说明 <strong>来源：</strong>2013年</em>'],
+            ['[**来源：**2013年](/source)', '<a href="/source"><strong>来源：</strong>2013年</a>'],
+            ['`**来源：**2013年`', '<code>**来源：**2013年</code>'],
+            ['**Label：**HTML', '**Label：**HTML'],
+            ['**来源:**2013', '**来源:**2013'],
+            ['*来源：*2013', '*来源：*2013'],
+            ['__来源：__2013', '__来源：__2013'],
+            ['**来源，**2013', '**来源，**2013'],
             ['𠀀**(加粗)**𠀁', '𠀀<strong>(加粗)</strong>𠀁'],
             ['𫝀**"加粗"**𬺰', '𫝀<strong>&quot;加粗&quot;</strong>𬺰'],
         ])(`${name}: %s preserves CJK emphasis`, (markdown, expected) => {

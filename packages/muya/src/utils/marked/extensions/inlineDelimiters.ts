@@ -1,7 +1,7 @@
 import type { MarkedExtension, Token, Tokens } from 'marked';
 import type { IDelimiterRun, IDelimiterSpan } from '../../delimiters';
 import { Lexer, Tokenizer } from 'marked';
-import { codePointBefore, codePointCharAt, pairDelimiters } from '../../delimiters';
+import { codePointBefore, codePointCharAt, isCjkLabelCloser, pairDelimiters } from '../../delimiters';
 import { CJK_CHARACTER, UNICODE_PUNCTUATION, UNICODE_WHITESPACE } from '../../inlineCharacters';
 
 interface IBoundaryChars {
@@ -40,13 +40,15 @@ function collectRuns(src: string, boundaries: IBoundaryChars, gfm: boolean): IDe
 
         const before = codePointBefore(src, start) || boundaries.before;
         const after = codePointCharAt(src, i) ?? boundaries.after;
+        const flags = flanking(char, before, after);
 
         runs.push({
             char,
             length: i - start,
             left: start,
             right: i,
-            ...flanking(char, before, after),
+            ...flags,
+            canClose: flags.canClose || isCjkLabelCloser(src, start, i),
         });
     }
     return runs;

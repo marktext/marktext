@@ -1,3 +1,5 @@
+import { CJK_CHARACTER } from './inlineCharacters';
+
 export interface IDelimiterSpan {
     start: number;
     end: number;
@@ -39,6 +41,15 @@ export function codePointCharAt(s: string, i: number): string | undefined {
             return s.slice(i, i + 2);
     }
     return s.charAt(i);
+}
+
+// Extend CJK label closing to ASCII values, without widening general word boundaries.
+export function isCjkLabelCloser(src: string, start: number, end: number): boolean {
+    return src[start] === '*'
+        && end - start === 2
+        && src[start - 1] === '：'
+        && CJK_CHARACTER.test(codePointBefore(src, start - 1))
+        && /^[A-Z0-9]$/i.test(codePointCharAt(src, end) ?? '');
 }
 
 function remainingLength(run: IDelimiterRun) {
