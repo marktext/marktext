@@ -1,4 +1,4 @@
-import { CJK_CHARACTER } from './inlineCharacters';
+import { CJK_CHARACTER, UNICODE_PUNCTUATION, UNICODE_WHITESPACE } from './inlineCharacters';
 
 export interface IDelimiterSpan {
     start: number;
@@ -15,6 +15,22 @@ export interface IDelimiterRun {
     right: number;
     canOpen: boolean;
     canClose: boolean;
+}
+
+// CJK letters provide extra boundaries without becoming punctuation themselves (#4307).
+export function delimiterFlanking(char: string, before: string, after: string) {
+    const beforeWhitespace = UNICODE_WHITESPACE.test(before);
+    const afterWhitespace = UNICODE_WHITESPACE.test(after);
+    const beforePunctuation = UNICODE_PUNCTUATION.test(before);
+    const afterPunctuation = UNICODE_PUNCTUATION.test(after);
+    const beforeBoundary = beforeWhitespace || beforePunctuation || CJK_CHARACTER.test(before);
+    const afterBoundary = afterWhitespace || afterPunctuation || CJK_CHARACTER.test(after);
+    const leftFlanking = !afterWhitespace && (!afterPunctuation || beforeBoundary);
+    const rightFlanking = !beforeWhitespace && (!beforePunctuation || afterBoundary);
+    return {
+        canOpen: leftFlanking && (char !== '_' || beforeBoundary),
+        canClose: rightFlanking && (char !== '_' || afterBoundary),
+    };
 }
 
 /** Reads a full code point before a UTF-16 offset; empty at the start. */

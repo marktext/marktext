@@ -3,8 +3,7 @@ import type { Labels } from '../model/types';
 import type { ICodeSpanReader } from './codeSpan';
 import type { InlineRules } from './rules';
 import type { IInlineFeatures } from './types';
-import { codePointBefore, codePointCharAt, isCjkLabelCloser, pairDelimiters } from '../../utils/delimiters';
-import { CJK_CHARACTER, UNICODE_PUNCTUATION, UNICODE_WHITESPACE } from '../../utils/inlineCharacters';
+import { codePointBefore, codePointCharAt, delimiterFlanking, isCjkLabelCloser, pairDelimiters } from '../../utils/delimiters';
 import { atomicExtensionLength } from './atomicExtension';
 import { matchExtendedAutoLink } from './autoLink';
 import { BracketScanner } from './brackets';
@@ -19,18 +18,6 @@ interface IScanContext {
     options: IInlineFeatures;
     allowAutolinks: boolean;
     scanAutolinks: boolean;
-}
-
-function isWhitespace(char: string) {
-    return UNICODE_WHITESPACE.test(char);
-}
-
-function isBoundary(char: string) {
-    return isWhitespace(char) || UNICODE_PUNCTUATION.test(char) || CJK_CHARACTER.test(char);
-}
-
-function isRightFlanking(before: string, after: string) {
-    return !isWhitespace(before) && (!UNICODE_PUNCTUATION.test(before) || isBoundary(after));
 }
 
 function charBefore(src: string, index: number) {
@@ -108,18 +95,15 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
 
             const before = charBefore(src, i);
             const after = charAfter(src, i + length);
-            const leftFlanking
-                = !isWhitespace(after)
-                    && (!UNICODE_PUNCTUATION.test(after) || isBoundary(before));
-            const rightFlanking = isRightFlanking(before, after);
+            const flags = delimiterFlanking(char, before, after);
 
             runs.push({
                 char,
                 length,
                 left: i,
                 right: i + length,
-                canOpen: leftFlanking && (char !== '_' || isBoundary(before)),
-                canClose: (rightFlanking && (char !== '_' || isBoundary(after))) || isCjkLabelCloser(src, i, i + length),
+                ...flags,
+                canClose: flags.canClose || isCjkLabelCloser(src, i, i + length),
             });
             i += length;
             continue;
