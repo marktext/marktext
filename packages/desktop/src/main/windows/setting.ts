@@ -43,6 +43,7 @@ class SettingWindow extends BaseWindow {
         winOptions.frame = true
       }
     }
+    this.createdWithTitleBarStyle = titleBarStyle === 'native' ? 'native' : 'custom'
 
     winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
     const win = (this.browserWindow = new BrowserWindow(winOptions))

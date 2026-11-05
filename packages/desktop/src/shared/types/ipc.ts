@@ -8,6 +8,7 @@ import type { IKeyboardLayoutInfo, IKeyboardMapping } from 'native-keymap'
 import type { TabOptions, SidebarOpenOptions, PageOptions, ExportType, SerializedStat, LineEnding, FileChangeDetail, PandocExportPayload } from './files'
 import type { MenuTemplate, MenuPopupPosition } from './menu'
 import type { PandocCommandInfo } from './pandoc'
+import type { UserPreferences } from './preferences'
 
 export interface SaveDialogRequest {
   title?: string
@@ -37,6 +38,7 @@ import type { StateIpcInvokeChannels, StateIpcMainEvents } from './applicationSt
 
 export interface IpcInvokeChannels extends StateIpcInvokeChannels {
   'mt::get-recently-used-documents': { args: []; ret: RecentDocument[] }
+  'mt::get-open-window-title-bar-styles': { args: []; ret: UserPreferences['titleBarStyle'][] }
   'mt::project-remove-root': { args: [key: string]; ret: boolean }
   'mt::project-retry-root': { args: [key: string]; ret: boolean }
   'mt::clipboard::write-text': { args: [text: string]; ret: boolean }

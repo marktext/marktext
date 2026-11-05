@@ -340,16 +340,27 @@ onMounted(async () => {
   if (show('pandoc')) await probePandoc()
 })
 
-// The main process gives a window a native frame only for the native style, and only when it
-// creates the window, so a changed style appears only in windows that open after a restart.
-const windowOpenedWithNativeFrame = window.marktext?.initialState?.titleBarStyle === 'native'
-const titleBarStyleAwaitsRestart = computed<boolean>(
-  () => (titleBarStyle.value === 'native') !== windowOpenedWithNativeFrame
+// The main process sets a window's frame only when it creates the window, so a changed style
+// appears only in windows that open later. We ask the main process for the style of every open
+// window. Preferences may have reopened with the new style while an editor window still has the
+// old one.
+const openWindowTitleBarStyles = ref<UserPreferences['titleBarStyle'][]>([])
+const titleBarStyleAwaitsRestart = computed<boolean>(() =>
+  openWindowTitleBarStyles.value.some(style => style !== titleBarStyle.value)
 )
+const loadOpenWindowTitleBarStyles = async(): Promise<void> => {
+  openWindowTitleBarStyles.value = await window.electron.ipcRenderer.invoke('mt::get-open-window-title-bar-styles')
+}
+onMounted(async() => {
+  if (!isMac && show('windowAppearance')) await loadOpenWindowTitleBarStyles()
+})
 // The Window section ends the Appearance page, so the notice would otherwise appear below the fold.
+// We scroll only after the user changes the style, not when the page opens with a restart pending.
 const titleBarStyleRestartNotice = ref<HTMLElement | null>(null)
-watch(titleBarStyleAwaitsRestart, async(awaitsRestart) => {
-  if (!awaitsRestart) return
+watch(titleBarStyle, async() => {
+  if (isMac || !show('windowAppearance')) return
+  await loadOpenWindowTitleBarStyles()
+  if (!titleBarStyleAwaitsRestart.value) return
   await nextTick()
   titleBarStyleRestartNotice.value?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
 })
