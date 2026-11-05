@@ -29,7 +29,7 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
 
-    marked.use(inlineDelimitersExtension());
+    marked.use(inlineDelimitersExtension(options.cjkEmphasis));
 
     if (texMathDollars) {
         marked.use(

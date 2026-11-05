@@ -209,6 +209,11 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
     "category": "markdown",
     "label": "preferences.markdown.extensions.frontmatterType.title"
   },
+  "cjkEmphasis": {
+    "category": "markdown",
+    "label": "preferences.markdown.compatibility.cjkEmphasis",
+    "notes": "preferences.markdown.compatibility.cjkEmphasisNote"
+  },
   "superSubScript": {
     "category": "markdown",
     "label": "preferences.markdown.extensions.superSubScript"

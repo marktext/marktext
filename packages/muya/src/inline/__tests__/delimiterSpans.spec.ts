@@ -14,6 +14,7 @@ import { scanDelimiterSpans } from '../parser/delimiters';
 import { inlineRules } from '../parser/rules';
 
 const OPTIONS = {
+    cjkEmphasis: true,
     superSubScript: false,
     footnote: false,
     texMathDollars: false,

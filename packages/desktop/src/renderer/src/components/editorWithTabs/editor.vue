@@ -183,6 +183,7 @@ const {
   tabSize,
   listIndentation,
   frontmatterType,
+  cjkEmphasis,
   superSubScript,
   footnote,
   texMathDollars,
@@ -508,6 +509,10 @@ const applyOutlineAffectingOption = (options: Partial<IMuyaOptions>): void => {
   muya.setOptions(options, true)
   editorStore.REFRESH_TOC(muya.getTOC())
 }
+
+watch(cjkEmphasis, (value, oldValue) => {
+  if (value !== oldValue) applyOutlineAffectingOption({ cjkEmphasis: value })
+})
 
 watch(superSubScript, (value, oldValue) => {
   if (value !== oldValue) applyOutlineAffectingOption({ superSubScript: value })
@@ -1738,6 +1743,7 @@ onMounted(() => {
     codeBlockLineNumbers: codeBlockLineNumbers.value,
     listIndentation: listIndentation.value,
     frontmatterType: frontmatterType.value,
+    cjkEmphasis: cjkEmphasis.value,
     superSubScript: superSubScript.value,
     footnote: footnote.value,
     texMathDollars: texMathDollars.value,

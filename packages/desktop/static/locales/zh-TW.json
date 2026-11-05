@@ -682,6 +682,8 @@
         "title": "其他"
       },
       "compatibility": {
+        "cjkEmphasis": "CJK 強調語法相容",
+        "cjkEmphasisNote": "放寬中日韓文字附近的強調邊界，並支援以全形冒號結尾的粗體標籤。這是 CommonMark 之外的語法擴充。",
         "enableHtml": "啟用 HTML 支援",
         "softNewlineAsSpace": "將軟換行視為空格",
         "title": "相容性"

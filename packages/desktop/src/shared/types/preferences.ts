@@ -106,6 +106,7 @@ export interface UserPreferences extends RecoveryPreferences {
   tabSize: number | 'tab'
   listIndentation: 'dfm' | 'tab' | 1 | 2 | 3 | 4
   frontmatterType: '-' | '+' | ';' | '{'
+  cjkEmphasis: boolean
   superSubScript: boolean
   footnote: boolean
   texMathDollars: boolean

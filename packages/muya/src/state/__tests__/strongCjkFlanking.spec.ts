@@ -3,6 +3,8 @@
 import type { Token } from '../../inline/model/types';
 import { describe, expect, it } from 'vitest';
 import { tokenizer } from '../../inline/lexer';
+import { generator } from '../../inline/serialization';
+import { escapeHTML } from '../../utils';
 import { getClipBoardHtml } from '../../utils/marked/getClipboardHtml';
 import { renderToStaticHTML } from '../renderToStaticHTML';
 
@@ -35,7 +37,7 @@ const SANITY_CASES = [
     '中文**加粗**中文',
 ];
 
-const MIXED_CASES = [
+const STANDARD_MIXED_CASES = [
     ['a**中文**b', 'strong', 'a<strong>中文</strong>b'],
     ['a**中文**', 'strong', 'a<strong>中文</strong>'],
     ['**中文**b', 'strong', '<strong>中文</strong>b'],
@@ -43,6 +45,10 @@ const MIXED_CASES = [
     ['a**한국어**b', 'strong', 'a<strong>한국어</strong>b'],
     ['a**𠀀**b', 'strong', 'a<strong>𠀀</strong>b'],
     ['a~~中文~~b', 'del', 'a<del>中文</del>b'],
+] as const;
+
+const MIXED_CASES = [
+    ...STANDARD_MIXED_CASES,
     ['中**"加粗**b', 'strong', '中<strong>&quot;加粗</strong>b'],
     ['a**加粗"**文', 'strong', 'a<strong>加粗&quot;</strong>文'],
 ] as const;
@@ -76,6 +82,52 @@ function tokenizesEmphasis(src: string): boolean {
 }
 
 describe('strong emphasis with CJK boundaries (#4307)', () => {
+    it.each([
+        ...CJK_CASES,
+        '中文*"斜体"*中文',
+        '中文__加粗__中文',
+        '中文_斜体_中文',
+        '**来源：**2013年',
+        '**𠀀：**HTML',
+    ])('can disable CJK syntax without changing the source: %s', (source) => {
+        for (const cjkEmphasis of [true, false]) {
+            const options = { ...STATIC_OPTIONS, cjkEmphasis };
+            const tokens = tokenizer(source, { profile: 'inline', options });
+            expect(collectTypes(tokens).some(type => type === 'strong' || type === 'em')).toBe(cjkEmphasis);
+            expect(generator(tokens)).toBe(source);
+            if (!cjkEmphasis) {
+                const expected = `<p>${escapeHTML(source)}</p>\n`;
+                expect(renderToStaticHTML(source, options)).toBe(expected);
+                expect(getClipBoardHtml(source, options)).toBe(expected);
+            }
+            else {
+                expect(renderToStaticHTML(source, options)).toMatch(/<(strong|em)>/);
+                expect(getClipBoardHtml(source, options)).toMatch(/<(strong|em)>/);
+            }
+        }
+    });
+
+    it.each([true, false])('preserves standard mixed-script formatting with cjkEmphasis=%s', (cjkEmphasis) => {
+        for (const [source, type, html] of STANDARD_MIXED_CASES) {
+            const options = { ...STATIC_OPTIONS, cjkEmphasis };
+            expect(collectTypes(tokenizer(source, { profile: 'inline', options }))).toContain(type);
+            expect(renderToStaticHTML(source, options)).toBe(`<p>${html}</p>\n`);
+            expect(getClipBoardHtml(source, options)).toBe(`<p>${html}</p>\n`);
+        }
+    });
+
+    it.each([true, false])('applies cjkEmphasis=%s inside links while preserving code spans', (cjkEmphasis) => {
+        const source = '[中文**"加粗"**中文](/u) `中文**"加粗"**中文`';
+        const options = { ...STATIC_OPTIONS, cjkEmphasis };
+        const label = cjkEmphasis ? '中文<strong>&quot;加粗&quot;</strong>中文' : '中文**&quot;加粗&quot;**中文';
+        const expected = `<p><a href="/u">${label}</a> <code>中文**&quot;加粗&quot;**中文</code></p>\n`;
+        const tokens = tokenizer(source, { profile: 'inline', options });
+        expect(collectTypes(tokens).includes('strong')).toBe(cjkEmphasis);
+        expect(generator(tokens)).toBe(source);
+        expect(renderToStaticHTML(source, options)).toBe(expected);
+        expect(getClipBoardHtml(source, options)).toBe(expected);
+    });
+
     it.each(MIXED_CASES)('keeps live, export and clipboard formatting aligned: %s', (source, type, html) => {
         const tokens = tokenizer(source, { profile: 'inline', options: STATIC_OPTIONS });
         expect(collectTypes(tokens)).toContain(type);

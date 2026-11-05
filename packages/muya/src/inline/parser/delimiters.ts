@@ -95,7 +95,8 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
 
             const before = charBefore(src, i);
             const after = charAfter(src, i + length);
-            const flags = delimiterFlanking(char, before, after);
+            const { cjkEmphasis } = context.options;
+            const flags = delimiterFlanking(char, before, after, cjkEmphasis);
 
             runs.push({
                 char,
@@ -103,7 +104,7 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
                 left: i,
                 right: i + length,
                 ...flags,
-                canClose: flags.canClose || isCjkLabelCloser(src, i, i + length),
+                canClose: flags.canClose || (cjkEmphasis && isCjkLabelCloser(src, i, i + length)),
             });
             i += length;
             continue;

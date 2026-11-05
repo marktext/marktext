@@ -50,6 +50,7 @@ function buildHtmlOptions(options: Muya['options']) {
         texMathGfm,
         texMathSingleBackslash,
         texMathDoubleBackslash,
+        cjkEmphasis,
         superSubScript,
         highlightSyntax,
         inlineDiff,
@@ -58,7 +59,7 @@ function buildHtmlOptions(options: Muya['options']) {
         fancyLists,
     } = options;
 
-    return { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote, githubAlerts, fancyLists };
+    return { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, cjkEmphasis, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote, githubAlerts, fancyLists };
 }
 
 // A single selected cell copies literal text; larger rectangles copy GFM table Markdown.
