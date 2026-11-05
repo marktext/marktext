@@ -27,6 +27,27 @@ describe('unicode symbol flanking (#5994)', () => {
     });
 });
 
+describe('cjk label colons before ASCII values', () => {
+    it.each([
+        ['来源', '2013年'],
+        ['核查／边界', 'HTML 内容'],
+        ['说明', 'html'],
+        ['𠀀', '123'],
+    ])('closes the strong label %s before %s', (label, value) => {
+        const source = `**${label}：**${value}`;
+        const tokens = parse(source);
+        expect(tokens).toMatchObject([
+            { type: 'strong', raw: `**${label}：**` },
+            { type: 'text', content: value },
+        ]);
+        expect(generator(tokens)).toBe(source);
+    });
+
+    it.each(['**Label：**HTML', '**来源:**2013', '*来源：*2013', '__来源：__2013', '**来源，**2013'])('keeps other delimiter boundaries unchanged: %j', (source) => {
+        expect(parse(source).every(token => token.type === 'text')).toBe(true);
+    });
+});
+
 describe('paragraph-final whitespace (#5995)', () => {
     it.each(['foo ', 'foo  ', 'foo\t  ', '*foo*  ', '`foo `  '])('omits source whitespace from reading text: %j', (source) => {
         const tokens = parse(source);

@@ -3,7 +3,7 @@ import type { Labels } from '../model/types';
 import type { ICodeSpanReader } from './codeSpan';
 import type { InlineRules } from './rules';
 import type { IInlineFeatures } from './types';
-import { codePointBefore, codePointCharAt, pairDelimiters } from '../../utils/delimiters';
+import { codePointBefore, codePointCharAt, isCjkLabelCloser, pairDelimiters } from '../../utils/delimiters';
 import { CJK_CHARACTER, UNICODE_PUNCTUATION, UNICODE_WHITESPACE } from '../../utils/inlineCharacters';
 import { atomicExtensionLength } from './atomicExtension';
 import { matchExtendedAutoLink } from './autoLink';
@@ -27,6 +27,10 @@ function isWhitespace(char: string) {
 
 function isBoundary(char: string) {
     return isWhitespace(char) || UNICODE_PUNCTUATION.test(char) || CJK_CHARACTER.test(char);
+}
+
+function isRightFlanking(before: string, after: string) {
+    return !isWhitespace(before) && (!UNICODE_PUNCTUATION.test(before) || isBoundary(after));
 }
 
 function charBefore(src: string, index: number) {
@@ -107,9 +111,7 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
             const leftFlanking
                 = !isWhitespace(after)
                     && (!UNICODE_PUNCTUATION.test(after) || isBoundary(before));
-            const rightFlanking
-                = !isWhitespace(before)
-                    && (!UNICODE_PUNCTUATION.test(before) || isBoundary(after));
+            const rightFlanking = isRightFlanking(before, after);
 
             runs.push({
                 char,
@@ -117,7 +119,7 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
                 left: i,
                 right: i + length,
                 canOpen: leftFlanking && (char !== '_' || isBoundary(before)),
-                canClose: rightFlanking && (char !== '_' || isBoundary(after)),
+                canClose: (rightFlanking && (char !== '_' || isBoundary(after))) || isCjkLabelCloser(src, i, i + length),
             });
             i += length;
             continue;
