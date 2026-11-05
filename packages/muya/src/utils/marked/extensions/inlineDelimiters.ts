@@ -1,25 +1,11 @@
 import type { MarkedExtension, Token, Tokens } from 'marked';
 import type { IDelimiterRun, IDelimiterSpan } from '../../delimiters';
 import { Lexer, Tokenizer } from 'marked';
-import { codePointBefore, codePointCharAt, isCjkLabelCloser, pairDelimiters } from '../../delimiters';
-import { CJK_CHARACTER, UNICODE_PUNCTUATION, UNICODE_WHITESPACE } from '../../inlineCharacters';
+import { codePointBefore, codePointCharAt, delimiterFlanking, isCjkLabelCloser, pairDelimiters } from '../../delimiters';
 
 interface IBoundaryChars {
     before: string;
     after: string;
-}
-
-function flanking(char: string, before: string, after: string) {
-    const beforeWhitespace = UNICODE_WHITESPACE.test(before);
-    const afterWhitespace = UNICODE_WHITESPACE.test(after);
-    const beforePunctuation = UNICODE_PUNCTUATION.test(before) || CJK_CHARACTER.test(before);
-    const afterPunctuation = UNICODE_PUNCTUATION.test(after) || CJK_CHARACTER.test(after);
-    const leftFlanking = !afterWhitespace && (!afterPunctuation || beforeWhitespace || beforePunctuation);
-    const rightFlanking = !beforeWhitespace && (!beforePunctuation || afterWhitespace || afterPunctuation);
-    return {
-        canOpen: leftFlanking && (char !== '_' || !rightFlanking || beforePunctuation),
-        canClose: rightFlanking && (char !== '_' || !leftFlanking || afterPunctuation),
-    };
 }
 
 function collectRuns(src: string, boundaries: IBoundaryChars, gfm: boolean): IDelimiterRun[] {
@@ -40,7 +26,7 @@ function collectRuns(src: string, boundaries: IBoundaryChars, gfm: boolean): IDe
 
         const before = codePointBefore(src, start) || boundaries.before;
         const after = codePointCharAt(src, i) ?? boundaries.after;
-        const flags = flanking(char, before, after);
+        const flags = delimiterFlanking(char, before, after);
 
         runs.push({
             char,
