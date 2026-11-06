@@ -1,5 +1,6 @@
 import { t } from '@/i18n'
 import type { PrefSelectOption } from '@/prefComponents/common/types'
+import type { HeaderFooterSeparatorStyle } from './persistence'
 
 export const getPageSizeList = (): PrefSelectOption<string>[] => [
   {
@@ -61,6 +62,22 @@ export const getHeaderFooterStyles = (): PrefSelectOption<number>[] => [
     value: 2
   }
 ]
+
+export const getHeaderFooterSeparatorStyles =
+  (): PrefSelectOption<HeaderFooterSeparatorStyle>[] => [
+    {
+      label: t('exportSettings.options.headerFooterSeparators.theme'),
+      value: 'theme'
+    },
+    {
+      label: t('exportSettings.options.headerFooterSeparators.show'),
+      value: 'show'
+    },
+    {
+      label: t('exportSettings.options.headerFooterSeparators.hide'),
+      value: 'hide'
+    }
+  ]
 
 export const getExportThemeList = (): PrefSelectOption<string>[] => [
   {
