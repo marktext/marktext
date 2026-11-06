@@ -25,6 +25,14 @@ import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
 import { normalizeAndResolvePath, resolveLocalLinkTarget, writeFile } from '../../filesystem'
 
 import { documentWrites } from '../../filesystem/documentWrites'
+import {
+  getCliJob,
+  isCliJobCompleted,
+  getCliOutputFor,
+  markCliOutputWritten,
+  finishCliJob
+} from '../../cli/cliJob'
+import { isCliWindowJobKind } from '@shared/types/cliJob'
 import { getPath } from '../../utils'
 import pandoc, {
   PANDOC_EXPORT_FORMATS,
@@ -109,6 +117,62 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
   if (!win) {
     return
   }
+
+  // Headless CLI window job: bypass the save dialog, write the export to the
+  // path derived from the command line, then continue with the next input or
+  // terminate with a CLI exit code.
+  const cliJob = getCliJob()
+  const cliOutput = pathname ? getCliOutputFor(pathname) : null
+  if (cliJob && !isCliJobCompleted() && cliOutput) {
+    try {
+      if (type === 'pdf') {
+        const options: Electron.PrintToPDFOptions = {
+          printBackground: true,
+          generateTaggedPDF: true,
+          generateDocumentOutline: true
+        }
+        Object.assign(options, getPdfPageOptions(pageOptions))
+        const data = await win.webContents.printToPDF(options)
+        removePrintServiceFromWindow(win)
+        await writeFile(cliOutput, data, '.pdf', 'binary')
+      } else if (type === 'styledHtml') {
+        if (!content) {
+          throw new Error('No HTML content found.')
+        }
+        await writeFile(cliOutput, content, '.html', 'utf-8')
+      } else {
+        throw new Error(`Unsupported CLI export type: ${type}`)
+      }
+      // More inputs pending? Ask the renderer to activate the next tab.
+      // `pathname` is guaranteed by `cliOutput` being resolved from it above.
+      const remaining = markCliOutputWritten(pathname as string, cliOutput)
+      if (remaining > 0) {
+        win.webContents.send('mt::cli-export-continue')
+      } else {
+        finishCliJob(0)
+      }
+    } catch (err) {
+      if (type === 'pdf') removePrintServiceFromWindow(win)
+      const message = (err instanceof Error && err.message) || String(err)
+      finishCliJob(1, `marktext: export failed: ${message}`)
+    }
+    return
+  }
+
+  // A CLI window job produced an export we cannot map to an input path:
+  // showing the interactive save dialog in a hidden window would hang the
+  // job until the watchdog fires, so fail immediately instead.
+  if (
+    cliJob &&
+    !isCliJobCompleted() &&
+    isCliWindowJobKind(cliJob.kind) &&
+    (type === 'pdf' || type === 'styledHtml')
+  ) {
+    if (type === 'pdf') removePrintServiceFromWindow(win)
+    finishCliJob(1, `marktext: export failed: no CLI output mapped for '${pathname ?? 'unknown'}'`)
+    return
+  }
+
   const extension = (EXTENSION_HASN as Record<string, string>)[type]
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
   const nakedFilename = sanitizeFilename(pathname ? path.basename(pathname, '.md') : title)
@@ -307,6 +371,15 @@ const removePrintServiceFromWindow = (win: BrowserWindow): void => {
 }
 
 ipcMain.on('mt::response-export', handleResponseForExport as Parameters<typeof ipcMain.on>[1])
+
+// The renderer export pipeline reports failures on this channel only in
+// headless CLI mode, where no user reads the error notification.
+ipcMain.on('mt::cli-export-failed', (_e, message: unknown) => {
+  if (getCliJob() && !isCliJobCompleted()) {
+    const detail = typeof message === 'string' && message ? message : 'unknown error'
+    finishCliJob(1, `marktext: export failed: ${detail}`)
+  }
+})
 
 ipcMain.on('mt::response-pandoc-export', handlePandocExport as Parameters<typeof ipcMain.on>[1])
 

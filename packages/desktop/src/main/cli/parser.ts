@@ -52,6 +52,31 @@ const parseArgs = (argv: string[] | null = null, permissive: boolean = true) => 
     '--disable-spellcheck': Boolean,
     '--user-data-dir': String,
 
+    // Headless conversion jobs
+    '--export-pdf': [String],
+    '--export-html': [String],
+    '--export': [String],
+    '--import': [String],
+    '--output': String,
+    '-o': '--output',
+
+    // Export options (--export-pdf / --export-html)
+    '--page-size': String,
+    '--landscape': Boolean,
+    '--margin-top': Number,
+    '--margin-right': Number,
+    '--margin-bottom': Number,
+    '--margin-left': Number,
+    '--theme': String,
+    '--header': String,
+    '--footer': String,
+    '--font-family': String,
+    '--font-size': Number,
+    '--line-height': Number,
+    '--auto-numbering-headings': Boolean,
+    '--show-front-matter': Boolean,
+    '--toc-title': String,
+
     // Misc
     '--help': Boolean,
     '-h': '--help',

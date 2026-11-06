@@ -114,7 +114,10 @@ class EditorWindow extends BaseWindow {
       this.lifecycle = WindowLifecycle.READY
       this.emit('window-ready')
 
-      this.bringToFront()
+      // Headless CLI job windows stay hidden; there is nothing to show.
+      if (!this._accessor.env.cliJobJson) {
+        this.bringToFront()
+      }
 
       const lineEnding = preferences.getPreferredEol()
       appMenu.updateLineEndingMenu(win.id, lineEnding)

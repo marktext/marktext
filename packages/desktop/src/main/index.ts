@@ -5,6 +5,9 @@ import log from 'electron-log'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 
 import cli from './cli'
+import { getCliJob, startCliJobWatchdog } from './cli/cliJob'
+import { runWindowlessCliJob } from './cli/runWindowless'
+import { isCliWindowJobKind } from '@shared/types/cliJob'
 import setupExceptionHandler, { initExceptionLogger } from './exceptionHandler'
 import setupEnvironment from './app/env'
 import type { AppEnvironment } from './app/env'
@@ -64,11 +67,21 @@ if (args['--disable-gpu']) {
   app.disableHardwareAcceleration()
 }
 
-if (!process.mas && !import.meta.env.DEV) {
+const cliJob = getCliJob()
+const isWindowlessJob = cliJob !== null && !isCliWindowJobKind(cliJob.kind)
+
+if (!process.mas && !import.meta.env.DEV && !isWindowlessJob) {
   // The running instance reads the files to open from this copy of the command
-  // line; see its `second-instance` handler.
+  // line; see its `second-instance` handler. Windowless pandoc jobs skip the
+  // lock on purpose: they create no window and never conflict with a GUI.
   const gotLock = app.requestSingleInstanceLock({ argv: process.argv })
   if (!gotLock) {
+    // A forwarded job would silently do nothing in the running GUI instance,
+    // so a headless window job fails loudly instead.
+    if (cliJob) {
+      process.stderr.write('marktext: cannot export while another instance is running\n')
+      process.exit(1)
+    }
     process.stdout.write(t('error.otherInstanceDetected'))
     process.exit(0)
   }
@@ -121,8 +134,20 @@ try {
 // knows which server the user configured.
 setPlantumlServerSource(() => accessor.preferences.getItem<string>('plantumlServer') ?? '')
 
-const appController = new App(accessor, args as unknown as { _: string[] })
-appController.init()
+if (isWindowlessJob && cliJob) {
+  // Pandoc jobs convert without any rendering: no window is ever created,
+  // so the whole App startup is skipped. The watchdog bounds the runtime.
+  startCliJobWatchdog()
+  void app.whenReady().then(() => runWindowlessCliJob(cliJob))
+} else {
+  const appController = new App(accessor, args as unknown as { _: string[] })
+  appController.init()
+
+  // A headless job must not hang forever; the watchdog exits on timeout.
+  if (cliJob) {
+    startCliJobWatchdog()
+  }
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

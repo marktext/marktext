@@ -9,6 +9,7 @@ import { isChildOfDirectory } from 'common/filesystem/paths'
 import type { UserPreferencesPatch } from '@shared/types/preferences'
 import { isLinux, isOsx, isWindows } from '../config'
 import parseArgs, { userArguments } from '../cli/parser'
+import { getCliWindowJobDescriptor } from '../cli/cliJob'
 import { normalizeAndResolvePath } from '../filesystem'
 import { normalizeCliMarkdownPath, normalizeMarkdownPath } from '../filesystem/markdown'
 import { confirmAndTrashItem } from '../filesystem/trash'
@@ -201,6 +202,18 @@ class App {
       }
     }
 
+    // Headless CLI window jobs: open every input file as an initial document
+    // so the renderer can run the export pipeline on them one by one.
+    const cliWindowJob = getCliWindowJobDescriptor()
+    if (!this._initialArgumentsConsumed && cliWindowJob) {
+      for (const input of cliWindowJob.inputs) {
+        const info = normalizeCliMarkdownPath(input)
+        if (info) {
+          _openFilesCache.push(info as PathInfo)
+        }
+      }
+    }
+
     this._initialArgumentsConsumed = true
 
     nativeTheme.themeSource = getNativeThemeSource({ followSystemTheme, theme })
@@ -312,7 +325,9 @@ class App {
     const createWindow = (): void => {
       const host = this._accessor.sessionHost
       const paths = _openFilesCache.splice(0)
-      void host.start(paths, prepared => this._createEditorWindow(null, [], [], {}, {}, prepared), args['--new-window'] === true)
+      // A headless CLI job always gets its own fresh window.
+      const forceNewWindow = args['--new-window'] === true || !!this._accessor.env.cliJobJson
+      void host.start(paths, prepared => this._createEditorWindow(null, [], [], {}, {}, prepared), forceNewWindow)
         .catch(error => host.report(error))
     }
 

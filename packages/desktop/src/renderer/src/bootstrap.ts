@@ -20,6 +20,8 @@ interface UrlArgs {
   debug: boolean
   userDataPath: string | null
   windowId: number
+  /** Headless CLI window job descriptor (parsed JSON), if this is a job window. */
+  cliJob: unknown
   initialState: {
     codeFontFamily: string | null
     codeFontSize: string | null
@@ -40,6 +42,15 @@ const parseUrlArgs = (): UrlArgs => {
   const userDataPath = params.get('udp')
   const windowId = Number(params.get('wid'))
   const type = params.get('type')
+  let cliJob: unknown = null
+  const cliJobJson = params.get('clijob')
+  if (cliJobJson) {
+    try {
+      cliJob = JSON.parse(cliJobJson)
+    } catch {
+      console.error('Error while parsing URL arguments: clijob!')
+    }
+  }
 
   if (Number.isNaN(windowId)) {
     throw new Error('Error while parsing URL arguments: windowId!')
@@ -50,6 +61,7 @@ const parseUrlArgs = (): UrlArgs => {
     debug,
     userDataPath,
     windowId,
+    cliJob,
     initialState: {
       codeFontFamily,
       codeFontSize,
@@ -100,7 +112,7 @@ const bootstrapRenderer = (): void => {
   window.addEventListener('error', handleRendererError)
   window.addEventListener('unhandledrejection', handleRendererError)
 
-  const { debug, initialState, userDataPath, windowId, type } = parseUrlArgs()
+  const { debug, initialState, userDataPath, windowId, type, cliJob } = parseUrlArgs()
   // RendererPaths throws when userDataPath is missing; preserve that runtime check.
   const paths = new RendererPaths(userDataPath as string)
   const marktext = {
@@ -109,7 +121,8 @@ const bootstrapRenderer = (): void => {
       debug,
       paths,
       windowId,
-      type
+      type,
+      cliJob
     },
     paths
   }
