@@ -437,11 +437,12 @@
       "window": {
         "title": "Window",
         "titleBarStyle": {
-          "title": "Title Bar Style",
+          "title": "Title Bar Style (requires restart)",
           "custom": "Custom",
-          "native": "Native"
+          "native": "Native",
+          "restartPending": "MarkText applies the new title bar style when it restarts.",
+          "restartNow": "Restart now"
         },
-        "requiresRestart": "Requires restart",
         "hideScrollbars": "Hide scrollbars",
         "openFilesInNewWindow": "Open files in new window",
         "openFoldersInNewWindow": "Open folders in new window",

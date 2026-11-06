@@ -364,6 +364,10 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     })
 
 
+    ipcMain.handle('mt::get-open-window-title-bar-styles', () =>
+      [...this._windows.values()].flatMap(window => window.createdWithTitleBarStyle ?? [])
+    )
+
     ipcMain.handle('mt::project-remove-root', (event, key: string) => {
       const win = BrowserWindow.fromWebContents(event.sender)
       const editor = win && this.get(win.id) as EditorWindow | undefined

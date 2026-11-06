@@ -3,6 +3,9 @@ import { app, type BrowserWindow } from 'electron'
 import { TypedEmitter } from '@shared/types/typedEmitter'
 import type Accessor from '../app/accessor'
 import { getThemeBackgroundColor } from '../../common/theme'
+import type { UserPreferences } from '@shared/types/preferences'
+
+type TitleBarStyle = UserPreferences['titleBarStyle']
 
 
 export const WindowType = {
@@ -52,6 +55,9 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
   public browserWindow: BrowserWindow | null
   public lifecycle: WindowLifecycleValue
   public type: WindowTypeValue
+  // Electron fixes a window's frame at creation, so a later change to the setting leaves this
+  // window as it was until the app restarts. Null until the window is created.
+  public createdWithTitleBarStyle: TitleBarStyle | null
 
   constructor(accessor: Accessor) {
     super()
@@ -61,6 +67,7 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
     this.browserWindow = null
     this.lifecycle = WindowLifecycle.NONE
     this.type = WindowType.BASE
+    this.createdWithTitleBarStyle = null
   }
 
   bringToFront(): void {

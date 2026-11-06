@@ -437,11 +437,12 @@
       "window": {
         "title": "Finestra",
         "titleBarStyle": {
-          "title": "Stile della barra del titolo",
+          "title": "Stile della barra del titolo (richiede il riavvio)",
           "custom": "Personalizzato",
-          "native": "Nativo"
+          "native": "Nativo",
+          "restartPending": "MarkText applicherà il nuovo stile della barra del titolo al riavvio.",
+          "restartNow": "Riavvia ora"
         },
-        "requiresRestart": "Richiede il riavvio.",
         "hideScrollbars": "Nascondi le barre di scorrimento",
         "openFilesInNewWindow": "Apri i file in una nuova finestra",
         "openFoldersInNewWindow": "Apri le cartelle in una nuova finestra",

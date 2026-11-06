@@ -437,11 +437,12 @@
       "window": {
         "title": "창",
         "titleBarStyle": {
-          "title": "제목 표시줄 스타일",
+          "title": "제목 표시줄 스타일 (재시작 필요)",
           "custom": "사용자 정의",
-          "native": "네이티브"
+          "native": "네이티브",
+          "restartPending": "새 제목 표시줄 스타일은 MarkText를 다시 시작하면 적용됩니다.",
+          "restartNow": "지금 다시 시작"
         },
-        "requiresRestart": "재시작 필요",
         "hideScrollbars": "스크롤바 숨기기",
         "openFilesInNewWindow": "새 창에서 파일 열기",
         "openFoldersInNewWindow": "새 창에서 폴더 열기",
