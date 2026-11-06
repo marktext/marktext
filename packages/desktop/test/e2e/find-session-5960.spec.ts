@@ -93,6 +93,34 @@ test.describe('Find session (#5960)', () => {
     await expect(page.locator('.mu-format-picker-container')).toHaveCSS('opacity', '0')
   })
 
+  test('keeps spaces and the caret after a newly typed search match (#6026)', async() => {
+    await setSourceMarkdown(page, app, 'test\n\nprefix')
+    await placeSelection(page, 0, 0)
+    await openFind(app, page)
+    await page.locator(inputSelector).fill('test')
+    await expect(page.locator('.search-bar .search-result')).toContainText('1 / 1')
+    await placeSelection(page, 1, 6)
+    await page.keyboard.type(' test', { delay: 40 })
+    const paragraph = page.locator('.mu-paragraph-content').nth(1)
+    await expect(paragraph.locator('.mu-highlight, .mu-selection')).toHaveText('test')
+
+    for (let spaces = 1; spaces <= 3; spaces++) {
+      await page.keyboard.press('Space')
+      await expect.poll(() => paragraph.textContent()).toBe(`prefix test${' '.repeat(spaces)}`)
+      await expect.poll(() => paragraph.evaluate(element => {
+        const selection = window.getSelection()
+        if (!selection?.focusNode) return null
+        const range = document.createRange()
+        range.selectNodeContents(element)
+        range.setEnd(selection.focusNode, selection.focusOffset)
+        return range.toString().length
+      })).toBe(11 + spaces)
+    }
+    await page.keyboard.type('next word', { delay: 40 })
+    await expect.poll(() => paragraph.textContent()).toBe('prefix test   next word')
+    await expect(page.locator('.search-bar')).toBeVisible()
+  })
+
   test('preserves both inputs and continues finding after Escape', async() => {
     await placeSelection(page, 1, 0)
     await sendIpcToRenderer(app, 'mt::editor-edit-action', 'replace')
