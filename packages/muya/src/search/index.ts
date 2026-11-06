@@ -177,9 +177,11 @@ export class Search {
         }
 
         const isActive = highlights.some(h => h.active);
-        block.update(undefined, highlights);
+        // Keep syntax at the editing caret visible, including trailing spaces (#6026).
+        const cursor = block.getCursor();
+        block.update(cursor ? { ...cursor, block } : undefined, highlights);
 
-        if (block.parent?.active && !isActive)
+        if (block.parent?.active && !isActive && !cursor)
             block.blurHandler();
 
         if (isActive) {
