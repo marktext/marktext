@@ -1,5 +1,6 @@
 import AppPaths, { ensureAppDirectoriesSync } from './paths'
 import { patchEnvPath } from './envPath'
+import { getCliWindowJobDescriptor } from '../cli/cliJob'
 
 let envId = 0
 
@@ -10,6 +11,8 @@ export interface AppEnvironmentOptions {
   verbose?: number | boolean
   safeMode?: boolean
   disableSpellcheck?: boolean
+  /** Headless CLI window job, serialized for the renderer URL. */
+  cliJobJson?: string | null
 }
 
 export class AppEnvironment {
@@ -20,6 +23,7 @@ export class AppEnvironment {
   private readonly _verbose: boolean
   private readonly _safeMode: boolean
   private readonly _disableSpellcheck: boolean
+  private readonly _cliJobJson: string | null
 
   constructor(options: AppEnvironmentOptions) {
     this._id = envId++
@@ -29,6 +33,7 @@ export class AppEnvironment {
     this._verbose = !!options.verbose
     this._safeMode = !!options.safeMode
     this._disableSpellcheck = !!options.disableSpellcheck
+    this._cliJobJson = options.cliJobJson ?? null
   }
 
   /**
@@ -61,6 +66,11 @@ export class AppEnvironment {
   get disableSpellcheck(): boolean {
     return this._disableSpellcheck
   }
+
+  /** Serialized headless CLI window job, otherwise `null`. */
+  get cliJobJson(): string | null {
+    return this._cliJobJson
+  }
 }
 
 /**
@@ -79,6 +89,8 @@ const setupEnvironment = (args: Record<string, unknown>): AppEnvironment => {
   const safeMode = !!args['--safe']
   const userDataPath = args['--user-data-dir'] as string | undefined // or undefined (= default user data path)
   const disableSpellcheck = !!args['--disable-spellcheck']
+  // The CLI job was validated by `cli()` before the environment is set up.
+  const windowJob = getCliWindowJobDescriptor()
 
   const appEnvironment = new AppEnvironment({
     debug,
@@ -86,7 +98,8 @@ const setupEnvironment = (args: Record<string, unknown>): AppEnvironment => {
     verbose,
     safeMode,
     userDataPath,
-    disableSpellcheck
+    disableSpellcheck,
+    cliJobJson: windowJob ? JSON.stringify(windowJob) : null
   })
 
   ensureAppDirectoriesSync(appEnvironment.paths)

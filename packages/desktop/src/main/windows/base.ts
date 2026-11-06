@@ -44,6 +44,8 @@ export interface PreferenceLike {
 export interface EnvLike {
   debug: boolean
   paths: { userDataPath: string }
+  /** Headless CLI window job, serialized for the renderer. */
+  cliJobJson?: string | null
 }
 
 class BaseWindow extends TypedEmitter<BaseWindowEvents> {
@@ -122,6 +124,9 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
     url.searchParams.set('hsb', hideScrollbar ? '1' : '0')
     url.searchParams.set('theme', theme ?? '')
     url.searchParams.set('tbs', titleBarStyle ?? '')
+    if (env.cliJobJson) {
+      url.searchParams.set('clijob', env.cliJobJson)
+    }
 
     return url
   }

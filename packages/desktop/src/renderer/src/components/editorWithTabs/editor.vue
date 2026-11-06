@@ -118,6 +118,7 @@ import { getMuyaLocale } from '@/util/muyaLocale'
 import { createMuyaShortcutResolvers } from '@/util/muyaShortcuts'
 import { useCommandCenterStore } from '@/store/commandCenter'
 import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
+import type { CliWindowJobDescriptor } from '@shared/types/cliJob'
 import { applyCursor, isIndexCursor } from '@/util/cursor'
 import EditorSearch from '../search/index.vue'
 import MediaViewer from '../mediaViewer/index.vue'
@@ -1288,6 +1289,7 @@ const handleExport = async (options: unknown) => {
         editorStore.EXPORT({ type, content })
       } catch (err) {
         log.error('Failed to export document:', err)
+        reportCliExportFailure(err)
         notice.notify({
           title: t('editor.export.failed', { type: htmlTitle || 'html' }),
           type: 'error',
@@ -1322,6 +1324,7 @@ const handleExport = async (options: unknown) => {
         editorStore.EXPORT({ type, pageOptions })
       } catch (err) {
         log.error('Failed to export document:', err)
+        reportCliExportFailure(err)
         notice.notify({
           title: t('editor.export.failed', { type: 'PDF' }),
           type: 'error',
@@ -1362,6 +1365,109 @@ const handleExport = async (options: unknown) => {
 
 const handlePrintServiceClearup = () => {
   printer!.clearup()
+}
+
+// ---------------------------------------------------------------------------
+// Headless CLI export jobs (`--export-pdf` / `--export-html`)
+//
+// The main process opened this window only to render one or more job files
+// and export them. Once a job file's content is in the editor, run the same
+// pipeline as the interactive export dialog, let the main process write the
+// file, and — for a batch — activate the next pending tab when the main
+// process asks for it (`mt::cli-export-continue`).
+
+const cliWindowJob = (): CliWindowJobDescriptor | null => {
+  const job = window.marktext?.env?.cliJob as CliWindowJobDescriptor | null | undefined
+  if (!job || !Array.isArray(job.inputs) || job.inputs.length === 0) return null
+  if (job.kind !== 'export-pdf' && job.kind !== 'export-html') return null
+  return job
+}
+
+let cliExportRunning = false
+// Job pathnames still waiting to be exported.
+let cliPendingInputs: string[] = []
+
+const isPendingCliInput = (pathname: string | null | undefined): boolean => {
+  if (!pathname) return false
+  return cliPendingInputs.some((input) => window.fileUtils.isSamePathSync(input, pathname))
+}
+
+const buildCliExportOptions = (job: CliWindowJobDescriptor): Record<string, unknown> => {
+  const o = job.options ?? {}
+  const options: Record<string, unknown> = {
+    type: job.kind === 'export-pdf' ? 'pdf' : 'styledHtml',
+    // Defaults mirroring the export dialog (exportSettings/index.vue).
+    pageSize: o.pageSize ?? 'A4',
+    isLandscape: o.isLandscape ?? false,
+    pageMarginTop: o.pageMarginTop ?? 20,
+    pageMarginRight: o.pageMarginRight ?? 15,
+    pageMarginBottom: o.pageMarginBottom ?? 20,
+    pageMarginLeft: o.pageMarginLeft ?? 15,
+    autoNumberingHeadings: o.autoNumberingHeadings ?? false,
+    showFrontMatter: o.showFrontMatter ?? false,
+    theme: o.theme ?? null,
+    tocTitle: o.tocTitle ?? '',
+    tocIncludeTopHeading: true,
+    headerFooterStyled: true
+  }
+  if (o.fontFamily || o.fontSize || o.lineHeight) {
+    Object.assign(options, {
+      fontFamily: o.fontFamily ?? null,
+      fontSize: o.fontSize,
+      lineHeight: o.lineHeight
+    })
+  }
+  if (o.header) options.header = { type: 1, left: '', center: o.header, right: '' }
+  if (o.footer) options.footer = { type: 1, left: '', center: o.footer, right: '' }
+  return options
+}
+
+const runCliExport = async (job: CliWindowJobDescriptor): Promise<void> => {
+  // Let pending engine updates flush before snapshotting the document.
+  await nextTick()
+  await handleExport(buildCliExportOptions(job))
+}
+
+/** In headless CLI mode nobody reads the notification; tell the main process
+ *  directly so it can fail with a non-zero exit code. */
+const reportCliExportFailure = (err: unknown): void => {
+  if (!cliWindowJob()) return
+  window.electron.ipcRenderer.send(
+    'mt::cli-export-failed',
+    (err as { message?: string } | null | undefined)?.message ?? 'unknown error'
+  )
+}
+
+const maybeRunCliExport = (): void => {
+  if (cliExportRunning) return
+  const job = cliWindowJob()
+  if (!job || !editor.value) return
+  const pathname = currentFile.value?.pathname
+  if (!isPendingCliInput(pathname)) return
+  cliPendingInputs = cliPendingInputs.filter(
+    (input) => !window.fileUtils.isSamePathSync(input, pathname!)
+  )
+  cliExportRunning = true
+  void runCliExport(job)
+}
+
+/** Main wrote the previous export; advance the batch to the next pending tab. */
+const handleCliExportContinue = (): void => {
+  cliExportRunning = false
+  if (!cliWindowJob()) return
+  const next = tabs.value.find((tab) => isPendingCliInput(tab.pathname))
+  if (!next) {
+    window.electron.ipcRenderer.send('mt::cli-export-failed', 'cannot find the next input tab')
+    return
+  }
+  editorStore.UPDATE_CURRENT_FILE(next)
+}
+
+const initCliWindowJob = (): void => {
+  const job = cliWindowJob()
+  if (!job) return
+  cliPendingInputs = [...job.inputs]
+  window.electron.ipcRenderer.on('mt::cli-export-continue', handleCliExportContinue)
 }
 
 // Push the current selection to the application-menu / toolbar state. Called on
@@ -1473,6 +1579,8 @@ const setMarkdownToEditor = (payload: unknown) => {
     // A freshly created/opened tab should be ready to type into.
     if (editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false) focusFreshEditor()
     documentViewChanged()
+    // A headless CLI job exports as soon as one of its files is loaded.
+    maybeRunCliExport()
   }
 }
 
@@ -1603,6 +1711,9 @@ const handleFileChange = (payload: unknown) => {
     container.style.pointerEvents = 'auto'
     scrollToCursor(0)
   }
+
+  // A headless CLI batch job exports each tab right after it is activated.
+  maybeRunCliExport()
 }
 
 const handleInsertParagraph = (location: unknown) => {
@@ -2035,6 +2146,10 @@ onMounted(() => {
 
 
   setEditorWidth(editorLineWidth.value)
+
+  // Headless CLI job: the first file may already be loaded at mount time.
+  initCliWindowJob()
+  maybeRunCliExport()
 })
 
 onBeforeUnmount(() => {
