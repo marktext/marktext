@@ -34,6 +34,7 @@ export interface UserPreferences extends RecoveryPreferences {
   openFolderInNewWindow: boolean
   zoom: number
   hideScrollbar: boolean
+  smoothScrolling: boolean
   wordWrapInToc: boolean
   tocPosition: 'left' | 'right'
   treePathExcludePatterns: string[]

@@ -6,6 +6,7 @@
   "openFolderInNewWindow": false,
   "zoom": 1.0,
   "hideScrollbar": false,
+  "smoothScrolling": true,
   "wordWrapInToc": false,
   "tocPosition": "left",
   "fileSortBy": "created",

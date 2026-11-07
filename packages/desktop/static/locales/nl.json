@@ -126,6 +126,8 @@
       "sourceCodeMode": "Broncodeweergave",
       "typewriterMode": "Typemachinestand",
       "focusMode": "Focusstand",
+      "smoothScrolling": "Vloeiend scrollen",
+      "smoothScrollingRestart": "Wijzigingen in vloeiend scrollen worden van kracht nadat MarkText opnieuw is gestart.",
       "toggleTableOfContents": "Inhoudsopgave tonen",
       "reloadImages": "Afbeeldingen herladen",
       "showDeveloperTools": "Ontwikkelaarshulpmiddelen tonen",

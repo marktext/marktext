@@ -126,6 +126,8 @@
       "sourceCodeMode": "源码模式",
       "typewriterMode": "打字机模式",
       "focusMode": "专注模式",
+      "smoothScrolling": "平滑滚动",
+      "smoothScrollingRestart": "平滑滚动设置将在 MarkText 重启后生效。",
       "toggleTableOfContents": "显示目录",
       "reloadImages": "重新加载图片",
       "showDeveloperTools": "显示开发者工具",

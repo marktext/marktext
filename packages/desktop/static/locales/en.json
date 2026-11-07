@@ -126,6 +126,8 @@
       "sourceCodeMode": "Source Code Mode",
       "typewriterMode": "Typewriter Mode",
       "focusMode": "Focus Mode",
+      "smoothScrolling": "Smooth Scrolling",
+      "smoothScrollingRestart": "Smooth scrolling changes take effect after MarkText restarts.",
       "toggleTableOfContents": "Show Table of Contents",
       "reloadImages": "Reload Images",
       "showDeveloperTools": "Show Developer Tools",

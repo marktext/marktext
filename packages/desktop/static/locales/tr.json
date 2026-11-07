@@ -126,6 +126,8 @@
       "sourceCodeMode": "Kaynak Kod Modu",
       "typewriterMode": "Daktilo Modu",
       "focusMode": "Odak Modu",
+      "smoothScrolling": "Yumuşak kaydırma",
+      "smoothScrollingRestart": "Yumuşak kaydırma değişiklikleri MarkText yeniden başlatıldıktan sonra geçerli olur.",
       "toggleTableOfContents": "İçindekileri göster",
       "reloadImages": "Görselleri Yeniden Yükle",
       "showDeveloperTools": "Geliştirici Araçlarını Göster",

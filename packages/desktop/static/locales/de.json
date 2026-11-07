@@ -126,6 +126,8 @@
       "sourceCodeMode": "Quellcode-Modus",
       "typewriterMode": "Schreibmaschinen-Modus",
       "focusMode": "Fokus-Modus",
+      "smoothScrolling": "Reibungsloses Scrollen",
+      "smoothScrollingRestart": "Änderungen am reibungslosen Scrollen werden nach einem Neustart von MarkText wirksam.",
       "toggleTableOfContents": "Inhaltsverzeichnis anzeigen",
       "reloadImages": "Bilder neu laden",
       "showDeveloperTools": "Entwicklertools anzeigen",
