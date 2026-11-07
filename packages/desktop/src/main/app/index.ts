@@ -65,6 +65,13 @@ class App {
       app.commandLine.appendSwitch('enable-experimental-web-platform-features', 'true')
     }
 
+    // Chromium animates wheel scrolling unless this switch is present; the
+    // setting is the browser's "Smooth Scrolling" flag. It can only be decided
+    // before `ready`, so a View menu change applies on the next start.
+    if (!this._accessor.preferences.getItem<boolean>('smoothScrolling')) {
+      app.commandLine.appendSwitch('disable-smooth-scrolling')
+    }
+
     app.on('second-instance', (_event, argv, workingDirectory, additionalData) => {
       const { _openFilesCache, _windowManager } = this
       // `argv` lists switches before the other arguments and adds switches of its

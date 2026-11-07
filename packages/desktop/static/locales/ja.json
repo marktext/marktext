@@ -126,6 +126,8 @@
       "sourceCodeMode": "ソースコードモード",
       "typewriterMode": "タイプライターモード",
       "focusMode": "フォーカスモード",
+      "smoothScrolling": "スムーズスクロール",
+      "smoothScrollingRestart": "スムーズスクロールの変更は MarkText の再起動後に有効になります。",
       "toggleTableOfContents": "目次を表示",
       "reloadImages": "画像の再読み込み",
       "showDeveloperTools": "開発者ツールの表示",

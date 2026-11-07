@@ -126,6 +126,8 @@
       "sourceCodeMode": "Modalità codice sorgente",
       "typewriterMode": "Modalità macchina da scrivere",
       "focusMode": "Modalità focalizzata",
+      "smoothScrolling": "Scorrimento fluido",
+      "smoothScrollingRestart": "Le modifiche allo scorrimento fluido avranno effetto dopo il riavvio di MarkText.",
       "toggleTableOfContents": "Mostra/nascondi Sommario",
       "reloadImages": "Ricarica immagini",
       "showDeveloperTools": "Mostra strumenti di sviluppo",

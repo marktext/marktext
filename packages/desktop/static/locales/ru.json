@@ -126,6 +126,8 @@
       "sourceCodeMode": "Режим исходного кода",
       "typewriterMode": "Режим печатной машинки",
       "focusMode": "Режим фокусировки",
+      "smoothScrolling": "Плавная прокрутка",
+      "smoothScrollingRestart": "Изменения плавной прокрутки вступят в силу после перезапуска MarkText.",
       "toggleTableOfContents": "Показать оглавление",
       "reloadImages": "Обновить изображения",
       "showDeveloperTools": "Инструменты разработчика",

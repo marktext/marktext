@@ -126,6 +126,8 @@
       "sourceCodeMode": "소스 코드 모드",
       "typewriterMode": "타자기 모드",
       "focusMode": "집중 모드",
+      "smoothScrolling": "부드러운 스크롤",
+      "smoothScrollingRestart": "부드러운 스크롤 변경 사항은 MarkText를 다시 시작한 후 적용됩니다.",
       "toggleTableOfContents": "목차 표시",
       "reloadImages": "이미지 새로고침",
       "showDeveloperTools": "개발자 도구 보기",

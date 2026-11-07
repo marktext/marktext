@@ -35,7 +35,7 @@ export default function(
     format(keybindings),
     window(keybindings),
     theme(preferences),
-    view(keybindings),
+    view(keybindings, preferences),
     help()
   ]
 }

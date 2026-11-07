@@ -37,6 +37,11 @@
     "type": "boolean",
     "default": false
   },
+  "smoothScrolling": {
+    "description": "General--Animate wheel scrolling like the browser setting of the same name. Toggle it in the View menu; it applies after restart.",
+    "type": "boolean",
+    "default": true
+  },
   "wordWrapInToc": {
     "description": "General--Whether to enable word wrap in TOC.",
     "type": "boolean",

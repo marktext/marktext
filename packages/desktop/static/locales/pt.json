@@ -126,6 +126,8 @@
       "sourceCodeMode": "Modo Código Fonte",
       "typewriterMode": "Modo Máquina de Escrever",
       "focusMode": "Modo Foco",
+      "smoothScrolling": "Rolagem suave",
+      "smoothScrollingRestart": "As alterações na rolagem suave entram em vigor depois de reiniciar o MarkText.",
       "toggleTableOfContents": "Mostrar sumário",
       "reloadImages": "Recarregar Imagens",
       "showDeveloperTools": "Mostrar Ferramentas de Desenvolvedor",
