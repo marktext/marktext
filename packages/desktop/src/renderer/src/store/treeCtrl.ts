@@ -2,8 +2,10 @@ import { getUniqueId } from '../util'
 import { PATH_SEPARATOR } from '../config'
 
 
-const naturalCompare = (a: string, b: string): number =>
-  a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+// Same ordering as `localeCompare(b, undefined, options)`, which builds a new
+// collator on every call; sorted inserts run it for each sibling of every node.
+const naturalCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+const naturalCompare = (a: string, b: string): number => naturalCollator.compare(a, b)
 
 interface TreeFolder {
   id?: string
