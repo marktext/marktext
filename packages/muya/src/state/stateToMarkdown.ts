@@ -30,7 +30,6 @@ import { BlockBoundaryResolver } from './blockBoundary';
 import { isAnyListState, isAtxHeadingState, isSetextHeadingState } from './types';
 
 const debug = logger('export markdown: ');
-const SETEXT_SAFE_BULLET_MARKER = '*';
 
 function startsWithIndentedHeading(state: TState): boolean {
     return (isAtxHeadingState(state) || isSetextHeadingState(state)) && /^[ \t]/.test(state.text);
@@ -132,12 +131,8 @@ export default class ExportMarkdown {
             }
 
             if (isAnyListState(state)) {
-                const markerOverride = !this._isLooseParentList
-                    && previousState?.name === 'paragraph'
-                    && previousState.text.trim() !== ''
-                    && this._startsWithEmptyDashBulletItem(state)
-                    ? SETEXT_SAFE_BULLET_MARKER
-                    : undefined;
+                const needsParagraphSeparator = previousState?.name === 'paragraph'
+                    && previousState.text.trim() !== '' && this._listNeedsParagraphSeparator(state);
                 const followsTightList = previousState !== undefined
                     && isAnyListState(previousState)
                     && !previousState.meta.loose
@@ -148,7 +143,7 @@ export default class ExportMarkdown {
                     indent,
                     listIndent,
                     previousList,
-                    markerOverride,
+                    needsParagraphSeparator,
                     followsTightList,
                 );
             }
@@ -259,14 +254,12 @@ export default class ExportMarkdown {
         indent: string,
         listIndent: string,
         previousList: IWrittenList | undefined,
-        markerOverride?: string,
+        needsParagraphSeparator = false,
         followsTightList = false,
     ): IWrittenList {
-        let insertNewLine = this._isLooseParentList;
+        let insertNewLine = this._isLooseParentList || needsParagraphSeparator;
         this._isLooseParentList = true;
         const meta = deepClone(state.meta);
-        if (markerOverride && 'marker' in meta)
-            meta.marker = markerOverride;
         if (state.name !== 'bullet-list' && 'sourceMarkers' in meta && !this._shouldPreserveOrderMarkers(state))
             delete meta.sourceMarkers;
 
@@ -316,20 +309,22 @@ export default class ExportMarkdown {
         );
     }
 
-    private _startsWithEmptyDashBulletItem(
-        state: IOrderListState | IBulletListState | ITaskListState,
-    ) {
-        if (state.name !== 'bullet-list' || state.meta.marker !== '-')
+    private _listNeedsParagraphSeparator(state: IOrderListState | IBulletListState | ITaskListState): boolean {
+        // CommonMark §5.2 requires a blank line before empty items or non-1 decimal markers.
+        if (state.name !== 'bullet-list' && 'start' in state.meta) {
+            const { style = 'decimal', delimiter, start } = state.meta;
+            if (style !== 'decimal' || delimiter === '()')
+                return false;
+            const marker = this._shouldPreserveOrderMarkers(state)
+                ? state.meta.sourceMarkers?.[0]
+                : undefined;
+            if (marker ? !/^1[.)]$/.test(marker) : start !== 1)
+                return true;
+        }
+        if (state.name === 'task-list')
             return false;
-
-        const firstItem = state.children[0];
-        if (!firstItem)
-            return false;
-        if (firstItem.children.length === 0)
-            return true;
-
-        const firstChild = firstItem.children[0];
-        return firstChild.name === 'paragraph' && firstChild.text.trim() === '';
+        const first = state.children[0]?.children[0];
+        return !first || (first.name === 'paragraph' && first.text.trim() === '');
     }
 
     private _serializeListItemBlock(
