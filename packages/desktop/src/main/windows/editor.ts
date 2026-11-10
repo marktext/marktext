@@ -76,6 +76,7 @@ class EditorWindow extends BaseWindow {
         winOptions.frame = true
       }
     }
+    this.createdWithTitleBarStyle = titleBarStyle === 'native' ? 'native' : 'custom'
 
     winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
     if (env.disableSpellcheck) {

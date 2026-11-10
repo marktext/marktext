@@ -437,11 +437,12 @@
       "window": {
         "title": "ウィンドウ",
         "titleBarStyle": {
-          "title": "タイトルバースタイル",
+          "title": "タイトルバースタイル（再起動が必要）",
           "custom": "カスタム",
-          "native": "ネイティブ"
+          "native": "ネイティブ",
+          "restartPending": "新しいタイトルバースタイルは MarkText の再起動後に適用されます。",
+          "restartNow": "今すぐ再起動"
         },
-        "requiresRestart": "再起動が必要",
         "hideScrollbars": "スクロールバーを隠す",
         "openFilesInNewWindow": "新しいウィンドウでファイルを開く",
         "openFoldersInNewWindow": "新しいウィンドウでフォルダーを開く",

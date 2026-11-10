@@ -437,11 +437,12 @@
       "window": {
         "title": "Fenster",
         "titleBarStyle": {
-          "title": "Titelleistenstil",
+          "title": "Titelleistenstil (erfordert Neustart)",
           "custom": "Benutzerdefiniert",
-          "native": "Nativ"
+          "native": "Nativ",
+          "restartPending": "MarkText übernimmt den neuen Titelleistenstil nach einem Neustart.",
+          "restartNow": "Jetzt neu starten"
         },
-        "requiresRestart": "Erfordert Neustart",
         "hideScrollbars": "Bildlaufleisten ausblenden",
         "openFilesInNewWindow": "Dateien in neuem Fenster öffnen",
         "openFoldersInNewWindow": "Ordner in neuem Fenster öffnen",

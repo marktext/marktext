@@ -437,11 +437,12 @@
       "window": {
         "title": "Venster",
         "titleBarStyle": {
-          "title": "Titelbalkstijl",
+          "title": "Titelbalkstijl (herstart vereist)",
           "custom": "Aangepast",
-          "native": "Systeem"
+          "native": "Systeem",
+          "restartPending": "MarkText past de nieuwe titelbalkstijl toe na een herstart.",
+          "restartNow": "Nu herstarten"
         },
-        "requiresRestart": "Herstart vereist",
         "hideScrollbars": "Schuifbalken verbergen",
         "openFilesInNewWindow": "Bestanden in nieuw venster openen",
         "openFoldersInNewWindow": "Mappen in nieuw venster openen",

@@ -437,11 +437,12 @@
       "window": {
         "title": "Ventana",
         "titleBarStyle": {
-          "title": "Estilo de Barra de Título",
+          "title": "Estilo de Barra de Título (requiere reinicio)",
           "custom": "Personalizado",
-          "native": "Nativo"
+          "native": "Nativo",
+          "restartPending": "MarkText aplicará el nuevo estilo de barra de título al reiniciarse.",
+          "restartNow": "Reiniciar ahora"
         },
-        "requiresRestart": "Requiere reinicio",
         "hideScrollbars": "Ocultar barras de desplazamiento",
         "openFilesInNewWindow": "Abrir archivos en nueva ventana",
         "openFoldersInNewWindow": "Abrir carpetas en nueva ventana",

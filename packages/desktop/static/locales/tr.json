@@ -437,11 +437,12 @@
       "window": {
         "title": "Pencere",
         "titleBarStyle": {
-          "title": "Başlık Çubuğu Stili",
+          "title": "Başlık Çubuğu Stili (yeniden başlatma gerektirir)",
           "custom": "Özel",
-          "native": "Yerel"
+          "native": "Yerel",
+          "restartPending": "MarkText yeni başlık çubuğu stilini yeniden başlatıldığında uygular.",
+          "restartNow": "Şimdi yeniden başlat"
         },
-        "requiresRestart": "Yeniden başlatma gerektirir",
         "hideScrollbars": "Kaydırma çubuklarını gizle",
         "openFilesInNewWindow": "Dosyaları yeni pencerede aç",
         "openFoldersInNewWindow": "Klasörleri yeni pencerede aç",

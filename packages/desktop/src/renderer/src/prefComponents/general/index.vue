@@ -81,6 +81,20 @@
           :options="getTitleBarStyleOptions()"
           :on-change="(value) => onSelectChange('titleBarStyle', value)"
         />
+        <div
+          v-if="!isMac && show('windowAppearance') && titleBarStyleAwaitsRestart"
+          ref="titleBarStyleRestartNotice"
+          class="title-bar-style-restart"
+        >
+          <div class="title-bar-style-restart-control">
+            <setting-note role="status">
+              {{ t('preferences.general.window.titleBarStyle.restartPending') }}
+            </setting-note>
+            <el-button @click="relaunchApp">
+              {{ t('preferences.general.window.titleBarStyle.restartNow') }}
+            </el-button>
+          </div>
+        </div>
         <bool
           v-if="show('windowAppearance')"
           id="setting-hideScrollbar"
@@ -218,7 +232,7 @@
 <script setup lang="ts">
 import { preferenceLabel, preferenceNotes } from '@/prefComponents/registry'
 
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import RecoverySettings from './recoverySettings.vue'
 import ExcludePatterns from './excludePatterns.vue'
 import type { UserPreferences, RecoveryPreferences } from '@shared/types/preferences'
@@ -228,6 +242,7 @@ import { usePreferencesStore } from '@/store/preferences'
 import type { PreferencesState } from '@/store/preferences'
 import Compound from '../common/compound/index.vue'
 import CommandDetection from '../common/commandDetection.vue'
+import SettingNote from '../common/settingNote.vue'
 import type { CommandDetectionState } from '../common/types'
 import Range from '../common/range/index.vue'
 import CurSelect from '../common/select/index.vue'
@@ -325,8 +340,55 @@ onMounted(async () => {
   if (show('pandoc')) await probePandoc()
 })
 
+// The main process sets a window's frame only when it creates the window, so a changed style
+// appears only in windows that open later. We ask the main process for the style of every open
+// window. Preferences may have reopened with the new style while an editor window still has the
+// old one.
+const openWindowTitleBarStyles = ref<UserPreferences['titleBarStyle'][]>([])
+const titleBarStyleAwaitsRestart = computed<boolean>(() =>
+  openWindowTitleBarStyles.value.some(style => style !== titleBarStyle.value)
+)
+const loadOpenWindowTitleBarStyles = async(): Promise<void> => {
+  openWindowTitleBarStyles.value = await window.electron.ipcRenderer.invoke('mt::get-open-window-title-bar-styles')
+}
+onMounted(async() => {
+  if (!isMac && show('windowAppearance')) await loadOpenWindowTitleBarStyles()
+})
+// The Window section ends the Appearance page, so the notice would otherwise appear below the fold.
+// We scroll only after the user changes the style, not when the page opens with a restart pending.
+const titleBarStyleRestartNotice = ref<HTMLElement | null>(null)
+watch(titleBarStyle, async() => {
+  if (isMac || !show('windowAppearance')) return
+  await loadOpenWindowTitleBarStyles()
+  if (!titleBarStyleAwaitsRestart.value) return
+  await nextTick()
+  titleBarStyleRestartNotice.value?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+})
+const relaunchApp = (): void => {
+  window.electron.ipcRenderer.send('mt::app-relaunch')
+}
+
 const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
 }
 
 </script>
+
+<style scoped>
+/* The same columns as .pref-setting-row put the notice under the dropdown it belongs to. */
+.title-bar-style-restart {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 42%);
+  column-gap: 24px;
+  margin: -8px 0 16px;
+}
+.title-bar-style-restart-control {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.title-bar-style-restart :deep(.notes) { margin: 0; }
+.title-bar-style-restart .el-button { font-style: normal; }
+</style>
