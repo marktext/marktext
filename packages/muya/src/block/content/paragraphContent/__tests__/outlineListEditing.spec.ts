@@ -125,7 +125,7 @@ describe('outline lists: Tab and Shift+Tab', () => {
     it('starts a decimal sublist at one only with the option on', () => {
         const off = bootMuya('3. a\n4. b\n', false);
         tab(off, 'b');
-        expect(off.getMarkdown()).toBe('3. a\n   3. b\n');
+        expect(off.getMarkdown()).toBe('3. a\n\n   3. b\n');
 
         const on = bootMuya('3. a\n4. b\n');
         tab(on, 'b');

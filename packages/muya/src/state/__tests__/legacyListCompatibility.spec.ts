@@ -30,7 +30,7 @@ function legacyDocuments(marker: string): string[] {
         const item = `${marker} ${body.replace(/\n/g, `\n${indent}`)}`;
         return [
             `${item}${gap}${marker} last\n`,
-            `${marker} parent\n${indent}${item.replace(/\n/g, `\n${indent}`)}\n${marker} last\n`,
+            `${marker} parent\n\n${indent}${item.replace(/\n/g, `\n${indent}`)}\n${marker} last\n`,
         ];
     }));
 }
