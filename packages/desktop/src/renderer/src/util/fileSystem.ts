@@ -61,10 +61,13 @@ export const moveImageToFolder = async(
   currentPathname: string | null = null
 ): Promise<string> => {
   await window.fileUtils.ensureDir(outputDir)
-  const toResult = (absolutePath: string) =>
-    isRelative && currentPathname
-      ? window.path.relative(window.path.dirname(currentPathname), absolutePath)
-      : absolutePath
+ const toResult = (absolutePath: string): string =>
+  isRelative && currentPathname
+    ? window.path
+        .relative(window.path.dirname(currentPathname), absolutePath)
+        .replace(/\\/g, '/')
+    : absolutePath
+  
   const isPath = typeof image === 'string'
   if (isPath) {
     const dir = window.path.dirname(pathname)
