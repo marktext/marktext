@@ -36,7 +36,9 @@ test.describe('File icons in the built application', () => {
 
   test('renders markdown sidebar glyphs and loads all five bundled icon fonts', async() => {
     for (const name of names) {
-      const icon = page.locator(`.tree-wrapper .side-bar-file[title="${path.join(directory, name)}"] .file-icon`)
+      const icon = page.locator('.tree-wrapper')
+        .getByTitle(path.join(directory, name), { exact: true })
+        .locator('.file-icon')
       await expect(icon).toBeVisible()
       await expect(icon).toHaveClass(/\bmarkdown-icon\b/)
       const glyph = await icon.evaluate(element => getComputedStyle(element, '::before').content)
