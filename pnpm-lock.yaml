@@ -80,8 +80,8 @@ importers:
         specifier: ^1.1.6
         version: 1.1.6
       '@marktext/file-icons':
-        specifier: ^1.0.6
-        version: 1.0.6
+        specifier: ^1.1.0
+        version: 1.1.0
       '@muyajs/core':
         specifier: workspace:*
         version: link:../muya
@@ -295,8 +295,8 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
       '@marktext/file-icons':
-        specifier: ^1.0.6
-        version: 1.0.6
+        specifier: ^1.1.0
+        version: 1.1.0
       dompurify:
         specifier: ^3.4.17
         version: 3.4.17
@@ -2374,8 +2374,8 @@ packages:
     resolution: {integrity: sha512-9QOtNffcOF/c1seMCDnjckb3R9WHcG34tky+FHpNKKCW0wc/scYLwMtO+ptyGUfMW0/b/n4qRiALlaFHc9Oj7Q==}
     engines: {node: '>= 10.0.0'}
 
-  '@marktext/file-icons@1.0.6':
-    resolution: {integrity: sha512-E9xMmaa4nqSdIjLfZyabIkbNMRPwr+SexzkRqGOWfLkgWiZHNL45JkiLLFBqBqn7ERUxzPgSVFt2MGnetlq2rA==}
+  '@marktext/file-icons@1.1.0':
+    resolution: {integrity: sha512-9RKLSFGVrEJbDfQroWGTfRFnRVc8n5NHoRog1lFc3BC278xc0F18mrOPamL3eerhFjDPZ+s7HuLGAk+RtC2WbA==}
 
   '@mermaid-js/parser@2.0.1':
     resolution: {integrity: sha512-j37dj/h6p6pots1L7pLPPNuABEEu9WP4OYg9pW1g+nYG331j0+3canE9OagtYdytYvdSAMG+2fKU5cxep6LgjA==}
@@ -4325,10 +4325,6 @@ packages:
   atoa@1.0.0:
     resolution: {integrity: sha512-VVE1H6cc4ai+ZXo/CRWoJiHXrA1qfA31DPnx6D20+kSI547hQN5Greh51LQ1baMRMfxO5K5M4ImMtZbZt2DODQ==}
 
-  atom-fs@0.2.1:
-    resolution: {integrity: sha512-H+09ux1pNAPUbJqyrZ7lA/CpNmKqZURrYc23QzDUG29A380EYEnzwW99Do5VlT8SmZtyapOMySFesndgvZZGWg==}
-    engines: {atom: '>=1.13.0'}
-
   atomically@2.1.1:
     resolution: {integrity: sha512-P4w9o2dqARji6P7MHprklbfiArZAWvo07yW7qs3pdljb3BWr12FIB7W+p0zJiuiVsUpRO0iZn1kFFcpPegg0tQ==}
 
@@ -5880,11 +5876,6 @@ packages:
   file-entry-cache@11.1.5:
     resolution: {integrity: sha512-+PFTHITI08JIGhnNpGNI8T8inUpgZfk3GNEqfT9R2zZV2iFXg3CvqzSl/uEhs7TSGujYRELEANyDvS8Fj7+S7Q==}
 
-  file-icons@https://codeload.github.com/file-icons/atom/tar.gz/fa4bc4850eb5bbc0d192c127fb4be10af3f049b2:
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/file-icons/atom/tar.gz/fa4bc4850eb5bbc0d192c127fb4be10af3f049b2}
-    version: 2.1.47
-    engines: {atom: '>=1.25.0'}
-
   file-uri-to-path@1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
 
@@ -7066,9 +7057,6 @@ packages:
   make-asynchronous@1.1.0:
     resolution: {integrity: sha512-ayF7iT+44LXdxJLTrTd3TLQpFDDvPCBxXxbv+pMUSuHA5Q8zyAfwkRP6aHHwNVFBUFWtxAHqwNJxF8vMZLAbVg==}
     engines: {node: '>=18'}
-
-  mapped-disposable@1.0.3:
-    resolution: {integrity: sha512-DpYYRSZjNB6tOg8E4BZ+rNsKe4WxoptwM8+JqHi8R0buJgHLmrmAfJtv4lcqqO1esTtxaPx4FXOR54bPoS9qwg==}
 
   markdown-table@3.0.4:
     resolution: {integrity: sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw==}
@@ -11811,9 +11799,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@marktext/file-icons@1.0.6':
-    dependencies:
-      file-icons: https://codeload.github.com/file-icons/atom/tar.gz/fa4bc4850eb5bbc0d192c127fb4be10af3f049b2
+  '@marktext/file-icons@1.1.0': {}
 
   '@mermaid-js/parser@2.0.1':
     dependencies:
@@ -13724,10 +13710,6 @@ snapshots:
   at-least-node@1.0.0: {}
 
   atoa@1.0.0: {}
-
-  atom-fs@0.2.1:
-    dependencies:
-      mapped-disposable: 1.0.3
 
   atomically@2.1.1:
     dependencies:
@@ -15689,13 +15671,6 @@ snapshots:
     dependencies:
       flat-cache: 6.1.23
 
-  file-icons@https://codeload.github.com/file-icons/atom/tar.gz/fa4bc4850eb5bbc0d192c127fb4be10af3f049b2:
-    dependencies:
-      atom-fs: 0.2.1
-      lru-cache: 5.1.1
-      mapped-disposable: 1.0.3
-      micromatch: 4.0.8
-
   file-uri-to-path@1.0.0: {}
 
   filelist@1.0.6:
@@ -16920,8 +16895,6 @@ snapshots:
       p-event: 6.0.1
       type-fest: 4.41.0
       web-worker: 1.5.0
-
-  mapped-disposable@1.0.3: {}
 
   markdown-table@3.0.4: {}
 
