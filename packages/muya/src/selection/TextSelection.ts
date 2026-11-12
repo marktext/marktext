@@ -293,6 +293,10 @@ class TextSelection {
             const { anchor, focus, isSelectionInSameBlock } = selection;
 
             if (isSelectionInSameBlock) {
+                // A drag that strayed into another block and came back must not
+                // have that stale range re-applied on mouseup.
+                if (type === 'mousemove')
+                    this._selectInfo.selection = null;
                 return;
             }
 
