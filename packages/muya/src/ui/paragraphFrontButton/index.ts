@@ -61,6 +61,7 @@ export class ParagraphFrontButton {
     private _container: HTMLDivElement = document.createElement('div');
     private _iconWrapper: HTMLDivElement = document.createElement('div');
     private _cleanup: (() => void) | null = null;
+    private _cancelHover: (() => void) | null = null;
     private _dragTimer: ReturnType<typeof setTimeout> | null = null;
     private _dragInfo: {
         block: Parent;
@@ -111,11 +112,9 @@ export class ParagraphFrontButton {
     listen() {
         const { _container: container } = this;
         const { eventCenter } = this.muya;
-        let scrollVersion = 0;
 
-        const mousemoveHandler = throttle((event: Event, version: number) => {
-            // A trailing hover from before the scroll must not reopen the handle.
-            if (this._disableListen || version !== scrollVersion)
+        const mousemoveHandler = throttle((event: Event) => {
+            if (this._disableListen)
                 return;
             if (!isMouseEvent(event))
                 return;
@@ -138,11 +137,12 @@ export class ParagraphFrontButton {
                 this.hide();
             }
         }, 300);
+        this._cancelHover = mousemoveHandler.cancel;
 
         const scrollHandler = (event: Event) => {
             const { target } = event;
             if (target === document || (target instanceof Element && target.contains(this.muya.domNode))) {
-                scrollVersion++;
+                mousemoveHandler.cancel();
                 this.hide();
             }
         };
@@ -165,7 +165,7 @@ export class ParagraphFrontButton {
         });
         eventCenter.attachDOMEvent(container, 'mousedown', this._dragBarMouseDown);
         eventCenter.attachDOMEvent(container, 'mouseup', this._dragBarMouseUp);
-        eventCenter.attachDOMEvent(document, 'mousemove', event => mousemoveHandler(event, scrollVersion));
+        eventCenter.attachDOMEvent(document, 'mousemove', mousemoveHandler);
         eventCenter.attachDOMEvent(document, 'scroll', scrollHandler, { capture: true, passive: true });
         eventCenter.attachDOMEvent(container, 'click', clickHandler);
     }
@@ -479,6 +479,8 @@ export class ParagraphFrontButton {
     }
 
     destroy() {
+        this._cancelHover?.();
+        this._cancelHover = null;
         this._cancelDrag();
         this.muya.eventCenter.off('read-only-changed', this._syncReadOnly);
         if (this._container && this._resizeObserver)
