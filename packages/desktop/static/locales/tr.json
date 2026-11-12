@@ -357,6 +357,7 @@
     "headerFooter": {
       "allowStyled": "Stilli metne izin ver",
       "customizeStyle": "Stili özelleştir",
+      "customizeFontSize": "Customize font size",
       "fontSize": "Yazı tipi boyutu",
       "footerType": "Alt bilgi türü",
       "headerType": "Üst bilgi türü",
@@ -367,6 +368,8 @@
       "mainHeaderText": "Ana üst bilgi metni",
       "rightFooterText": "Sağ alt bilgi metni",
       "rightHeaderText": "Sağ üst bilgi metni",
+      "separatorLines": "Separator lines",
+      "separatorLinesNotes": "Lines between the header or footer and the page content.",
       "description": "Üst bilgi ve/veya alt bilgi tanımlanmışsa metin tüm sayfalarda görünür."
     },
     "toc": {
@@ -391,6 +394,11 @@
         "none": "Yok",
         "singleCell": "Tek hücre",
         "threeCells": "Üç hücre"
+      },
+      "headerFooterSeparators": {
+        "theme": "Follow theme",
+        "show": "Show",
+        "hide": "Hide"
       },
       "headerFooterStyles": {
         "default": "Varsayılan",

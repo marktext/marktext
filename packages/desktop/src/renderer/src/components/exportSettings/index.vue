@@ -225,18 +225,22 @@
             :on-change="(value: unknown) => onSelectChange('footerTextRight', value)"
           />
 
+          <cur-select
+            class="header-footer-separator-select"
+            :description="t('exportSettings.headerFooter.separatorLines')"
+            :notes="t('exportSettings.headerFooter.separatorLinesNotes')"
+            :value="headerFooterSeparatorStyle"
+            :options="headerFooterSeparatorStyles"
+            :on-change="(value: unknown) => onSelectChange('headerFooterSeparatorStyle', value)"
+          />
+
           <bool
-            :description="t('exportSettings.headerFooter.customizeStyle')"
+            :description="t('exportSettings.headerFooter.customizeFontSize')"
             :bool="headerFooterCustomize"
             :on-change="(value: unknown) => onSelectChange('headerFooterCustomize', value)"
           />
 
           <div v-if="headerFooterCustomize">
-            <bool
-              :description="t('exportSettings.headerFooter.allowStyled')"
-              :bool="headerFooterStyled"
-              :on-change="(value: unknown) => onSelectChange('headerFooterStyled', value)"
-            />
             <range
               :description="t('exportSettings.headerFooter.fontSize')"
               :value="headerFooterFontSize"
@@ -285,13 +289,24 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, type Ref } from 'vue'
 import bus from '../../bus'
-import { loadExportSettings, saveExportSettings } from './persistence'
+import {
+  headerFooterStyledFor,
+  loadExportSettings,
+  resolveHeaderFooterSeparatorStyle,
+  saveExportSettings,
+  type HeaderFooterSeparatorStyle
+} from './persistence'
 import Bool from '@/prefComponents/common/bool/index.vue'
 import CurSelect from '@/prefComponents/common/select/index.vue'
 import FontTextBox from '@/prefComponents/common/fontTextBox/index.vue'
 import Range from '@/prefComponents/common/range/index.vue'
 import TextBox from '@/prefComponents/common/textBox/index.vue'
-import { getPageSizeList, getHeaderFooterTypes, getExportThemeList } from './exportOptions'
+import {
+  getPageSizeList,
+  getHeaderFooterTypes,
+  getHeaderFooterSeparatorStyles,
+  getExportThemeList
+} from './exportOptions'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -320,6 +335,7 @@ const theme = ref('default')
 const themeList = ref(getExportThemeList())
 const pageSizeList = ref(getPageSizeList())
 const headerFooterTypes = ref(getHeaderFooterTypes())
+const headerFooterSeparatorStyles = ref(getHeaderFooterSeparatorStyles())
 const headerType = ref(0)
 const headerTextLeft = ref('')
 const headerTextCenter = ref('')
@@ -328,8 +344,8 @@ const footerType = ref(0)
 const footerTextLeft = ref('')
 const footerTextCenter = ref('')
 const footerTextRight = ref('')
+const headerFooterSeparatorStyle = ref<HeaderFooterSeparatorStyle>('theme')
 const headerFooterCustomize = ref(false)
-const headerFooterStyled = ref(true)
 const headerFooterFontSize = ref(12)
 const tocTitle = ref('')
 const tocIncludeTopHeading = ref(true)
@@ -361,8 +377,8 @@ const persistableSettings: Record<string, Ref<unknown>> = {
   footerTextLeft,
   footerTextCenter,
   footerTextRight,
+  headerFooterSeparatorStyle,
   headerFooterCustomize,
-  headerFooterStyled,
   headerFooterFontSize,
   tocTitle,
   tocIncludeTopHeading
@@ -371,8 +387,10 @@ const persistableSettings: Record<string, Ref<unknown>> = {
 const restoreExportSettings = () => {
   const saved = loadExportSettings()
   for (const [key, settingRef] of Object.entries(persistableSettings)) {
-    if (key in saved) settingRef.value = saved[key]
+    if (key === 'headerFooterSeparatorStyle') continue
+    if (Object.hasOwn(saved, key)) settingRef.value = saved[key]
   }
+  headerFooterSeparatorStyle.value = resolveHeaderFooterSeparatorStyle(saved)
 }
 
 watch(Object.values(persistableSettings), () => {
@@ -398,6 +416,7 @@ const updateTranslations = () => {
   themeList.value = getExportThemeList()
   pageSizeList.value = getPageSizeList()
   headerFooterTypes.value = getHeaderFooterTypes()
+  headerFooterSeparatorStyles.value = getHeaderFooterSeparatorStyles()
 }
 
 const showDialog = (type: unknown) => {
@@ -469,11 +488,13 @@ const handleClicked = () => {
     })
   }
 
+  const headerFooterStyled = headerFooterStyledFor(headerFooterSeparatorStyle.value)
+  if (headerFooterStyled !== undefined) {
+    options.headerFooterStyled = headerFooterStyled
+  }
+
   if (headerFooterCustomize.value) {
-    Object.assign(options, {
-      headerFooterStyled: headerFooterStyled.value,
-      headerFooterFontSize: headerFooterFontSize.value
-    })
+    options.headerFooterFontSize = headerFooterFontSize.value
   }
 
   showExportSettingsDialog.value = false
@@ -500,8 +521,8 @@ const onSelectChange = (key: string, value: unknown) => {
     footerTextLeft,
     footerTextCenter,
     footerTextRight,
+    headerFooterSeparatorStyle,
     headerFooterCustomize,
-    headerFooterStyled,
     headerFooterFontSize,
     tocIncludeTopHeading,
     tocTitle
@@ -591,6 +612,11 @@ const loadThemesFromDisk = async () => {
 }
 .print-settings-dialog .pref-select-item .el-select {
   width: 240px;
+}
+/* The 240px above is wider than the setting row's control column in this
+   dialog, so the select would overflow and be clipped by the pane. */
+.print-settings-dialog .header-footer-separator-select.pref-select-item .el-select {
+  width: 100%;
 }
 .print-settings-dialog .el-tabs__content {
   max-height: 350px;
