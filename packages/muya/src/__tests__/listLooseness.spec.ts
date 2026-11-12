@@ -136,6 +136,45 @@ describe('list looseness across editing and history', () => {
         expectLoose(muya, true);
     });
 
+    describe('delete on an empty list item', () => {
+        // `EMPTY` marks the line to clear: an empty `-` line under text would
+        // parse as a setext underline.
+        function deleteOnEmptyLine(markdown: string) {
+            const muya = boot(markdown);
+            let target = muya.editor.scrollPage!.firstContentInDescendant()!;
+            while (target.text !== 'EMPTY')
+                target = target.nextContentInContext()!;
+            target.text = '';
+            target.setCursor(0, 0, true);
+            muya.flush();
+            muya.editor.history.cutoff();
+            target.deleteHandler(new KeyboardEvent('keydown', { key: 'Delete' }));
+            muya.flush();
+            const { anchorBlock, anchor } = muya.editor.selection;
+            return { muya, markdown: muya.getMarkdown(), caret: [anchorBlock!.text, anchor!.offset] };
+        }
+
+        it.each([
+            ['keeps the next line at its own depth', '- a\n  - x\n  - EMPTY\n- b\n', '- a\n  - x\n- b\n', ['b', 0]],
+            ['moves to the next sibling', '- a\n- EMPTY\n- b\n  - c\n', '- a\n- b\n  - c\n', ['b', 0]],
+            ['lifts its children into its place', '- a\n- EMPTY\n  - c\n  - d\n- e\n', '- a\n- c\n- d\n- e\n', ['c', 0]],
+            ['moves to the block after the list', '- a\n- EMPTY\n\n# H\n', '- a\n\n# H\n', ['# H', 0]],
+            ['falls back to the previous line at the end of the document', '- a\n  - b\n- EMPTY\n', '- a\n  - b\n', ['b', 1]],
+        ])('%s', (_name, markdown, expected, caret) => {
+            const result = deleteOnEmptyLine(markdown);
+            expect(result.markdown).toBe(expected);
+            expect(result.caret).toEqual(caret);
+            expectLoose(result.muya, false);
+        });
+
+        it('undoes in one step', () => {
+            const { muya } = deleteOnEmptyLine('- a\n- EMPTY\n  - c\n- b\n');
+            expect(muya.getMarkdown()).toBe('- a\n- c\n- b\n');
+            muya.undo();
+            expect(muya.getMarkdown()).toBe('- a\n- \n  - c\n- b\n');
+        });
+    });
+
     it('rechecks a new paragraph when typing starts in a later transaction', () => {
         const muya = boot('- a\n- c\n');
         parentAt(muya, [0, 'children', 1]).firstContentInDescendant()!.setCursor(1, 1, true);
