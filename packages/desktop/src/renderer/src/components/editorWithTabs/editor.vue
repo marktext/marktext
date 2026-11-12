@@ -112,7 +112,8 @@ import {
   type IMuyaOptions,
   type IReplaceOption,
   type ISearchOption,
-  type ISerializedHistory
+  type ISerializedHistory,
+  type IHeadingFoldState
 } from '@muyajs/core'
 import { getMuyaLocale } from '@/util/muyaLocale'
 import { createMuyaShortcutResolvers } from '@/util/muyaShortcuts'
@@ -283,6 +284,16 @@ let scrollHandler: ((e: Event) => void) | null = null
 // Keep engine undo history per tab; the store uses a separate save-tracking history shape.
 const engineHistoryByTab = new Map<string, ISerializedHistory>()
 
+const headingFoldsByTab = new Map<string, { markdown: string; folds: IHeadingFoldState[] }>()
+
+const captureHeadingFolds = (): void => {
+  if (!editor.value || !renderedDocumentId || !tabs.value.some(tab => tab.id === renderedDocumentId)) return
+  headingFoldsByTab.set(renderedDocumentId, {
+    markdown: editor.value.getMarkdown(),
+    folds: editor.value.getHeadingFoldState()
+  })
+}
+
 // Capture the WYSIWYG caret before source mode moves DOM focus into CodeMirror.
 let preSourceModeSelection: TSelectionState | null = null
 
@@ -312,6 +323,9 @@ const pruneClosedTabState = (liveTabIds: Set<string>): void => {
   }
   for (const id of syntheticHistoryByTab.keys()) {
     if (!liveTabIds.has(id)) syntheticHistoryByTab.delete(id)
+  }
+  for (const id of headingFoldsByTab.keys()) {
+    if (!liveTabIds.has(id)) headingFoldsByTab.delete(id)
   }
 }
 
@@ -1449,6 +1463,7 @@ interface FileLoadedPayload {
 const setMarkdownToEditor = (payload: unknown) => {
   const { id, markdown: newMarkdown, cursor: newCursor } = (payload ?? {}) as FileLoadedPayload
   if (editor.value) {
+    captureHeadingFolds()
     // `setContent` resets the document and clears the undo history; only set a
     // cursor afterwards (a freshly-opened file has no history to restore).
     editor.value.setContent(newMarkdown ?? '')
@@ -1506,6 +1521,7 @@ const handleFileChange = (payload: unknown) => {
   if (!container) return
 
   if (typeof newMarkdown === 'string') {
+    captureHeadingFolds()
     // Returning from source-code mode: the WYSIWYG engine is never unmounted
     // while source mode is up (index.vue overlays it via `v-if`), so it still
     // holds the PRE-source-mode document and undo history. Record the bulk
@@ -1583,6 +1599,11 @@ const handleFileChange = (payload: unknown) => {
       // Seed new trackers before edits; retain existing content IDs when switching back to a tab.
       if (id) {
         getSyntheticHistory(id, editor.value.getMarkdown())
+      }
+      const savedFolds = id ? headingFoldsByTab.get(id) : undefined
+      // Paths are valid only for the captured document, including after source edits or disk reloads.
+      if (savedFolds?.markdown === editor.value.getMarkdown()) {
+        editor.value.setHeadingFoldState(savedFolds.folds)
       }
     }
   } else if (newCursor) {
