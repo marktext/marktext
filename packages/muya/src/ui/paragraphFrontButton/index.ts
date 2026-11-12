@@ -111,13 +111,11 @@ export class ParagraphFrontButton {
     listen() {
         const { _container: container } = this;
         const { eventCenter } = this.muya;
+        let scrollVersion = 0;
 
-        // attachDOMEvent's listener is typed as `EventListener` ((evt:
-        // Event) => void). Take Event and narrow with the `isMouseEvent`
-        // guard — same pattern as `mouseMove` below — rather than casting
-        // the wrapper to EventListener (which would hide a real mismatch).
-        const mousemoveHandler = throttle((event: Event) => {
-            if (this._disableListen)
+        const mousemoveHandler = throttle((event: Event, version: number) => {
+            // A trailing hover from before the scroll must not reopen the handle.
+            if (this._disableListen || version !== scrollVersion)
                 return;
             if (!isMouseEvent(event))
                 return;
@@ -141,6 +139,14 @@ export class ParagraphFrontButton {
             }
         }, 300);
 
+        const scrollHandler = (event: Event) => {
+            const { target } = event;
+            if (target === document || (target instanceof Element && target.contains(this.muya.domNode))) {
+                scrollVersion++;
+                this.hide();
+            }
+        };
+
         const clickHandler = () => {
             if (this.muya.isReadOnly)
                 return;
@@ -159,7 +165,8 @@ export class ParagraphFrontButton {
         });
         eventCenter.attachDOMEvent(container, 'mousedown', this._dragBarMouseDown);
         eventCenter.attachDOMEvent(container, 'mouseup', this._dragBarMouseUp);
-        eventCenter.attachDOMEvent(document, 'mousemove', mousemoveHandler);
+        eventCenter.attachDOMEvent(document, 'mousemove', event => mousemoveHandler(event, scrollVersion));
+        eventCenter.attachDOMEvent(document, 'scroll', scrollHandler, { capture: true, passive: true });
         eventCenter.attachDOMEvent(container, 'click', clickHandler);
     }
 
@@ -464,7 +471,8 @@ export class ParagraphFrontButton {
         };
 
         updatePosition();
-        this._cleanup = autoUpdate(domNode!, floatBox, updatePosition);
+        // Scrolling dismisses the handle instead of repositioning it on every frame (#6050).
+        this._cleanup = autoUpdate(domNode!, floatBox, updatePosition, { ancestorScroll: false });
 
         this._status = true;
         eventCenter.emit('muya-float-button', this, true);
