@@ -26,18 +26,6 @@ declare module 'codemirror/mode/*'
 declare module 'codemirror/addon/*'
 declare module 'webfontloader'
 
-declare module '@marktext/file-icons' {
-  interface FileIcon {
-    getClass(colourMode?: number, asObject?: boolean): string
-  }
-  interface FileIcons {
-    matchName(name: string): FileIcon | null
-    matchLanguage(lang: string): FileIcon | null
-  }
-  const fileIcons: FileIcons
-  export default fileIcons
-}
-
 // Electron augments `process` with `resourcesPath` (and a few other fields)
 // at runtime. Surface them so common/* code can read them without casts.
 declare namespace NodeJS {
