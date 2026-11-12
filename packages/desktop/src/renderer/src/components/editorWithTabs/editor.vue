@@ -1115,8 +1115,7 @@ const getCursorY = (): number | null => {
 // Only the slug-to-element pairing is cached. Positions are not: typing body
 // text moves every later heading without changing the TOC, so a stored offset
 // is stale within a keystroke and the highlight lands a section ahead.
-interface CachedHeading {
-  slug: string
+interface CachedHeading extends HeadingPosition {
   el: HTMLElement
 }
 
@@ -1133,28 +1132,27 @@ const rebuildHeadingCache = (): void => {
     .map((item, index) => {
       const el = headingEls[index] as HTMLElement | undefined
       if (!el || typeof item.slug !== 'string') return null
-      return { slug: item.slug, el }
+      return {
+        slug: item.slug,
+        el,
+        get top() {
+          if (el.getClientRects().length === 0) return null
+          // Fractional caret positions must be compared with unrounded heading positions.
+          return el.getBoundingClientRect().top
+        }
+      }
     })
     .filter((entry): entry is CachedHeading => entry != null)
 }
 
-// Measured with `getBoundingClientRect`, not `offsetTop`: the caret's position
-// is fractional, and rounding the headings to whole pixels reports the one the
-// caret sits in as the heading above it.
 const updateActiveHeading = (viewportY: number): void => {
-  // Locale and view restoration can rebuild blocks without a content-change event.
-  if (editor.value && headingElementCache.some(({ el }) => !el.isConnected)) {
+  // Locale and view restoration replace the whole block tree without a content-change event.
+  if (editor.value && headingElementCache.length > 0 && !headingElementCache[0].el.isConnected) {
     editorStore.REFRESH_TOC(editor.value.getTOC())
     rebuildHeadingCache()
   }
   if (headingElementCache.length === 0) return
-  const positions: HeadingPosition[] = headingElementCache
-    .filter(({ el }) => el.getClientRects().length > 0)
-    .map(({ slug, el }) => ({
-      slug,
-      top: el.getBoundingClientRect().top
-    }))
-  if (positions.length) editorStore.SET_ACTIVE_HEADING(findActiveHeadingSlug(positions, viewportY))
+  editorStore.SET_ACTIVE_HEADING(findActiveHeadingSlug(headingElementCache, viewportY))
 }
 
 let revealingAnchor = false
