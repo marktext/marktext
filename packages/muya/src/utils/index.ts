@@ -102,10 +102,11 @@ export function union({ start: tStart, end: tEnd }: IUnion, { start: lStart, end
 }
 
 // Adapted from https://github.com/jashkenas/underscore.
+// cancel() discards pending input and lets the next call run immediately.
 export function throttle<TArgs extends unknown[], TReturn>(
     func: (...args: TArgs) => TReturn,
     wait = 50,
-): (...args: TArgs) => TReturn | undefined {
+): ((...args: TArgs) => TReturn | undefined) & { cancel: () => void } {
     let context: unknown;
     let pendingArgs: TArgs | null = null;
     let result: TReturn | undefined;
@@ -126,7 +127,7 @@ export function throttle<TArgs extends unknown[], TReturn>(
         }
     };
 
-    return function (this: unknown, ...callArgs: TArgs): TReturn | undefined {
+    const throttled = function (this: unknown, ...callArgs: TArgs): TReturn | undefined {
         const now = Date.now();
         const remaining = wait - (now - previous);
 
@@ -151,6 +152,17 @@ export function throttle<TArgs extends unknown[], TReturn>(
 
         return result;
     };
+
+    throttled.cancel = () => {
+        if (timeout)
+            clearTimeout(timeout);
+        timeout = null;
+        previous = 0;
+        context = null;
+        pendingArgs = null;
+    };
+
+    return throttled;
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
