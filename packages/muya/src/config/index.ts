@@ -351,6 +351,7 @@ export const MUYA_DEFAULT_OPTIONS = {
     spellcheckHideMarks: false,
     // Markdown extensions
     frontMatter: true, // Whether to support frontmatter.
+    cjkEmphasis: true,
     superSubScript: true,
     footnote: false,
     // pandoc's `tex_math_dollars`: `$…$` and `$$…$$`.

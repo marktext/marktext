@@ -1,28 +1,14 @@
 import type { MarkedExtension, Token, Tokens } from 'marked';
 import type { IDelimiterRun, IDelimiterSpan } from '../../delimiters';
 import { Lexer, Tokenizer } from 'marked';
-import { codePointBefore, codePointCharAt, pairDelimiters } from '../../delimiters';
-import { CJK_CHARACTER, UNICODE_PUNCTUATION, UNICODE_WHITESPACE } from '../../inlineCharacters';
+import { codePointBefore, codePointCharAt, delimiterFlanking, isCjkLabelCloser, pairDelimiters } from '../../delimiters';
 
 interface IBoundaryChars {
     before: string;
     after: string;
 }
 
-function flanking(char: string, before: string, after: string) {
-    const beforeWhitespace = UNICODE_WHITESPACE.test(before);
-    const afterWhitespace = UNICODE_WHITESPACE.test(after);
-    const beforePunctuation = UNICODE_PUNCTUATION.test(before) || CJK_CHARACTER.test(before);
-    const afterPunctuation = UNICODE_PUNCTUATION.test(after) || CJK_CHARACTER.test(after);
-    const leftFlanking = !afterWhitespace && (!afterPunctuation || beforeWhitespace || beforePunctuation);
-    const rightFlanking = !beforeWhitespace && (!beforePunctuation || afterWhitespace || afterPunctuation);
-    return {
-        canOpen: leftFlanking && (char !== '_' || !rightFlanking || beforePunctuation),
-        canClose: rightFlanking && (char !== '_' || !leftFlanking || afterPunctuation),
-    };
-}
-
-function collectRuns(src: string, boundaries: IBoundaryChars, gfm: boolean): IDelimiterRun[] {
+function collectRuns(src: string, boundaries: IBoundaryChars, gfm: boolean, cjkEmphasis: boolean): IDelimiterRun[] {
     const runs: IDelimiterRun[] = [];
     let i = 0;
     while (i < src.length) {
@@ -40,13 +26,15 @@ function collectRuns(src: string, boundaries: IBoundaryChars, gfm: boolean): IDe
 
         const before = codePointBefore(src, start) || boundaries.before;
         const after = codePointCharAt(src, i) ?? boundaries.after;
+        const flags = delimiterFlanking(char, before, after, cjkEmphasis);
 
         runs.push({
             char,
             length: i - start,
             left: start,
             right: i,
-            ...flanking(char, before, after),
+            ...flags,
+            canClose: flags.canClose || (cjkEmphasis && isCjkLabelCloser(src, start, i)),
         });
     }
     return runs;
@@ -88,7 +76,7 @@ function sliceText<ParserOutput, RendererOutput>(token: Tokens.Text, start: numb
     return { ...token, raw, text: token.escaped ? raw : decodeText(raw, lexer) };
 }
 
-function applyDelimiters<ParserOutput, RendererOutput>(tokens: Token[], lexer: Lexer<ParserOutput, RendererOutput>, boundaries: IBoundaryChars, processed: WeakSet<Token[]>): void {
+function applyDelimiters<ParserOutput, RendererOutput>(tokens: Token[], lexer: Lexer<ParserOutput, RendererOutput>, boundaries: IBoundaryChars, processed: WeakSet<Token[]>, cjkEmphasis: boolean): void {
     if (processed.has(tokens))
         return;
     processed.add(tokens);
@@ -101,7 +89,7 @@ function applyDelimiters<ParserOutput, RendererOutput>(tokens: Token[], lexer: L
     // Only actual parsed tokens shield delimiters; Marked's preliminary HTML/link mask also matches invalid syntax.
     // GFM autolinks retain interior delimiters as part of their destination (§6.9).
     const masked = tokens.map(token => isPlainText(token) ? token.raw : token.raw.replace(/[*_~]/g, '+')).join('');
-    const spans = pairDelimiters(collectRuns(masked, boundaries, gfm));
+    const spans = pairDelimiters(collectRuns(masked, boundaries, gfm, cjkEmphasis));
     if (!spans.size)
         return;
 
@@ -155,7 +143,7 @@ function applyDelimiters<ParserOutput, RendererOutput>(tokens: Token[], lexer: L
         tokens.push(token);
 }
 
-export default function inlineDelimitersExtension(): MarkedExtension {
+export default function inlineDelimitersExtension(cjkEmphasis = true): MarkedExtension {
     const boundaries = new WeakMap<Lexer<unknown, unknown>, IBoundaryChars>();
     const processed = new WeakSet<Token[]>();
     const withLabelEdges = <T, ParserOutput, RendererOutput>(lexer: Lexer<ParserOutput, RendererOutput>, tokenize: () => T): T => {
@@ -215,7 +203,7 @@ export default function inlineDelimitersExtension(): MarkedExtension {
                                 : undefined);
                         }
                     }
-                    applyDelimiters(scope, lexer, edges, processed);
+                    applyDelimiters(scope, lexer, edges, processed, cjkEmphasis);
                 };
                 // Extensions may lex new inline scopes in their own processAllTokens hooks.
                 visit(tokens);
@@ -231,7 +219,7 @@ export default function inlineDelimitersExtension(): MarkedExtension {
                         boundaries.delete(lexer);
                         const parsed = inlineTokens(source, tokens);
                         if (!options?.pedantic)
-                            applyDelimiters(parsed, lexer, edges, processed);
+                            applyDelimiters(parsed, lexer, edges, processed, cjkEmphasis);
                         return parsed;
                     };
                     return block ? lexer.lex(source) : lexer.inlineTokens(source);

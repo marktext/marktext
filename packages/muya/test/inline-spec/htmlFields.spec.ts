@@ -1,7 +1,7 @@
-import type { HTMLTagToken, Token } from '../../src/inlineRenderer/model/types';
+import type { HTMLTagToken, Token } from '../../src/inline/model/types';
 import type { IInlineExample } from './fixtures';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import * as lexer from '../../src/inlineRenderer/lexer';
+import * as lexer from '../../src/inline/lexer';
 import { audit, fingerprint } from './audit';
 import { htmlSemantics, tokensToHtml } from './semantics';
 

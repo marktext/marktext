@@ -356,23 +356,23 @@ describe('selection indentation', () => {
     });
 
     it('retains the start number of the remaining ordered tail when outdenting', () => {
-        const markdown = '- a\n  5. b\n  6. c\n  7. d\n';
+        const markdown = '- a\n\n  5. b\n  6. c\n  7. d\n';
         const muya = boot(markdown);
         select(muya, content(muya, 'b'), 0, content(muya, 'd'), 0);
         tab(content(muya, 'b'), true);
-        expect(muya.getMarkdown()).toBe('- a\n- b\n- c\n  7. d\n');
+        expect(muya.getMarkdown()).toBe('- a\n\n- b\n\n- c\n\n  7. d\n');
         muya.undo();
         expect(muya.getMarkdown()).toBe(markdown);
         muya.redo();
-        expect(muya.getMarkdown()).toBe('- a\n- b\n- c\n  7. d\n');
+        expect(muya.getMarkdown()).toBe('- a\n\n- b\n\n- c\n\n  7. d\n');
     });
 
     it('starts a lifted ordered task run at the selected item number', () => {
-        const markdown = '- a\n  5. [ ] b\n  6. [x] c\n  7. [ ] d\n';
+        const markdown = '- a\n\n  5. [ ] b\n  6. [x] c\n  7. [ ] d\n';
         const muya = boot(markdown);
         select(muya, content(muya, 'c'), 0, content(muya, 'd'), 0);
         tab(content(muya, 'c'), true);
-        expect(muya.getMarkdown()).toBe('- a\n  5. [ ] b\n6. [x] c\n   7. [ ] d\n');
+        expect(muya.getMarkdown()).toBe('- a\n\n  5. [ ] b\n6. [x] c\n\n   7. [ ] d\n');
         muya.undo();
         expect(muya.getMarkdown()).toBe(markdown);
     });

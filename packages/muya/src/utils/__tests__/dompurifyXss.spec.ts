@@ -16,7 +16,7 @@ const EXPORT_CONFIG: Config = EXPORT_DOMPURIFY_CONFIG;
 //   selector = BLOCK_TYPE6.includes(tag) || !sanitize(`<${tag}>`) ? 'span' : tag
 //
 // The new repo keeps this gate at
-// `inlineRenderer/renderer/htmlTag.ts:80-82` and per-attribute filtering
+// `inline/renderer/htmlTag.ts:80-82` and per-attribute filtering
 // at `:110` via `isValidAttribute`. Both depend on DOMPurify's defaults:
 // these tests lock the contracts the renderer relies on so a future
 // DOMPurify upgrade or config change can't silently re-open the gap.

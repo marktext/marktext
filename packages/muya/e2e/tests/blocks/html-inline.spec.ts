@@ -3,7 +3,7 @@ import { editor } from '../helpers/selectors';
 
 /**
  * Inline HTML tags (`<u>`, `<mark>`, `<sup>`, `<sub>`, `<ruby>`) render via
- * `inlineRenderer/renderer/htmlTag.ts`: each tag becomes an actual element
+ * `inline/renderer/htmlTag.ts`: each tag becomes an actual element
  * wrapped with `.mu-inline-rule.mu-raw-html`. We assert:
  *   - The tag renders inline (an element with the right tagName mounts).
  *   - getMarkdown round-trips the literal tag text.

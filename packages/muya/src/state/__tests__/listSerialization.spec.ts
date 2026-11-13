@@ -114,34 +114,34 @@ function bulletParent(nested: IBulletListState): TState[] {
 }
 
 describe('stateToMarkdown — nested empty list items', () => {
-    it('uses an alternate nested marker instead of making a tight list loose', () => {
+    it('separates an empty nested list from the preceding paragraph', () => {
         const nested = bulletList('-', [emptyListItem(), emptyListItem()]);
         const out = serializeState(bulletParent(nested));
-        expect(out).toBe('- a\n  * \n  * \n');
+        expect(out).toBe('- a\n\n  - \n  - \n');
         expect(nested.meta.marker).toBe('-');
 
         const reparsed = parseMarkdown(out);
         const outer = reparsed[0] as IBulletListState;
         expect(outer.name).toBe('bullet-list');
-        expect(outer.meta.loose).toBe(false);
+        expect(outer.meta.loose).toBe(true);
         expect(outer.children[0].children[0]).toEqual({ name: 'paragraph', text: 'a' });
         const reparsedNested = firstNestedBulletList(outer);
-        expect(reparsedNested.meta.marker).toBe('*');
+        expect(reparsedNested.meta.marker).toBe('-');
         expect(reparsedNested.children).toHaveLength(2);
         expect(serializeState(reparsed)).toBe(out);
     });
 
-    it('uses the same safe marker under ordered and task-list parents', () => {
+    it('separates empty nested lists under ordered and task-list parents', () => {
         const orderedStates: TState[] = [{
             name: 'order-list',
             meta: { start: 1, loose: false, delimiter: '.' },
             children: [listItem([paragraph('a'), bulletList('-', [emptyListItem(), emptyListItem()])])],
         }];
         const orderedOut = serializeState(orderedStates);
-        expect(orderedOut).toBe('1. a\n   * \n   * \n');
+        expect(orderedOut).toBe('1. a\n\n   - \n   - \n');
         const ordered = parseMarkdown(orderedOut)[0] as IOrderListState;
         expect(ordered.name).toBe('order-list');
-        expect(ordered.meta.loose).toBe(false);
+        expect(ordered.meta.loose).toBe(true);
         expect(firstNestedBulletList(ordered).children).toHaveLength(2);
 
         const taskStates: TState[] = [{
@@ -150,10 +150,10 @@ describe('stateToMarkdown — nested empty list items', () => {
             children: [taskListItem([paragraph('a'), bulletList('-', [emptyListItem(), emptyListItem()])])],
         }];
         const taskOut = serializeState(taskStates);
-        expect(taskOut).toBe('- [ ] a\n  * \n  * \n');
+        expect(taskOut).toBe('- [ ] a\n\n  - \n  - \n');
         const task = parseMarkdown(taskOut)[0] as ITaskListState;
         expect(task.name).toBe('task-list');
-        expect(task.meta.loose).toBe(false);
+        expect(task.meta.loose).toBe(true);
         expect(firstNestedBulletList(task).children).toHaveLength(2);
     });
 
@@ -162,7 +162,7 @@ describe('stateToMarkdown — nested empty list items', () => {
             emptyListItem(),
             listItem([paragraph('b')]),
         ])));
-        expect(out).toBe('- a\n  * \n  * b\n');
+        expect(out).toBe('- a\n\n  - \n  - b\n');
         const outer = parseMarkdown(out)[0] as IBulletListState;
         const nested = firstNestedBulletList(outer);
         expect(nested.children).toHaveLength(2);
@@ -210,7 +210,7 @@ describe('stateToMarkdown — nested empty list items', () => {
 // `listIndentation = 1|2|3|4` option once the bug was fixed. The new muya's
 // stateToMarkdown.ts already implements the split between "subsequent
 // paragraph indent" (marker width) and "nested list indent" (configurable),
-// so this round-trips the same fixtures end-to-end.
+// Nested ordered lists start at 1 so they can interrupt the preceding paragraph.
 describe('stateToMarkdown — list indentation round-trip (marktext 02841ffd)', () => {
     it('indent by 1 space — round-trips marktext fixture', () => {
         const md = `start
@@ -234,9 +234,9 @@ sep
       1. foo
    3. foo
 3. foo
-   20. foo
-       141. foo
-            1. foo
+   1. foo
+      1. foo
+         1. foo
 `;
         expect(roundTrip(md, 1)).toBe(md);
     });
@@ -263,9 +263,9 @@ sep
         1. foo
     3. foo
 3. foo
-    20. foo
-         141. foo
-               1. foo
+    1. foo
+        1. foo
+            1. foo
 `;
         expect(roundTrip(md, 2)).toBe(md);
     });
@@ -292,9 +292,9 @@ sep
           1. foo
      3. foo
 3. foo
-     20. foo
-           141. foo
-                  1. foo
+     1. foo
+          1. foo
+               1. foo
 `;
         expect(roundTrip(md, 3)).toBe(md);
     });
@@ -403,9 +403,9 @@ sep
             1. foo
       3. foo
 3. foo
-      20. foo
-             141. foo
-                     1. foo
+      1. foo
+            1. foo
+                  1. foo
 `;
         expect(roundTrip(md, 4)).toBe(md);
     });
@@ -435,8 +435,8 @@ sep
         1. foo
     3. foo
 3. foo
-    20. foo
-        99. foo
+    1. foo
+        1. foo
             1. foo
 `;
         expect(roundTrip(md, 'dfm')).toBe(md);

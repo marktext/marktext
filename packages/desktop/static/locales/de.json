@@ -682,6 +682,8 @@
         "title": "Verschiedenes"
       },
       "compatibility": {
+        "cjkEmphasis": "CJK-Hervorhebungskompatibilität",
+        "cjkEmphasisNote": "Lockert Hervorhebungsgrenzen für chinesischen, japanischen und koreanischen Text und fette Beschriftungen mit abschließendem ：. Dies ist eine CommonMark-Syntaxerweiterung.",
         "enableHtml": "HTML-Unterstützung aktivieren",
         "softNewlineAsSpace": "Weiche Zeilenumbrüche als Leerzeichen behandeln",
         "title": "Kompatibilität"

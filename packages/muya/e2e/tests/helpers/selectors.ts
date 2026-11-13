@@ -24,7 +24,7 @@ export const editor = {
     setextHeading: '.mu-setext-heading',
     // A Shift+Enter soft line break inside a Format leaf renders as a
     // `<span.mu-soft-line-break>` wrapping a literal `\n`. Source of truth:
-    // packages/muya/src/inlineRenderer/renderer/softLineBreak.ts +
+    // packages/muya/src/inline/renderer/softLineBreak.ts +
     // CLASS_NAMES.MU_SOFT_LINE_BREAK in packages/muya/src/config/index.ts.
     softLineBreak: '.mu-soft-line-break',
     hardLineBreak: '.mu-hard-line-break',
@@ -77,7 +77,7 @@ export const editor = {
     image: '.mu-inline-image',
     // Inline image placeholder rendered when the image has no resolvable src
     // (e.g. `![]()` / `![alt]()`). Source of truth:
-    // packages/muya/src/inlineRenderer/renderer/image.ts (the `else` branch
+    // packages/muya/src/inline/renderer/image.ts (the `else` branch
     // appends CLASS_NAMES.MU_EMPTY_IMAGE → `mu-empty-image`). Clicking it emits
     // `muya-image-selector` (selection/ImageSelection.ts) which opens the
     // ImageEditTool float.

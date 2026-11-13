@@ -76,7 +76,7 @@ describe('image resource ownership', () => {
             next.resolve({ url: 'late', width: 10, height: 10 });
             await next.promise;
             await Promise.resolve();
-            expect(muya.editor.inlineRenderer.renderer.images.size).toBe(0);
+            expect(muya.editor.inlineEngine.renderer.images.size).toBe(0);
         }
         finally {
             muya.destroy();
@@ -113,7 +113,7 @@ it('automatically removes pending subscriptions when the document is rebuilt', a
     const muya = new Muya(host, { markdown: '![old](https://example.com/old.png)' });
     muya.init();
     try {
-        const mounts = muya.editor.inlineRenderer.renderer.mounts;
+        const mounts = muya.editor.inlineEngine.renderer.mounts;
         await vi.waitFor(() => expect(mounts.size).toBe(1));
         muya.setContent('replacement');
         await vi.waitFor(() => expect(mounts.size).toBe(0));

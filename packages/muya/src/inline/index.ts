@@ -11,9 +11,9 @@ import { getReferenceDefinition, ReferenceDefinitionIndex } from './referenceDef
 import Renderer from './renderer';
 import { ImageMounts } from './resources/imageMounts';
 
-const debug = logger('inlineRenderer:');
+const debug = logger('inlineEngine:');
 
-class InlineRenderer {
+class InlineEngine {
     private _labels: Labels = new Map();
 
     get labels(): Labels {
@@ -92,4 +92,4 @@ class InlineRenderer {
     }
 }
 
-export default InlineRenderer;
+export default InlineEngine;

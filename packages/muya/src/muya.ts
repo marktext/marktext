@@ -1,5 +1,6 @@
 import type Content from './block/base/content';
 import type Parent from './block/base/parent';
+import type { IHeadingFoldState } from './block/folding';
 import type { Listener, TEventListener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { IReplaceOption, ISearchOption } from './search/types';
@@ -10,7 +11,7 @@ import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TS
 import type { IMuyaOptions, Nullable } from './types';
 import Format from './block/base/format';
 import { canTurnInto, insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './block/blockTransforms';
-import { revealBlock } from './block/folding';
+import { getHeadingFoldState, revealBlock, setHeadingFoldState } from './block/folding';
 import { canConvertGithubAlert, convertGithubAlert } from './block/githubAlerts';
 import { ScrollPage } from './block/scrollPage';
 import emptyStates from './config/emptyStates';
@@ -303,6 +304,17 @@ export class Muya {
 
     getTOC(): ITocItem[] {
         return this.editor.jsonState.getTOC();
+    }
+
+    /** Capture transient section folds before switching documents. */
+    getHeadingFoldState(): IHeadingFoldState[] {
+        return this.editor.scrollPage ? getHeadingFoldState(this.editor.scrollPage) : [];
+    }
+
+    /** Restore a snapshot only after loading the same document structure. */
+    setHeadingFoldState(state: IHeadingFoldState[]): void {
+        if (this.editor.scrollPage)
+            setHeadingFoldState(this.editor.scrollPage, state);
     }
 
     undo() {
@@ -695,7 +707,7 @@ export class Muya {
 
     /** Reload images whose files changed on disk despite cached bitmaps. */
     invalidateImageCache() {
-        this.editor.inlineRenderer.invalidateImageCache();
+        this.editor.inlineEngine.invalidateImageCache();
     }
 
     copyAsMarkdown() {
@@ -1575,7 +1587,7 @@ export class Muya {
     }
 
     destroy() {
-        this.editor.inlineRenderer.dispose();
+        this.editor.inlineEngine.dispose();
         this.editor.textDrag?.destroy();
         this.editor.selection.cancel();
         this.editor.transactions.cancel();

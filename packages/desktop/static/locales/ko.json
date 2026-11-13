@@ -682,6 +682,8 @@
         "title": "기타"
       },
       "compatibility": {
+        "cjkEmphasis": "CJK 강조 구문 호환",
+        "cjkEmphasisNote": "중국어, 일본어, 한국어 주변의 강조 경계 규칙을 완화하고 전각 콜론으로 끝나는 굵은 레이블을 지원합니다. CommonMark 구문 확장입니다.",
         "enableHtml": "HTML 지원 활성화",
         "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
         "title": "호환성"

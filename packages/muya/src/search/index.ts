@@ -1,6 +1,6 @@
 import type Content from '../block/base/content';
 import type TreeNode from '../block/base/treeNode';
-import type { IHighlight } from '../inlineRenderer/model/types';
+import type { IHighlight } from '../inline/model/types';
 import type { Muya } from '../muya';
 import type { IAnchorFocusInfo, ISelectionEndpoint, TSelectionState } from '../selection/types';
 import type { IMatch, IReplaceOption, ISearchOption } from './types';
@@ -177,9 +177,11 @@ export class Search {
         }
 
         const isActive = highlights.some(h => h.active);
-        block.update(undefined, highlights);
+        // Keep syntax at the editing caret visible, including trailing spaces (#6026).
+        const cursor = block.getCursor();
+        block.update(cursor ? { ...cursor, block } : undefined, highlights);
 
-        if (block.parent?.active && !isActive)
+        if (block.parent?.active && !isActive && !cursor)
             block.blurHandler();
 
         if (isActive) {

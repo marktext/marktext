@@ -13,7 +13,7 @@ async function selectAllOfFirstParagraph(page: Page) {
 
 // Inline strong markers (`**`) are rendered as `span.mu-remove` sibling nodes
 // either side of the `<strong.mu-inline-rule>` run. Source of truth:
-// packages/muya/src/inlineRenderer/renderer/delEmStrongFactory.ts builds
+// packages/muya/src/inline/renderer/delEmStrongFactory.ts builds
 // `span.${className}.mu-remove` where className comes from
 // Renderer#getClassName: when the caret is OUTSIDE the token the markers get
 // `mu-hide` (collapsed); when the caret is INSIDE (checkConflicted true) they

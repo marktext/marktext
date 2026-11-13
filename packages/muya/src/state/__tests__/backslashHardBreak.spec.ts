@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { describe, expect, it } from 'vitest';
-import { tokenizer } from '../../inlineRenderer/lexer';
+import { tokenizer } from '../../inline/lexer';
 import { getClipBoardHtml, getHighlightHtml } from '../../utils/marked';
 import { MarkdownToState } from '../markdownToState';
 import ExportMarkdown from '../stateToMarkdown';

@@ -36,6 +36,7 @@ export interface IMuyaOptions {
     autoCheck: boolean;
     spellcheckEnabled: boolean;
     spellcheckHideMarks: boolean;
+    cjkEmphasis: boolean;
     superSubScript: boolean;
     footnote: boolean;
     texMathDollars: boolean;

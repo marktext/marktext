@@ -73,6 +73,7 @@ export interface PreferencesState {
   tabSize: number | 'tab'
   listIndentation: number
   frontmatterType: FrontmatterType | string
+  cjkEmphasis: boolean
   superSubScript: boolean
   footnote: boolean
   texMathDollars: boolean
@@ -197,6 +198,7 @@ export const usePreferencesStore = defineStore('preferences', {
     tabSize: 4,
     listIndentation: 1,
     frontmatterType: '-',
+    cjkEmphasis: true,
     superSubScript: false,
     footnote: false,
     texMathDollars: true,

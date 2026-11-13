@@ -145,6 +145,18 @@ renders to:
 
 _rendered as italicized text_
 
+#### CJK emphasis compatibility
+
+**Preferences → Markdown → Compatibility → CJK emphasis compatibility**
+(`cjkEmphasis`) is enabled by default. It relaxes emphasis boundaries for
+Chinese, Japanese and Korean text, allowing `中文**"加粗"**中文`,
+`中文__加粗__中文` and bold labels such as `**来源：**2013年`.
+
+This is a syntax extension beyond CommonMark. Disable it to use CommonMark's
+emphasis boundaries in the editor, outline, HTML export and rich-text copying.
+The setting does not rewrite Markdown source. Standard mixed-script emphasis
+such as `a**中文**b` works in either mode.
+
 ### Links
 
 #### Autolinks

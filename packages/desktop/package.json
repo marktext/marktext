@@ -1,6 +1,6 @@
 {
   "name": "marktext",
-  "version": "0.24.0-rc.1",
+  "version": "0.24.0-rc.2",
   "description": "MarkText",
   "main": "./out/main/index.js",
   "author": {
@@ -59,7 +59,7 @@
     "@element-plus/icons-vue": "^2.3.2",
     "@intlify/core-base": "^11.4.16",
     "@jsr/std__path": "^1.1.6",
-    "@marktext/file-icons": "^1.0.6",
+    "@marktext/file-icons": "^1.1.0",
     "@muyajs/core": "workspace:*",
     "@vscode/ripgrep": "^1.18.0",
     "arg": "^5.0.2",

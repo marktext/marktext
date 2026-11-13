@@ -1,6 +1,7 @@
 import type { IInlineFeatures } from './types';
 
 const DEFAULT_FEATURES: Readonly<IInlineFeatures> = {
+    cjkEmphasis: true,
     superSubScript: true,
     footnote: false,
     texMathDollars: true,

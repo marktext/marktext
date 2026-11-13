@@ -1,28 +1,43 @@
 export interface HeadingPosition {
   slug: string
-  /** Vertical position, in the same coordinate space as the cursor. */
-  top: number
+  /** Live vertical position in the cursor's coordinate space; null for headings without client rects. */
+  top: number | null
 }
 
 /**
  * The slug of the last heading at or above `cursorTop` — the section the cursor
  * is in — or `null` when it sits above every heading.
  *
- * `headings` must be in document order, and their `top` must share a coordinate
- * space with `cursorTop`; the caller compares viewport coordinates read within
- * a single event, so no scroll arithmetic is involved.
+ * Visible headings must have nondecreasing `top` values in document order.
+ * `top` may be a getter so only probed headings need layout reads.
  */
 export function findActiveHeadingSlug(
   headings: ReadonlyArray<HeadingPosition>,
   cursorTop: number
 ): string | null {
-  if (headings.length === 0) return null
+  let low = 0
+  let high = headings.length - 1
+  let activeSlug: string | null = null
 
-  for (let i = headings.length - 1; i >= 0; i--) {
-    if (headings[i].top <= cursorTop) {
-      return headings[i].slug
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2)
+    let probe = mid
+    let top = headings[probe].top
+    // A hidden heading has no ordered position. Discard its scanned range
+    // with this iteration so it is never probed again.
+    while (top === null && probe > low) {
+      probe--
+      top = headings[probe].top
+    }
+    if (top === null) {
+      low = mid + 1
+    } else if (top <= cursorTop) {
+      activeSlug = headings[probe].slug
+      low = mid + 1
+    } else {
+      high = probe - 1
     }
   }
 
-  return null
+  return activeSlug
 }

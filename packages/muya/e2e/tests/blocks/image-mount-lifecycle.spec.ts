@@ -20,7 +20,7 @@ test('pending images survive block moves and mount after the response arrives', 
         page.firstContentInDescendant()!.parent!.insertInto(page);
         muya.flush();
     });
-    expect(await page.evaluate(() => window.muya!.editor.inlineRenderer.renderer.mounts.size)).toBe(1);
+    expect(await page.evaluate(() => window.muya!.editor.inlineEngine.renderer.mounts.size)).toBe(1);
     await route.fulfill({ contentType: 'image/png', body: ONE_PIXEL_PNG });
     const image = page.locator('.mu-image-container img');
     await expect(image).toHaveCount(1);
@@ -36,10 +36,10 @@ test('direct DOM removal and document rebuild release subscriptions before the s
     await page.evaluate(() => {
         window.muya!.domNode.querySelector('.mu-inline-image')!.remove();
     });
-    await expect.poll(() => page.evaluate(() => window.muya!.editor.inlineRenderer.renderer.mounts.size)).toBe(1);
+    await expect.poll(() => page.evaluate(() => window.muya!.editor.inlineEngine.renderer.mounts.size)).toBe(1);
     await page.evaluate(() => window.muya!.setContent('replacement'));
-    await expect.poll(() => page.evaluate(() => window.muya!.editor.inlineRenderer.renderer.mounts.size)).toBe(0);
+    await expect.poll(() => page.evaluate(() => window.muya!.editor.inlineEngine.renderer.mounts.size)).toBe(0);
     await route.fulfill({ contentType: 'image/png', body: ONE_PIXEL_PNG });
-    await expect.poll(() => page.evaluate(() => window.muya!.editor.inlineRenderer.renderer.images.get('https://example.test/pending-image.png')?.isSuccess)).toBe(true);
+    await expect.poll(() => page.evaluate(() => window.muya!.editor.inlineEngine.renderer.images.get('https://example.test/pending-image.png')?.isSuccess)).toBe(true);
     await expect(page.locator('.mu-image-container img')).toHaveCount(0);
 });

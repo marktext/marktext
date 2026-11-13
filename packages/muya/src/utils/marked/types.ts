@@ -10,6 +10,7 @@ export interface ILexOption {
     texMathSingleBackslash?: boolean;
     texMathDoubleBackslash?: boolean;
     frontMatter?: boolean;
+    cjkEmphasis?: boolean;
     superSubScript?: boolean;
     highlightSyntax?: boolean;
     inlineDiff?: boolean;

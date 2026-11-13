@@ -65,7 +65,7 @@ describe('#5767 — nested lists export without formatting whitespace', () => {
     });
 
     it('preserves ordered list starts and task checkboxes', async () => {
-        const html = await render('- parent\n  3. third\n  4. fourth\n\n- [ ] task\n  - [x] nested\n');
+        const html = await render('- parent\n\n  3. third\n  4. fourth\n\n- [ ] task\n  - [x] nested\n');
         expect(html).toContain('<ol start="3"><li>third</li><li>fourth</li></ol>');
         expect(html).toContain('<input checked="" disabled="" type="checkbox"> nested');
     });

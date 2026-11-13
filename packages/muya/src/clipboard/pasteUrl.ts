@@ -1,9 +1,9 @@
 import type Content from '../block/base/content';
-import type { Token } from '../inlineRenderer/model/types';
+import type { Token } from '../inline/model/types';
 import type { ITextSelectionState } from '../selection/types';
 import type Clipboard from './index';
-import { parseInline } from '../inlineRenderer/parser/lexer';
-import { profileForBlock } from '../inlineRenderer/parser/profiles';
+import { parseInline } from '../inline/parser/lexer';
+import { profileForBlock } from '../inline/parser/profiles';
 import { createTextSelectionState } from '../selection/state';
 import { escapeLinkAttribute } from '../utils/markdownEscape';
 import { PasteType } from './types';
@@ -87,7 +87,7 @@ export function getUrlPaste(clipboard: Clipboard, block: Content, text: string, 
         return null;
     const tokens = parseInline(block.text, {
         profile: profileForBlock(block.blockName),
-        labels: clipboard.muya.editor.inlineRenderer.labels,
+        labels: clipboard.muya.editor.inlineEngine.labels,
         options: clipboard.muya.options,
     });
     if (!safeSelection(tokens, start, end))

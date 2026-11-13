@@ -1,10 +1,10 @@
 import type { Tokens } from 'marked';
-import type { IReferenceDefinition, Labels } from '../../src/inlineRenderer/model/types';
+import type { IReferenceDefinition, Labels } from '../../src/inline/model/types';
 import type { ISpecExample } from '../spec/runner';
 // @ts-expect-error commonmark-spec has no TypeScript declaration.
 import cms from 'commonmark-spec';
 import { Marked } from 'marked';
-import { getReferenceDefinition } from '../../src/inlineRenderer/referenceDefinitions';
+import { getReferenceDefinition } from '../../src/inline/referenceDefinitions';
 import referenceDefinitionTabs from '../../src/utils/marked/extensions/referenceDefinitionTabs';
 import gfmExamples from '../spec/fixtures/gfm-spec-0.29-gfm.json';
 

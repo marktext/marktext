@@ -1,9 +1,9 @@
 import type { Token as HtmlToken } from 'parse5';
-import type { Labels, ReferenceImageToken, ReferenceLinkToken, Token } from '../../src/inlineRenderer/model/types';
+import type { Labels, ReferenceImageToken, ReferenceLinkToken, Token } from '../../src/inline/model/types';
 import { escapeAttribute, escapeText } from 'entities';
 import { Tokenizer } from 'parse5';
 import { VOID_HTML_TAGS } from '../../src/config';
-import { normalizeReferenceLabel } from '../../src/inlineRenderer/referenceLabel';
+import { normalizeReferenceLabel } from '../../src/inline/referenceLabel';
 
 export type SemanticEvent
     = | { type: 'open'; tag: string; attrs: Array<[string, string]>; selfClosing?: true }

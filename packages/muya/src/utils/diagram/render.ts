@@ -1,8 +1,5 @@
 import loadRenderer from './index';
-
-// Concurrent Mermaid renders can share Date.now()-based IDs; provide unique IDs
-// to prevent diagrams drawing into the same element (#5023).
-let mermaidRenderCount = 0;
+import { renderMermaid } from './mermaid';
 
 const RAPHAEL_DESC = /^Created with Rapha/;
 
@@ -84,7 +81,7 @@ export function finalizeRenderedDiagram(target: HTMLElement, fallbackLabel: stri
 
 const FRONTMATTER = /^---\r?\n[\s\S]*?\r?\n---\r?\n/;
 
-// Use a per-render init directive; global Mermaid initialization would race live previews.
+// Export-only options must not become defaults for subsequent previews.
 export function withMermaidInit(code: string, config: Record<string, unknown>): string {
     const directive = `%%{init: ${JSON.stringify(config)}}%%`;
     const frontmatter = FRONTMATTER.exec(code)?.[0] ?? '';
@@ -130,6 +127,11 @@ export async function renderDiagram({
     plantumlServer,
     sequenceTheme,
 }: IRenderOptions) {
+    if (type === 'mermaid') {
+        await renderMermaid({ code, target, theme: mermaidTheme });
+        return;
+    }
+
     const render = await loadRenderer(type);
     const options = {};
     if (type === 'vega-lite') {
@@ -157,20 +159,5 @@ export async function renderDiagram({
         const diagram = render.parse(code);
         target.innerHTML = '';
         diagram.drawSVG(target, options);
-    }
-    else if (type === 'mermaid') {
-        render.initialize({
-            startOnLoad: false,
-            securityLevel: 'strict',
-            theme: mermaidTheme,
-        });
-        await render.parse(code);
-        const { svg, bindFunctions } = await render.render(
-            `mu-mermaid-${++mermaidRenderCount}`,
-            code,
-            target,
-        );
-        target.innerHTML = svg;
-        bindFunctions?.(target);
     }
 }

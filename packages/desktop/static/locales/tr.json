@@ -682,6 +682,8 @@
         "title": "Çeşitli"
       },
       "compatibility": {
+        "cjkEmphasis": "CJK vurgu uyumluluğu",
+        "cjkEmphasisNote": "Çince, Japonca ve Korece metinlerde vurgu sınırlarını esnetir ve ： ile biten kalın etiketleri destekler. Bu, CommonMark sözdiziminin bir uzantısıdır.",
         "enableHtml": "HTML desteğini etkinleştir",
         "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "title": "Uyumluluk"

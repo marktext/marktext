@@ -44,7 +44,7 @@ test.describe('image tools', () => {
     test('an empty image (`![]()`) renders the empty-image placeholder', async ({ page }) => {
         // With no resolvable src the inline image renderer takes its `else`
         // branch and tags the wrapper with `mu-empty-image`
-        // (inlineRenderer/renderer/image.ts). The placeholder still carries the
+        // (inline/renderer/image.ts). The placeholder still carries the
         // raw markdown on `data-raw` and an empty `.mu-image-container`.
         await page.evaluate(() => {
             window.muya!.setContent('![]()');

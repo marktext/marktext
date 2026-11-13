@@ -2,6 +2,7 @@ import type { IHighlight, Labels } from '../model/types';
 import type { InlineProfile } from './profiles';
 
 export interface IInlineFeatures {
+    cjkEmphasis: boolean;
     superSubScript: boolean;
     footnote: boolean;
     texMathDollars: boolean;

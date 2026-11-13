@@ -282,6 +282,11 @@
     "enum": ["-", "+", ";", "{"],
     "default": "-"
   },
+  "cjkEmphasis": {
+    "description": "Markdown-Enable CJK emphasis compatibility, a CommonMark syntax extension.",
+    "type": "boolean",
+    "default": true
+  },
   "superSubScript": {
     "description": "Markdown-Enable pandoc's markdown extension superscript and subscript.",
     "type": "boolean",

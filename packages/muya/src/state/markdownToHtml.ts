@@ -7,6 +7,7 @@ import exportStyle from '../assets/styles/exportStyle.css?inline';
 import { EXPORT_DOMPURIFY_CONFIG } from '../config';
 import { isHTMLElement, sanitize, unescapeHTML } from '../utils';
 import loadRenderer from '../utils/diagram';
+import { renderMermaid } from '../utils/diagram/mermaid';
 
 import { getHighlightHtml } from '../utils/marked';
 import { sanitizeExportHtml } from '../utils/sanitizeExportHtml';
@@ -72,31 +73,20 @@ export class MarkdownToHtml {
             mermaidContainer.classList.add('mermaid');
             preEle.replaceWith(mermaidContainer);
         }
-        const nodes = [...this._exportContainer!.querySelectorAll('div.mermaid')];
+        const nodes = [...this._exportContainer!.querySelectorAll<HTMLElement>('div.mermaid')];
         if (nodes.length === 0)
             return;
 
-        const mermaid = await loadRenderer('mermaid');
-        // Export uses the light theme.
-        mermaid.initialize({
-            startOnLoad: false,
-            securityLevel: 'strict',
-            theme: 'default',
-        });
+        // A missing renderer aborts export; individual diagram failures get placeholders.
+        await loadRenderer('mermaid');
         // Isolate renders so one invalid Mermaid diagram cannot abort the entire export (#4812).
         for (const node of nodes) {
             try {
-                await mermaid.run({ nodes: [node] });
+                await renderMermaid({ target: node, theme: 'default' });
             }
             catch {
                 node.innerHTML = '< Invalid Diagram >';
             }
-        }
-        if (this._muya) {
-            mermaid.initialize({
-                securityLevel: 'strict',
-                theme: this._muya.options.mermaidTheme,
-            });
         }
     }
 
@@ -208,6 +198,7 @@ export class MarkdownToHtml {
         const options: Partial<IMuyaOptions> = this._muya?.options ?? {};
         const footnote = options.footnote ?? false;
         let html = getHighlightHtml(this.markdown, {
+            cjkEmphasis: options.cjkEmphasis ?? true,
             superSubScript: options.superSubScript ?? true,
             footnote,
             texMathGfm: options.texMathGfm ?? false,

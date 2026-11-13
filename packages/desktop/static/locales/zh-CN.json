@@ -682,6 +682,8 @@
         "title": "杂项"
       },
       "compatibility": {
+        "cjkEmphasis": "CJK 强调语法兼容",
+        "cjkEmphasisNote": "放宽中日韩文字附近的强调边界，并支持以全角冒号结尾的加粗标签。这是 CommonMark 之外的语法扩展。",
         "enableHtml": "启用 HTML 支持",
         "softNewlineAsSpace": "将软换行符视为空格",
         "title": "兼容性"

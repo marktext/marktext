@@ -16,6 +16,16 @@ afterEach(() =>
 )
 
 describe('tolerant preference persistence', () => {
+  it('defaults CJK compatibility on for existing profiles and persists opting out', () => {
+    const directory = profile()
+    writeFileSync(join(directory, 'preferences.json'), JSON.stringify({ autoSave: true }))
+    const file = new PreferenceFile(directory)
+    expect(file.get().cjkEmphasis).toBe(true)
+    expect(file.update({ cjkEmphasis: false }).status).toBe('persisted')
+    expect(new PreferenceFile(directory).get().cjkEmphasis).toBe(false)
+    expect(file.update({ cjkEmphasis: 'false' }).status).toBe('failed')
+    expect(file.get().cjkEmphasis).toBe(false)
+  })
   it.each(['editorFontFamily', 'codeFontFamily'] as const)('persists an empty %s as no custom font', key => {
     const directory = profile()
     const file = new PreferenceFile(directory)

@@ -8,6 +8,7 @@ export interface IRenderToStaticHTMLOptions {
     texMathGfm?: boolean;
     texMathSingleBackslash?: boolean;
     texMathDoubleBackslash?: boolean;
+    cjkEmphasis?: boolean;
     superSubScript?: boolean;
     frontMatter?: boolean;
     highlightSyntax?: boolean;
@@ -53,6 +54,7 @@ export function renderToStaticHTML(
         texMathGfm: options.texMathGfm ?? false,
         texMathSingleBackslash: options.texMathSingleBackslash ?? false,
         texMathDoubleBackslash: options.texMathDoubleBackslash ?? false,
+        cjkEmphasis: options.cjkEmphasis ?? true,
         superSubScript: options.superSubScript ?? true,
         frontMatter: options.frontMatter ?? false,
         highlightSyntax: options.highlightSyntax ?? false,

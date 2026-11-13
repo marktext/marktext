@@ -682,6 +682,8 @@
         "title": "Divers"
       },
       "compatibility": {
+        "cjkEmphasis": "Compatibilité de l’emphase CJK",
+        "cjkEmphasisNote": "Assouplit les limites de l’emphase en chinois, japonais et coréen et prend en charge les libellés en gras se terminant par ：. Il s’agit d’une extension de la syntaxe CommonMark.",
         "enableHtml": "Activer le support HTML",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "title": "Compatibilité"

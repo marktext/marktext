@@ -1,8 +1,8 @@
 import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
 import type { Muya } from '../muya';
-import { parseInline } from '../inlineRenderer/parser/lexer';
-import { tokensToInlineHtml, tokensToPlainText } from '../inlineRenderer/projection';
+import { parseInline } from '../inline/parser/lexer';
+import { tokensToInlineHtml, tokensToPlainText } from '../inline/projection';
 import { getUniqueId } from '../utils';
 import { generateGithubSlug } from '../utils/slug';
 
@@ -37,7 +37,7 @@ export function getTOC(muya: Muya): ITocItem[] {
     // Headings are tokenized outside a rendered block, so the reference
     // definitions a heading may link to (`[text][ref]`) have to be collected
     // here instead of from the block's own inline renderer.
-    const labels = muya.editor.inlineRenderer.collectReferenceDefinitions();
+    const labels = muya.editor.inlineEngine.collectReferenceDefinitions();
 
     const items: ITocItem[] = [];
 
@@ -53,11 +53,11 @@ export function getTOC(muya: Muya): ITocItem[] {
         // One token pass feeds both serializations so the outline's shown text
         // and its slug stay in step; `githubSlug` has to match the anchor id the
         // HTML export injects from `heading.textContent`.
-        const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = muya.options;
+        const { cjkEmphasis, superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = muya.options;
         const tokens = parseInline(text, {
             profile: blockName === 'atx-heading' ? 'atx-heading' : 'setext-heading',
             labels,
-            options: { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff },
+            options: { cjkEmphasis, superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff },
         });
 
         const content = tokensToPlainText(tokens).trim();

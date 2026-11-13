@@ -149,6 +149,14 @@
           :on-change="(value) => onSelectChange('isHtmlEnabled', value)"
         />
         <bool
+          id="setting-cjkEmphasis"
+          :description="preferenceLabel('cjkEmphasis')"
+          :notes="preferenceNotes('cjkEmphasis')"
+          :bool="cjkEmphasis"
+          :on-change="(value) => onSelectChange('cjkEmphasis', value)"
+          more="https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis"
+        />
+        <bool
           id="setting-softNewlineAsSpace"
           :description="preferenceLabel('softNewlineAsSpace')"
           :bool="softNewlineAsSpace"
@@ -219,7 +227,7 @@
 </template>
 
 <script setup lang="ts">
-import { preferenceLabel } from '@/prefComponents/registry'
+import { preferenceLabel, preferenceNotes } from '@/prefComponents/registry'
 
 import { useI18n } from 'vue-i18n'
 import Compound from '../common/compound/index.vue'
@@ -250,6 +258,7 @@ const {
   preferHeadingStyle,
   listIndentation,
   frontmatterType,
+  cjkEmphasis,
   superSubScript,
   footnote,
   texMathDollars,

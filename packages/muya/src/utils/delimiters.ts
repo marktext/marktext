@@ -1,3 +1,5 @@
+import { CJK_CHARACTER, UNICODE_PUNCTUATION, UNICODE_WHITESPACE } from './inlineCharacters';
+
 export interface IDelimiterSpan {
     start: number;
     end: number;
@@ -13,6 +15,22 @@ export interface IDelimiterRun {
     right: number;
     canOpen: boolean;
     canClose: boolean;
+}
+
+// CJK letters provide extra boundaries without becoming punctuation themselves (#4307).
+export function delimiterFlanking(char: string, before: string, after: string, cjkEmphasis = true) {
+    const beforeWhitespace = UNICODE_WHITESPACE.test(before);
+    const afterWhitespace = UNICODE_WHITESPACE.test(after);
+    const beforePunctuation = UNICODE_PUNCTUATION.test(before);
+    const afterPunctuation = UNICODE_PUNCTUATION.test(after);
+    const beforeBoundary = beforeWhitespace || beforePunctuation || (cjkEmphasis && CJK_CHARACTER.test(before));
+    const afterBoundary = afterWhitespace || afterPunctuation || (cjkEmphasis && CJK_CHARACTER.test(after));
+    const leftFlanking = !afterWhitespace && (!afterPunctuation || beforeBoundary);
+    const rightFlanking = !beforeWhitespace && (!beforePunctuation || afterBoundary);
+    return {
+        canOpen: leftFlanking && (char !== '_' || beforeBoundary),
+        canClose: rightFlanking && (char !== '_' || afterBoundary),
+    };
 }
 
 /** Reads a full code point before a UTF-16 offset; empty at the start. */
@@ -39,6 +57,15 @@ export function codePointCharAt(s: string, i: number): string | undefined {
             return s.slice(i, i + 2);
     }
     return s.charAt(i);
+}
+
+// Extend CJK label closing to ASCII values, without widening general word boundaries.
+export function isCjkLabelCloser(src: string, start: number, end: number): boolean {
+    return src[start] === '*'
+        && end - start === 2
+        && src[start - 1] === '：'
+        && CJK_CHARACTER.test(codePointBefore(src, start - 1))
+        && /^[A-Z0-9]$/i.test(codePointCharAt(src, end) ?? '');
 }
 
 function remainingLength(run: IDelimiterRun) {

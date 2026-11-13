@@ -682,6 +682,8 @@
         "title": "Misceláneos"
       },
       "compatibility": {
+        "cjkEmphasis": "Compatibilidad de énfasis CJK",
+        "cjkEmphasisNote": "Flexibiliza los límites de énfasis en chino, japonés y coreano y admite etiquetas en negrita terminadas en ：. Es una extensión de la sintaxis CommonMark.",
         "enableHtml": "Habilitar soporte HTML",
         "softNewlineAsSpace": "Tratar los saltos de línea suaves como espacios",
         "title": "Compatibilidad"

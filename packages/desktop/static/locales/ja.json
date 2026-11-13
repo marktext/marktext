@@ -682,6 +682,8 @@
         "title": "その他"
       },
       "compatibility": {
+        "cjkEmphasis": "CJK 強調構文の互換性",
+        "cjkEmphasisNote": "中国語・日本語・韓国語の強調境界を緩和し、全角コロンで終わる太字ラベルに対応します。CommonMark の構文拡張です。",
         "enableHtml": "HTML サポートを有効",
         "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
         "title": "互換性"
