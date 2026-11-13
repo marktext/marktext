@@ -1,6 +1,8 @@
 import type Parent from './base/parent';
 import type TreeNode from './base/treeNode';
 import type { IFoldableHeading } from './commonMark/atxHeading/foldSection';
+import type { ScrollPage } from './scrollPage';
+import type { TBlockPath } from './types';
 import { CLASS_NAMES } from '../config';
 import { headingLevel, hiddenByFoldedSections, isFoldableHeading } from './commonMark/atxHeading/foldSection';
 
@@ -9,6 +11,39 @@ const foldEnds = new WeakMap<IFoldableHeading, TreeNode>();
 const foldedParents = new WeakSet<Parent>();
 // Parent-owned snapshots avoid rescanning siblings for every skipped content block.
 const hiddenBlocksByParent = new WeakMap<Parent, WeakSet<TreeNode>>();
+
+/** Transient view state tied to an unchanged document structure, independent of markdown and undo. */
+export interface IHeadingFoldState {
+    path: TBlockPath;
+    /** Inclusive sibling index of the section's captured tail. */
+    end: number;
+}
+
+export function getHeadingFoldState(root: Parent): IHeadingFoldState[] {
+    const state: IHeadingFoldState[] = [];
+    root.depthFirstTraverse((block) => {
+        if (block.isParent() && isFoldableHeading(block) && block.folded && block.parent) {
+            state.push({
+                path: block.path,
+                end: block.parent.offset(foldEnds.get(block) ?? block),
+            });
+        }
+    });
+    return state;
+}
+
+export function setHeadingFoldState(root: ScrollPage, state: IHeadingFoldState[]): void {
+    unfoldAllSections(root);
+    for (const { path, end } of state) {
+        const block = root.queryBlock([...path]);
+        if (!block || !isFoldableHeading(block) || !block.parent)
+            continue;
+        const tail = block.parent.find(end);
+        if (tail)
+            foldEnds.set(block, tail);
+        block.toggleFold(true);
+    }
+}
 
 /** Recompute direct-child visibility; nested containers own their own folds. */
 export function refreshFoldVisibility(parent: Parent, foldChanged = false): void {

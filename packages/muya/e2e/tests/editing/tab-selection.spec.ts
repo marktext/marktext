@@ -80,14 +80,14 @@ for (const { name, markdown, expected, startIndex } of [
     },
     {
         name: 'ordered',
-        markdown: '- a\n  5. b\n  6. c\n  7. d\n',
-        expected: '- a\n- b\n- c\n  7. d\n',
+        markdown: '- a\n\n  5. b\n  6. c\n  7. d\n',
+        expected: '- a\n\n- b\n\n- c\n\n  7. d\n',
         startIndex: 0,
     },
     {
         name: 'ordered task',
-        markdown: '- a\n  5. [ ] b\n  6. [x] c\n  7. [ ] d\n',
-        expected: '- a\n  5. [ ] b\n6. [x] c\n   7. [ ] d\n',
+        markdown: '- a\n\n  5. [ ] b\n  6. [x] c\n  7. [ ] d\n',
+        expected: '- a\n\n  5. [ ] b\n6. [x] c\n\n   7. [ ] d\n',
         startIndex: 1,
     },
 ]) {

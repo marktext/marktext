@@ -76,7 +76,7 @@ export const updateReadme = (readme, sponsors) => {
     throw new Error('README must contain exactly one current-sponsors marker pair')
   }
   const section = sponsors.length
-    ? '\n\n**Current Sponsors**\n\n[![Current sponsors](docs/assets/sponsors/current.svg)](https://github.com/sponsors/marktext)\n\n'
+    ? `\n\n**Current Public Sponsors (${sponsors.length})**\n\n[![Current public sponsors](docs/assets/sponsors/current.svg)](https://github.com/sponsors/marktext)\n\nOnly active, public GitHub sponsors are listed here. Thank you to our private sponsors as well.\n\n`
     : '\n'
   return readme.slice(0, start + startMarker.length) + section + readme.slice(end)
 }

@@ -112,7 +112,8 @@ import {
   type IMuyaOptions,
   type IReplaceOption,
   type ISearchOption,
-  type ISerializedHistory
+  type ISerializedHistory,
+  type IHeadingFoldState
 } from '@muyajs/core'
 import { getMuyaLocale } from '@/util/muyaLocale'
 import { createMuyaShortcutResolvers } from '@/util/muyaShortcuts'
@@ -283,6 +284,16 @@ let scrollHandler: ((e: Event) => void) | null = null
 // Keep engine undo history per tab; the store uses a separate save-tracking history shape.
 const engineHistoryByTab = new Map<string, ISerializedHistory>()
 
+const headingFoldsByTab = new Map<string, { markdown: string; folds: IHeadingFoldState[] }>()
+
+const captureHeadingFolds = (): void => {
+  if (!editor.value || !renderedDocumentId || !tabs.value.some(tab => tab.id === renderedDocumentId)) return
+  headingFoldsByTab.set(renderedDocumentId, {
+    markdown: editor.value.getMarkdown(),
+    folds: editor.value.getHeadingFoldState()
+  })
+}
+
 // Capture the WYSIWYG caret before source mode moves DOM focus into CodeMirror.
 let preSourceModeSelection: TSelectionState | null = null
 
@@ -312,6 +323,9 @@ const pruneClosedTabState = (liveTabIds: Set<string>): void => {
   }
   for (const id of syntheticHistoryByTab.keys()) {
     if (!liveTabIds.has(id)) syntheticHistoryByTab.delete(id)
+  }
+  for (const id of headingFoldsByTab.keys()) {
+    if (!liveTabIds.has(id)) headingFoldsByTab.delete(id)
   }
 }
 
@@ -1115,8 +1129,7 @@ const getCursorY = (): number | null => {
 // Only the slug-to-element pairing is cached. Positions are not: typing body
 // text moves every later heading without changing the TOC, so a stored offset
 // is stale within a keystroke and the highlight lands a section ahead.
-interface CachedHeading {
-  slug: string
+interface CachedHeading extends HeadingPosition {
   el: HTMLElement
 }
 
@@ -1133,28 +1146,27 @@ const rebuildHeadingCache = (): void => {
     .map((item, index) => {
       const el = headingEls[index] as HTMLElement | undefined
       if (!el || typeof item.slug !== 'string') return null
-      return { slug: item.slug, el }
+      return {
+        slug: item.slug,
+        el,
+        get top() {
+          if (el.getClientRects().length === 0) return null
+          // Fractional caret positions must be compared with unrounded heading positions.
+          return el.getBoundingClientRect().top
+        }
+      }
     })
     .filter((entry): entry is CachedHeading => entry != null)
 }
 
-// Measured with `getBoundingClientRect`, not `offsetTop`: the caret's position
-// is fractional, and rounding the headings to whole pixels reports the one the
-// caret sits in as the heading above it.
 const updateActiveHeading = (viewportY: number): void => {
-  // Locale and view restoration can rebuild blocks without a content-change event.
-  if (editor.value && headingElementCache.some(({ el }) => !el.isConnected)) {
+  // Locale and view restoration replace the whole block tree without a content-change event.
+  if (editor.value && headingElementCache.length > 0 && !headingElementCache[0].el.isConnected) {
     editorStore.REFRESH_TOC(editor.value.getTOC())
     rebuildHeadingCache()
   }
   if (headingElementCache.length === 0) return
-  const positions: HeadingPosition[] = headingElementCache
-    .filter(({ el }) => el.getClientRects().length > 0)
-    .map(({ slug, el }) => ({
-      slug,
-      top: el.getBoundingClientRect().top
-    }))
-  if (positions.length) editorStore.SET_ACTIVE_HEADING(findActiveHeadingSlug(positions, viewportY))
+  editorStore.SET_ACTIVE_HEADING(findActiveHeadingSlug(headingElementCache, viewportY))
 }
 
 let revealingAnchor = false
@@ -1449,6 +1461,7 @@ interface FileLoadedPayload {
 const setMarkdownToEditor = (payload: unknown) => {
   const { id, markdown: newMarkdown, cursor: newCursor } = (payload ?? {}) as FileLoadedPayload
   if (editor.value) {
+    captureHeadingFolds()
     // `setContent` resets the document and clears the undo history; only set a
     // cursor afterwards (a freshly-opened file has no history to restore).
     editor.value.setContent(newMarkdown ?? '')
@@ -1506,6 +1519,7 @@ const handleFileChange = (payload: unknown) => {
   if (!container) return
 
   if (typeof newMarkdown === 'string') {
+    captureHeadingFolds()
     // Returning from source-code mode: the WYSIWYG engine is never unmounted
     // while source mode is up (index.vue overlays it via `v-if`), so it still
     // holds the PRE-source-mode document and undo history. Record the bulk
@@ -1583,6 +1597,11 @@ const handleFileChange = (payload: unknown) => {
       // Seed new trackers before edits; retain existing content IDs when switching back to a tab.
       if (id) {
         getSyntheticHistory(id, editor.value.getMarkdown())
+      }
+      const savedFolds = id ? headingFoldsByTab.get(id) : undefined
+      // Paths are valid only for the captured document, including after source edits or disk reloads.
+      if (savedFolds?.markdown === editor.value.getMarkdown()) {
+        editor.value.setHeadingFoldState(savedFolds.folds)
       }
     }
   } else if (newCursor) {

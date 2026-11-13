@@ -1,5 +1,8 @@
 <template>
-  <div class="pref-container">
+  <div
+    class="pref-container"
+    :class="{ 'is-mac': isMac }"
+  >
     <title-bar v-if="showCustomTitleBar" />
     <side-bar />
     <div
@@ -31,13 +34,7 @@ const preferencesStore = usePreferencesStore()
 
 const { theme, titleBarStyle } = storeToRefs(preferencesStore)
 
-const showCustomTitleBar = computed<boolean>(() => {
-  // Always show the custom title bar on macOS to provide a close button
-  if (isMac) {
-    return true
-  }
-  return titleBarStyle.value === 'custom'
-})
+const showCustomTitleBar = computed(() => !isMac && titleBarStyle.value === 'custom')
 
 watch(theme, (newValue, oldValue) => {
   if (newValue !== oldValue) {
@@ -68,6 +65,10 @@ onMounted(() => {
   left: 0;
   display: flex;
   background: var(--editorBgColor);
+
+  &.is-mac .pref-sidebar {
+    padding-top: var(--titleBarHeight);
+  }
 
   & h1,
   & h2,

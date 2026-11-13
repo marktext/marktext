@@ -61,6 +61,7 @@ export class ParagraphFrontButton {
     private _container: HTMLDivElement = document.createElement('div');
     private _iconWrapper: HTMLDivElement = document.createElement('div');
     private _cleanup: (() => void) | null = null;
+    private _cancelHover: (() => void) | null = null;
     private _dragTimer: ReturnType<typeof setTimeout> | null = null;
     private _dragInfo: {
         block: Parent;
@@ -112,10 +113,6 @@ export class ParagraphFrontButton {
         const { _container: container } = this;
         const { eventCenter } = this.muya;
 
-        // attachDOMEvent's listener is typed as `EventListener` ((evt:
-        // Event) => void). Take Event and narrow with the `isMouseEvent`
-        // guard — same pattern as `mouseMove` below — rather than casting
-        // the wrapper to EventListener (which would hide a real mismatch).
         const mousemoveHandler = throttle((event: Event) => {
             if (this._disableListen)
                 return;
@@ -140,6 +137,15 @@ export class ParagraphFrontButton {
                 this.hide();
             }
         }, 300);
+        this._cancelHover = mousemoveHandler.cancel;
+
+        const scrollHandler = (event: Event) => {
+            const { target } = event;
+            if (target === document || (target instanceof Element && target.contains(this.muya.domNode))) {
+                mousemoveHandler.cancel();
+                this.hide();
+            }
+        };
 
         const clickHandler = () => {
             if (this.muya.isReadOnly)
@@ -160,6 +166,7 @@ export class ParagraphFrontButton {
         eventCenter.attachDOMEvent(container, 'mousedown', this._dragBarMouseDown);
         eventCenter.attachDOMEvent(container, 'mouseup', this._dragBarMouseUp);
         eventCenter.attachDOMEvent(document, 'mousemove', mousemoveHandler);
+        eventCenter.attachDOMEvent(document, 'scroll', scrollHandler, { capture: true, passive: true });
         eventCenter.attachDOMEvent(container, 'click', clickHandler);
     }
 
@@ -464,13 +471,16 @@ export class ParagraphFrontButton {
         };
 
         updatePosition();
-        this._cleanup = autoUpdate(domNode!, floatBox, updatePosition);
+        // Scrolling dismisses the handle instead of repositioning it on every frame (#6050).
+        this._cleanup = autoUpdate(domNode!, floatBox, updatePosition, { ancestorScroll: false });
 
         this._status = true;
         eventCenter.emit('muya-float-button', this, true);
     }
 
     destroy() {
+        this._cancelHover?.();
+        this._cancelHover = null;
         this._cancelDrag();
         this.muya.eventCenter.off('read-only-changed', this._syncReadOnly);
         if (this._container && this._resizeObserver)
