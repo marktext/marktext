@@ -38,7 +38,7 @@
     "default": false
   },
   "smoothScrolling": {
-    "description": "General--Animate wheel scrolling like the browser setting of the same name. Toggle it in the View menu; it applies after restart.",
+    "description": "Appearance--Animate wheel scrolling. Changes take effect immediately.",
     "type": "boolean",
     "default": true
   },

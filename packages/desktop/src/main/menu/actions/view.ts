@@ -1,7 +1,6 @@
-import { dialog, ipcMain, type BrowserWindow, type Menu } from 'electron'
+import { ipcMain, type BrowserWindow, type Menu } from 'electron'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
-import { t } from '../../i18n'
 import { requireMenuItem } from '../lookup'
 
 type Win = BrowserWindow | null | undefined
@@ -63,15 +62,6 @@ export const toggleTypewriterMode = (win: Win): void => {
   toggleTypeMode(win, 'typewriter')
 }
 
-export const toggleSmoothScrolling = (win: Win, enabled: boolean): void => {
-  ipcMain.emit('set-user-preference', { smoothScrolling: enabled })
-  if (!win) return
-  void dialog.showMessageBox(win, {
-    type: 'info',
-    message: t('menu.view.smoothScrollingRestart')
-  })
-}
-
 export const reloadImageCache = (win: Win): void => {
   if (win && win.webContents) {
     win.webContents.send('mt::invalidate-image-cache')
@@ -97,7 +87,6 @@ export const loadViewCommands = (commandManager: CommandManager): void => {
 
   commandManager.add(COMMANDS.VIEW_DEV_RELOAD, debugReloadWindow)
   commandManager.add(COMMANDS.VIEW_TOGGLE_DEV_TOOLS, debugToggleDevTools)
-  commandManager.add(COMMANDS.VIEW_SMOOTH_SCROLLING, toggleSmoothScrolling)
 }
 
 

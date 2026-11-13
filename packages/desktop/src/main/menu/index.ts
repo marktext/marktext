@@ -328,21 +328,6 @@ class AppMenu {
     })
   }
 
-  updateSmoothScrollingMenu = (smoothScrolling: boolean): void => {
-    this.windowMenus.forEach((value) => {
-      const { menu, type } = value
-      if (type !== MenuType.EDITOR || !menu) {
-        return
-      }
-
-      const smoothScrollingMenu = menu.getMenuItemById('smoothScrollingMenuItem')
-      if (!smoothScrollingMenu) {
-        return
-      }
-      smoothScrollingMenu.checked = smoothScrolling
-    })
-  }
-
   _buildEditorMenu(recentUsedDocuments: string[] | null = null): EditorMenuEntry {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
@@ -498,9 +483,6 @@ class AppMenu {
       }
       if (prefs.autoSave !== undefined) {
         this.updateAutoSaveMenu(prefs.autoSave)
-      }
-      if (prefs.smoothScrolling !== undefined) {
-        this.updateSmoothScrollingMenu(prefs.smoothScrolling)
       }
       if (prefs.texMathDollars !== undefined || prefs.githubAlerts !== undefined) {
         this.updateAppMenu()

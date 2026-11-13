@@ -104,7 +104,6 @@ const COMMANDS = Object.freeze({
   VIEW_OUTLINE_EXPAND_ALL: 'view.outline-expand-all',
   VIEW_TOGGLE_TOC: 'view.toggle-toc',
   VIEW_TYPEWRITER_MODE: 'view.typewriter-mode',
-  VIEW_SMOOTH_SCROLLING: 'view.smooth-scrolling',
 
   WINDOW_MINIMIZE: 'window.minimize',
   WINDOW_TOGGLE_ALWAYS_ON_TOP: 'window.toggle-always-on-top',

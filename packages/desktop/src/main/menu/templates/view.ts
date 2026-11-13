@@ -2,13 +2,8 @@ import { type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
 import * as actions from '../actions/view'
 import { t } from '../../i18n'
 import type Keybindings from '../../keyboard/shortcutHandler'
-import type Preference from '../../preferences'
 
-export default function(
-  keybindings: Keybindings,
-  preferences: Preference
-): MenuItemConstructorOptions {
-  const smoothScrolling = preferences.getItem<boolean>('smoothScrolling')
+export default function(keybindings: Keybindings): MenuItemConstructorOptions {
   const submenu: MenuItemConstructorOptions[] = [
     {
       label: t('menu.view.commandPalette'),
@@ -57,15 +52,6 @@ export default function(
       checked: false,
       click(_item, focusedWindow) {
         actions.toggleFocusMode(focusedWindow as BrowserWindow | undefined)
-      }
-    },
-    {
-      id: 'smoothScrollingMenuItem',
-      label: t('menu.view.smoothScrolling'),
-      type: 'checkbox',
-      checked: smoothScrolling !== false,
-      click(menuItem, focusedWindow) {
-        actions.toggleSmoothScrolling(focusedWindow as BrowserWindow | undefined, menuItem.checked)
       }
     },
     {
