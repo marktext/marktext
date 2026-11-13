@@ -62,12 +62,51 @@ describe('instant wheel scrolling', () => {
     expect(outer.scrollTop).toBe(120)
   })
 
+  it.each([
+    { axis: 'y', direction: 'ltr', position: 899.5, deltaX: 0, deltaY: 120 },
+    { axis: 'x', direction: 'ltr', position: 399.5, deltaX: 120, deltaY: 0 },
+    { axis: 'x', direction: 'rtl', position: -399.5, deltaX: -120, deltaY: 0 }
+  ])('passes input beyond a rounded $axis boundary to the $direction parent', ({ axis, direction, position, deltaX, deltaY }) => {
+    const outer = scrollable()
+    const inner = scrollable(outer)
+    outer.style.direction = direction
+    inner.style.direction = direction
+    if (axis === 'x') inner.scrollLeft = position
+    else inner.scrollTop = position
+    const event = wheel(inner, { deltaX, deltaY })
+    expect(event.defaultPrevented).toBe(true)
+    expect(outer.scrollLeft).toBe(deltaX)
+    expect(outer.scrollTop).toBe(deltaY)
+    expect(inner.scrollTo).not.toHaveBeenCalled()
+  })
+
+  it.each(['vertical', 'rtl'])('still scrolls a fractional offset back to the exact origin: %s', direction => {
+    const outer = scrollable()
+    const inner = scrollable(outer)
+    if (direction === 'vertical') {
+      outer.scrollTop = 200
+      inner.scrollTop = 0.5
+      wheel(inner, { deltaY: -120 })
+      expect(inner.scrollTop).toBe(0)
+      expect(outer.scrollTop).toBe(200)
+    } else {
+      outer.style.direction = 'rtl'
+      inner.style.direction = 'rtl'
+      outer.scrollLeft = -200
+      inner.scrollLeft = -0.5
+      wheel(inner, { deltaX: 120, deltaY: 0 })
+      expect(inner.scrollLeft).toBe(0)
+      expect(outer.scrollLeft).toBe(-200)
+    }
+  })
+
   it.each(['contain', 'none'])('respects overscroll-behavior: %s', behavior => {
     const outer = scrollable()
     const inner = scrollable(outer)
     inner.style.overscrollBehaviorY = behavior
-    inner.scrollTop = 900
+    inner.scrollTop = 899.5
     expect(wheel(inner).defaultPrevented).toBe(true)
+    expect(inner.scrollTop).toBe(899.5)
     expect(outer.scrollTop).toBe(0)
   })
 

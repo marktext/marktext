@@ -1,5 +1,8 @@
 type Axis = 'x' | 'y'
 
+// Size rounding can shift the extent-derived limit by 1 CSS px; the origin is exact.
+const SCROLL_BOUNDARY_TOLERANCE = 1
+
 interface ScrollTarget {
   element: HTMLElement
   axis: Axis
@@ -25,7 +28,10 @@ const findScrollTarget = (
     const rtl = axis === 'x' && style.direction === 'rtl'
     const minimum = rtl ? -Math.max(0, extent - size) : 0
     const maximum = rtl ? 0 : Math.max(0, extent - size)
-    const canScroll = delta < 0 ? position > minimum : position < maximum
+    const boundary = delta < 0 ? minimum : maximum
+    const distance = delta < 0 ? position - boundary : boundary - position
+    const tolerance = boundary === 0 ? 0 : SCROLL_BOUNDARY_TOLERANCE
+    const canScroll = distance > tolerance
 
     if (canScroll) {
       let unit = 1

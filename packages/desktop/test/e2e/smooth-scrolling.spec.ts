@@ -105,3 +105,68 @@ test('a saved disabled preference immediately scrolls a real wheel event without
     await app.close()
   }
 })
+
+for (const direction of ['vertical', 'horizontal', 'rtl'] as const) {
+  test(`fractional ${direction} scroll boundaries pass wheel input to the parent`, async() => {
+    const { app, page } = await launchWithMarkdown('# Fractional scroll boundary\n', {
+      preferences: { language: 'en', smoothScrolling: false }, suppressErrorDialog: true
+    })
+    try {
+      await expect.poll(() => probeWheel(page)).toEqual({ prevented: true, top: 120 })
+      const initial = await page.evaluate(direction => {
+        const vertical = direction === 'vertical'
+        const outer = document.createElement('div')
+        outer.id = 'fractional-outer'
+        // Zoom exposes fractional scroll limits even on displays with integer scaling.
+        outer.style.cssText = 'position:fixed;left:40px;top:100px;width:250px;height:200px;overflow:auto;zoom:2;z-index:99999;background:white'
+        if (direction === 'rtl') outer.style.direction = 'rtl'
+        const inner = document.createElement('div')
+        inner.id = 'fractional-inner'
+        inner.style.cssText = `width:${vertical ? '150px' : '100.25px'};height:${vertical ? '100.25px' : '80px'};overflow-x:${vertical ? 'hidden' : 'auto'};overflow-y:${vertical ? 'auto' : 'hidden'}`
+        const content = document.createElement('div')
+        content.style.cssText = `width:${vertical ? '100px' : '1000px'};height:${vertical ? '1000px' : '40px'}`
+        inner.append(content)
+        const spacer = document.createElement('div')
+        spacer.style.cssText = 'width:1000px;height:1000px'
+        outer.append(inner, spacer)
+        document.body.append(outer)
+        const sign = direction === 'rtl' ? -1 : 1
+        inner.scrollTo({ [vertical ? 'top' : 'left']: sign * 1e6, behavior: 'instant' })
+        const maximum = vertical ? inner.scrollHeight - inner.clientHeight : inner.scrollWidth - inner.clientWidth
+        const position = vertical ? inner.scrollTop : inner.scrollLeft
+        let count = 0
+        window.addEventListener('wheel', event => {
+          outer.dataset.lastWheel = JSON.stringify({
+            count: ++count,
+            trusted: event.isTrusted,
+            prevented: event.defaultPrevented,
+            inner: vertical ? inner.scrollTop : inner.scrollLeft,
+            outer: vertical ? outer.scrollTop : outer.scrollLeft
+          })
+        })
+        return { maximum, position, sign, devicePixelRatio }
+      }, direction)
+      const roundingGap = initial.maximum - Math.abs(initial.position)
+      expect(roundingGap, JSON.stringify(initial)).toBeGreaterThan(0)
+      expect(roundingGap).toBeLessThanOrEqual(1)
+
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        await page.locator('#fractional-outer').evaluate(element => element.scrollTo({ top: 0, left: 0, behavior: 'instant' }))
+        await page.locator('#fractional-inner').hover()
+        await page.mouse.wheel(direction === 'vertical' ? 0 : initial.sign * 120, direction === 'vertical' ? 120 : 0)
+        await expect.poll(async() => {
+          const data = await page.locator('#fractional-outer').getAttribute('data-last-wheel')
+          return data ? JSON.parse(data).count : 0
+        }).toBe(attempt)
+        const wheel = JSON.parse(await page.locator('#fractional-outer').getAttribute('data-last-wheel') ?? '{}')
+        expect(wheel.trusted).toBe(true)
+        expect(wheel.prevented).toBe(true)
+        expect(wheel.inner).toBe(initial.position)
+        expect(wheel.outer * initial.sign, JSON.stringify({ initial, attempt, wheel })).toBeGreaterThan(0)
+      }
+      await expectNoRendererErrors(app)
+    } finally {
+      await app.close()
+    }
+  })
+}
