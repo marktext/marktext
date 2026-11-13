@@ -116,7 +116,7 @@ MarkText is an open-source Markdown editor powered by the support of its communi
 
 <!-- current-sponsors:start -->
 
-**Current Public Sponsors (2)**
+**Current Public Sponsors (1)**
 
 [![Current public sponsors](docs/assets/sponsors/current.svg)](https://github.com/sponsors/marktext)
 
