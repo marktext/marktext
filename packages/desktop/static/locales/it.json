@@ -282,19 +282,19 @@
       "settings": "Impostazioni"
     },
     "move": {
-      "title": "Move file or folder",
-      "confirm": "Move",
-      "question": "Move \"{name}\"?",
-      "detail": "From: {source}\nTo: {destination}\n\nThis changes the actual file location. Relative links and image paths may be affected.",
-      "directoryContents": "The folder and all its contents will be moved.",
-      "completed": "Moved successfully.",
-      "invalidTarget": "Choose another folder within the same open root. Linked paths and moving a folder into itself are not supported.",
-      "crossDevice": "Moving between volumes is not supported here. Use your system file manager.",
-      "conflict": "The destination already contains an item with this name. Rename it before trying again.",
-      "missing": "The source or destination no longer exists. Refresh the folder and try again.",
-      "permission": "The item could not be moved. Check folder permissions and whether another application is using it.",
-      "openElsewhere": "Close this file and any documents inside this folder in other MarkText windows before moving it.",
-      "destinationOpen": "A document is already open at the destination path. Close it before trying again."
+      "title": "Spostamento file o cartella",
+      "confirm": "Sposta",
+      "question": "Spostare \"{name}\"?",
+      "detail": "Da: {source}\nA: {destination}\n\nCiò modifica la localizzazione corrente del file e può comportare modifiche anche dei link relativi e dei percorsi (paths) delle immagini.",
+      "directoryContents": "La cartella e tutto il suo contenuto verranno spostati.",
+      "completed": "Spostamento effettuato con successo.",
+      "invalidTarget": "Scegliere un’altra cartella all’interno della stessa cartella radice (root) aperta. I percorsi collegati e lo spostamento di una cartella all’interno di se stessa non sono supportati.",
+      "crossDevice": "Lo spostamento fra volumi non è supportato. Usare invece il proprio File Manager di sistema.",
+      "conflict": "La destinazione scelta contiene già un elemento con lo stesso nome. Rinominarlo prima di riprovare.",
+      "missing": "L’origine o la destinazione non esiste più. Aggiornare la cartella e riprovare.",
+      "permission": "L’elemento non può essere spostato. Controllare i permessi della cartella o se è in uso da parte di un’altra applicazione.",
+      "openElsewhere": "Prima di effettuare lo spostamento chiudere, in altre finestre MarkText, questo file e qualsiasi documento all’interno di questa cartella.",
+      "destinationOpen": "Nel percorso (path) di destinazione è già aperto un documento. Chiuderlo prima di riprovare."
     }
   },
   "titleBar": {
@@ -683,7 +683,7 @@
       },
       "compatibility": {
         "cjkEmphasis": "Compatibilità enfasi CJK",
-        "cjkEmphasisNote": "Rende più flessibili i confini dell’enfasi nei testi cinesi, giapponesi e coreani e supporta etichette in grassetto che terminano con ：. È un’estensione della sintassi CommonMark.",
+        "cjkEmphasisNote": "Si tratta di un’estensione della sintassi CommonMark che rende più flessibile la definizione dei confini di lemmi/frasi in enfasi in cinese, giapponese e coreano (CJK) nonché delle etichette in grassetto che terminano con \"：\".",
         "enableHtml": "Abilita supporto HTML",
         "softNewlineAsSpace": "Tratta come spazi i caratteri di fine riga ‘morbidi’ (soft newlines)",
         "title": "Compatibilità"
