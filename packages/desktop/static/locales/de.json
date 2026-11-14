@@ -443,6 +443,8 @@
         },
         "requiresRestart": "Erfordert Neustart",
         "hideScrollbars": "Bildlaufleisten ausblenden",
+        "smoothScrolling": "Reibungsloses Scrollen",
+        "smoothScrollingNote": "Mausrad-Scrollen animieren. Deaktivieren, um Bewegungen zu reduzieren.",
         "openFilesInNewWindow": "Dateien in neuem Fenster öffnen",
         "openFoldersInNewWindow": "Ordner in neuem Fenster öffnen",
         "zoom": "Zoom",

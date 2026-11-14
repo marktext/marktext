@@ -443,6 +443,8 @@
         },
         "requiresRestart": "재시작 필요",
         "hideScrollbars": "스크롤바 숨기기",
+        "smoothScrolling": "부드러운 스크롤",
+        "smoothScrollingNote": "마우스 휠 스크롤에 애니메이션을 적용합니다. 움직임을 줄이려면 끄세요.",
         "openFilesInNewWindow": "새 창에서 파일 열기",
         "openFoldersInNewWindow": "새 창에서 폴더 열기",
         "zoom": "확대/축소",

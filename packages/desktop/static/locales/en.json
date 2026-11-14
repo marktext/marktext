@@ -443,6 +443,8 @@
         },
         "requiresRestart": "Requires restart",
         "hideScrollbars": "Hide scrollbars",
+        "smoothScrolling": "Smooth Scrolling",
+        "smoothScrollingNote": "Animate wheel scrolling. Turn off to reduce motion.",
         "openFilesInNewWindow": "Open files in new window",
         "openFoldersInNewWindow": "Open folders in new window",
         "zoom": "Zoom",

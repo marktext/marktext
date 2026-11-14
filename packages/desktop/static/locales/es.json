@@ -443,6 +443,8 @@
         },
         "requiresRestart": "Requiere reinicio",
         "hideScrollbars": "Ocultar barras de desplazamiento",
+        "smoothScrolling": "Desplazamiento suave",
+        "smoothScrollingNote": "Animar el desplazamiento con la rueda. Desactívalo para reducir el movimiento.",
         "openFilesInNewWindow": "Abrir archivos en nueva ventana",
         "openFoldersInNewWindow": "Abrir carpetas en nueva ventana",
         "zoom": "Zoom",

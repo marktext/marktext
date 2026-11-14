@@ -443,6 +443,8 @@
         },
         "requiresRestart": "Yeniden başlatma gerektirir",
         "hideScrollbars": "Kaydırma çubuklarını gizle",
+        "smoothScrolling": "Yumuşak kaydırma",
+        "smoothScrollingNote": "Fare tekerleğiyle kaydırmayı canlandır. Hareketi azaltmak için kapatın.",
         "openFilesInNewWindow": "Dosyaları yeni pencerede aç",
         "openFoldersInNewWindow": "Klasörleri yeni pencerede aç",
         "zoom": "Yakınlaştırma",

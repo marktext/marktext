@@ -38,6 +38,11 @@ export const preferenceDefinitions: Record<string, PreferenceDefinition> = {
     "category": "appearance",
     "label": "preferences.general.window.hideScrollbars"
   },
+  "smoothScrolling": {
+    "category": "appearance",
+    "label": "preferences.general.window.smoothScrolling",
+    "notes": "preferences.general.window.smoothScrollingNote"
+  },
   "openFilesInNewWindow": {
     "category": "general",
     "label": "preferences.general.window.openFilesInNewWindow",

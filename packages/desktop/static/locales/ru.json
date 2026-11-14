@@ -443,6 +443,8 @@
         },
         "requiresRestart": "Требуется перезапуск",
         "hideScrollbars": "Скрыть полосы прокрутки",
+        "smoothScrolling": "Плавная прокрутка",
+        "smoothScrollingNote": "Анимация прокрутки колёсиком мыши. Отключите, чтобы уменьшить движение.",
         "openFilesInNewWindow": "Открывать файлы в новом окне",
         "openFoldersInNewWindow": "Открывать папки в новом окне",
         "zoom": "Масштаб",

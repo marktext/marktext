@@ -443,6 +443,8 @@
         },
         "requiresRestart": "需要重新啟動",
         "hideScrollbars": "隱藏捲軸",
+        "smoothScrolling": "平滑捲動",
+        "smoothScrollingNote": "為滑鼠滾輪捲動加入動畫。關閉可減少動態效果。",
         "openFilesInNewWindow": "在新視窗中開啟檔案",
         "openFoldersInNewWindow": "在新視窗中開啟資料夾",
         "zoom": "縮放",

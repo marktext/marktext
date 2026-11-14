@@ -443,6 +443,8 @@
         },
         "requiresRestart": "Herstart vereist",
         "hideScrollbars": "Schuifbalken verbergen",
+        "smoothScrolling": "Vloeiend scrollen",
+        "smoothScrollingNote": "Animeer scrollen met het muiswiel. Schakel uit om beweging te verminderen.",
         "openFilesInNewWindow": "Bestanden in nieuw venster openen",
         "openFoldersInNewWindow": "Mappen in nieuw venster openen",
         "zoom": "Zoom",
