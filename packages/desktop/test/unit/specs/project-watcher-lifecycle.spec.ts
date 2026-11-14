@@ -24,6 +24,7 @@ vi.mock('chokidar', () => ({
 vi.mock('main_renderer/filesystem/markdown', () => ({
   loadMarkdownFile: vi.fn(async() => ({ markdown: '# Note' }))
 }))
+import { loadMarkdownFile } from 'main_renderer/filesystem/markdown'
 import Watcher from 'main_renderer/filesystem/watcher'
 
 describe('project watcher lifecycle (#2222)', () => {
@@ -57,6 +58,31 @@ describe('project watcher lifecycle (#2222)', () => {
     await new Promise((resolve) => setTimeout(resolve, 0))
     expect(send).not.toHaveBeenCalled()
     expect(onStatus).not.toHaveBeenCalled()
+  })
+
+  it('reads content for an opened file but not for the sidebar tree', async() => {
+    vi.spyOn(fs, 'stat').mockResolvedValue({ birthtime: new Date(0), mtimeMs: 1 } as never)
+    vi.mocked(loadMarkdownFile).mockClear()
+    const send = vi.fn()
+    const win = { id: 1, webContents: { send } }
+    const watcher = new Watcher({
+      getItem: () => [],
+      getAll: () => ({}),
+      getPreferredEol: () => 'lf'
+    } as never)
+    watcher.watch(win as never, '/project', 'dir')
+    watcher.watch(win as never, '/project/note.md', 'file')
+
+    mocks.instances[0].emit('add', '/project/note.md')
+    await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(1))
+    expect(send.mock.calls[0][0]).toBe('mt::update-object-tree')
+    expect(send.mock.calls[0][1].change).not.toHaveProperty('data')
+    expect(loadMarkdownFile).not.toHaveBeenCalled()
+
+    mocks.instances[1].emit('add', '/project/note.md')
+    await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(2))
+    expect(send.mock.calls[1][0]).toBe('mt::update-file')
+    expect(send.mock.calls[1][1].change.data).toEqual({ markdown: '# Note' })
   })
 
   it('attaches root identity to tree events and reports a missing root', () => {

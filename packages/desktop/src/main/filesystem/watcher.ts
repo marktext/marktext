@@ -102,19 +102,20 @@ const add = async(
     isMarkdown
   }
   if (isMarkdown) {
-    // HACK: But this should be removed completely in #1034/#1035.
-    try {
-      const data = await loadMarkdownFile(
-        pathname,
-        endOfLine,
-        autoGuessEncoding,
-        trimTrailingNewline,
-        autoNormalizeLineEndings
-      )
-      file.data = data
-    } catch (err) {
-      // Only notify user about opened files.
-      if (type === 'file') {
+    // The sidebar tree only uses the metadata above, so only an opened file
+    // needs its content read.
+    if (type === 'file') {
+      // HACK: But this should be removed completely in #1034/#1035.
+      try {
+        const data = await loadMarkdownFile(
+          pathname,
+          endOfLine,
+          autoGuessEncoding,
+          trimTrailingNewline,
+          autoNormalizeLineEndings
+        )
+        file.data = data
+      } catch (err) {
         emit('mt::show-notification', {
           title: 'Watcher I/O error',
           type: 'error',
