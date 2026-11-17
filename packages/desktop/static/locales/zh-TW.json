@@ -259,6 +259,7 @@
       "noFolders": "尚未加入資料夾",
       "removeFolder": "從側邊欄移除",
       "retryFolder": "重試",
+      "refreshFolder": "重新整理",
       "loadingFolder": "正在載入資料夾…",
       "unavailableFolder": "資料夾無法使用",
       "overlappingFolder": "此資料夾與已加入項目有包含關係，請先移除原有項目。",

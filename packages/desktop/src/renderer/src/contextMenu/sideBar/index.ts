@@ -54,8 +54,16 @@ export const showRootContextMenu = (
   retry: () => void
 ): void => {
   const paste = getPASTE()
+  const refresh: ContextMenuItem = { label: t('sideBar.tree.refreshFolder'), click: retry }
   const items: ContextMenuItem[] = ready
-    ? [getNewFile(), getNewDirectory(), { ...paste, enabled: hasClipboard }, SEPARATOR]
+    ? [
+      getNewFile(),
+      getNewDirectory(),
+      { ...paste, enabled: hasClipboard },
+      SEPARATOR,
+      refresh,
+      SEPARATOR
+    ]
     : [{ label: t('sideBar.tree.retryFolder'), click: retry }, SEPARATOR]
   items.push(getCopyPath(), getShowInFolder(), SEPARATOR, { label: t('sideBar.tree.removeFolder'), click: remove })
   popupContextMenu(items.map(item => {

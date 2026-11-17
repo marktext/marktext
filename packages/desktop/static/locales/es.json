@@ -259,6 +259,7 @@
       "noFolders": "No folders added",
       "removeFolder": "Remove from Sidebar",
       "retryFolder": "Retry",
+      "refreshFolder": "Actualizar",
       "loadingFolder": "Loading folder…",
       "unavailableFolder": "Folder unavailable",
       "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
