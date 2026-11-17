@@ -125,6 +125,23 @@
             <ArrowRight />
           </el-icon>
           <span class="text-overflow">{{ projectStore.ROOT_LABEL(root) }}</span>
+          <icon-tooltip :content="t('sideBar.tree.refreshFolder')">
+            <button
+              type="button"
+              class="plain-button refresh-button"
+              :disabled="root.status === 'loading'"
+              :aria-label="t('sideBar.tree.refreshFolder')"
+              @click.stop="refreshRoot(root)"
+            >
+              <el-icon
+                class="icon"
+                aria-hidden="true"
+                :size="14"
+              >
+                <Refresh />
+              </el-icon>
+            </button>
+          </icon-tooltip>
         </div>
         <div
           v-show="!root.tree.isCollapsed"
@@ -226,7 +243,7 @@ import bus from '../../bus'
 import { showRootContextMenu } from '../../contextMenu/sideBar'
 import type { RootView } from '@/store/project'
 import { useI18n } from 'vue-i18n'
-import { ArrowRight } from '@element-plus/icons-vue'
+import { ArrowRight, Refresh } from '@element-plus/icons-vue'
 import { PATH_SEPARATOR } from '@/config'
 import { isMac } from '@/util'
 import { computeRevealScrollTop } from '@/util/revealTreeRow'
@@ -321,6 +338,10 @@ const createFile = (root: RootView): void => {
 const toggleRoot = (root: RootView): void => {
   projectStore.CHANGE_ACTIVE_ITEM(root.tree)
   projectStore.SET_FOLDER_COLLAPSED(root.tree, !root.tree.isCollapsed)
+}
+
+const refreshRoot = (root: RootView): void => {
+  void window.electron.ipcRenderer.invoke('mt::project-retry-root', root.key)
 }
 
 const handleRootContextMenu = (
@@ -732,6 +753,21 @@ onUnmounted(() => {
 .project-root:focus-visible {
   outline: 1px solid var(--focusColor);
   outline-offset: -1px;
+}
+
+/* Clipped rather than `display: none` until the row is hovered or holds
+   focus, so Tab can still reach the button and reveal it. */
+.project-root > .refresh-button {
+  color: var(--sideBarColor);
+  margin-left: 8px;
+  clip-path: inset(50%);
+}
+.project-root:hover > .refresh-button,
+.project-root:focus-within > .refresh-button {
+  clip-path: none;
+}
+.project-root > .refresh-button:hover {
+  color: var(--highlightThemeColor);
 }
 .root-status {
   padding: 8px 15px;

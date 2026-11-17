@@ -260,6 +260,7 @@
       "noFolders": "Nessuna cartella aggiunta",
       "removeFolder": "Rimuovi dalla barra laterale",
       "retryFolder": "Riprova",
+      "refreshFolder": "Aggiorna",
       "loadingFolder": "Caricamento della cartella…",
       "unavailableFolder": "Cartella non disponibile",
       "overlappingFolder": "Questa cartella si sovrappone a una cartella già esistente. Bisogna prima rimuovere quella già esistente.",
