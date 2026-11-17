@@ -128,6 +128,9 @@ export const useProjectStore = defineStore('project', () => {
   )
 
   function FIND_ROOT(pathname: string): RootView | undefined {
+    // An empty/absent pathname has no drive letter; path.relative would throw
+    // in the renderer where no CWD exists (e.g. after clearing the selection).
+    if (!pathname) return undefined
     return roots.value.find(
       (root) => isWithinRoot(root.pathname, pathname) || isWithinRoot(root.key, pathname)
     )
