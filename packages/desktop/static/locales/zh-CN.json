@@ -443,6 +443,8 @@
         },
         "requiresRestart": "需要重启",
         "hideScrollbars": "隐藏滚动条",
+        "smoothScrolling": "平滑滚动",
+        "smoothScrollingNote": "为鼠标滚轮滚动添加动画。关闭可减少动态效果。",
         "openFilesInNewWindow": "在新窗口中打开文件",
         "openFoldersInNewWindow": "在新窗口中打开文件夹",
         "zoom": "缩放",

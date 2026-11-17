@@ -37,6 +37,11 @@
     "type": "boolean",
     "default": false
   },
+  "smoothScrolling": {
+    "description": "Appearance--Animate wheel scrolling. Changes take effect immediately.",
+    "type": "boolean",
+    "default": true
+  },
   "wordWrapInToc": {
     "description": "General--Whether to enable word wrap in TOC.",
     "type": "boolean",

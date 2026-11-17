@@ -443,6 +443,8 @@
         },
         "requiresRestart": "Richiede il riavvio.",
         "hideScrollbars": "Nascondi le barre di scorrimento",
+        "smoothScrolling": "Scorrimento fluido",
+        "smoothScrollingNote": "Anima lo scorrimento con la rotellina. Disattiva per ridurre il movimento.",
         "openFilesInNewWindow": "Apri i file in una nuova finestra",
         "openFoldersInNewWindow": "Apri le cartelle in una nuova finestra",
         "zoom": "Zoom",

@@ -443,6 +443,8 @@
         },
         "requiresRestart": "再起動が必要",
         "hideScrollbars": "スクロールバーを隠す",
+        "smoothScrolling": "スムーズスクロール",
+        "smoothScrollingNote": "マウスホイールのスクロールをアニメーション表示します。動きを減らすにはオフにしてください。",
         "openFilesInNewWindow": "新しいウィンドウでファイルを開く",
         "openFoldersInNewWindow": "新しいウィンドウでフォルダーを開く",
         "zoom": "ズーム",
