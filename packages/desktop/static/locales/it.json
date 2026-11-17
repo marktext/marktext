@@ -357,6 +357,7 @@
     "headerFooter": {
       "allowStyled": "Consenti testo formattato",
       "customizeStyle": "Formattazione personalizzata",
+      "customizeFontSize": "Customize font size",
       "fontSize": "Dimensione caratteri",
       "footerType": "Tipo di piè di pagina",
       "headerType": "Tipo di intestazione",
@@ -367,6 +368,8 @@
       "mainHeaderText": "Testo principale dell’intestazione",
       "rightFooterText": "Testo del piè di pagina a destra",
       "rightHeaderText": "Testo dell’intestazione a destra",
+      "separatorLines": "Separator lines",
+      "separatorLinesNotes": "Lines between the header or footer and the page content.",
       "description": "Se sono stati definiti intestazione e/o piè di pagina, il loro testo compare in tutte le pagine."
     },
     "toc": {
@@ -391,6 +394,11 @@
         "none": "Nessuno",
         "singleCell": "Area unica",
         "threeCells": "Tre aree"
+      },
+      "headerFooterSeparators": {
+        "theme": "Follow theme",
+        "show": "Show",
+        "hide": "Hide"
       },
       "headerFooterStyles": {
         "default": "Predefinito",

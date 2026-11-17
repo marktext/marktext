@@ -357,6 +357,7 @@
     "headerFooter": {
       "allowStyled": "允許樣式文字",
       "customizeStyle": "自訂樣式",
+      "customizeFontSize": "Customize font size",
       "fontSize": "字型大小",
       "footerType": "頁尾類型",
       "headerType": "頁首類型",
@@ -367,6 +368,8 @@
       "mainHeaderText": "主頁首文字",
       "rightFooterText": "右頁尾文字",
       "rightHeaderText": "右頁首文字",
+      "separatorLines": "Separator lines",
+      "separatorLinesNotes": "Lines between the header or footer and the page content.",
       "description": "如果定義了頁首和/或頁尾，文字將出現在所有頁面上。"
     },
     "toc": {
@@ -391,6 +394,11 @@
         "none": "無",
         "singleCell": "單一儲存格",
         "threeCells": "三個儲存格"
+      },
+      "headerFooterSeparators": {
+        "theme": "Follow theme",
+        "show": "Show",
+        "hide": "Hide"
       },
       "headerFooterStyles": {
         "default": "預設",

@@ -357,6 +357,7 @@
     "headerFooter": {
       "allowStyled": "스타일 텍스트 허용",
       "customizeStyle": "스타일 사용자 정의",
+      "customizeFontSize": "Customize font size",
       "fontSize": "글꼴 크기",
       "footerType": "바닥글 유형",
       "headerType": "머리글 유형",
@@ -367,6 +368,8 @@
       "mainHeaderText": "주 머리글 텍스트",
       "rightFooterText": "오른쪽 바닥글 텍스트",
       "rightHeaderText": "오른쪽 머리글 텍스트",
+      "separatorLines": "Separator lines",
+      "separatorLinesNotes": "Lines between the header or footer and the page content.",
       "description": "머리글 및/또는 바닥글이 정의된 경우 모든 페이지에 텍스트가 나타납니다."
     },
     "toc": {
@@ -391,6 +394,11 @@
         "none": "없음",
         "singleCell": "단일 셀",
         "threeCells": "세 개 셀"
+      },
+      "headerFooterSeparators": {
+        "theme": "Follow theme",
+        "show": "Show",
+        "hide": "Hide"
       },
       "headerFooterStyles": {
         "default": "기본값",

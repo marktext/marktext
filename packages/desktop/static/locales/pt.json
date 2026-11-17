@@ -357,6 +357,7 @@
     "headerFooter": {
       "allowStyled": "Permitir texto estilizado",
       "customizeStyle": "Personalizar estilo",
+      "customizeFontSize": "Customize font size",
       "fontSize": "Tamanho da fonte",
       "footerType": "Tipo de rodapé",
       "headerType": "Tipo de cabeçalho",
@@ -367,6 +368,8 @@
       "mainHeaderText": "Texto principal do cabeçalho",
       "rightFooterText": "Texto do rodapé direito",
       "rightHeaderText": "Texto do cabeçalho direito",
+      "separatorLines": "Separator lines",
+      "separatorLinesNotes": "Lines between the header or footer and the page content.",
       "description": "O texto aparece em todas as páginas se cabeçalho e/ou rodapé estiver definido."
     },
     "toc": {
@@ -391,6 +394,11 @@
         "none": "Nenhum",
         "singleCell": "Célula única",
         "threeCells": "Três células"
+      },
+      "headerFooterSeparators": {
+        "theme": "Follow theme",
+        "show": "Show",
+        "hide": "Hide"
       },
       "headerFooterStyles": {
         "default": "Padrão",

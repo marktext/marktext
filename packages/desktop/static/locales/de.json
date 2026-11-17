@@ -357,6 +357,7 @@
     "headerFooter": {
       "allowStyled": "Gestylten Text erlauben",
       "customizeStyle": "Stil anpassen",
+      "customizeFontSize": "Customize font size",
       "fontSize": "Schriftgröße",
       "footerType": "Fußzeilentyp",
       "headerType": "Kopfzeilentyp",
@@ -367,6 +368,8 @@
       "mainHeaderText": "Haupt-Kopfzeilentext",
       "rightFooterText": "Rechter Fußzeilentext",
       "rightHeaderText": "Rechter Kopfzeilentext",
+      "separatorLines": "Separator lines",
+      "separatorLinesNotes": "Lines between the header or footer and the page content.",
       "description": "Wenn eine Kopf- und/oder Fußzeile definiert ist, wird der Text auf allen Seiten angezeigt."
     },
     "toc": {
@@ -391,6 +394,11 @@
         "none": "Keine",
         "singleCell": "Einzelne Zelle",
         "threeCells": "Drei Zellen"
+      },
+      "headerFooterSeparators": {
+        "theme": "Follow theme",
+        "show": "Show",
+        "hide": "Hide"
       },
       "headerFooterStyles": {
         "default": "Standard",

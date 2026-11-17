@@ -357,6 +357,7 @@
     "headerFooter": {
       "allowStyled": "Разрешить форматированный текст",
       "customizeStyle": "Настроить стиль",
+      "customizeFontSize": "Customize font size",
       "fontSize": "Размер шрифта",
       "footerType": "Тип нижнего колонтитула",
       "headerType": "Тип верхнего колонтитула",
@@ -367,6 +368,8 @@
       "mainHeaderText": "Текст основного верхнего колонтитула",
       "rightFooterText": "Текст правого нижнего колонтитула",
       "rightHeaderText": "Текст правого верхнего колонтитула",
+      "separatorLines": "Separator lines",
+      "separatorLinesNotes": "Lines between the header or footer and the page content.",
       "description": "Текст отображается на всех страницах, если задан верхний и/или нижний колонтитул."
     },
     "toc": {
@@ -391,6 +394,11 @@
         "none": "Нет",
         "singleCell": "Одна ячейка",
         "threeCells": "Три ячейки"
+      },
+      "headerFooterSeparators": {
+        "theme": "Follow theme",
+        "show": "Show",
+        "hide": "Hide"
       },
       "headerFooterStyles": {
         "default": "По умолчанию",
