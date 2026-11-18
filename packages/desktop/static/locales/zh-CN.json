@@ -259,6 +259,7 @@
       "noFolders": "尚未添加文件夹",
       "removeFolder": "从侧边栏移除",
       "retryFolder": "重试",
+      "refreshFolder": "刷新",
       "loadingFolder": "正在加载文件夹…",
       "unavailableFolder": "文件夹不可用",
       "overlappingFolder": "此文件夹与已添加项存在包含关系，请先移除已有项。",
