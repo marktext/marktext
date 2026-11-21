@@ -824,6 +824,13 @@ li.mu-task-list-item > span.mu-checkbox-checked::before {
     text-align: right;
 }
 
+/* The header row of a column without an alignment marker exports as a bare
+   `<th>`, which browsers and GitHub center by default, so the editor centers
+   it too to match HTML and PDF exports (#6101). */
+.mu-table-inner tr:first-child td[data-align='none'] {
+    text-align: center;
+}
+
 /* html block and math block, diagram block */
 figure.mu-html-block > .mu-html-container,
 figure.mu-math-block > .mu-math-container,
