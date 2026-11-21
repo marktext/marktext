@@ -6,6 +6,7 @@ export { it } from './it';
 export { ja } from './ja';
 export { ko } from './ko';
 export { nl } from './nl';
+export { pl } from './pl';
 export { pt } from './pt';
 export { ru } from './ru';
 export { tr } from './tr';
