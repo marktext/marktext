@@ -1,3 +1,4 @@
+import type { TabTransferInvokeChannels, TabTransferSendChannels, TabTransferMainEvents } from './tabTransfer'
 import type { ProjectRootsSnapshot, ProjectTreeEvent, SidebarMoveRequest, SidebarMoveResult } from './project'
 /**
  * Cross-process IPC contract: invoke returns a Promise, send is fire-and-forget,
@@ -35,7 +36,7 @@ export type SaveDocumentResult =
 
 import type { StateIpcInvokeChannels, StateIpcMainEvents } from './applicationState'
 
-export interface IpcInvokeChannels extends StateIpcInvokeChannels {
+export interface IpcInvokeChannels extends StateIpcInvokeChannels, TabTransferInvokeChannels {
   'mt::get-recently-used-documents': { args: []; ret: RecentDocument[] }
   'mt::project-remove-root': { args: [key: string]; ret: boolean }
   'mt::project-retry-root': { args: [key: string]; ret: boolean }
@@ -103,7 +104,7 @@ export interface IpcInvokeChannels extends StateIpcInvokeChannels {
   // no need to pass windowId. Payload is the editor+project+layout snapshot.
 }
 
-export interface IpcSendChannels {
+export interface IpcSendChannels extends TabTransferSendChannels {
   'mt::cmd-add-folder': []
   'mt::project-renderer-ready': []
   'mt::forget-document': [tabId: string]
@@ -208,7 +209,7 @@ export interface IpcSyncChannels {
   'mt::paths::is-same-sync': { args: [a: string, b: string]; ret: boolean }
 }
 
-export interface IpcMainEventChannels extends StateIpcMainEvents {
+export interface IpcMainEventChannels extends StateIpcMainEvents, TabTransferMainEvents {
   'mt::toggle-read-only': []
   'language-changed': [language: string]
   'mt::UPDATE_AVAILABLE': [info?: unknown]

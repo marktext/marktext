@@ -23,3 +23,27 @@
 .gu-transit {
   opacity: 0.2;
 }
+
+.tab-transfer-ghost {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  color: var(--editorColor);
+  background: var(--floatBgColor);
+  box-shadow: var(--floatShadow);
+  font-size: 12px;
+}
+.editor-tabs.tab-drop-target {
+  box-shadow: inset 0 0 0 1px var(--themeColor);
+}
+.tabs-container > li.tab-transferring {
+  opacity: 0.5;
+}
+.tabs-container > li.tab-insert-before {
+  box-shadow: inset 2px 0 var(--themeColor);
+}
+.tabs-container > li.tab-insert-after {
+  box-shadow: inset -2px 0 var(--themeColor);
+}

@@ -485,7 +485,10 @@ onMounted(() => {
   codeMirrorInstance.on('cursorActivity', documentViewChanged)
   listenChange(codeMirrorInstance)
   registerSourceView(async () => {
-    if (editor.value) saveContent(editor.value)
+    if (editor.value) {
+      saveContent(editor.value)
+      captureSourceHistory(tabId.value, editor.value, editorStore.tabs.find(tab => tab.id === tabId.value)?.markdown)
+    }
   })
 })
 

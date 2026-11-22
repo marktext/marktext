@@ -665,7 +665,7 @@ export const useEditorStore = defineStore('editor', {
           this.flushActiveEditor()
           getSessionActions()?.captureView()
         }
-        window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
+        window.DIRNAME = pathname ? window.path.dirname(pathname) : (currentFile.resourceBaseDirectory ?? '')
         this.currentFile = currentFile
         applyReadOnly(currentFile.readOnly)
         this.selectionWordCount = null
@@ -800,7 +800,7 @@ export const useEditorStore = defineStore('editor', {
         if (fileState && typeof fileState.markdown === 'string') {
           const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
             fileState
-          window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
+          window.DIRNAME = pathname ? window.path.dirname(pathname) : (fileState.resourceBaseDirectory ?? '')
           bus.emit('file-changed', {
             id,
             markdown,

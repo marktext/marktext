@@ -62,6 +62,7 @@ export interface IFileState {
   filename: string
   // Empty for untitled buffers; always a string at runtime.
   pathname: string
+  resourceBaseDirectory?: string
   markdown: string
   isSaved: boolean
   encoding: FileEncoding

@@ -9,6 +9,10 @@ export const registerSourceView = (view: (() => Promise<void>) | null): void => 
   sourceView = view
 }
 
+export const flushSourceView = async(): Promise<void> => {
+  if (sourceView) await sourceView()
+}
+
 export const prepareReading = async(): Promise<void> => {
   if (sourceView) await sourceView()
   documentView?.(true)
@@ -26,7 +30,7 @@ interface SourceHistoryView {
   clearHistory: () => void
 }
 
-const sourceHistory = new Map<
+export const sourceHistory = new Map<
   string,
   { markdown: string; canonicalMarkdown: string; history: unknown }
 >()

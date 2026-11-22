@@ -111,9 +111,7 @@ import {
   type IPreviewDiagramPayload,
   type IMuyaOptions,
   type IReplaceOption,
-  type ISearchOption,
-  type ISerializedHistory,
-  type IHeadingFoldState
+  type ISearchOption
 } from '@muyajs/core'
 import { getMuyaLocale } from '@/util/muyaLocale'
 import { createMuyaShortcutResolvers } from '@/util/muyaShortcuts'
@@ -122,6 +120,7 @@ import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
 import { applyCursor, isIndexCursor } from '@/util/cursor'
 import EditorSearch from '../search/index.vue'
 import MediaViewer from '../mediaViewer/index.vue'
+import { engineHistoryByTab, headingFoldsByTab, portableHistoryByTab, registerRenderedHistoryCapture } from '@/services/tabHistory'
 import bus from '@/bus'
 import { DEFAULT_EDITOR_FONT_FAMILY, DEFAULT_CODE_FONT_FAMILY } from '@/config'
 import notice from '@/services/notification'
@@ -281,11 +280,6 @@ let switchLanguageCommand: SpellcheckerLanguageCommand | null = null
 // The engine has no `scroll` event; we listen on the scroll container directly.
 let scrollHandler: ((e: Event) => void) | null = null
 
-// Keep engine undo history per tab; the store uses a separate save-tracking history shape.
-const engineHistoryByTab = new Map<string, ISerializedHistory>()
-
-const headingFoldsByTab = new Map<string, { markdown: string; folds: IHeadingFoldState[] }>()
-
 const captureHeadingFolds = (): void => {
   if (!editor.value || !renderedDocumentId || !tabs.value.some(tab => tab.id === renderedDocumentId)) return
   headingFoldsByTab.set(renderedDocumentId, {
@@ -318,6 +312,9 @@ const makeSyntheticHistory = (id: string, content: string): IFileHistoryLike => 
 // Tab IDs are session-unique; prune closed tabs so per-tab maps cannot grow indefinitely.
 const pruneClosedTabState = (liveTabIds: Set<string>): void => {
   pruneSourceHistory(liveTabIds)
+  for (const id of portableHistoryByTab.keys()) {
+    if (!liveTabIds.has(id)) portableHistoryByTab.delete(id)
+  }
   for (const id of engineHistoryByTab.keys()) {
     if (!liveTabIds.has(id)) engineHistoryByTab.delete(id)
   }
@@ -1590,6 +1587,22 @@ const handleFileChange = (payload: unknown) => {
         // history after.
         editor.value.setCursorByOffset(muyaIndexCursor)
       }
+      const portable = id ? portableHistoryByTab.get(id) : undefined
+      if (portable) {
+        loadingContent = true
+        try {
+          const states = [...portable.undo].reverse()
+          editor.value.setContent(states.shift() ?? newMarkdown)
+          for (const markdown of [...states, newMarkdown, ...portable.redo]) editor.value.replaceContent(markdown)
+          for (let i = 0; i < portable.redo.length; i++) editor.value.undo()
+          if (id) {
+            engineHistoryByTab.set(id, editor.value.getHistory())
+            portableHistoryByTab.delete(id)
+          }
+        } finally {
+          loadingContent = false
+        }
+      }
       const savedEngineHistory = id ? engineHistoryByTab.get(id) : undefined
       if (savedEngineHistory) {
         editor.value.setHistory(savedEngineHistory)
@@ -1904,6 +1917,40 @@ onMounted(() => {
   bus.on('insert-image', insertImage)
   bus.on('image-uploaded', handleUploadedImage)
   bus.on('file-changed', handleFileChange)
+  registerRenderedHistoryCapture((id, markdown) => {
+    const engine = editor.value
+    if (!engine) return { undo: [], redo: [] }
+    const state = engine.getState()
+    const history = engine.getHistory()
+    const selection = engine.getSelectionState()
+    const scrollContainer = getScrollContainer()
+    const scrollTop = scrollContainer?.scrollTop ?? 0
+    loadingContent = true
+    try {
+      engine.setContent(markdown)
+      const captured = engineHistoryByTab.get(id)
+      if (captured) engine.setHistory(captured)
+      const initial = engine.getHistory()
+      const snapshots = { undo: [] as string[], redo: [] as string[] }
+      for (let i = 0; i < initial.stack.undo.length; i++) {
+        engine.undo()
+        snapshots.undo.push(engine.getMarkdown())
+      }
+      engine.setContent(markdown)
+      engine.setHistory(initial)
+      for (let i = 0; i < initial.stack.redo.length; i++) {
+        engine.redo()
+        snapshots.redo.push(engine.getMarkdown())
+      }
+      return snapshots
+    } finally {
+      engine.setContent(state)
+      engine.setHistory(history)
+      if (selection) engine.setSelection(selection)
+      if (scrollContainer) scrollContainer.scrollTop = scrollTop
+      loadingContent = false
+    }
+  })
   bus.on('flush-active-editor', flushActiveEditor)
   bus.on('editor-blur', blurEditor)
   bus.on('editor-focus', focusEditor)
@@ -2077,6 +2124,7 @@ onBeforeUnmount(() => {
   bus.off('insert-image', insertImage)
   bus.off('image-uploaded', handleUploadedImage)
   bus.off('file-changed', handleFileChange)
+  registerRenderedHistoryCapture(null)
   bus.off('flush-active-editor', flushActiveEditor)
   bus.off('editor-blur', blurEditor)
   bus.off('editor-focus', focusEditor)

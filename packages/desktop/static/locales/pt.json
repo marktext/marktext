@@ -220,7 +220,9 @@
       "rename": "Renomear",
       "copyPath": "Copiar caminho",
       "showInFolder": "Mostrar na pasta",
-      "showInSideBar": "Mostrar na barra lateral"
+      "showInSideBar": "Mostrar na barra lateral",
+      "moveToNewWindow": "Move Tab to New Window",
+      "moveToWindow": "Move Tab to Window"
     }
   },
   "search": {
@@ -1041,7 +1043,11 @@
     },
     "tabs": {
       "close": "Fechar {name}",
-      "preview": "{name}, aba de visualização"
+      "preview": "{name}, aba de visualização",
+      "transfer": {
+        "duplicate": "This file is already open in the destination window. Both documents have been kept.",
+        "failed": "The tab could not be moved. Your document remains available in its original window."
+      }
     }
   },
   "readingMode": {

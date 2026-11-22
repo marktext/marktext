@@ -252,6 +252,7 @@ export const parseDocument = (value: unknown): DocumentSnapshot | null => {
   return {
     id: value.id,
     title: value.title,
+    ...(typeof value.resourceBaseDirectory === 'string' ? { resourceBaseDirectory: value.resourceBaseDirectory } : {}),
     resource,
     content,
     readOnly: value.readOnly,

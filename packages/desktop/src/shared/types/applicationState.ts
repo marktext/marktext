@@ -94,6 +94,8 @@ export type DocumentContentState =
 export interface DocumentSnapshot {
   id: DocumentId
   title: string
+  // Untitled documents retain their source directory when moved between workspaces.
+  resourceBaseDirectory?: string
   resource: DocumentResource
   content: DocumentContentState
   readOnly: boolean

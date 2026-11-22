@@ -50,6 +50,8 @@ class App {
 
   constructor(accessor: Accessor, args: Partial<CliArgs>) {
     this._accessor = accessor
+    accessor.sessionHost.setTransferWindowFactory((prepared, options) =>
+      this._createEditorWindow(null, [], [], options, {}, prepared))
     this._args = (args as CliArgs) || ({ _: [] } as CliArgs)
     this._openFilesCache = []
     this._openFilesTimer = null
