@@ -72,7 +72,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       id: 'tabBarMenuItem',
       accelerator: keybindings.getAccelerator('view.toggle-tabbar') ?? undefined,
       type: 'checkbox',
-      checked: false,
+      checked: true,
       click(_item, focusedWindow) {
         actions.toggleTabBar(focusedWindow as BrowserWindow | undefined)
       }

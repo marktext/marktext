@@ -14,7 +14,7 @@ export const createDefaultLayout = (
     openedFiles: { expanded: true, preferredHeightPx: 112 }
   },
   outline: { visible: true, position: preferences.tocPosition, preferredWidthPx: 220 },
-  tabBar: { visible: false },
+  tabBar: { visible: true },
   modes: { sourceCode: preferences.sourceCodeModeEnabled, focus: false, typewriter: false }
 })
 
