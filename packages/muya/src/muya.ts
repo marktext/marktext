@@ -196,7 +196,7 @@ export class Muya {
         this.hideAllFloatTools();
         this.editor.selection.clearImage();
         this.editor.selection.table.clear();
-        this._refreshReadingPresentation();
+        this._refreshReadingPresentation(true);
         this.eventCenter.emit('read-only-changed', readOnly);
     }
 
@@ -211,7 +211,7 @@ export class Muya {
         this._cancelReadingLink = attachReadingEvents(this);
     }
 
-    private _refreshReadingPresentation(): void {
+    private _refreshReadingPresentation(retainSearchMatch = false): void {
         const { domNode, isReadOnly } = this;
         const contentEditable = String(!isReadOnly);
         // Reassigning editability on a connected tree makes Chromium revisit every descendant (#5860).
@@ -233,6 +233,8 @@ export class Muya {
         });
         if (isReadOnly)
             prepareReadingLinks(domNode);
+        if (isReadOnly || retainSearchMatch)
+            this.editor.searchModule.refresh(retainSearchMatch);
     }
 
     private _bindFocusBlurEvents() {
@@ -464,7 +466,8 @@ export class Muya {
         this.editor.scrollPage?.updateState(this.getState());
         if (!this.setSelection(selection))
             this.setSelection(null);
-        this.editor.searchModule.refresh();
+        if (!this.isReadOnly)
+            this.editor.searchModule.refresh();
     }
 
     setListIndentation(listIndentation: IMuyaOptions['listIndentation']) {

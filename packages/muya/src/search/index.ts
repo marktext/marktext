@@ -9,6 +9,7 @@ import { DEFAULT_SEARCH_OPTIONS } from '../config';
 import { comparePaths, contentPath, resolveContent, resolveEndpoint } from '../selection/state';
 import { SelectionDirection, SelectionType } from '../selection/types';
 import { buildRegexValue, matchString } from '../utils/search';
+import { filterReadingMatches } from './readingMatches';
 
 type SearchPosition = Pick<IAnchorFocusInfo, 'block' | 'offset'>;
 
@@ -342,13 +343,17 @@ export class Search {
     }
 
     search(query: string, opts: ISearchOption = {}) {
+        return this._runSearch(query, opts);
+    }
+
+    private _runSearch(query: string, opts: ISearchOption, retain?: IMatch) {
         const focused = document.activeElement;
         const selection = this._muya.editor.selection.getSelectionState();
         if (!this._startPosition && selection?.kind === SelectionType.TEXT)
             this._startPosition = { path: [...selection.focus.path], offset: selection.focus.offset };
         this._updating = true;
         try {
-            return this._search(query, opts);
+            return this._search(query, opts, retain);
         }
         finally {
             this._updating = false;
@@ -357,7 +362,7 @@ export class Search {
         }
     }
 
-    private _search(query: string, opts: ISearchOption) {
+    private _search(query: string, opts: ISearchOption, retain?: IMatch) {
         const selection = this._muya.editor.selection.getSelectionState();
         const matches: IMatch[] = [];
         this._options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, opts);
@@ -375,7 +380,8 @@ export class Search {
                 if (block.isContent()) {
                     const { text } = block;
                     if (text && typeof text === 'string') {
-                        const strMatches = matchString(text, query, this._options);
+                        const rawMatches = matchString(text, query, this._options);
+                        const strMatches = this._muya.isReadOnly ? filterReadingMatches(block.domNode, rawMatches) : rawMatches;
                         matches.push(
                             ...strMatches.map(({ index, match, subMatches }) => {
                                 return {
@@ -392,7 +398,10 @@ export class Search {
             });
         }
 
-        const index = this._searchIndex(matches, highlightIndex, selectHighlight ? null : selection);
+        const retainedIndex = retain
+            ? matches.findIndex(({ block, start, end }) => block === retain.block && start === retain.start && end === retain.end)
+            : -1;
+        const index = this._searchIndex(matches, retainedIndex >= 0 ? retainedIndex : highlightIndex, selectHighlight ? null : selection);
         Object.assign(this, { matches, index });
 
         this._updateMatches();
@@ -429,8 +438,8 @@ export class Search {
         return index < 0 ? 0 : index;
     }
 
-    /** Refresh visible results; defer hidden results until reopening or navigation. */
-    refresh(): this {
+    /** Refresh visible results. A mode switch can retain the same source match at a new index. */
+    refresh(retainMatch = false): this {
         const { _query: query, _options: options, index: highlightIndex } = this;
 
         if (!query) {
@@ -441,7 +450,7 @@ export class Search {
             return this;
         }
 
-        this.search(query, { ...options, highlightIndex, selectHighlight: false });
+        this._runSearch(query, { ...options, highlightIndex, selectHighlight: false }, retainMatch ? this.matches[highlightIndex] : undefined);
 
         this._muya.eventCenter.emit('search-refreshed', this);
 

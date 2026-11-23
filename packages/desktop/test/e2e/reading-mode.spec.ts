@@ -429,6 +429,93 @@ test('entering reading mode with Replace open keeps the query and removes replac
   }
 })
 
+test('entering reading mode keeps all search highlights and the active match', async() => {
+  const { app, page } = await launchWithMarkdown(
+    '[Example](https://needle.example)\n\nneedle one\n\nneedle two\n\nneedle three\n'
+  )
+  try {
+    await clickMenuById(app, 'findMenuItem')
+    const searchBar = page.locator('.search-bar')
+    const input = searchBar.locator('.search input')
+    const counter = searchBar.locator('.search-result')
+    const editor = page.locator('.mu-editor')
+    await input.fill('needle')
+    await expect(counter).toContainText('1 / 4')
+    await input.press('Enter')
+    await expect(counter).toContainText('2 / 4')
+    await input.press('Enter')
+    await expect(counter).toContainText('3 / 4')
+    await expect(editor.locator('.mu-highlight')).toHaveCount(1)
+    const otherMatches = editor.locator('.mu-paragraph').filter({ hasText: /needle (one|three)/ })
+    await expect(otherMatches.locator('.mu-selection')).toHaveCount(2)
+
+    await clickMenuById(app, 'readOnlyModeMenuItem')
+    await expect(editor).toHaveClass(/mu-read-only/)
+    await expect(counter).toContainText('2 / 3')
+    await expect(editor.locator('.mu-highlight')).toHaveCount(1)
+    await expect(editor.locator('.mu-paragraph').filter({ hasText: 'needle two' }).locator('.mu-highlight')).toBeVisible()
+    await expect(editor.locator('.mu-selection')).toHaveCount(2)
+    await input.press('Enter')
+    await expect(counter).toContainText('3 / 3')
+    await expect(editor.locator('.mu-selection')).toHaveCount(2)
+
+    await clickMenuById(app, 'readOnlyModeMenuItem')
+    await expect(editor).not.toHaveClass(/mu-read-only/)
+    await expect(counter).toContainText('4 / 4')
+  } finally {
+    await app.close()
+  }
+})
+
+test('reading mode excludes matches in hidden Markdown syntax', async() => {
+  const { app, page } = await launchWithMarkdown(
+    '[Example](https://needle.example) and **needle**\n\n```js title=needle\nneedle\n```\n'
+  )
+  try {
+    await toggleReadingMode(page)
+    await clickMenuById(app, 'findMenuItem')
+    const searchBar = page.locator('.search-bar')
+    const input = searchBar.locator('.search input')
+    const counter = searchBar.locator('.search-result')
+    await input.fill('needle')
+    await expect(counter).toContainText('1 / 2')
+    await expect(page.locator('.mu-read-only strong .mu-highlight')).toBeVisible()
+    await input.press('Enter')
+    await expect(counter).toContainText('2 / 2')
+    await expect(page.locator('.mu-read-only .mu-codeblock-content .mu-highlight')).toBeVisible()
+    await input.fill('https://needle.example')
+    await expect(counter).toContainText('0 / 0')
+  } finally {
+    await app.close()
+  }
+})
+
+for (const [control, selector, menuId] of [
+  ['collapsed Replace toggle', '.left-arrow', 'findMenuItem'],
+  ['expanded Replace toggle', '.left-arrow', 'replaceMenuItem'],
+  ['Replace button', '.replace .button', 'replaceMenuItem']
+]) {
+  test(`entering reading mode moves focus from the ${control} to Find`, async() => {
+    const { app, page } = await launchWithMarkdown('needle one\n\nneedle two\n')
+    try {
+      await clickMenuById(app, menuId)
+      const searchBar = page.locator('.search-bar')
+      const input = searchBar.locator('.search input')
+      await input.fill('needle')
+      await expect(searchBar.locator('.search-result')).toContainText('1 / 2')
+      const focused = searchBar.locator(selector).first()
+      await focused.focus()
+      await expect(focused).toBeFocused()
+
+      await clickMenuById(app, 'readOnlyModeMenuItem')
+      await expect(page.locator('.mu-read-only')).toBeVisible()
+      await expect(input).toBeFocused()
+    } finally {
+      await app.close()
+    }
+  })
+}
+
 test('native selection and copying retain Markdown and rich HTML while reading', async() => {
   const { app, page, filePath } = await launchWithMarkdown('**bold** and [link](https://example.com)\n')
   try {

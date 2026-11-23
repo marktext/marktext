@@ -5,6 +5,7 @@
   >
     <button
       v-if="!readOnly"
+      ref="replaceToggle"
       type="button"
       class="plain-button left-arrow"
       :aria-label="t('menu.edit.replace')"
@@ -110,6 +111,7 @@
       </section>
       <section
         v-if="type === 'replace'"
+        ref="replaceControls"
         class="replace"
       >
         <div class="input-wrapper replace-input input-focus-border">
@@ -194,15 +196,20 @@ const searchValue = ref('')
 const replaceValue = ref('')
 const searchErrorMsg = ref('')
 const search = ref<HTMLInputElement | null>(null)
+const replaceToggle = ref<HTMLButtonElement | null>(null)
+const replaceControls = ref<HTMLElement | null>(null)
 const replacement = ref<HTMLInputElement | null>(null)
 let prefilling = false
 
 const { currentFile } = storeToRefs(editorStore)
 const readOnly = computed(() => !!currentFile.value?.readOnly)
 watch(readOnly, (locked) => {
-  if (!locked || type.value !== 'replace') return
+  if (!locked) return
+  const focused = document.activeElement
+  if (focused === replaceToggle.value || replaceControls.value?.contains(focused)) {
+    search.value?.focus({ preventScroll: true })
+  }
   type.value = 'search'
-  if (replacement.value === document.activeElement) search.value?.focus()
 })
 const searchMatches = computed(() => currentFile.value?.searchMatches)
 const singleLineSelection = computed(() => {
