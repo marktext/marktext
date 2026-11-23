@@ -1,3 +1,4 @@
+
 export type FileCreateType = 'file' | 'directory'
 export type PasteType = 'cut' | 'copy'
 export type HashType = 'sha1' | 'sha256' | 'sha512'
@@ -61,10 +62,20 @@ export const moveImageToFolder = async(
   currentPathname: string | null = null
 ): Promise<string> => {
   await window.fileUtils.ensureDir(outputDir)
-  const toResult = (absolutePath: string) =>
-    isRelative && currentPathname
-      ? window.path.relative(window.path.dirname(currentPathname), absolutePath)
-      : absolutePath
+
+  const toResult = (absolutePath: string): string => {
+    if (isRelative && currentPathname) {
+      const relativePath = window.path.relative(
+        window.path.dirname(currentPathname),
+        absolutePath
+      )
+
+      return relativePath.split('\\').join('/')
+    }
+
+    return absolutePath
+  }
+
   const isPath = typeof image === 'string'
   if (isPath) {
     const dir = window.path.dirname(pathname)
