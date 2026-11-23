@@ -14,6 +14,7 @@ const SUPPORTED_LANGUAGES = [
   'ja',
   'ko',
   'nl',
+  'pl',
   'pt',
   'tr',
   'ru'
