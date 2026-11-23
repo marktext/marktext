@@ -1,4 +1,5 @@
 import type { IHighlight } from '../../inline/model/types';
+import type { IReadingSpan } from '../../inline/readingText';
 import type { Muya } from '../../muya';
 import type { IContentCursor, INodeOffset, IRenderCursor } from '../../selection/types';
 import type { Nullable } from '../../types';
@@ -8,6 +9,7 @@ import diff from 'fast-diff';
 import TreeNode from '../../block/base/treeNode';
 import { ScrollPage } from '../../block/scrollPage';
 import { BACK_HASH, BRACKET_HASH, CLASS_NAMES, EVENT_KEYS, isOsx } from '../../config';
+import { visibleReadingSpans } from '../../inline/readingText';
 import Selection from '../../selection';
 import { offsetInBlockAtPoint } from '../../selection/dom';
 import { createTextSelectionState } from '../../selection/state';
@@ -367,6 +369,12 @@ class Content extends TreeNode {
 
     protected get selection() {
         return this.muya.editor.selection;
+    }
+
+    renderedSpans?: IReadingSpan[];
+
+    getReadingSpans(): IReadingSpan[] {
+        return visibleReadingSpans(this.renderedSpans ?? [], this.domNode ?? null);
     }
 
     protected get inlineEngine() {

@@ -120,6 +120,24 @@ describe('find interaction', () => {
         input.remove();
     });
 
+    it('returns the document selection to the find input when selecting a result while reading', () => {
+        muya.setReadOnly(true);
+        const input = document.createElement('input');
+        document.body.appendChild(input);
+        input.value = 'apple';
+        input.focus();
+        input.setSelectionRange(2, 3);
+        // Selecting a match in a non-editable view leaves focus in place, so focus() alone cannot move the caret back.
+        const setSelectionRange = vi.spyOn(input, 'setSelectionRange');
+        muya.search('apple', { selectHighlight: true });
+        expect(document.activeElement).toBe(input);
+        expect(setSelectionRange).toHaveBeenLastCalledWith(2, 3, expect.anything());
+        setSelectionRange.mockClear();
+        muya.find('next');
+        expect(setSelectionRange).toHaveBeenLastCalledWith(2, 3, expect.anything());
+        input.remove();
+    });
+
     it('keeps the logical match when moving between external inputs collapses the DOM range', () => {
         muya.search('apple', { selectHighlight: true });
         const selected = muya.getSelectionState();
@@ -185,5 +203,74 @@ describe('find interaction', () => {
         muya.search('apple', { selectHighlight: true });
         blocks()[1].text = 'banana pear';
         await vi.waitFor(() => expect(muya.editor.searchModule.matches).toHaveLength(3));
+    });
+});
+
+describe('reading text and source ranges', () => {
+    it.each([
+        ['hello **world**', 'hello world', 'hello **world'],
+        ['[example](https://needle.test)', 'needle', null],
+        ['a$x$b', 'ab', null],
+        ['a![alt](diagram.png)b', 'ab', null],
+        ['A :missing: B', ':missing:', ':missing:'],
+        ['a<br>b', 'ab', null],
+        ['a<br>b', 'a\nb', 'a<br>b'],
+        ['R&amp;D', 'RD', null],
+        ['R&#38;D', 'R&D', 'R&#38;D'],
+        ['A&#x1F600;B', '😀', '&#x1F600;'],
+        ['A :smile: B', '😄', ':smile:'],
+        ['Ruby <ruby>**字**<rt>zi</rt></ruby>', '**字**', '**字**'],
+        ['Ruby <ruby>字<rt>zi</rt></ruby>', 'zi', 'zi'],
+        ['Ruby <ruby>字<rt>zi</ruby>', 'zi', 'zi'],
+        ['Ruby <ruby>a<!--hidden-->b<rt>c</ruby>', 'hidden', null],
+        ['Ruby <ruby>R&amp;D<rt>r</ruby>', 'R&D', 'R&amp;D'],
+        ['Above\n\n---\n\nBelow', '---', null],
+        ['```js title=needle\nneedle\n```', 'needle', 'needle'],
+    ])('maps %j looking for %j to %j', (source, query, expected) => {
+        muya.setContent(source!);
+        muya.setReadOnly(true);
+        const { matches } = muya.search(query!, { selectHighlight: false });
+        expect(matches.map(({ block, start, end }) => block.text.slice(start, end))).toEqual(expected === null ? [] : [expected]);
+        if (expected !== null) {
+            const [{ block, start, end }] = matches;
+            block.setCursor(start, end);
+            expect(muya.getSearchSelection()).toBe(query);
+        }
+    });
+
+    it('matches a heading from its first authored character', () => {
+        muya.setContent('# Needle');
+        muya.setReadOnly(true);
+        expect(muya.search('^Needle', { isRegexp: true }).matches).toHaveLength(1);
+    });
+
+    it.each(['$x$', '![alt](diagram.png)'])('keeps %s from creating regex anchors within a paragraph', (object) => {
+        muya.setContent(`A${object}beta\n\nbeta control\n\ncontrol A\n\n${object}beta${object}`);
+        muya.setReadOnly(true);
+        const matches = (query: string) => {
+            const result = muya.search(query, { isRegexp: true, isCaseSensitive: true });
+            return result.matches.map(hit => hit.block.text.slice(hit.start, hit.end));
+        };
+        expect.soft(matches('^beta')).toEqual(['beta']);
+        expect.soft(matches('A$')).toEqual(['A']);
+        expect.soft(matches('^beta$')).toEqual([]);
+        expect.soft(matches('^A|beta$')).toEqual(['A', 'beta']);
+        expect.soft(matches('^beta|ta')).toEqual(['ta', 'beta', 'ta']);
+        expect.soft(matches('A.*beta')).toEqual([]);
+    });
+
+    it('preserves escaped anchors and character classes next to a formula', () => {
+        muya.setContent('A$x$`^$z`$y$B');
+        muya.setReadOnly(true);
+        for (const pattern of [String.raw`\^\$`, '[$^]{2}', '[^z]{2}'])
+            expect(muya.search(pattern, { isRegexp: true }).matches.map(hit => hit.match)).toEqual(['^$']);
+    });
+
+    it('evaluates regular expressions on the same text that is highlighted', () => {
+        muya.setContent('Hello **world**.\n\nHello world!');
+        muya.setReadOnly(true);
+        const { matches } = muya.search('^Hello .*world\\.$', { isRegexp: true });
+        expect(matches.map(hit => hit.match)).toEqual(['Hello world.']);
+        expect(muya.domNode.querySelector('strong .mu-highlight')?.textContent).toBe('world');
     });
 });

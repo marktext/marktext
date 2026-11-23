@@ -1,3 +1,4 @@
+import type { IHighlight } from '../../../inline/model/types';
 import type { Muya } from '../../../muya';
 import type { IRenderCursor } from '../../../selection/types';
 import type AtxHeading from '../../commonMark/atxHeading';
@@ -39,7 +40,7 @@ class AtxHeadingContent extends Format {
         return true;
     }
 
-    override update(cursor?: IRenderCursor, highlights = []) {
+    override update(cursor?: IRenderCursor, highlights?: IHighlight[]) {
         return this.inlineEngine.patch(this, cursor, highlights);
     }
 

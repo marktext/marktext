@@ -129,7 +129,9 @@ export default function image(
             });
         }
 
-        return h(`span.${CLASS_NAMES.MU_IMAGE_CONTAINER}`, data, args);
+        const node = h(`span.${CLASS_NAMES.MU_IMAGE_CONTAINER}`, data, args);
+        this.reading?.mark(node, { ...token.range, text: '', object: true });
+        return node;
     };
 
     if (typeof token.attrs['data-align'] === 'string')

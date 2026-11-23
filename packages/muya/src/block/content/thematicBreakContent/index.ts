@@ -1,3 +1,4 @@
+import type { IHighlight } from '../../../inline/model/types';
 import type { Muya } from '../../../muya';
 import type { IRenderCursor } from '../../../selection/types';
 import { isKeyboardEvent } from '../../../utils';
@@ -23,7 +24,7 @@ class ThematicBreakContent extends Format {
         return this.parent;
     }
 
-    override update(cursor?: IRenderCursor, highlights = []) {
+    override update(cursor?: IRenderCursor, highlights?: IHighlight[]) {
         return this.inlineEngine.patch(this, cursor, highlights);
     }
 

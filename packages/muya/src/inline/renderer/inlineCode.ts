@@ -4,6 +4,7 @@ import type Renderer from './index';
 import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 import { delimitedRanges } from '../model/ranges';
+import { renderedText } from '../readingText';
 
 function codeContent(
     renderer: Renderer,
@@ -24,9 +25,10 @@ function codeContent(
         const from = start + match.index;
         nodes.push(...renderer.highlight(h, block, pos, from, token));
         const to = from + match[0].length;
-        nodes.push(h('span', {
+        const newline = h('span', {
             class: { [CLASS_NAMES.MU_SOFT_NEWLINE_AS_SPACE]: hidden },
-        }, renderer.highlight(h, block, from, to, token)));
+        }, renderer.highlight(h, block, from, to, token));
+        nodes.push(renderedText(renderer, ' ', from, to, newline));
         pos = to;
     }
     nodes.push(...renderer.highlight(h, block, pos, end, token));

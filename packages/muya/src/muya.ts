@@ -24,6 +24,7 @@ import { Editor } from './editor/index';
 import { attachReadingEvents, prepareReadingLinks } from './editor/readOnly';
 import EventCenter from './event/index';
 import I18n from './i18n/index';
+import { selectedReadingText } from './inline/readingText';
 
 import {
     injectSentinels,
@@ -32,6 +33,7 @@ import {
     resolveSentinelCursor,
 } from './selection/offsetCursor';
 import { createTextSelectionState } from './selection/state';
+import { SelectionType } from './selection/types';
 import { atxHeadingBody, atxHeadingBodyRange } from './state/headings';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState, markdownListMarker } from './state/types';
 import { ChangeSource } from './types';
@@ -191,12 +193,15 @@ export class Muya {
         if (readOnly === this.isReadOnly)
             return;
         this.flush();
+        const selection = this.domNode.contains(this.domNode.ownerDocument.activeElement) ? this.getSelectionState() : null;
         this.editor.activeContentBlock = null;
         this.options.readOnly = readOnly;
         this.hideAllFloatTools();
         this.editor.selection.clearImage();
         this.editor.selection.table.clear();
-        this._refreshReadingPresentation();
+        this._refreshReadingPresentation(true);
+        if (selection?.kind === SelectionType.TEXT)
+            this.setSelection(selection);
         this.eventCenter.emit('read-only-changed', readOnly);
     }
 
@@ -211,7 +216,7 @@ export class Muya {
         this._cancelReadingLink = attachReadingEvents(this);
     }
 
-    private _refreshReadingPresentation(): void {
+    private _refreshReadingPresentation(modeChanged = false): void {
         const { domNode, isReadOnly } = this;
         const contentEditable = String(!isReadOnly);
         // Reassigning editability on a connected tree makes Chromium revisit every descendant (#5860).
@@ -227,12 +232,13 @@ export class Muya {
             if (node.isContent()) {
                 if (node.domNode?.getAttribute('contenteditable') !== contentEditable)
                     node.domNode?.setAttribute('contenteditable', contentEditable);
-                if (isReadOnly)
+                if (isReadOnly || modeChanged)
                     node.update({});
             }
         });
         if (isReadOnly)
             prepareReadingLinks(domNode);
+        this.editor.searchModule.refresh();
     }
 
     private _bindFocusBlurEvents() {
@@ -464,7 +470,6 @@ export class Muya {
         this.editor.scrollPage?.updateState(this.getState());
         if (!this.setSelection(selection))
             this.setSelection(null);
-        this.editor.searchModule.refresh();
     }
 
     setListIndentation(listIndentation: IMuyaOptions['listIndentation']) {
@@ -674,6 +679,17 @@ export class Muya {
      */
     getSelectedText(): string {
         return this.editor.selection.getSelectedText();
+    }
+
+    /** Find uses one block at a time, in the coordinate space of the current view. */
+    getSearchSelection(): string {
+        const selection = this.editor.selection.getTextSelection();
+        if (!selection || selection.isCollapsed || !selection.isSelectionInSameBlock)
+            return '';
+        const { anchor, focus } = selection;
+        const start = Math.min(anchor.offset, focus.offset);
+        const end = Math.max(anchor.offset, focus.offset);
+        return this.isReadOnly ? selectedReadingText(anchor.block.getReadingSpans(), start, end) : anchor.block.text.slice(start, end);
     }
 
     hasFocus() {

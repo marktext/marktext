@@ -99,30 +99,28 @@ export default function inlineMath(this: Renderer, {
         }
     }
 
-    return [
-        h(markerSelector, startMarker),
-        h(mathSelector, [
-            h(
-                `span.${CLASS_NAMES.MU_INLINE_RULE}.${CLASS_NAMES.MU_MATH_TEXT}`,
-                {
-                    attrs: { spellcheck: 'false' },
+    const preview = h(mathSelector, [
+        h(
+            `span.${CLASS_NAMES.MU_INLINE_RULE}.${CLASS_NAMES.MU_MATH_TEXT}`,
+            {
+                attrs: { spellcheck: 'false' },
+            },
+            content,
+        ),
+        h(
+            previewSelector,
+            {
+                attrs: errorTitle
+                    ? { contenteditable: 'false', title: errorTitle }
+                    : { contenteditable: 'false' },
+                dataset: {
+                    start: String(start + marker.length),
+                    end: String(end - marker.length),
                 },
-                content,
-            ),
-            h(
-                previewSelector,
-                {
-                    attrs: errorTitle
-                        ? { contenteditable: 'false', title: errorTitle }
-                        : { contenteditable: 'false' },
-                    dataset: {
-                        start: String(start + marker.length),
-                        end: String(end - marker.length),
-                    },
-                },
-                mathVnode,
-            ),
-        ]),
-        h(markerSelector, endMarker),
-    ];
+            },
+            mathVnode,
+        ),
+    ]);
+    this.reading?.mark(preview, { ...token.range, text: '', object: true });
+    return [h(markerSelector, startMarker), preview, h(markerSelector, endMarker)];
 }

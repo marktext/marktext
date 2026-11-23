@@ -66,7 +66,10 @@
         </div>
       </template>
     </el-dialog>
-    <editor-search v-if="!sourceCode" />
+    <editor-search
+      v-if="!sourceCode"
+      :get-search-selection="getSearchSelection"
+    />
   </div>
 </template>
 
@@ -260,6 +263,7 @@ const selectionChange = ref<ISelectionChangePayload | null>(null)
 // `shallowRef`: the engine instance is `markRaw`d anyway, and a deep ref
 // would map `Muya` through `UnwrapRef` and lose the class's own type.
 const editor = shallowRef<Muya | null>(null)
+const getSearchSelection = (): string => editor.value?.getSearchSelection() ?? ''
 watch(() => commandCenterStore.activeKeybindings, () => {
   editor.value?.refreshShortcutHints()
 })

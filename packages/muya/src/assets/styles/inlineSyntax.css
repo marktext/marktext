@@ -107,7 +107,7 @@ del.mu-inline-diff-deletion {
 }
 
 .mu-hide.mu-emoji-marked-text[data-emoji],
-.mu-hide.mu-html-escape[data-character] {
+.mu-hide.mu-rendered-character[data-character] {
     overflow: visible;
 
     color: transparent;
@@ -135,7 +135,7 @@ del.mu-inline-diff-deletion {
 }
 
 /* html escape */
-.mu-html-escape {
+.mu-rendered-character {
     position: relative;
 
     /* `inline` (overriding the `inline-block` inherited from `.mu-hide`, an
@@ -153,7 +153,7 @@ del.mu-inline-diff-deletion {
 /* When the caret is outside the entity, take the literal marker text out of
    flow so the entity shows only its `::before` glyph, at the glyph's own width
    (no extra width from the hidden literal, no break opportunity). */
-.mu-hide.mu-html-escape[data-character] .mu-html-escape-marker {
+.mu-hide.mu-rendered-character[data-character] .mu-html-escape-marker {
     position: absolute;
 
     visibility: hidden;
@@ -162,7 +162,7 @@ del.mu-inline-diff-deletion {
 /* Render the glyph (`data-character`) inline at its natural width, so every
    entity is exactly as wide as the character it stands for: `&nbsp;` is one
    space, `&amp;` one ampersand, `&mdash;` one em dash — not a fixed 1em slot. */
-.mu-html-escape::before {
+.mu-rendered-character::before {
     color: var(--editor-color);
 
     content: attr(data-character);
