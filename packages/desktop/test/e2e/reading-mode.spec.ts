@@ -401,6 +401,24 @@ test('find shortcuts open and navigate search in reading mode', async() => {
   }
 })
 
+test('reading mode anchors regex searches at paragraph edges around inline formulas', async() => {
+  const { app, page } = await launchWithMarkdown('A$x$beta\n\nbeta control\n\ncontrol A\n')
+  try {
+    await toggleReadingMode(page)
+    await clickMenuById(app, 'findMenuItem')
+    const bar = page.locator('.search-bar')
+    await bar.locator('.is-regex').click()
+    await bar.locator('.is-case-sensitive').click()
+    for (const [query, paragraph] of [['^beta', 'beta control'], ['A$', 'control A']]) {
+      await bar.locator('.search input').fill(query)
+      await expect(page.locator('p.mu-paragraph').filter({ has: page.locator('.mu-highlight') })).toHaveText(paragraph)
+      await expect(bar.locator('.search-result')).toHaveText('1 / 1')
+    }
+  } finally {
+    await app.close()
+  }
+})
+
 test('entering reading mode with Replace open keeps the query and removes replacement controls', async() => {
   const { app, page } = await launchWithMarkdown('needle one\n\nneedle two\n')
   try {

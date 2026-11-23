@@ -244,6 +244,28 @@ describe('reading text and source ranges', () => {
         expect(muya.search('^Needle', { isRegexp: true }).matches).toHaveLength(1);
     });
 
+    it.each(['$x$', '![alt](diagram.png)'])('keeps %s from creating regex anchors within a paragraph', (object) => {
+        muya.setContent(`A${object}beta\n\nbeta control\n\ncontrol A\n\n${object}beta${object}`);
+        muya.setReadOnly(true);
+        const matches = (query: string) => {
+            const result = muya.search(query, { isRegexp: true, isCaseSensitive: true });
+            return result.matches.map(hit => hit.block.text.slice(hit.start, hit.end));
+        };
+        expect.soft(matches('^beta')).toEqual(['beta']);
+        expect.soft(matches('A$')).toEqual(['A']);
+        expect.soft(matches('^beta$')).toEqual([]);
+        expect.soft(matches('^A|beta$')).toEqual(['A', 'beta']);
+        expect.soft(matches('^beta|ta')).toEqual(['ta', 'beta', 'ta']);
+        expect.soft(matches('A.*beta')).toEqual([]);
+    });
+
+    it('preserves escaped anchors and character classes next to a formula', () => {
+        muya.setContent('A$x$`^$z`$y$B');
+        muya.setReadOnly(true);
+        for (const pattern of [String.raw`\^\$`, '[$^]{2}', '[^z]{2}'])
+            expect(muya.search(pattern, { isRegexp: true }).matches.map(hit => hit.match)).toEqual(['^$']);
+    });
+
     it('evaluates regular expressions on the same text that is highlighted', () => {
         muya.setContent('Hello **world**.\n\nHello world!');
         muya.setReadOnly(true);

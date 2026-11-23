@@ -3,6 +3,20 @@ import type { IReadingSpan } from '../inline/readingText';
 import type { IMatch, ISearchOption } from './types';
 import { matchString } from '../utils/search';
 
+function paragraphAnchors(query: string, atStart: boolean, atEnd: boolean): string {
+    if (atStart && atEnd)
+        return query;
+    // Skip escapes and character classes. At an object edge, an anchor can still
+    // match an actual newline inside the run when the pattern enables multiline mode.
+    return query.replace(/\\[\s\S]|\[(?:\\[\s\S]|[^\]\\])*\]?|[$^]/g, (token) => {
+        if (token === '^' && !atStart)
+            return '(?<=[\\s\\S])^';
+        if (token === '$' && !atEnd)
+            return '(?=[\\s\\S])$';
+        return token;
+    });
+}
+
 export function matchBlock(block: Content, query: string, options: ISearchOption, readOnly: boolean): IMatch[] {
     if (!readOnly)
         return matchText(block, query, options);
@@ -13,7 +27,8 @@ export function matchBlock(block: Content, query: string, options: ISearchOption
         if (i < spans.length && !spans[i].object)
             continue;
         if (start < i) {
-            for (const match of matchText(block, query, options, spans.slice(start, i)))
+            const pattern = options.isRegexp ? paragraphAnchors(query, start === 0, i === spans.length) : query;
+            for (const match of matchText(block, pattern, options, spans.slice(start, i)))
                 matches.push(match);
         }
         start = i + 1;
