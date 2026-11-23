@@ -115,6 +115,34 @@ test('detaches a source-mode tab into a window with the same mode and source und
   }
 })
 
+for (const overDestination of [false, true]) {
+  test(`detaches a tab over the ${overDestination ? 'destination' : 'source'} editor body`, async() => {
+    const { app, page } = await launchWithMarkdown('body drop\n')
+    try {
+      const id = required(await tabs(page).first().getAttribute('data-id'))
+      const destination = overDestination ? await secondWindow(app, page) : page
+      const windowCount = app.windows().length
+      const native = await app.browserWindow(destination)
+      const bounds = await native.evaluate((window) => window.getContentBounds())
+      await dropAt(app, page, id, {
+        x: bounds.x + bounds.width / 2,
+        y: bounds.y + bounds.height / 2
+      })
+      await expect.poll(() => app.windows().length).toBe(windowCount + 1)
+      const detached = required(
+        app.windows().find((window) => window !== page && window !== destination)
+      )
+      await expect(tabs(detached)).toHaveCount(1)
+      await expect(tabs(detached).first()).toHaveAttribute('data-id', id)
+      expect(await readMarkdown(detached, app)).toBe('body drop\n')
+      await expect(tabs(page).first()).not.toHaveAttribute('data-id', id)
+      if (overDestination) await expect(tabs(destination)).toHaveCount(1)
+    } finally {
+      await app.close()
+    }
+  })
+}
+
 test('blocks same-path duplicates and keeps both dirty versions', async() => {
   const { app, page, filePath } = await launchWithMarkdown('original\n')
   try {

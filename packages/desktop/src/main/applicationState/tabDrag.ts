@@ -154,12 +154,12 @@ export class TabDrag {
     const hit = this._hit()
     const point = screen.getCursorScreenPoint()
     this.cancel(source)
-    if (hit && (!hit.strip || hit.windowId === source)) return
+    if (hit?.strip && hit.windowId === source) return
     await this._transfer(
       source,
       drag.documentId,
-      hit?.windowId ?? null,
-      hit?.beforeId ?? null,
+      hit?.strip ? hit.windowId : null,
+      hit?.strip ? hit.beforeId : null,
       point
     )
   }
