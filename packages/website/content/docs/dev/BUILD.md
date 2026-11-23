@@ -69,6 +69,12 @@ Each packaging script minifies locales, rebuilds native modules, compiles the ap
 
 The shorter commands remain available: `build:win` selects x64; `build:mac` and `build:linux` use their electron-builder configuration without an explicit architecture argument. Use the architecture-specific scripts to match CI.
 
+### Linux native addons and older glibc
+
+Electron's Linux binary needs only glibc 2.25, but `@electron/rebuild` prepares the native addons (`ced`, `keytar`, `native-keymap`) with the build host's toolchain, so they pick up that host's libstdc++ and glibc symbols. Enterprise distributions such as Kylin V10 SP1 ship glibc 2.28 / libstdc++ 3.4.25 and fail to load such addons.
+
+CI therefore sets `MARKTEXT_SKIP_NATIVE_REBUILD=1` for the Linux jobs (so `scripts/postinstall.ts` leaves the addons alone) and runs `scripts/rebuild-linux-native.sh`, which rebuilds them in an AlmaLinux 8 container with `-static-libstdc++ -static-libgcc`. `keytar` is not compiled there: `@electron/rebuild` installs its prebuilt N-API binary, which needs only libstdc++ 3.4.21. After packaging, `scripts/check-linux-native-compat.sh` inspects the unpacked app in `dist/` and verifies the addons against the glibc 2.28 / libstdc++ 3.4.25 baseline; `MARKTEXT_MAX_GLIBC` and `MARKTEXT_MAX_GLIBCXX` override the limits. The rebuild script requires Docker and a Linux host; the check script needs `readelf` from binutils.
+
 ## Development and checks
 
 Run all commands below from the repository root:
