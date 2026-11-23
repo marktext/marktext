@@ -1045,7 +1045,7 @@
       "close": "Cerrar {name}",
       "preview": "{name}, pestaña de vista previa",
       "transfer": {
-        "duplicate": "This file is already open in the destination window. Both documents have been kept.",
+        "duplicate": "This file is already open in the destination window.",
         "failed": "The tab could not be moved. Your document remains available in its original window."
       }
     }
