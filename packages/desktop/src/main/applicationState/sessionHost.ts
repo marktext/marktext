@@ -36,6 +36,7 @@ import type {
   PreparedSessionWindow
 } from '@shared/types/applicationState'
 import { TabDrag } from './tabDrag'
+import { detachedTabGeometry } from './tabWindowPreview'
 import type { TabTransferRequest, TabTransferReply, TabStripGeometry } from '@shared/types/tabTransfer'
 import type { BrowserWindowConstructorOptions } from 'electron'
 import type { DiskBaseline, SaveFormatState } from '@shared/types/files'
@@ -84,7 +85,14 @@ export class SessionHost {
   private _startupWarning: string | undefined
   private _startupActiveId: string | null = null
   private readonly _startupWindowIds = new Set<string>()
-  private readonly _tabDrag = new TabDrag(this._editors, (...args) => this._transferTab(...args))
+  private readonly _tabDrag = new TabDrag(
+    this._editors,
+    (...args) => this._transferTab(...args),
+    (source, point) => {
+      const window = this._owner().getWindow(source)
+      return window ? detachedTabGeometry(window.geometry.normalBounds, point).normalBounds : null
+    }
+  )
   private readonly _tabReplies = new Map<
     string,
     {
@@ -217,14 +225,9 @@ export class SessionHost {
         if (!currentSource) throw new Error('Source window unavailable')
         snapshot.layout = structuredClone(currentSource.layout)
         snapshot.layout.tabBar.visible = true
-        snapshot.geometry = {
-          normalBounds: {
-            ...source.geometry.normalBounds,
-            ...(point ? { x: point.x - 100, y: point.y - 16 } : {})
-          },
-          maximized: false,
-          displayId: point ? String(screen.getDisplayNearestPoint(point).id) : null
-        }
+        snapshot.geometry = point
+          ? detachedTabGeometry(source.geometry.normalBounds, point)
+          : { normalBounds: { ...source.geometry.normalBounds }, maximized: false, displayId: null }
         created = this._createTransferWindow(
           { snapshot, contents: [], statuses: [], restoreGeometry: point !== null, openable: true },
           { width: source.geometry.normalBounds.width, height: source.geometry.normalBounds.height }

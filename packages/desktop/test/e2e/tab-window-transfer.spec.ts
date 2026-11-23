@@ -143,6 +143,41 @@ for (const overDestination of [false, true]) {
   })
 }
 
+test('previews fitted window bounds without taking focus and removes the outline on drop', async() => {
+  const { app, page } = await launchWithMarkdown('preview bounds\n')
+  try {
+    const id = required(await tabs(page).first().getAttribute('data-id'))
+    const source = await app.browserWindow(page)
+    await source.evaluate((window) => window.focus())
+    const content = await source.evaluate((window) => window.getContentBounds())
+    const point = { x: content.x + content.width / 2, y: content.y + content.height / 2 }
+    await app.evaluate(({ screen }, point) => { screen.getCursorScreenPoint = () => point }, point)
+    expect(await page.evaluate((id) => window.electron.ipcRenderer.invoke('mt::tabs::begin-drag', id), id)).toBe(true)
+    const preview = () => app.evaluate(({ BrowserWindow }) => {
+      const window = BrowserWindow.getAllWindows().find((window) => window.getTitle() === 'MarkText tab window preview')
+      return window ? { bounds: window.getBounds(), visible: window.isVisible(), focusable: window.isFocusable() } : null
+    })
+    await expect.poll(async() => (await preview())?.visible).toBe(true)
+    const expected = required(await preview()).bounds
+    expect(required(await preview()).focusable).toBe(false)
+    expect(await source.evaluate((window) => window.isFocused())).toBe(true)
+    const strip = await tabPoint(app, page)
+    await app.evaluate(({ screen }, point) => { screen.getCursorScreenPoint = () => point }, strip)
+    await expect.poll(async() => (await preview())?.visible).toBe(false)
+    await app.evaluate(({ screen }, point) => { screen.getCursorScreenPoint = () => point }, point)
+    await expect.poll(async() => (await preview())?.visible).toBe(true)
+    await page.evaluate(() => window.electron.ipcRenderer.invoke('mt::tabs::finish-drag', false))
+    await expect.poll(preview).toBeNull()
+    await expect.poll(() => app.windows().length).toBe(2)
+    const destination = required(app.windows().find((window) => window !== page))
+    await expect(tabs(destination).first()).toHaveAttribute('data-id', id)
+    const native = await app.browserWindow(destination)
+    expect(await native.evaluate((window) => window.getBounds())).toEqual(expected)
+  } finally {
+    await app.close()
+  }
+})
+
 test('blocks same-path duplicates and keeps both dirty versions', async() => {
   const { app, page, filePath } = await launchWithMarkdown('original\n')
   try {

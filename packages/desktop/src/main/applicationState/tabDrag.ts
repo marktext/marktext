@@ -1,4 +1,5 @@
-import { app, BrowserWindow, screen } from 'electron'
+import { app, BrowserWindow, screen, type Rectangle } from 'electron'
+import { TabWindowPreview } from './tabWindowPreview'
 import type EditorWindow from '../windows/editor'
 import type { TabStripGeometry } from '@shared/types/tabTransfer'
 
@@ -28,6 +29,7 @@ const contains = (
 
 /** Pointer capture stays in the source renderer; native DIP coordinates locate other windows. */
 export class TabDrag {
+  private readonly _preview = new TabWindowPreview()
   private readonly _strips = new Map<string, TabStripGeometry>()
   private _painted: { windowId: string; beforeId: string | null } | null = null
   private _drag: {
@@ -43,7 +45,8 @@ export class TabDrag {
       target: string | null,
       beforeId: string | null,
       point: { x: number; y: number }
-    ) => Promise<void>
+    ) => Promise<void>,
+    private readonly _detachedBounds: (source: string, point: { x: number; y: number }) => Rectangle | null = () => null
   ) {}
 
   strip(windowId: string, geometry: TabStripGeometry | null): void {
@@ -85,10 +88,9 @@ export class TabDrag {
     this._paint()
   }
 
-  private _hit(): { windowId: string; beforeId: string | null; strip: boolean } | null {
-    const point = screen.getCursorScreenPoint()
+  private _hit(point: { x: number; y: number }): { windowId: string; beforeId: string | null; strip: boolean } | null {
     const nativeWindows = BrowserWindow.getAllWindows().filter(
-      (window) => window.isVisible() && !window.isMinimized()
+      (window) => window !== this._preview.window && window.isVisible() && !window.isMinimized()
     )
     nativeWindows.sort(
       (a, b) =>
@@ -118,7 +120,10 @@ export class TabDrag {
   }
 
   private _paint(): void {
-    const hit = this._hit()
+    const point = screen.getCursorScreenPoint()
+    const hit = this._hit(point)
+    const bounds = this._drag && !hit?.strip ? this._detachedBounds(this._drag.source, point) : null
+    this._preview.update(bounds)
     const next = hit?.strip ? { windowId: hit.windowId, beforeId: hit.beforeId } : null
     if (next?.windowId === this._painted?.windowId && next?.beforeId === this._painted?.beforeId)
       return
@@ -135,6 +140,7 @@ export class TabDrag {
 
   cancel(source: string): void {
     if (this._drag?.source !== source) return
+    this._preview.destroy()
     clearInterval(this._drag.timer)
     this._drag = null
     this._painted = null
@@ -151,8 +157,8 @@ export class TabDrag {
       this.cancel(source)
       return
     }
-    const hit = this._hit()
     const point = screen.getCursorScreenPoint()
+    const hit = this._hit(point)
     this.cancel(source)
     if (hit?.strip && hit.windowId === source) return
     await this._transfer(
