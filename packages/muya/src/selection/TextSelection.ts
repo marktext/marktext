@@ -264,7 +264,13 @@ class TextSelection {
             if (this._muya.isReadOnly)
                 return;
             const { selection } = this._selectInfo;
-            if (!this._selection.table.hasSelection && selection?.anchor.block.outMostBlock && selection.focus.block.outMostBlock)
+            // The cached range is the last cross-block one seen during the drag.
+            // Chromium updates the native selection after the final mousemove
+            // handler runs, so a drag that returned to a single block is only
+            // visible here, and its cached range is stale.
+            const liveSelection = this.getSelection();
+            const isDragBackInOneBlock = liveSelection?.isSelectionInSameBlock === true;
+            if (!isDragBackInOneBlock && !this._selection.table.hasSelection && selection?.anchor.block.outMostBlock && selection.focus.block.outMostBlock)
                 this.setSelection(selection.anchor, selection.focus);
 
             this._selectInfo = {
@@ -293,6 +299,8 @@ class TextSelection {
             const { anchor, focus, isSelectionInSameBlock } = selection;
 
             if (isSelectionInSameBlock) {
+                if (type === 'mousemove')
+                    this._selectInfo.selection = null;
                 return;
             }
 
