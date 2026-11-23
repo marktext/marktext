@@ -410,7 +410,7 @@
   },
   "import": {
     "title": "Importuj lub otwórz",
-    "description": "Upuść tutaj, aby przenieść swoje pliki do MarkText"
+    "description": "Upuść tutaj pliki, aby je otworzyć lub zaimportować."
   },
   "preferences": {
     "title": "Preferencje",
