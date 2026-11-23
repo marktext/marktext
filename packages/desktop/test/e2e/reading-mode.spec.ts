@@ -469,100 +469,41 @@ test('entering reading mode keeps all search highlights and the active match', a
   }
 })
 
-test('reading mode excludes matches in hidden Markdown syntax', async() => {
-  const { app, page } = await launchWithMarkdown(
-    '[Example](https://needle.example) and **needle**\n\n```js title=needle\nneedle\n```\n'
-  )
+test('reading Find highlights the rendered ruby text, annotation and decoded characters', async() => {
+  const markdown = 'Ruby <ruby>needle<rp>(</rp><rt>reading</ruby> and :smile:.\n\nR&amp;D and R&#38;D.\n\n<span style="display:none">hidden</span>\n'
+  const { app, page } = await launchWithMarkdown(markdown)
   try {
     await toggleReadingMode(page)
-    await clickMenuById(app, 'findMenuItem')
-    const searchBar = page.locator('.search-bar')
-    const input = searchBar.locator('.search input')
-    const counter = searchBar.locator('.search-result')
-    await input.fill('needle')
-    await expect(counter).toContainText('1 / 2')
-    await expect(page.locator('.mu-read-only strong .mu-highlight')).toBeVisible()
-    await input.press('Enter')
-    await expect(counter).toContainText('2 / 2')
-    await expect(page.locator('.mu-read-only .mu-codeblock-content .mu-highlight')).toBeVisible()
-    await input.fill('https://needle.example')
-    await expect(counter).toContainText('0 / 0')
-  } finally {
-    await app.close()
-  }
-})
-
-for (const [description, markdown, query] of [
-  ['thematic break markers', 'Above\n\n---\n\nBelow\n', '---'],
-  ['CSS-hidden inline HTML', 'Before <span style="display:none">needle</span> and after.\n', 'needle']
-]) {
-  test(`reading mode excludes ${description} from Find`, async() => {
-    const { app, page } = await launchWithMarkdown(markdown)
-    try {
-      await toggleReadingMode(page)
-      await clickMenuById(app, 'findMenuItem')
-      const input = page.locator('.search-bar .search input')
-      await input.fill(query)
-      await input.press('Enter')
-      await expect(page.locator('.search-bar .search-result')).toHaveText('0 / 0')
-      await expect(page.locator('.mu-read-only .mu-highlight')).toHaveCount(0)
-    } finally {
-      await app.close()
-    }
-  })
-}
-
-test('reading mode matches visible phrases and regex across inline formatting', async() => {
-  const { app, page } = await launchWithMarkdown('Hello **world**.\n\nHello world!\n')
-  try {
-    await toggleReadingMode(page)
-    await clickMenuById(app, 'findMenuItem')
-    const searchBar = page.locator('.search-bar')
-    const input = searchBar.locator('.search input')
-    const counter = searchBar.locator('.search-result')
-    const formatted = page.locator('.mu-read-only .mu-paragraph').first()
-    await input.fill('Hello world')
-    await expect(counter).toHaveText('1 / 2')
-    await expect(formatted.locator('strong .mu-highlight')).toHaveText('world')
-    await input.press('Enter')
-    await expect(counter).toHaveText('2 / 2')
-    await expect(page.locator('.mu-read-only .mu-paragraph').last().locator('.mu-highlight')).toHaveText('Hello world')
-
-    await searchBar.locator('.is-regex').click()
-    await input.fill('^Hello .*world\\.$')
-    await expect(counter).toHaveText('1 / 1')
-    await expect(formatted.locator('strong .mu-highlight')).toHaveText('world')
-  } finally {
-    await app.close()
-  }
-})
-
-test('reading mode searches decoded HTML entities and highlights their visible glyphs', async() => {
-  const { app, page } = await launchWithMarkdown('R&amp;D notes\n\nR&#38;D appendix\n\nA&#x1F600;B\n')
-  try {
-    await toggleReadingMode(page)
-    await clickMenuById(app, 'findMenuItem')
-    const editor = page.locator('.mu-read-only')
     const input = page.locator('.search-bar .search input')
     const counter = page.locator('.search-result')
-
-    await input.fill('RD')
-    await input.press('Enter')
-    await expect(counter).toHaveText('0 / 0')
+    const editor = page.locator('.mu-read-only')
+    await editor.focus()
+    await editor.locator('rt').getByText('reading', { exact: true }).evaluate((node) => {
+      const text = node.firstChild
+      if (text?.textContent) document.getSelection()?.setBaseAndExtent(text, 0, text, text.textContent.length)
+    })
+    await expect.poll(() => page.evaluate(() => document.getSelection()?.toString())).toBe('reading')
+    await clickMenuById(app, 'findMenuItem')
+    await expect(input).toHaveValue('reading')
+    for (const [query, selector] of [
+      ['needle', 'ruby .mu-highlight'],
+      ['reading', 'rt .mu-highlight'],
+      ['😄', '[data-character="😄"].mu-highlight']
+    ]) {
+      await input.fill(query)
+      await expect(counter).toHaveText('1 / 1')
+      await expect(editor.locator(selector)).toBeVisible()
+    }
     await input.fill('R&D')
     await expect(counter).toHaveText('1 / 2')
-    await expect(editor.locator('.mu-html-escape.mu-highlight[data-character="&"]')).toBeVisible()
-    await expect(editor.locator('.mu-html-escape.mu-selection[data-character="&"]')).toBeVisible()
-
-    await input.fill('&')
-    await expect(counter).toHaveText('1 / 2')
+    await expect(editor.locator('[data-character="&"].mu-highlight')).toBeVisible()
+    await expect(editor.locator('[data-character="&"].mu-selection')).toBeVisible()
     await input.press('Enter')
     await expect(counter).toHaveText('2 / 2')
-    await expect(editor.locator('.mu-paragraph').filter({ hasText: 'appendix' }).locator('.mu-html-escape.mu-highlight')).toBeVisible()
-
-    await input.fill('A😀B')
-    await expect(counter).toHaveText('1 / 1')
-    await expect(editor.locator('.mu-html-escape.mu-highlight[data-character="😀"]')).toBeVisible()
+    for (const hidden of ['hidden', '(']) {
+      await input.fill(hidden)
+      await expect(counter).toHaveText('0 / 0')
+    }
   } finally {
     await app.close()
   }

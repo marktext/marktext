@@ -7,6 +7,7 @@ import { prepareReadingLinks } from '../editor/readOnly';
 import logger from '../utils/logger';
 import { tokenizer } from './lexer';
 import { profileForBlock } from './parser/profiles';
+import { ReadingText } from './readingText';
 import { getReferenceDefinition, ReferenceDefinitionIndex } from './referenceDefinitions';
 import Renderer from './renderer';
 import { ImageMounts } from './resources/imageMounts';
@@ -75,10 +76,12 @@ class InlineEngine {
 
         const tokens = this._tokenizer(block, highlights);
         const renderCursor = !this.muya.isReadOnly && cursor?.block === block ? cursor : {};
-        const html = this.renderer.output(tokens, block, renderCursor);
+        const reading = this.muya.isReadOnly ? new ReadingText() : undefined;
+        const html = this.renderer.output(tokens, block, renderCursor, reading);
         domNode!.innerHTML = html;
 
-        if (this.muya.isReadOnly)
+        block.renderedSpans = reading?.spans;
+        if (reading)
             prepareReadingLinks(domNode!);
     }
 

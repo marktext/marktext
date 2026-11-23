@@ -3,6 +3,7 @@ import type Renderer from './index';
 import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 import { htmlToVNode } from '../../utils/snabbdom';
+import { readingRuby } from './readingRuby';
 
 export default function htmlRuby(
     this: Renderer,
@@ -14,6 +15,8 @@ export default function htmlRuby(
         outerClass,
     }: ISyntaxRenderOptions & { token: HTMLTagToken },
 ) {
+    if (this.environment.readOnly)
+        return [readingRuby(this, { h, cursor, block, token })];
     const className = this.getClassName(outerClass, block, token, cursor);
     const { children } = token;
     const { start, end } = token.range;

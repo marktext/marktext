@@ -24,7 +24,7 @@ import { Editor } from './editor/index';
 import { attachReadingEvents, prepareReadingLinks } from './editor/readOnly';
 import EventCenter from './event/index';
 import I18n from './i18n/index';
-import { getReadingText } from './search/readingMatches';
+import { selectedReadingText } from './inline/readingText';
 
 import {
     injectSentinels,
@@ -216,7 +216,7 @@ export class Muya {
         this._cancelReadingLink = attachReadingEvents(this);
     }
 
-    private _refreshReadingPresentation(retainSearchMatch = false): void {
+    private _refreshReadingPresentation(modeChanged = false): void {
         const { domNode, isReadOnly } = this;
         const contentEditable = String(!isReadOnly);
         // Reassigning editability on a connected tree makes Chromium revisit every descendant (#5860).
@@ -232,14 +232,13 @@ export class Muya {
             if (node.isContent()) {
                 if (node.domNode?.getAttribute('contenteditable') !== contentEditable)
                     node.domNode?.setAttribute('contenteditable', contentEditable);
-                if (isReadOnly)
+                if (isReadOnly || modeChanged)
                     node.update({});
             }
         });
         if (isReadOnly)
             prepareReadingLinks(domNode);
-        if (isReadOnly || retainSearchMatch)
-            this.editor.searchModule.refresh(retainSearchMatch);
+        this.editor.searchModule.refresh();
     }
 
     private _bindFocusBlurEvents() {
@@ -471,8 +470,6 @@ export class Muya {
         this.editor.scrollPage?.updateState(this.getState());
         if (!this.setSelection(selection))
             this.setSelection(null);
-        if (!this.isReadOnly)
-            this.editor.searchModule.refresh();
     }
 
     setListIndentation(listIndentation: IMuyaOptions['listIndentation']) {
@@ -684,16 +681,15 @@ export class Muya {
         return this.editor.selection.getSelectedText();
     }
 
-    /** The visible text of a Reading Mode selection contained in a single block. */
-    getSelectedReadingText(): string {
+    /** Find uses one block at a time, in the coordinate space of the current view. */
+    getSearchSelection(): string {
         const selection = this.editor.selection.getTextSelection();
         if (!selection || selection.isCollapsed || !selection.isSelectionInSameBlock)
             return '';
         const { anchor, focus } = selection;
-        return getReadingText(anchor.block, {
-            start: Math.min(anchor.offset, focus.offset),
-            end: Math.max(anchor.offset, focus.offset),
-        });
+        const start = Math.min(anchor.offset, focus.offset);
+        const end = Math.max(anchor.offset, focus.offset);
+        return this.isReadOnly ? selectedReadingText(anchor.block.getReadingSpans(), start, end) : anchor.block.text.slice(start, end);
     }
 
     hasFocus() {

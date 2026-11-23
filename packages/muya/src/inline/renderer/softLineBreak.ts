@@ -2,6 +2,7 @@ import type { SoftLineBreakToken } from '../model/types';
 import type Renderer from './index';
 import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
+import { renderedText } from '../readingText';
 
 export default function softLineBreak(
     this: Renderer,
@@ -19,7 +20,8 @@ export default function softLineBreak(
     const newlineStart = start + token.raw.indexOf(token.lineBreak);
     const newlineEnd = newlineStart + token.lineBreak.length;
     const bands = this.lineBreakHighlights(h, token, newlineStart, newlineEnd);
-    const nodes = [h(selector, bands.length ? [...bands, token.lineBreak] : token.lineBreak)];
+    const node = h(selector, bands.length ? [...bands, token.lineBreak] : token.lineBreak);
+    const nodes = [renderedText(this, this.environment.softNewlineAsSpace ? ' ' : '\n', newlineStart, newlineEnd, node)];
 
     // Ignored whitespace stays in the editable DOM to preserve source offsets (§6.8).
     if (newlineStart > start || newlineEnd < end) {

@@ -186,7 +186,7 @@ import IconTooltip from '@/components/iconTooltip/index.vue'
 const { t } = useI18n()
 
 const props = defineProps<{
-  getSelectedReadingText: () => string
+  getSearchSelection: () => string
 }>()
 
 const editorStore = useEditorStore()
@@ -217,7 +217,7 @@ watch(readOnly, (locked) => {
 })
 const searchMatches = computed(() => currentFile.value?.searchMatches)
 const getSingleLineSelection = () => {
-  const selected = readOnly.value ? props.getSelectedReadingText() : searchMatches.value?.selectedText
+  const selected = props.getSearchSelection()
   return selected && !selected.includes('\n') ? selected : ''
 }
 

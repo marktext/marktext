@@ -7,7 +7,7 @@ export default function hr(
     { h, block, token }: ISyntaxRenderOptions,
 ) {
     const { start, end } = token.range;
-    const content = this.highlight(h, block, start, end, token);
+    const content = this.environment.readOnly ? token.raw : this.highlight(h, block, start, end, token);
 
     return [h(`span.${CLASS_NAMES.MU_GRAY}.${CLASS_NAMES.MU_REMOVE}`, content)];
 }

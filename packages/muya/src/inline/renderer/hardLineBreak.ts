@@ -2,6 +2,7 @@ import type { HardLineBreakToken } from '../model/types';
 import type Renderer from './index';
 import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
+import { renderedText } from '../readingText';
 
 export default function hardLineBreak(
     this: Renderer,
@@ -27,18 +28,17 @@ export default function hardLineBreak(
         ? [h(`span.${syntaxClass}.${CLASS_NAMES.MU_REMOVE}`, this.highlight(h, block, lineStart + lineBreak.length, end, token))]
         : [];
 
+    const newline = renderedText(this, lineBreak, lineStart);
     if (isAtEnd) {
         return [
             h(`span.${className}`, markerNode),
-            h(`span.${CLASS_NAMES.MU_LINE_END}`, bands.length ? [...bands, lineBreak] : lineBreak),
+            h(`span.${CLASS_NAMES.MU_LINE_END}`, [...bands, newline]),
             ...indentation,
         ];
     }
     else {
         return [
-            h(`span.${className}`, bands.length
-                ? [...bands, markerNode, lineBreak]
-                : [markerNode, lineBreak]),
+            h(`span.${className}`, [...bands, markerNode, newline]),
             ...indentation,
         ];
     }

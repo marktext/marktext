@@ -205,3 +205,41 @@ describe('find interaction', () => {
         await vi.waitFor(() => expect(muya.editor.searchModule.matches).toHaveLength(3));
     });
 });
+
+describe('reading text and source ranges', () => {
+    it.each([
+        ['hello **world**', 'hello world', 'hello **world'],
+        ['[example](https://needle.test)', 'needle', null],
+        ['a<br>b', 'ab', null],
+        ['a<br>b', 'a\nb', 'a<br>b'],
+        ['R&amp;D', 'RD', null],
+        ['R&#38;D', 'R&D', 'R&#38;D'],
+        ['A&#x1F600;B', '😀', '&#x1F600;'],
+        ['A :smile: B', '😄', ':smile:'],
+        ['Ruby <ruby>**字**<rt>zi</rt></ruby>', '**字**', '**字**'],
+        ['Ruby <ruby>字<rt>zi</rt></ruby>', 'zi', 'zi'],
+        ['Ruby <ruby>字<rt>zi</ruby>', 'zi', 'zi'],
+        ['Ruby <ruby>a<!--hidden-->b<rt>c</ruby>', 'hidden', null],
+        ['Ruby <ruby>R&amp;D<rt>r</ruby>', 'R&D', 'R&amp;D'],
+        ['Above\n\n---\n\nBelow', '---', null],
+        ['```js title=needle\nneedle\n```', 'needle', 'needle'],
+    ])('maps %j looking for %j to %j', (source, query, expected) => {
+        muya.setContent(source!);
+        muya.setReadOnly(true);
+        const { matches } = muya.search(query!, { selectHighlight: false });
+        expect(matches.map(({ block, start, end }) => block.text.slice(start, end))).toEqual(expected === null ? [] : [expected]);
+        if (expected !== null) {
+            const [{ block, start, end }] = matches;
+            block.setCursor(start, end);
+            expect(muya.getSearchSelection()).toBe(query);
+        }
+    });
+
+    it('evaluates regular expressions on the same text that is highlighted', () => {
+        muya.setContent('Hello **world**.\n\nHello world!');
+        muya.setReadOnly(true);
+        const { matches } = muya.search('^Hello .*world\\.$', { isRegexp: true });
+        expect(matches.map(hit => hit.match)).toEqual(['Hello world.']);
+        expect(muya.domNode.querySelector('strong .mu-highlight')?.textContent).toBe('world');
+    });
+});

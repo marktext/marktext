@@ -8,8 +8,8 @@ import { unfoldAllSections } from '../block/folding';
 import { DEFAULT_SEARCH_OPTIONS } from '../config';
 import { comparePaths, contentPath, resolveContent, resolveEndpoint } from '../selection/state';
 import { SelectionDirection, SelectionType } from '../selection/types';
-import { buildRegexValue, matchString } from '../utils/search';
-import { matchReadingText } from './readingMatches';
+import { buildRegexValue } from '../utils/search';
+import { matchBlock } from './blockMatches';
 
 type SearchPosition = Pick<IAnchorFocusInfo, 'block' | 'offset'>;
 
@@ -21,7 +21,6 @@ export class Search {
     private _updating = false;
     private _visible = true;
     private _dirty = false;
-    private _retainedModeMatch?: IMatch;
     // DOM identity detects highlights cleared by editing/focus even when text is unchanged.
     private _renderedMatches = new Map<Content, { text: string; highlights: IHighlight[]; firstChild: ChildNode | null }>();
     public matches: IMatch[] = [];
@@ -146,7 +145,6 @@ export class Search {
         this.index = -1;
         this._startPosition = null;
         this._dirty = false;
-        this._retainedModeMatch = undefined;
         this._renderedMatches.clear();
     }
 
@@ -306,7 +304,7 @@ export class Search {
 
     find(action: 'previous' | 'next'): this {
         if (this._dirty)
-            this._runSearch(this._query, { ...this._options, selectHighlight: false }, this._retainedModeMatch);
+            this._refreshMatches();
         const { matches } = this;
         let { index } = this;
         const len = matches.length;
@@ -386,7 +384,6 @@ export class Search {
         this._options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, opts);
         this._query = query;
         this._dirty = false;
-        this._retainedModeMatch = undefined;
         const { highlightIndex, selectHighlight } = this._options;
 
         const prevActiveMatch = this.matches[this.index];
@@ -398,16 +395,7 @@ export class Search {
             this._scrollPage?.depthFirstTraverse((block: TreeNode) => {
                 if (!block.isContent() || !block.text || typeof block.text !== 'string')
                     return;
-                const blockMatches = this._muya.isReadOnly
-                    ? matchReadingText(block, query, this._options)
-                    : matchString(block.text, query, this._options).map(({ index, match, subMatches }) => ({
-                            block,
-                            start: index,
-                            end: index + match.length,
-                            match,
-                            subMatches,
-                        }));
-                for (const match of blockMatches)
+                for (const match of matchBlock(block, query, this._options, this._muya.isReadOnly))
                     matches.push(match);
             });
         }
@@ -452,24 +440,21 @@ export class Search {
         return index < 0 ? 0 : index;
     }
 
-    /** Refresh visible results. A mode switch can retain the same source match at a new index. */
-    refresh(retainMatch = false): this {
-        const { _query: query, _options: options, index: highlightIndex } = this;
+    private _refreshMatches(): void {
+        const { index, matches } = this;
+        this._runSearch(this._query, { ...this._options, highlightIndex: index, selectHighlight: false }, matches[index]);
+    }
 
-        if (!query) {
+    refresh(): this {
+        if (!this._query)
             return this;
+        if (this._visible) {
+            this._refreshMatches();
+            this._muya.eventCenter.emit('search-refreshed', this);
         }
-        if (retainMatch)
-            this._retainedModeMatch = this.matches[highlightIndex];
-        if (!this._visible) {
+        else {
             this._dirty = true;
-            return this;
         }
-
-        this._runSearch(query, { ...options, highlightIndex, selectHighlight: false }, this._retainedModeMatch);
-
-        this._muya.eventCenter.emit('search-refreshed', this);
-
         return this;
     }
 }
