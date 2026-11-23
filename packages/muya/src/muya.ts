@@ -32,6 +32,7 @@ import {
     resolveSentinelCursor,
 } from './selection/offsetCursor';
 import { createTextSelectionState } from './selection/state';
+import { SelectionType } from './selection/types';
 import { atxHeadingBody, atxHeadingBodyRange } from './state/headings';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState, markdownListMarker } from './state/types';
 import { ChangeSource } from './types';
@@ -191,12 +192,15 @@ export class Muya {
         if (readOnly === this.isReadOnly)
             return;
         this.flush();
+        const selection = this.domNode.contains(this.domNode.ownerDocument.activeElement) ? this.getSelectionState() : null;
         this.editor.activeContentBlock = null;
         this.options.readOnly = readOnly;
         this.hideAllFloatTools();
         this.editor.selection.clearImage();
         this.editor.selection.table.clear();
         this._refreshReadingPresentation(true);
+        if (selection?.kind === SelectionType.TEXT)
+            this.setSelection(selection);
         this.eventCenter.emit('read-only-changed', readOnly);
     }
 

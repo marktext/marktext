@@ -490,6 +490,78 @@ test('reading mode excludes matches in hidden Markdown syntax', async() => {
   }
 })
 
+for (const [description, markdown, query] of [
+  ['thematic break markers', 'Above\n\n---\n\nBelow\n', '---'],
+  ['CSS-hidden inline HTML', 'Before <span style="display:none">needle</span> and after.\n', 'needle']
+]) {
+  test(`reading mode excludes ${description} from Find`, async() => {
+    const { app, page } = await launchWithMarkdown(markdown)
+    try {
+      await toggleReadingMode(page)
+      await clickMenuById(app, 'findMenuItem')
+      const input = page.locator('.search-bar .search input')
+      await input.fill(query)
+      await input.press('Enter')
+      await expect(page.locator('.search-bar .search-result')).toHaveText('0 / 0')
+      await expect(page.locator('.mu-read-only .mu-highlight')).toHaveCount(0)
+    } finally {
+      await app.close()
+    }
+  })
+}
+
+test('reading mode matches visible phrases and regex across inline formatting', async() => {
+  const { app, page } = await launchWithMarkdown('Hello **world**.\n\nHello world!\n')
+  try {
+    await toggleReadingMode(page)
+    await clickMenuById(app, 'findMenuItem')
+    const searchBar = page.locator('.search-bar')
+    const input = searchBar.locator('.search input')
+    const counter = searchBar.locator('.search-result')
+    const formatted = page.locator('.mu-read-only .mu-paragraph').first()
+    await input.fill('Hello world')
+    await expect(counter).toHaveText('1 / 2')
+    await expect(formatted.locator('strong .mu-highlight')).toHaveText('world')
+    await input.press('Enter')
+    await expect(counter).toHaveText('2 / 2')
+    await expect(page.locator('.mu-read-only .mu-paragraph').last().locator('.mu-highlight')).toHaveText('Hello world')
+
+    await searchBar.locator('.is-regex').click()
+    await input.fill('^Hello .*world\\.$')
+    await expect(counter).toHaveText('1 / 1')
+    await expect(formatted.locator('strong .mu-highlight')).toHaveText('world')
+  } finally {
+    await app.close()
+  }
+})
+
+test('Find Next resumes at the next visible match when the bar was closed during a mode switch', async() => {
+  const { app, page } = await launchWithMarkdown('[Example](https://needle.example)\n\nneedle one\n\nneedle two\n\nneedle three\n')
+  try {
+    await clickMenuById(app, 'findMenuItem')
+    const searchBar = page.locator('.search-bar')
+    const input = searchBar.locator('.search input')
+    const counter = searchBar.locator('.search-result')
+    await input.fill('needle')
+    await expect(counter).toHaveText('1 / 4')
+    await input.press('Enter')
+    await expect(counter).toHaveText('2 / 4')
+    await input.press('Enter')
+    await expect(counter).toHaveText('3 / 4')
+    await input.press('Escape')
+    await expect(searchBar).toBeHidden()
+
+    await clickMenuById(app, 'readOnlyModeMenuItem')
+    await expect(page.locator('.mu-read-only')).toBeVisible()
+    await expect(page.locator('.mu-read-only .mu-highlight')).toHaveCount(0)
+    await sendIpcToRenderer(app, 'mt::editor-edit-action', 'findNext')
+    await expect(counter).toHaveText('3 / 3')
+    await expect(page.locator('.mu-paragraph').filter({ hasText: 'needle three' }).locator('.mu-highlight')).toBeVisible()
+  } finally {
+    await app.close()
+  }
+})
+
 for (const [control, selector, menuId] of [
   ['collapsed Replace toggle', '.left-arrow', 'findMenuItem'],
   ['expanded Replace toggle', '.left-arrow', 'replaceMenuItem'],

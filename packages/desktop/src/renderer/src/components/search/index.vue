@@ -292,7 +292,6 @@ const openSearch = (mode: 'search' | 'replace') => {
   type.value = mode
   showSearch.value = true
   bus.emit('search-visibility', true)
-  searchFn(false)
 }
 
 const listenFind = () => {
@@ -300,6 +299,7 @@ const listenFind = () => {
   debouncedSearchFn.cancel()
   prefillFromSelection()
   openSearch(showSearch.value ? type.value : 'search')
+  searchFn(false)
   nextTick(() => {
     search.value?.focus()
     // Select the existing term so re-opening Find types over it instead of
@@ -315,6 +315,7 @@ const listenReplace = () => {
   const focusReplacement = document.activeElement === search.value || !!singleLineSelection.value
   prefillFromSelection()
   openSearch('replace')
+  searchFn(false)
   nextTick(() => {
     const input = focusReplacement ? replacement.value : search.value
     input?.focus()
