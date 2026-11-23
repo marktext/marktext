@@ -1,12 +1,12 @@
 export const it = {
     name: 'it',
     resource: {
-        'GitHub Alerts': 'GitHub Alerts',
-        'GitHub Alert: NOTE': 'GitHub Alert: NOTE',
-        'GitHub Alert: TIP': 'GitHub Alert: TIP',
-        'GitHub Alert: IMPORTANT': 'GitHub Alert: IMPORTANT',
-        'GitHub Alert: WARNING': 'GitHub Alert: WARNING',
-        'GitHub Alert: CAUTION': 'GitHub Alert: CAUTION',
+        'GitHub Alerts': 'Alert di GitHub',
+        'GitHub Alert: NOTE': 'Alert di GitHub: NOTE',
+        'GitHub Alert: TIP': 'Alert di GitHub: TIP',
+        'GitHub Alert: IMPORTANT': 'Alert di GitHub: IMPORTANT',
+        'GitHub Alert: WARNING': 'Alert di GitHub: WARNING',
+        'GitHub Alert: CAUTION': 'Alert di GitHub: CAUTION',
         'Supplementary information': 'Informazioni supplementari',
         'Helpful advice': 'Consigli utili',
         'Key information': 'Informazioni importanti',

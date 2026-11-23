@@ -3,12 +3,8 @@
     "counter": {
       "words": "Słowa",
       "characters": "Znaki",
-      "charactersNoSpaces": "Znaki (bez spacji)",
       "charactersWithSpaces": "Znaki (ze spacjami)",
-      "paragraphs": "Akapity",
-      "allCharacters": "Wszystkie znaki",
-      "document": "Dokument",
-      "documentSelection": "Dokument / Zaznaczenie"
+      "paragraphs": "Akapity"
     },
     "file": {
       "file": "Plik",
@@ -74,7 +70,7 @@
       "table": "Tabela",
       "codeFences": "Blok kodu",
       "quoteBlock": "Cytat",
-      "githubAlerts": "GitHub Alerts",
+      "githubAlerts": "Alerty GitHub",
       "mathBlock": "Blok matematyczny",
       "htmlBlock": "Blok HTML",
       "orderedList": "Lista numerowana",
@@ -239,7 +235,6 @@
   "sideBar": {
     "search": {
       "backToFiles": "Wróć do plików",
-      "searchInFolder": "Szukaj w folderze...",
       "noFolderOpen": "Nie otwarto folderu",
       "noResultsFound": "Nie znaleziono wyników.",
       "cancel": "Anuluj",
@@ -257,12 +252,10 @@
       "emptyProject": "Pusty projekt",
       "createFile": "Utwórz plik",
       "openFolder": "Otwórz folder",
-      "noFolders": "Nie dodano folderów",
       "removeFolder": "Usuń z paska bocznego",
       "retryFolder": "Ponów",
       "loadingFolder": "Wczytywanie folderu…",
       "unavailableFolder": "Folder niedostępny",
-      "overlappingFolder": "Ten folder nakłada się na już dodany folder. Najpierw usuń istniejący element.",
       "folderAlreadyAdded": "Ten folder został już dodany.",
       "fileOutsideFolders": "Ten plik nie znajduje się w żadnym z dodanych folderów.",
       "sessionSaveFailed": "Nie udało się zapisać sesji"
@@ -650,7 +643,7 @@
         "highlightSyntax": "Wyróżnienie (==tekst==)",
         "inlineDiff": "Zmiany w linii ({+ … +})",
         "multilineBlockquote": "Wielowierszowy cytat (>>>)",
-        "githubAlerts": "Włącz GitHub Alerts",
+        "githubAlerts": "Włącz alerty GitHub",
         "frontmatterType": {
           "jsonBrace": "JSON z nawiasami klamrowymi",
           "jsonSemicolon": "JSON ze średnikami",
@@ -709,7 +702,6 @@
       "title": "Motyw",
       "followSystemTheme": "Podążaj za wyglądem systemu",
       "followSystemNote": "Poniżej wybierz osobne motywy dla trybu ciemnego i jasnego.",
-      "modeThemes": "Wybór motywu",
       "lightModeTheme": "Motyw trybu jasnego",
       "darkModeTheme": "Motyw trybu ciemnego",
       "customCss": "Własny CSS",
@@ -936,18 +928,14 @@
     "changesWillBeLost": "Zmiany zostaną utracone",
     "close": "Zamknij",
     "dontSave": "Nie zapisuj",
-    "file": "Plik",
     "fileExists": "Plik istnieje {filename}",
-    "files": "Pliki",
     "importWarning": "Ostrzeżenie importu",
     "installPandoc": "Nie znaleziono programu Pandoc. Zainstaluj go lub ustaw zmienną środowiskową MARKTEXT_PANDOC na ścieżkę do pliku wykonywalnego pandoc i uruchom ponownie MarkText.",
     "exportWarning": "Ostrzeżenie eksportu",
     "exportWarningMore": "…i {count} więcej",
-    "keepOpen": "Pozostaw otwarte",
     "replace": "Zastąp",
     "save": "Zapisz",
     "saveChanges": "Zapisz zmiany",
-    "saveFailure": "Błąd zapisu",
     "unsafeFileTitle": "Potencjalnie niebezpieczny plik",
     "unsafeFileMessage": "Ten link otwiera plik, który może uruchomić kod",
     "unsafeFileDetail": "„{name}” jest plikiem wykonywalnym lub skryptem. Jego otwarcie może uruchomić programy na Twoim komputerze. Kontynuuj tylko wtedy, gdy ufasz temu dokumentowi.",
@@ -958,10 +946,8 @@
     "copyError": "Błąd kopiowania",
     "initializationFailed": "Inicjalizacja nie powiodła się {hint}",
     "otherInstanceDetected": "Inna instancja MarkText jest już uruchomiona",
-    "report": "Zgłoś",
     "startupError": "Błąd uruchamiania",
     "terminatedDueToError": "Zakończono z powodu błędu",
-    "unexpectedErrorWithMessage": "Nieoczekiwany błąd z komunikatem {message}",
     "unexpectedMainProcess": "Nieoczekiwany błąd procesu głównego",
     "unexpectedRendererProcess": "Nieoczekiwany błąd procesu renderującego"
   },
@@ -971,7 +957,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "Skopiowano link do nagłówka",
       "tabNotFound": "Nie znaleziono karty",
       "tocItemNotFound": "Nie znaleziono elementu spisu treści {key}",
       "errorLoadingTabTitle": "Błąd wczytywania karty",
@@ -1029,10 +1014,7 @@
       "error": "Błąd drukowania „{title}”",
       "failed": "Drukowanie nie powiodło się"
     },
-    "sourceCode": {
-      "cursorNullComment": "Kursor jest pusty",
-      "imageStructureDeletedComment": "Struktura obrazu została usunięta"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "Sprawdzanie pisowni jest wyłączone",
       "errorSwitchingLanguage": "Błąd przełączania języka sprawdzania pisowni {languageCode}",
@@ -1057,7 +1039,6 @@
     "closeSave": "Przełącz na tryb edycji i zapisz",
     "exportSource": "Wybierz miejsce eksportu inne niż plik źródłowy.",
     "unavailable": "Niedostępne w trybie czytania",
-    "skipped": "Pominięto dokumenty tylko do odczytu z niezapisanymi zmianami.",
     "viewImage": "Pokaż obraz",
     "copyLink": "Kopiuj adres linku",
     "resumed": "Tryb edycji jest włączony. Autozapis został wznowiony."

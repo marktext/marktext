@@ -3,12 +3,8 @@
     "counter": {
       "words": "Mots",
       "characters": "Caractères",
-      "charactersNoSpaces": "Caractères (sans espaces)",
       "charactersWithSpaces": "Caractères (avec espaces)",
-      "paragraphs": "Paragraphes",
-      "allCharacters": "Tous les caractères",
-      "document": "Document",
-      "documentSelection": "Document / Sélection"
+      "paragraphs": "Paragraphes"
     },
     "file": {
       "file": "Fichier",
@@ -34,7 +30,7 @@
       "closeWindow": "Fermer la fenêtre",
       "quit": "Quitter",
       "preferences": "Préférences",
-      "addFolder": "Add Folder…"
+      "addFolder": "Ajouter un dossier…"
     },
     "edit": {
       "edit": "Édition",
@@ -239,15 +235,14 @@
   "sideBar": {
     "search": {
       "backToFiles": "Retour aux fichiers",
-      "searchInFolder": "Rechercher dans le dossier...",
       "noFolderOpen": "Aucun dossier ouvert",
       "noResultsFound": "Aucun résultat trouvé.",
       "cancel": "Annuler",
-      "openFolder": "Add Folder…",
+      "openFolder": "Ajouter un dossier…",
       "showMoreMatches": "Afficher plus de correspondances",
       "searchInFolders": "Rechercher dans le dossier",
-      "partialSearch": "Some folders could not be searched.",
-      "noSearchableFolders": "No available folders to search."
+      "partialSearch": "Impossible de rechercher dans certains dossiers.",
+      "noSearchableFolders": "Aucun dossier disponible pour la recherche."
     },
     "tree": {
       "openedFiles": "Fichiers ouverts",
@@ -256,15 +251,13 @@
       "emptyProject": "Projet vide",
       "createFile": "Créer un fichier",
       "openFolder": "Ouvrir un dossier",
-      "noFolders": "No folders added",
-      "removeFolder": "Remove from Sidebar",
-      "retryFolder": "Retry",
-      "loadingFolder": "Loading folder…",
-      "unavailableFolder": "Folder unavailable",
-      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
-      "folderAlreadyAdded": "This folder has already been added.",
-      "fileOutsideFolders": "This file is not in an added folder.",
-      "sessionSaveFailed": "Unable to save session",
+      "removeFolder": "Retirer de la barre latérale",
+      "retryFolder": "Réessayer",
+      "loadingFolder": "Chargement du dossier…",
+      "unavailableFolder": "Dossier indisponible",
+      "folderAlreadyAdded": "Ce dossier a déjà été ajouté.",
+      "fileOutsideFolders": "Ce fichier ne se trouve dans aucun dossier ajouté.",
+      "sessionSaveFailed": "Impossible d’enregistrer la session",
       "resizeOpenedFiles": "Redimensionner la liste des fichiers ouverts"
     },
     "toc": {
@@ -282,19 +275,19 @@
       "settings": "Paramètres"
     },
     "move": {
-      "title": "Move file or folder",
-      "confirm": "Move",
-      "question": "Move \"{name}\"?",
-      "detail": "From: {source}\nTo: {destination}\n\nThis changes the actual file location. Relative links and image paths may be affected.",
-      "directoryContents": "The folder and all its contents will be moved.",
-      "completed": "Moved successfully.",
-      "invalidTarget": "Choose another folder within the same open root. Linked paths and moving a folder into itself are not supported.",
-      "crossDevice": "Moving between volumes is not supported here. Use your system file manager.",
-      "conflict": "The destination already contains an item with this name. Rename it before trying again.",
-      "missing": "The source or destination no longer exists. Refresh the folder and try again.",
-      "permission": "The item could not be moved. Check folder permissions and whether another application is using it.",
-      "openElsewhere": "Close this file and any documents inside this folder in other MarkText windows before moving it.",
-      "destinationOpen": "A document is already open at the destination path. Close it before trying again."
+      "title": "Déplacer un fichier ou un dossier",
+      "confirm": "Déplacer",
+      "question": "Déplacer « {name} » ?",
+      "detail": "De : {source}\nVers : {destination}\n\nCela modifie l’emplacement réel du fichier. Les liens relatifs et les chemins d’images peuvent être affectés.",
+      "directoryContents": "Le dossier et tout son contenu seront déplacés.",
+      "completed": "Déplacement réussi.",
+      "invalidTarget": "Choisissez un autre dossier dans la même racine ouverte. Les chemins liés et le déplacement d’un dossier dans lui-même ne sont pas pris en charge.",
+      "crossDevice": "Le déplacement entre volumes n’est pas pris en charge ici. Utilisez le gestionnaire de fichiers de votre système.",
+      "conflict": "La destination contient déjà un élément portant ce nom. Renommez-le avant de réessayer.",
+      "missing": "La source ou la destination n’existe plus. Actualisez le dossier et réessayez.",
+      "permission": "Impossible de déplacer l’élément. Vérifiez les autorisations du dossier et si une autre application l’utilise.",
+      "openElsewhere": "Avant de le déplacer, fermez ce fichier et tous les documents de ce dossier ouverts dans d’autres fenêtres MarkText.",
+      "destinationOpen": "Un document est déjà ouvert à l’emplacement de destination. Fermez-le avant de réessayer."
     }
   },
   "titleBar": {
@@ -551,7 +544,7 @@
       "fileRepresentation": {
         "title": "Représentation de fichier",
         "tabWidth": "Saisie avec la touche Tab",
-        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
+        "tabInputNotes": "Choisissez des espaces ou un vrai caractère de tabulation. Les tabulations existantes utilisent des taquets de quatre colonnes. Dans les listes et les tableaux, Tab ajuste l’imbrication ou passe d’une cellule à l’autre.",
         "lineSeparator": "Fin de ligne par défaut des fichiers",
         "defaultEncoding": "Encodage par défaut",
         "autoDetectEncoding": "Détection automatique de l'encodage",
@@ -709,7 +702,6 @@
       "title": "Thème",
       "followSystemTheme": "Suivre l’apparence du système",
       "followSystemNote": "Choisissez ci-dessous un thème pour le mode sombre et un autre pour le mode clair.",
-      "modeThemes": "Sélection du thème",
       "lightModeTheme": "Thème en mode clair",
       "darkModeTheme": "Thème en mode sombre",
       "customCss": "CSS personnalisé",
@@ -812,7 +804,7 @@
       "exportFilePdf": "Exporter en PDF",
       "zoom": "Zoom",
       "checkUpdate": "Vérifier les mises à jour",
-      "addFolder": "Add Folder…"
+      "addFolder": "Ajouter un dossier…"
     },
     "edit": {
       "undo": "Annuler",
@@ -936,18 +928,14 @@
     "changesWillBeLost": "Les modifications seront perdues",
     "close": "Fermer",
     "dontSave": "Ne pas enregistrer",
-    "file": "Fichier",
     "fileExists": "Le fichier existe déjà : {filename}",
-    "files": "Fichiers",
     "importWarning": "Avertissement d'importation",
     "installPandoc": "Pandoc est introuvable. Installez-le, ou définissez la variable d'environnement MARKTEXT_PANDOC sur le chemin du binaire pandoc, puis redémarrez MarkText.",
     "exportWarning": "Avertissement d'exportation",
     "exportWarningMore": "…et {count} de plus",
-    "keepOpen": "Garder ouvert",
     "replace": "Remplacer",
     "save": "Enregistrer",
     "saveChanges": "Enregistrer les modifications",
-    "saveFailure": "Échec de l'enregistrement",
     "unsafeFileTitle": "Fichier potentiellement dangereux",
     "unsafeFileMessage": "Ce lien ouvre un fichier pouvant exécuter du code",
     "unsafeFileDetail": "« {name} » est un fichier exécutable ou un script. L’ouvrir pourrait exécuter des programmes sur votre ordinateur. Ne continuez que si vous faites confiance à ce document.",
@@ -958,10 +946,8 @@
     "copyError": "Erreur de copie",
     "initializationFailed": "Échec de l'initialisation {hint}",
     "otherInstanceDetected": "Une autre instance de MarkText détectée en cours d'exécution",
-    "report": "Signaler",
     "startupError": "Erreur de démarrage",
     "terminatedDueToError": "Terminé en raison d'une erreur",
-    "unexpectedErrorWithMessage": "Erreur inattendue : {message}",
     "unexpectedMainProcess": "Erreur inattendue du processus principal",
     "unexpectedRendererProcess": "Erreur inattendue du processus de rendu"
   },
@@ -971,7 +957,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "Lien d'ancrage copié",
       "tabNotFound": "Onglet introuvable",
       "tocItemNotFound": "Élément de la table des matières {key} introuvable",
       "errorLoadingTabTitle": "Erreur lors du chargement de l’onglet",
@@ -1029,10 +1014,7 @@
       "error": "Erreur d'impression pour \"{title}\"",
       "failed": "Échec de l'impression"
     },
-    "sourceCode": {
-      "cursorNullComment": "Commentaire de curseur nul",
-      "imageStructureDeletedComment": "Commentaire de structure d'image supprimée"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "Erreur de désactivation de la vérification orthographique",
       "errorSwitchingLanguage": "Erreur lors du changement de langue du correcteur {languageCode}",
@@ -1057,7 +1039,6 @@
     "closeSave": "Passer en mode édition et enregistrer",
     "exportSource": "Choisissez une destination d’exportation différente du fichier source.",
     "unavailable": "Indisponible en mode lecture",
-    "skipped": "Les documents en lecture seule contenant des modifications non enregistrées ont été ignorés.",
     "viewImage": "Afficher l’image",
     "copyLink": "Copier l’adresse du lien",
     "resumed": "Le mode édition est activé. L’enregistrement automatique a repris."

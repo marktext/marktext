@@ -3,12 +3,8 @@
     "counter": {
       "words": "字数",
       "characters": "字符数",
-      "charactersNoSpaces": "字符数（不含空格）",
       "charactersWithSpaces": "字符数（含空格）",
-      "paragraphs": "段落数",
-      "allCharacters": "总字符数",
-      "document": "文档",
-      "documentSelection": "文档 / 选区"
+      "paragraphs": "段落数"
     },
     "file": {
       "file": "文件",
@@ -239,7 +235,6 @@
   "sideBar": {
     "search": {
       "backToFiles": "返回文件",
-      "searchInFolder": "在文件夹中搜索…",
       "noFolderOpen": "没有打开的文件夹",
       "noResultsFound": "未找到结果。",
       "cancel": "取消",
@@ -256,12 +251,10 @@
       "emptyProject": "空项目",
       "createFile": "创建文件",
       "openFolder": "打开文件夹",
-      "noFolders": "尚未添加文件夹",
       "removeFolder": "从侧边栏移除",
       "retryFolder": "重试",
       "loadingFolder": "正在加载文件夹…",
       "unavailableFolder": "文件夹不可用",
-      "overlappingFolder": "此文件夹与已添加项存在包含关系，请先移除已有项。",
       "folderAlreadyAdded": "该文件夹已添加。",
       "fileOutsideFolders": "此文件不在已添加的文件夹中。",
       "sessionSaveFailed": "无法保存会话",
@@ -709,7 +702,6 @@
       "title": "主题",
       "followSystemTheme": "跟随系统外观",
       "followSystemNote": "可以在下方分别选择深色模式和浅色模式下的主题。",
-      "modeThemes": "主题选择",
       "lightModeTheme": "浅色模式主题",
       "darkModeTheme": "深色模式主题",
       "customCss": "自定义 CSS",
@@ -936,18 +928,14 @@
     "changesWillBeLost": "更改将丢失",
     "close": "关闭",
     "dontSave": "放弃保存",
-    "file": "文件",
     "fileExists": "文件已存在：{filename}",
-    "files": "文件",
     "importWarning": "导入警告",
     "installPandoc": "未找到 Pandoc。请先安装，或将环境变量 MARKTEXT_PANDOC 设为 pandoc 可执行文件的路径后重启 MarkText。",
     "exportWarning": "导出提示",
     "exportWarningMore": "…另有 {count} 条",
-    "keepOpen": "保持打开",
     "replace": "替换",
     "save": "保存",
     "saveChanges": "保存修改",
-    "saveFailure": "保存失败",
     "unsafeFileTitle": "潜在不安全的文件",
     "unsafeFileMessage": "此链接将打开一个可执行代码的文件",
     "unsafeFileDetail": "“{name}”是可执行文件或脚本文件。打开它可能会在你的计算机上运行程序。请仅在信任此文档时继续。",
@@ -958,10 +946,8 @@
     "copyError": "复制错误",
     "initializationFailed": "初始化失败 {hint}",
     "otherInstanceDetected": "检测到 MarkText 的另一个实例正在运行",
-    "report": "报告",
     "startupError": "启动错误",
     "terminatedDueToError": "由于错误而终止",
-    "unexpectedErrorWithMessage": "意外错误：{message}",
     "unexpectedMainProcess": "意外的主进程错误",
     "unexpectedRendererProcess": "意外的渲染进程错误"
   },
@@ -971,7 +957,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "锚点链接已复制",
       "tabNotFound": "未找到标签页",
       "tocItemNotFound": "目录项 {key} 未找到",
       "errorLoadingTabTitle": "加载标签页出错",
@@ -1020,10 +1005,7 @@
     "notifications": {
       "notificationNotFound": "未找到通知"
     },
-    "sourceCode": {
-      "cursorNullComment": "光标位置无注释",
-      "imageStructureDeletedComment": "图片结构注释已删除"
-    },
+    "sourceCode": {},
     "export": {
       "error": "导出错误",
       "errorExporting": "导出 {type} 文件时出错",
@@ -1057,7 +1039,6 @@
     "closeSave": "切换到编辑模式并保存",
     "exportSource": "请选择源文件以外的导出位置。",
     "unavailable": "阅读模式下不可用",
-    "skipped": "已跳过存在未保存修改的只读文档。",
     "viewImage": "查看图片",
     "copyLink": "复制链接地址",
     "resumed": "已切换到编辑模式，自动保存已恢复。"
