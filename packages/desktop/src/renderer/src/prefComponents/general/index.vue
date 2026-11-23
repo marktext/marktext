@@ -89,6 +89,14 @@
           :on-change="(value) => onSelectChange('hideScrollbar', value)"
         />
         <bool
+          v-if="show('windowAppearance')"
+          id="setting-smoothScrolling"
+          :description="preferenceLabel('smoothScrolling')"
+          :notes="preferenceNotes('smoothScrolling')"
+          :bool="smoothScrolling"
+          :on-change="(value) => onSelectChange('smoothScrolling', value)"
+        />
+        <bool
           v-if="show('windowOpening')"
           id="setting-openFilesInNewWindow"
           :description="preferenceLabel('openFilesInNewWindow')"
@@ -272,6 +280,7 @@ const {
   openFolderInNewWindow,
   zoom,
   hideScrollbar,
+  smoothScrolling,
   wordWrapInToc,
   tocPosition,
   fileSortBy,

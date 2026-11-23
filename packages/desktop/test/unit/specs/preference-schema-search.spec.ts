@@ -25,6 +25,15 @@ it('indexes startup restoration controls alongside existing preferences', () => 
   }
 })
 
+it('finds smooth scrolling in Appearance by its label and motion preference', () => {
+  const entry = getTranslatedSearchContent().find(entry => entry.key === 'smoothScrolling')
+  expect(entry).toMatchObject({ routeCategory: 'appearance' })
+  if (!entry) return
+  for (const query of ['smoothScrolling', 'Smooth scrolling', 'reduce motion']) {
+    expect(matchesSearch(entry, query)).toBe(true)
+  }
+})
+
 it('routes the fancy-list search result to Markdown preferences', () => {
   const entry = getTranslatedSearchContent().find(entry => entry.key === 'fancyLists')
   expect(entry).toMatchObject({
