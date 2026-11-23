@@ -4,6 +4,7 @@
     class="search-bar"
   >
     <button
+      v-if="!readOnly"
       type="button"
       class="plain-button left-arrow"
       :aria-label="t('menu.edit.replace')"
@@ -197,12 +198,12 @@ const replacement = ref<HTMLInputElement | null>(null)
 let prefilling = false
 
 const { currentFile } = storeToRefs(editorStore)
-watch(
-  () => currentFile.value?.readOnly,
-  (value) => {
-    if (value) hideSearch()
-  }
-)
+const readOnly = computed(() => !!currentFile.value?.readOnly)
+watch(readOnly, (locked) => {
+  if (!locked || type.value !== 'replace') return
+  type.value = 'search'
+  if (replacement.value === document.activeElement) search.value?.focus()
+})
 const searchMatches = computed(() => currentFile.value?.searchMatches)
 const singleLineSelection = computed(() => {
   const selected = searchMatches.value?.selectedText
@@ -288,7 +289,6 @@ const openSearch = (mode: 'search' | 'replace') => {
 }
 
 const listenFind = () => {
-  if (currentFile.value?.readOnly) return
   debouncedSearchFn.flush()
   debouncedSearchFn.cancel()
   prefillFromSelection()
@@ -302,7 +302,7 @@ const listenFind = () => {
 }
 
 const listenReplace = () => {
-  if (currentFile.value?.readOnly) return
+  if (readOnly.value) return
   debouncedSearchFn.flush()
   debouncedSearchFn.cancel()
   const focusReplacement = document.activeElement === search.value || !!singleLineSelection.value
@@ -316,7 +316,6 @@ const listenReplace = () => {
 }
 
 const navigate = (action: 'previous' | 'next') => {
-  if (currentFile.value?.readOnly) return
   if (!showSearch.value) {
     openSearch('search')
   }
@@ -348,7 +347,7 @@ const hideSearch = () => {
 }
 
 const toggleSearchType = () => {
-  if (currentFile.value?.readOnly) return
+  if (readOnly.value) return
   debouncedSearchFn.flush()
   type.value = type.value === 'search' ? 'replace' : 'search'
 }
@@ -433,6 +432,7 @@ const searchFn = (selectHighlight = true) => {
 const debouncedSearchFn = debounce(() => searchFn(), 150)
 
 const replace = (isSingle = true) => {
+  if (readOnly.value) return
   debouncedSearchFn.flush()
   if (!canNavigate.value) return
   bus.emit('replaceValue', {

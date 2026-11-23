@@ -3,7 +3,7 @@ import type { KeyboardInputEvent } from 'electron'
 import { expect, test } from '@playwright/test'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { launchWithMarkdown, exitSourceMode, sendIpcToRenderer, typeIntoEditor, toggleReadingMode } from './helpers'
+import { clickMenuById, launchWithMarkdown, exitSourceMode, sendIpcToRenderer, typeIntoEditor, toggleReadingMode } from './helpers'
 
 test('clicking rendered diagrams while reading opens the diagram viewer and retains the lock', async() => {
   const markdown =
@@ -353,6 +353,79 @@ test('the reading shortcut toggles the current document without changing its con
     expect(readFileSync(filePath, 'utf8')).toBe('shortcut document\n')
   } finally {
     await app.evaluate(({ app }) => app.exit(0)).catch(() => {})
+  }
+})
+
+test('find shortcuts open and navigate search in reading mode', async() => {
+  const markdown = 'Introduction\n\nneedle one\n\nneedle two\n'
+  const { app, page, filePath } = await launchWithMarkdown(markdown)
+  try {
+    const window = await app.browserWindow(page)
+    const pressShortcut = (keyCode: string, modifiers: KeyboardInputEvent['modifiers']) =>
+      window.evaluate((window, chord) => {
+        window.webContents.sendInputEvent({ type: 'keyDown', ...chord })
+        window.webContents.sendInputEvent({ type: 'keyUp', ...chord })
+      }, { keyCode, modifiers })
+    const isMac = process.platform === 'darwin'
+    const searchBar = page.locator('.search-bar')
+    const input = searchBar.locator('.search input')
+    const counter = searchBar.locator('.search-result')
+
+    await toggleReadingMode(page)
+    await expect(page.locator('.mu-read-only')).toBeVisible()
+    await window.evaluate((window) => window.focus())
+    await page.locator('.mu-read-only').focus()
+    await pressShortcut('F', [isMac ? 'meta' : 'control'])
+    await expect(searchBar).toBeVisible()
+    await expect(input).toBeFocused()
+    await input.fill('needle')
+    await expect(counter).toContainText('1 / 2')
+    await expect(page.locator('.mu-highlight')).toHaveCount(1)
+
+    await pressShortcut(isMac ? 'G' : 'F3', isMac ? ['meta'] : [])
+    await expect(counter).toContainText('2 / 2')
+    await pressShortcut(isMac ? 'G' : 'F3', isMac ? ['meta', 'shift'] : ['shift'])
+    await expect(counter).toContainText('1 / 2')
+    await expect(searchBar.locator('.left-arrow')).toHaveCount(0)
+    await expect.poll(() => app.evaluate(({ Menu }) => {
+      const menu = Menu.getApplicationMenu()
+      return ['findMenuItem', 'findNextMenuItem', 'findPreviousMenuItem', 'replaceMenuItem']
+        .map((id) => menu?.getMenuItemById(id)?.enabled)
+    })).toEqual([true, true, true, false])
+    await expect(page.locator('.tabs-container li.unsaved')).toHaveCount(0)
+    expect(readFileSync(filePath, 'utf8')).toBe(markdown)
+  } finally {
+    await app.close()
+  }
+})
+
+test('entering reading mode with Replace open keeps the query and removes replacement controls', async() => {
+  const { app, page } = await launchWithMarkdown('needle one\n\nneedle two\n')
+  try {
+    const searchBar = page.locator('.search-bar')
+    const input = searchBar.locator('.search input')
+    const replacement = searchBar.locator('.replace input')
+    await clickMenuById(app, 'replaceMenuItem')
+    await input.fill('needle')
+    await replacement.fill('other')
+    await replacement.focus()
+
+    await clickMenuById(app, 'readOnlyModeMenuItem')
+    await expect(page.locator('.mu-read-only')).toBeVisible()
+    await expect(input).toBeFocused()
+    await expect(input).toHaveValue('needle')
+    await expect(replacement).toHaveCount(0)
+    await sendIpcToRenderer(app, 'mt::editor-edit-action', 'replace')
+    await input.press('ControlOrMeta+Alt+Enter')
+    await expect(replacement).toHaveCount(0)
+    await expect(searchBar.locator('.search-result')).toContainText('1 / 2')
+    await expect(page.locator('.mu-read-only')).not.toContainText('other')
+
+    await clickMenuById(app, 'readOnlyModeMenuItem')
+    await expect(page.locator('.mu-read-only')).toHaveCount(0)
+    await expect(searchBar.locator('.left-arrow')).toBeVisible()
+  } finally {
+    await app.close()
   }
 })
 
