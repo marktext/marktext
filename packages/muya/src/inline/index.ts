@@ -68,13 +68,14 @@ class InlineEngine {
         this.renderer.dispose();
     }
 
-    patch(block: Format, cursor?: IRenderCursor, highlights: IHighlight[] = []) {
+    /** Without `highlights`, the block keeps the search highlights it currently shows. */
+    patch(block: Format, cursor?: IRenderCursor, highlights?: IHighlight[]) {
         this.collectReferenceDefinitions();
         const { domNode } = block;
         if (block.isParent())
             debug.error('Patch can only handle content block');
 
-        const tokens = this._tokenizer(block, highlights);
+        const tokens = this._tokenizer(block, highlights ?? this.muya.editor.searchModule.renderedHighlights(block));
         const renderCursor = !this.muya.isReadOnly && cursor?.block === block ? cursor : {};
         const reading = this.muya.isReadOnly ? new ReadingText(() => this.muya.editor.searchModule.refresh()) : undefined;
         const html = this.renderer.output(tokens, block, renderCursor, reading);

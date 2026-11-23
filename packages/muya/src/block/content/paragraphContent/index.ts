@@ -1,5 +1,5 @@
 import type { Muya } from '../../../index';
-import type { CodeEmojiMathToken, HTMLTagToken, ImageToken, LinkToken, ReferenceLinkToken, Token } from '../../../inline/model/types';
+import type { CodeEmojiMathToken, HTMLTagToken, IHighlight, ImageToken, LinkToken, ReferenceLinkToken, Token } from '../../../inline/model/types';
 import type { IRenderCursor } from '../../../selection/types';
 import type {
     IBlockQuoteState,
@@ -229,7 +229,7 @@ class ParagraphContent extends Format {
         return this.parent;
     }
 
-    override update(cursor?: IRenderCursor, highlights = []) {
+    override update(cursor?: IRenderCursor, highlights?: IHighlight[]) {
         this.inlineEngine.patch(this, cursor, highlights);
         const { label } = this.inlineEngine.getLabelInfo(this);
 

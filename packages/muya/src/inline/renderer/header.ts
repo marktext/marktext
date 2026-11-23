@@ -23,6 +23,7 @@ export default function header(
                 start,
                 end: end - content.length,
             },
+            highlights: token.highlights,
         },
         cursor,
     );

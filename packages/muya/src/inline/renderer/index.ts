@@ -7,6 +7,7 @@ import { CLASS_NAMES } from '../../config';
 import { conflict } from '../../utils';
 import { h } from '../../utils/snabbdom';
 import { vnodeToHTML } from '../../utils/vnodeToHTML';
+import { intersectingHighlights } from '../model/ranges';
 import { tokenEvents } from '../model/traversal';
 import { ImageResources } from '../resources/images';
 import autoLink from './autoLink';
@@ -87,17 +88,15 @@ class Renderer {
     getClassName(
         outerClass: string | undefined,
         block: IRenderBlock,
-        token: Pick<Token, 'range'>,
+        token: Pick<Token, 'range' | 'highlights'>,
         cursor: IInlineCursor,
     ) {
         if (this.environment.readOnly)
             return CLASS_NAMES.MU_HIDE;
-        return (
-            outerClass
-            || (this._checkConflicted(block, token, cursor)
-                ? CLASS_NAMES.MU_GRAY
-                : CLASS_NAMES.MU_HIDE)
-        );
+        // Search highlights are drawn in the source text, so a match inside hidden syntax shows that syntax.
+        const revealed = this._checkConflicted(block, token, cursor)
+            || intersectingHighlights(token.range, token.highlights ?? []).length > 0;
+        return outerClass || (revealed ? CLASS_NAMES.MU_GRAY : CLASS_NAMES.MU_HIDE);
     }
 
     getHighlightClassName(active: boolean) {

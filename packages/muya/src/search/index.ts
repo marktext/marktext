@@ -34,6 +34,13 @@ export class Search {
         return this._updating;
     }
 
+    /** Highlights last drawn in `block`, for renders that do not come from search (e.g. the caret revealing syntax). */
+    renderedHighlights(block: Content): IHighlight[] {
+        const rendered = this._renderedMatches.get(block);
+        // Offsets are only valid for the text they were found in; an edit waits for the next refresh.
+        return rendered?.text === block.text ? rendered.highlights : [];
+    }
+
     private get _scrollPage() {
         return this._muya.editor.scrollPage;
     }
