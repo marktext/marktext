@@ -52,8 +52,6 @@ const loadComponent = (deps: Record<string, unknown>) => {
 }
 
 const makeBindings = () => {
-  // currentFile.searchMatches is the channel SELECTION_CHANGE writes the
-  // selected text into; storeToRefs hands the component a ref to it.
   const currentFile = ref<{ searchMatches: { matches: unknown[]; index: number; value: string; selectedText?: string } } | null>({
     searchMatches: { matches: [], index: -1, value: '' }
   })
@@ -82,7 +80,7 @@ const makeBindings = () => {
     debounce: (fn: (...a: unknown[]) => unknown) => Object.assign(fn, { cancel: vi.fn(), flush: vi.fn() })
   }
   const comp = loadComponent(deps)
-  const ret = comp.setup({}, { expose: () => {} })
+  const ret = comp.setup({ getSearchSelection: () => currentFile.value?.searchMatches.selectedText ?? '' }, { expose: () => {} })
   const setSelection = (value: string) => {
     currentFile.value = { searchMatches: { matches: [], index: -1, value: '', selectedText: value } }
   }

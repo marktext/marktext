@@ -4,6 +4,8 @@
     class="search-bar"
   >
     <button
+      v-if="!readOnly"
+      ref="replaceToggle"
       type="button"
       class="plain-button left-arrow"
       :aria-label="t('menu.edit.replace')"
@@ -109,6 +111,7 @@
       </section>
       <section
         v-if="type === 'replace'"
+        ref="replaceControls"
         class="replace"
       >
         <div class="input-wrapper replace-input input-focus-border">
@@ -182,6 +185,10 @@ import IconTooltip from '@/components/iconTooltip/index.vue'
 
 const { t } = useI18n()
 
+const props = defineProps<{
+  getSearchSelection: () => string
+}>()
+
 const editorStore = useEditorStore()
 
 const showSearch = ref(false)
@@ -193,21 +200,26 @@ const searchValue = ref('')
 const replaceValue = ref('')
 const searchErrorMsg = ref('')
 const search = ref<HTMLInputElement | null>(null)
+const replaceToggle = ref<HTMLButtonElement | null>(null)
+const replaceControls = ref<HTMLElement | null>(null)
 const replacement = ref<HTMLInputElement | null>(null)
 let prefilling = false
 
 const { currentFile } = storeToRefs(editorStore)
-watch(
-  () => currentFile.value?.readOnly,
-  (value) => {
-    if (value) hideSearch()
+const readOnly = computed(() => !!currentFile.value?.readOnly)
+watch(readOnly, (locked) => {
+  if (!locked) return
+  const focused = document.activeElement
+  if (focused === replaceToggle.value || replaceControls.value?.contains(focused)) {
+    search.value?.focus({ preventScroll: true })
   }
-)
-const searchMatches = computed(() => currentFile.value?.searchMatches)
-const singleLineSelection = computed(() => {
-  const selected = searchMatches.value?.selectedText
-  return selected && !selected.includes('\n') ? selected : ''
+  type.value = 'search'
 })
+const searchMatches = computed(() => currentFile.value?.searchMatches)
+const getSingleLineSelection = () => {
+  const selected = props.getSearchSelection()
+  return selected && !selected.includes('\n') ? selected : ''
+}
 
 watch(searchValue, () => {
   if (!showSearch.value || prefilling) return
@@ -216,7 +228,7 @@ watch(searchValue, () => {
 
 const prefillFromSelection = () => {
   if (document.activeElement?.closest('.search-bar')) return
-  const selected = singleLineSelection.value
+  const selected = getSingleLineSelection()
   if (!selected) return
   prefilling = true
   searchValue.value = isRegexp.value ? escapeRegExp(selected) : selected
@@ -284,15 +296,14 @@ const openSearch = (mode: 'search' | 'replace') => {
   type.value = mode
   showSearch.value = true
   bus.emit('search-visibility', true)
-  searchFn(false)
 }
 
 const listenFind = () => {
-  if (currentFile.value?.readOnly) return
   debouncedSearchFn.flush()
   debouncedSearchFn.cancel()
   prefillFromSelection()
   openSearch(showSearch.value ? type.value : 'search')
+  searchFn(false)
   nextTick(() => {
     search.value?.focus()
     // Select the existing term so re-opening Find types over it instead of
@@ -302,12 +313,13 @@ const listenFind = () => {
 }
 
 const listenReplace = () => {
-  if (currentFile.value?.readOnly) return
+  if (readOnly.value) return
   debouncedSearchFn.flush()
   debouncedSearchFn.cancel()
-  const focusReplacement = document.activeElement === search.value || !!singleLineSelection.value
+  const focusReplacement = document.activeElement === search.value || !!getSingleLineSelection()
   prefillFromSelection()
   openSearch('replace')
+  searchFn(false)
   nextTick(() => {
     const input = focusReplacement ? replacement.value : search.value
     input?.focus()
@@ -316,7 +328,6 @@ const listenReplace = () => {
 }
 
 const navigate = (action: 'previous' | 'next') => {
-  if (currentFile.value?.readOnly) return
   if (!showSearch.value) {
     openSearch('search')
   }
@@ -348,7 +359,7 @@ const hideSearch = () => {
 }
 
 const toggleSearchType = () => {
-  if (currentFile.value?.readOnly) return
+  if (readOnly.value) return
   debouncedSearchFn.flush()
   type.value = type.value === 'search' ? 'replace' : 'search'
 }
@@ -433,6 +444,7 @@ const searchFn = (selectHighlight = true) => {
 const debouncedSearchFn = debounce(() => searchFn(), 150)
 
 const replace = (isSingle = true) => {
+  if (readOnly.value) return
   debouncedSearchFn.flush()
   if (!canNavigate.value) return
   bus.emit('replaceValue', {

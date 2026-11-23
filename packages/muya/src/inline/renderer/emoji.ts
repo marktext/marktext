@@ -4,6 +4,9 @@ import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 import { validEmoji } from '../../utils/emoji';
 
+import { renderedText } from '../readingText';
+import { renderCharacter } from './htmlEscape';
+
 // render token of emoji to vnode
 export default function emoji(
     this: Renderer,
@@ -12,6 +15,8 @@ export default function emoji(
     const { start: rStart, end: rEnd } = token.range;
     const className = this.getClassName(outerClass, block, token, cursor);
     const validation = validEmoji(token.content);
+    if (this.environment.readOnly && validation)
+        return [renderCharacter(this, { h, block, token }, className, validation.emoji, 'mu-reading-emoji')];
     const finalClass = validation ? className : CLASS_NAMES.MU_WARN;
     const contentSelector
         = finalClass !== CLASS_NAMES.MU_GRAY
@@ -45,8 +50,8 @@ export default function emoji(
         : h(contentSelector, content);
 
     return [
-        h(startMarkerSelector, token.marker),
+        h(startMarkerSelector, [renderedText(this, token.marker, rStart)]),
         emojiVNode,
-        h(endMarkerSelector, token.marker),
+        h(endMarkerSelector, [renderedText(this, token.marker, rEnd - token.marker.length)]),
     ];
 }

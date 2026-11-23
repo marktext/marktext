@@ -1,5 +1,6 @@
 import type { VNode } from 'snabbdom';
 import type { Token } from '../model/types';
+import type { ReadingText } from '../readingText';
 import type { ImageMounts } from '../resources/imageMounts';
 import type { IContainerRenderOptions, IInlineCursor, IInlineEnvironment, IRenderBlock } from './types';
 import { CLASS_NAMES } from '../../config';
@@ -44,6 +45,8 @@ import tailHeader from './tailHeader';
 import text from './text';
 
 class Renderer {
+    reading?: ReadingText;
+
     backlashInToken = backlashInToken;
     highlight = highlight;
     lineBreakHighlights = lineBreakHighlights;
@@ -180,10 +183,11 @@ class Renderer {
         this.loadMathMap.clear();
     }
 
-    output(tokens: Token[], block: IRenderBlock, cursor: IInlineCursor) {
+    output(tokens: Token[], block: IRenderBlock, cursor: IInlineCursor, reading?: ReadingText) {
         const snapshot = this.environment;
         const environment = { ...snapshot, root: block.domNode || snapshot.root };
         const session = new Renderer(() => environment, this.mounts, this.images);
+        session.reading = reading;
         session.loadMathMap = this.loadMathMap;
         const rendered = new Map<Token, (VNode | string)[]>();
         const childNodes = (children: readonly Token[]) => {
@@ -200,7 +204,9 @@ class Renderer {
                 continue;
             rendered.set(token, session.renderToken({ h, cursor, block, token, childNodes }));
         }
-        const rawHtml = vnodeToHTML(h('span', childNodes(tokens)));
+        const root = h('span', childNodes(tokens));
+        reading?.collect(root);
+        const rawHtml = vnodeToHTML(root);
         return rawHtml.slice(6, -7);
     }
 }

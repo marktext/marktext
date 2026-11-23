@@ -33,13 +33,9 @@ export default function header(
         end - content.length,
         token,
     );
-    const contentVnode = this.highlight(
-        h,
-        block,
-        end - content.length,
-        end,
-        token,
-    );
+    const contentVnode = this.environment.readOnly
+        ? content
+        : this.highlight(h, block, end - content.length, end, token);
     const spaceSelector
         = className === CLASS_NAMES.MU_HIDE
             ? `span.${CLASS_NAMES.MU_HEADER_TIGHT_SPACE}.${CLASS_NAMES.MU_REMOVE}`

@@ -187,3 +187,59 @@ test('code copy is keyboard accessible and copies exact code without changing th
     await expect(page.locator('body')).toHaveAttribute('data-copied', '  const 汉字 = 1\n\n  run()');
     expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(before);
 });
+
+test('reading Find refreshes a visible reference image placeholder after the image loads', async ({ page }) => {
+    let release!: () => void;
+    const ready = new Promise<void>((resolve) => { release = resolve; });
+    await page.route('**/delayed-reference.svg', async (route) => {
+        await ready;
+        await route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"/>' });
+    });
+    try {
+        const initial = await page.evaluate(() => {
+            const muya = window.muya!;
+            muya.setContent(`a![pending-label][ref]b\n\np![inline](${location.origin}/delayed-reference.svg)q\n\n[ref]: ${location.origin}/delayed-reference.svg`);
+            muya.setReadOnly(true);
+            return muya.search('pending-label').matches.length;
+        });
+        expect(initial).toBe(1);
+    }
+    finally {
+        release();
+    }
+    await expect(page.locator('img[alt="pending-label"]')).toBeVisible();
+    await expect.poll(() => page.evaluate(() => window.muya!.editor.searchModule.matches.length)).toBe(0);
+    await expect(page.locator('img[alt="inline"]')).toBeVisible();
+    for (const term of ['pending-label', 'ab', 'pq']) {
+        expect(await page.evaluate(value => window.muya!.search(value).matches.length, term)).toBe(0);
+    }
+});
+
+test('reading Find preserves native textarea content inside ruby', async ({ page }) => {
+    await page.evaluate(() => {
+        window.muya!.setContent('Ruby <ruby>字<rt><textarea>R&amp;D <b>note</b></textarea></rt></ruby>');
+        window.muya!.setReadOnly(true);
+    });
+    const textarea = page.locator('ruby textarea');
+    await expect(textarea).toHaveValue('R&D <b>note</b>');
+    expect(await page.evaluate(() => window.muya!.search('note').matches.map(match => match.block.text.slice(match.start, match.end)))).toEqual(['note']);
+    await expect(textarea).toHaveClass(/mu-highlight/);
+    await expect(textarea).toHaveValue('R&D <b>note</b>');
+});
+
+test('reading Find stops at an image inside ruby, which still renders', async ({ page }) => {
+    await page.route('**/ruby-image.svg', route => route.fulfill({
+        contentType: 'image/svg+xml',
+        body: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"/>',
+    }));
+    await page.evaluate(() => {
+        const src = new URL('/ruby-image.svg', window.location.href).href;
+        window.muya!.setContent(`Ruby <ruby>xa<img src="${src}" alt="pic">by<rt>note</rt></ruby>`);
+        window.muya!.setReadOnly(true);
+    });
+    await expect(page.locator('ruby img[alt="pic"]')).toBeVisible();
+    const matches = (query: string) => page.evaluate(value => window.muya!.search(value).matches.map(match => match.block.text.slice(match.start, match.end)), query);
+    expect(await matches('ab')).toEqual([]);
+    expect(await matches('xa')).toEqual(['xa']);
+    expect(await matches('note')).toEqual(['note']);
+});

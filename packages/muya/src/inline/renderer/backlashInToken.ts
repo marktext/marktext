@@ -4,6 +4,7 @@ import type { H } from './types';
 import { CLASS_NAMES } from '../../config';
 import { isEven } from '../../utils';
 import { intersectingHighlights } from '../model/ranges';
+import { renderedText } from '../readingText';
 
 export default function backlashInToken(
     this: Renderer,
@@ -31,7 +32,7 @@ export default function backlashInToken(
         if (isEven(i))
             result.push(h(`${selector}.${outerClass}`, chunk));
         else
-            result.push(h(`${selector}.${CLASS_NAMES.MU_BACKLASH}`, chunk));
+            result.push(renderedText(this, chunk, start + i, start + i + 1, h(`${selector}.${CLASS_NAMES.MU_BACKLASH}`, chunk)));
     }
 
     return result;

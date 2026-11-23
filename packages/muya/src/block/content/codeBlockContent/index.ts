@@ -134,6 +134,12 @@ class CodeBlockContent extends Content {
         this.createDomNode();
     }
 
+    override getReadingSpans() {
+        const owner = this.outContainer?.blockName;
+        const visible = owner === 'code-block' || owner === 'frontmatter' || (owner === 'html-block' && this.muya.options.disableHtml);
+        return visible ? [{ start: 0, end: this.text.length, text: this.text }] : [];
+    }
+
     override getAnchor() {
         return this.outContainer;
     }

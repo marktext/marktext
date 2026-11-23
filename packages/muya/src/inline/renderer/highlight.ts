@@ -2,6 +2,7 @@ import type { Token } from '../model/types';
 import type Renderer from './index';
 import type { H, IRenderBlock } from './types';
 import { intersectingHighlights } from '../model/ranges';
+import { renderedText } from '../readingText';
 
 export default function highlight(
     this: Renderer,
@@ -12,29 +13,17 @@ export default function highlight(
     token: Token,
 ) {
     const { text } = block;
-    const { highlights } = token;
-    let result = [];
-    const unions = intersectingHighlights({ start: rStart, end: rEnd }, highlights ?? []);
+    const result = [];
+    const matches = intersectingHighlights({ start: rStart, end: rEnd }, token.highlights ?? []);
     let pos = rStart;
-
-    if (unions.length) {
-        for (const u of unions) {
-            const { start, end, active } = u;
-            const className = this.getHighlightClassName(!!active);
-
-            if (pos < start)
-                result.push(text.substring(pos, start));
-
-            result.push(h(`span.${className}`, text.substring(start, end)));
-            pos = end;
-        }
-
-        if (pos < rEnd)
-            result.push(block.text.substring(pos, rEnd));
+    for (const { start, end, active } of matches) {
+        if (pos < start)
+            result.push(renderedText(this, text.slice(pos, start), pos));
+        const value = text.slice(start, end);
+        result.push(renderedText(this, value, start, end, h(`span.${this.getHighlightClassName(!!active)}`, value)));
+        pos = end;
     }
-    else {
-        result = [text.substring(rStart, rEnd)];
-    }
-
+    if (pos < rEnd || !matches.length)
+        result.push(renderedText(this, text.slice(pos, rEnd), pos));
     return result;
 }

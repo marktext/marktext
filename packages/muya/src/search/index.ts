@@ -8,7 +8,8 @@ import { unfoldAllSections } from '../block/folding';
 import { DEFAULT_SEARCH_OPTIONS } from '../config';
 import { comparePaths, contentPath, resolveContent, resolveEndpoint } from '../selection/state';
 import { SelectionDirection, SelectionType } from '../selection/types';
-import { buildRegexValue, matchString } from '../utils/search';
+import { buildRegexValue } from '../utils/search';
+import { matchBlock } from './blockMatches';
 
 type SearchPosition = Pick<IAnchorFocusInfo, 'block' | 'offset'>;
 
@@ -71,17 +72,33 @@ export class Search {
             && start.offset === match.start && end.offset === match.end;
     }
 
-    private _restoreExternalFocus(focused: Element | null): void {
-        if (focused instanceof HTMLElement && focused !== document.body && focused.isConnected
-            && !this._muya.domNode.contains(focused)) {
+    /** Returns a callback that hands focus and the caret back to an element outside the editor. */
+    private _captureExternalFocus(): () => void {
+        const focused = document.activeElement;
+        if (!(focused instanceof HTMLElement) || focused === document.body || this._muya.domNode.contains(focused))
+            return () => {};
+        const textControl = (focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement)
+            && focused.selectionStart !== null
+            ? focused
+            : null;
+        const start = textControl?.selectionStart ?? null;
+        const end = textControl?.selectionEnd ?? null;
+        const direction = textControl?.selectionDirection ?? undefined;
+        return () => {
+            if (!focused.isConnected)
+                return;
             focused.focus({ preventScroll: true });
-        }
+            // focus() does nothing when focus never left, e.g. selecting a match in the
+            // non-editable Reading Mode view, so the document selection must be moved back explicitly.
+            if (textControl && start !== null && end !== null)
+                textControl.setSelectionRange(start, end, direction);
+        };
     }
 
     private _selectMatch(match: IMatch) {
-        const focused = document.activeElement;
+        const restoreFocus = this._captureExternalFocus();
         match.block.setCursor(match.start, match.end);
-        this._restoreExternalFocus(focused);
+        restoreFocus();
     }
 
     private _findMatchIndex(position: SearchPosition, action: 'next' | 'previous', skipEmpty = false): number {
@@ -269,14 +286,14 @@ export class Search {
         }
         const match = this.matches[index];
         const replacement = options.isRegexp ? buildRegexValue(match, replaceValue) : replaceValue;
-        const focused = document.activeElement;
+        const restoreFocus = this._captureExternalFocus();
         this._updating = true;
         try {
             this._innerReplace([match], () => replacement);
             const offset = match.start + replacement.length;
             // Native selection offsets must be resolved against the replacement's DOM.
             match.block.setCursor(offset, offset, true);
-            this._restoreExternalFocus(focused);
+            restoreFocus();
             this.search(this._query, { ...options, selectHighlight: false });
             this.find('next');
         }
@@ -287,7 +304,7 @@ export class Search {
 
     find(action: 'previous' | 'next'): this {
         if (this._dirty)
-            this.search(this._query, { ...this._options, selectHighlight: false });
+            this._refreshMatches();
         const { matches } = this;
         let { index } = this;
         const len = matches.length;
@@ -342,22 +359,26 @@ export class Search {
     }
 
     search(query: string, opts: ISearchOption = {}) {
-        const focused = document.activeElement;
+        return this._runSearch(query, opts);
+    }
+
+    private _runSearch(query: string, opts: ISearchOption, retain?: IMatch) {
+        const restoreFocus = this._captureExternalFocus();
         const selection = this._muya.editor.selection.getSelectionState();
         if (!this._startPosition && selection?.kind === SelectionType.TEXT)
             this._startPosition = { path: [...selection.focus.path], offset: selection.focus.offset };
         this._updating = true;
         try {
-            return this._search(query, opts);
+            return this._search(query, opts, retain);
         }
         finally {
             this._updating = false;
             // Restoring a DOM selection can focus the editor even without selecting a match.
-            this._restoreExternalFocus(focused);
+            restoreFocus();
         }
     }
 
-    private _search(query: string, opts: ISearchOption) {
+    private _search(query: string, opts: ISearchOption, retain?: IMatch) {
         const selection = this._muya.editor.selection.getSelectionState();
         const matches: IMatch[] = [];
         this._options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, opts);
@@ -372,27 +393,17 @@ export class Search {
 
         if (query) {
             this._scrollPage?.depthFirstTraverse((block: TreeNode) => {
-                if (block.isContent()) {
-                    const { text } = block;
-                    if (text && typeof text === 'string') {
-                        const strMatches = matchString(text, query, this._options);
-                        matches.push(
-                            ...strMatches.map(({ index, match, subMatches }) => {
-                                return {
-                                    block,
-                                    start: index,
-                                    end: index + match.length,
-                                    match,
-                                    subMatches,
-                                };
-                            }),
-                        );
-                    }
-                }
+                if (!block.isContent() || !block.text || typeof block.text !== 'string')
+                    return;
+                for (const match of matchBlock(block, query, this._options, this._muya.isReadOnly))
+                    matches.push(match);
             });
         }
 
-        const index = this._searchIndex(matches, highlightIndex, selectHighlight ? null : selection);
+        const retainedIndex = retain
+            ? matches.findIndex(({ block, start, end }) => block === retain.block && start === retain.start && end === retain.end)
+            : -1;
+        const index = this._searchIndex(matches, retainedIndex >= 0 ? retainedIndex : highlightIndex, selectHighlight ? null : selection);
         Object.assign(this, { matches, index });
 
         this._updateMatches();
@@ -429,22 +440,21 @@ export class Search {
         return index < 0 ? 0 : index;
     }
 
-    /** Refresh visible results; defer hidden results until reopening or navigation. */
+    private _refreshMatches(): void {
+        const { index, matches } = this;
+        this._runSearch(this._query, { ...this._options, highlightIndex: index, selectHighlight: false }, matches[index]);
+    }
+
     refresh(): this {
-        const { _query: query, _options: options, index: highlightIndex } = this;
-
-        if (!query) {
+        if (!this._query)
             return this;
+        if (this._visible) {
+            this._refreshMatches();
+            this._muya.eventCenter.emit('search-refreshed', this);
         }
-        if (!this._visible) {
+        else {
             this._dirty = true;
-            return this;
         }
-
-        this.search(query, { ...options, highlightIndex, selectHighlight: false });
-
-        this._muya.eventCenter.emit('search-refreshed', this);
-
         return this;
     }
 }

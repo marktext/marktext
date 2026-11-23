@@ -4,17 +4,7 @@ import type Renderer from './index';
 import type { H, IContainerRenderOptions } from './types';
 import { BLOCK_TYPE6, CLASS_NAMES } from '../../config';
 import sanitize, { isValidAttribute } from '../../utils/dompurify';
-
-function renderHtmlTagChildren(
-    token: HTMLTagToken,
-    childNodes: IContainerRenderOptions['childNodes'],
-): (VNode | string)[] | '' {
-    const { tag, children } = token;
-
-    return Array.isArray(children) && children.length && tag !== 'ruby'
-        ? childNodes(children)
-        : '';
-}
+import { readingBreak } from './lineBreakHighlights';
 
 function buildRawHtmlTag(
     token: HTMLTagToken,
@@ -129,8 +119,6 @@ export default function htmlTag(
         return [h(`span.${CLASS_NAMES.MU_HTML_TAG}`, this.highlight(h, block, start, end, token))];
     }
 
-    const anchor = renderHtmlTagChildren(token, childNodes);
-
     switch (tag) {
         case 'img': {
             return this.image({
@@ -159,7 +147,7 @@ export default function htmlTag(
                         },
                         openContent,
                     ),
-                    h(tag),
+                    this.environment.readOnly ? readingBreak(this, h, token, start, end) : h(tag),
                 ]),
             ];
         }
@@ -184,7 +172,7 @@ export default function htmlTag(
                     tagClassName,
                     openContent,
                     closeContent,
-                    anchor,
+                    children?.length ? childNodes(children) : '',
                     h,
                 );
             }
