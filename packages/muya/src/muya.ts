@@ -24,6 +24,7 @@ import { Editor } from './editor/index';
 import { attachReadingEvents, prepareReadingLinks } from './editor/readOnly';
 import EventCenter from './event/index';
 import I18n from './i18n/index';
+import { getReadingText } from './search/readingMatches';
 
 import {
     injectSentinels,
@@ -681,6 +682,18 @@ export class Muya {
      */
     getSelectedText(): string {
         return this.editor.selection.getSelectedText();
+    }
+
+    /** The visible text of a Reading Mode selection contained in a single block. */
+    getSelectedReadingText(): string {
+        const selection = this.editor.selection.getTextSelection();
+        if (!selection || selection.isCollapsed || !selection.isSelectionInSameBlock)
+            return '';
+        const { anchor, focus } = selection;
+        return getReadingText(anchor.block, {
+            start: Math.min(anchor.offset, focus.offset),
+            end: Math.max(anchor.offset, focus.offset),
+        });
     }
 
     hasFocus() {

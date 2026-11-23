@@ -185,6 +185,10 @@ import IconTooltip from '@/components/iconTooltip/index.vue'
 
 const { t } = useI18n()
 
+const props = defineProps<{
+  getSelectedReadingText: () => string
+}>()
+
 const editorStore = useEditorStore()
 
 const showSearch = ref(false)
@@ -212,10 +216,10 @@ watch(readOnly, (locked) => {
   type.value = 'search'
 })
 const searchMatches = computed(() => currentFile.value?.searchMatches)
-const singleLineSelection = computed(() => {
-  const selected = searchMatches.value?.selectedText
+const getSingleLineSelection = () => {
+  const selected = readOnly.value ? props.getSelectedReadingText() : searchMatches.value?.selectedText
   return selected && !selected.includes('\n') ? selected : ''
-})
+}
 
 watch(searchValue, () => {
   if (!showSearch.value || prefilling) return
@@ -224,7 +228,7 @@ watch(searchValue, () => {
 
 const prefillFromSelection = () => {
   if (document.activeElement?.closest('.search-bar')) return
-  const selected = singleLineSelection.value
+  const selected = getSingleLineSelection()
   if (!selected) return
   prefilling = true
   searchValue.value = isRegexp.value ? escapeRegExp(selected) : selected
@@ -312,7 +316,7 @@ const listenReplace = () => {
   if (readOnly.value) return
   debouncedSearchFn.flush()
   debouncedSearchFn.cancel()
-  const focusReplacement = document.activeElement === search.value || !!singleLineSelection.value
+  const focusReplacement = document.activeElement === search.value || !!getSingleLineSelection()
   prefillFromSelection()
   openSearch('replace')
   searchFn(false)

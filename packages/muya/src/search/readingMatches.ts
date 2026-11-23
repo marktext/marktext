@@ -1,4 +1,5 @@
 import type Content from '../block/base/content';
+import type { ITokenRange } from '../inline/model/types';
 import type { IMatch, ISearchOption } from './types';
 import { CLASS_NAMES } from '../config';
 import { getTextContent } from '../selection/dom';
@@ -15,20 +16,32 @@ const hiddenBlock = [
     'figure > .mu-diagram-container',
 ].join(', ');
 
-interface IReadingSpan {
-    sourceEnd: number;
+interface IReadingSpan extends ITokenRange {
     textEnd: number;
+    atomic: boolean;
 }
 
-function projectReadingText(root: HTMLElement, source: string) {
+function projectReadingText(block: Content, range?: ITokenRange) {
+    const { domNode: root, text: source } = block;
     const spans: IReadingSpan[] = [];
+    if (!root || root.closest(hiddenBlock))
+        return { text: '', spans };
+
+    const start = range?.start ?? 0;
+    const end = range?.end ?? source.length;
     const parts: string[] = [];
     const view = root.ownerDocument.defaultView;
     let rootVisibility: string | undefined;
     let sourceOffset = 0;
     let textLength = 0;
 
-    function inlineVisibility(node: Element, hiddenText: boolean): 'visible' | 'hidden-text' | 'hidden-subtree' {
+    function append(text: string, from: number, to: number, atomic = false) {
+        textLength += text.length;
+        spans.push({ start: from, end: to, textEnd: textLength, atomic });
+        parts.push(text);
+    }
+
+    const inlineVisibility = (node: Element, hiddenText: boolean): 'visible' | 'hidden-text' | 'hidden-subtree' => {
         if (node.matches(hiddenInline))
             return 'hidden-subtree';
         const style = node.classList.contains(CLASS_NAMES.MU_RAW_HTML) ? view?.getComputedStyle(node) : undefined;
@@ -43,19 +56,33 @@ function projectReadingText(root: HTMLElement, source: string) {
         rootVisibility ??= view?.getComputedStyle(root).visibility;
         const explicitVisibility = node instanceof HTMLElement && node.style.visibility;
         return hiddenText || explicitVisibility || style.visibility !== rootVisibility ? 'hidden-text' : 'visible';
+    };
+
+    function visitText(text: Text, hidden: boolean) {
+        const nextOffset = sourceOffset + text.length;
+        const from = Math.max(start, sourceOffset);
+        const to = Math.min(end, nextOffset);
+        if (!hidden && from < to)
+            append(source.slice(from, to), from, to);
+        sourceOffset = nextOffset;
+    }
+
+    function visitHidden(node: Element, hiddenText: boolean) {
+        // A decoded glyph spans the whole source entity, including multi-unit characters.
+        const nextOffset = sourceOffset + getTextContent(node, previewClasses).length;
+        if (!hiddenText && sourceOffset < end && nextOffset > start && node.classList.contains(CLASS_NAMES.MU_HTML_ESCAPE)) {
+            const glyph = node.getAttribute('data-character');
+            if (glyph)
+                append(glyph, sourceOffset, nextOffset, true);
+        }
+        sourceOffset = nextOffset;
     }
 
     function visit(node: Node, hiddenText = false) {
+        if (sourceOffset >= end)
+            return;
         if (node.nodeType === Node.TEXT_NODE) {
-            const length = (node as Text).length;
-            const end = sourceOffset + length;
-            if (!hiddenText && sourceOffset < end && sourceOffset < source.length) {
-                const part = source.slice(sourceOffset, end);
-                textLength += part.length;
-                spans.push({ sourceEnd: sourceOffset + part.length, textEnd: textLength });
-                parts.push(part);
-            }
-            sourceOffset = end;
+            visitText(node as Text, hiddenText);
             return;
         }
         if (!(node instanceof Element) || node.matches(previewSelector))
@@ -64,7 +91,7 @@ function projectReadingText(root: HTMLElement, source: string) {
         const visibility = inlineVisibility(node, hiddenText);
         if (visibility === 'hidden-subtree') {
             // Hidden source occupies offsets used by selection, unlike generated previews.
-            sourceOffset += getTextContent(node, previewClasses).length;
+            visitHidden(node, hiddenText);
             return;
         }
         for (const child of node.childNodes)
@@ -75,12 +102,12 @@ function projectReadingText(root: HTMLElement, source: string) {
     return { text: parts.join(''), spans };
 }
 
-export function matchReadingText(block: Content, query: string, options: ISearchOption): IMatch[] {
-    const { domNode: root } = block;
-    if (!root || root.closest(hiddenBlock))
-        return [];
+export function getReadingText(block: Content, range: ITokenRange): string {
+    return projectReadingText(block, range).text;
+}
 
-    const { text, spans } = projectReadingText(root, block.text);
+export function matchReadingText(block: Content, query: string, options: ISearchOption): IMatch[] {
+    const { text, spans } = projectReadingText(block);
     const matches: IMatch[] = [];
     let spanIndex = 0;
     for (const { index, match, subMatches } of matchString(text, query, options)) {
@@ -90,13 +117,13 @@ export function matchReadingText(block: Content, query: string, options: ISearch
         while (spans[spanIndex].textEnd <= index)
             spanIndex++;
         const first = spans[spanIndex];
-        const start = first.sourceEnd - (first.textEnd - index);
+        const start = first.atomic ? first.start : first.end - (first.textEnd - index);
 
         const textEnd = index + match.length;
         while (spans[spanIndex].textEnd < textEnd)
             spanIndex++;
         const last = spans[spanIndex];
-        const end = last.sourceEnd - (last.textEnd - textEnd);
+        const end = last.atomic ? last.end : last.end - (last.textEnd - textEnd);
         matches.push({ block, start, end, match, subMatches });
     }
     return matches;

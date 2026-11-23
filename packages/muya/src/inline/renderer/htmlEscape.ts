@@ -15,12 +15,15 @@ export default function htmlEscape(
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const { start, end } = token.range;
-
-    const content = this.highlight(h, block, start, end, token);
+    // The wrapper paints the visible glyph while the marker retains source offsets.
+    const glyphHighlight = this.environment.readOnly && token.highlights?.length
+        ? `.${this.getHighlightClassName(token.highlights.some(highlight => highlight.active))}`
+        : '';
+    const content = glyphHighlight ? token.raw : this.highlight(h, block, start, end, token);
 
     return [
         h(
-            `span.${className}.${CLASS_NAMES.MU_HTML_ESCAPE}`,
+            `span.${className}.${CLASS_NAMES.MU_HTML_ESCAPE}${glyphHighlight}`,
             {
                 dataset: {
                     character: token.content,

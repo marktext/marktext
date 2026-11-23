@@ -535,6 +535,74 @@ test('reading mode matches visible phrases and regex across inline formatting', 
   }
 })
 
+test('reading mode searches decoded HTML entities and highlights their visible glyphs', async() => {
+  const { app, page } = await launchWithMarkdown('R&amp;D notes\n\nR&#38;D appendix\n\nA&#x1F600;B\n')
+  try {
+    await toggleReadingMode(page)
+    await clickMenuById(app, 'findMenuItem')
+    const editor = page.locator('.mu-read-only')
+    const input = page.locator('.search-bar .search input')
+    const counter = page.locator('.search-result')
+
+    await input.fill('RD')
+    await input.press('Enter')
+    await expect(counter).toHaveText('0 / 0')
+    await input.fill('R&D')
+    await expect(counter).toHaveText('1 / 2')
+    await expect(editor.locator('.mu-html-escape.mu-highlight[data-character="&"]')).toBeVisible()
+    await expect(editor.locator('.mu-html-escape.mu-selection[data-character="&"]')).toBeVisible()
+
+    await input.fill('&')
+    await expect(counter).toHaveText('1 / 2')
+    await input.press('Enter')
+    await expect(counter).toHaveText('2 / 2')
+    await expect(editor.locator('.mu-paragraph').filter({ hasText: 'appendix' }).locator('.mu-html-escape.mu-highlight')).toBeVisible()
+
+    await input.fill('A😀B')
+    await expect(counter).toHaveText('1 / 1')
+    await expect(editor.locator('.mu-html-escape.mu-highlight[data-character="😀"]')).toBeVisible()
+  } finally {
+    await app.close()
+  }
+})
+
+test('reading mode prefills Find with the selected visible text when opening and reopening', async() => {
+  const { app, page } = await launchWithMarkdown('Hello **world** &amp; team.\n')
+  try {
+    await toggleReadingMode(page)
+    const editor = page.locator('.mu-read-only')
+    await editor.focus()
+    await editor.locator('.mu-paragraph-content').evaluate(async(node) => {
+      const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT)
+      let start: Node | null = null
+      while (walker.nextNode()) {
+        const text = walker.currentNode
+        if (text.textContent === 'Hello ') start = text
+        if (start && text.textContent === ' team.') {
+          document.getSelection()?.setBaseAndExtent(start, 0, text, ' team'.length)
+          break
+        }
+      }
+      await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+    })
+
+    await clickMenuById(app, 'findMenuItem')
+    const input = page.locator('.search-bar .search input')
+    const counter = page.locator('.search-result')
+    await expect(input).toHaveValue('Hello world & team')
+    await expect(counter).toHaveText('1 / 1')
+
+    await input.press('Enter')
+    await input.press('Escape')
+    await expect(input).toBeHidden()
+    await clickMenuById(app, 'findMenuItem')
+    await expect(input).toHaveValue('Hello world & team')
+    await expect(counter).toHaveText('1 / 1')
+  } finally {
+    await app.close()
+  }
+})
+
 test('Find Next resumes at the next visible match when the bar was closed during a mode switch', async() => {
   const { app, page } = await launchWithMarkdown('[Example](https://needle.example)\n\nneedle one\n\nneedle two\n\nneedle three\n')
   try {
