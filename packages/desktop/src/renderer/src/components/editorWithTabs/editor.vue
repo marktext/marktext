@@ -34,7 +34,6 @@
       >
         <el-form-item :label="t('editor.insertTable.rows')">
           <el-input-number
-            ref="rowInput"
             v-model="tableChecker.rows"
             size="mini"
             controls-position="right"
@@ -157,7 +156,6 @@ import { SyntheticHistory, type IFileHistoryLike } from './syntheticHistory'
 // Import the engine entrypoint for its editor styles.
 import '@muyajs/core'
 import '@/assets/themes/codemirror/one-dark.css'
-import { type InputNumberInstance } from 'element-plus'
 
 const { t } = useI18n()
 const STANDAR_Y = 320
@@ -273,7 +271,6 @@ const tableChecker = reactive({
 const editorRef = ref<HTMLDivElement | null>(null)
 const mediaViewer = ref<InstanceType<typeof MediaViewer> | null>(null)
 const viewerOpen = ref(false)
-const rowInput = ref<InputNumberInstance | null>(null)
 
 let printer: Printer | null = null
 let spellchecker: SpellChecker | null = null
@@ -1404,10 +1401,10 @@ const handleEditParagraph = (type: unknown) => {
   if (type === 'table') {
     tableChecker.rows = 4
     tableChecker.columns = 3
+    // Don't move focus into the dialog here: on close, el-dialog returns focus
+    // to the element focused when it opened. That has to be the editor so the
+    // caret lands in the new table; otherwise focus ends up on <body>.
     dialogTableVisible.value = true
-    nextTick(() => {
-      rowInput.value?.focus()
-    })
   } else if (editor.value) {
     editor.value.updateParagraph(type as string)
     // Re-sync the menu so a no-op action (e.g. "Paragraph" inside a list/quote)
