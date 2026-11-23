@@ -34,7 +34,7 @@
       "closeWindow": "Venster sluiten",
       "quit": "Afsluiten",
       "preferences": "Voorkeuren",
-      "addFolder": "Add Folder…"
+      "addFolder": "Map toevoegen…"
     },
     "edit": {
       "edit": "Bewerken",
@@ -243,11 +243,11 @@
       "noFolderOpen": "Geen map geopend",
       "noResultsFound": "Geen resultaten gevonden.",
       "cancel": "Annuleren",
-      "openFolder": "Add Folder…",
+      "openFolder": "Map toevoegen…",
       "showMoreMatches": "Meer resultaten tonen",
       "searchInFolders": "Zoeken in map",
-      "partialSearch": "Some folders could not be searched.",
-      "noSearchableFolders": "No available folders to search."
+      "partialSearch": "Sommige mappen konden niet worden doorzocht.",
+      "noSearchableFolders": "Geen mappen beschikbaar om te doorzoeken."
     },
     "tree": {
       "openedFiles": "Geopende bestanden",
@@ -257,14 +257,14 @@
       "createFile": "Bestand aanmaken",
       "openFolder": "Map openen",
       "noFolders": "No folders added",
-      "removeFolder": "Remove from Sidebar",
-      "retryFolder": "Retry",
-      "loadingFolder": "Loading folder…",
-      "unavailableFolder": "Folder unavailable",
+      "removeFolder": "Verwijderen uit zijbalk",
+      "retryFolder": "Opnieuw proberen",
+      "loadingFolder": "Map laden…",
+      "unavailableFolder": "Map niet beschikbaar",
       "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
-      "folderAlreadyAdded": "This folder has already been added.",
-      "fileOutsideFolders": "This file is not in an added folder.",
-      "sessionSaveFailed": "Unable to save session",
+      "folderAlreadyAdded": "Deze map is al toegevoegd.",
+      "fileOutsideFolders": "Dit bestand staat niet in een toegevoegde map.",
+      "sessionSaveFailed": "Kan sessie niet opslaan",
       "resizeOpenedFiles": "Lijst met geopende bestanden aanpassen"
     },
     "toc": {
@@ -282,19 +282,19 @@
       "settings": "Instellingen"
     },
     "move": {
-      "title": "Move file or folder",
-      "confirm": "Move",
-      "question": "Move \"{name}\"?",
-      "detail": "From: {source}\nTo: {destination}\n\nThis changes the actual file location. Relative links and image paths may be affected.",
-      "directoryContents": "The folder and all its contents will be moved.",
-      "completed": "Moved successfully.",
-      "invalidTarget": "Choose another folder within the same open root. Linked paths and moving a folder into itself are not supported.",
-      "crossDevice": "Moving between volumes is not supported here. Use your system file manager.",
-      "conflict": "The destination already contains an item with this name. Rename it before trying again.",
-      "missing": "The source or destination no longer exists. Refresh the folder and try again.",
-      "permission": "The item could not be moved. Check folder permissions and whether another application is using it.",
-      "openElsewhere": "Close this file and any documents inside this folder in other MarkText windows before moving it.",
-      "destinationOpen": "A document is already open at the destination path. Close it before trying again."
+      "title": "Bestand of map verplaatsen",
+      "confirm": "Verplaatsen",
+      "question": "\"{name}\" verplaatsen?",
+      "detail": "Van: {source}\nNaar: {destination}\n\nHiermee verandert de werkelijke locatie van het bestand. Relatieve links en afbeeldingspaden kunnen worden beïnvloed.",
+      "directoryContents": "De map wordt met alle inhoud verplaatst.",
+      "completed": "Verplaatsen gelukt.",
+      "invalidTarget": "Kies een andere map binnen dezelfde geopende hoofdmap. Gekoppelde paden en het verplaatsen van een map naar zichzelf worden niet ondersteund.",
+      "crossDevice": "Verplaatsen tussen volumes wordt hier niet ondersteund. Gebruik de bestandsbeheerder van je systeem.",
+      "conflict": "Op de bestemming staat al een item met deze naam. Wijzig de naam en probeer het opnieuw.",
+      "missing": "De bron of bestemming bestaat niet meer. Vernieuw de map en probeer het opnieuw.",
+      "permission": "Het item kon niet worden verplaatst. Controleer de maprechten en of een andere toepassing het gebruikt.",
+      "openElsewhere": "Sluit dit bestand en alle documenten uit deze map in andere MarkText-vensters voordat je het verplaatst.",
+      "destinationOpen": "Er is al een document geopend op het doelpad. Sluit het en probeer het opnieuw."
     }
   },
   "titleBar": {
@@ -551,7 +551,7 @@
       "fileRepresentation": {
         "title": "Bestandsweergave",
         "tabWidth": "Invoer met de Tab-toets",
-        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
+        "tabInputNotes": "Kies spaties of een echt tabteken. Bestaande tabs gebruiken tabstops van vier kolommen. In lijsten en tabellen past Tab het nestniveau aan of gaat het naar een andere cel.",
         "lineSeparator": "Standaard regeleinde voor bestanden",
         "defaultEncoding": "Standaardcodering",
         "autoDetectEncoding": "Codering automatisch detecteren",
@@ -812,7 +812,7 @@
       "exportFilePdf": "Exporteren als PDF",
       "zoom": "Zoom",
       "checkUpdate": "Controleer op updates",
-      "addFolder": "Add Folder…"
+      "addFolder": "Map toevoegen…"
     },
     "edit": {
       "undo": "Ongedaan maken",

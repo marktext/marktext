@@ -34,7 +34,7 @@
       "closeWindow": "ウィンドウを閉じる",
       "quit": "終了",
       "preferences": "環境設定",
-      "addFolder": "Add Folder…"
+      "addFolder": "フォルダーを追加…"
     },
     "edit": {
       "edit": "編集",
@@ -243,11 +243,11 @@
       "noFolderOpen": "フォルダーが開かれていません",
       "noResultsFound": "一致するものがありません。",
       "cancel": "キャンセル",
-      "openFolder": "Add Folder…",
+      "openFolder": "フォルダーを追加…",
       "showMoreMatches": "さらに一致するものを表示",
       "searchInFolders": "フォルダー内の検索",
-      "partialSearch": "Some folders could not be searched.",
-      "noSearchableFolders": "No available folders to search."
+      "partialSearch": "一部のフォルダーを検索できませんでした。",
+      "noSearchableFolders": "検索できるフォルダーがありません。"
     },
     "tree": {
       "openedFiles": "開いているファイル",
@@ -257,14 +257,14 @@
       "createFile": "ファイルの作成",
       "openFolder": "フォルダーを開く",
       "noFolders": "No folders added",
-      "removeFolder": "Remove from Sidebar",
-      "retryFolder": "Retry",
-      "loadingFolder": "Loading folder…",
-      "unavailableFolder": "Folder unavailable",
+      "removeFolder": "サイドバーから削除",
+      "retryFolder": "再試行",
+      "loadingFolder": "フォルダーを読み込み中…",
+      "unavailableFolder": "フォルダーを利用できません",
       "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
-      "folderAlreadyAdded": "This folder has already been added.",
-      "fileOutsideFolders": "This file is not in an added folder.",
-      "sessionSaveFailed": "Unable to save session",
+      "folderAlreadyAdded": "このフォルダーは既に追加されています。",
+      "fileOutsideFolders": "このファイルは追加されたフォルダー内にありません。",
+      "sessionSaveFailed": "セッションを保存できませんでした",
       "resizeOpenedFiles": "開いているファイル一覧のサイズを変更"
     },
     "toc": {
@@ -282,19 +282,19 @@
       "settings": "設定"
     },
     "move": {
-      "title": "Move file or folder",
-      "confirm": "Move",
-      "question": "Move \"{name}\"?",
-      "detail": "From: {source}\nTo: {destination}\n\nThis changes the actual file location. Relative links and image paths may be affected.",
-      "directoryContents": "The folder and all its contents will be moved.",
-      "completed": "Moved successfully.",
-      "invalidTarget": "Choose another folder within the same open root. Linked paths and moving a folder into itself are not supported.",
-      "crossDevice": "Moving between volumes is not supported here. Use your system file manager.",
-      "conflict": "The destination already contains an item with this name. Rename it before trying again.",
-      "missing": "The source or destination no longer exists. Refresh the folder and try again.",
-      "permission": "The item could not be moved. Check folder permissions and whether another application is using it.",
-      "openElsewhere": "Close this file and any documents inside this folder in other MarkText windows before moving it.",
-      "destinationOpen": "A document is already open at the destination path. Close it before trying again."
+      "title": "ファイルまたはフォルダーを移動",
+      "confirm": "移動",
+      "question": "「{name}」を移動しますか？",
+      "detail": "移動元: {source}\n移動先: {destination}\n\nファイルの実際の場所が変更されます。相対リンクや画像パスに影響する場合があります。",
+      "directoryContents": "フォルダーとその中身がすべて移動されます。",
+      "completed": "移動しました。",
+      "invalidTarget": "開いている同じルートフォルダー内の別のフォルダーを選択してください。リンクされたパスや、フォルダーをそれ自身の中へ移動することはできません。",
+      "crossDevice": "ここではボリューム間の移動はできません。システムのファイルマネージャーを使用してください。",
+      "conflict": "移動先に同じ名前の項目が既にあります。名前を変更してからもう一度お試しください。",
+      "missing": "移動元または移動先が存在しません。フォルダーを更新してからもう一度お試しください。",
+      "permission": "項目を移動できませんでした。フォルダーのアクセス権と、他のアプリケーションが使用していないかを確認してください。",
+      "openElsewhere": "移動する前に、他の MarkText ウィンドウで開いているこのファイルと、このフォルダー内のドキュメントを閉じてください。",
+      "destinationOpen": "移動先のパスで既にドキュメントが開かれています。閉じてからもう一度お試しください。"
     }
   },
   "titleBar": {
@@ -551,7 +551,7 @@
       "fileRepresentation": {
         "title": "ファイルの表示形式",
         "tabWidth": "Tab キーの入力",
-        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
+        "tabInputNotes": "スペースまたは実際のタブ文字を選択します。既存のタブは 4 桁ごとのタブ位置で表示されます。リストと表では、Tab キーで階層の変更やセル間の移動を行います。",
         "lineSeparator": "ファイルの既定の改行コード",
         "defaultEncoding": "デフォルトエンコーディング",
         "autoDetectEncoding": "エンコーディングを自動検出",
@@ -812,7 +812,7 @@
       "exportFilePdf": "PDF としてエクスポート",
       "zoom": "ズーム",
       "checkUpdate": "更新の確認",
-      "addFolder": "Add Folder…"
+      "addFolder": "フォルダーを追加…"
     },
     "edit": {
       "undo": "元に戻す",

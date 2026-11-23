@@ -34,7 +34,7 @@
       "closeWindow": "Cerrar Ventana",
       "quit": "Salir",
       "preferences": "Preferencias",
-      "addFolder": "Add Folder…"
+      "addFolder": "Agregar carpeta…"
     },
     "edit": {
       "edit": "Editar",
@@ -243,11 +243,11 @@
       "noFolderOpen": "No hay carpeta abierta",
       "noResultsFound": "No se encontraron resultados.",
       "cancel": "Cancelar",
-      "openFolder": "Add Folder…",
+      "openFolder": "Agregar carpeta…",
       "showMoreMatches": "Mostrar más coincidencias",
       "searchInFolders": "Buscar en Carpeta",
-      "partialSearch": "Some folders could not be searched.",
-      "noSearchableFolders": "No available folders to search."
+      "partialSearch": "No se pudo buscar en algunas carpetas.",
+      "noSearchableFolders": "No hay carpetas disponibles para buscar."
     },
     "tree": {
       "openedFiles": "Archivos abiertos",
@@ -257,14 +257,14 @@
       "createFile": "Crear Archivo",
       "openFolder": "Abrir Carpeta",
       "noFolders": "No folders added",
-      "removeFolder": "Remove from Sidebar",
-      "retryFolder": "Retry",
-      "loadingFolder": "Loading folder…",
-      "unavailableFolder": "Folder unavailable",
+      "removeFolder": "Quitar de la barra lateral",
+      "retryFolder": "Reintentar",
+      "loadingFolder": "Cargando carpeta…",
+      "unavailableFolder": "Carpeta no disponible",
       "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
-      "folderAlreadyAdded": "This folder has already been added.",
-      "fileOutsideFolders": "This file is not in an added folder.",
-      "sessionSaveFailed": "Unable to save session",
+      "folderAlreadyAdded": "Esta carpeta ya se ha agregado.",
+      "fileOutsideFolders": "Este archivo no está en ninguna carpeta agregada.",
+      "sessionSaveFailed": "No se pudo guardar la sesión",
       "resizeOpenedFiles": "Cambiar el tamaño de la lista de archivos abiertos"
     },
     "toc": {
@@ -282,19 +282,19 @@
       "settings": "Configuración"
     },
     "move": {
-      "title": "Move file or folder",
-      "confirm": "Move",
-      "question": "Move \"{name}\"?",
-      "detail": "From: {source}\nTo: {destination}\n\nThis changes the actual file location. Relative links and image paths may be affected.",
-      "directoryContents": "The folder and all its contents will be moved.",
-      "completed": "Moved successfully.",
-      "invalidTarget": "Choose another folder within the same open root. Linked paths and moving a folder into itself are not supported.",
-      "crossDevice": "Moving between volumes is not supported here. Use your system file manager.",
-      "conflict": "The destination already contains an item with this name. Rename it before trying again.",
-      "missing": "The source or destination no longer exists. Refresh the folder and try again.",
-      "permission": "The item could not be moved. Check folder permissions and whether another application is using it.",
-      "openElsewhere": "Close this file and any documents inside this folder in other MarkText windows before moving it.",
-      "destinationOpen": "A document is already open at the destination path. Close it before trying again."
+      "title": "Mover archivo o carpeta",
+      "confirm": "Mover",
+      "question": "¿Mover «{name}»?",
+      "detail": "De: {source}\nA: {destination}\n\nEsto cambia la ubicación real del archivo. Los enlaces relativos y las rutas de imágenes pueden verse afectados.",
+      "directoryContents": "Se moverá la carpeta con todo su contenido.",
+      "completed": "Movido correctamente.",
+      "invalidTarget": "Elige otra carpeta dentro de la misma raíz abierta. No se admiten las rutas enlazadas ni mover una carpeta dentro de sí misma.",
+      "crossDevice": "Aquí no se admite mover elementos entre volúmenes. Usa el gestor de archivos del sistema.",
+      "conflict": "El destino ya contiene un elemento con este nombre. Cámbiale el nombre e inténtalo de nuevo.",
+      "missing": "El origen o el destino ya no existe. Actualiza la carpeta e inténtalo de nuevo.",
+      "permission": "No se pudo mover el elemento. Comprueba los permisos de la carpeta y si otra aplicación lo está usando.",
+      "openElsewhere": "Antes de moverlo, cierra este archivo y cualquier documento de esta carpeta en otras ventanas de MarkText.",
+      "destinationOpen": "Ya hay un documento abierto en la ruta de destino. Ciérralo e inténtalo de nuevo."
     }
   },
   "titleBar": {
@@ -551,7 +551,7 @@
       "fileRepresentation": {
         "title": "Representación de Archivo",
         "tabWidth": "Entrada de la tecla Tab",
-        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
+        "tabInputNotes": "Elige espacios o un carácter de tabulación real. Las tabulaciones existentes usan topes de tabulación de cuatro columnas. En listas y tablas, Tab ajusta el anidamiento o se mueve entre celdas.",
         "lineSeparator": "Fin de línea predeterminado de archivos",
         "defaultEncoding": "Codificación predeterminada",
         "autoDetectEncoding": "Detectar codificación automáticamente",
@@ -640,7 +640,7 @@
       "title": "Markdown",
       "extensions": {
         "title": "Extensiones",
-        "superSubScript": "Super/Sub script",
+        "superSubScript": "Superíndice/subíndice",
         "footnote": "Nota al pie",
         "texMathDollars": "Matemáticas TeX con $ y $$",
         "texMathGfm": "Matemáticas TeX de GitHub ($`…`$ y ```math)",
@@ -812,7 +812,7 @@
       "exportFilePdf": "Exportar como PDF",
       "zoom": "Zoom",
       "checkUpdate": "Buscar Actualizaciones",
-      "addFolder": "Add Folder…"
+      "addFolder": "Agregar carpeta…"
     },
     "edit": {
       "undo": "Deshacer",

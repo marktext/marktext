@@ -74,7 +74,7 @@
       "table": "Tabela",
       "codeFences": "Blok kodu",
       "quoteBlock": "Cytat",
-      "githubAlerts": "GitHub Alerts",
+      "githubAlerts": "Alerty GitHub",
       "mathBlock": "Blok matematyczny",
       "htmlBlock": "Blok HTML",
       "orderedList": "Lista numerowana",
@@ -650,7 +650,7 @@
         "highlightSyntax": "Wyróżnienie (==tekst==)",
         "inlineDiff": "Zmiany w linii ({+ … +})",
         "multilineBlockquote": "Wielowierszowy cytat (>>>)",
-        "githubAlerts": "Włącz GitHub Alerts",
+        "githubAlerts": "Włącz alerty GitHub",
         "frontmatterType": {
           "jsonBrace": "JSON z nawiasami klamrowymi",
           "jsonSemicolon": "JSON ze średnikami",
