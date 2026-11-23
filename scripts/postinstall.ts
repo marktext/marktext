@@ -152,8 +152,14 @@ console.log('Applying patches...')
 run(`"${patchPackageBin}"`, { cwd: desktopRoot })
 
 // ── 4. Rebuild native modules for Electron ABI ──────────────────────────────
-console.log('Rebuilding native modules for Electron...')
-run(`"${electronRebuildBin}" -f`, { cwd: desktopRoot })
+// Linux CI rebuilds them in an AlmaLinux 8 container instead, so the addons
+// stay loadable on older-glibc distros; see scripts/rebuild-linux-native.sh.
+if (process.env.MARKTEXT_SKIP_NATIVE_REBUILD) {
+  console.log('Skipping native module rebuild (MARKTEXT_SKIP_NATIVE_REBUILD is set)')
+} else {
+  console.log('Rebuilding native modules for Electron...')
+  run(`"${electronRebuildBin}" -f`, { cwd: desktopRoot })
+}
 
 // ── 5. Generate minified locale files ───────────────────────────────────────
 console.log('Minifying locales...')

@@ -63,17 +63,34 @@ jobs:
           echo "CXXFLAGS=-std=gnu++20 -stdlib=libc++" >> $GITHUB_ENV
 
       # Run the full postinstall: Electron binary download, patch-package,
-      # electron-rebuild, and minify-locales.
+      # electron-rebuild, and minify-locales. Linux native addons are rebuilt
+      # separately below, inside a glibc 2.28 container.
       - name: Run postinstall
         run: pnpm tsx scripts/postinstall.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           npm_config_user_agent: 'pnpm'
           USE_ELECTRON_CLANG: ${{ matrix.platform == 'linux' && '0' || '' }}
+          MARKTEXT_SKIP_NATIVE_REBUILD: ${{ matrix.platform == 'linux' && '1' || '' }}
+
+      # Electron's Linux binary only needs glibc 2.25, but @electron/rebuild
+      # prepares the native addons (ced, keytar, native-keymap) with the
+      # runner's toolchain and they pick up its libstdc++/glibc. Rebuild them
+      # against AlmaLinux 8 (glibc 2.28) with static libstdc++ so the artifacts
+      # load on Kylin V10 SP1 and other RHEL 8-era distros.
+      - name: Rebuild Linux native addons for glibc 2.28
+        if: matrix.platform == 'linux'
+        run: bash scripts/rebuild-linux-native.sh
 
       - name: build-linux
         if: matrix.platform == 'linux'
         run: pnpm run build:linux:${{ matrix.arch }}
+
+      # Runs on the packaged output, so addons that the electron-rebuild inside
+      # build:linux recompiled are caught as well.
+      - name: Check Linux native addon compatibility
+        if: matrix.platform == 'linux'
+        run: bash scripts/check-linux-native-compat.sh
 
       - name: build-mac
         if: matrix.platform == 'macos'
