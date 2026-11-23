@@ -12,6 +12,7 @@ import type {
 } from '../../../state/types';
 import type { Nullable } from '../../../types';
 import type { GithubAlertType } from '../../../utils/githubAlerts';
+import type Content from '../../base/content';
 import type Parent from '../../base/parent';
 import type BulletList from '../../commonMark/bulletList';
 import type Paragraph from '../../commonMark/paragraph';
@@ -270,6 +271,60 @@ class ParagraphContent extends Format {
                 debug.error('Unknown backspace type');
                 break;
         }
+    }
+
+    override deleteHandler(event: KeyboardEvent) {
+        if (!this._isEmptyListLine()) {
+            super.deleteHandler(event);
+            return;
+        }
+        event.preventDefault();
+        this.muya.editor.history.markInputBoundary('deleteContentForward', null);
+        this._deleteEmptyListLine();
+    }
+
+    // An empty outline line whose only other content is a trailing nested list.
+    // One holding further paragraphs or blocks, before or after the sublist,
+    // keeps the default merge.
+    private _isEmptyListLine(): boolean {
+        const paragraph = this.parent;
+        const listItem = paragraph?.parent;
+        if (!this.isCollapsed || this.text !== '' || !paragraph?.isFirstChild() || !isListItemBlock(listItem))
+            return false;
+        const nested = paragraph.next as Parent | null;
+        return !nested || (isListBlock(nested) && nested.next === null);
+    }
+
+    // Outliner behaviour: Delete removes the empty line itself. Following lines
+    // keep their depth, its children move up one level into its place, and the
+    // caret lands on the line that followed it.
+    private _deleteEmptyListLine() {
+        const listItem = this.parent!.parent!;
+        const nested = this.parent!.next as Parent | null;
+        let target: Nullable<Content> = null;
+        let offset = 0;
+        if (nested) {
+            const firstChild = nested.firstContentInDescendant();
+            const replacements = moveListItems([...nested.children.iterator()] as Parent[], 'outdent');
+            target = firstChild ? replacements?.get(firstChild) : null;
+        }
+        else {
+            target = this.nextContentInContext();
+            if (!target) {
+                target = this.previousContentInContext();
+                offset = target?.text.length ?? 0;
+            }
+        }
+        if (!target)
+            return;
+        // Removing the last item of a list that is itself the only child of a
+        // container (a block quote) must remove the container too: an empty one
+        // has no content for the document-level queries to find.
+        let removable: Parent = listItem;
+        while (removable.isOnlyChild() && removable.parent && !(removable.parent instanceof ScrollPage))
+            removable = removable.parent;
+        removable.remove();
+        target.setCursor(offset, offset, true);
     }
 
     override inputHandler(event: Event) {
