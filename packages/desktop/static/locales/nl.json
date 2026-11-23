@@ -3,12 +3,8 @@
     "counter": {
       "words": "Woorden",
       "characters": "Tekens",
-      "charactersNoSpaces": "Tekens (zonder spaties)",
       "charactersWithSpaces": "Tekens (met spaties)",
-      "paragraphs": "Alinea's",
-      "allCharacters": "Alle tekens",
-      "document": "Document",
-      "documentSelection": "Document / Selectie"
+      "paragraphs": "Alinea's"
     },
     "file": {
       "file": "Bestand",
@@ -239,7 +235,6 @@
   "sideBar": {
     "search": {
       "backToFiles": "Terug naar bestanden",
-      "searchInFolder": "Zoeken in map...",
       "noFolderOpen": "Geen map geopend",
       "noResultsFound": "Geen resultaten gevonden.",
       "cancel": "Annuleren",
@@ -256,12 +251,10 @@
       "emptyProject": "Leeg project",
       "createFile": "Bestand aanmaken",
       "openFolder": "Map openen",
-      "noFolders": "No folders added",
       "removeFolder": "Verwijderen uit zijbalk",
       "retryFolder": "Opnieuw proberen",
       "loadingFolder": "Map laden…",
       "unavailableFolder": "Map niet beschikbaar",
-      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
       "folderAlreadyAdded": "Deze map is al toegevoegd.",
       "fileOutsideFolders": "Dit bestand staat niet in een toegevoegde map.",
       "sessionSaveFailed": "Kan sessie niet opslaan",
@@ -709,7 +702,6 @@
       "title": "Thema",
       "followSystemTheme": "Systeemweergave volgen",
       "followSystemNote": "Kies hieronder afzonderlijke thema’s voor de donkere en lichte modus.",
-      "modeThemes": "Themaselectie",
       "lightModeTheme": "Thema lichte modus",
       "darkModeTheme": "Thema donkere modus",
       "customCss": "Aangepaste CSS",
@@ -936,18 +928,14 @@
     "changesWillBeLost": "Wijzigingen gaan verloren",
     "close": "Sluiten",
     "dontSave": "Niet opslaan",
-    "file": "Bestand",
     "fileExists": "Bestand bestaat al: {filename}",
-    "files": "Bestanden",
     "importWarning": "Importwaarschuwing",
     "installPandoc": "Pandoc is niet gevonden. Installeer het, of stel de omgevingsvariabele MARKTEXT_PANDOC in op het pad naar het pandoc-programma en herstart MarkText.",
     "exportWarning": "Exportwaarschuwing",
     "exportWarningMore": "…en nog {count}",
-    "keepOpen": "Open houden",
     "replace": "Vervangen",
     "save": "Opslaan",
     "saveChanges": "Wijzigingen opslaan",
-    "saveFailure": "Opslaan mislukt",
     "unsafeFileTitle": "Mogelijk onveilig bestand",
     "unsafeFileMessage": "Deze link opent een bestand dat code kan uitvoeren",
     "unsafeFileDetail": "\"{name}\" is een uitvoerbaar bestand of script. Het openen kan programma's op je computer uitvoeren. Ga alleen door als je dit document vertrouwt.",
@@ -958,10 +946,8 @@
     "copyError": "Kopieerfout",
     "initializationFailed": "Initialisatie mislukt {hint}",
     "otherInstanceDetected": "Er draait al een andere instantie van MarkText",
-    "report": "Melden",
     "startupError": "Opstartfout",
     "terminatedDueToError": "Beëindigd door fout",
-    "unexpectedErrorWithMessage": "Onverwachte fout: {message}",
     "unexpectedMainProcess": "Onverwachte fout in hoofdproces",
     "unexpectedRendererProcess": "Onverwachte fout in rendererproces"
   },
@@ -971,7 +957,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "Ankerlink gekopieerd",
       "tabNotFound": "Tabblad niet gevonden",
       "tocItemNotFound": "Inhoudsopgave-item {key} niet gevonden",
       "errorLoadingTabTitle": "Fout bij laden tabblad",
@@ -1029,10 +1014,7 @@
       "error": "Afdrukfout voor \"{title}\"",
       "failed": "Afdrukken mislukt"
     },
-    "sourceCode": {
-      "cursorNullComment": "Cursor null opmerking",
-      "imageStructureDeletedComment": "Afbeeldingsstructuur verwijderd opmerking"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "Spellingcontrole uitgeschakeld fout",
       "errorSwitchingLanguage": "Fout bij wisselen van spellingcontroletaal {languageCode}",
@@ -1057,7 +1039,6 @@
     "closeSave": "Overschakelen naar bewerkingsmodus en opslaan",
     "exportSource": "Kies een andere exportbestemming dan het bronbestand.",
     "unavailable": "Niet beschikbaar in leesmodus",
-    "skipped": "Alleen-lezen documenten met niet-opgeslagen wijzigingen zijn overgeslagen.",
     "viewImage": "Afbeelding bekijken",
     "copyLink": "Linkadres kopiëren",
     "resumed": "De bewerkingsmodus is ingeschakeld. Automatisch opslaan is hervat."

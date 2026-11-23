@@ -3,12 +3,8 @@
     "counter": {
       "words": "Palabras",
       "characters": "Caracteres",
-      "charactersNoSpaces": "Caracteres (sin espacios)",
       "charactersWithSpaces": "Caracteres (con espacios)",
-      "paragraphs": "Párrafos",
-      "allCharacters": "Todos los caracteres",
-      "document": "Documento",
-      "documentSelection": "Documento / Selección"
+      "paragraphs": "Párrafos"
     },
     "file": {
       "file": "Archivo",
@@ -239,7 +235,6 @@
   "sideBar": {
     "search": {
       "backToFiles": "Volver a archivos",
-      "searchInFolder": "Buscar en carpeta...",
       "noFolderOpen": "No hay carpeta abierta",
       "noResultsFound": "No se encontraron resultados.",
       "cancel": "Cancelar",
@@ -256,12 +251,10 @@
       "emptyProject": "Proyecto vacío",
       "createFile": "Crear Archivo",
       "openFolder": "Abrir Carpeta",
-      "noFolders": "No folders added",
       "removeFolder": "Quitar de la barra lateral",
       "retryFolder": "Reintentar",
       "loadingFolder": "Cargando carpeta…",
       "unavailableFolder": "Carpeta no disponible",
-      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
       "folderAlreadyAdded": "Esta carpeta ya se ha agregado.",
       "fileOutsideFolders": "Este archivo no está en ninguna carpeta agregada.",
       "sessionSaveFailed": "No se pudo guardar la sesión",
@@ -709,7 +702,6 @@
       "title": "Tema",
       "followSystemTheme": "Seguir la apariencia del sistema",
       "followSystemNote": "Puedes elegir abajo temas distintos para los modos oscuro y claro.",
-      "modeThemes": "Selección de Tema",
       "lightModeTheme": "Tema de modo claro",
       "darkModeTheme": "Tema de modo oscuro",
       "customCss": "CSS Personalizado",
@@ -936,18 +928,14 @@
     "changesWillBeLost": "Los cambios se perderán",
     "close": "Cerrar",
     "dontSave": "No Guardar",
-    "file": "Archivo",
     "fileExists": "El archivo {filename} ya existe",
-    "files": "Archivos",
     "importWarning": "Advertencia de importación",
     "installPandoc": "No se encontró Pandoc. Instálalo, o define la variable de entorno MARKTEXT_PANDOC con la ruta del ejecutable de pandoc y reinicia MarkText.",
     "exportWarning": "Advertencia de exportación",
     "exportWarningMore": "…y {count} más",
-    "keepOpen": "Mantener abierto",
     "replace": "Reemplazar",
     "save": "Guardar",
     "saveChanges": "Guardar cambios",
-    "saveFailure": "Error al guardar",
     "unsafeFileTitle": "Archivo potencialmente peligroso",
     "unsafeFileMessage": "Este enlace abre un archivo que puede ejecutar código",
     "unsafeFileDetail": "«{name}» es un archivo ejecutable o de script. Abrirlo podría ejecutar programas en tu equipo. Continúa solo si confías en este documento.",
@@ -958,10 +946,8 @@
     "copyError": "Error de copia",
     "initializationFailed": "Falló la inicialización {hint}",
     "otherInstanceDetected": "Otra instancia de MarkText ya está ejecutándose",
-    "report": "Reportar",
     "startupError": "Error de inicio",
     "terminatedDueToError": "Terminado debido a error",
-    "unexpectedErrorWithMessage": "Error inesperado con mensaje {message}",
     "unexpectedMainProcess": "Error inesperado del proceso principal",
     "unexpectedRendererProcess": "Error inesperado del proceso de renderizado"
   },
@@ -971,7 +957,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "Enlace de ancla copiado",
       "tabNotFound": "Pestaña no encontrada",
       "tocItemNotFound": "Elemento de tabla de contenidos {key} no encontrado",
       "errorLoadingTabTitle": "Error al cargar la pestaña",
@@ -1029,10 +1014,7 @@
       "error": "Error de impresión para \"{title}\"",
       "failed": "Impresión fallida"
     },
-    "sourceCode": {
-      "cursorNullComment": "Comentario de cursor nulo",
-      "imageStructureDeletedComment": "Comentario de estructura de imagen eliminada"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "Error al deshabilitar el corrector ortográfico",
       "errorSwitchingLanguage": "Error al cambiar el idioma del corrector ortográfico {languageCode}",
@@ -1057,7 +1039,6 @@
     "closeSave": "Cambiar al modo de edición y guardar",
     "exportSource": "Elija un destino de exportación distinto del archivo de origen.",
     "unavailable": "No disponible en el modo de lectura",
-    "skipped": "Se omitieron los documentos de solo lectura con cambios sin guardar.",
     "viewImage": "Ver imagen",
     "copyLink": "Copiar dirección del enlace",
     "resumed": "El modo de edición está activado. Se ha reanudado el guardado automático."

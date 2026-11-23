@@ -3,12 +3,8 @@
     "counter": {
       "words": "Wörter",
       "characters": "Zeichen",
-      "charactersNoSpaces": "Zeichen (ohne Leerzeichen)",
       "charactersWithSpaces": "Zeichen (mit Leerzeichen)",
-      "paragraphs": "Absätze",
-      "allCharacters": "Alle Zeichen",
-      "document": "Dokument",
-      "documentSelection": "Dokument / Auswahl"
+      "paragraphs": "Absätze"
     },
     "file": {
       "file": "Datei",
@@ -239,7 +235,6 @@
   "sideBar": {
     "search": {
       "backToFiles": "Zurück zu Dateien",
-      "searchInFolder": "Im Ordner suchen...",
       "noFolderOpen": "Kein Ordner geöffnet",
       "noResultsFound": "Keine Ergebnisse gefunden.",
       "cancel": "Abbrechen",
@@ -256,12 +251,10 @@
       "emptyProject": "Leeres Projekt",
       "createFile": "Datei erstellen",
       "openFolder": "Ordner öffnen",
-      "noFolders": "No folders added",
       "removeFolder": "Aus Seitenleiste entfernen",
       "retryFolder": "Erneut versuchen",
       "loadingFolder": "Ordner wird geladen…",
       "unavailableFolder": "Ordner nicht verfügbar",
-      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
       "folderAlreadyAdded": "Dieser Ordner wurde bereits hinzugefügt.",
       "fileOutsideFolders": "Diese Datei befindet sich in keinem hinzugefügten Ordner.",
       "sessionSaveFailed": "Sitzung konnte nicht gespeichert werden",
@@ -709,7 +702,6 @@
       "title": "Design",
       "followSystemTheme": "Systemdarstellung folgen",
       "followSystemNote": "Wähle unten separate Designs für den dunklen und hellen Modus.",
-      "modeThemes": "Design-Auswahl",
       "lightModeTheme": "Helles Modus-Design",
       "darkModeTheme": "Dunkles Modus-Design",
       "customCss": "Benutzerdefiniertes CSS",
@@ -936,18 +928,14 @@
     "changesWillBeLost": "Änderungen gehen verloren",
     "close": "Schließen",
     "dontSave": "Nicht speichern",
-    "file": "Datei",
     "fileExists": "Datei existiert bereits: {filename}",
-    "files": "Dateien",
     "importWarning": "Import-Warnung",
     "installPandoc": "Pandoc wurde nicht gefunden. Installieren Sie es, oder setzen Sie die Umgebungsvariable MARKTEXT_PANDOC auf den Pfad zur pandoc-Binary und starten Sie MarkText neu.",
     "exportWarning": "Export-Warnung",
     "exportWarningMore": "…und {count} weitere",
-    "keepOpen": "Offen halten",
     "replace": "Ersetzen",
     "save": "Speichern",
     "saveChanges": "Änderungen speichern",
-    "saveFailure": "Speichern fehlgeschlagen",
     "unsafeFileTitle": "Möglicherweise unsichere Datei",
     "unsafeFileMessage": "Dieser Link öffnet eine Datei, die Code ausführen kann",
     "unsafeFileDetail": "„{name}“ ist eine ausführbare Datei oder ein Skript. Das Öffnen kann Programme auf Ihrem Computer ausführen. Fahren Sie nur fort, wenn Sie diesem Dokument vertrauen.",
@@ -958,10 +946,8 @@
     "copyError": "Kopierfehler",
     "initializationFailed": "Initialisierung fehlgeschlagen {hint}",
     "otherInstanceDetected": "Eine andere Instanz von MarkText läuft bereits",
-    "report": "Melden",
     "startupError": "Startfehler",
     "terminatedDueToError": "Aufgrund eines Fehlers beendet",
-    "unexpectedErrorWithMessage": "Unerwarteter Fehler mit Nachricht {message}",
     "unexpectedMainProcess": "Unerwarteter Hauptprozess-Fehler",
     "unexpectedRendererProcess": "Unerwarteter Renderer-Prozess-Fehler"
   },
@@ -971,7 +957,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "Anker-Link kopiert",
       "tabNotFound": "Tab nicht gefunden",
       "tocItemNotFound": "Inhaltsverzeichnis {key} nicht gefunden",
       "errorLoadingTabTitle": "Fehler beim Laden des Tabs",
@@ -1029,10 +1014,7 @@
       "error": "Druckfehler für \"{title}\"",
       "failed": "Drucken fehlgeschlagen"
     },
-    "sourceCode": {
-      "cursorNullComment": "Cursor-Null-Kommentar",
-      "imageStructureDeletedComment": "Bildstruktur-gelöscht-Kommentar"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "Fehler beim Deaktivieren der Rechtschreibprüfung",
       "errorSwitchingLanguage": "Fehler beim Wechseln der Rechtschreibprüfungssprache {languageCode}",
@@ -1057,7 +1039,6 @@
     "closeSave": "Zum Bearbeitungsmodus wechseln und speichern",
     "exportSource": "Wählen Sie ein anderes Exportziel als die Quelldatei.",
     "unavailable": "Im Lesemodus nicht verfügbar",
-    "skipped": "Schreibgeschützte Dokumente mit ungespeicherten Änderungen wurden übersprungen.",
     "viewImage": "Bild anzeigen",
     "copyLink": "Linkadresse kopieren",
     "resumed": "Der Bearbeitungsmodus ist aktiviert. Das automatische Speichern wurde fortgesetzt."

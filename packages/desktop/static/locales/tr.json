@@ -3,12 +3,8 @@
     "counter": {
       "words": "Sözcükler",
       "characters": "Karakterler",
-      "charactersNoSpaces": "Karakterler (boşluksuz)",
       "charactersWithSpaces": "Karakterler (boşluklu)",
-      "paragraphs": "Paragraflar",
-      "allCharacters": "Tüm karakterler",
-      "document": "Belge",
-      "documentSelection": "Belge / Seçim"
+      "paragraphs": "Paragraflar"
     },
     "file": {
       "file": "Dosya",
@@ -239,7 +235,6 @@
   "sideBar": {
     "search": {
       "backToFiles": "Dosyalara dön",
-      "searchInFolder": "Klasörde ara...",
       "noFolderOpen": "Açık klasör yok",
       "noResultsFound": "Sonuç bulunamadı.",
       "cancel": "İptal",
@@ -256,12 +251,10 @@
       "emptyProject": "Boş proje",
       "createFile": "Dosya Oluştur",
       "openFolder": "Klasör Aç",
-      "noFolders": "No folders added",
       "removeFolder": "Kenar çubuğundan kaldır",
       "retryFolder": "Yeniden dene",
       "loadingFolder": "Klasör yükleniyor…",
       "unavailableFolder": "Klasör kullanılamıyor",
-      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
       "folderAlreadyAdded": "Bu klasör zaten eklendi.",
       "fileOutsideFolders": "Bu dosya eklenen klasörlerin hiçbirinde değil.",
       "sessionSaveFailed": "Oturum kaydedilemedi",
@@ -709,7 +702,6 @@
       "title": "Tema",
       "followSystemTheme": "Sistem görünümünü izle",
       "followSystemNote": "Aşağıda koyu ve açık modlar için ayrı temalar seçebilirsiniz.",
-      "modeThemes": "Tema Seçimi",
       "lightModeTheme": "Açık mod teması",
       "darkModeTheme": "Koyu mod teması",
       "customCss": "Özel CSS",
@@ -936,18 +928,14 @@
     "changesWillBeLost": "Değişiklikler kaybolacak",
     "close": "Kapat",
     "dontSave": "Kaydetme",
-    "file": "Dosya",
     "fileExists": "Dosya zaten var: {filename}",
-    "files": "Dosyalar",
     "importWarning": "İçe aktarma uyarısı",
     "installPandoc": "Pandoc bulunamadı. Yükleyin veya MARKTEXT_PANDOC ortam değişkenini pandoc çalıştırılabilir dosyasının yolu olarak ayarlayıp MarkText'i yeniden başlatın.",
     "exportWarning": "Dışa aktarma uyarısı",
     "exportWarningMore": "…ve {count} tane daha",
-    "keepOpen": "Açık tut",
     "replace": "Değiştir",
     "save": "Kaydet",
     "saveChanges": "Değişiklikleri kaydet",
-    "saveFailure": "Kaydetme hatası",
     "unsafeFileTitle": "Güvenli olmayabilecek dosya",
     "unsafeFileMessage": "Bu bağlantı, kod çalıştırabilen bir dosyayı açar",
     "unsafeFileDetail": "\"{name}\" bir yürütülebilir veya betik dosyasıdır. Açmak, bilgisayarınızda program çalıştırabilir. Yalnızca bu belgeye güveniyorsanız devam edin.",
@@ -958,10 +946,8 @@
     "copyError": "Kopyalama hatası",
     "initializationFailed": "Başlatma başarısız {hint}",
     "otherInstanceDetected": "Başka bir MarkText penceresi zaten açık",
-    "report": "Bildir",
     "startupError": "Başlangıç hatası",
     "terminatedDueToError": "Hata nedeniyle sonlandırıldı",
-    "unexpectedErrorWithMessage": "Beklenmeyen hata: {message}",
     "unexpectedMainProcess": "Beklenmeyen ana işlem hatası",
     "unexpectedRendererProcess": "Beklenmeyen işleyici işlem hatası"
   },
@@ -971,7 +957,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "Çapa bağlantısı kopyalandı",
       "tabNotFound": "Sekme bulunamadı",
       "tocItemNotFound": "İçindekiler {key} bulunamadı",
       "errorLoadingTabTitle": "Sekme yüklenirken hata",
@@ -1029,10 +1014,7 @@
       "error": "\"{title}\" için yazdırma hatası",
       "failed": "Yazdırma başarısız"
     },
-    "sourceCode": {
-      "cursorNullComment": "İmleç boş yorumu",
-      "imageStructureDeletedComment": "Görsel yapısı silindi yorumu"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "Yazım denetimi devre dışı hatası",
       "errorSwitchingLanguage": "Yazım denetimi dili değiştirilirken hata {languageCode}",
@@ -1057,7 +1039,6 @@
     "closeSave": "Düzenleme Moduna Geç ve Kaydet",
     "exportSource": "Dışa aktarma için kaynak dosyadan farklı bir hedef seçin.",
     "unavailable": "Okuma Modunda kullanılamaz",
-    "skipped": "Kaydedilmemiş değişiklikleri olan salt okunur belgeler atlandı.",
     "viewImage": "Görseli Görüntüle",
     "copyLink": "Bağlantı Adresini Kopyala",
     "resumed": "Düzenleme Modu açık. Otomatik kaydetme devam ediyor."

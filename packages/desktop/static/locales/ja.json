@@ -3,12 +3,8 @@
     "counter": {
       "words": "単語数",
       "characters": "文字数",
-      "charactersNoSpaces": "文字数（スペースなし）",
       "charactersWithSpaces": "文字数（スペースあり）",
-      "paragraphs": "段落数",
-      "allCharacters": "すべての文字数",
-      "document": "文書",
-      "documentSelection": "文書 / 選択範囲"
+      "paragraphs": "段落数"
     },
     "file": {
       "file": "ファイル",
@@ -239,7 +235,6 @@
   "sideBar": {
     "search": {
       "backToFiles": "ファイルに戻る",
-      "searchInFolder": "フォルダー内の検索...",
       "noFolderOpen": "フォルダーが開かれていません",
       "noResultsFound": "一致するものがありません。",
       "cancel": "キャンセル",
@@ -256,12 +251,10 @@
       "emptyProject": "空のプロジェクト",
       "createFile": "ファイルの作成",
       "openFolder": "フォルダーを開く",
-      "noFolders": "No folders added",
       "removeFolder": "サイドバーから削除",
       "retryFolder": "再試行",
       "loadingFolder": "フォルダーを読み込み中…",
       "unavailableFolder": "フォルダーを利用できません",
-      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
       "folderAlreadyAdded": "このフォルダーは既に追加されています。",
       "fileOutsideFolders": "このファイルは追加されたフォルダー内にありません。",
       "sessionSaveFailed": "セッションを保存できませんでした",
@@ -709,7 +702,6 @@
       "title": "テーマ",
       "followSystemTheme": "システムの外観に合わせる",
       "followSystemNote": "以下でダークモードとライトモードのテーマをそれぞれ選択できます。",
-      "modeThemes": "テーマの選択",
       "lightModeTheme": "ライトモードのテーマ",
       "darkModeTheme": "ダークモードのテーマ",
       "customCss": "カスタム CSS",
@@ -936,18 +928,14 @@
     "changesWillBeLost": "変更が失われます",
     "close": "閉じる",
     "dontSave": "保存しない",
-    "file": "ファイル",
     "fileExists": "ファイルが既に存在します: {filename}",
-    "files": "ファイル",
     "importWarning": "インポート警告",
     "installPandoc": "Pandoc が見つかりません。インストールするか、環境変数 MARKTEXT_PANDOC に pandoc の実行ファイルのパスを設定して MarkText を再起動してください。",
     "exportWarning": "エクスポートの警告",
     "exportWarningMore": "…ほか {count} 件",
-    "keepOpen": "開いたままにする",
     "replace": "置換",
     "save": "保存",
     "saveChanges": "変更を保存",
-    "saveFailure": "保存に失敗",
     "unsafeFileTitle": "安全でない可能性のあるファイル",
     "unsafeFileMessage": "このリンクはコードを実行できるファイルを開きます",
     "unsafeFileDetail": "「{name}」は実行可能ファイルまたはスクリプトファイルです。開くとコンピューター上でプログラムが実行される可能性があります。この文書を信頼できる場合のみ続行してください。",
@@ -958,10 +946,8 @@
     "copyError": "コピーエラー",
     "initializationFailed": "初期化に失敗しました {hint}",
     "otherInstanceDetected": "MarkText の別のインスタンスが既に実行中です",
-    "report": "報告",
     "startupError": "起動エラー",
     "terminatedDueToError": "エラーにより終了",
-    "unexpectedErrorWithMessage": "予期しないエラー : {message}",
     "unexpectedMainProcess": "予期しないメインプロセスエラー",
     "unexpectedRendererProcess": "予期しないレンダラープロセスエラー"
   },
@@ -971,7 +957,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "アンカーリンクがコピーされました",
       "tabNotFound": "タブが見つかりません",
       "tocItemNotFound": "目次項目 {key} が見つかりません",
       "errorLoadingTabTitle": "タブの読み込みエラー",
@@ -1029,10 +1014,7 @@
       "error": "\"{title}\" の印刷エラー",
       "failed": "印刷に失敗しました"
     },
-    "sourceCode": {
-      "cursorNullComment": "カーソル null コメント",
-      "imageStructureDeletedComment": "画像構造削除コメント"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "スペルチェックの無効化エラー",
       "errorSwitchingLanguage": "スペルチェック言語の切り替えエラー {languageCode}",
@@ -1057,7 +1039,6 @@
     "closeSave": "編集モードに切り替えて保存",
     "exportSource": "元のファイルとは別の場所にエクスポートしてください。",
     "unavailable": "閲覧モードでは使用できません",
-    "skipped": "未保存の変更がある読み取り専用ドキュメントはスキップされました。",
     "viewImage": "画像を表示",
     "copyLink": "リンクのアドレスをコピー",
     "resumed": "編集モードになりました。自動保存を再開しました。"

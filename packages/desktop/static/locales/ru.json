@@ -3,12 +3,8 @@
     "counter": {
       "words": "Слова",
       "characters": "Символы",
-      "charactersNoSpaces": "Символы (без пробелов)",
       "charactersWithSpaces": "Символы (с пробелами)",
-      "paragraphs": "Абзацы",
-      "allCharacters": "Все символы",
-      "document": "Документ",
-      "documentSelection": "Документ / Выделение"
+      "paragraphs": "Абзацы"
     },
     "file": {
       "file": "Файл",
@@ -239,7 +235,6 @@
   "sideBar": {
     "search": {
       "backToFiles": "Вернуться к файлам",
-      "searchInFolder": "Поиск в папке...",
       "noFolderOpen": "Папка не открыта",
       "noResultsFound": "Ничего не найдено.",
       "cancel": "Отмена",
@@ -256,12 +251,10 @@
       "emptyProject": "Пустой проект",
       "createFile": "Создать файл",
       "openFolder": "Открыть папку",
-      "noFolders": "No folders added",
       "removeFolder": "Убрать с боковой панели",
       "retryFolder": "Повторить",
       "loadingFolder": "Загрузка папки…",
       "unavailableFolder": "Папка недоступна",
-      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
       "folderAlreadyAdded": "Эта папка уже добавлена.",
       "fileOutsideFolders": "Этот файл не находится в добавленной папке.",
       "sessionSaveFailed": "Не удалось сохранить сеанс",
@@ -709,7 +702,6 @@
       "title": "Тема",
       "followSystemTheme": "Следовать оформлению системы",
       "followSystemNote": "Ниже можно выбрать отдельные темы для тёмного и светлого режимов.",
-      "modeThemes": "Выбор темы",
       "lightModeTheme": "Тема светлого режима",
       "darkModeTheme": "Тема тёмного режима",
       "customCss": "Пользовательский CSS",
@@ -936,18 +928,14 @@
     "changesWillBeLost": "Изменения будут потеряны",
     "close": "Закрыть",
     "dontSave": "Не сохранять",
-    "file": "Файл",
     "fileExists": "Файл существует {filename}",
-    "files": "Файлы",
     "importWarning": "Предупреждение импорта",
     "installPandoc": "Pandoc не найден. Установите его или задайте переменную окружения MARKTEXT_PANDOC с путём к бинарнику pandoc и перезапустите MarkText.",
     "exportWarning": "Предупреждение экспорта",
     "exportWarningMore": "…и ещё {count}",
-    "keepOpen": "Оставить открытым",
     "replace": "Заменить",
     "save": "Сохранить",
     "saveChanges": "Сохранить изменения",
-    "saveFailure": "Ошибка сохранения",
     "unsafeFileTitle": "Потенциально небезопасный файл",
     "unsafeFileMessage": "Эта ссылка открывает файл, который может выполнять код",
     "unsafeFileDetail": "\"{name}\" — исполняемый файл или скрипт. Его открытие может запустить программы на вашем компьютере. Продолжайте только если доверяете этому документу.",
@@ -958,10 +946,8 @@
     "copyError": "Ошибка копирования",
     "initializationFailed": "Ошибка инициализации {hint}",
     "otherInstanceDetected": "Другой экземпляр MarkText уже запущен",
-    "report": "Сообщить",
     "startupError": "Ошибка запуска",
     "terminatedDueToError": "Завершено из-за ошибки",
-    "unexpectedErrorWithMessage": "Непредвиденная ошибка с сообщением {message}",
     "unexpectedMainProcess": "Непредвиденная ошибка главного процесса",
     "unexpectedRendererProcess": "Непредвиденная ошибка процесса отрисовки"
   },
@@ -971,7 +957,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "Ссылка-якорь скопирована",
       "tabNotFound": "Вкладка не найдена",
       "tocItemNotFound": "Элемент оглавления {key} не найден",
       "errorLoadingTabTitle": "Ошибка загрузки вкладки",
@@ -1029,10 +1014,7 @@
       "error": "Ошибка печати \"{title}\"",
       "failed": "Не удалось выполнить печать"
     },
-    "sourceCode": {
-      "cursorNullComment": "Комментарий о нулевом курсоре",
-      "imageStructureDeletedComment": "Комментарий об удалённой структуре изображения"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "Ошибка: проверка орфографии отключена",
       "errorSwitchingLanguage": "Ошибка переключения языка проверки орфографии {languageCode}",
@@ -1057,7 +1039,6 @@
     "closeSave": "Перейти в режим редактирования и сохранить",
     "exportSource": "Выберите для экспорта путь, отличный от пути исходного файла.",
     "unavailable": "Недоступно в режиме чтения",
-    "skipped": "Документы только для чтения с несохранёнными изменениями были пропущены.",
     "viewImage": "Просмотреть изображение",
     "copyLink": "Копировать адрес ссылки",
     "resumed": "Режим редактирования включён. Автосохранение возобновлено."
