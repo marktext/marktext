@@ -226,3 +226,20 @@ test('reading Find preserves native textarea content inside ruby', async ({ page
     await expect(textarea).toHaveClass(/mu-highlight/);
     await expect(textarea).toHaveValue('R&D <b>note</b>');
 });
+
+test('reading Find stops at an image inside ruby, which still renders', async ({ page }) => {
+    await page.route('**/ruby-image.svg', route => route.fulfill({
+        contentType: 'image/svg+xml',
+        body: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"/>',
+    }));
+    await page.evaluate(() => {
+        const src = new URL('/ruby-image.svg', window.location.href).href;
+        window.muya!.setContent(`Ruby <ruby>xa<img src="${src}" alt="pic">by<rt>note</rt></ruby>`);
+        window.muya!.setReadOnly(true);
+    });
+    await expect(page.locator('ruby img[alt="pic"]')).toBeVisible();
+    const matches = (query: string) => page.evaluate(value => window.muya!.search(value).matches.map(match => match.block.text.slice(match.start, match.end)), query);
+    expect(await matches('ab')).toEqual([]);
+    expect(await matches('xa')).toEqual(['xa']);
+    expect(await matches('note')).toEqual(['note']);
+});

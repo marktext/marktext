@@ -69,6 +69,15 @@ function nativeTextElement(renderer: Renderer, { h, token }: ISyntaxRenderOption
     return { end, node: h('span', [h('span', { attrs: { hidden: true } }, source), element]) };
 }
 
+// Like a rendered Markdown image, an image is a Find boundary rather than text.
+// It has no end tag, so a slot leaves the parsed ruby structure unchanged.
+function readingImage(renderer: Renderer, tag: string, start: number): VNode {
+    const image = htmlToVNode(tag)![0] as VNode;
+    image.sel += `.${CLASS_NAMES.MU_RAW_HTML}`;
+    image.data = { ...image.data, dataset: { ...image.data?.dataset, start: String(start) } };
+    return renderer.reading?.mark(image, { text: '', object: true, start, end: start + tag.length }) ?? image;
+}
+
 /**
  * Let the HTML parser build the ruby tree (including implied rt/rp end tags).
  * Comment slots preserve Muya's source ranges without introducing layout boxes during parsing.
@@ -97,6 +106,8 @@ export function readingRuby(renderer: Renderer, options: ISyntaxRenderOptions & 
             slot(h('span', { attrs: { hidden: true } }, tag));
             if (/^<br(?=[\s/>])/i.test(tag))
                 slot(readingBreak(renderer, h, token, start, start + tag.length));
+            else if (/^<img(?=[\s/>])/i.test(tag))
+                slot(readingImage(renderer, tag, start));
             else if (/^<\/?[a-z]/i.test(tag))
                 markup.push(tag.replace(/^<([\w-]+)/, `<$1 data-start="${start}"`));
             index += tag.length;

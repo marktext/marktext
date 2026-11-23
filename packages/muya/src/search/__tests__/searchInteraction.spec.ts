@@ -224,6 +224,8 @@ describe('reading text and source ranges', () => {
         ['Ruby <ruby>字<rt>zi</ruby>', 'zi', 'zi'],
         ['Ruby <ruby>a<!--hidden-->b<rt>c</ruby>', 'hidden', null],
         ['Ruby <ruby>R&amp;D<rt>r</ruby>', 'R&D', 'R&amp;D'],
+        ['Ruby <ruby>a<img src="diagram.png">b<rt>note</rt></ruby>', 'ab', null],
+        ['Ruby <ruby>xa<img src="diagram.png">by<rt>note</rt></ruby>', 'xa', 'xa'],
         ['Above\n\n---\n\nBelow', '---', null],
         ['```js title=needle\nneedle\n```', 'needle', 'needle'],
     ])('maps %j looking for %j to %j', (source, query, expected) => {
@@ -236,6 +238,14 @@ describe('reading text and source ranges', () => {
             block.setCursor(start, end);
             expect(muya.getSearchSelection()).toBe(query);
         }
+    });
+
+    it('does not prefill Find with text joined across an image inside ruby', () => {
+        const source = 'Ruby <ruby>a<img src="diagram.png">b<rt>note</rt></ruby>';
+        muya.setContent(source);
+        muya.setReadOnly(true);
+        blocks()[0].setCursor(source.indexOf('a<img'), source.indexOf('>b') + 2);
+        expect(muya.getSearchSelection()).toBe('');
     });
 
     it('matches a heading from its first authored character', () => {
