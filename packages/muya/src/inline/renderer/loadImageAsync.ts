@@ -15,6 +15,7 @@ export default function loadImageAsync(
     attrs: Record<string, string>,
     className?: string,
     imageClass?: string,
+    onSuccess?: () => void,
 ) {
     const { src, isUnknownType } = imageInfo;
     const cached = this.images.get(src);
@@ -27,6 +28,8 @@ export default function loadImageAsync(
         if (this.images.get(src) !== result)
             return;
         mountImage(placeholder, result, attrs, className, imageClass);
+        if (result.isSuccess)
+            onSuccess?.();
     });
     return { id, isSuccess: undefined, url: undefined, width: undefined, height: undefined };
 }

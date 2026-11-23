@@ -6,15 +6,18 @@ import { CLASS_NAMES } from '../config';
 export interface IReadingSpan extends ITokenRange {
     text: string;
     htmlStart?: number;
+    object?: boolean;
 }
 
-/** Only source-backed leaves participate. Generated previews and editor controls carry no ranges. */
+/** Each block owns its snapshot. An image mount can turn a visible placeholder into a search boundary. */
 export class ReadingText {
     readonly spans: IReadingSpan[] = [];
-    private _leaves = new WeakMap<VNode, IReadingSpan>();
+    private _leaves = new WeakMap<VNode, IReadingSpan[]>();
 
-    mark(node: VNode, text: string, start: number, end: number): VNode {
-        this._leaves.set(node, { text, start, end });
+    constructor(readonly onChange: () => void) {}
+
+    mark(node: VNode, span: IReadingSpan | IReadingSpan[]): VNode {
+        this._leaves.set(node, Array.isArray(span) ? span : [span]);
         return node;
     }
 
@@ -22,16 +25,20 @@ export class ReadingText {
         const stack: { node: VNode; htmlStart?: number }[] = [{ node: root }];
         while (stack.length) {
             const { node, htmlStart } = stack.pop()!;
-            const leaf = this._leaves.get(node);
-            if (leaf) {
-                if (leaf.text)
-                    this.spans.push({ ...leaf, htmlStart });
+            const classes = node.sel?.split('.');
+            const parent = classes?.includes(CLASS_NAMES.MU_RAW_HTML) ? Number(node.data?.dataset?.start) : htmlStart;
+            const leaves = this._leaves.get(node);
+            if (leaves) {
+                for (const leaf of leaves) {
+                    if (leaf.text || leaf.object) {
+                        leaf.htmlStart = parent;
+                        this.spans.push(leaf);
+                    }
+                }
                 continue;
             }
-            const classes = node.sel?.split('.');
             if (classes?.includes(CLASS_NAMES.MU_HIDE))
                 continue;
-            const parent = classes?.includes(CLASS_NAMES.MU_RAW_HTML) ? Number(node.data?.dataset?.start) : htmlStart;
             const children = node.children ?? [];
             for (let i = children.length - 1; i >= 0; i--) {
                 const child = children[i];
@@ -49,11 +56,14 @@ export function renderedText(session: IRenderSession, text: string, start: numbe
 export function renderedText({ reading }: IRenderSession, text: string, start: number, end = start + text.length, node?: VNode) {
     if (!reading)
         return node ?? text;
-    return reading.mark(node ?? vnode(undefined, undefined, undefined, text, undefined), text, start, end);
+    return reading.mark(node ?? vnode(undefined, undefined, undefined, text, undefined), { text, start, end });
 }
 
 export function selectedReadingText(spans: IReadingSpan[], start: number, end: number): string {
-    return spans.filter(span => span.start < end && span.end > start).map(span =>
+    const selected = spans.filter(span => span.start < end && span.end > start);
+    if (selected.some(span => span.object))
+        return '';
+    return selected.map(span =>
         span.text.length === span.end - span.start
             ? span.text.slice(Math.max(0, start - span.start), end - span.start)
             : span.text,

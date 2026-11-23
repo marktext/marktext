@@ -210,6 +210,9 @@ describe('reading text and source ranges', () => {
     it.each([
         ['hello **world**', 'hello world', 'hello **world'],
         ['[example](https://needle.test)', 'needle', null],
+        ['a$x$b', 'ab', null],
+        ['a![alt](diagram.png)b', 'ab', null],
+        ['A :missing: B', ':missing:', ':missing:'],
         ['a<br>b', 'ab', null],
         ['a<br>b', 'a\nb', 'a<br>b'],
         ['R&amp;D', 'RD', null],
@@ -233,6 +236,12 @@ describe('reading text and source ranges', () => {
             block.setCursor(start, end);
             expect(muya.getSearchSelection()).toBe(query);
         }
+    });
+
+    it('matches a heading from its first authored character', () => {
+        muya.setContent('# Needle');
+        muya.setReadOnly(true);
+        expect(muya.search('^Needle', { isRegexp: true }).matches).toHaveLength(1);
     });
 
     it('evaluates regular expressions on the same text that is highlighted', () => {

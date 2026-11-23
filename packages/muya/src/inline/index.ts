@@ -76,7 +76,7 @@ class InlineEngine {
 
         const tokens = this._tokenizer(block, highlights);
         const renderCursor = !this.muya.isReadOnly && cursor?.block === block ? cursor : {};
-        const reading = this.muya.isReadOnly ? new ReadingText() : undefined;
+        const reading = this.muya.isReadOnly ? new ReadingText(() => this.muya.editor.searchModule.refresh()) : undefined;
         const html = this.renderer.output(tokens, block, renderCursor, reading);
         domNode!.innerHTML = html;
 

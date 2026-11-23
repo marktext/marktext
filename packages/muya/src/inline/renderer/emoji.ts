@@ -4,6 +4,7 @@ import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
 import { validEmoji } from '../../utils/emoji';
 
+import { renderedText } from '../readingText';
 import { renderCharacter } from './htmlEscape';
 
 // render token of emoji to vnode
@@ -49,8 +50,8 @@ export default function emoji(
         : h(contentSelector, content);
 
     return [
-        h(startMarkerSelector, token.marker),
+        h(startMarkerSelector, [renderedText(this, token.marker, rStart)]),
         emojiVNode,
-        h(endMarkerSelector, token.marker),
+        h(endMarkerSelector, [renderedText(this, token.marker, rEnd - token.marker.length)]),
     ];
 }

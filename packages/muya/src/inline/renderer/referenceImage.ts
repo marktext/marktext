@@ -1,4 +1,5 @@
 import type { ReferenceImageToken } from '../model/types';
+import type { IReadingSpan } from '../readingText';
 import type Renderer from './index';
 import type { ISyntaxRenderOptions } from './types';
 import { CLASS_NAMES } from '../../config';
@@ -30,12 +31,19 @@ export default function referenceImage(
     let isSuccess;
     let resolvedSrc: string | undefined;
     let selector;
+    const reading = this.reading;
+    const span: IReadingSpan = { start, end, text: token.raw };
+    const imageMounted = () => {
+        span.object = true;
+        reading?.onChange();
+    };
     if (src) {
         ({ id, isSuccess, url: resolvedSrc } = this.loadImageAsync(
             imageSrc,
             { alt, title },
             className,
             CLASS_NAMES.MU_COPY_REMOVE,
+            reading ? imageMounted : undefined,
         ));
     }
     selector = id
@@ -47,13 +55,16 @@ export default function referenceImage(
     else
         selector += `.${CLASS_NAMES.MU_IMAGE_FAIL}`;
 
+    const placeholder = h(selector, tag);
+    span.object = isSuccess;
+    reading?.mark(placeholder, span);
     return isSuccess
         ? [
-                h(selector, tag),
+                placeholder,
                 // Prefer the resolved URL from the loadImageAsync cache; fall
                 // back to the raw src if the cache hasn't been populated for
                 // some reason.
                 h(`img.${CLASS_NAMES.MU_COPY_REMOVE}`, { props: { alt, src: resolvedSrc ?? src, title } }),
             ]
-        : [h(selector, tag)];
+        : [placeholder];
 }
