@@ -51,6 +51,7 @@ class TablePicker extends BaseFloat {
             if (!this.status) {
                 this._showPicker(data, reference, cb);
                 this.render();
+                this._focusRowInput();
             }
             else {
                 this.hide();
@@ -116,6 +117,9 @@ class TablePicker extends BaseFloat {
                     value: +this._select!.row + 1,
                 },
                 on: {
+                    keydown: (event: KeyboardEvent) => {
+                        this._keydownHandler(event);
+                    },
                     keyup: (event: KeyboardEvent) => {
                         this._keyupHandler(event, 'row');
                     },
@@ -128,6 +132,9 @@ class TablePicker extends BaseFloat {
                     value: +this._select!.column + 1,
                 },
                 on: {
+                    keydown: (event: KeyboardEvent) => {
+                        this._keydownHandler(event);
+                    },
                     keyup: (event: KeyboardEvent) => {
                         this._keyupHandler(event, 'column');
                     },
@@ -163,8 +170,6 @@ class TablePicker extends BaseFloat {
             number++;
         else if (event.key === EVENT_KEYS.ArrowDown)
             number--;
-        else if (event.key === EVENT_KEYS.Enter)
-            this.selectItem();
         else if (!Number.isNaN(value))
             number = value - 1;
 
@@ -172,6 +177,28 @@ class TablePicker extends BaseFloat {
             this._select![type] = Math.max(number, 0);
             this.render();
         }
+    }
+
+    // Enter is handled on keydown: the quick-insert menu opens the picker on
+    // Enter keydown, so the keyup of that same Enter lands in the row input.
+    // BaseFloat only listens for Escape inside the editor, and the inputs are
+    // outside it.
+    private _keydownHandler(event: KeyboardEvent) {
+        if (event.key === EVENT_KEYS.Enter) {
+            event.preventDefault();
+            this.selectItem();
+        }
+        else if (event.key === EVENT_KEYS.Escape) {
+            this.hide();
+            this.muya.focus();
+        }
+    }
+
+    private _focusRowInput() {
+        const rowInput = this._tableContainer.querySelector<HTMLInputElement>('input.row-input');
+        // The float is still off-screen until floating-ui positions it.
+        rowInput?.focus({ preventScroll: true });
+        rowInput?.select();
     }
 
     private _showPicker(current: ICheckerCount, reference: ReferenceElement, cb: (row: number, column: number) => void) {

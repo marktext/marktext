@@ -293,6 +293,9 @@ test.describe('table grid whose line no longer holds only its query (#5355)', ()
         await slowType(page, '/table');
         await page.keyboard.press('Enter');
         await expect(page.locator(floats.tablePicker)).toBeVisible();
+        // The picker focuses its row input; return to the query without a
+        // click, which would close the picker.
+        await placeCaretAtEnd(page, '/table');
 
         for (let i = 0; i < '/table'.length; i++)
             await page.keyboard.press('Backspace');
