@@ -378,7 +378,9 @@ test('find shortcuts open and navigate search in reading mode', async() => {
     await pressShortcut('F', [isMac ? 'meta' : 'control'])
     await expect(searchBar).toBeVisible()
     await expect(input).toBeFocused()
-    await input.fill('needle')
+    // Type past the search debounce so each keystroke follows a selected match (fill() sets the value at once).
+    await input.pressSequentially('needle', { delay: 200 })
+    await expect(input).toHaveValue('needle')
     await expect(counter).toContainText('1 / 2')
     await expect(page.locator('.mu-highlight')).toHaveCount(1)
 

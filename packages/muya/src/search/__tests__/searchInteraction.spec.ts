@@ -120,6 +120,24 @@ describe('find interaction', () => {
         input.remove();
     });
 
+    it('returns the document selection to the find input when selecting a result while reading', () => {
+        muya.setReadOnly(true);
+        const input = document.createElement('input');
+        document.body.appendChild(input);
+        input.value = 'apple';
+        input.focus();
+        input.setSelectionRange(2, 3);
+        // Selecting a match in a non-editable view leaves focus in place, so focus() alone cannot move the caret back.
+        const setSelectionRange = vi.spyOn(input, 'setSelectionRange');
+        muya.search('apple', { selectHighlight: true });
+        expect(document.activeElement).toBe(input);
+        expect(setSelectionRange).toHaveBeenLastCalledWith(2, 3, expect.anything());
+        setSelectionRange.mockClear();
+        muya.find('next');
+        expect(setSelectionRange).toHaveBeenLastCalledWith(2, 3, expect.anything());
+        input.remove();
+    });
+
     it('keeps the logical match when moving between external inputs collapses the DOM range', () => {
         muya.search('apple', { selectHighlight: true });
         const selected = muya.getSelectionState();
