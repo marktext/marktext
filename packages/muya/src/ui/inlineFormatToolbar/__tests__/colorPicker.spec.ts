@@ -47,6 +47,7 @@ function emitSelectionChange(
             ...selection,
             context: {
                 ...selection.context,
+                selectionCoords: new DOMRect(100, 100, 120, 24),
                 formats: formats as Token[],
                 isCollapsed: false,
                 isSelectionInSameBlock: true,

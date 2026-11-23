@@ -1,7 +1,7 @@
 import type { VNode } from 'snabbdom';
 import type { Muya } from '../../index';
 import type { Token } from '../../inline/model/types';
-import type { TSelection, TSelectionState } from '../../selection/types';
+import type { TSelection, TSelectionCoords, TSelectionState } from '../../selection/types';
 import type { ColorFormatType, IColorStyle } from '../../utils/colorSpan';
 import type { IBaseOptions, IKeyboardShortcutOptions } from '../types';
 
@@ -16,6 +16,11 @@ import BaseFloat from '../baseFloat';
 import { getShortcutHint } from '../shortcuts';
 import icons, { COLOR_SECTIONS } from './config';
 import './index.css';
+
+function hasSelectionBounds(rect: TSelectionCoords | null | undefined): rect is TSelectionCoords {
+    return !!rect && rect.height > 0 && rect.width >= 0
+        && [rect.x, rect.y, rect.width, rect.height].every(Number.isFinite);
+}
 
 /** Default float options for inline format toolbar */
 const defaultOptions = {
@@ -183,10 +188,22 @@ export class InlineFormatToolbar extends BaseFloat {
         this._formats = [...formats];
         const native = document.getSelection();
         const range = native?.rangeCount ? native.getRangeAt(0).cloneRange() : null;
+        // Cloned ranges are live: rebuilding editor DOM can collapse them to an empty origin rect.
+        // Keep the last measured viewport bounds until the next selection notification replaces them.
+        let lastCoords = selectionCoords;
+        const getBoundingClientRect = () => {
+            const rect = range?.getBoundingClientRect();
+            if (hasSelectionBounds(rect))
+                lastCoords = rect;
+            return lastCoords;
+        };
+        const initialCoords = getBoundingClientRect();
+        if (!hasSelectionBounds(initialCoords)) {
+            this.hide();
+            return;
+        }
         this._render();
-        this.show({
-            getBoundingClientRect: () => range?.getBoundingClientRect() ?? selectionCoords,
-        });
+        this.show({ getBoundingClientRect });
     }
 
     override hide() {
