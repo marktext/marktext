@@ -210,6 +210,24 @@ test.describe('Insert table dialog (item 73)', () => {
     })
     expect(caretInCell).toBe(true)
   })
+
+  test('confirming from the keyboard leaves the editor focused in the first cell', async() => {
+    await setSourceMarkdown(page, app, '\n')
+    await placeCaretInEditor(page)
+
+    await clickMenuById(app, 'tableMenuItem')
+    const dialog = page.locator('.ag-insert-table-dialog')
+    await dialog.waitFor({ state: 'visible', timeout: 5000 })
+    const okButton = dialog.locator('.el-button--primary')
+    // Rows, columns, Cancel, OK.
+    for (let i = 0; i < 4; i++) await page.keyboard.press('Tab')
+    await expect(okButton).toBeFocused()
+    await page.keyboard.press('Enter')
+    await dialog.waitFor({ state: 'hidden', timeout: 5000 })
+
+    await page.keyboard.type('A')
+    await expect(page.locator('.editor-component table td').first()).toHaveText('A')
+  })
 })
 
 // Item 89 — desktop source-mode round-trip for a GFM table with mixed column
