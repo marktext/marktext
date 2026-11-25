@@ -3,12 +3,8 @@
     "counter": {
       "words": "Woorden",
       "characters": "Tekens",
-      "charactersNoSpaces": "Tekens (zonder spaties)",
       "charactersWithSpaces": "Tekens (met spaties)",
-      "paragraphs": "Alinea's",
-      "allCharacters": "Alle tekens",
-      "document": "Document",
-      "documentSelection": "Document / Selectie"
+      "paragraphs": "Alinea's"
     },
     "file": {
       "file": "Bestand",
@@ -34,7 +30,7 @@
       "closeWindow": "Venster sluiten",
       "quit": "Afsluiten",
       "preferences": "Voorkeuren",
-      "addFolder": "Add Folder…"
+      "addFolder": "Map toevoegen…"
     },
     "edit": {
       "edit": "Bewerken",
@@ -241,15 +237,14 @@
   "sideBar": {
     "search": {
       "backToFiles": "Terug naar bestanden",
-      "searchInFolder": "Zoeken in map...",
       "noFolderOpen": "Geen map geopend",
       "noResultsFound": "Geen resultaten gevonden.",
       "cancel": "Annuleren",
-      "openFolder": "Add Folder…",
+      "openFolder": "Map toevoegen…",
       "showMoreMatches": "Meer resultaten tonen",
       "searchInFolders": "Zoeken in map",
-      "partialSearch": "Some folders could not be searched.",
-      "noSearchableFolders": "No available folders to search."
+      "partialSearch": "Sommige mappen konden niet worden doorzocht.",
+      "noSearchableFolders": "Geen mappen beschikbaar om te doorzoeken."
     },
     "tree": {
       "openedFiles": "Geopende bestanden",
@@ -258,15 +253,13 @@
       "emptyProject": "Leeg project",
       "createFile": "Bestand aanmaken",
       "openFolder": "Map openen",
-      "noFolders": "No folders added",
-      "removeFolder": "Remove from Sidebar",
-      "retryFolder": "Retry",
-      "loadingFolder": "Loading folder…",
-      "unavailableFolder": "Folder unavailable",
-      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
-      "folderAlreadyAdded": "This folder has already been added.",
-      "fileOutsideFolders": "This file is not in an added folder.",
-      "sessionSaveFailed": "Unable to save session",
+      "removeFolder": "Verwijderen uit zijbalk",
+      "retryFolder": "Opnieuw proberen",
+      "loadingFolder": "Map laden…",
+      "unavailableFolder": "Map niet beschikbaar",
+      "folderAlreadyAdded": "Deze map is al toegevoegd.",
+      "fileOutsideFolders": "Dit bestand staat niet in een toegevoegde map.",
+      "sessionSaveFailed": "Kan sessie niet opslaan",
       "resizeOpenedFiles": "Lijst met geopende bestanden aanpassen"
     },
     "toc": {
@@ -284,19 +277,19 @@
       "settings": "Instellingen"
     },
     "move": {
-      "title": "Move file or folder",
-      "confirm": "Move",
-      "question": "Move \"{name}\"?",
-      "detail": "From: {source}\nTo: {destination}\n\nThis changes the actual file location. Relative links and image paths may be affected.",
-      "directoryContents": "The folder and all its contents will be moved.",
-      "completed": "Moved successfully.",
-      "invalidTarget": "Choose another folder within the same open root. Linked paths and moving a folder into itself are not supported.",
-      "crossDevice": "Moving between volumes is not supported here. Use your system file manager.",
-      "conflict": "The destination already contains an item with this name. Rename it before trying again.",
-      "missing": "The source or destination no longer exists. Refresh the folder and try again.",
-      "permission": "The item could not be moved. Check folder permissions and whether another application is using it.",
-      "openElsewhere": "Close this file and any documents inside this folder in other MarkText windows before moving it.",
-      "destinationOpen": "A document is already open at the destination path. Close it before trying again."
+      "title": "Bestand of map verplaatsen",
+      "confirm": "Verplaatsen",
+      "question": "\"{name}\" verplaatsen?",
+      "detail": "Van: {source}\nNaar: {destination}\n\nHiermee verandert de werkelijke locatie van het bestand. Relatieve links en afbeeldingspaden kunnen worden beïnvloed.",
+      "directoryContents": "De map wordt met alle inhoud verplaatst.",
+      "completed": "Verplaatsen gelukt.",
+      "invalidTarget": "Kies een andere map binnen dezelfde geopende hoofdmap. Gekoppelde paden en het verplaatsen van een map naar zichzelf worden niet ondersteund.",
+      "crossDevice": "Verplaatsen tussen volumes wordt hier niet ondersteund. Gebruik de bestandsbeheerder van je systeem.",
+      "conflict": "Op de bestemming staat al een item met deze naam. Wijzig de naam en probeer het opnieuw.",
+      "missing": "De bron of bestemming bestaat niet meer. Vernieuw de map en probeer het opnieuw.",
+      "permission": "Het item kon niet worden verplaatst. Controleer de maprechten en of een andere toepassing het gebruikt.",
+      "openElsewhere": "Sluit dit bestand en alle documenten uit deze map in andere MarkText-vensters voordat je het verplaatst.",
+      "destinationOpen": "Er is al een document geopend op het doelpad. Sluit het en probeer het opnieuw."
     }
   },
   "titleBar": {
@@ -520,6 +513,7 @@
         "turkish": "Türkçe",
         "russian": "Русский",
         "italian": "Italiano",
+        "polish": "Polski",
         "label": "Interfacetaal"
       },
       "openingMode": "Openingsmodus"
@@ -552,7 +546,7 @@
       "fileRepresentation": {
         "title": "Bestandsweergave",
         "tabWidth": "Invoer met de Tab-toets",
-        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
+        "tabInputNotes": "Kies spaties of een echt tabteken. Bestaande tabs gebruiken tabstops van vier kolommen. In lijsten en tabellen past Tab het nestniveau aan of gaat het naar een andere cel.",
         "lineSeparator": "Standaard regeleinde voor bestanden",
         "defaultEncoding": "Standaardcodering",
         "autoDetectEncoding": "Codering automatisch detecteren",
@@ -710,7 +704,6 @@
       "title": "Thema",
       "followSystemTheme": "Systeemweergave volgen",
       "followSystemNote": "Kies hieronder afzonderlijke thema’s voor de donkere en lichte modus.",
-      "modeThemes": "Themaselectie",
       "lightModeTheme": "Thema lichte modus",
       "darkModeTheme": "Thema donkere modus",
       "customCss": "Aangepaste CSS",
@@ -813,7 +806,7 @@
       "exportFilePdf": "Exporteren als PDF",
       "zoom": "Zoom",
       "checkUpdate": "Controleer op updates",
-      "addFolder": "Add Folder…"
+      "addFolder": "Map toevoegen…"
     },
     "edit": {
       "undo": "Ongedaan maken",
@@ -937,18 +930,14 @@
     "changesWillBeLost": "Wijzigingen gaan verloren",
     "close": "Sluiten",
     "dontSave": "Niet opslaan",
-    "file": "Bestand",
     "fileExists": "Bestand bestaat al: {filename}",
-    "files": "Bestanden",
     "importWarning": "Importwaarschuwing",
     "installPandoc": "Pandoc is niet gevonden. Installeer het, of stel de omgevingsvariabele MARKTEXT_PANDOC in op het pad naar het pandoc-programma en herstart MarkText.",
     "exportWarning": "Exportwaarschuwing",
     "exportWarningMore": "…en nog {count}",
-    "keepOpen": "Open houden",
     "replace": "Vervangen",
     "save": "Opslaan",
     "saveChanges": "Wijzigingen opslaan",
-    "saveFailure": "Opslaan mislukt",
     "unsafeFileTitle": "Mogelijk onveilig bestand",
     "unsafeFileMessage": "Deze link opent een bestand dat code kan uitvoeren",
     "unsafeFileDetail": "\"{name}\" is een uitvoerbaar bestand of script. Het openen kan programma's op je computer uitvoeren. Ga alleen door als je dit document vertrouwt.",
@@ -959,10 +948,8 @@
     "copyError": "Kopieerfout",
     "initializationFailed": "Initialisatie mislukt {hint}",
     "otherInstanceDetected": "Er draait al een andere instantie van MarkText",
-    "report": "Melden",
     "startupError": "Opstartfout",
     "terminatedDueToError": "Beëindigd door fout",
-    "unexpectedErrorWithMessage": "Onverwachte fout: {message}",
     "unexpectedMainProcess": "Onverwachte fout in hoofdproces",
     "unexpectedRendererProcess": "Onverwachte fout in rendererproces"
   },
@@ -972,7 +959,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "Ankerlink gekopieerd",
       "tabNotFound": "Tabblad niet gevonden",
       "tocItemNotFound": "Inhoudsopgave-item {key} niet gevonden",
       "errorLoadingTabTitle": "Fout bij laden tabblad",
@@ -1030,10 +1016,7 @@
       "error": "Afdrukfout voor \"{title}\"",
       "failed": "Afdrukken mislukt"
     },
-    "sourceCode": {
-      "cursorNullComment": "Cursor null opmerking",
-      "imageStructureDeletedComment": "Afbeeldingsstructuur verwijderd opmerking"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "Spellingcontrole uitgeschakeld fout",
       "errorSwitchingLanguage": "Fout bij wisselen van spellingcontroletaal {languageCode}",
@@ -1062,7 +1045,6 @@
     "closeSave": "Overschakelen naar bewerkingsmodus en opslaan",
     "exportSource": "Kies een andere exportbestemming dan het bronbestand.",
     "unavailable": "Niet beschikbaar in leesmodus",
-    "skipped": "Alleen-lezen documenten met niet-opgeslagen wijzigingen zijn overgeslagen.",
     "viewImage": "Afbeelding bekijken",
     "copyLink": "Linkadres kopiëren",
     "resumed": "De bewerkingsmodus is ingeschakeld. Automatisch opslaan is hervat."

@@ -3,12 +3,8 @@
     "counter": {
       "words": "Palavras",
       "characters": "Caracteres",
-      "charactersNoSpaces": "Caracteres (sem espaços)",
       "charactersWithSpaces": "Caracteres (com espaços)",
-      "paragraphs": "Parágrafos",
-      "allCharacters": "Todos os caracteres",
-      "document": "Documento",
-      "documentSelection": "Documento / Seleção"
+      "paragraphs": "Parágrafos"
     },
     "file": {
       "file": "Arquivo",
@@ -34,7 +30,7 @@
       "closeWindow": "Fechar Janela",
       "quit": "Sair",
       "preferences": "Preferências",
-      "addFolder": "Add Folder…"
+      "addFolder": "Adicionar pasta…"
     },
     "edit": {
       "edit": "Editar",
@@ -241,15 +237,14 @@
   "sideBar": {
     "search": {
       "backToFiles": "Voltar aos arquivos",
-      "searchInFolder": "Pesquisar na pasta...",
       "noFolderOpen": "Nenhuma pasta aberta",
       "noResultsFound": "Nenhum resultado encontrado.",
       "cancel": "Cancelar",
-      "openFolder": "Add Folder…",
+      "openFolder": "Adicionar pasta…",
       "showMoreMatches": "Mostrar mais correspondências",
       "searchInFolders": "Localizar na Pasta",
-      "partialSearch": "Some folders could not be searched.",
-      "noSearchableFolders": "No available folders to search."
+      "partialSearch": "Não foi possível pesquisar algumas pastas.",
+      "noSearchableFolders": "Nenhuma pasta disponível para pesquisar."
     },
     "tree": {
       "openedFiles": "Arquivos abertos",
@@ -258,15 +253,13 @@
       "emptyProject": "Projeto vazio",
       "createFile": "Criar Arquivo",
       "openFolder": "Abrir Pasta",
-      "noFolders": "No folders added",
-      "removeFolder": "Remove from Sidebar",
-      "retryFolder": "Retry",
-      "loadingFolder": "Loading folder…",
-      "unavailableFolder": "Folder unavailable",
-      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
-      "folderAlreadyAdded": "This folder has already been added.",
-      "fileOutsideFolders": "This file is not in an added folder.",
-      "sessionSaveFailed": "Unable to save session",
+      "removeFolder": "Remover da barra lateral",
+      "retryFolder": "Tentar novamente",
+      "loadingFolder": "Carregando pasta…",
+      "unavailableFolder": "Pasta indisponível",
+      "folderAlreadyAdded": "Esta pasta já foi adicionada.",
+      "fileOutsideFolders": "Este arquivo não está em uma pasta adicionada.",
+      "sessionSaveFailed": "Não foi possível salvar a sessão",
       "resizeOpenedFiles": "Redimensionar a lista de arquivos abertos"
     },
     "toc": {
@@ -284,19 +277,19 @@
       "settings": "Configurações"
     },
     "move": {
-      "title": "Move file or folder",
-      "confirm": "Move",
-      "question": "Move \"{name}\"?",
-      "detail": "From: {source}\nTo: {destination}\n\nThis changes the actual file location. Relative links and image paths may be affected.",
-      "directoryContents": "The folder and all its contents will be moved.",
-      "completed": "Moved successfully.",
-      "invalidTarget": "Choose another folder within the same open root. Linked paths and moving a folder into itself are not supported.",
-      "crossDevice": "Moving between volumes is not supported here. Use your system file manager.",
-      "conflict": "The destination already contains an item with this name. Rename it before trying again.",
-      "missing": "The source or destination no longer exists. Refresh the folder and try again.",
-      "permission": "The item could not be moved. Check folder permissions and whether another application is using it.",
-      "openElsewhere": "Close this file and any documents inside this folder in other MarkText windows before moving it.",
-      "destinationOpen": "A document is already open at the destination path. Close it before trying again."
+      "title": "Mover arquivo ou pasta",
+      "confirm": "Mover",
+      "question": "Mover “{name}”?",
+      "detail": "De: {source}\nPara: {destination}\n\nIsso altera o local real do arquivo. Links relativos e caminhos de imagens podem ser afetados.",
+      "directoryContents": "A pasta e todo o seu conteúdo serão movidos.",
+      "completed": "Movido com sucesso.",
+      "invalidTarget": "Escolha outra pasta dentro da mesma raiz aberta. Caminhos vinculados e mover uma pasta para dentro dela mesma não são suportados.",
+      "crossDevice": "Mover entre volumes não é suportado aqui. Use o gerenciador de arquivos do sistema.",
+      "conflict": "O destino já contém um item com este nome. Renomeie-o antes de tentar novamente.",
+      "missing": "A origem ou o destino não existe mais. Atualize a pasta e tente novamente.",
+      "permission": "Não foi possível mover o item. Verifique as permissões da pasta e se outro aplicativo o está usando.",
+      "openElsewhere": "Antes de movê-lo, feche este arquivo e todos os documentos desta pasta em outras janelas do MarkText.",
+      "destinationOpen": "Já há um documento aberto no caminho de destino. Feche-o antes de tentar novamente."
     }
   },
   "titleBar": {
@@ -520,6 +513,7 @@
         "turkish": "Türkçe",
         "russian": "Русский",
         "italian": "Italiano",
+        "polish": "Polski",
         "label": "Idioma da interface"
       },
       "openingMode": "Modo de abertura"
@@ -552,7 +546,7 @@
       "fileRepresentation": {
         "title": "Representação de Arquivo",
         "tabWidth": "Entrada da tecla Tab",
-        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
+        "tabInputNotes": "Escolha espaços ou um caractere de tabulação real. As tabulações existentes usam paradas de tabulação de quatro colunas. Em listas e tabelas, Tab ajusta o aninhamento ou move entre células.",
         "lineSeparator": "Fim de linha padrão dos arquivos",
         "defaultEncoding": "Codificação padrão",
         "autoDetectEncoding": "Detectar codificação automaticamente",
@@ -641,7 +635,7 @@
       "title": "Markdown",
       "extensions": {
         "title": "Extensões",
-        "superSubScript": "Super/Sub script",
+        "superSubScript": "Sobrescrito/subscrito",
         "footnote": "Nota de rodapé",
         "texMathDollars": "Matemática TeX com $ e $$",
         "texMathGfm": "Matemática TeX do GitHub ($`…`$ e ```math)",
@@ -710,7 +704,6 @@
       "title": "Tema",
       "followSystemTheme": "Seguir a aparência do sistema",
       "followSystemNote": "Pode escolher abaixo temas diferentes para os modos escuro e claro.",
-      "modeThemes": "Seleção de Tema",
       "lightModeTheme": "Tema do modo claro",
       "darkModeTheme": "Tema do modo escuro",
       "customCss": "CSS Personalizado",
@@ -813,7 +806,7 @@
       "exportFilePdf": "Exportar como PDF",
       "zoom": "Zoom",
       "checkUpdate": "Verificar Atualizações",
-      "addFolder": "Add Folder…"
+      "addFolder": "Adicionar pasta…"
     },
     "edit": {
       "undo": "Desfazer",
@@ -937,18 +930,14 @@
     "changesWillBeLost": "As alterações serão perdidas",
     "close": "Fechar",
     "dontSave": "Não Salvar",
-    "file": "Arquivo",
     "fileExists": "O arquivo já existe: {filename}",
-    "files": "Arquivos",
     "importWarning": "Aviso de importação",
     "installPandoc": "Pandoc não foi encontrado. Instale-o, ou defina a variável de ambiente MARKTEXT_PANDOC com o caminho do executável do pandoc e reinicie o MarkText.",
     "exportWarning": "Aviso de exportação",
     "exportWarningMore": "…e mais {count}",
-    "keepOpen": "Manter aberto",
     "replace": "Substituir",
     "save": "Salvar",
     "saveChanges": "Salvar alterações",
-    "saveFailure": "Falha ao salvar",
     "unsafeFileTitle": "Arquivo potencialmente inseguro",
     "unsafeFileMessage": "Este link abre um arquivo que pode executar código",
     "unsafeFileDetail": "\"{name}\" é um arquivo executável ou de script. Abri-lo pode executar programas no seu computador. Continue apenas se confiar neste documento.",
@@ -959,10 +948,8 @@
     "copyError": "Erro de cópia",
     "initializationFailed": "Falha na inicialização {hint}",
     "otherInstanceDetected": "Outra instância do MarkText já está em execução",
-    "report": "Reportar",
     "startupError": "Erro de inicialização",
     "terminatedDueToError": "Terminado devido a erro",
-    "unexpectedErrorWithMessage": "Erro inesperado: {message}",
     "unexpectedMainProcess": "Erro inesperado do processo principal",
     "unexpectedRendererProcess": "Erro inesperado do processo de renderização"
   },
@@ -972,7 +959,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "Link âncora copiado",
       "tabNotFound": "Aba não encontrada",
       "tocItemNotFound": "Item do índice {key} não encontrado",
       "errorLoadingTabTitle": "Erro ao carregar a aba",
@@ -1030,10 +1016,7 @@
       "error": "Erro de impressão para \"{title}\"",
       "failed": "Impressão falhou"
     },
-    "sourceCode": {
-      "cursorNullComment": "Comentário de cursor nulo",
-      "imageStructureDeletedComment": "Comentário de estrutura de imagem excluída"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "Erro ao desativar verificação ortográfica",
       "errorSwitchingLanguage": "Erro ao alternar idioma do corretor {languageCode}",
@@ -1062,7 +1045,6 @@
     "closeSave": "Alternar para o modo de edição e salvar",
     "exportSource": "Escolha um destino de exportação diferente do arquivo de origem.",
     "unavailable": "Indisponível no modo de leitura",
-    "skipped": "Documentos somente leitura com alterações não salvas foram ignorados.",
     "viewImage": "Ver imagem",
     "copyLink": "Copiar endereço do link",
     "resumed": "O modo de edição está ativado. O salvamento automático foi retomado."

@@ -3,12 +3,8 @@
     "counter": {
       "words": "字數",
       "characters": "字元數",
-      "charactersNoSpaces": "字元數（不含空格）",
       "charactersWithSpaces": "字元數（含空格）",
-      "paragraphs": "段落數",
-      "allCharacters": "總字元數",
-      "document": "文件",
-      "documentSelection": "文件 / 選取範圍"
+      "paragraphs": "段落數"
     },
     "file": {
       "file": "檔案",
@@ -241,7 +237,6 @@
   "sideBar": {
     "search": {
       "backToFiles": "返回檔案",
-      "searchInFolder": "在資料夾中搜尋…",
       "noFolderOpen": "沒有開啟的資料夾",
       "noResultsFound": "找不到結果。",
       "cancel": "取消",
@@ -258,12 +253,10 @@
       "emptyProject": "空專案",
       "createFile": "建立檔案",
       "openFolder": "開啟資料夾",
-      "noFolders": "尚未加入資料夾",
       "removeFolder": "從側邊欄移除",
       "retryFolder": "重試",
       "loadingFolder": "正在載入資料夾…",
       "unavailableFolder": "資料夾無法使用",
-      "overlappingFolder": "此資料夾與已加入項目有包含關係，請先移除原有項目。",
       "folderAlreadyAdded": "此資料夾已加入。",
       "fileOutsideFolders": "此檔案不在已加入的資料夾中。",
       "sessionSaveFailed": "無法儲存工作階段",
@@ -284,19 +277,19 @@
       "settings": "設定"
     },
     "move": {
-      "title": "Move file or folder",
-      "confirm": "Move",
-      "question": "Move \"{name}\"?",
-      "detail": "From: {source}\nTo: {destination}\n\nThis changes the actual file location. Relative links and image paths may be affected.",
-      "directoryContents": "The folder and all its contents will be moved.",
-      "completed": "Moved successfully.",
-      "invalidTarget": "Choose another folder within the same open root. Linked paths and moving a folder into itself are not supported.",
-      "crossDevice": "Moving between volumes is not supported here. Use your system file manager.",
-      "conflict": "The destination already contains an item with this name. Rename it before trying again.",
-      "missing": "The source or destination no longer exists. Refresh the folder and try again.",
-      "permission": "The item could not be moved. Check folder permissions and whether another application is using it.",
-      "openElsewhere": "Close this file and any documents inside this folder in other MarkText windows before moving it.",
-      "destinationOpen": "A document is already open at the destination path. Close it before trying again."
+      "title": "移動檔案或資料夾",
+      "confirm": "移動",
+      "question": "要移動「{name}」嗎？",
+      "detail": "從：{source}\n到：{destination}\n\n這會變更檔案的實際位置，相對連結和圖片路徑可能會受到影響。",
+      "directoryContents": "將移動資料夾及其所有內容。",
+      "completed": "移動成功。",
+      "invalidTarget": "請選擇同一個已開啟根資料夾內的其他資料夾。不支援連結路徑，也無法將資料夾移入自身。",
+      "crossDevice": "此處不支援在不同磁碟區之間移動，請使用系統的檔案管理員。",
+      "conflict": "目的地已有同名項目，請先重新命名後再試一次。",
+      "missing": "來源或目的地已不存在，請重新整理資料夾後再試一次。",
+      "permission": "無法移動項目。請檢查資料夾權限，或確認是否有其他應用程式正在使用。",
+      "openElsewhere": "移動前，請先在其他 MarkText 視窗中關閉此檔案以及此資料夾內的文件。",
+      "destinationOpen": "目的地路徑已有開啟的文件，請先關閉後再試一次。"
     }
   },
   "titleBar": {
@@ -520,6 +513,7 @@
         "turkish": "Türkçe",
         "russian": "Русский",
         "italian": "Italiano",
+        "polish": "Polski",
         "label": "介面語言"
       },
       "openingMode": "開啟模式"
@@ -710,7 +704,6 @@
       "title": "主題",
       "followSystemTheme": "跟隨系統外觀",
       "followSystemNote": "可以在下方分別選擇深色模式和淺色模式下的主題。",
-      "modeThemes": "主題選擇",
       "lightModeTheme": "淺色模式主題",
       "darkModeTheme": "深色模式主題",
       "customCss": "自訂 CSS",
@@ -937,18 +930,14 @@
     "changesWillBeLost": "變更將遺失",
     "close": "關閉",
     "dontSave": "不儲存",
-    "file": "檔案",
     "fileExists": "檔案已存在：{filename}",
-    "files": "檔案",
     "importWarning": "匯入警告",
     "installPandoc": "找不到 Pandoc。請先安裝，或將環境變數 MARKTEXT_PANDOC 設為 pandoc 執行檔的路徑後重新啟動 MarkText.",
     "exportWarning": "匯出提示",
     "exportWarningMore": "…另有 {count} 條",
-    "keepOpen": "保持開啟",
     "replace": "取代",
     "save": "儲存",
     "saveChanges": "儲存變更",
-    "saveFailure": "儲存失敗",
     "unsafeFileTitle": "潛在不安全的檔案",
     "unsafeFileMessage": "此連結將開啟一個可執行程式碼的檔案",
     "unsafeFileDetail": "「{name}」是可執行檔或指令碼檔案。開啟它可能會在你的電腦上執行程式。請僅在信任此文件時繼續。",
@@ -959,10 +948,8 @@
     "copyError": "複製錯誤",
     "initializationFailed": "初始化失敗 {hint}",
     "otherInstanceDetected": "偵測到另一個 MarkText 實例正在執行",
-    "report": "回報",
     "startupError": "啟動錯誤",
     "terminatedDueToError": "因錯誤而終止",
-    "unexpectedErrorWithMessage": "意外錯誤：{message}",
     "unexpectedMainProcess": "意外的主程序錯誤",
     "unexpectedRendererProcess": "意外的渲染程序錯誤"
   },
@@ -972,7 +959,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "錨點連結已複製",
       "tabNotFound": "找不到標籤頁",
       "tocItemNotFound": "目錄項目 {key} 未找到",
       "errorLoadingTabTitle": "載入標籤頁發生錯誤",
@@ -1030,10 +1016,7 @@
       "error": "列印 \"{title}\" 時發生錯誤",
       "failed": "列印失敗"
     },
-    "sourceCode": {
-      "cursorNullComment": "游標空值註解",
-      "imageStructureDeletedComment": "圖片結構已刪除註解"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "拼字檢查停用錯誤",
       "errorSwitchingLanguage": "切換拼字檢查語言時發生錯誤 {languageCode}",
@@ -1062,7 +1045,6 @@
     "closeSave": "切換至編輯模式並儲存",
     "exportSource": "請選擇與來源檔案不同的匯出位置。",
     "unavailable": "閱讀模式下無法使用",
-    "skipped": "已略過有未儲存變更的唯讀文件。",
     "viewImage": "檢視圖片",
     "copyLink": "複製連結位址",
     "resumed": "已切換至編輯模式，自動儲存已恢復。"

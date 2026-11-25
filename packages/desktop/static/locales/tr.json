@@ -3,12 +3,8 @@
     "counter": {
       "words": "Sözcükler",
       "characters": "Karakterler",
-      "charactersNoSpaces": "Karakterler (boşluksuz)",
       "charactersWithSpaces": "Karakterler (boşluklu)",
-      "paragraphs": "Paragraflar",
-      "allCharacters": "Tüm karakterler",
-      "document": "Belge",
-      "documentSelection": "Belge / Seçim"
+      "paragraphs": "Paragraflar"
     },
     "file": {
       "file": "Dosya",
@@ -34,7 +30,7 @@
       "closeWindow": "Pencereyi Kapat",
       "quit": "Çıkış",
       "preferences": "Tercihler",
-      "addFolder": "Add Folder…"
+      "addFolder": "Klasör Ekle…"
     },
     "edit": {
       "edit": "Düzen",
@@ -241,15 +237,14 @@
   "sideBar": {
     "search": {
       "backToFiles": "Dosyalara dön",
-      "searchInFolder": "Klasörde ara...",
       "noFolderOpen": "Açık klasör yok",
       "noResultsFound": "Sonuç bulunamadı.",
       "cancel": "İptal",
-      "openFolder": "Add Folder…",
+      "openFolder": "Klasör Ekle…",
       "showMoreMatches": "Daha fazla eşleşme göster",
       "searchInFolders": "Klasörde Bul",
-      "partialSearch": "Some folders could not be searched.",
-      "noSearchableFolders": "No available folders to search."
+      "partialSearch": "Bazı klasörlerde arama yapılamadı.",
+      "noSearchableFolders": "Aranabilecek klasör yok."
     },
     "tree": {
       "openedFiles": "Açık dosyalar",
@@ -258,15 +253,13 @@
       "emptyProject": "Boş proje",
       "createFile": "Dosya Oluştur",
       "openFolder": "Klasör Aç",
-      "noFolders": "No folders added",
-      "removeFolder": "Remove from Sidebar",
-      "retryFolder": "Retry",
-      "loadingFolder": "Loading folder…",
-      "unavailableFolder": "Folder unavailable",
-      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
-      "folderAlreadyAdded": "This folder has already been added.",
-      "fileOutsideFolders": "This file is not in an added folder.",
-      "sessionSaveFailed": "Unable to save session",
+      "removeFolder": "Kenar çubuğundan kaldır",
+      "retryFolder": "Yeniden dene",
+      "loadingFolder": "Klasör yükleniyor…",
+      "unavailableFolder": "Klasör kullanılamıyor",
+      "folderAlreadyAdded": "Bu klasör zaten eklendi.",
+      "fileOutsideFolders": "Bu dosya eklenen klasörlerin hiçbirinde değil.",
+      "sessionSaveFailed": "Oturum kaydedilemedi",
       "resizeOpenedFiles": "Açık dosyalar listesini yeniden boyutlandır"
     },
     "toc": {
@@ -284,19 +277,19 @@
       "settings": "Ayarlar"
     },
     "move": {
-      "title": "Move file or folder",
-      "confirm": "Move",
-      "question": "Move \"{name}\"?",
-      "detail": "From: {source}\nTo: {destination}\n\nThis changes the actual file location. Relative links and image paths may be affected.",
-      "directoryContents": "The folder and all its contents will be moved.",
-      "completed": "Moved successfully.",
-      "invalidTarget": "Choose another folder within the same open root. Linked paths and moving a folder into itself are not supported.",
-      "crossDevice": "Moving between volumes is not supported here. Use your system file manager.",
-      "conflict": "The destination already contains an item with this name. Rename it before trying again.",
-      "missing": "The source or destination no longer exists. Refresh the folder and try again.",
-      "permission": "The item could not be moved. Check folder permissions and whether another application is using it.",
-      "openElsewhere": "Close this file and any documents inside this folder in other MarkText windows before moving it.",
-      "destinationOpen": "A document is already open at the destination path. Close it before trying again."
+      "title": "Dosyayı veya klasörü taşı",
+      "confirm": "Taşı",
+      "question": "\"{name}\" taşınsın mı?",
+      "detail": "Kaynak: {source}\nHedef: {destination}\n\nBu işlem dosyanın gerçek konumunu değiştirir. Göreli bağlantılar ve görsel yolları etkilenebilir.",
+      "directoryContents": "Klasör tüm içeriğiyle birlikte taşınacak.",
+      "completed": "Başarıyla taşındı.",
+      "invalidTarget": "Aynı açık kök klasör içinde başka bir klasör seçin. Bağlantılı yollar ve bir klasörü kendi içine taşıma desteklenmez.",
+      "crossDevice": "Birimler arasında taşıma burada desteklenmez. Sisteminizin dosya yöneticisini kullanın.",
+      "conflict": "Hedefte bu ada sahip bir öğe zaten var. Öğeyi yeniden adlandırıp yeniden deneyin.",
+      "missing": "Kaynak veya hedef artık mevcut değil. Klasörü yenileyip yeniden deneyin.",
+      "permission": "Öğe taşınamadı. Klasör izinlerini ve öğenin başka bir uygulama tarafından kullanılıp kullanılmadığını kontrol edin.",
+      "openElsewhere": "Taşımadan önce bu dosyayı ve bu klasördeki tüm belgeleri diğer MarkText pencerelerinde kapatın.",
+      "destinationOpen": "Hedef yolda zaten açık bir belge var. Belgeyi kapatıp yeniden deneyin."
     }
   },
   "titleBar": {
@@ -520,6 +513,7 @@
         "turkish": "Türkçe",
         "russian": "Русский",
         "italian": "Italiano",
+        "polish": "Polski",
         "label": "Arayüz dili"
       },
       "openingMode": "Açılış modu"
@@ -552,7 +546,7 @@
       "fileRepresentation": {
         "title": "Dosya Gösterimi",
         "tabWidth": "Tab tuşu girdisi",
-        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
+        "tabInputNotes": "Boşluk veya gerçek bir sekme karakteri seçin. Mevcut sekmeler dört sütunluk sekme duraklarını kullanır. Listelerde ve tablolarda Tab, iç içe geçme düzeyini ayarlar veya hücreler arasında geçiş yapar.",
         "lineSeparator": "Varsayılan dosya satır sonu",
         "defaultEncoding": "Varsayılan kodlama",
         "autoDetectEncoding": "Kodlamayı otomatik algıla",
@@ -710,7 +704,6 @@
       "title": "Tema",
       "followSystemTheme": "Sistem görünümünü izle",
       "followSystemNote": "Aşağıda koyu ve açık modlar için ayrı temalar seçebilirsiniz.",
-      "modeThemes": "Tema Seçimi",
       "lightModeTheme": "Açık mod teması",
       "darkModeTheme": "Koyu mod teması",
       "customCss": "Özel CSS",
@@ -813,7 +806,7 @@
       "exportFilePdf": "PDF Olarak Dışa Aktar",
       "zoom": "Yakınlaştırma",
       "checkUpdate": "Güncellemeleri Denetle",
-      "addFolder": "Add Folder…"
+      "addFolder": "Klasör Ekle…"
     },
     "edit": {
       "undo": "Geri Al",
@@ -937,18 +930,14 @@
     "changesWillBeLost": "Değişiklikler kaybolacak",
     "close": "Kapat",
     "dontSave": "Kaydetme",
-    "file": "Dosya",
     "fileExists": "Dosya zaten var: {filename}",
-    "files": "Dosyalar",
     "importWarning": "İçe aktarma uyarısı",
     "installPandoc": "Pandoc bulunamadı. Yükleyin veya MARKTEXT_PANDOC ortam değişkenini pandoc çalıştırılabilir dosyasının yolu olarak ayarlayıp MarkText'i yeniden başlatın.",
     "exportWarning": "Dışa aktarma uyarısı",
     "exportWarningMore": "…ve {count} tane daha",
-    "keepOpen": "Açık tut",
     "replace": "Değiştir",
     "save": "Kaydet",
     "saveChanges": "Değişiklikleri kaydet",
-    "saveFailure": "Kaydetme hatası",
     "unsafeFileTitle": "Güvenli olmayabilecek dosya",
     "unsafeFileMessage": "Bu bağlantı, kod çalıştırabilen bir dosyayı açar",
     "unsafeFileDetail": "\"{name}\" bir yürütülebilir veya betik dosyasıdır. Açmak, bilgisayarınızda program çalıştırabilir. Yalnızca bu belgeye güveniyorsanız devam edin.",
@@ -959,10 +948,8 @@
     "copyError": "Kopyalama hatası",
     "initializationFailed": "Başlatma başarısız {hint}",
     "otherInstanceDetected": "Başka bir MarkText penceresi zaten açık",
-    "report": "Bildir",
     "startupError": "Başlangıç hatası",
     "terminatedDueToError": "Hata nedeniyle sonlandırıldı",
-    "unexpectedErrorWithMessage": "Beklenmeyen hata: {message}",
     "unexpectedMainProcess": "Beklenmeyen ana işlem hatası",
     "unexpectedRendererProcess": "Beklenmeyen işleyici işlem hatası"
   },
@@ -972,7 +959,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "Çapa bağlantısı kopyalandı",
       "tabNotFound": "Sekme bulunamadı",
       "tocItemNotFound": "İçindekiler {key} bulunamadı",
       "errorLoadingTabTitle": "Sekme yüklenirken hata",
@@ -1030,10 +1016,7 @@
       "error": "\"{title}\" için yazdırma hatası",
       "failed": "Yazdırma başarısız"
     },
-    "sourceCode": {
-      "cursorNullComment": "İmleç boş yorumu",
-      "imageStructureDeletedComment": "Görsel yapısı silindi yorumu"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "Yazım denetimi devre dışı hatası",
       "errorSwitchingLanguage": "Yazım denetimi dili değiştirilirken hata {languageCode}",
@@ -1062,7 +1045,6 @@
     "closeSave": "Düzenleme Moduna Geç ve Kaydet",
     "exportSource": "Dışa aktarma için kaynak dosyadan farklı bir hedef seçin.",
     "unavailable": "Okuma Modunda kullanılamaz",
-    "skipped": "Kaydedilmemiş değişiklikleri olan salt okunur belgeler atlandı.",
     "viewImage": "Görseli Görüntüle",
     "copyLink": "Bağlantı Adresini Kopyala",
     "resumed": "Düzenleme Modu açık. Otomatik kaydetme devam ediyor."

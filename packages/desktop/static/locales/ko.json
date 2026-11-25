@@ -3,12 +3,8 @@
     "counter": {
       "words": "단어 수",
       "characters": "글자 수",
-      "charactersNoSpaces": "글자 수(공백 제외)",
       "charactersWithSpaces": "글자 수(공백 포함)",
-      "paragraphs": "단락 수",
-      "allCharacters": "전체 글자 수",
-      "document": "문서",
-      "documentSelection": "문서 / 선택 영역"
+      "paragraphs": "단락 수"
     },
     "file": {
       "file": "파일",
@@ -34,7 +30,7 @@
       "closeWindow": "창 닫기",
       "quit": "종료",
       "preferences": "환경설정",
-      "addFolder": "Add Folder…"
+      "addFolder": "폴더 추가…"
     },
     "edit": {
       "edit": "편집",
@@ -241,15 +237,14 @@
   "sideBar": {
     "search": {
       "backToFiles": "파일로 돌아가기",
-      "searchInFolder": "폴더에서 검색...",
       "noFolderOpen": "열린 폴더 없음",
       "noResultsFound": "결과를 찾을 수 없습니다.",
       "cancel": "취소",
-      "openFolder": "Add Folder…",
+      "openFolder": "폴더 추가…",
       "showMoreMatches": "더 많은 일치 항목 보기",
       "searchInFolders": "폴더에서 찾기",
-      "partialSearch": "Some folders could not be searched.",
-      "noSearchableFolders": "No available folders to search."
+      "partialSearch": "일부 폴더를 검색하지 못했습니다.",
+      "noSearchableFolders": "검색할 수 있는 폴더가 없습니다."
     },
     "tree": {
       "openedFiles": "열린 파일",
@@ -258,15 +253,13 @@
       "emptyProject": "빈 프로젝트",
       "createFile": "파일 만들기",
       "openFolder": "폴더 열기",
-      "noFolders": "No folders added",
-      "removeFolder": "Remove from Sidebar",
-      "retryFolder": "Retry",
-      "loadingFolder": "Loading folder…",
-      "unavailableFolder": "Folder unavailable",
-      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
-      "folderAlreadyAdded": "This folder has already been added.",
-      "fileOutsideFolders": "This file is not in an added folder.",
-      "sessionSaveFailed": "Unable to save session",
+      "removeFolder": "사이드바에서 제거",
+      "retryFolder": "다시 시도",
+      "loadingFolder": "폴더를 불러오는 중…",
+      "unavailableFolder": "폴더를 사용할 수 없음",
+      "folderAlreadyAdded": "이 폴더는 이미 추가되었습니다.",
+      "fileOutsideFolders": "이 파일은 추가된 폴더에 없습니다.",
+      "sessionSaveFailed": "세션을 저장하지 못했습니다",
       "resizeOpenedFiles": "열린 파일 목록 크기 조절"
     },
     "toc": {
@@ -284,19 +277,19 @@
       "settings": "설정"
     },
     "move": {
-      "title": "Move file or folder",
-      "confirm": "Move",
-      "question": "Move \"{name}\"?",
-      "detail": "From: {source}\nTo: {destination}\n\nThis changes the actual file location. Relative links and image paths may be affected.",
-      "directoryContents": "The folder and all its contents will be moved.",
-      "completed": "Moved successfully.",
-      "invalidTarget": "Choose another folder within the same open root. Linked paths and moving a folder into itself are not supported.",
-      "crossDevice": "Moving between volumes is not supported here. Use your system file manager.",
-      "conflict": "The destination already contains an item with this name. Rename it before trying again.",
-      "missing": "The source or destination no longer exists. Refresh the folder and try again.",
-      "permission": "The item could not be moved. Check folder permissions and whether another application is using it.",
-      "openElsewhere": "Close this file and any documents inside this folder in other MarkText windows before moving it.",
-      "destinationOpen": "A document is already open at the destination path. Close it before trying again."
+      "title": "파일 또는 폴더 이동",
+      "confirm": "이동",
+      "question": "“{name}”을(를) 이동하시겠습니까?",
+      "detail": "원본: {source}\n대상: {destination}\n\n실제 파일 위치가 변경됩니다. 상대 링크와 이미지 경로가 영향을 받을 수 있습니다.",
+      "directoryContents": "폴더와 모든 내용이 이동됩니다.",
+      "completed": "이동했습니다.",
+      "invalidTarget": "열려 있는 같은 루트 폴더 안에서 다른 폴더를 선택하세요. 링크된 경로와 폴더를 자기 자신 안으로 이동하는 것은 지원되지 않습니다.",
+      "crossDevice": "여기에서는 볼륨 간 이동이 지원되지 않습니다. 시스템 파일 관리자를 사용하세요.",
+      "conflict": "대상 위치에 같은 이름의 항목이 이미 있습니다. 이름을 바꾼 후 다시 시도하세요.",
+      "missing": "원본 또는 대상이 더 이상 존재하지 않습니다. 폴더를 새로 고친 후 다시 시도하세요.",
+      "permission": "항목을 이동하지 못했습니다. 폴더 권한과 다른 애플리케이션이 사용 중인지 확인하세요.",
+      "openElsewhere": "이동하기 전에 다른 MarkText 창에서 이 파일과 이 폴더 안의 문서를 모두 닫으세요.",
+      "destinationOpen": "대상 경로에 이미 열려 있는 문서가 있습니다. 문서를 닫은 후 다시 시도하세요."
     }
   },
   "titleBar": {
@@ -520,6 +513,7 @@
         "turkish": "Türkçe",
         "russian": "Русский",
         "italian": "Italiano",
+        "polish": "Polski",
         "label": "인터페이스 언어"
       },
       "openingMode": "열기 모드"
@@ -552,7 +546,7 @@
       "fileRepresentation": {
         "title": "파일 표현",
         "tabWidth": "Tab 키 입력",
-        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
+        "tabInputNotes": "공백 또는 실제 탭 문자를 선택하세요. 기존 탭은 4열 간격의 탭 위치를 사용합니다. 목록과 표에서는 Tab 키로 중첩 수준을 조정하거나 셀 사이를 이동합니다.",
         "lineSeparator": "파일 기본 줄바꿈 형식",
         "defaultEncoding": "기본 인코딩",
         "autoDetectEncoding": "인코딩 자동 감지",
@@ -710,7 +704,6 @@
       "title": "테마",
       "followSystemTheme": "시스템 모양 따르기",
       "followSystemNote": "아래에서 다크 모드와 라이트 모드의 테마를 각각 선택할 수 있습니다.",
-      "modeThemes": "테마 선택",
       "lightModeTheme": "라이트 모드 테마",
       "darkModeTheme": "다크 모드 테마",
       "customCss": "사용자 정의 CSS",
@@ -813,7 +806,7 @@
       "exportFilePdf": "PDF로 내보내기",
       "zoom": "확대/축소",
       "checkUpdate": "업데이트 확인",
-      "addFolder": "Add Folder…"
+      "addFolder": "폴더 추가…"
     },
     "edit": {
       "undo": "실행 취소",
@@ -937,18 +930,14 @@
     "changesWillBeLost": "변경 사항이 손실됩니다",
     "close": "닫기",
     "dontSave": "저장하지 않음",
-    "file": "파일",
     "fileExists": "파일이 이미 존재합니다: {filename}",
-    "files": "파일",
     "importWarning": "가져오기 경고",
     "installPandoc": "Pandoc를 찾을 수 없습니다. 설치하거나 환경 변수 MARKTEXT_PANDOC에 pandoc 실행 파일 경로를 설정한 뒤 MarkText를 다시 시작하세요.",
     "exportWarning": "내보내기 경고",
     "exportWarningMore": "…외 {count}건",
-    "keepOpen": "열어두기",
     "replace": "바꾸기",
     "save": "저장",
     "saveChanges": "변경 사항 저장",
-    "saveFailure": "저장 실패",
     "unsafeFileTitle": "안전하지 않을 수 있는 파일",
     "unsafeFileMessage": "이 링크는 코드를 실행할 수 있는 파일을 엽니다",
     "unsafeFileDetail": "\"{name}\"은(는) 실행 파일 또는 스크립트 파일입니다. 열면 컴퓨터에서 프로그램이 실행될 수 있습니다. 이 문서를 신뢰하는 경우에만 계속하세요.",
@@ -959,10 +948,8 @@
     "copyError": "복사 오류",
     "initializationFailed": "초기화 실패 {hint}",
     "otherInstanceDetected": "MarkText의 다른 인스턴스가 이미 실행 중입니다",
-    "report": "신고",
     "startupError": "시작 오류",
     "terminatedDueToError": "오류로 인해 종료됨",
-    "unexpectedErrorWithMessage": "예기치 않은 오류: {message}",
     "unexpectedMainProcess": "예상치 못한 메인 프로세스 오류",
     "unexpectedRendererProcess": "예상치 못한 렌더러 프로세스 오류"
   },
@@ -972,7 +959,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "앵커 링크 복사됨",
       "tabNotFound": "탭을 찾을 수 없음",
       "tocItemNotFound": "목차 항목 {key}을(를) 찾을 수 없습니다",
       "errorLoadingTabTitle": "탭 로드 오류",
@@ -1030,10 +1016,7 @@
       "error": "\"{title}\" 인쇄 오류",
       "failed": "인쇄 실패"
     },
-    "sourceCode": {
-      "cursorNullComment": "커서 null 주석",
-      "imageStructureDeletedComment": "이미지 구조 삭제 주석"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "맞춤법 검사 비활성화 오류",
       "errorSwitchingLanguage": "맞춤법 검사 언어 전환 오류 {languageCode}",
@@ -1062,7 +1045,6 @@
     "closeSave": "편집 모드로 전환하고 저장",
     "exportSource": "원본 파일과 다른 내보내기 위치를 선택하세요.",
     "unavailable": "읽기 모드에서는 사용할 수 없습니다",
-    "skipped": "저장하지 않은 변경 사항이 있는 읽기 전용 문서는 건너뛰었습니다.",
     "viewImage": "이미지 보기",
     "copyLink": "링크 주소 복사",
     "resumed": "편집 모드가 켜졌습니다. 자동 저장이 재개되었습니다."

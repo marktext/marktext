@@ -3,12 +3,8 @@
     "counter": {
       "words": "Слова",
       "characters": "Символы",
-      "charactersNoSpaces": "Символы (без пробелов)",
       "charactersWithSpaces": "Символы (с пробелами)",
-      "paragraphs": "Абзацы",
-      "allCharacters": "Все символы",
-      "document": "Документ",
-      "documentSelection": "Документ / Выделение"
+      "paragraphs": "Абзацы"
     },
     "file": {
       "file": "Файл",
@@ -34,7 +30,7 @@
       "closeWindow": "Закрыть окно",
       "quit": "Выход",
       "preferences": "Настройки",
-      "addFolder": "Add Folder…"
+      "addFolder": "Добавить папку…"
     },
     "edit": {
       "edit": "Правка",
@@ -241,15 +237,14 @@
   "sideBar": {
     "search": {
       "backToFiles": "Вернуться к файлам",
-      "searchInFolder": "Поиск в папке...",
       "noFolderOpen": "Папка не открыта",
       "noResultsFound": "Ничего не найдено.",
       "cancel": "Отмена",
-      "openFolder": "Add Folder…",
+      "openFolder": "Добавить папку…",
       "showMoreMatches": "Показать ещё",
       "searchInFolders": "Найти в папке",
-      "partialSearch": "Some folders could not be searched.",
-      "noSearchableFolders": "No available folders to search."
+      "partialSearch": "Не удалось выполнить поиск в некоторых папках.",
+      "noSearchableFolders": "Нет доступных папок для поиска."
     },
     "tree": {
       "openedFiles": "Открытые файлы",
@@ -258,15 +253,13 @@
       "emptyProject": "Пустой проект",
       "createFile": "Создать файл",
       "openFolder": "Открыть папку",
-      "noFolders": "No folders added",
-      "removeFolder": "Remove from Sidebar",
-      "retryFolder": "Retry",
-      "loadingFolder": "Loading folder…",
-      "unavailableFolder": "Folder unavailable",
-      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
-      "folderAlreadyAdded": "This folder has already been added.",
-      "fileOutsideFolders": "This file is not in an added folder.",
-      "sessionSaveFailed": "Unable to save session",
+      "removeFolder": "Убрать с боковой панели",
+      "retryFolder": "Повторить",
+      "loadingFolder": "Загрузка папки…",
+      "unavailableFolder": "Папка недоступна",
+      "folderAlreadyAdded": "Эта папка уже добавлена.",
+      "fileOutsideFolders": "Этот файл не находится в добавленной папке.",
+      "sessionSaveFailed": "Не удалось сохранить сеанс",
       "resizeOpenedFiles": "Изменить размер списка открытых файлов"
     },
     "toc": {
@@ -284,19 +277,19 @@
       "settings": "Настройки"
     },
     "move": {
-      "title": "Move file or folder",
-      "confirm": "Move",
-      "question": "Move \"{name}\"?",
-      "detail": "From: {source}\nTo: {destination}\n\nThis changes the actual file location. Relative links and image paths may be affected.",
-      "directoryContents": "The folder and all its contents will be moved.",
-      "completed": "Moved successfully.",
-      "invalidTarget": "Choose another folder within the same open root. Linked paths and moving a folder into itself are not supported.",
-      "crossDevice": "Moving between volumes is not supported here. Use your system file manager.",
-      "conflict": "The destination already contains an item with this name. Rename it before trying again.",
-      "missing": "The source or destination no longer exists. Refresh the folder and try again.",
-      "permission": "The item could not be moved. Check folder permissions and whether another application is using it.",
-      "openElsewhere": "Close this file and any documents inside this folder in other MarkText windows before moving it.",
-      "destinationOpen": "A document is already open at the destination path. Close it before trying again."
+      "title": "Перемещение файла или папки",
+      "confirm": "Переместить",
+      "question": "Переместить \"{name}\"?",
+      "detail": "Откуда: {source}\nКуда: {destination}\n\nФайл будет фактически перемещён. Это может затронуть относительные ссылки и пути к изображениям.",
+      "directoryContents": "Папка будет перемещена вместе со всем содержимым.",
+      "completed": "Перемещение выполнено.",
+      "invalidTarget": "Выберите другую папку в пределах того же открытого корневого каталога. Связанные пути и перемещение папки в саму себя не поддерживаются.",
+      "crossDevice": "Перемещение между томами здесь не поддерживается. Используйте системный файловый менеджер.",
+      "conflict": "В месте назначения уже есть элемент с таким именем. Переименуйте его и повторите попытку.",
+      "missing": "Источник или место назначения больше не существует. Обновите папку и повторите попытку.",
+      "permission": "Не удалось переместить элемент. Проверьте права доступа к папке и не используется ли он другим приложением.",
+      "openElsewhere": "Перед перемещением закройте этот файл и все документы из этой папки в других окнах MarkText.",
+      "destinationOpen": "Документ по пути назначения уже открыт. Закройте его и повторите попытку."
     }
   },
   "titleBar": {
@@ -520,6 +513,7 @@
         "turkish": "Türkçe",
         "russian": "Русский",
         "italian": "Italiano",
+        "polish": "Polski",
         "label": "Язык интерфейса"
       },
       "openingMode": "Режим открытия"
@@ -552,7 +546,7 @@
       "fileRepresentation": {
         "title": "Представление файла",
         "tabWidth": "Ввод клавишей Tab",
-        "tabInputNotes": "Choose spaces or a real tab character. Existing tabs use four-column tab stops. In lists and tables, Tab adjusts nesting or moves between cells.",
+        "tabInputNotes": "Выберите пробелы или настоящий символ табуляции. Существующие табуляции используют позиции табуляции через каждые четыре столбца. В списках и таблицах Tab меняет уровень вложенности или переходит между ячейками.",
         "lineSeparator": "Окончание строки по умолчанию",
         "defaultEncoding": "Кодировка по умолчанию",
         "autoDetectEncoding": "Автоопределение кодировки",
@@ -710,7 +704,6 @@
       "title": "Тема",
       "followSystemTheme": "Следовать оформлению системы",
       "followSystemNote": "Ниже можно выбрать отдельные темы для тёмного и светлого режимов.",
-      "modeThemes": "Выбор темы",
       "lightModeTheme": "Тема светлого режима",
       "darkModeTheme": "Тема тёмного режима",
       "customCss": "Пользовательский CSS",
@@ -813,7 +806,7 @@
       "exportFilePdf": "Экспорт в PDF",
       "zoom": "Масштаб",
       "checkUpdate": "Проверить обновления",
-      "addFolder": "Add Folder…"
+      "addFolder": "Добавить папку…"
     },
     "edit": {
       "undo": "Отменить",
@@ -937,18 +930,14 @@
     "changesWillBeLost": "Изменения будут потеряны",
     "close": "Закрыть",
     "dontSave": "Не сохранять",
-    "file": "Файл",
     "fileExists": "Файл существует {filename}",
-    "files": "Файлы",
     "importWarning": "Предупреждение импорта",
     "installPandoc": "Pandoc не найден. Установите его или задайте переменную окружения MARKTEXT_PANDOC с путём к бинарнику pandoc и перезапустите MarkText.",
     "exportWarning": "Предупреждение экспорта",
     "exportWarningMore": "…и ещё {count}",
-    "keepOpen": "Оставить открытым",
     "replace": "Заменить",
     "save": "Сохранить",
     "saveChanges": "Сохранить изменения",
-    "saveFailure": "Ошибка сохранения",
     "unsafeFileTitle": "Потенциально небезопасный файл",
     "unsafeFileMessage": "Эта ссылка открывает файл, который может выполнять код",
     "unsafeFileDetail": "\"{name}\" — исполняемый файл или скрипт. Его открытие может запустить программы на вашем компьютере. Продолжайте только если доверяете этому документу.",
@@ -959,10 +948,8 @@
     "copyError": "Ошибка копирования",
     "initializationFailed": "Ошибка инициализации {hint}",
     "otherInstanceDetected": "Другой экземпляр MarkText уже запущен",
-    "report": "Сообщить",
     "startupError": "Ошибка запуска",
     "terminatedDueToError": "Завершено из-за ошибки",
-    "unexpectedErrorWithMessage": "Непредвиденная ошибка с сообщением {message}",
     "unexpectedMainProcess": "Непредвиденная ошибка главного процесса",
     "unexpectedRendererProcess": "Непредвиденная ошибка процесса отрисовки"
   },
@@ -972,7 +959,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "Ссылка-якорь скопирована",
       "tabNotFound": "Вкладка не найдена",
       "tocItemNotFound": "Элемент оглавления {key} не найден",
       "errorLoadingTabTitle": "Ошибка загрузки вкладки",
@@ -1030,10 +1016,7 @@
       "error": "Ошибка печати \"{title}\"",
       "failed": "Не удалось выполнить печать"
     },
-    "sourceCode": {
-      "cursorNullComment": "Комментарий о нулевом курсоре",
-      "imageStructureDeletedComment": "Комментарий об удалённой структуре изображения"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "Ошибка: проверка орфографии отключена",
       "errorSwitchingLanguage": "Ошибка переключения языка проверки орфографии {languageCode}",
@@ -1062,7 +1045,6 @@
     "closeSave": "Перейти в режим редактирования и сохранить",
     "exportSource": "Выберите для экспорта путь, отличный от пути исходного файла.",
     "unavailable": "Недоступно в режиме чтения",
-    "skipped": "Документы только для чтения с несохранёнными изменениями были пропущены.",
     "viewImage": "Просмотреть изображение",
     "copyLink": "Копировать адрес ссылки",
     "resumed": "Режим редактирования включён. Автосохранение возобновлено."

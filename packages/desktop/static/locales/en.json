@@ -3,12 +3,8 @@
     "counter": {
       "words": "Words",
       "characters": "Characters",
-      "charactersNoSpaces": "Characters (no spaces)",
       "charactersWithSpaces": "Characters (with spaces)",
-      "paragraphs": "Paragraphs",
-      "allCharacters": "All characters",
-      "document": "Document",
-      "documentSelection": "Document / Selection"
+      "paragraphs": "Paragraphs"
     },
     "file": {
       "file": "File",
@@ -241,7 +237,6 @@
   "sideBar": {
     "search": {
       "backToFiles": "Back to files",
-      "searchInFolder": "Search in folder...",
       "noFolderOpen": "No folder open",
       "noResultsFound": "No results found.",
       "cancel": "Cancel",
@@ -259,12 +254,10 @@
       "emptyProject": "Empty project",
       "createFile": "Create File",
       "openFolder": "Open Folder",
-      "noFolders": "No folders added",
       "removeFolder": "Remove from Sidebar",
       "retryFolder": "Retry",
       "loadingFolder": "Loading folder…",
       "unavailableFolder": "Folder unavailable",
-      "overlappingFolder": "This folder overlaps an existing folder. Remove the existing item first.",
       "folderAlreadyAdded": "This folder has already been added.",
       "fileOutsideFolders": "This file is not in an added folder.",
       "sessionSaveFailed": "Unable to save session"
@@ -520,6 +513,7 @@
         "turkish": "Türkçe",
         "russian": "Русский",
         "italian": "Italiano",
+        "polish": "Polski",
         "label": "Interface language"
       },
       "openingMode": "Opening mode"
@@ -710,7 +704,6 @@
       "title": "Theme",
       "followSystemTheme": "Follow system appearance",
       "followSystemNote": "Choose separate themes for dark and light modes below.",
-      "modeThemes": "Theme Selection",
       "lightModeTheme": "Light mode theme",
       "darkModeTheme": "Dark mode theme",
       "customCss": "Custom CSS",
@@ -937,18 +930,14 @@
     "changesWillBeLost": "Changes will be lost",
     "close": "Close",
     "dontSave": "Don't Save",
-    "file": "File",
     "fileExists": "File exists {filename}",
-    "files": "Files",
     "importWarning": "Import warning",
     "installPandoc": "Pandoc was not found. Install it, or set the MARKTEXT_PANDOC environment variable to the pandoc binary and restart MarkText.",
     "exportWarning": "Export warning",
     "exportWarningMore": "…and {count} more",
-    "keepOpen": "Keep open",
     "replace": "Replace",
     "save": "Save",
     "saveChanges": "Save changes",
-    "saveFailure": "Save failure",
     "unsafeFileTitle": "Potentially unsafe file",
     "unsafeFileMessage": "This link opens a file that can run code",
     "unsafeFileDetail": "\"{name}\" is an executable or script file. Opening it may run programs on your computer. Only continue if you trust this document.",
@@ -959,10 +948,8 @@
     "copyError": "Copy error",
     "initializationFailed": "Initialization failed {hint}",
     "otherInstanceDetected": "Another instance of MarkText is already running",
-    "report": "Report",
     "startupError": "Startup error",
     "terminatedDueToError": "Terminated due to error",
-    "unexpectedErrorWithMessage": "Unexpected error with message {message}",
     "unexpectedMainProcess": "Unexpected main process error",
     "unexpectedRendererProcess": "Unexpected renderer process error"
   },
@@ -972,7 +959,6 @@
   },
   "store": {
     "editor": {
-      "anchorLinkCopied": "Anchor link copied",
       "tabNotFound": "Tab not found",
       "tocItemNotFound": "Table of contents {key} not found",
       "errorLoadingTabTitle": "Error loading tab",
@@ -1030,10 +1016,7 @@
       "error": "Print error for \"{title}\"",
       "failed": "Print failed"
     },
-    "sourceCode": {
-      "cursorNullComment": "Cursor null comment",
-      "imageStructureDeletedComment": "Image structure deleted comment"
-    },
+    "sourceCode": {},
     "spellcheck": {
       "disabledError": "Spellcheck disabled error",
       "errorSwitchingLanguage": "Error switching spellcheck language {languageCode}",
@@ -1062,7 +1045,6 @@
     "closeSave": "Switch to Edit Mode and Save",
     "exportSource": "Choose an export destination other than the source file.",
     "unavailable": "Unavailable in Reading Mode",
-    "skipped": "Read-only documents with unsaved changes were skipped.",
     "viewImage": "View Image",
     "copyLink": "Copy Link Address",
     "resumed": "Edit Mode is on. Auto-save has resumed."

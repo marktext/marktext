@@ -3,7 +3,7 @@ export type { IClipboardImageCopy } from './clipboard/image';
 export type { ISerializedHistory } from './history';
 export type { ILocale } from './i18n/types';
 
-export { de, en, es, fr, it, ja, ko, nl, pt, ru, tr, zhCN, zhTW } from './locales';
+export { de, en, es, fr, it, ja, ko, nl, pl, pt, ru, tr, zhCN, zhTW } from './locales';
 export { Muya } from './muya';
 export type { IMatch, IReplaceOption, ISearchOption } from './search/types';
 export type { IIndexCursor } from './selection/offsetCursor';
