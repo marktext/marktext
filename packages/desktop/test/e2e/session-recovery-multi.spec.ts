@@ -435,7 +435,7 @@ test('disabling editor and layout restoration skips ordinary tabs but keeps unsa
     ).toContainText('Unsaved content survives options')
     expect(state(directory).session.windows[0].documents).toHaveLength(1)
     await expect(restored.page.locator('.side-bar')).toBeHidden()
-    await expect(restored.page.locator('.editor-tabs')).toBeHidden()
+    await expect(restored.page.locator('.editor-tabs')).toBeVisible()
     await expectNoRendererErrors(restored.app)
   } finally {
     if (running) await stop(running)
