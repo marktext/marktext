@@ -800,13 +800,16 @@ class Content extends TreeNode {
         type = 'format',
     ) {
         const { anchor, focus } = this.selection;
-        const oldStart = anchor!.offset <= focus!.offset ? anchor : focus;
         let needRender = false;
 
         // Checkbox clicks are not input events. Allow compositionend, which can be the only
-        // IME commit signal forwarded by composeHandler (#5279).
-        if ((!isInputEvent(event) && !isCompositionEndEvent(event)) || !oldStart)
+        // IME commit signal forwarded by composeHandler (#5279). The cached caret can still be
+        // null here (read-only init, a file opened from the sidebar, a selected image), so check
+        // it before reading its offsets (#6139).
+        if ((!isInputEvent(event) && !isCompositionEndEvent(event)) || !anchor || !focus)
             return { text, needRender };
+
+        const oldStart = anchor.offset <= focus.offset ? anchor : focus;
 
         if (this.text !== text) {
             if (isInputEvent(event) && start.offset === end.offset && event.type === 'input') {

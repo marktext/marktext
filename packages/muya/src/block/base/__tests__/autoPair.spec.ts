@@ -302,3 +302,38 @@ describe('autoPair — #3573 absorb manually typed closing markdown marker', () 
         expect(text).not.toBe('**');
     });
 });
+
+// ── #6139: input or IME commit while the cached caret is null ─────────────
+// `this.selection.anchor` / `focus` start as null and are only filled by
+// setCursor / setSelection, so a block can get an input event (or a
+// compositionend from composeHandler) before they are set. autoPair read
+// `anchor!.offset` before its guard and threw, which aborted inputHandler
+// and dropped the committed text.
+describe('autoPair — #6139 null cached caret', () => {
+    function makeNullCaretThis(blockText: string) {
+        const fakeThis = makeFakeThis(blockText, 0);
+        (fakeThis.selection as { anchor: unknown; focus: unknown }).anchor = null;
+        (fakeThis.selection as { anchor: unknown; focus: unknown }).focus = null;
+        return fakeThis;
+    }
+
+    it('returns the input text unchanged instead of throwing', () => {
+        const fakeThis = makeNullCaretThis('foo');
+        const event = makeInputEvent('insertText', '(');
+
+        const { text, needRender } = invokeAutoPair(fakeThis, event, 'foo(', 4);
+
+        expect(text).toBe('foo(');
+        expect(needRender).toBe(false);
+    });
+
+    it('returns the committed IME text unchanged on compositionend', () => {
+        const fakeThis = makeNullCaretThis('foo');
+        const event = { type: 'compositionend', data: '你好' } as unknown as Event;
+
+        const { text, needRender } = invokeAutoPair(fakeThis, event, 'foo你好', 5);
+
+        expect(text).toBe('foo你好');
+        expect(needRender).toBe(false);
+    });
+});
