@@ -1,4 +1,3 @@
-import equal from 'deep-equal'
 import { adjustTrailingNewlines } from '@/util/markdown'
 import { prepareReading, applyReadOnly } from '../services/documentMode'
 import bus from '../bus'
@@ -35,6 +34,23 @@ let actions: SessionActions | null = null
 export const getSessionActions = (): SessionActions | null => actions
 export const setSessionActions = (value: SessionActions | null): void => {
   actions = value
+}
+
+// TOC items are flat records of primitives, so a shallow per-item comparison is
+// enough. This runs on every edit; deep-equal is far too slow for large outlines.
+const tocEqual = (a: readonly TocItem[], b: readonly TocItem[]): boolean => {
+  if (a === b) return true
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    const x = a[i] as unknown as Record<string, unknown>
+    const y = b[i] as unknown as Record<string, unknown>
+    const keys = Object.keys(x)
+    if (keys.length !== Object.keys(y).length) return false
+    for (const k of keys) {
+      if (x[k] !== y[k]) return false
+    }
+  }
+  return true
 }
 
 interface TocItem extends ListItem {
@@ -1144,7 +1160,7 @@ export const useEditorStore = defineStore('editor', {
       if (history) tab.history = history
       if (blocks) tab.blocks = blocks
 
-      if (id === this.currentFile?.id && toc && !equal(toc, this.listToc)) {
+      if (id === this.currentFile?.id && toc && !tocEqual(toc, this.listToc)) {
         this.listToc = toc
         this.toc = listToTree<TocItem>(toc)
       }
