@@ -20,6 +20,7 @@ import Content from '../../block/base/content';
 import { ScrollPage } from '../../block/scrollPage';
 import {
     CLASS_NAMES,
+    EVENT_KEYS,
     FORMAT_MARKER_MAP,
     FORMAT_TAG_MAP,
     FORMAT_TYPES,
@@ -30,7 +31,7 @@ import { tokenEvents } from '../../inline/model/traversal';
 import { parseInline } from '../../inline/parser/lexer';
 import { generator, SourceGenerationMode } from '../../inline/serialization';
 import Selection, { getCursorReference } from '../../selection';
-import { getTextContent } from '../../selection/dom';
+import { getTextContent, isInlinePreview, nodeAfterCaret } from '../../selection/dom';
 import { contentPath } from '../../selection/state';
 import { SelectionType } from '../../selection/types';
 import { isListItemState } from '../../state/types';
@@ -585,6 +586,48 @@ class Format extends Content {
 
             this.setCursor(currentCursor.anchor.offset, currentCursor.focus.offset);
         });
+    }
+
+    override arrowHandler(event: Event): void {
+        if (isKeyboardEvent(event) && this._isArrowOntoInlinePreview(event)) {
+            this._stepOverInlinePreview(event);
+            return;
+        }
+
+        super.arrowHandler(event);
+    }
+
+    /**
+     * Whether a plain ArrowRight would only cross a math/ruby preview. The
+     * browser spends the key on that non-editable span without changing the
+     * text offset, and the keyup repaint then puts the caret back in front of
+     * it, so the caret never gets past the preview.
+     */
+    private _isArrowOntoInlinePreview(event: KeyboardEvent): boolean {
+        if (event.key !== EVENT_KEYS.ArrowRight || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey)
+            return false;
+
+        if (this.domNode?.closest('[dir]')?.getAttribute('dir') === 'rtl')
+            return false;
+
+        const cursor = this.getCursor();
+        if (!cursor || cursor.start.offset !== cursor.end.offset || cursor.start.offset === this.text.length)
+            return false;
+
+        const selection = document.getSelection();
+        if (!selection?.anchorNode)
+            return false;
+
+        return isInlinePreview(nodeAfterCaret(selection.anchorNode, selection.anchorOffset, this.domNode!));
+    }
+
+    private _stepOverInlinePreview(event: KeyboardEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const { offset } = this.getCursor()!.start;
+        const next = offset + firstGraphemeLength(this.text.slice(offset));
+        this.setCursor(next, next, true);
     }
 
     override keyupHandler(): void {

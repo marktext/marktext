@@ -75,6 +75,36 @@ function textLengthBeforeChild(element: Node, index: number): number {
     return length;
 }
 
+/** A rendered math/ruby preview: a contenteditable=false node holding no source text. */
+export function isInlinePreview(node: Node | null): boolean {
+    return node != null && isElement(node) && (
+        node.classList.contains(CLASS_NAMES.MU_MATH_RENDER)
+        || node.classList.contains(CLASS_NAMES.MU_RUBY_RENDER)
+    );
+}
+
+/**
+ * The node a forward caret move from DOM point (`node`, `offset`) enters,
+ * skipping empty text nodes: `node` itself when characters follow inside it,
+ * null at the end of `root`.
+ */
+export function nodeAfterCaret(node: Node, offset: number, root: Node): Node | null {
+    if (node.nodeType === Node.TEXT_NODE && offset < node.textContent!.length)
+        return node;
+
+    let current = node;
+    let next = node.nodeType === Node.TEXT_NODE ? null : node.childNodes[offset] ?? null;
+    for (;;) {
+        while (next && next.nodeType === Node.TEXT_NODE && next.textContent === '')
+            next = next.nextSibling;
+        if (next || current === root || !current.parentNode)
+            return next;
+
+        next = current.nextSibling;
+        current = current.parentNode;
+    }
+}
+
 function caretAt(doc: Document, x: number, y: number): { node: Node; offset: number } | null {
     const position = doc.caretPositionFromPoint?.(x, y);
     if (position)
