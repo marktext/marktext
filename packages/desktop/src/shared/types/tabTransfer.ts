@@ -58,6 +58,7 @@ export interface TabTransferReply {
   transactionId: string
   ok: boolean
   runtime?: TabRuntimeState
+  error?: string
 }
 
 export interface TabTransferTarget {
@@ -78,5 +79,5 @@ export interface TabTransferSendChannels {
 export interface TabTransferMainEvents {
   'mt::tabs::transaction': [request: TabTransferRequest]
   'mt::tabs::drag-position': [position: { beforeId: string | null } | null]
-  'mt::tabs::transfer-failed': [reason: 'duplicate' | 'failed']
+  'mt::tabs::transfer-failed': [reason: 'duplicate' | 'failed', message?: string]
 }

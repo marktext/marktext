@@ -1046,7 +1046,7 @@
       "preview": "{name}, вкладка предпросмотра",
       "transfer": {
         "duplicate": "This file is already open in the destination window.",
-        "failed": "The tab could not be moved. Your document remains available in its original window."
+        "failed": "The tab could not be moved."
       }
     }
   },

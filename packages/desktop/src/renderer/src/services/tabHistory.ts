@@ -1,9 +1,22 @@
-import type { ISerializedHistory, IHeadingFoldState } from '@muyajs/core'
+import type { Muya, ISerializedHistory, IHeadingFoldState } from '@muyajs/core'
 import CodeMirror from 'codemirror'
 import type { TabHistorySnapshots } from '@shared/types/tabTransfer'
 import { sourceHistory } from './documentMode'
+import { adjustTrailingNewlines } from '@/util/markdown'
 
-export const engineHistoryByTab = new Map<string, ISerializedHistory>()
+/** History operations address this exact block tree, including blocks omitted by Markdown serialization. */
+export interface RenderedHistory {
+  markdown: string
+  state: ReturnType<Muya['getState']>
+  history: ISerializedHistory
+}
+
+export const engineHistoryByTab = new Map<string, RenderedHistory>()
+export const captureRenderedHistory = (engine: Muya, trimTrailingNewline: number): RenderedHistory => ({
+  markdown: adjustTrailingNewlines(engine.getMarkdown(), trimTrailingNewline),
+  state: engine.getState(),
+  history: engine.getHistory()
+})
 export const headingFoldsByTab = new Map<string, { markdown: string; folds: IHeadingFoldState[] }>()
 
 export const portableHistoryByTab = new Map<string, TabHistorySnapshots>()

@@ -29,6 +29,7 @@ import {
   onDocumentViewChange
 } from './documentViewState'
 import notice from './notification'
+import { errorMessage } from '@shared/error'
 import bus from '../bus'
 import { t } from '@/i18n'
 
@@ -149,9 +150,11 @@ class WindowSession {
       })
     )
     this._stops.push(
-      ipc.on('mt::tabs::transfer-failed', (_event, reason) => {
+      ipc.on('mt::tabs::transfer-failed', (_event, reason, message) => {
         notice.notify({
           title: t(`editor.tabs.transfer.${reason}`),
+          message,
+          plainText: true,
           type: 'warning'
         })
       })
@@ -239,7 +242,7 @@ class WindowSession {
         this._transferId = request.transactionId
         await flushSourceView()
         const result = await this._flush()
-        if (result.status !== 'persisted') throw new Error('Transfer checkpoint failed')
+        if (result.status !== 'persisted') throw new Error(`Transfer checkpoint failed: ${result.reason}`)
         this._initializing = true
         this._schedule.cancel()
         if (request.documentId) {
@@ -330,7 +333,7 @@ class WindowSession {
       ipc.send('mt::tabs::reply', { transactionId: request.transactionId, ok: true, runtime })
     } catch (error) {
       console.error('Tab transfer did not complete', error)
-      ipc.send('mt::tabs::reply', { transactionId: request.transactionId, ok: false })
+      ipc.send('mt::tabs::reply', { transactionId: request.transactionId, ok: false, error: errorMessage(error) })
     }
   }
 
@@ -607,6 +610,7 @@ class WindowSession {
         documents.length === this._editor.tabs.length &&
         documents.every((document) => this._editor.tabs.some((file) => file.id === document.id))
       if (
+        !this._transferId &&
         sameDocuments &&
         (result.reason !== 'stale-context' || request.contextToken === this._context.contextToken)
       )
@@ -693,6 +697,8 @@ class WindowSession {
     void notice.notify({
       title: t('sideBar.tree.sessionSaveFailed'),
       type: 'error',
+      message: errorMessage(error),
+      plainText: true,
       showConfirm: false
     })
   }

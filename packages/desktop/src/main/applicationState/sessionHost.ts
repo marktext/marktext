@@ -35,6 +35,7 @@ import type {
   RegisteredDocumentContent,
   PreparedSessionWindow
 } from '@shared/types/applicationState'
+import { errorMessage } from '@shared/error'
 import { TabDrag } from './tabDrag'
 import { detachedTabGeometry } from './tabWindowPreview'
 import type { TabTransferRequest, TabTransferReply, TabStripGeometry } from '@shared/types/tabTransfer'
@@ -101,6 +102,7 @@ export class SessionHost {
       timer: ReturnType<typeof setTimeout>
     }
   >()
+  private readonly _transferErrors = new Map<string, string>()
   private _transferBusy = false
   private _createTransferWindow:
     | ((
@@ -151,6 +153,7 @@ export class SessionHost {
         this._geometryWriters.delete(id)
         this._windowOperations.delete(id)
         this._checkpointQueues.delete(id)
+        this._transferErrors.delete(id)
         this._previews.delete(id)
         this._previewRequests.delete(id)
         this._untitledNumbers.delete(id)
@@ -216,7 +219,7 @@ export class SessionHost {
         transactionId,
         documentId
       })
-      if (!captured.ok || !captured.runtime) throw new Error('Source could not prepare tab')
+      if (!captured.ok || !captured.runtime) throw new Error(captured.error || 'Source could not prepare tab')
       await this._owner().settlePendingSaves([documentId])
       if (!targetId) {
         if (!this._createTransferWindow) throw new Error('New window factory unavailable')
@@ -244,7 +247,7 @@ export class SessionHost {
       const destination = targetId
       prepared.add(destination)
       const targetReady = await this._tabRequest(destination, { phase: 'prepare', transactionId })
-      if (!targetReady.ok) throw new Error('Destination could not prepare tab')
+      if (!targetReady.ok) throw new Error(targetReady.error || 'Destination could not prepare tab')
       const payload = this._owner().documentPayload(documentId)
       const duplicate =
         payload.document.resource.kind === 'file' &&
@@ -267,7 +270,7 @@ export class SessionHost {
         runtime: captured.runtime,
         beforeId
       })
-      if (!received.ok) throw new Error('Destination did not receive tab')
+      if (!received.ok) throw new Error(received.error || 'Destination did not receive tab')
       const sourceContext = this._contexts.get(sourceId)
       const targetContext = this._contexts.get(destination)
       if (!sourceContext || !targetContext) throw new Error('Window context unavailable')
@@ -304,21 +307,22 @@ export class SessionHost {
         context: contexts.target,
         incoming: true
       })
-      if (!targetCommit.ok) throw new Error('Destination could not activate tab')
+      if (!targetCommit.ok) throw new Error(targetCommit.error || 'Destination could not activate tab')
       const sourceCommit = await this._tabRequest(sourceId, {
         phase: 'commit',
         transactionId,
         context: contexts.source,
         removeId: documentId
       })
-      if (!sourceCommit.ok) throw new Error('Source could not retire tab')
+      if (!sourceCommit.ok) throw new Error(sourceCommit.error || 'Source could not retire tab')
       if (this._previews.get(sourceId) === documentId) this._previews.delete(sourceId)
       if (this._owner().getWindow(sourceId)?.documents.length === 0)
         await this._registerDocument(sourceId, '', '', true)
       this._editors.get(destination)?.bringToFront()
     } catch (error) {
-      this.report(error)
+      log.error('Tab transfer failed', error)
       if (committed) {
+        this._transferErrors.set(sourceId, errorMessage(error))
         if (
           this._owner().getWindow(sourceId)?.documents.length === 0 &&
           this._editors.get(sourceId)?.browserWindow
@@ -328,7 +332,7 @@ export class SessionHost {
         for (const id of prepared) this._editors.get(id)?.browserWindow?.reload()
       } else {
         const native = this._editors.get(sourceId)?.browserWindow
-        native?.webContents.send('mt::tabs::transfer-failed', 'failed')
+        native?.webContents.send('mt::tabs::transfer-failed', 'failed', errorMessage(error))
       }
     } finally {
       for (const id of prepared) {
@@ -1545,7 +1549,8 @@ export class SessionHost {
       native.webContents.send('mt::show-notification', {
         title: t('sideBar.tree.sessionSaveFailed'),
         type: 'error',
-        message: 'Keep this window open and save your documents before quitting.'
+        message: errorMessage(error),
+        plainText: true
       })
   }
 
@@ -1610,6 +1615,11 @@ export class SessionHost {
       const editor = this._findEditor(event.sender)
       if (editor?.sessionStateId) {
         this._readyRenderers.add(editor.sessionStateId)
+        const transferError = this._transferErrors.get(editor.sessionStateId)
+        if (transferError !== undefined) {
+          this._transferErrors.delete(editor.sessionStateId)
+          event.sender.send('mt::tabs::transfer-failed', 'failed', transferError)
+        }
         if (editor?.browserWindow && !editor.browserWindow.isVisible()) editor.bringToFront()
         if (
           this._startupWindowIds.size &&

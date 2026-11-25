@@ -1,7 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import type { ElectronApplication, Page } from 'playwright'
 import {
   launchWithMarkdown,
+  launchElectron,
   getMarkdownContent,
   enterSourceMode,
   typeIntoEditor,
@@ -242,7 +246,7 @@ for (const sourceMode of [true, false]) {
       await expect(tabs(destination)).toHaveCount(2)
       await expect(destination.locator('.source-code')).toHaveCount(sourceMode ? 0 : 1)
       expect((await readMarkdown(destination, app)).trimEnd()).toBe(expected.trimEnd())
-      if (sourceMode) await destination.locator('.mu-editor').click()
+      if (sourceMode) await destination.locator('.mu-editor').focus()
       else await destination.locator('.CodeMirror').click()
       let undoCount = 0
       let undone = expected
@@ -577,3 +581,174 @@ test('detaching a source document preserves its scroll position', async() => {
     await app.close()
   }
 })
+
+
+for (const { switchTabs, trimTrailingNewline } of [
+  { switchTabs: false, trimTrailingNewline: 0 },
+  { switchTabs: false, trimTrailingNewline: 1 },
+  { switchTabs: true, trimTrailingNewline: 1 },
+  { switchTabs: true, trimTrailingNewline: 2 }
+]) {
+  test(`moves a saved draft with an empty final paragraph after switching tabs=${switchTabs}, newline policy=${trimTrailingNewline} and preserves redo`, async() => {
+    const directory = mkdtempSync(join(tmpdir(), 'mt-transfer-saved-'))
+    const { app, page } = await launchElectron([], { preferences: { language: 'en', trimTrailingNewline } })
+    try {
+      await typeIntoEditor(page, 'First paragraph')
+      await page.keyboard.press('Enter')
+      await page.keyboard.type('Second paragraph')
+      await page.keyboard.press('Enter')
+      const path = join(directory, 'saved.md')
+      await app.evaluate(({ dialog }, path) => {
+        dialog.showSaveDialog = async() => ({ canceled: false, filePath: path })
+      }, path)
+      await clickMenuById(app, 'fileSaveMenuItem')
+      await expect(tabs(page).first()).toContainText('saved.md')
+      expect(readFileSync(path, 'utf8')).toContain('Second paragraph')
+      const id = required(await tabs(page).first().getAttribute('data-id'))
+      if (switchTabs) {
+        await page.locator('.editor-tabs .new-file').click()
+        await tabs(page).filter({ hasText: 'saved.md' }).click()
+      }
+      await page.evaluate(id => window.electron.ipcRenderer.invoke('mt::tabs::move', id, null), id)
+      const detached = required(app.windows().find(window => window !== page))
+      await expect(tabs(detached).first()).toHaveAttribute('data-id', id)
+      await expect(detached.getByRole('alert')).toHaveCount(0)
+      await expect(detached.locator('.mu-paragraph')).toHaveCount(3)
+      await detached.locator('.mu-editor').focus()
+      const native = await app.browserWindow(detached)
+      await native.evaluate(window => window.webContents.send('mt::editor-edit-action', 'undo'))
+      await expect(detached.locator('.mu-paragraph')).toHaveCount(2)
+      await native.evaluate(window => window.webContents.send('mt::editor-edit-action', 'redo'))
+      await expect(detached.locator('.mu-paragraph')).toHaveCount(3)
+    } finally {
+      await app.close()
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+}
+
+test('moves an inactive tab with structural redo without changing the active tab', async() => {
+  const { app, page } = await launchWithMarkdown('First paragraph\n')
+  try {
+    await page.locator('.mu-editor').focus()
+    await page.keyboard.press('ControlOrMeta+End')
+    const paragraphs = await page.locator('.mu-paragraph').count()
+    await page.keyboard.press('Enter')
+    await expect(page.locator('.mu-paragraph')).toHaveCount(paragraphs + 1)
+    const native = await app.browserWindow(page)
+    await native.evaluate(window => window.webContents.send('mt::editor-edit-action', 'undo'))
+    await expect(page.locator('.mu-paragraph')).toHaveCount(paragraphs)
+    const id = required(await tabs(page).first().getAttribute('data-id'))
+    await page.locator('.editor-tabs .new-file').click()
+    await typeIntoEditor(page, 'Active tab text')
+    await page.evaluate(id => window.electron.ipcRenderer.invoke('mt::tabs::move', id, null), id)
+    const destination = required(app.windows().find(window => window !== page))
+    await expect(tabs(destination).first()).toHaveAttribute('data-id', id)
+    expect((await readMarkdown(page, app)).trim()).toBe('Active tab text')
+    await destination.locator('.mu-editor').focus()
+    const target = await app.browserWindow(destination)
+    await target.evaluate(window => window.webContents.send('mt::editor-edit-action', 'redo'))
+    await expect(destination.locator('.mu-paragraph')).toHaveCount(paragraphs + 1)
+    await target.evaluate(window => window.webContents.send('mt::editor-edit-action', 'undo'))
+    await expect(destination.locator('.mu-paragraph')).toHaveCount(paragraphs)
+  } finally {
+    await app.close()
+  }
+})
+
+test('reports the transfer failure reason only in its source window and releases input', async() => {
+  const { app, page } = await launchWithMarkdown('Unrelated window\n', { preferences: { language: 'en' } })
+  try {
+    const source = await secondWindow(app, page)
+    const native = await app.browserWindow(source)
+    const ownerId = await native.evaluate(window => window.webContents.id)
+    const reason = 'Invalid document <block> & history'
+    await app.evaluate(({ ipcMain }, { ownerId, reason }) => {
+      ipcMain.prependListener('mt::tabs::reply', (event, reply) => {
+        if (event.sender.id === ownerId && reply.runtime) {
+          reply.ok = false
+          reply.error = reason
+        }
+      })
+    }, { ownerId, reason })
+    const id = required(await tabs(source).first().getAttribute('data-id'))
+    await source.evaluate(id => window.electron.ipcRenderer.invoke('mt::tabs::move', id, null), id)
+    await expect(source.getByRole('alert')).toHaveCount(1)
+    await expect(source.getByRole('alert')).toHaveText(`The tab could not be moved.${reason}`)
+    await expect(page.getByRole('alert')).toHaveCount(0)
+    await expect(tabs(source).first()).toHaveAttribute('data-id', id)
+    expect(await source.evaluate(() => document.documentElement.inert)).toBe(false)
+    await typeIntoEditor(source, 'Still editable')
+    await expect(source.getByRole('textbox', { name: 'Document', exact: true })).toContainText('Still editable')
+  } finally {
+    await app.close()
+  }
+})
+
+
+test('keeps committed ownership and reports the reason after renderer recovery', async() => {
+  const { app, page } = await launchWithMarkdown('Committed contents\n', { preferences: { language: 'en' } })
+  try {
+    const destination = await secondWindow(app, page)
+    const target = await app.browserWindow(destination)
+    const targetId = await target.evaluate(window => window.webContents.id)
+    const reason = 'Destination activation failed'
+    await app.evaluate(({ ipcMain }, { targetId, reason }) => {
+      let replies = 0
+      ipcMain.prependListener('mt::tabs::reply', (event, reply) => {
+        if (event.sender.id !== targetId) return
+        replies++
+        if (replies === 3) {
+          reply.ok = false
+          reply.error = reason
+        }
+      })
+    }, { targetId, reason })
+    const targets = await page.evaluate(() => window.electron.ipcRenderer.invoke('mt::tabs::transfer-targets'))
+    const id = required(await tabs(page).first().getAttribute('data-id'))
+    await page.evaluate(({ id, target }) => { void window.electron.ipcRenderer.invoke('mt::tabs::move', id, target) }, { id, target: required(targets[0]).id })
+    await expect(page.getByRole('alert')).toHaveCount(1)
+    await expect(page.getByRole('alert')).toHaveText(`The tab could not be moved.${reason}`)
+    await expect(page.locator(`.tabs-container > li[data-id="${id}"]`)).toHaveCount(0)
+    await expect(destination.locator(`.tabs-container > li[data-id="${id}"]`)).toHaveCount(1)
+    await expect(destination.getByRole('alert')).toHaveCount(0)
+    expect((await readMarkdown(destination, app)).trim()).toBe('Committed contents')
+  } finally {
+    await app.close()
+  }
+})
+
+for (const sourceMode of [false, true]) {
+  test(`preserves structural redo from ${sourceMode ? 'source' : 'rendered'} into the other editor engine`, async() => {
+    const { app, page } = await launchWithMarkdown('First paragraph\n\nSecond paragraph\n')
+    try {
+      if (sourceMode) await enterSourceMode(page, app)
+      const editor = page.locator(sourceMode ? '.CodeMirror' : '.mu-editor')
+      if (sourceMode) await editor.click()
+      else await editor.focus()
+      await page.keyboard.press('ControlOrMeta+End')
+      await page.keyboard.press('Enter')
+      await page.keyboard.type('Third paragraph')
+      const source = await app.browserWindow(page)
+      await source.evaluate(window => window.webContents.send('mt::editor-edit-action', 'undo'))
+      await expect(editor).not.toContainText('Third paragraph')
+      const id = required(await tabs(page).first().getAttribute('data-id'))
+      const destination = await secondWindow(app, page)
+      if (!sourceMode) await enterSourceMode(destination, app)
+      const targets = await page.evaluate(() => window.electron.ipcRenderer.invoke('mt::tabs::transfer-targets'))
+      await page.evaluate(({ id, target }) => window.electron.ipcRenderer.invoke('mt::tabs::move', id, target), { id, target: required(targets[0]).id })
+      await expect(tabs(destination)).toHaveCount(2)
+      const incoming = destination.locator(sourceMode ? '.mu-editor' : '.CodeMirror')
+      if (sourceMode) await incoming.focus()
+      else await incoming.click()
+      const target = await app.browserWindow(destination)
+      await target.evaluate(window => window.webContents.send('mt::editor-edit-action', 'redo'))
+      await expect(incoming).toContainText('Third paragraph')
+      await target.evaluate(window => window.webContents.send('mt::editor-edit-action', 'undo'))
+      await expect(incoming).not.toContainText('Third paragraph')
+      await expect(destination.getByRole('alert')).toHaveCount(0)
+    } finally {
+      await app.close()
+    }
+  })
+}

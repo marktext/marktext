@@ -201,7 +201,7 @@ test('failed metadata replacement keeps the window and its text, then permits a 
     writeFileSync(join(statePath, 'block-replacement'), 'keep')
     await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].close())
     await expect(
-      page.getByText('Keep this window open and save your documents before quitting.')
+      page.getByText('Final checkpoint was not persisted')
     ).toBeVisible()
     expect(page.isClosed()).toBe(false)
     await expect(editor).toContainText('Before write failure')
@@ -668,7 +668,7 @@ test('a pending Save As cannot write after the document is locked for reading', 
       destination
     )
     await expect(
-      page.getByText('Keep this window open and save your documents before quitting.')
+      page.getByText('Document became read-only before the save completed')
     ).toBeVisible()
     expect(existsSync(destination)).toBe(false)
     expect(readFileSync(source, 'utf8')).toBe('Original on disk')
