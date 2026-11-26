@@ -216,7 +216,9 @@
       "rename": "名前の変更",
       "copyPath": "パスのコピー",
       "showInFolder": "フォルダーの表示",
-      "showInSideBar": "サイドバーに表示"
+      "showInSideBar": "サイドバーに表示",
+      "moveToNewWindow": "Move Tab to New Window",
+      "moveToWindow": "Move Tab to Window"
     }
   },
   "search": {
@@ -1024,7 +1026,11 @@
     },
     "tabs": {
       "close": "{name} を閉じる",
-      "preview": "{name}、プレビュータブ"
+      "preview": "{name}、プレビュータブ",
+      "transfer": {
+        "duplicate": "This file is already open in the destination window.",
+        "failed": "The tab could not be moved."
+      }
     }
   },
   "readingMode": {

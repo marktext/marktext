@@ -85,6 +85,20 @@ export class CheckpointService {
     return this._documents.get(id)
   }
 
+  documentPayload(id: string): {
+    document: DocumentSnapshot
+    markdown: string
+    contentRevision: number
+    selected: true
+  } {
+    return {
+      document: this._documents.get(id),
+      markdown: this._documents.text(id),
+      contentRevision: this._documents.revision(id),
+      selected: true
+    }
+  }
+
   hasPendingSave(documentId: string): boolean {
     return this._saveQueues.has(documentId)
   }
@@ -306,6 +320,105 @@ export class CheckpointService {
       this._documents.register(windowId, document, markdown, registration)
       this._refreshDocuments(windowId)
       return this._persistResult(windowId)
+    })
+  }
+
+  private async _retireTransferredRecovery(windowId: string, documentId: string): Promise<void> {
+    await this._recovery.write({
+      schemaVersion: 1,
+      status: RecoveryStatus.DISCARDED,
+      ownerWindowId: windowId,
+      documentId,
+      contentRevision: this._documents.revision(documentId),
+      updatedAtMs: this._now()
+    })
+    await this._recovery.remove(windowId, documentId)
+  }
+
+  /** Commits membership and recovery ownership together, retaining source recovery until success. */
+  transferDocument(
+    sourceId: string,
+    targetId: string,
+    documentId: string,
+    beforeId: string | null,
+    sourceToken: string,
+    targetToken: string,
+    isAvailable: () => boolean,
+    expected = this.documentPayload(documentId)
+  ): Promise<{ source: RuntimeWindowContext; target: RuntimeWindowContext }> {
+    const captured = structuredClone(expected)
+    return this._enqueue(async() => {
+      const source = this.getWindow(sourceId)
+      const target = this.getWindow(targetId)
+      const document = source?.documents.find((document) => document.id === documentId)
+      const contexts = [this._contexts.get(sourceId), this._contexts.get(targetId)]
+      const isCurrent = (): boolean =>
+        isAvailable() &&
+        this._contexts.get(sourceId) === contexts[0] &&
+        this._contexts.get(targetId) === contexts[1] &&
+        contexts.every(
+          (context) =>
+            !!context && context.pendingCheckpoints === 0 && context.closeTransactionId === null
+        ) &&
+        !this._saveQueues.has(documentId)
+      if (
+        !source ||
+        !target ||
+        !document ||
+        sourceId === targetId ||
+        contexts[0]?.token !== sourceToken ||
+        contexts[1]?.token !== targetToken ||
+        !isCurrent()
+      )
+        throw new Error('Stale tab transfer')
+      if (
+        JSON.stringify(document) !== JSON.stringify(captured.document) ||
+        this._documents.text(documentId) !== captured.markdown ||
+        this._documents.revision(documentId) !== captured.contentRevision
+      )
+        throw new Error('Stale prepared tab')
+      if (document.resource.kind === 'file') {
+        const key = document.resource.location.key
+        if (
+          target.documents.some(
+            (document) =>
+              document.resource.kind === 'file' && document.resource.location.key === key
+          )
+        )
+          throw new Error('Duplicate tab transfer')
+      }
+      const candidate = this.getState()
+      source.documents = source.documents.filter((document) => document.id !== documentId)
+      if (source.activeDocumentId === documentId)
+        source.activeDocumentId = source.documents[0]?.id ?? null
+      const index = target.documents.findIndex((document) => document.id === beforeId)
+      target.documents.splice(index < 0 ? target.documents.length : index, 0, document)
+      target.activeDocumentId = documentId
+      candidate.session.windows = candidate.session.windows.map((window) =>
+        window.id === sourceId ? source : window.id === targetId ? target : window
+      )
+      this._documents.transfer(documentId, sourceId, targetId)
+      try {
+        // After metadata replacement, a renderer crash must restore committed ownership.
+        await this._persist(candidate, [], isCurrent, false)
+      } catch (error) {
+        this._documents.transfer(documentId, targetId, sourceId)
+        // Failed metadata writes can leave a destination recovery record without membership.
+        try {
+          await this._retireTransferredRecovery(targetId, documentId)
+        } catch (cleanupError) {
+          this._onCleanupError(cleanupError)
+        }
+        throw error
+      }
+      const sourceContext = this._rotateContext(sourceId)
+      const targetContext = this._rotateContext(targetId)
+      try {
+        await this._retireTransferredRecovery(sourceId, documentId)
+      } catch (error) {
+        this._onCleanupError(error)
+      }
+      return { source: sourceContext, target: targetContext }
     })
   }
 
@@ -594,7 +707,8 @@ export class CheckpointService {
   private async _persist(
     candidate: ApplicationState,
     ended: DiscardedRecoveryRecord[] = [],
-    isCurrent?: () => boolean
+    isCurrent?: () => boolean,
+    checkAfterCommit = true
   ): Promise<void> {
     if (isCurrent && !isCurrent()) throw new StaleCloseError('Close preparation changed')
     const recordsById = new Map(
@@ -634,7 +748,7 @@ export class CheckpointService {
     if (isCurrent && !isCurrent())
       throw new StaleCloseError('Close preparation changed during recovery IO')
     await this._metadata.write(next)
-    if (isCurrent && !isCurrent())
+    if (checkAfterCommit && isCurrent && !isCurrent())
       throw new StaleCloseError('Close preparation changed during metadata IO')
     const completedRecords: RecoveryRecord[] = []
     for (const record of records) {
@@ -653,7 +767,7 @@ export class CheckpointService {
       completedRecords.push(record)
     }
     // The renderer remains editable until every awaited IO operation has finished.
-    if (isCurrent && !isCurrent())
+    if (checkAfterCommit && isCurrent && !isCurrent())
       throw new StaleCloseError('Close preparation changed during recovery cleanup')
     this._state = next
     for (const record of ended) this._documents.discard(record.documentId)

@@ -21,6 +21,8 @@
             unsaved: !file.isSaved
           }"
           :data-id="file.id"
+          tabindex="0"
+          @keydown="handleTabKeydown($event, file)"
           @click.stop="selectFile(file)"
           @click.middle.stop.prevent="removeFileInTab(file)"
           @contextmenu.prevent="handleContextMenu($event, file)"
@@ -67,7 +69,8 @@
 import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { storeToRefs } from 'pinia'
-import { useTabReorder } from '../useTabReorder'
+import { useTabTransfer } from '../useTabTransfer'
+import '@/assets/styles/tabDrag.css'
 import { Plus, Close, Lock } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 import IconTooltip from '@/components/iconTooltip/index.vue'
@@ -81,7 +84,7 @@ const { currentFile, tabs } = storeToRefs(editorStore)
 
 const tabContainer = ref<HTMLElement | null>(null)
 const tabDropContainer = ref<HTMLElement | null>(null)
-useTabReorder(tabDropContainer, tabContainer, 'horizontal')
+useTabTransfer(tabDropContainer, tabContainer)
 
 const selectFile = (file: IFileState) => {
   if (file.id !== currentFile.value?.id) {
@@ -131,7 +134,19 @@ const handleTabScroll = (event: WheelEvent) => {
 
 const handleContextMenu = (event: MouseEvent, tab: IFileState) => {
   if (tab.id) {
-    showContextMenu(event, tab)
+    void showContextMenu(event, tab).catch(console.error)
+  }
+}
+
+const handleTabKeydown = (event: KeyboardEvent, tab: IFileState): void => {
+  if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+    event.preventDefault()
+    event.stopPropagation()
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+    void showContextMenu({ clientX: rect.left, clientY: rect.bottom }, tab).catch(console.error)
+  } else if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault()
+    selectFile(tab)
   }
 }
 
@@ -227,8 +242,9 @@ onBeforeUnmount(() => {
       box-sizing: border-box;
       opacity: 0;
     }
-    &:focus {
-      outline: none;
+    &:focus-visible {
+      outline: 2px solid var(--themeColor);
+      outline-offset: -2px;
     }
     &:hover {
       background: var(--floatBgColor) !important;

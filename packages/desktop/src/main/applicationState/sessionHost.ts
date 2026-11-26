@@ -35,6 +35,11 @@ import type {
   RegisteredDocumentContent,
   PreparedSessionWindow
 } from '@shared/types/applicationState'
+import { errorMessage } from '@shared/error'
+import { TabDrag } from './tabDrag'
+import { detachedTabGeometry } from './tabWindowPreview'
+import type { TabTransferRequest, TabTransferReply, TabStripGeometry } from '@shared/types/tabTransfer'
+import type { BrowserWindowConstructorOptions } from 'electron'
 import type { DiskBaseline, SaveFormatState } from '@shared/types/files'
 import { ApplicationStateStore, RecoveryStore } from './storage'
 import { CheckpointService } from './checkpointService'
@@ -81,6 +86,30 @@ export class SessionHost {
   private _startupWarning: string | undefined
   private _startupActiveId: string | null = null
   private readonly _startupWindowIds = new Set<string>()
+  private readonly _tabDrag = new TabDrag(
+    this._editors,
+    (...args) => this._transferTab(...args),
+    (source, point) => {
+      const window = this._owner().getWindow(source)
+      return window ? detachedTabGeometry(window.geometry.normalBounds, point).normalBounds : null
+    }
+  )
+  private readonly _tabReplies = new Map<
+    string,
+    {
+      resolve(reply: TabTransferReply): void
+      reject(error: Error): void
+      timer: ReturnType<typeof setTimeout>
+    }
+  >()
+  private readonly _transferErrors = new Map<string, string>()
+  private _transferBusy = false
+  private _createTransferWindow:
+    | ((
+      prepared: PreparedSessionWindow,
+      options: Partial<BrowserWindowConstructorOptions>
+    ) => EditorWindow)
+    | null = null
   private _tabClosePending = false
   private _startQueue: Promise<void> = Promise.resolve()
   private readonly _windowOperations = new Map<string, Promise<unknown>>()
@@ -124,6 +153,7 @@ export class SessionHost {
         this._geometryWriters.delete(id)
         this._windowOperations.delete(id)
         this._checkpointQueues.delete(id)
+        this._transferErrors.delete(id)
         this._previews.delete(id)
         this._previewRequests.delete(id)
         this._untitledNumbers.delete(id)
@@ -148,6 +178,176 @@ export class SessionHost {
           this._quitting = false
         })
     })
+  }
+
+  setTransferWindowFactory(create: NonNullable<SessionHost['_createTransferWindow']>): void {
+    this._createTransferWindow = create
+  }
+
+  private _tabRequest(windowId: string, request: TabTransferRequest): Promise<TabTransferReply> {
+    const key = `${windowId}:${request.transactionId}`
+    const native = this._native(windowId)
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this._tabReplies.delete(key)
+        reject(new Error('Tab transfer acknowledgement timed out'))
+      }, 10000)
+      this._tabReplies.set(key, { resolve, reject, timer })
+      native.webContents.send('mt::tabs::transaction', request)
+    })
+  }
+
+  private async _transferTab(
+    sourceId: string,
+    documentId: string,
+    targetId: string | null,
+    beforeId: string | null,
+    point: { x: number; y: number } | null = null
+  ): Promise<void> {
+    if (this._transferBusy || this._quitting || this._tabClosePending) return
+    this._transferBusy = true
+    const transactionId = createStateId()
+    const prepared = new Set<string>()
+    let created: EditorWindow | null = null
+    let committed = false
+    try {
+      const source = this._owner().getWindow(sourceId)
+      if (!source?.documents.some((document) => document.id === documentId)) return
+      prepared.add(sourceId)
+      const captured = await this._tabRequest(sourceId, {
+        phase: 'prepare',
+        transactionId,
+        documentId
+      })
+      if (!captured.ok || !captured.runtime) throw new Error(captured.error || 'Source could not prepare tab')
+      await this._owner().settlePendingSaves([documentId])
+      if (!targetId) {
+        if (!this._createTransferWindow) throw new Error('New window factory unavailable')
+        const snapshot = this._blankWindow()
+        const currentSource = this._owner().getWindow(sourceId)
+        if (!currentSource) throw new Error('Source window unavailable')
+        snapshot.layout = structuredClone(currentSource.layout)
+        snapshot.layout.tabBar.visible = true
+        snapshot.geometry = point
+          ? detachedTabGeometry(source.geometry.normalBounds, point)
+          : { normalBounds: { ...source.geometry.normalBounds }, maximized: false, displayId: null }
+        created = this._createTransferWindow(
+          { snapshot, contents: [], statuses: [], restoreGeometry: point !== null, openable: true },
+          // Windows selects the initial monitor DPI before bindEditor restores geometry.
+          point
+            ? { ...snapshot.geometry.normalBounds }
+            : { width: source.geometry.normalBounds.width, height: source.geometry.normalBounds.height }
+        )
+        targetId = created.sessionStateId
+        await created.sessionReady
+        const deadline = Date.now() + 10000
+        while (!this.isRendererInitialized(targetId)) {
+          if (!created.browserWindow || Date.now() >= deadline)
+            throw new Error('New window did not initialize')
+          await new Promise((resolve) => setTimeout(resolve, 25))
+        }
+      }
+      const destination = targetId
+      prepared.add(destination)
+      const targetReady = await this._tabRequest(destination, { phase: 'prepare', transactionId })
+      if (!targetReady.ok) throw new Error(targetReady.error || 'Destination could not prepare tab')
+      const payload = this._owner().documentPayload(documentId)
+      const duplicate =
+        payload.document.resource.kind === 'file' &&
+        this._owner()
+          .getWindow(destination)
+          ?.documents.some(
+            (document) =>
+              document.resource.kind === 'file' &&
+              payload.document.resource.kind === 'file' &&
+              document.resource.location.key === payload.document.resource.location.key
+          )
+      if (duplicate) {
+        this._native(sourceId).webContents.send('mt::tabs::transfer-failed', 'duplicate')
+        return
+      }
+      const received = await this._tabRequest(destination, {
+        phase: 'receive',
+        transactionId,
+        document: payload,
+        runtime: captured.runtime,
+        beforeId
+      })
+      if (!received.ok) throw new Error(received.error || 'Destination did not receive tab')
+      const sourceContext = this._contexts.get(sourceId)
+      const targetContext = this._contexts.get(destination)
+      if (!sourceContext || !targetContext) throw new Error('Window context unavailable')
+      const contexts = await this._owner().transferDocument(
+        sourceId,
+        destination,
+        documentId,
+        beforeId,
+        sourceContext.contextToken,
+        targetContext.contextToken,
+        () =>
+          this.isRendererInitialized(sourceId) &&
+          this.isRendererInitialized(destination) &&
+          !this._quitting,
+        payload
+      )
+      committed = true
+      if (payload.document.resource.kind === 'file' && !payload.document.resource.pendingCreation) {
+        const pathname = payload.document.resource.location.path
+        this._editors.get(destination)?.addToOpenedFiles(pathname)
+        const sourceEditor = this._editors.get(sourceId)
+        if (sourceEditor?.browserWindow) sourceEditor.removeFromOpenedFiles(pathname)
+      }
+      this._contexts.set(sourceId, contexts.source)
+      this._contexts.set(destination, contexts.target)
+      await documentWrites.setReadOnly(
+        this._native(destination).webContents.id,
+        documentId,
+        payload.document.readOnly
+      )
+      const targetCommit = await this._tabRequest(destination, {
+        phase: 'commit',
+        transactionId,
+        context: contexts.target,
+        incoming: true
+      })
+      if (!targetCommit.ok) throw new Error(targetCommit.error || 'Destination could not activate tab')
+      const sourceCommit = await this._tabRequest(sourceId, {
+        phase: 'commit',
+        transactionId,
+        context: contexts.source,
+        removeId: documentId
+      })
+      if (!sourceCommit.ok) throw new Error(sourceCommit.error || 'Source could not retire tab')
+      if (this._previews.get(sourceId) === documentId) this._previews.delete(sourceId)
+      if (this._owner().getWindow(sourceId)?.documents.length === 0)
+        await this._registerDocument(sourceId, '', '', true)
+      this._editors.get(destination)?.bringToFront()
+    } catch (error) {
+      log.error('Tab transfer failed', error)
+      if (committed) {
+        this._transferErrors.set(sourceId, errorMessage(error))
+        if (
+          this._owner().getWindow(sourceId)?.documents.length === 0 &&
+          this._editors.get(sourceId)?.browserWindow
+        )
+          await this._registerDocument(sourceId, '', '', true)
+        // Durable ownership wins after a renderer crash; reload both from that membership.
+        for (const id of prepared) this._editors.get(id)?.browserWindow?.reload()
+      } else {
+        const native = this._editors.get(sourceId)?.browserWindow
+        native?.webContents.send('mt::tabs::transfer-failed', 'failed', errorMessage(error))
+      }
+    } finally {
+      for (const id of prepared) {
+        try {
+          await this._tabRequest(id, { phase: 'release', transactionId })
+        } catch {
+          /* A gone renderer restores durable membership on reload. */
+        }
+      }
+      this._transferBusy = false
+      if (created && !committed) await this.closeWindow(created)
+    }
   }
 
   private _owner(): CheckpointService {
@@ -565,6 +765,11 @@ export class SessionHost {
 
   private async _attachPrepared(prepared: PreparedSessionWindow): Promise<void> {
     const id = prepared.snapshot.id
+    for (const document of prepared.snapshot.documents) {
+      if (document.resource.kind === 'untitled' && !document.resourceBaseDirectory)
+        document.resourceBaseDirectory =
+          prepared.snapshot.workspace?.roots[0]?.location.path ?? app.getPath('documents')
+    }
     const context = await this._owner().attachWindow(prepared.snapshot, prepared.contents)
     this._contexts.set(id, context)
     this._statuses.set(id, prepared.statuses)
@@ -576,7 +781,11 @@ export class SessionHost {
     if (!native || !id) throw new Error('Missing editor identity')
     this._editors.set(id, editor)
     const ownerId = native.webContents.id
-    native.webContents.once('destroyed', () => documentWrites.clearOwner(ownerId))
+    native.webContents.once('destroyed', () => {
+      documentWrites.clearOwner(ownerId)
+      this.rendererGone(editor)
+      this._tabDrag.strip(id, null)
+    })
   }
 
   async bindEditor(editor: EditorWindow, prepared: PreparedSessionWindow): Promise<void> {
@@ -781,6 +990,7 @@ export class SessionHost {
     )
     this._untitledNumbers.set(windowId, maximum + 1)
     const document = this._blankDocument(markdown, title || `Untitled-${maximum + 1}`)
+    document.resourceBaseDirectory = snapshot.workspace?.roots[0]?.location.path ?? app.getPath('documents')
     const result = await this._owner().addDocument(windowId, document, markdown)
     if (result.status !== 'persisted')
       this.report(new Error('Recovery storage unavailable'), windowId)
@@ -888,12 +1098,21 @@ export class SessionHost {
 
   async closeWindow(editor: EditorWindow): Promise<void> {
     await editor.sessionReady
+    if (this._transferBusy) return
     if (editor.sessionStateId) await this._coordinator.closeWindow(editor.sessionStateId)
     if (this._editors.size === 0 && process.platform !== 'darwin') app.quit()
   }
 
   rendererGone(editor: EditorWindow): void {
     const id = editor.sessionStateId
+    this._tabDrag.cancel(id)
+    for (const [key, pending] of this._tabReplies) {
+      if (key.startsWith(`${id}:`)) {
+        clearTimeout(pending.timer)
+        this._tabReplies.delete(key)
+        pending.reject(new Error('Transfer renderer unavailable'))
+      }
+    }
     if (!id) return
     this._readyRenderers.delete(id)
     const pending = this._waiting.get(id)
@@ -973,7 +1192,7 @@ export class SessionHost {
         if (saveAs || !destination) {
           const choice = await dialog.showSaveDialog(native, {
             defaultPath:
-              destination || path.join(app.getPath('documents'), `${capture.snapshot.title}.md`)
+              destination || path.join(capture.snapshot.resourceBaseDirectory ?? app.getPath('documents'), `${capture.snapshot.title}.md`)
           })
           if (choice.canceled || !choice.filePath) return null
           destination = choice.filePath
@@ -1333,7 +1552,8 @@ export class SessionHost {
       native.webContents.send('mt::show-notification', {
         title: t('sideBar.tree.sessionSaveFailed'),
         type: 'error',
-        message: 'Keep this window open and save your documents before quitting.'
+        message: errorMessage(error),
+        plainText: true
       })
   }
 
@@ -1347,10 +1567,62 @@ export class SessionHost {
       if (!editor) throw new Error('Unrecognized editor window')
       return editor
     }
+    ipcMain.handle('mt::tabs::transfer-targets', event => {
+      const source = editorFor(event.sender).sessionStateId
+      return [...this._editors].flatMap(([id, editor]) => {
+        const native = editor.browserWindow
+        if (id === source || !native || native.isDestroyed() || !this.isRendererInitialized(id)) return []
+        return [{ id, title: `${native.id}: ${native.getTitle()}` }]
+      })
+    })
+    ipcMain.handle('mt::tabs::move', async(event, documentId: string, targetId: string | null) => {
+      const source = editorFor(event.sender).sessionStateId
+      if (typeof documentId !== 'string' ||
+        (targetId !== null && (typeof targetId !== 'string' || targetId === source || !this.isRendererInitialized(targetId)))) {
+        event.sender.send('mt::tabs::transfer-failed', 'failed')
+        return
+      }
+      await this._transferTab(source, documentId, targetId, null)
+    })
+    ipcMain.on('mt::tabs::strip', (event, strip: TabStripGeometry | null) => {
+      this._tabDrag.strip(editorFor(event.sender).sessionStateId, strip)
+    })
+    ipcMain.on('mt::tabs::reply', (event, reply: TabTransferReply) => {
+      if (!reply || typeof reply.transactionId !== 'string' || typeof reply.ok !== 'boolean') return
+      const id = editorFor(event.sender).sessionStateId
+      const key = `${id}:${reply.transactionId}`
+      const pending = this._tabReplies.get(key)
+      if (!pending) return
+      clearTimeout(pending.timer)
+      this._tabReplies.delete(key)
+      pending.resolve(reply)
+    })
+    ipcMain.handle('mt::tabs::begin-drag', (event, documentId: string) => {
+      const id = editorFor(event.sender).sessionStateId
+      if (
+        this._transferBusy ||
+        !this._tabDrag.canBegin() ||
+        !this.isRendererInitialized(id) ||
+        !this._owner()
+          .getWindow(id)
+          ?.documents.some((document) => document.id === documentId)
+      )
+        return false
+      this._tabDrag.begin(id, documentId)
+      return true
+    })
+    ipcMain.handle('mt::tabs::finish-drag', (event, cancel: boolean) =>
+      this._tabDrag.finish(editorFor(event.sender).sessionStateId, cancel)
+    )
     ipcMain.on('mt::window-initialized', (event) => {
       const editor = this._findEditor(event.sender)
       if (editor?.sessionStateId) {
         this._readyRenderers.add(editor.sessionStateId)
+        const transferError = this._transferErrors.get(editor.sessionStateId)
+        if (transferError !== undefined) {
+          this._transferErrors.delete(editor.sessionStateId)
+          event.sender.send('mt::tabs::transfer-failed', 'failed', transferError)
+        }
         if (editor?.browserWindow && !editor.browserWindow.isVisible()) editor.bringToFront()
         if (
           this._startupWindowIds.size &&

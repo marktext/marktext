@@ -29,7 +29,7 @@ test.describe('Issue #5581 tab bar visibility', () => {
     for (const filename of ['first.md', 'second.md']) {
       writeFileSync(path.join(directory, filename), `# ${filename}\n`)
     }
-    const launched = await launchElectron([path.join(directory, 'first.md')], { windowLayout: { showTabBar: true },
+    const launched = await launchElectron([path.join(directory, 'first.md')], {
       preferences: {
         language: 'en',
         restoreLayoutState: true,
@@ -40,6 +40,7 @@ test.describe('Issue #5581 tab bar visibility', () => {
     app = launched.app
     page = launched.page
     await expect(page.locator('.tabs-container > li')).toHaveCount(1)
+    await expectTabBar(app, page, true)
   })
 
   test.afterEach(async() => {

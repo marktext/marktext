@@ -34,6 +34,7 @@ export interface NotifyOptions {
   time?: number
   title?: string
   message?: string
+  plainText?: boolean
   type?: NotificationType
   showConfirm?: boolean
   actions?: Array<{ label: string; onClick: () => void }>
@@ -54,6 +55,7 @@ const notification: NotificationService = {
     time = 10000,
     title = '',
     message = '',
+    plainText = false,
     type = 'primary',
     showConfirm = false,
     actions = []
@@ -88,7 +90,7 @@ const notification: NotificationService = {
 
     const text = h('div', {
       class: 'mt-notification__text',
-      innerHTML: sanitize(message, EXPORT_DOMPURIFY_CONFIG)
+      ...(plainText ? { textContent: message } : { innerHTML: sanitize(message, EXPORT_DOMPURIFY_CONFIG) })
     })
     const confirmButton = showConfirm ? createConfirmButton(confirm) : null
     const actionButtons = actions.map(action => h('button', {

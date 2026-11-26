@@ -216,7 +216,9 @@
       "rename": "Zmień nazwę",
       "copyPath": "Kopiuj ścieżkę",
       "showInFolder": "Pokaż w folderze",
-      "showInSideBar": "Pokaż na pasku bocznym"
+      "showInSideBar": "Pokaż na pasku bocznym",
+      "moveToNewWindow": "Move Tab to New Window",
+      "moveToWindow": "Move Tab to Window"
     }
   },
   "search": {
@@ -1024,7 +1026,11 @@
     },
     "tabs": {
       "close": "Zamknij {name}",
-      "preview": "{name}, karta podglądu"
+      "preview": "{name}, karta podglądu",
+      "transfer": {
+        "duplicate": "This file is already open in the destination window.",
+        "failed": "The tab could not be moved."
+      }
     }
   },
   "readingMode": {

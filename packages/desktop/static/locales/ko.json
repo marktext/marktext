@@ -216,7 +216,9 @@
       "rename": "이름 바꾸기",
       "copyPath": "경로 복사",
       "showInFolder": "폴더에서 보기",
-      "showInSideBar": "사이드바에서 보기"
+      "showInSideBar": "사이드바에서 보기",
+      "moveToNewWindow": "Move Tab to New Window",
+      "moveToWindow": "Move Tab to Window"
     }
   },
   "search": {
@@ -1024,7 +1026,11 @@
     },
     "tabs": {
       "close": "{name} 닫기",
-      "preview": "{name}, 미리보기 탭"
+      "preview": "{name}, 미리보기 탭",
+      "transfer": {
+        "duplicate": "This file is already open in the destination window.",
+        "failed": "The tab could not be moved."
+      }
     }
   },
   "readingMode": {

@@ -216,7 +216,9 @@
       "rename": "Yeniden Adlandır",
       "copyPath": "Yolu kopyala",
       "showInFolder": "Klasörde göster",
-      "showInSideBar": "Kenar çubuğunda göster"
+      "showInSideBar": "Kenar çubuğunda göster",
+      "moveToNewWindow": "Move Tab to New Window",
+      "moveToWindow": "Move Tab to Window"
     }
   },
   "search": {
@@ -1024,7 +1026,11 @@
     },
     "tabs": {
       "close": "Kapat: {name}",
-      "preview": "{name}, önizleme sekmesi"
+      "preview": "{name}, önizleme sekmesi",
+      "transfer": {
+        "duplicate": "This file is already open in the destination window.",
+        "failed": "The tab could not be moved."
+      }
     }
   },
   "readingMode": {

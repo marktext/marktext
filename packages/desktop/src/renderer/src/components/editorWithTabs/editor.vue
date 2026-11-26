@@ -111,9 +111,7 @@ import {
   type IPreviewDiagramPayload,
   type IMuyaOptions,
   type IReplaceOption,
-  type ISearchOption,
-  type ISerializedHistory,
-  type IHeadingFoldState
+  type ISearchOption
 } from '@muyajs/core'
 import { getMuyaLocale } from '@/util/muyaLocale'
 import { createMuyaShortcutResolvers } from '@/util/muyaShortcuts'
@@ -122,6 +120,7 @@ import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
 import { applyCursor, isIndexCursor } from '@/util/cursor'
 import EditorSearch from '../search/index.vue'
 import MediaViewer from '../mediaViewer/index.vue'
+import { engineHistoryByTab, headingFoldsByTab, portableHistoryByTab, captureRenderedHistory, registerRenderedHistoryCapture } from '@/services/tabHistory'
 import bus from '@/bus'
 import { DEFAULT_EDITOR_FONT_FAMILY, DEFAULT_CODE_FONT_FAMILY } from '@/config'
 import notice from '@/services/notification'
@@ -281,11 +280,6 @@ let switchLanguageCommand: SpellcheckerLanguageCommand | null = null
 // The engine has no `scroll` event; we listen on the scroll container directly.
 let scrollHandler: ((e: Event) => void) | null = null
 
-// Keep engine undo history per tab; the store uses a separate save-tracking history shape.
-const engineHistoryByTab = new Map<string, ISerializedHistory>()
-
-const headingFoldsByTab = new Map<string, { markdown: string; folds: IHeadingFoldState[] }>()
-
 const captureHeadingFolds = (): void => {
   if (!editor.value || !renderedDocumentId || !tabs.value.some(tab => tab.id === renderedDocumentId)) return
   headingFoldsByTab.set(renderedDocumentId, {
@@ -318,6 +312,9 @@ const makeSyntheticHistory = (id: string, content: string): IFileHistoryLike => 
 // Tab IDs are session-unique; prune closed tabs so per-tab maps cannot grow indefinitely.
 const pruneClosedTabState = (liveTabIds: Set<string>): void => {
   pruneSourceHistory(liveTabIds)
+  for (const id of portableHistoryByTab.keys()) {
+    if (!liveTabIds.has(id)) portableHistoryByTab.delete(id)
+  }
   for (const id of engineHistoryByTab.keys()) {
     if (!liveTabIds.has(id)) engineHistoryByTab.delete(id)
   }
@@ -1547,7 +1544,7 @@ const handleFileChange = (payload: unknown) => {
       try {
         editor.value.replaceContent(newMarkdown, preSourceModeSelection)
         if (id) {
-          engineHistoryByTab.set(id, editor.value.getHistory())
+          engineHistoryByTab.set(id, captureRenderedHistory(editor.value, currentFile.value?.trimTrailingNewline ?? 1))
           if (currentFile.value?.id === id)
             currentFile.value.history = makeSyntheticHistory(id, newMarkdown)
         }
@@ -1567,7 +1564,7 @@ const handleFileChange = (payload: unknown) => {
       loadingContent = true
       try {
         editor.value.replaceContent(newMarkdown)
-        if (id) engineHistoryByTab.set(id, editor.value.getHistory())
+        if (id) engineHistoryByTab.set(id, captureRenderedHistory(editor.value, currentFile.value?.trimTrailingNewline ?? 1))
       } finally {
         loadingContent = false
       }
@@ -1577,7 +1574,9 @@ const handleFileChange = (payload: unknown) => {
       }
     } else {
       // setContent clears history; restore this tab’s engine history after replacing its document.
-      editor.value.setContent(newMarkdown)
+      const savedEngineHistory = id ? engineHistoryByTab.get(id) : undefined
+      const matchingHistory = savedEngineHistory?.markdown === newMarkdown ? savedEngineHistory : undefined
+      editor.value.setContent(matchingHistory?.state ?? newMarkdown)
       // Tab switch swaps content without firing `json-change`, so re-seed the
       // TOC (otherwise returning to an open tab keeps the other tab's TOC).
       editorStore.UPDATE_TOC(editor.value.getTOC())
@@ -1590,9 +1589,25 @@ const handleFileChange = (payload: unknown) => {
         // history after.
         editor.value.setCursorByOffset(muyaIndexCursor)
       }
-      const savedEngineHistory = id ? engineHistoryByTab.get(id) : undefined
-      if (savedEngineHistory) {
-        editor.value.setHistory(savedEngineHistory)
+      const portable = id ? portableHistoryByTab.get(id) : undefined
+      if (portable) {
+        loadingContent = true
+        try {
+          const states = [...portable.undo].reverse()
+          editor.value.setContent(states.shift() ?? newMarkdown)
+          for (const markdown of [...states, newMarkdown, ...portable.redo]) editor.value.replaceContent(markdown)
+          for (let i = 0; i < portable.redo.length; i++) editor.value.undo()
+          if (id) {
+            engineHistoryByTab.set(id, captureRenderedHistory(editor.value, currentFile.value?.trimTrailingNewline ?? 1))
+            portableHistoryByTab.delete(id)
+          }
+        } finally {
+          loadingContent = false
+        }
+      }
+      const restoredHistory = id ? engineHistoryByTab.get(id) : undefined
+      if (restoredHistory?.markdown === newMarkdown) {
+        editor.value.setHistory(restoredHistory.history)
       }
       // Seed new trackers before edits; retain existing content IDs when switching back to a tab.
       if (id) {
@@ -1811,6 +1826,17 @@ onMounted(() => {
   const muya = markRaw(new Muya(ele, options))
   muya.init({ focus: editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false })
   editor.value = muya
+  const initialFile = currentFile.value
+  // An empty transfer window mounts its editor after the incoming commit event has already fired.
+  if (initialFile && (engineHistoryByTab.has(initialFile.id) || portableHistoryByTab.has(initialFile.id))) {
+    handleFileChange({
+      id: initialFile.id,
+      markdown: initialFile.markdown,
+      history: initialFile.history,
+      cursor: initialFile.cursor,
+      muyaIndexCursor: initialFile.muyaIndexCursor
+    })
+  }
   muya.on('image-drop-error', () => {
     void notice.notify({ title: t('editor.imageDrop.failed'), type: 'error' })
   })
@@ -1904,6 +1930,45 @@ onMounted(() => {
   bus.on('insert-image', insertImage)
   bus.on('image-uploaded', handleUploadedImage)
   bus.on('file-changed', handleFileChange)
+  registerRenderedHistoryCapture((id, markdown) => {
+    const engine = editor.value
+    if (!engine) return { undo: [], redo: [] }
+    const state = engine.getState()
+    const history = engine.getHistory()
+    const captured = renderedDocumentId === id
+      ? captureRenderedHistory(engine, currentFile.value?.trimTrailingNewline ?? 1)
+      : engineHistoryByTab.get(id)
+    if (!captured || captured.markdown !== markdown) return { undo: [], redo: [] }
+    const folds = engine.getHeadingFoldState()
+    const selection = engine.getSelectionState()
+    const scrollContainer = getScrollContainer()
+    const scrollTop = scrollContainer?.scrollTop ?? 0
+    loadingContent = true
+    try {
+      engine.setContent(captured.state)
+      engine.setHistory(captured.history)
+      const initial = engine.getHistory()
+      const snapshots = { undo: [] as string[], redo: [] as string[] }
+      for (let i = 0; i < initial.stack.undo.length; i++) {
+        engine.undo()
+        snapshots.undo.push(engine.getMarkdown())
+      }
+      engine.setContent(captured.state)
+      engine.setHistory(initial)
+      for (let i = 0; i < initial.stack.redo.length; i++) {
+        engine.redo()
+        snapshots.redo.push(engine.getMarkdown())
+      }
+      return snapshots
+    } finally {
+      engine.setContent(state)
+      engine.setHistory(history)
+      engine.setHeadingFoldState(folds)
+      if (selection) engine.setSelection(selection)
+      if (scrollContainer) scrollContainer.scrollTop = scrollTop
+      loadingContent = false
+    }
+  })
   bus.on('flush-active-editor', flushActiveEditor)
   bus.on('editor-blur', blurEditor)
   bus.on('editor-focus', focusEditor)
@@ -1933,7 +1998,7 @@ onMounted(() => {
     renderedDocumentId = id
     renderedMarkdown = markdown
     // Persist engine undo history separately from content-based save tracking.
-    const engineHistory = editor.value.getHistory()
+    const engineHistory = captureRenderedHistory(editor.value, currentFile.value?.trimTrailingNewline ?? 1)
     engineHistoryByTab.set(id, engineHistory)
     editorStore.LISTEN_FOR_CONTENT_CHANGE({
       id,
@@ -2077,6 +2142,7 @@ onBeforeUnmount(() => {
   bus.off('insert-image', insertImage)
   bus.off('image-uploaded', handleUploadedImage)
   bus.off('file-changed', handleFileChange)
+  registerRenderedHistoryCapture(null)
   bus.off('flush-active-editor', flushActiveEditor)
   bus.off('editor-blur', blurEditor)
   bus.off('editor-focus', focusEditor)

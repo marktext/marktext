@@ -1,3 +1,6 @@
+import { engineHistoryByTab, headingFoldsByTab, portableHistoryByTab, capturePortableHistory, sourceHistoryFromSnapshots } from './tabHistory'
+import { sourceHistory, flushSourceView } from './documentMode'
+import type { TabTransferRequest, TabRuntimeState } from '@shared/types/tabTransfer'
 import { requestWindowCheckpoint } from '@/store/checkpoint'
 import { nextTick, watch, type WatchStopHandle } from 'vue'
 import debounce from 'lodash/debounce'
@@ -26,6 +29,7 @@ import {
   onDocumentViewChange
 } from './documentViewState'
 import notice from './notification'
+import { errorMessage } from '@shared/error'
 import bus from '../bus'
 import { t } from '@/i18n'
 
@@ -46,6 +50,8 @@ class WindowSession {
   private _context: RuntimeWindowContext | null = null
   private _workspace: WindowInitialization['snapshot']['workspace'] = null
   private _sequence = 0
+  private _transferId: string | null = null
+  private _stagedTab: Extract<TabTransferRequest, { phase: 'receive' }> | null = null
   private _initializing = true
   private _interactionEpoch = 0
   private _deferredSelection: string | null = null
@@ -62,6 +68,15 @@ class WindowSession {
 
   async start(): Promise<void> {
     const ipc = window.electron.ipcRenderer
+    const blockTransferInput = (event: Event): void => {
+      if (!this._transferId) return
+      event.preventDefault()
+      event.stopImmediatePropagation()
+    }
+    for (const name of ['pointerdown', 'keydown', 'beforeinput', 'paste', 'drop']) {
+      document.addEventListener(name, blockTransferInput, true)
+      this._stops.push(() => document.removeEventListener(name, blockTransferInput, true))
+    }
     const interacted = (): void => {
       this._interactionEpoch++
       // An unready editor must not apply its old view after the user starts interacting.
@@ -127,6 +142,21 @@ class WindowSession {
       ipc.on('mt::state::prepare-close', (_event, request) => {
         if (request.contextToken !== this._context?.contextToken) return
         void requestWindowCheckpoint(request.transactionId).catch((error) => this._failure(error))
+      })
+    )
+    this._stops.push(
+      ipc.on('mt::tabs::transaction', (_event, request) => {
+        void this._transfer(request)
+      })
+    )
+    this._stops.push(
+      ipc.on('mt::tabs::transfer-failed', (_event, reason, message) => {
+        notice.notify({
+          title: t(`editor.tabs.transfer.${reason}`),
+          message,
+          plainText: true,
+          type: 'warning'
+        })
       })
     )
     setSessionActions({
@@ -203,11 +233,116 @@ class WindowSession {
     await this._flush()
   }
 
+  private async _transfer(request: TabTransferRequest): Promise<void> {
+    const ipc = window.electron.ipcRenderer
+    let runtime: TabRuntimeState | undefined
+    try {
+      if (request.phase === 'prepare') {
+        if (this._transferId || this._initializing) throw new Error('Window busy')
+        this._transferId = request.transactionId
+        await flushSourceView()
+        const result = await this._flush()
+        if (result.status !== 'persisted') throw new Error(`Transfer checkpoint failed: ${result.reason}`)
+        this._initializing = true
+        this._schedule.cancel()
+        if (request.documentId) {
+          const file = this._editor.tabs.find((file) => file.id === request.documentId)
+          if (!file) throw new Error('Missing transfer document')
+          runtime = JSON.parse(
+            JSON.stringify({
+              sourceCode: this._preferences.sourceCode && !file.readOnly,
+              snapshots: capturePortableHistory(
+                file.id,
+                file.markdown,
+                this._preferences.sourceCode && !file.readOnly
+              ),
+              history: {
+                rendered: engineHistoryByTab.get(file.id) ?? null,
+                folds: headingFoldsByTab.get(file.id) ?? null,
+                source: sourceHistory.get(file.id) ?? null
+              },
+              cursor: file.cursor,
+              muyaIndexCursor: file.muyaIndexCursor,
+              diskMissing: file.diskMissing,
+              diskConflict: file.diskConflict
+            })
+          ) as TabRuntimeState
+        }
+        document.documentElement.inert = true
+      } else {
+        if (this._transferId !== request.transactionId) throw new Error('Stale tab transfer')
+        if (request.phase === 'receive') this._stagedTab = request
+        if (request.phase === 'commit') {
+          this._context = request.context
+          this._sequence = 0
+          if (request.incoming) {
+            const staged = this._stagedTab
+            if (!staged) throw new Error('Missing staged tab')
+            const id = staged.document.document.id
+            const history = staged.runtime.history
+            const targetSource = this._preferences.sourceCode && !staged.document.document.readOnly
+            if (targetSource !== staged.runtime.sourceCode) {
+              if (targetSource)
+                sourceHistory.set(
+                  id,
+                  sourceHistoryFromSnapshots(staged.document.markdown, staged.runtime.snapshots)
+                )
+              else portableHistoryByTab.set(id, staged.runtime.snapshots)
+            }
+            if (history.rendered)
+              engineHistoryByTab.set(
+                id,
+                history.rendered as NonNullable<ReturnType<typeof engineHistoryByTab.get>>
+              )
+            if (history.folds)
+              headingFoldsByTab.set(
+                id,
+                history.folds as NonNullable<ReturnType<typeof headingFoldsByTab.get>>
+              )
+            if (history.source && targetSource === staged.runtime.sourceCode)
+              sourceHistory.set(id, history.source)
+            const file = this._file(staged.document)
+            file.cursor = staged.runtime.cursor
+            file.muyaIndexCursor = staged.runtime.muyaIndexCursor
+            file.diskMissing = staged.runtime.diskMissing
+            file.diskConflict = staged.runtime.diskConflict
+            const index = this._editor.tabs.findIndex((file) => file.id === staged.beforeId)
+            this._editor.tabs.splice(index < 0 ? this._editor.tabs.length : index, 0, file)
+            this._editor.updateTabIdToIndex()
+            this._editor.UPDATE_CURRENT_FILE(file)
+            this._pendingRestore = { id, capture: null }
+            this._stagedTab = null
+          }
+          if (request.removeId) {
+            const file = this._editor.tabs.find((file) => file.id === request.removeId)
+            if (file) this._editor.FORCE_CLOSE_TAB(file)
+            this._observed.delete(request.removeId)
+          }
+          await nextTick()
+          await this._restoreActiveView()
+        }
+        if (request.phase === 'release') {
+          this._transferId = null
+          this._stagedTab = null
+          this._initializing = false
+          document.documentElement.inert = false
+          for (const payload of this._pendingOpens.splice(0)) this._openDocument(payload)
+          this._schedule()
+        }
+      }
+      ipc.send('mt::tabs::reply', { transactionId: request.transactionId, ok: true, runtime })
+    } catch (error) {
+      console.error('Tab transfer did not complete', error)
+      ipc.send('mt::tabs::reply', { transactionId: request.transactionId, ok: false, error: errorMessage(error) })
+    }
+  }
+
   private _file(payload: ManagedDocumentPayload): IFileState {
     const { document, markdown } = payload
     const file = createDocumentState(
       {
         filename: document.title,
+        resourceBaseDirectory: document.resourceBaseDirectory,
         pathname: document.resource.kind === 'file' ? document.resource.location.path : '',
         markdown,
         readOnly: document.readOnly,
@@ -475,6 +610,7 @@ class WindowSession {
         documents.length === this._editor.tabs.length &&
         documents.every((document) => this._editor.tabs.some((file) => file.id === document.id))
       if (
+        !this._transferId &&
         sameDocuments &&
         (result.reason !== 'stale-context' || request.contextToken === this._context.contextToken)
       )
@@ -498,11 +634,12 @@ class WindowSession {
   }
 
   private _applyResource(file: IFileState, document: DocumentSnapshot): void {
+    file.resourceBaseDirectory = document.resourceBaseDirectory
     file.pathname = document.resource.kind === 'file' ? document.resource.location.path : ''
     file.filename = document.title
     file.isPendingCreation = document.resource.kind === 'file' && document.resource.pendingCreation
     if (this._editor.currentFile?.id === file.id)
-      window.DIRNAME = file.pathname ? window.path.dirname(file.pathname) : ''
+      window.DIRNAME = file.pathname ? window.path.dirname(file.pathname) : (file.resourceBaseDirectory ?? '')
   }
 
   private _saved(result: Extract<ManagedSaveResult, { status: 'saved' }>): void {
@@ -560,6 +697,8 @@ class WindowSession {
     void notice.notify({
       title: t('sideBar.tree.sessionSaveFailed'),
       type: 'error',
+      message: errorMessage(error),
+      plainText: true,
       showConfirm: false
     })
   }

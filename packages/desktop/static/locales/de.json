@@ -216,7 +216,9 @@
       "rename": "Umbenennen",
       "copyPath": "Pfad kopieren",
       "showInFolder": "Im Ordner anzeigen",
-      "showInSideBar": "In Seitenleiste anzeigen"
+      "showInSideBar": "In Seitenleiste anzeigen",
+      "moveToNewWindow": "Move Tab to New Window",
+      "moveToWindow": "Move Tab to Window"
     }
   },
   "search": {
@@ -1024,7 +1026,11 @@
     },
     "tabs": {
       "close": "{name} schließen",
-      "preview": "{name}, Vorschauregister"
+      "preview": "{name}, Vorschauregister",
+      "transfer": {
+        "duplicate": "This file is already open in the destination window.",
+        "failed": "The tab could not be moved."
+      }
     }
   },
   "readingMode": {

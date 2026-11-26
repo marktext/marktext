@@ -216,7 +216,9 @@
       "rename": "Renombrar",
       "copyPath": "Copiar ruta",
       "showInFolder": "Mostrar en carpeta",
-      "showInSideBar": "Mostrar en la barra lateral"
+      "showInSideBar": "Mostrar en la barra lateral",
+      "moveToNewWindow": "Move Tab to New Window",
+      "moveToWindow": "Move Tab to Window"
     }
   },
   "search": {
@@ -1024,7 +1026,11 @@
     },
     "tabs": {
       "close": "Cerrar {name}",
-      "preview": "{name}, pestaña de vista previa"
+      "preview": "{name}, pestaña de vista previa",
+      "transfer": {
+        "duplicate": "This file is already open in the destination window.",
+        "failed": "The tab could not be moved."
+      }
     }
   },
   "readingMode": {

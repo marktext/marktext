@@ -216,7 +216,9 @@
       "rename": "Rinomina",
       "copyPath": "Copia percorso",
       "showInFolder": "Mostra nella cartella",
-      "showInSideBar": "Mostra nella barra laterale"
+      "showInSideBar": "Mostra nella barra laterale",
+      "moveToNewWindow": "Move Tab to New Window",
+      "moveToWindow": "Move Tab to Window"
     }
   },
   "search": {
@@ -1024,7 +1026,11 @@
     },
     "tabs": {
       "close": "Chiudi {name}",
-      "preview": "Scheda di anteprima di {name}"
+      "preview": "Scheda di anteprima di {name}",
+      "transfer": {
+        "duplicate": "This file is already open in the destination window.",
+        "failed": "The tab could not be moved."
+      }
     }
   },
   "readingMode": {

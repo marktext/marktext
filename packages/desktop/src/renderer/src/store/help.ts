@@ -51,6 +51,7 @@ const documentStateKeys = [
   'isPendingCreation',
   'isSaved',
   'pathname',
+  'resourceBaseDirectory',
   'filename',
   'markdown',
   'encoding',

@@ -41,7 +41,26 @@ interface TabLike {
   pathname?: string | null
 }
 
-export const showContextMenu = (event: ContextMenuClickEvent, tab: TabLike): void => {
+export const showContextMenu = async(event: ContextMenuClickEvent, tab: TabLike): Promise<void> => {
+  const ipc = window.electron.ipcRenderer
+  const targets = await ipc.invoke('mt::tabs::transfer-targets')
+  const transferItems = [
+    {
+      id: 'moveTabToNewWindow',
+      label: t('contextMenu.tabs.moveToNewWindow'),
+      click: () => { void ipc.invoke('mt::tabs::move', tab.id, null).catch(console.error) }
+    },
+    {
+      id: 'moveTabToWindow',
+      label: t('contextMenu.tabs.moveToWindow'),
+      enabled: targets.length > 0,
+      submenu: targets.length ? targets.map(target => ({
+        id: `moveTabToWindow-${target.id}`,
+        label: target.title,
+        click: () => { void ipc.invoke('mt::tabs::move', tab.id, target.id).catch(console.error) }
+      })) : undefined
+    }
+  ]
   const { pathname } = tab
   const closeThis = getCloseThis()
   const closeOthers = getCloseOthers()
@@ -69,6 +88,8 @@ export const showContextMenu = (event: ContextMenuClickEvent, tab: TabLike): voi
     closeOthers,
     closeSaved,
     closeAll,
+    SEPARATOR,
+    ...transferItems,
     SEPARATOR,
     rename,
     copyPath,

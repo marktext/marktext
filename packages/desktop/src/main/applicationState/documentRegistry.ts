@@ -337,6 +337,15 @@ export class DocumentRegistry {
           : RecoveryStatus.DISCARDED
   }
 
+  transfer(id: string, from: string, to: string): void {
+    const entry = this._entry(id)
+    if (entry.ownerWindowId !== from || !validIdentity(to))
+      throw new Error('Invalid transfer owner')
+    entry.ownerWindowId = to
+    entry.generation++
+    this.requireRecoveryWrite(id)
+  }
+
   discard(id: string): void {
     const entry = this._entry(id)
     entry.closed = true

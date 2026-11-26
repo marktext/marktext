@@ -216,7 +216,9 @@
       "rename": "Hernoemen",
       "copyPath": "Pad kopiëren",
       "showInFolder": "Tonen in map",
-      "showInSideBar": "Tonen in zijbalk"
+      "showInSideBar": "Tonen in zijbalk",
+      "moveToNewWindow": "Move Tab to New Window",
+      "moveToWindow": "Move Tab to Window"
     }
   },
   "search": {
@@ -1024,7 +1026,11 @@
     },
     "tabs": {
       "close": "{name} sluiten",
-      "preview": "{name}, voorbeeldtabblad"
+      "preview": "{name}, voorbeeldtabblad",
+      "transfer": {
+        "duplicate": "This file is already open in the destination window.",
+        "failed": "The tab could not be moved."
+      }
     }
   },
   "readingMode": {

@@ -216,7 +216,9 @@
       "rename": "重新命名",
       "copyPath": "複製路徑",
       "showInFolder": "在資料夾中顯示",
-      "showInSideBar": "在側邊欄中顯示"
+      "showInSideBar": "在側邊欄中顯示",
+      "moveToNewWindow": "將分頁移至新視窗",
+      "moveToWindow": "將分頁移至其他視窗"
     }
   },
   "search": {
@@ -1024,7 +1026,11 @@
     },
     "tabs": {
       "close": "關閉 {name}",
-      "preview": "{name}，預覽分頁"
+      "preview": "{name}，預覽分頁",
+      "transfer": {
+        "duplicate": "目標視窗已開啟相同路徑的檔案，無法移動分頁。",
+        "failed": "無法移動分頁。"
+      }
     }
   },
   "readingMode": {
