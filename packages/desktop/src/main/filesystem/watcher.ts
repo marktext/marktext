@@ -137,12 +137,16 @@ const unlink = async(
   type: WatchType,
   emit: WatchEmit
 ): Promise<void> => {
-  nextRead(win, pathname, type)
   // Atomic saves unlink the path moments before recreating it (chokidar#591),
   // and a delayed event can arrive after the matching `add` already reloaded
-  // the tab. Only report a deletion when the path is still gone; otherwise the
-  // renderer would mark the buffer dirty and show a stale "removed on disk".
-  if (await exists(pathname)) return
+  // the tab. Only report a deletion when no file remains at the path;
+  // otherwise the renderer would mark the buffer dirty and show a stale
+  // "removed on disk". The check runs before `nextRead` so a dropped event
+  // cannot invalidate a read already in flight, and a same-name directory
+  // still counts as a deletion.
+  const stats = await fsPromises.stat(pathname).catch(() => null)
+  if (stats?.isFile()) return
+  nextRead(win, pathname, type)
   emit(EVENT_NAME[type], {
     type: 'unlink',
     change: { pathname }
@@ -233,9 +237,11 @@ const unlinkDir = async(
 ): Promise<void> => {
   if (type === 'file') return
 
-  // Same staleness guard as `unlink`: drop the event when the path was already
-  // recreated, so the sidebar does not remove a live tree entry.
-  if (await exists(pathname)) return
+  // Same staleness guard as `unlink`: drop the event when a directory still
+  // exists at the path, so the sidebar does not remove a live tree entry. A
+  // same-name file counts as a deletion.
+  const stats = await fsPromises.stat(pathname).catch(() => null)
+  if (stats?.isDirectory()) return
   emit('mt::update-object-tree', {
     type: 'unlinkDir',
     change: { pathname }

@@ -39,6 +39,15 @@ vi.mock('chokidar', () => ({
 // the plain-Node test runner, so stub it to keep this spec import-only.
 vi.mock('ced', () => ({ default: () => 'UTF-8' }))
 
+// Mocked separately from `ced` so tests can hold an `add`/`change` read in
+// flight and observe whether a concurrent unlink cancels it.
+const { loadMarkdownFileMock } = vi.hoisted(() => ({
+  loadMarkdownFileMock: vi.fn(async(): Promise<unknown> => ({ markdown: '# Note' }))
+}))
+vi.mock('main_renderer/filesystem/markdown', () => ({
+  loadMarkdownFile: loadMarkdownFileMock
+}))
+
 import Watcher from 'main_renderer/filesystem/watcher'
 
 // Deletion events resolve asynchronously (a stat decides whether the path is
@@ -63,6 +72,7 @@ describe('watcher unlink staleness guard', () => {
   beforeEach(() => {
     watchMock.mockClear()
     handlers.clear()
+    loadMarkdownFileMock.mockClear()
     const preferences = { getItem: vi.fn(() => false), getAll: vi.fn(() => ({})), getPreferredEol: vi.fn(() => 'lf') }
     watcher = new Watcher(preferences as never)
   })
@@ -145,6 +155,91 @@ describe('watcher unlink staleness guard', () => {
         type: 'unlinkDir',
         change: { pathname: subdir }
       }))
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('reports a file unlink when only a directory remains at the path', async() => {
+    const { win, send } = freshWindow()
+    const dir = mkdtempSync(join(tmpdir(), 'mt-watch-'))
+    const pathname = join(dir, 'note.md')
+    mkdirSync(pathname)
+    try {
+      watcher.watch(win as never, pathname, 'file')
+      fire('unlink', pathname)
+      await vi.waitFor(() => expect(send).toHaveBeenCalledWith('mt::update-file', {
+        type: 'unlink',
+        change: { pathname }
+      }))
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('reports a directory unlink when only a file remains at the path', async() => {
+    const { win, send } = freshWindow()
+    const dir = mkdtempSync(join(tmpdir(), 'mt-watch-'))
+    const subdir = join(dir, 'sub')
+    writeFileSync(subdir, 'text\n')
+    try {
+      watcher.watch(win as never, dir, 'dir')
+      fire('unlinkDir', subdir)
+      await vi.waitFor(() => expect(send).toHaveBeenCalledWith('mt::update-object-tree', {
+        type: 'unlinkDir',
+        change: { pathname: subdir }
+      }))
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('keeps an in-flight read when a stale unlink is dropped', async() => {
+    const { win, send } = freshWindow()
+    const dir = mkdtempSync(join(tmpdir(), 'mt-watch-'))
+    const pathname = join(dir, 'note.md')
+    writeFileSync(pathname, 'text\n')
+    let resolveLoad: ((data: unknown) => void) | undefined
+    loadMarkdownFileMock.mockImplementationOnce(
+      () => new Promise<unknown>(resolve => { resolveLoad = resolve })
+    )
+    try {
+      watcher.watch(win as never, pathname, 'file')
+      fire('add', pathname)
+      await vi.waitFor(() => expect(loadMarkdownFileMock).toHaveBeenCalled())
+      fire('unlink', pathname)
+      await settle()
+      resolveLoad?.({ markdown: 'new\n' })
+      await vi.waitFor(() => expect(send).toHaveBeenCalledWith('mt::update-file',
+        expect.objectContaining({ type: 'add' })))
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('cancels an in-flight read when the file is really deleted', async() => {
+    const { win, send } = freshWindow()
+    const dir = mkdtempSync(join(tmpdir(), 'mt-watch-'))
+    const pathname = join(dir, 'note.md')
+    writeFileSync(pathname, 'text\n')
+    let resolveLoad: ((data: unknown) => void) | undefined
+    loadMarkdownFileMock.mockImplementationOnce(
+      () => new Promise<unknown>(resolve => { resolveLoad = resolve })
+    )
+    try {
+      watcher.watch(win as never, pathname, 'file')
+      fire('add', pathname)
+      await vi.waitFor(() => expect(loadMarkdownFileMock).toHaveBeenCalled())
+      rmSync(pathname)
+      fire('unlink', pathname)
+      await vi.waitFor(() => expect(send).toHaveBeenCalledWith('mt::update-file', {
+        type: 'unlink',
+        change: { pathname }
+      }))
+      resolveLoad?.({ markdown: 'new\n' })
+      await settle()
+      expect(send).not.toHaveBeenCalledWith('mt::update-file',
+        expect.objectContaining({ type: 'add' }))
     } finally {
       rmSync(dir, { recursive: true, force: true })
     }
