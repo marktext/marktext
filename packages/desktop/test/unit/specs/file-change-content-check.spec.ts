@@ -174,6 +174,26 @@ describe('useEditorStore LISTEN_FOR_FILE_CHANGE — a file changed on disk', () 
     expect(notifySpy).not.toHaveBeenCalled()
   })
 
+  it('updates the disk baseline when external content matches current edits', () => {
+    const store = useEditorStore()
+    const tab = makeTab(store, false)
+    tab.markdown = 'matching external content'
+    const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
+    store.LISTEN_FOR_FILE_CHANGE()
+    const handler = captureHandler()
+
+    fire(handler, 'matching external content')
+    expect(notifySpy).not.toHaveBeenCalled()
+    expect(tab.lastSavedMarkdown).toBe('matching external content')
+    tab.markdown = 'more unsaved edits'
+
+    fire(handler, 'hello')
+
+    expect(tab.markdown).toBe('more unsaved edits')
+    expect(tab.isSaved).toBe(false)
+    expect(notifySpy).toHaveBeenCalledTimes(1)
+  })
+
   it('still asks when the tab has unsaved edits and autoSave is on', () => {
     const store = useEditorStore()
     usePreferencesStore().autoSave = true

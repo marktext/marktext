@@ -1377,6 +1377,7 @@ export const useEditorStore = defineStore('editor', {
                 typeof newMarkdown === 'string' &&
                 (newMarkdown === tab.markdown || newMarkdown === tab.lastSavedMarkdown)
               ) {
+                tab.lastSavedMarkdown = newMarkdown
                 if (wasMissing)
                   tab.notifications = tab.notifications.filter(
                     (item) => item.exclusiveType !== 'file_changed'
