@@ -248,9 +248,18 @@ test('closing a locked dirty tab honors Cancel, then explicitly unlocks and save
     await toggleReadingMode(page)
     await expect(page.locator('.mu-read-only')).toBeVisible()
     await app.evaluate(({ dialog }) => {
-      dialog.showMessageBox = async() => ({ response: 2, checkboxChecked: false })
+      const state = global as unknown as { closePromptHandled: boolean }
+      state.closePromptHandled = false
+      dialog.showMessageBox = async() => {
+        state.closePromptHandled = true
+        return { response: 2, checkboxChecked: false }
+      }
     })
     await page.locator('.tabs-container li .close-icon').click()
+    // Closing checkpoints the document before asking; wait for Cancel to be consumed.
+    await expect.poll(() => app.evaluate(() =>
+      (global as unknown as { closePromptHandled: boolean }).closePromptHandled
+    )).toBe(true)
     await expect(page.locator('.mu-read-only')).toBeVisible()
     expect(readFileSync(filePath, 'utf8')).toBe('original\n')
     await app.evaluate(({ dialog }) => {

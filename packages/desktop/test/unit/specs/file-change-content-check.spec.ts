@@ -36,6 +36,7 @@ describe('useEditorStore LISTEN_FOR_FILE_CHANGE — a file changed on disk', () 
       filename: 'a.md',
       pathname: '/x/a.md',
       markdown: 'hello',
+      lastSavedMarkdown: 'hello' as string | undefined,
       isSaved,
       scrollTop: 120,
       notifications: [],
@@ -109,6 +110,87 @@ describe('useEditorStore LISTEN_FOR_FILE_CHANGE — a file changed on disk', () 
     fire(captureHandler(), 'hello world')
 
     expect(tab.markdown).toBe('hello')
+    expect(notifySpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps later edits when disk repeats the last saved content', () => {
+    const store = useEditorStore()
+    usePreferencesStore().autoSave = true
+    const tab = makeTab(store, false)
+    tab.markdown = 'hello with later edits'
+    const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
+    const reloadSpy = vi.spyOn(store, 'loadChange')
+    store.LISTEN_FOR_FILE_CHANGE()
+
+    fire(captureHandler(), 'hello')
+
+    expect(tab.markdown).toBe('hello with later edits')
+    expect(tab.isSaved).toBe(false)
+    expect(notifySpy).not.toHaveBeenCalled()
+    expect(reloadSpy).not.toHaveBeenCalled()
+  })
+
+  it('recognizes an empty saved file without discarding later text', () => {
+    const store = useEditorStore()
+    const tab = makeTab(store, false)
+    tab.lastSavedMarkdown = ''
+    const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
+    store.LISTEN_FOR_FILE_CHANGE()
+
+    fire(captureHandler(), '')
+
+    expect(tab.markdown).toBe('hello')
+    expect(tab.isSaved).toBe(false)
+    expect(notifySpy).not.toHaveBeenCalled()
+  })
+
+  it('does not guess the saved content of a recovered dirty buffer', () => {
+    const store = useEditorStore()
+    const tab = makeTab(store, false)
+    tab.lastSavedMarkdown = undefined
+    const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
+    store.LISTEN_FOR_FILE_CHANGE()
+
+    fire(captureHandler(), 'older disk content')
+
+    expect(tab.markdown).toBe('hello')
+    expect(notifySpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('uses an accepted disk reload as the baseline for later events', () => {
+    const store = useEditorStore()
+    const tab = makeTab(store)
+    const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
+    store.LISTEN_FOR_FILE_CHANGE()
+    const handler = captureHandler()
+    fire(handler, 'new disk version')
+    tab.markdown = 'new disk version plus edits'
+    tab.isSaved = false
+
+    fire(handler, 'new disk version')
+
+    expect(tab.markdown).toBe('new disk version plus edits')
+    expect(tab.isSaved).toBe(false)
+    expect(notifySpy).not.toHaveBeenCalled()
+  })
+
+  it('updates the disk baseline when external content matches current edits', () => {
+    const store = useEditorStore()
+    const tab = makeTab(store, false)
+    tab.markdown = 'matching external content'
+    const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
+    store.LISTEN_FOR_FILE_CHANGE()
+    const handler = captureHandler()
+
+    fire(handler, 'matching external content')
+    expect(notifySpy).not.toHaveBeenCalled()
+    expect(tab.lastSavedMarkdown).toBe('matching external content')
+    tab.markdown = 'more unsaved edits'
+
+    fire(handler, 'hello')
+
+    expect(tab.markdown).toBe('more unsaved edits')
+    expect(tab.isSaved).toBe(false)
     expect(notifySpy).toHaveBeenCalledTimes(1)
   })
 
