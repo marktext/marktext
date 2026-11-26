@@ -132,12 +132,25 @@ const add = async(
   }
 }
 
-const unlink = (win: BrowserWindow, pathname: string, type: WatchType, emit: WatchEmit): void => {
+const unlink = async(
+  win: BrowserWindow,
+  pathname: string,
+  type: WatchType,
+  emit: WatchEmit
+): Promise<void> => {
+  // Atomic saves unlink the path moments before recreating it (chokidar#591),
+  // and a delayed event can arrive after the matching `add` already reloaded
+  // the tab. Only report a deletion when no file remains at the path;
+  // otherwise the renderer would mark the buffer dirty and show a stale
+  // "removed on disk". The check runs before `nextRead` so a dropped event
+  // cannot invalidate a read already in flight, and a same-name directory
+  // still counts as a deletion.
+  const stats = await fsPromises.stat(pathname).catch(() => null)
+  if (stats?.isFile()) return
   nextRead(win, pathname, type)
-  const file = { pathname }
   emit(EVENT_NAME[type], {
     type: 'unlink',
-    change: file
+    change: { pathname }
   })
 }
 
@@ -217,13 +230,22 @@ const addDir = (win: BrowserWindow, pathname: string, type: WatchType, emit: Wat
   })
 }
 
-const unlinkDir = (win: BrowserWindow, pathname: string, type: WatchType, emit: WatchEmit): void => {
+const unlinkDir = async(
+  win: BrowserWindow,
+  pathname: string,
+  type: WatchType,
+  emit: WatchEmit
+): Promise<void> => {
   if (type === 'file') return
 
-  const directory = { pathname }
+  // Same staleness guard as `unlink`: drop the event when a directory still
+  // exists at the path, so the sidebar does not remove a live tree entry. A
+  // same-name file counts as a deletion.
+  const stats = await fsPromises.stat(pathname).catch(() => null)
+  if (stats?.isDirectory()) return
   emit('mt::update-object-tree', {
     type: 'unlinkDir',
-    change: directory
+    change: { pathname }
   })
 }
 
@@ -334,16 +356,16 @@ class Watcher {
     let failed = false
     const initialReads: Promise<void>[] = []
     let initialScan = true
+    const isMovingDeletion = (pathname: string): boolean => [...this._fileDeletionBarriers].some(
+      barrier => barrier.windowId === win.id && barrier.pathnames.some(
+        barrierPath => path.relative(barrierPath, pathname) === ''
+      )
+    )
     const emit: WatchEmit = (channel, payload) => {
       if (disposed || win.isDestroyed?.()) return
       if (channel === 'mt::update-file') {
         const event = payload as FileWatchChange
-        const movingDeletion = event.type === 'unlink' && [...this._fileDeletionBarriers].some(
-          barrier => barrier.windowId === win.id && barrier.pathnames.some(
-            pathname => path.relative(pathname, event.change.pathname) === ''
-          )
-        )
-        if (movingDeletion) return
+        if (event.type === 'unlink' && isMovingDeletion(event.change.pathname)) return
         this._onFileChange?.(win, event)
       }
       win.webContents.send(channel, channel === 'mt::update-object-tree' && context
@@ -369,10 +391,17 @@ class Watcher {
     watcher
       .on('add', (pathname: string) => read(handleFileEvent(pathname, 'add')))
       .on('change', (pathname: string) => read(handleFileEvent(pathname, 'change')))
-      .on('unlink', (pathname: string) => unlink(win, pathname, type, emit))
+      // Check the move barrier synchronously: the stat inside `unlink` resolves
+      // after `withIgnoredFileDeletions` released it, which would leak a
+      // duplicate deletion report. Tree unlinks still flow so the sidebar can
+      // update while a move is in flight.
+      .on('unlink', (pathname: string) => {
+        if (type === 'file' && isMovingDeletion(pathname)) return
+        read(unlink(win, pathname, type, emit))
+      })
       .on('addDir', (pathname: string) => addDir(win, pathname, type, emit))
       .on('unlinkDir', (pathname: string) => {
-        unlinkDir(win, pathname, type, emit)
+        read(unlinkDir(win, pathname, type, emit))
         if (!disposed && pathname === watchPath) {
           failed = true
           context?.onStatus('unavailable')
@@ -448,7 +477,9 @@ class Watcher {
       pathname: watchPath,
       type,
       close: closeFn,
-      reportMissing: () => unlink(win, watchPath, type, emit)
+      reportMissing: () => {
+        void unlink(win, watchPath, type, emit)
+      }
     }
 
     return closeFn

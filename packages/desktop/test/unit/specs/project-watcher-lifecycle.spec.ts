@@ -27,6 +27,9 @@ vi.mock('main_renderer/filesystem/markdown', () => ({
 import { loadMarkdownFile } from 'main_renderer/filesystem/markdown'
 import Watcher from 'main_renderer/filesystem/watcher'
 
+// `unlink`/`unlinkDir` verify the path on disk before emitting, so deletion
+// events resolve asynchronously and positive assertions must poll.
+
 describe('project watcher lifecycle (#2222)', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
@@ -123,20 +126,20 @@ describe('project watcher lifecycle (#2222)', () => {
     expect(observeFile).not.toHaveBeenCalled()
 
     mocks.instances[2].emit('unlink', '/project/unrelated.md')
-    expect(observeFile).toHaveBeenCalledExactlyOnceWith(win, {
+    await vi.waitFor(() => expect(observeFile).toHaveBeenCalledExactlyOnceWith(win, {
       type: 'unlink', change: { pathname: '/project/unrelated.md' }
-    })
+    }))
     mocks.instances[3].emit('unlink', '/project/chapter/a.md')
-    expect(send).toHaveBeenCalledWith('mt::update-object-tree', {
+    await vi.waitFor(() => expect(send).toHaveBeenCalledWith('mt::update-object-tree', {
       type: 'unlink', change: { pathname: '/project/chapter/a.md' }
-    })
+    }))
 
     finish()
     await moving
     mocks.instances[0].emit('unlink', '/project/chapter/a.md')
-    expect(observeFile).toHaveBeenLastCalledWith(win, {
+    await vi.waitFor(() => expect(observeFile).toHaveBeenLastCalledWith(win, {
       type: 'unlink', change: { pathname: '/project/chapter/a.md' }
-    })
+    }))
   })
 
   it('keeps other windows observable and releases the deletion barrier after failure', async() => {
@@ -150,15 +153,15 @@ describe('project watcher lifecycle (#2222)', () => {
     await expect(watcher.withIgnoredFileDeletions(win as never, ['/project/a.md'], async() => {
       mocks.instances[0].emit('unlink', '/project/a.md')
       mocks.instances[1].emit('unlink', '/project/a.md')
-      expect(observeFile).toHaveBeenCalledExactlyOnceWith(other, {
+      await vi.waitFor(() => expect(observeFile).toHaveBeenCalledExactlyOnceWith(other, {
         type: 'unlink', change: { pathname: '/project/a.md' }
-      })
+      }))
       throw new Error('Move failed')
     })).rejects.toThrow('Move failed')
     mocks.instances[0].emit('unlink', '/project/a.md')
-    expect(observeFile).toHaveBeenLastCalledWith(win, {
+    await vi.waitFor(() => expect(observeFile).toHaveBeenLastCalledWith(win, {
       type: 'unlink', change: { pathname: '/project/a.md' }
-    })
+    }))
   })
 
   it('reconciles a suppressed deletion through the normal observer and renderer path on failure', async() => {
@@ -174,8 +177,10 @@ describe('project watcher lifecycle (#2222)', () => {
       throw new Error('Move failed')
     })).rejects.toThrow('Move failed')
     const deletion = { type: 'unlink', change: { pathname: '/project/a.md' } }
-    expect(observeFile).toHaveBeenCalledExactlyOnceWith(win, deletion)
-    expect(send).toHaveBeenCalledExactlyOnceWith('mt::update-file', deletion)
+    await vi.waitFor(() => {
+      expect(observeFile).toHaveBeenCalledExactlyOnceWith(win, deletion)
+      expect(send).toHaveBeenCalledExactlyOnceWith('mt::update-file', deletion)
+    })
   })
 
   it('does not replay a suppressed deletion if the source exists again after failure', async() => {
