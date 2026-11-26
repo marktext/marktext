@@ -35,7 +35,7 @@ const insertImageFromPath = async(
   await clickMenuById(app, 'imageMenuItem')
   await page.waitForSelector(srcInput, { state: 'visible', timeout: 5000 })
   await page.fill(srcInput, imagePath)
-  await page.press(srcInput, 'Enter')
+  await page.click('.mu-image-selector button.link')
   let link = ''
   await expect
     .poll(
