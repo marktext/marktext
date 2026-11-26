@@ -7,7 +7,7 @@ import notice from '@/services/notification'
 import { t } from '../i18n'
 import type { RecentDocument } from '@shared/types/ipc'
 
-const SPECIAL_CHARS = /[\[\]\\^$.\|\?\*\+\(\)\/]{1}/g // eslint-disable-line no-useless-escape
+const SPECIAL_CHARS = /[\[\]\\^$.\|\?\*\+\(\)\{\}\/]{1}/g // eslint-disable-line no-useless-escape
 const PATH_SEPARATOR = /[\\/]/
 
 interface QuickOpenSubcommand {
