@@ -170,12 +170,21 @@ test('previews fitted window bounds without taking focus and removes the outline
     await expect.poll(async() => (await preview())?.visible).toBe(false)
     await app.evaluate(({ screen }, point) => { screen.getCursorScreenPoint = () => point }, point)
     await expect.poll(async() => (await preview())?.visible).toBe(true)
+    await app.evaluate(({ app }) => {
+      app.once('browser-window-created', (_event, window) => {
+        // The event precedes Electron applying the constructor's position options.
+        queueMicrotask(() => {
+          Object.assign(global, { detachedInitialBounds: window.getBounds() })
+        })
+      })
+    })
     await page.evaluate(() => window.electron.ipcRenderer.invoke('mt::tabs::finish-drag', false))
     await expect.poll(preview).toBeNull()
     await expect.poll(() => app.windows().length).toBe(2)
     const destination = required(app.windows().find((window) => window !== page))
     await expect(tabs(destination).first()).toHaveAttribute('data-id', id)
     const native = await app.browserWindow(destination)
+    expect(await app.evaluate(() => Reflect.get(global, 'detachedInitialBounds'))).toEqual(expected)
     expect(await native.evaluate((window) => window.getBounds())).toEqual(expected)
   } finally {
     await app.close()

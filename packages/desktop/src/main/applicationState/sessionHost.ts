@@ -233,7 +233,10 @@ export class SessionHost {
           : { normalBounds: { ...source.geometry.normalBounds }, maximized: false, displayId: null }
         created = this._createTransferWindow(
           { snapshot, contents: [], statuses: [], restoreGeometry: point !== null, openable: true },
-          { width: source.geometry.normalBounds.width, height: source.geometry.normalBounds.height }
+          // Windows selects the initial monitor DPI before bindEditor restores geometry.
+          point
+            ? { ...snapshot.geometry.normalBounds }
+            : { width: source.geometry.normalBounds.width, height: source.geometry.normalBounds.height }
         )
         targetId = created.sessionStateId
         await created.sessionReady
