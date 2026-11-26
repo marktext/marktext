@@ -378,6 +378,7 @@ export const useEditorStore = defineStore('editor', {
       }
 
       Object.assign(tab, newFileState)
+      tab.lastSavedMarkdown = markdown
       tab.readOnly = readOnly
       tab.acceptedDiskSha256 = data.rawBaseline?.rawSha256
       tab.diskMissing = false
@@ -1368,11 +1369,14 @@ export const useEditorStore = defineStore('editor', {
             case 'change': {
               const wasMissing = tab.diskMissing
               tab.diskMissing = false
-              // Only the file's metadata changed on disk (e.g. a git checkout
-              // that left the content byte-identical) — there is nothing to
-              // reload and no reason to warn the user (#1861).
+              // A delayed repeat of the last save can arrive after more typing.
+              // Keep those edits when the disk content matches either known
+              // version (#1861, #5902).
               const newMarkdown = (change as unknown as FileChangePayload).data?.markdown
-              if (typeof newMarkdown === 'string' && newMarkdown === tab.markdown) {
+              if (
+                typeof newMarkdown === 'string' &&
+                (newMarkdown === tab.markdown || newMarkdown === tab.lastSavedMarkdown)
+              ) {
                 if (wasMissing)
                   tab.notifications = tab.notifications.filter(
                     (item) => item.exclusiveType !== 'file_changed'

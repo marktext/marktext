@@ -63,6 +63,8 @@ export interface IFileState {
   // Empty for untitled buffers; always a string at runtime.
   pathname: string
   markdown: string
+  // Last acknowledged disk/save content; unknown for recovered drafts.
+  lastSavedMarkdown?: string
   isSaved: boolean
   encoding: FileEncoding
   lineEnding: LineEnding | string

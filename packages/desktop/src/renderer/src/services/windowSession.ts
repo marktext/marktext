@@ -220,6 +220,7 @@ class WindowSession {
       },
       document.id
     )
+    file.lastSavedMarkdown = document.content.kind === 'disk' ? markdown : undefined
     file.viewState = deepClone(document.view)
     file.tocCollapsedKeys = [...(document.view?.collapsedOutlineKeys ?? [])]
     this._observed.set(document.id, {
@@ -516,6 +517,7 @@ class WindowSession {
     file.diskConflict = false
     file.diskMissing = false
     const baseline = { markdown: result.savedMarkdown, format: JSON.stringify(result.savedFormat) }
+    file.lastSavedMarkdown = baseline.markdown
     file.isSaved =
       file.markdown === baseline.markdown && JSON.stringify(getOptionsFromState(file)) === baseline.format
     if (this._editor.currentFile?.id === file.id) window.DIRNAME = window.path.dirname(file.pathname)
