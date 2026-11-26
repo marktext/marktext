@@ -142,6 +142,18 @@ describe('QuickOpenCommand recent files', () => {
     expect((await pathQuery).map((item) => item.id)).toEqual([RECENT])
   })
 
+  it('matches braces in the query literally', async() => {
+    vi.useFakeTimers()
+    const BRACES = '/home/user/notes/photo{2}.md'
+    recentDocuments = [{ pathname: BRACES, isDirectory: false }]
+    const command = makeCommand()
+    await command.run()
+
+    const search = command.search('photo{2}')
+    await vi.advanceTimersByTimeAsync(300)
+    expect((await search).map((item) => item.id)).toEqual([BRACES])
+  })
+
   it('puts recent matches before folder search results and removes duplicates', async() => {
     vi.useFakeTimers()
     recentDocuments = [{ pathname: RECENT, isDirectory: false }]
