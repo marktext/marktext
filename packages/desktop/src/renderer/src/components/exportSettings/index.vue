@@ -567,6 +567,12 @@ const loadThemesFromDisk = async () => {
   white-space: pre-wrap;
   word-break: break-word;
 }
+/* Preferences styles setting notes in pages/preference.vue, which the editor window does not load. */
+.print-settings-dialog :deep(.pref-setting-row .notes) {
+  font-style: italic;
+  font-size: 12px;
+  color: var(--editorColor80);
+}
 
 .button-controlls {
   margin-top: 8px;
